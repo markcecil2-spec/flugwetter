@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Flugwetter · Gleitschirm</title>
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div class="wrap head">
+      <div class="brand">
+        <span class="logo">🪂</span>
+        <div>
+          <h1>Flugwetter</h1>
+          <p class="sub">Passt das Wetter an deinem Startplatz? · nächste 7 Tage</p>
+        </div>
+      </div>
+      <div class="head-actions">
+        <button id="addBtn" class="btn-ghost" title="Startplatz hinzufügen">＋ Platz</button>
+        <button id="refresh" class="btn-ghost" title="Aktualisieren">↻</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p id="updated" class="updated">Lade …</p>
+    <div id="spots" class="spot-list"></div>
+
+    <!-- Erklärung -->
+    <section class="info" id="info">
+      <h2>Wie funktioniert die App?</h2>
+      <p>Für jeden Startplatz ist hinterlegt, aus welcher <b>Windrichtung</b> geflogen werden darf (laut DHV-Gelände) und in welchem Rahmen <b>Windstärke und Böen</b> passen. Die App holt die Wettervorhersage der nächsten 7 Tage und markiert jede Stunde:</p>
+      <ul>
+        <li><span class="chip green">grün</span> = Windrichtung passt, Wind &amp; Böen im Rahmen, kein Regen, und es ist Tag.</li>
+        <li>grau = passt (noch) nicht – fahr mit der Maus über die Stunde, dann siehst du den Grund (z.&nbsp;B. „Richtung", „zu stark", „Böen", „Regen").</li>
+      </ul>
+      <p>Die Balken zeigen die Tagstunden. Ein zusammenhängendes grünes Fenster wird als Zeitraum angezeigt, z.&nbsp;B. „11–14 Uhr".</p>
+
+      <h2>Für wen ist sie gedacht?</h2>
+      <p>Vor allem für <b>Flug&shy;anfänger</b> und Gelegenheits&shy;flieger, die schnell einen Überblick wollen, <b>ob an ihrem Wunsch-Startplatz die Grund&shy;bedingungen passen</b> – ohne selbst Wetterkarten lesen zu müssen.</p>
+      <p>Für <b>erfahrene Piloten</b>, die gezielt auf Thermik oder Strecke gehen, ist sie nur bedingt geeignet: Sie prüft die <i>Grund&shy;bedingungen</i> (Richtung, Wind, Böen, Regen), aber <b>nicht</b> Thermik-Qualität, Basis, Turbulenz, Leerotoren oder Streckenwetter.</p>
+    </section>
+
+    <!-- Rechtliche Einordnung -->
+    <section class="legal" id="legal">
+      <h2>⚠️ Rechtliche Einordnung &amp; Haftungsausschluss</h2>
+      <p><b>Nutzung ausschließlich auf eigene Gefahr und in Eigenverantwortung.</b> Die App ist eine unverbindliche Orientierungshilfe und <b>keine amtliche Flugwetter&shy;beratung</b>.</p>
+      <ul>
+        <li>Die angezeigten Werte stammen aus <b>Wettermodell-Daten</b> (Open-Meteo / DWD-ICON) und können von der Realität abweichen. Keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität.</li>
+        <li>Der Modellwind bezieht sich auf <b>10 m über Grund</b> und entspricht nicht zwingend dem Wind am Hang oder in Startplatzhöhe.</li>
+        <li>Die App prüft <b>nicht</b>: Luftraum&shy;beschränkungen, NOTAMs, Sperrungen, Naturschutz-/Wildschutz&shy;zonen, Gelände- und Vereins&shy;regeln, Betriebszeiten, Thermik, Turbulenz oder lokale Windeffekte.</li>
+        <li>Die Beurteilung der Flug&shy;tauglichkeit und die Entscheidung zum Start liegen <b>allein beim verantwortlichen Piloten</b>. Vor jedem Flug sind eigene Beobachtung vor Ort, aktuelle Wetterberatung und die geltenden Gelände&shy;regeln (DHV) sowie erforderliche Berechtigungen/Einweisungen zu beachten.</li>
+        <li>Es wird <b>keine Haftung</b> für Schäden übernommen, die aus der Nutzung dieser App entstehen.</li>
+      </ul>
+      <p class="dp"><b>Datenschutz:</b> Die App läuft lokal in deinem Browser. Selbst angelegte Startplätze werden nur auf deinem Gerät gespeichert. Für die Vorhersage werden die Koordinaten an Open-Meteo übertragen. Nutzt du „📍 Mein Standort", bleibt der Standort auf dem Gerät.</p>
+    </section>
+  </main>
+
+  <!-- Dialog: Startplatz hinzufügen -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>Startplatz hinzufügen</h2>
+        <button id="closeModal" class="btn-ghost dark">✕</button>
+      </div>
+      <form id="spotForm">
+        <label>Name <span class="req">*</span>
+          <input name="name" required placeholder="z. B. Hausberg" />
+        </label>
+        <label>Region / Ort
+          <input name="region" placeholder="z. B. Allgäu" />
+        </label>
+        <div class="row">
+          <label>Breitengrad <span class="req">*</span>
+            <input name="lat" required inputmode="decimal" placeholder="47.5446" />
+          </label>
+          <label>Längengrad <span class="req">*</span>
+            <input name="lon" required inputmode="decimal" placeholder="10.0528" />
+          </label>
+        </div>
+        <button type="button" id="geoBtn" class="btn-soft">📍 Mein Standort verwenden</button>
+        <p class="tip">Koordinaten findest du z. B. in Google Maps: lange auf den Startplatz tippen → die Zahlen erscheinen oben.</p>
+
+        <fieldset>
+          <legend>Erlaubte Windrichtung(en) <span class="req">*</span></legend>
+          <div id="compass" class="compass"></div>
+        </fieldset>
+
+        <details class="adv">
+          <summary>Erweiterte Grenzwerte</summary>
+          <div class="row">
+            <label>Wind min (km/h)<input name="windMin" type="number" value="3" /></label>
+            <label>Wind max (km/h)<input name="windMax" type="number" value="26" /></label>
+            <label>Böen max (km/h)<input name="gustMax" type="number" value="30" /></label>
+          </div>
+        </details>
+
+        <p id="formErr" class="form-err" hidden></p>
+        <div class="modal-actions">
+          <button type="button" id="cancelBtn" class="btn-soft">Abbrechen</button>
+          <button type="submit" class="btn-primary">Speichern</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="spots.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
