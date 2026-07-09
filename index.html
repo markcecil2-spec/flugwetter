@@ -16,59 +16,28 @@
       <div class="brand">
         <span class="logo">🪂</span>
         <div>
-          <h1>Flugwetter</h1>
-          <p class="sub">Passt das Wetter an deinem Startplatz? · nächste 7 Tage</p>
+          <h1 id="pageTitle">Fluggebiete</h1>
+          <p class="sub" id="pageSub">Passt das Wetter? · nächste 7 Tage</p>
         </div>
       </div>
-      <div class="head-actions">
-        <button id="addBtn" class="btn-ghost" title="Startplatz hinzufügen">＋ Platz</button>
-        <button id="refresh" class="btn-ghost" title="Aktualisieren">↻</button>
-      </div>
+      <button id="refresh" class="btn-ghost" title="Aktualisieren">↻</button>
     </div>
   </header>
 
   <main class="wrap">
-    <p id="updated" class="updated">Lade …</p>
-    <div id="spots" class="spot-list"></div>
-
-    <!-- Erklärung -->
-    <section class="info" id="info">
-      <h2>Wie funktioniert die App?</h2>
-      <p>Für jeden Startplatz ist hinterlegt, aus welcher <b>Windrichtung</b> geflogen werden darf (laut DHV-Gelände) und in welchem Rahmen <b>Windstärke und Böen</b> passen. Die App holt die Wettervorhersage der nächsten 7 Tage und markiert jede Stunde:</p>
-      <ul>
-        <li><span class="chip green">grün</span> = Windrichtung passt, Wind &amp; Böen im Rahmen, kein Regen, und es ist Tag.</li>
-        <li>grau = passt (noch) nicht – fahr mit der Maus über die Stunde, dann siehst du den Grund (z.&nbsp;B. „Richtung", „zu stark", „Böen", „Regen").</li>
-      </ul>
-      <p>Die Balken zeigen die Tagstunden. Ein zusammenhängendes grünes Fenster wird als Zeitraum angezeigt, z.&nbsp;B. „11–14 Uhr".</p>
-
-      <h2>Für wen ist sie gedacht?</h2>
-      <p>Vor allem für <b>Flug&shy;anfänger</b> und Gelegenheits&shy;flieger, die schnell einen Überblick wollen, <b>ob an ihrem Wunsch-Startplatz die Grund&shy;bedingungen passen</b> – ohne selbst Wetterkarten lesen zu müssen.</p>
-      <p>Für <b>erfahrene Piloten</b>, die gezielt auf Thermik oder Strecke gehen, ist sie nur bedingt geeignet: Sie prüft die <i>Grund&shy;bedingungen</i> (Richtung, Wind, Böen, Regen), aber <b>nicht</b> Thermik-Qualität, Basis, Turbulenz, Leerotoren oder Streckenwetter.</p>
-    </section>
-
-    <!-- Rechtliche Einordnung -->
-    <section class="legal" id="legal">
-      <h2>⚠️ Rechtliche Einordnung &amp; Haftungsausschluss</h2>
-      <p><b>Nutzung ausschließlich auf eigene Gefahr und in Eigenverantwortung.</b> Die App ist eine unverbindliche Orientierungshilfe und <b>keine amtliche Flugwetter&shy;beratung</b>.</p>
-      <ul>
-        <li>Die angezeigten Werte stammen aus <b>Wettermodell-Daten</b> (Open-Meteo / DWD-ICON) und können von der Realität abweichen. Keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität.</li>
-        <li>Der Modellwind bezieht sich auf <b>10 m über Grund</b> und entspricht nicht zwingend dem Wind am Hang oder in Startplatzhöhe.</li>
-        <li>Die App prüft <b>nicht</b>: Luftraum&shy;beschränkungen, NOTAMs, Sperrungen, Naturschutz-/Wildschutz&shy;zonen, Gelände- und Vereins&shy;regeln, Betriebszeiten, Thermik, Turbulenz oder lokale Windeffekte.</li>
-        <li>Die Beurteilung der Flug&shy;tauglichkeit und die Entscheidung zum Start liegen <b>allein beim verantwortlichen Piloten</b>. Vor jedem Flug sind eigene Beobachtung vor Ort, aktuelle Wetterberatung und die geltenden Gelände&shy;regeln (DHV) sowie erforderliche Berechtigungen/Einweisungen zu beachten.</li>
-        <li>Es wird <b>keine Haftung</b> für Schäden übernommen, die aus der Nutzung dieser App entstehen.</li>
-      </ul>
-      <p class="dp"><b>Datenschutz:</b> Die App läuft lokal in deinem Browser. Selbst angelegte Startplätze werden nur auf deinem Gerät gespeichert. Für die Vorhersage werden die Koordinaten an Open-Meteo übertragen. Nutzt du „📍 Mein Standort", bleibt der Standort auf dem Gerät.</p>
-    </section>
-  </main>
-
-  <!-- Dialog: Startplatz hinzufügen -->
-  <div id="modal" class="modal" hidden>
-    <div class="modal-card">
-      <div class="modal-head">
-        <h2>Startplatz hinzufügen</h2>
-        <button id="closeModal" class="btn-ghost dark">✕</button>
+    <!-- SEITE: Fluggebiete -->
+    <section id="page-spots" class="page">
+      <p id="updated" class="updated">Lade …</p>
+      <div id="spots" class="spot-list"></div>
+      <div id="emptyHint" class="empty" hidden>
+        <p>Noch keine eigenen Fluggebiete. Leg über <b>„＋ Neu"</b> deinen ersten Startplatz an.</p>
       </div>
-      <form id="spotForm">
+    </section>
+
+    <!-- SEITE: Neues Fluggebiet -->
+    <section id="page-add" class="page" hidden>
+      <h2 class="page-h">Neues Fluggebiet</h2>
+      <form id="spotForm" class="card">
         <label>Name <span class="req">*</span>
           <input name="name" required placeholder="z. B. Hausberg" />
         </label>
@@ -86,6 +55,13 @@
         <button type="button" id="geoBtn" class="btn-soft">📍 Mein Standort verwenden</button>
         <p class="tip">Koordinaten findest du z. B. in Google Maps: lange auf den Startplatz tippen → die Zahlen erscheinen oben.</p>
 
+        <label>Startplatzhöhe (m)
+          <div class="hrow">
+            <input name="elevation" inputmode="numeric" placeholder="wird automatisch ermittelt" />
+            <button type="button" id="elevBtn" class="btn-soft">🏔 ermitteln</button>
+          </div>
+        </label>
+
         <fieldset>
           <legend>Erlaubte Windrichtung(en) <span class="req">*</span></legend>
           <div id="compass" class="compass"></div>
@@ -102,12 +78,52 @@
 
         <p id="formErr" class="form-err" hidden></p>
         <div class="modal-actions">
-          <button type="button" id="cancelBtn" class="btn-soft">Abbrechen</button>
-          <button type="submit" class="btn-primary">Speichern</button>
+          <button type="button" id="resetBtn" class="btn-soft">Leeren</button>
+          <button type="submit" class="btn-primary">Fluggebiet speichern</button>
         </div>
       </form>
-    </div>
-  </div>
+    </section>
+
+    <!-- SEITE: Info -->
+    <section id="page-info" class="page" hidden>
+      <h2 class="page-h">Wie funktioniert die App?</h2>
+      <div class="card prose">
+        <p>Für jedes Fluggebiet ist hinterlegt, aus welcher <b>Windrichtung</b> geflogen werden darf und in welchem Rahmen <b>Windstärke und Böen</b> passen. Die App holt die Vorhersage der nächsten 7 Tage und markiert jede Stunde:</p>
+        <ul>
+          <li><span class="chip green">grün</span> = Windrichtung passt, Wind &amp; Böen im Rahmen, kein Regen, und es ist Tag.</li>
+          <li>grau = passt (noch) nicht – fahr mit der Maus über die Stunde, dann siehst du den Grund (z.&nbsp;B. „Richtung", „zu stark", „Böen", „Regen").</li>
+        </ul>
+        <p>Unter den Stunden siehst du <b>Wettersymbol und Temperatur</b> des Tages. Ein zusammenhängendes grünes Fenster wird als Zeitraum angezeigt, z.&nbsp;B. „11–14 Uhr".</p>
+        <h3>Für wen ist sie gedacht?</h3>
+        <p>Vor allem für <b>Flug&shy;anfänger</b> und Gelegenheits&shy;flieger, die schnell wissen wollen, <b>ob am Wunsch-Startplatz die Grund&shy;bedingungen passen</b> – ohne selbst Wetterkarten lesen zu müssen.</p>
+        <p>Für <b>erfahrene Piloten</b>, die gezielt auf Thermik oder Strecke gehen, ist sie nur bedingt geeignet: Sie prüft die <i>Grund&shy;bedingungen</i>, aber <b>nicht</b> Thermik-Qualität, Basis, Turbulenz oder Streckenwetter.</p>
+      </div>
+    </section>
+
+    <!-- SEITE: Recht -->
+    <section id="page-legal" class="page" hidden>
+      <h2 class="page-h">Rechtliche Einordnung</h2>
+      <div class="card prose legal">
+        <p><b>Nutzung ausschließlich auf eigene Gefahr und in Eigenverantwortung.</b> Die App ist eine unverbindliche Orientierungshilfe und <b>keine amtliche Flugwetter&shy;beratung</b>.</p>
+        <ul>
+          <li>Die angezeigten Werte stammen aus <b>Wettermodell-Daten</b> (Open-Meteo / DWD-ICON) und können von der Realität abweichen. Keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität.</li>
+          <li>Der Modellwind bezieht sich auf <b>10 m über Grund</b> und entspricht nicht zwingend dem Wind am Hang.</li>
+          <li>Die App prüft <b>nicht</b>: Luftraum&shy;beschränkungen, NOTAMs, Sperrungen, Naturschutz-/Wildschutz&shy;zonen, Gelände- und Vereins&shy;regeln, Betriebszeiten, Thermik, Turbulenz oder lokale Windeffekte.</li>
+          <li>Die Beurteilung der Flug&shy;tauglichkeit und die Startentscheidung liegen <b>allein beim verantwortlichen Piloten</b>. Vor jedem Flug: eigene Beobachtung vor Ort, aktuelle Wetterberatung und die geltenden Gelände&shy;regeln (DHV) sowie erforderliche Berechtigungen/Einweisungen beachten.</li>
+          <li>Es wird <b>keine Haftung</b> für Schäden übernommen, die aus der Nutzung dieser App entstehen.</li>
+        </ul>
+        <p class="dp"><b>Datenschutz:</b> Die App läuft lokal in deinem Browser. Selbst angelegte Fluggebiete werden nur auf deinem Gerät gespeichert. Für Vorhersage und Höhe werden die Koordinaten an Open-Meteo übertragen. „📍 Mein Standort" bleibt auf dem Gerät.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Untere Navigation -->
+  <nav class="tabbar">
+    <a href="#/spots" data-tab="spots" class="tab"><span class="ti">🪂</span><span>Fluggebiete</span></a>
+    <a href="#/add" data-tab="add" class="tab"><span class="ti">＋</span><span>Neu</span></a>
+    <a href="#/info" data-tab="info" class="tab"><span class="ti">ℹ️</span><span>Info</span></a>
+    <a href="#/legal" data-tab="legal" class="tab"><span class="ti">⚖️</span><span>Recht</span></a>
+  </nav>
 
   <script src="spots.js"></script>
   <script src="app.js"></script>
