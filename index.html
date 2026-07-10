@@ -12,6 +12,7 @@
 </head>
 <body>
   <header>
+    <div class="clouds" aria-hidden="true"><span class="cloud c1">☁</span><span class="cloud c2">☁</span><span class="cloud c3">☁</span></div>
     <div class="wrap head">
       <div class="brand">
         <span class="logo">🪂</span>
@@ -26,8 +27,9 @@
   <main class="wrap">
     <!-- SEITE: Home / Fliegen -->
     <section id="page-home" class="page">
-      <div class="hint-banner">
-        ℹ️ Diese App zeigt nur eine <b>Tendenz</b>. Vor dem Fliegen immer bei <b>Burnair</b>, <b>Windy</b> oder <b>DWD</b> gegenprüfen und die Bedingungen vor Ort selbst beurteilen.
+      <div id="hintBanner" class="hint-banner">
+        <span class="hint-text">ℹ️ Diese App zeigt nur eine <b>Tendenz</b>. Vor dem Fliegen immer bei <b>Burnair</b>, <b>Windy</b> oder <b>DWD</b> gegenprüfen und die Bedingungen vor Ort selbst beurteilen.</span>
+        <button id="hintClose" class="hint-close" title="Ausblenden">✕</button>
       </div>
 
       <button id="flyBtn" class="fly-btn">
@@ -42,6 +44,7 @@
           <option value="100" selected>100 km</option>
           <option value="150">150 km</option>
           <option value="250">250 km</option>
+          <option value="500">500 km</option>
         </select>
       </div>
 
@@ -52,7 +55,10 @@
       </div>
 
       <div id="flyResults" class="fly-results"></div>
+    </section>
 
+    <!-- SEITE: Favoriten -->
+    <section id="page-favorites" class="page" hidden>
       <h2 class="page-h">⭐ Deine Favoriten</h2>
       <div id="favList" class="spot-list"></div>
       <div id="favEmpty" class="empty" hidden>
@@ -131,6 +137,7 @@
 
   <nav class="tabbar">
     <a href="#/home" data-tab="home" class="tab"><span class="ti">🪂</span><span>Fliegen</span></a>
+    <a href="#/favorites" data-tab="favorites" class="tab"><span class="ti">⭐</span><span>Favoriten</span></a>
     <a href="#/add" data-tab="add" class="tab"><span class="ti">＋</span><span>Neu</span></a>
     <a href="#/info" data-tab="info" class="tab"><span class="ti">ℹ️</span><span>Info</span></a>
     <a href="#/legal" data-tab="legal" class="tab"><span class="ti">⚖️</span><span>Recht</span></a>

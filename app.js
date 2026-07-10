@@ -164,8 +164,21 @@ function favoriteSpots() { const f = loadFavs(); return allKnownSpots().filter(s
 function statusDot(status) {
   return status === "gut" ? "🟢" : status === "grenz" ? "🟡" : "🔴";
 }
+function fmtTime(d) { return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0"); }
+
 function renderCard(spot, days) {
   const ts = todayStatus(days);
+  // Aktuelle Stunde (für Live-Windanzeige) + heutige Sonnenzeiten
+  const now = new Date();
+  const flat = days.flatMap(d => d.hours);
+  const cur = flat.find(h => h.t.getHours() === now.getHours() && h.t.getDate() === now.getDate() && h.t.getMonth() === now.getMonth()) || flat[Math.min(12, flat.length - 1)];
+  const sun = days[0] && days[0].wx;
+  const nowBar = cur ? `
+    <div class="nowbar">
+      <span class="wind-ind"><svg viewBox="0 0 24 24" style="transform:rotate(${Math.round((cur.wd + 180) % 360)}deg)"><path d="M12 2 L19 21 L12 16.5 L5 21 Z"/></svg></span>
+      <span class="wind-txt">jetzt <b>${Math.round(cur.ws)}</b> km/h aus <b>${degToCompass(cur.wd)}</b> · Böen ${Math.round(cur.wg)}</span>
+      ${sun ? `<span class="sun-txt">🌅 ${fmtTime(sun.sunrise)} · 🌇 ${fmtTime(sun.sunset)}</span>` : ""}
+    </div>` : "";
   const badge = ts.status === "nein"
     ? `<span class="badge red">🔴 heute nichts</span>`
     : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} heute ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
@@ -204,6 +217,7 @@ function renderCard(spot, days) {
         </div>
       </div>
       <div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>
+      ${nowBar}
       <div class="days">${daysHtml}</div>
     </div>`;
 }
@@ -340,10 +354,11 @@ function renderDbSearch(query = "") {
 
 // ---------------- Router ----------------
 const PAGES = {
-  home:  { title: "Wo kann ich fliegen?", sub: "Heute · in deiner Nähe · Favoriten" },
-  add:   { title: "Fluggebiet hinzufügen", sub: "Aus Datenbank oder eigenen Platz" },
-  info:  { title: "Info", sub: "Wie die App funktioniert" },
-  legal: { title: "Recht", sub: "Rechtliche Einordnung" },
+  home:      { title: "Wo kann ich fliegen?", sub: "Heute · in deiner Nähe" },
+  favorites: { title: "Favoriten", sub: "Deine Plätze · 7-Tage-Ansicht" },
+  add:       { title: "Fluggebiet hinzufügen", sub: "Aus Datenbank oder eigenen Platz" },
+  info:      { title: "Info", sub: "Wie die App funktioniert" },
+  legal:     { title: "Recht", sub: "Rechtliche Einordnung" },
 };
 function route() {
   let id = location.hash.replace("#/", "") || "home";
@@ -353,7 +368,7 @@ function route() {
   document.getElementById("pageTitle").textContent = PAGES[id].title;
   document.getElementById("pageSub").textContent = PAGES[id].sub;
   window.scrollTo(0, 0);
-  if (id === "home") renderFavorites();
+  if (id === "favorites") renderFavorites();
   if (id === "add") renderDbSearch();
 }
 window.addEventListener("hashchange", route);
@@ -366,7 +381,7 @@ document.body.addEventListener("click", e => {
   const favBtn = e.target.closest("[data-fav]");
   if (favBtn) {
     toggleFav(favBtn.dataset.fav);
-    if (!document.getElementById("page-home").hidden) renderFavorites();
+    if (!document.getElementById("page-favorites").hidden) renderFavorites();
     if (!document.getElementById("page-add").hidden) renderDbSearch(document.getElementById("dbSearch").value);
     // Fly-Ergebnisse-Stern sofort umschalten
     const s = favBtn.classList.toggle("on"); favBtn.textContent = favBtn.classList.contains("on") ? "★" : "☆";
@@ -456,12 +471,20 @@ form.addEventListener("submit", async e => {
 });
 
 // ---------------- Start ----------------
+// Hinweis-Banner ausblendbar (Zustand merken)
+const HINT_KEY = "flugwetter_hint_dismissed";
+document.getElementById("hintClose").addEventListener("click", () => {
+  document.getElementById("hintBanner").style.display = "none";
+  localStorage.setItem(HINT_KEY, "1");
+});
+
 (function init() {
   // Migration: bestehende eigene Plätze (aus älterer Version) automatisch favorisieren.
   if (localStorage.getItem(FAV_KEY) === null) {
     const ids = loadUserSpots().map(s => s.id);
     saveFavs(ids);
   }
+  if (localStorage.getItem(HINT_KEY) === "1") document.getElementById("hintBanner").style.display = "none";
   const r = localStorage.getItem("flugwetter_radius");
   if (r) document.getElementById("radius").value = r;
   route();

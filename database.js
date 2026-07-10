@@ -43,4 +43,21 @@ const SPOT_DB = [
   { id: "db_kleinheppach", name: "Kleinheppacher Kopf", region: "Korb · Remstal",
     lat: 48.8332, lon: 9.3781, elevation: 400,
     sectors: [[135, 270]], sectorLabel: "SO–W", windMin: 3, windMax: 26, gustMax: 30 },
+
+  // --- Oberbayern / Isarwinkel / Werdenfels ---
+  { id: "db_brauneck", name: "Brauneck", region: "Lenggries · Isarwinkel",
+    lat: 47.6641, lon: 11.5245, elevation: 1555,
+    sectors: [[340, 20], [65, 115], [157, 203]], sectorLabel: "N · O · S", ...DEF },
+
+  { id: "db_wallberg", name: "Wallberg", region: "Rottach-Egern · Tegernsee",
+    lat: 47.6659, lon: 11.7967, elevation: 1720,
+    sectors: [[200, 30]], sectorLabel: "SW–N (über W)", ...DEF },
+
+  { id: "db_blomberg", name: "Blomberg", region: "Bad Tölz · Isarwinkel",
+    lat: 47.7345, lon: 11.5072, elevation: 1215,
+    sectors: [[292, 115]], sectorLabel: "NW–O", ...DEF },
+
+  { id: "db_wank", name: "Wank", region: "Garmisch-Partenkirchen · Werdenfels",
+    lat: 47.5068, lon: 11.1473, elevation: 1730,
+    sectors: [[45, 290]], sectorLabel: "NO–S–W", ...DEF },
 ];
