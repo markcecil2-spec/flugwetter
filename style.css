@@ -310,6 +310,13 @@ header { position: relative; overflow: hidden; }
 .plz-row input:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
 .plz-row .btn-soft { white-space: nowrap; }
 
+/* Region-Dropdown */
+.region-select {
+  width: 100%; font-size: 16px; padding: 11px 13px; border: 1px solid var(--line);
+  border-radius: 12px; background: var(--card); color: var(--text); cursor: pointer;
+}
+.region-select:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
+
 /* Anklickbare Ergebniszeile */
 .fr { cursor: pointer; }
 .fr-go { color: var(--muted); font-weight: 700; }

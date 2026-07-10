@@ -3,7 +3,7 @@
 const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden Stunden
 const DEFAULT_RADIUS = 100;    // km
-const MAX_CANDIDATES = 50;     // max. Plätze pro Umkreissuche (Performance bei großer DB)
+const MAX_CANDIDATES = 100;    // max. Plätze pro Suche (Performance bei großer DB)
 
 function degToCompass(deg) {
   const d = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
@@ -239,7 +239,7 @@ function renderCard(spot, days) {
   // Aktionsleiste: Einstiegspunkte für den Flugtag
   const acts = [
     `<a class="act nav" href="${mapsUrl(spot)}" target="_blank" rel="noopener">▶️ Navigation</a>`,
-    `<a class="act" href="https://www.windy.com/?${spot.lat},${spot.lon},12" target="_blank" rel="noopener">🌬️ Windy</a>`,
+    `<a class="act" href="https://www.dwd.de/DE/wetter/wetterundklima_vorort/_node.html" target="_blank" rel="noopener">🇩🇪 DWD</a>`,
     `<a class="act" href="https://map.burnair.cloud/" target="_blank" rel="noopener">🌦 Burnair</a>`,
   ];
   if (spot.webcam) acts.push(`<a class="act" href="${spot.webcam}" target="_blank" rel="noopener">📷 Webcam</a>`);
@@ -303,37 +303,71 @@ document.getElementById("radiusPills").addEventListener("click", e => {
   if (lastOrigin) runFlySearch(lastOrigin.lat, lastOrigin.lon, lastOrigin.label);
 });
 
-// Kernsuche ab einem Ausgangspunkt (GPS oder PLZ).
-async function runFlySearch(lat, lon, label) {
-  lastOrigin = { lat, lon, label };
-  const out = document.getElementById("flyResults");
-  const radius = getRadius();
-  const inRadius = allKnownSpots()
-    .map(s => ({ ...s, dist: haversine(lat, lon, s.lat, s.lon) }))
-    .filter(s => s.dist <= radius)
-    .sort((a, b) => a.dist - b.dist);
-  const truncated = inRadius.length > MAX_CANDIDATES;
-  const candidates = inRadius.slice(0, MAX_CANDIDATES);
+// Regionen (Zentrum + Radius km) für die Regions-Suche
+const REGIONS = {
+  allgaeu:       { name: "Allgäu",               lat: 47.55, lon: 10.25, r: 45 },
+  alb:           { name: "Schwäbische Alb",      lat: 48.45, lon: 9.35,  r: 60 },
+  schwarzwald:   { name: "Schwarzwald",          lat: 48.15, lon: 8.15,  r: 85 },
+  werdenfels:    { name: "Werdenfelser Land",    lat: 47.52, lon: 11.10, r: 28 },
+  voralpen:      { name: "Bayerische Voralpen",  lat: 47.65, lon: 11.50, r: 40 },
+  chiemgau:      { name: "Chiemgau",             lat: 47.75, lon: 12.50, r: 40 },
+  berchtesgaden: { name: "Berchtesgadener Land", lat: 47.63, lon: 12.99, r: 28 },
+};
 
-  if (!candidates.length) {
-    out.innerHTML = `<p class="empty">Kein Startplatz im Umkreis von ${radius} km${label ? " um " + label : ""}. (Die Datenbank wächst noch.)</p>`;
-    return;
-  }
+// Gemeinsame Auswertung + Anzeige für eine Kandidatenliste.
+// candidates: mit .dist (Anzeige-km oder null) und .sortKey (Zahl). origin: {lat,lon} oder null (für Fahrzeit).
+async function renderSearch(candidates, origin, headline) {
+  const out = document.getElementById("flyResults");
+  const truncated = candidates.length > MAX_CANDIDATES;
+  candidates = candidates.slice(0, MAX_CANDIDATES);
+  if (!candidates.length) { out.innerHTML = `<p class="empty">Kein Startplatz gefunden. (Die Datenbank wächst noch.)</p>`; return; }
   out.innerHTML = `<p class="loading-line">🔎 Prüfe ${candidates.length} Plätze …</p>`;
   try {
     const results = await fetchBulkToday(candidates);
     let drive = [];
-    try { drive = await fetchDriveTimes({ lat, lon }, candidates); } catch { drive = []; }
-    const rows = candidates.map((s, i) => ({ spot: s, ts: todayStatus(analyse(s, results[i])), drive: drive[i] }));
+    if (origin) { try { drive = await fetchDriveTimes(origin, candidates); } catch { drive = []; } }
+    const rows = candidates.map((s, i) => {
+      const drv = drive[i];
+      const subInfo = (drv != null ? "🚗 " + formatDur(drv) + " · " : "") +
+        (s.dist != null ? s.dist + " km" : (s.region || ""));
+      return { spot: s, ts: todayStatus(analyse(s, results[i])), drive: drv, subInfo };
+    });
     const rank = { gut: 0, grenz: 1, nein: 2 };
     rows.sort((a, b) =>
       rank[a.ts.status] - rank[b.ts.status] ||
-      ((a.drive ?? Infinity) - (b.drive ?? Infinity)) ||
-      a.spot.dist - b.spot.dist);
-    renderFlyResults(rows, radius, label, truncated);
+      ((a.drive ?? a.spot.sortKey ?? Infinity) - (b.drive ?? b.spot.sortKey ?? Infinity)));
+    renderFlyResults(rows, headline, truncated);
   } catch (e) {
     out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
   }
+}
+
+// Umkreissuche ab einem Punkt (GPS oder PLZ)
+async function runFlySearch(lat, lon, label) {
+  lastOrigin = { lat, lon, label };
+  const radius = getRadius();
+  const candidates = allKnownSpots()
+    .map(s => { const d = haversine(lat, lon, s.lat, s.lon); return { ...s, dist: d, sortKey: d }; })
+    .filter(s => s.dist <= radius)
+    .sort((a, b) => a.sortKey - b.sortKey);
+  const headline = `Heute im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""}`;
+  await renderSearch(candidates, { lat, lon }, headline);
+}
+
+// Regions-Suche (nach Gebiet statt Umkreis); Fahrzeit nur falls Standort schon bekannt
+async function runRegionSearch(key) {
+  const R = REGIONS[key]; if (!R) return;
+  const origin = lastOrigin;
+  const candidates = allKnownSpots()
+    .map(s => {
+      const toCenter = haversine(R.lat, R.lon, s.lat, s.lon);
+      return { ...s, _c: toCenter,
+        dist: origin ? haversine(origin.lat, origin.lon, s.lat, s.lon) : null,
+        sortKey: origin ? haversine(origin.lat, origin.lon, s.lat, s.lon) : toCenter };
+    })
+    .filter(s => s._c <= R.r)
+    .sort((a, b) => a.sortKey - b.sortKey);
+  await renderSearch(candidates, origin, `Heute · Region <b>${R.name}</b>`);
 }
 
 // Standort per GPS (Button + Auto-Start)
@@ -364,17 +398,21 @@ async function plzSearch() {
 document.getElementById("plzBtn").addEventListener("click", plzSearch);
 document.getElementById("plzInput").addEventListener("keydown", e => { if (e.key === "Enter") plzSearch(); });
 
+// Regions-Auswahl
+document.getElementById("regionSelect").addEventListener("change", e => {
+  if (e.target.value) runRegionSearch(e.target.value);
+});
+
 function mapsUrl(s) {
   return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;
 }
-function renderFlyResults(rows, radius, label, truncated) {
+function renderFlyResults(rows, headline, truncated) {
   const flyable = rows.filter(r => r.ts.status !== "nein").length;
   const scope = truncated ? `<b>${flyable}</b> fliegbar (nächste ${rows.length} Plätze)` : `<b>${flyable}</b> von ${rows.length} fliegbar`;
-  const head = `<div class="fly-head">Heute im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""} · ${scope}</div>`;
+  const head = `<div class="fly-head">${headline} · ${scope}</div>`;
   const list = rows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
-    const drv = formatDur(r.drive);
     const line1 = ts.status === "nein" ? ts.reasonLabel : winTimeShort(ts.win);
     const line2 = ts.status === "nein" ? "" : `<div class="fr-line2">${ts.reasonLabel}</div>`;
     return `
@@ -382,7 +420,7 @@ function renderFlyResults(rows, radius, label, truncated) {
         <span class="fr-dot">${statusDot(ts.status)}</span>
         <div class="fr-mid">
           <div class="fr-name">${s.name} <span class="fr-go">›</span></div>
-          <div class="fr-sub">${drv ? "🚗 " + drv + " · " : ""}${s.dist} km</div>
+          <div class="fr-sub">${r.subInfo}</div>
         </div>
         <div class="fr-right"><div class="fr-line1">${line1}</div>${line2}</div>
         <a class="fr-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">▶️</a>
