@@ -271,6 +271,15 @@ header { position: relative; overflow: hidden; }
 .act:hover { border-color: var(--sky); }
 .act.nav { background: var(--sky); color: #fff; border-color: var(--sky); }
 
+/* Unterstützen (Buy Me a Coffee) */
+.support { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; margin-top: 22px; }
+.support-txt { font-size: 13.5px; line-height: 1.6; color: var(--text); }
+.bmc-btn {
+  text-decoration: none; background: #ffdd00; color: #0d0c22; font-weight: 800; font-size: 15px;
+  padding: 12px 20px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,.12);
+}
+.bmc-btn:hover { filter: brightness(0.95); }
+
 /* Sterne / Icon-Buttons */
 .ic0 { background: none; border: none; cursor: pointer; font-size: 18px; padding: 3px 5px; border-radius: 8px; line-height: 1; }
 .ic0:hover { background: rgba(148,163,184,.15); }
