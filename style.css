@@ -18,8 +18,9 @@
   }
 }
 * { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
 body {
-  margin: 0; background: var(--bg); color: var(--text);
+  margin: 0; background: var(--bg); color: var(--text); max-width: 100%;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   padding-bottom: calc(66px + env(safe-area-inset-bottom));
@@ -316,6 +317,36 @@ header { position: relative; overflow: hidden; }
   border-radius: 12px; background: var(--card); color: var(--text); cursor: pointer;
 }
 .region-select:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
+
+/* Heute/Morgen-Umschalter */
+.day-toggle { display: flex; gap: 8px; justify-content: center; margin: 12px 0 2px; }
+.day-toggle .rpill { min-width: 96px; text-align: center; }
+
+/* Wochenübersicht auf-/zuklappen (Favoriten) */
+.days.collapsed { display: none; }
+.days-toggle {
+  width: 100%; margin-top: 8px; background: rgba(148,163,184,.12); border: 1px solid var(--line);
+  color: var(--text); font-size: 13px; font-weight: 700; padding: 10px; border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.days-toggle:hover { background: rgba(148,163,184,.2); }
+.dt-arrow { font-size: 12px; }
+
+/* Uhrzeit-Tap: Winddetail */
+.hour-detail {
+  margin-top: 8px; font-size: 12.5px; font-weight: 600; color: var(--text);
+  background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.25);
+  border-radius: 8px; padding: 8px 10px;
+}
+.h { cursor: pointer; }
+.h.sel { outline: 2px solid var(--sky); outline-offset: 1px; }
+
+/* Formular: kein horizontales Überlaufen auf dem Handy */
+#spotForm input { width: 100%; min-width: 0; }
+#spotForm .row, #spotForm .adv .row { min-width: 0; }
+#spotForm .row > label, #spotForm .adv .row > label { min-width: 0; }
+#spotForm .hrow { min-width: 0; }
+#spotForm .hrow input { min-width: 0; }
 
 /* Anklickbare Ergebniszeile */
 .fr { cursor: pointer; }

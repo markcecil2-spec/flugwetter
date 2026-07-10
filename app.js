@@ -118,9 +118,9 @@ function dominantReason(hours, rating) {
   return top ? top[0] : "";
 }
 
-// Status "heute" für einen Platz (aus Tag-0-Daten): {status, win?, reason?, reasonLabel}
-function todayStatus(days) {
-  const day = days[0];
+// Status für einen Tag (idx 0=heute, 1=morgen): {status, win?, reason?, reasonLabel}
+function dayStatus(days, idx = 0) {
+  const day = days[idx];
   if (!day) return { status: "nein", reason: "—", reasonLabel: "—" };
   const green = day.windows.filter(w => w.color === "gut");
   const yellow = day.windows.filter(w => w.color === "grenz");
@@ -129,6 +129,7 @@ function todayStatus(days) {
   const r = dominantReason(day.dayHours, "nein") || "—";
   return { status: "nein", reason: r, reasonLabel: neinLabel(r) };
 }
+function todayStatus(days) { return dayStatus(days, 0); }
 
 // ---------------- Fetching ----------------
 async function fetchForecast(spot) {
@@ -141,12 +142,12 @@ async function fetchForecast(spot) {
   if (!res.ok) throw new Error("Open-Meteo " + res.status);
   return res.json();
 }
-// Mehrere Plätze in EINEM Aufruf (nur heute) – für die Umkreissuche.
+// Mehrere Plätze in EINEM Aufruf (heute + morgen) – für die Umkreis-/Regionssuche.
 async function fetchBulkToday(spots) {
   const lats = spots.map(s => s.lat).join(","), lons = spots.map(s => s.lon).join(",");
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}` +
     `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation` +
-    `&daily=sunrise,sunset&timezone=Europe%2FBerlin&forecast_days=1&wind_speed_unit=kmh`;
+    `&daily=sunrise,sunset&timezone=Europe%2FBerlin&forecast_days=2&wind_speed_unit=kmh`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Open-Meteo " + res.status);
   const j = await res.json();
@@ -199,9 +200,8 @@ function statusDot(status) {
 }
 function fmtTime(d) { return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0"); }
 
-function renderCard(spot, days) {
+function renderCard(spot, days, opts = {}) {
   const ts = todayStatus(days);
-  // Aktuelle Stunde (für Live-Windanzeige) + heutige Sonnenzeiten
   const now = new Date();
   const flat = days.flatMap(d => d.hours);
   const cur = flat.find(h => h.t.getHours() === now.getHours() && h.t.getDate() === now.getDate() && h.t.getMonth() === now.getMonth()) || flat[Math.min(12, flat.length - 1)];
@@ -217,18 +217,18 @@ function renderCard(spot, days) {
     : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} heute ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
 
   const daysHtml = days.slice(0, 7).map(day => {
+    const wd = WEEKDAYS[day.date.getDay()];
     const hoursHtml = day.dayHours.map(x => {
       const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
-      const title = x.rating === "nein" ? x.reason
-        : `${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}${x.reason ? " · " + x.reason : ""}`;
-      return `<span class="${cls}" title="${title}">${x.t.getHours()}</span>`;
+      const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}${x.rating === "nein" && x.reason ? " · " + x.reason : ""}`;
+      return `<span class="${cls}" title="${info}" data-info="${info}">${x.t.getHours()}</span>`;
     }).join("");
     const wx = day.wx && day.wx.code != null
       ? `<div class="wx">${weatherEmoji(day.wx.code)} <span class="tmax">${day.wx.tmax}°</span> / <span class="tmin">${day.wx.tmin}°</span></div>` : "";
     const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "—";
     return `
       <div class="day ${day.windows.length ? "hasgreen" : ""}">
-        <div class="dlabel">${WEEKDAYS[day.date.getDay()]}<br>${day.date.getDate()}.${day.date.getMonth()+1}.</div>
+        <div class="dlabel">${wd}<br>${day.date.getDate()}.${day.date.getMonth()+1}.</div>
         <div class="dright"><div class="hours">${hoursHtml}</div>${wx}<div class="wins">${winTxt}</div></div>
       </div>`;
   }).join("");
@@ -237,14 +237,13 @@ function renderCard(spot, days) {
     ? `<button class="ic0" data-del="${spot.id}" title="Eigenen Platz löschen">🗑</button>` : "";
 
   // Aktionsleiste: Einstiegspunkte für den Flugtag
-  const acts = [
-    `<a class="act nav" href="${mapsUrl(spot)}" target="_blank" rel="noopener">▶️ Navigation</a>`,
-    `<a class="act" href="https://www.dwd.de/DE/wetter/wetterundklima_vorort/_node.html" target="_blank" rel="noopener">🇩🇪 DWD</a>`,
-    `<a class="act" href="https://map.burnair.cloud/" target="_blank" rel="noopener">🌦 Burnair</a>`,
-  ];
+  const acts = [`<a class="act nav" href="${mapsUrl(spot)}" target="_blank" rel="noopener">▶️ Navigation</a>`];
   if (spot.webcam) acts.push(`<a class="act" href="${spot.webcam}" target="_blank" rel="noopener">📷 Webcam</a>`);
   if (spot.dhv) acts.push(`<a class="act" href="https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}" target="_blank" rel="noopener">📋 DHV</a>`);
   const actions = `<div class="actions">${acts.join("")}</div>`;
+
+  const toggle = opts.collapsible
+    ? `<button class="days-toggle" aria-expanded="false"><span class="dt-arrow">▾</span> Wochenübersicht</button>` : "";
 
   return `
     <div class="card">
@@ -262,7 +261,9 @@ function renderCard(spot, days) {
       <div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>
       ${actions}
       ${nowBar}
-      <div class="days">${daysHtml}</div>
+      ${toggle}
+      <div class="days${opts.collapsible ? " collapsed" : ""}">${daysHtml}</div>
+      <div class="hour-detail" hidden></div>
     </div>`;
 }
 
@@ -274,7 +275,7 @@ async function renderFavorites() {
   if (!favs.length) { list.innerHTML = ""; return; }
   list.innerHTML = favs.map(s => `<div class="card loading">Lade ${s.name} …</div>`).join("");
   const cards = await Promise.all(favs.map(async s => {
-    try { return renderCard(s, analyse(s, await fetchForecast(s))); }
+    try { return renderCard(s, analyse(s, await fetchForecast(s)), { collapsible: true }); }
     catch (e) { return `<div class="card"><div class="spot-name">${s.name}</div><div class="spot-region">Fehler: ${e.message}</div></div>`; }
   }));
   list.innerHTML = cards.join("");
@@ -292,6 +293,9 @@ async function geocodePlz(plz) {
 
 // Umkreis-Auswahl (Pills)
 let lastOrigin = null;
+let searchDay = 0;         // 0 = heute, 1 = morgen
+let rerunSearch = null;    // wiederholt die zuletzt ausgeführte Suche (für Tag-/Umkreiswechsel)
+function dayWord() { return searchDay === 1 ? "Morgen" : "Heute"; }
 function getRadius() {
   const on = document.querySelector("#radiusPills .rpill.on");
   return on ? parseInt(on.dataset.km, 10) : 100;
@@ -330,7 +334,7 @@ async function renderSearch(candidates, origin, headline) {
       const drv = drive[i];
       const subInfo = (drv != null ? "🚗 " + formatDur(drv) + " · " : "") +
         (s.dist != null ? s.dist + " km" : (s.region || ""));
-      return { spot: s, ts: todayStatus(analyse(s, results[i])), drive: drv, subInfo };
+      return { spot: s, ts: dayStatus(analyse(s, results[i]), searchDay), drive: drv, subInfo };
     });
     const rank = { gut: 0, grenz: 1, nein: 2 };
     rows.sort((a, b) =>
@@ -345,18 +349,20 @@ async function renderSearch(candidates, origin, headline) {
 // Umkreissuche ab einem Punkt (GPS oder PLZ)
 async function runFlySearch(lat, lon, label) {
   lastOrigin = { lat, lon, label };
+  rerunSearch = () => runFlySearch(lat, lon, label);
   const radius = getRadius();
   const candidates = allKnownSpots()
     .map(s => { const d = haversine(lat, lon, s.lat, s.lon); return { ...s, dist: d, sortKey: d }; })
     .filter(s => s.dist <= radius)
     .sort((a, b) => a.sortKey - b.sortKey);
-  const headline = `Heute im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""}`;
+  const headline = `${dayWord()} im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""}`;
   await renderSearch(candidates, { lat, lon }, headline);
 }
 
 // Regions-Suche (nach Gebiet statt Umkreis); Fahrzeit nur falls Standort schon bekannt
 async function runRegionSearch(key) {
   const R = REGIONS[key]; if (!R) return;
+  rerunSearch = () => runRegionSearch(key);
   const origin = lastOrigin;
   const candidates = allKnownSpots()
     .map(s => {
@@ -367,8 +373,16 @@ async function runRegionSearch(key) {
     })
     .filter(s => s._c <= R.r)
     .sort((a, b) => a.sortKey - b.sortKey);
-  await renderSearch(candidates, origin, `Heute · Region <b>${R.name}</b>`);
+  await renderSearch(candidates, origin, `${dayWord()} · Region <b>${R.name}</b>`);
 }
+
+// Heute/Morgen-Umschalter
+document.getElementById("dayToggle").addEventListener("click", e => {
+  const b = e.target.closest("[data-day]"); if (!b) return;
+  searchDay = parseInt(b.dataset.day, 10);
+  document.querySelectorAll("#dayToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
+  if (rerunSearch) rerunSearch();
+});
 
 // Standort per GPS (Button + Auto-Start)
 function startGpsSearch() {
@@ -494,6 +508,31 @@ window.addEventListener("hashchange", route);
 // Favoriten-Stern & Löschen (Event-Delegation über die ganze Seite)
 document.body.addEventListener("click", e => {
   if (e.target.closest("a")) return;   // echte Links (Navigation/Deep-Links) normal öffnen lassen
+
+  // Wochenübersicht auf-/zuklappen (Favoriten)
+  const dtog = e.target.closest(".days-toggle");
+  if (dtog) {
+    const card = dtog.closest(".card");
+    const daysEl = card && card.querySelector(".days");
+    if (daysEl) {
+      const open = daysEl.classList.toggle("collapsed") === false;
+      dtog.setAttribute("aria-expanded", open ? "true" : "false");
+      dtog.querySelector(".dt-arrow").textContent = open ? "▴" : "▾";
+    }
+    return;
+  }
+
+  // Tap auf eine Stunde -> Winddetails anzeigen (Handy-tauglich, kein Hover nötig)
+  const hcell = e.target.closest(".h[data-info]");
+  if (hcell) {
+    const card = hcell.closest(".card");
+    const hd = card && card.querySelector(".hour-detail");
+    if (hd) { hd.textContent = hcell.dataset.info; hd.hidden = false; }
+    if (card) card.querySelectorAll(".h.sel").forEach(x => x.classList.remove("sel"));
+    hcell.classList.add("sel");
+    return;
+  }
+
   const favBtn = e.target.closest("[data-fav]");
   if (favBtn) {
     toggleFav(favBtn.dataset.fav);
