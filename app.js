@@ -229,7 +229,7 @@ function renderCard(spot, days, opts = {}) {
     return `
       <div class="day ${day.windows.length ? "hasgreen" : ""}">
         <div class="dlabel">${wd}<br>${day.date.getDate()}.${day.date.getMonth()+1}.</div>
-        <div class="dright"><div class="hours">${hoursHtml}</div>${wx}<div class="wins">${winTxt}</div></div>
+        <div class="dright"><div class="hours">${hoursHtml}</div>${wx}<div class="wins">${winTxt}</div><div class="hour-detail" hidden></div></div>
       </div>`;
   }).join("");
 
@@ -266,7 +266,6 @@ function renderCard(spot, days, opts = {}) {
       ${nowBar}
       ${toggle}
       <div class="days${opts.collapsible ? " collapsed" : ""}">${daysHtml}</div>
-      <div class="hour-detail" hidden></div>
     </div>`;
 }
 
@@ -529,9 +528,12 @@ document.body.addEventListener("click", e => {
   const hcell = e.target.closest(".h[data-info]");
   if (hcell) {
     const card = hcell.closest(".card");
-    const hd = card && card.querySelector(".hour-detail");
+    if (card) {
+      card.querySelectorAll(".hour-detail").forEach(x => { x.hidden = true; x.textContent = ""; });
+      card.querySelectorAll(".h.sel").forEach(x => x.classList.remove("sel"));
+    }
+    const hd = hcell.closest(".day")?.querySelector(".hour-detail");
     if (hd) { hd.textContent = hcell.dataset.info; hd.hidden = false; }
-    if (card) card.querySelectorAll(".h.sel").forEach(x => x.classList.remove("sel"));
     hcell.classList.add("sel");
     return;
   }
