@@ -44,6 +44,13 @@
           <option value="250">250 km</option>
         </select>
       </div>
+
+      <div class="or-divider"><span>oder Postleitzahl</span></div>
+      <div class="plz-row">
+        <input id="plzInput" inputmode="numeric" maxlength="5" placeholder="z. B. 87534" />
+        <button id="plzBtn" class="btn-soft">🔎 Suchen</button>
+      </div>
+
       <div id="flyResults" class="fly-results"></div>
 
       <h2 class="page-h">⭐ Deine Favoriten</h2>
@@ -128,6 +135,17 @@
     <a href="#/info" data-tab="info" class="tab"><span class="ti">ℹ️</span><span>Info</span></a>
     <a href="#/legal" data-tab="legal" class="tab"><span class="ti">⚖️</span><span>Recht</span></a>
   </nav>
+
+  <!-- Detail-Fenster: 7-Tage-Vorhersage -->
+  <div id="detailModal" class="modal" hidden>
+    <div class="modal-card detail">
+      <div class="modal-head">
+        <h2>7-Tage-Vorhersage</h2>
+        <button id="detailClose" class="ic0" title="Schließen">✕</button>
+      </div>
+      <div id="detailBody" class="detail-body"></div>
+    </div>
+  </div>
 
   <script src="database.js"></script>
   <script src="app.js"></script>

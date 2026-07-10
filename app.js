@@ -223,45 +223,69 @@ async function renderFavorites() {
 }
 
 // ---------------- „Wo kann ich heute fliegen?" ----------------
-async function findFlyable() {
+// PLZ (Deutschland) -> Koordinaten via zippopotam.us (kostenlos, ohne Schlüssel).
+async function geocodePlz(plz) {
+  const res = await fetch(`https://api.zippopotam.us/de/${plz}`);
+  if (!res.ok) throw new Error("PLZ nicht gefunden");
+  const j = await res.json();
+  const p = j.places[0];
+  return { lat: parseFloat(p.latitude), lon: parseFloat(p.longitude), label: `${plz} ${p["place name"]}` };
+}
+
+// Kernsuche ab einem Ausgangspunkt (GPS oder PLZ).
+async function runFlySearch(lat, lon, label) {
   const out = document.getElementById("flyResults");
-  const btn = document.getElementById("flyBtn");
-  if (!navigator.geolocation) { out.innerHTML = `<p class="empty">Standort wird nicht unterstützt.</p>`; return; }
+  const radius = parseInt(document.getElementById("radius").value, 10);
+  const candidates = allKnownSpots()
+    .map(s => ({ ...s, dist: haversine(lat, lon, s.lat, s.lon) }))
+    .filter(s => s.dist <= radius)
+    .sort((a, b) => a.dist - b.dist);
+
+  if (!candidates.length) {
+    out.innerHTML = `<p class="empty">Kein Startplatz im Umkreis von ${radius} km${label ? " um " + label : ""}. (Die Datenbank wächst noch.)</p>`;
+    return;
+  }
+  out.innerHTML = `<p class="loading-line">🔎 Prüfe ${candidates.length} Plätze …</p>`;
+  try {
+    const results = await fetchBulkToday(candidates);
+    const rows = candidates.map((s, i) => ({ spot: s, ts: todayStatus(analyse(s, results[i])) }));
+    const rank = { gut: 0, grenz: 1, nein: 2 };
+    rows.sort((a, b) => rank[a.ts.status] - rank[b.ts.status] || a.spot.dist - b.spot.dist);
+    renderFlyResults(rows, radius, label);
+  } catch (e) {
+    out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
+  }
+}
+
+// Button: Standort per GPS
+document.getElementById("flyBtn").addEventListener("click", () => {
+  const out = document.getElementById("flyResults"), btn = document.getElementById("flyBtn");
+  if (!navigator.geolocation) { out.innerHTML = `<p class="empty">Standort nicht unterstützt – nutze die PLZ-Suche.</p>`; return; }
   btn.classList.add("busy"); out.innerHTML = `<p class="loading-line">📍 Standort wird ermittelt …</p>`;
-
   navigator.geolocation.getCurrentPosition(async pos => {
-    const { latitude: lat, longitude: lon } = pos.coords;
-    const radius = parseInt(document.getElementById("radius").value, 10);
-    const candidates = allKnownSpots()
-      .map(s => ({ ...s, dist: haversine(lat, lon, s.lat, s.lon) }))
-      .filter(s => s.dist <= radius)
-      .sort((a, b) => a.dist - b.dist);
-
-    if (!candidates.length) {
-      btn.classList.remove("busy");
-      out.innerHTML = `<p class="empty">Kein Startplatz im Umkreis von ${radius} km in der Datenbank. (Die Datenbank wächst noch.)</p>`;
-      return;
-    }
-    out.innerHTML = `<p class="loading-line">🔎 Prüfe ${candidates.length} Plätze …</p>`;
-    try {
-      const results = await fetchBulkToday(candidates);
-      const rows = candidates.map((s, i) => ({ spot: s, ts: todayStatus(analyse(s, results[i])) }));
-      const rank = { gut: 0, grenz: 1, nein: 2 };
-      rows.sort((a, b) => rank[a.ts.status] - rank[b.ts.status] || a.spot.dist - b.spot.dist);
-      renderFlyResults(rows, radius);
-    } catch (e) {
-      out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
-    }
+    await runFlySearch(pos.coords.latitude, pos.coords.longitude, null);
     btn.classList.remove("busy");
   }, () => {
     btn.classList.remove("busy");
-    out.innerHTML = `<p class="empty">Standort nicht verfügbar (Berechtigung?). Erlaube die Ortung und versuch es erneut.</p>`;
+    out.innerHTML = `<p class="empty">Standort nicht verfügbar (Berechtigung?). Nutze die PLZ-Suche unten.</p>`;
   });
-}
+});
 
-function renderFlyResults(rows, radius) {
+// PLZ-Suche
+async function plzSearch() {
+  const inp = document.getElementById("plzInput"), out = document.getElementById("flyResults");
+  const plz = inp.value.trim();
+  if (!/^\d{5}$/.test(plz)) { out.innerHTML = `<p class="empty">Bitte eine 5-stellige Postleitzahl eingeben.</p>`; return; }
+  out.innerHTML = `<p class="loading-line">🔎 Suche PLZ ${plz} …</p>`;
+  try { const o = await geocodePlz(plz); await runFlySearch(o.lat, o.lon, o.label); }
+  catch { out.innerHTML = `<p class="empty">PLZ ${plz} nicht gefunden.</p>`; }
+}
+document.getElementById("plzBtn").addEventListener("click", plzSearch);
+document.getElementById("plzInput").addEventListener("keydown", e => { if (e.key === "Enter") plzSearch(); });
+
+function renderFlyResults(rows, radius, label) {
   const flyable = rows.filter(r => r.ts.status !== "nein").length;
-  const head = `<div class="fly-head">Heute im Umkreis ${radius} km · <b>${flyable}</b> von ${rows.length} fliegbar</div>`;
+  const head = `<div class="fly-head">Heute im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""} · <b>${flyable}</b> von ${rows.length} fliegbar</div>`;
   const list = rows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
@@ -269,10 +293,10 @@ function renderFlyResults(rows, radius) {
       ? `<span class="fr-reason">${ts.reason}</span>`
       : `<span class="fr-win">${windowLabel(ts.win)}</span>`;
     return `
-      <div class="fr ${ts.status}">
+      <div class="fr ${ts.status}" data-spot="${s.id}">
         <span class="fr-dot">${statusDot(ts.status)}</span>
         <div class="fr-mid">
-          <div class="fr-name">${s.name}</div>
+          <div class="fr-name">${s.name} <span class="fr-go">›</span></div>
           <div class="fr-sub">${s.dist} km · ${s.sectorLabel}</div>
         </div>
         ${right}
@@ -281,6 +305,22 @@ function renderFlyResults(rows, radius) {
   }).join("");
   document.getElementById("flyResults").innerHTML = head + `<div class="fr-list">${list}</div>`;
 }
+
+// ---------------- Detail-Fenster: 7-Tage-Vorhersage ----------------
+async function openDetail(id) {
+  const spot = getSpot(id); if (!spot) return;
+  const modal = document.getElementById("detailModal"), body = document.getElementById("detailBody");
+  modal.hidden = false;
+  body.innerHTML = `<div class="card loading">Lade 7-Tage-Vorhersage für ${spot.name} …</div>`;
+  try { body.innerHTML = renderCard(spot, analyse(spot, await fetchForecast(spot))); }
+  catch (e) { body.innerHTML = `<div class="card">Fehler: ${e.message}</div>`; }
+}
+function closeDetail() {
+  document.getElementById("detailModal").hidden = true;
+  document.getElementById("detailBody").innerHTML = "";
+}
+document.getElementById("detailClose").addEventListener("click", closeDetail);
+document.getElementById("detailModal").addEventListener("click", e => { if (e.target.id === "detailModal") closeDetail(); });
 
 // ---------------- Neu: Datenbank-Suche + eigener Platz ----------------
 function renderDbSearch(query = "") {
@@ -291,8 +331,8 @@ function renderDbSearch(query = "") {
   else list = list.slice(0, 8);
   wrap.innerHTML = list.map(s => {
     const fav = isFav(s.id);
-    return `<div class="db-row">
-      <div><div class="fr-name">${s.name}</div><div class="fr-sub">${s.region||""} · ${s.sectorLabel}</div></div>
+    return `<div class="db-row" data-spot="${s.id}">
+      <div><div class="fr-name">${s.name} <span class="fr-go">›</span></div><div class="fr-sub">${s.region||""} · ${s.sectorLabel}</div></div>
       <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}">${fav?"★":"☆"}</button>
     </div>`;
   }).join("") || `<p class="empty">Nichts gefunden.</p>`;
@@ -319,7 +359,7 @@ function route() {
 window.addEventListener("hashchange", route);
 
 // ---------------- Events ----------------
-document.getElementById("flyBtn").addEventListener("click", findFlyable);
+// (Der „Wo kann ich fliegen?"-Button und die PLZ-Suche sind oben registriert.)
 
 // Favoriten-Stern & Löschen (Event-Delegation über die ganze Seite)
 document.body.addEventListener("click", e => {
@@ -333,11 +373,17 @@ document.body.addEventListener("click", e => {
     return;
   }
   const del = e.target.closest("[data-del]");
-  if (del && confirm("Diesen eigenen Platz löschen (und aus Favoriten entfernen)?")) {
-    saveUserSpots(loadUserSpots().filter(s => s.id !== del.dataset.del));
-    const f = loadFavs().filter(id => id !== del.dataset.del); saveFavs(f);
-    renderFavorites();
+  if (del) {
+    if (confirm("Diesen eigenen Platz löschen (und aus Favoriten entfernen)?")) {
+      saveUserSpots(loadUserSpots().filter(s => s.id !== del.dataset.del));
+      const f = loadFavs().filter(id => id !== del.dataset.del); saveFavs(f);
+      renderFavorites();
+    }
+    return;
   }
+  // Klick auf eine Ergebnis-/Suchzeile -> 7-Tage-Detail
+  const row = e.target.closest("[data-spot]");
+  if (row) openDetail(row.dataset.spot);
 });
 
 // Radius merken

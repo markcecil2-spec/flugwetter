@@ -234,5 +234,23 @@ legend { font-size: 12.5px; font-weight: 700; padding: 0 6px; }
 .db-search { width: 100%; font-size: 15px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); margin-bottom: 10px; }
 .db-search:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
 .db-results { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
-.db-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 11px; }
+.db-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 11px; cursor: pointer; }
+.db-row:hover { border-color: var(--sky); }
 .head-right { display: flex; align-items: center; gap: 4px; }
+
+/* „oder PLZ" */
+.or-divider { display: flex; align-items: center; gap: 10px; margin: 14px 2px 10px; color: var(--muted); font-size: 12px; }
+.or-divider::before, .or-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.plz-row { display: flex; gap: 8px; }
+.plz-row input { flex: 1; font-size: 16px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); letter-spacing: 2px; }
+.plz-row input:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
+.plz-row .btn-soft { white-space: nowrap; }
+
+/* Anklickbare Ergebniszeile */
+.fr { cursor: pointer; }
+.fr-go { color: var(--muted); font-weight: 700; }
+
+/* Detail-Fenster */
+.modal-card.detail { max-width: 620px; }
+.detail-body { padding: 4px 16px 18px; }
+.detail-body .card { border: none; box-shadow: none; padding: 0; }
