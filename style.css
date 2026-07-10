@@ -255,6 +255,13 @@ header { position: relative; overflow: hidden; }
 .fr.grenz .fr-line1 { color: var(--amber); }
 .fr.nein .fr-line1 { color: var(--muted); font-weight: 600; }
 .fr-line2 { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+/* Roter Ausschluss-Chip (warum NICHT fliegbar) */
+.fr-block {
+  white-space: nowrap; font-size: 12px; font-weight: 800;
+  color: #b91c1c; background: rgba(239,68,68,.14); border: 1px solid rgba(239,68,68,.45);
+  padding: 5px 10px; border-radius: 999px;
+}
+@media (prefers-color-scheme: dark) { .fr-block { color: #fca5a5; } }
 .fr-nav {
   flex: none; text-decoration: none; font-size: 15px; width: 34px; height: 34px;
   display: grid; place-items: center; border-radius: 10px;

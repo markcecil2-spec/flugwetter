@@ -111,6 +111,10 @@ function neinLabel(r) {
   const m = { "Regen": "🌧️ Regen", "Richtung": "🧭 Windrichtung", "zu stark": "💨 Zu viel Wind", "Böen": "💨 Böig", "Nacht": "🌙 Nachts" };
   return m[r] || r;
 }
+function neinText(r) {
+  const m = { "Regen": "Regen", "Richtung": "Windrichtung", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts" };
+  return m[r] || r;
+}
 function dominantReason(hours, rating) {
   const c = {};
   hours.forEach(x => { if (x.rating === rating) c[x.reason] = (c[x.reason] || 0) + 1; });
@@ -127,7 +131,7 @@ function dayStatus(days, idx = 0) {
   if (green.length) return { status: "gut", win: green[0], reasonLabel: "💨 Wind passt" };
   if (yellow.length) return { status: "grenz", win: yellow[0], reasonLabel: grenzLabel(dominantReason(day.dayHours, "grenz")) };
   const r = dominantReason(day.dayHours, "nein") || "—";
-  return { status: "nein", reason: r, reasonLabel: neinLabel(r) };
+  return { status: "nein", reason: r, reasonLabel: neinLabel(r), reasonText: neinText(r) };
 }
 function todayStatus(days) { return dayStatus(days, 0); }
 
@@ -213,7 +217,7 @@ function renderCard(spot, days, opts = {}) {
       ${sun ? `<span class="sun-txt">🌅 ${fmtTime(sun.sunrise)} · 🌇 ${fmtTime(sun.sunset)}</span>` : ""}
     </div>` : "";
   const badge = ts.status === "nein"
-    ? `<span class="badge red">🔴 heute nichts</span>`
+    ? `<span class="badge red">🔴 heute: ${ts.reasonText}</span>`
     : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} heute ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
 
   const daysHtml = days.slice(0, 7).map(day => {
@@ -429,8 +433,9 @@ function renderFlyResults(rows, headline, truncated) {
   const list = rows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
-    const line1 = ts.status === "nein" ? ts.reasonLabel : winTimeShort(ts.win);
-    const line2 = ts.status === "nein" ? "" : `<div class="fr-line2">${ts.reasonLabel}</div>`;
+    const right = ts.status === "nein"
+      ? `<span class="fr-block">✗ ${ts.reasonLabel}</span>`
+      : `<div class="fr-right"><div class="fr-line1">${winTimeShort(ts.win)}</div><div class="fr-line2">${ts.reasonLabel}</div></div>`;
     return `
       <div class="fr ${ts.status}" data-spot="${s.id}">
         <span class="fr-dot">${statusDot(ts.status)}</span>
@@ -438,7 +443,7 @@ function renderFlyResults(rows, headline, truncated) {
           <div class="fr-name">${s.name} <span class="fr-go">›</span></div>
           <div class="fr-sub">${r.subInfo}</div>
         </div>
-        <div class="fr-right"><div class="fr-line1">${line1}</div>${line2}</div>
+        ${right}
         <a class="fr-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">▶️</a>
         <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}" title="${fav?"Favorit":"Zu Favoriten"}">${fav?"★":"☆"}</button>
       </div>`;
