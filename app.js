@@ -115,6 +115,13 @@ function neinText(r) {
   const m = { "Regen": "Regen", "Richtung": "Windrichtung", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts" };
   return m[r] || r;
 }
+// Klartext-Grund pro Stunde (für das Uhrzeit-Detail)
+function hourReason(rating, reason) {
+  if (rating === "gut") return "passt ✓";
+  const grenz = { "schwach": "grenzwertig – wenig Wind", "böig": "grenzwertig – böig", "recht stark": "grenzwertig – recht stark" };
+  const nein = { "Richtung": "falsche Windrichtung", "Regen": "Regen", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts", "schwach": "zu wenig Wind" };
+  return rating === "grenz" ? (grenz[reason] || "grenzwertig") : (nein[reason] || reason);
+}
 function dominantReason(hours, rating) {
   const c = {};
   hours.forEach(x => { if (x.rating === rating) c[x.reason] = (c[x.reason] || 0) + 1; });
@@ -224,8 +231,9 @@ function renderCard(spot, days, opts = {}) {
     const wd = WEEKDAYS[day.date.getDay()];
     const hoursHtml = day.dayHours.map(x => {
       const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
-      const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}${x.rating === "nein" && x.reason ? " · " + x.reason : ""}`;
-      return `<span class="${cls}" title="${info}" data-info="${info}">${x.t.getHours()}</span>`;
+      const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`;
+      const rtxt = hourReason(x.rating, x.reason);
+      return `<span class="${cls}" title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}">${x.t.getHours()}</span>`;
     }).join("");
     const wx = day.wx && day.wx.code != null
       ? `<div class="wx">${weatherEmoji(day.wx.code)} <span class="tmax">${day.wx.tmax}°</span> / <span class="tmin">${day.wx.tmin}°</span></div>` : "";
@@ -540,7 +548,11 @@ document.body.addEventListener("click", e => {
       card.querySelectorAll(".h.sel").forEach(x => x.classList.remove("sel"));
     }
     const hd = hcell.closest(".day")?.querySelector(".hour-detail");
-    if (hd) { hd.textContent = hcell.dataset.info; hd.hidden = false; }
+    if (hd) {
+      const rea = hcell.dataset.reason, rating = hcell.dataset.rating;
+      hd.innerHTML = hcell.dataset.info + (rea ? ` · <span class="hd-reason ${rating}">${rea}</span>` : "");
+      hd.hidden = false;
+    }
     hcell.classList.add("sel");
     return;
   }

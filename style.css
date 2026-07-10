@@ -348,6 +348,11 @@ header { position: relative; overflow: hidden; }
 }
 .h { cursor: pointer; }
 .h.sel { outline: 2px solid var(--sky); outline-offset: 1px; }
+.hd-reason { font-weight: 800; }
+.hd-reason.nein { color: #b91c1c; }
+.hd-reason.grenz { color: #b45309; }
+.hd-reason.gut { color: var(--green); }
+@media (prefers-color-scheme: dark) { .hd-reason.nein { color: #fca5a5; } .hd-reason.grenz { color: #fbbf24; } }
 
 /* Formular: kein horizontales Überlaufen auf dem Handy */
 #spotForm input { width: 100%; min-width: 0; }
