@@ -1,5 +1,5 @@
 // Minimaler Service Worker – macht die App installierbar und cached die Hülle.
-const CACHE = "flugwetter-v11";
+const CACHE = "flugwetter-v12";
 const ASSETS = ["./", "index.html", "style.css", "database.js", "app.js", "manifest.webmanifest",
   "datenschutz.html", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png"];
 

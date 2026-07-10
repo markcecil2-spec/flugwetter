@@ -1,9 +1,15 @@
 {
+  "id": "/",
   "name": "GoFlyToday",
   "short_name": "GoFlyToday",
   "description": "Sag mir in 5 Sekunden, ob sich heute die Anfahrt zum Startplatz lohnt.",
-  "start_url": ".",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
+  "categories": ["weather", "sports", "travel"],
   "background_color": "#0b1220",
   "theme_color": "#0ea5e9",
   "icons": [
