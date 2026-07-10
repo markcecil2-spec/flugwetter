@@ -37,15 +37,14 @@
         <span class="fly-text">Wo kann ich heute fliegen?</span>
         <span class="fly-sub">Sucht Startplätze in deiner Nähe</span>
       </button>
-      <div class="radius-row">
-        Umkreis:
-        <select id="radius">
-          <option value="50">50 km</option>
-          <option value="100" selected>100 km</option>
-          <option value="150">150 km</option>
-          <option value="250">250 km</option>
-          <option value="500">500 km</option>
-        </select>
+      <div class="radius-pills" id="radiusPills" role="group" aria-label="Umkreis wählen">
+        <span class="rlabel">Umkreis</span>
+        <button type="button" class="rpill" data-km="25">25</button>
+        <button type="button" class="rpill" data-km="50">50</button>
+        <button type="button" class="rpill on" data-km="100">100</button>
+        <button type="button" class="rpill" data-km="150">150</button>
+        <button type="button" class="rpill" data-km="250">250</button>
+        <button type="button" class="rpill" data-km="500">500 km</button>
       </div>
 
       <div class="or-divider"><span>oder Postleitzahl</span></div>

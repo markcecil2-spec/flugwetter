@@ -246,10 +246,24 @@ async function geocodePlz(plz) {
   return { lat: parseFloat(p.latitude), lon: parseFloat(p.longitude), label: `${plz} ${p["place name"]}` };
 }
 
+// Umkreis-Auswahl (Pills)
+let lastOrigin = null;
+function getRadius() {
+  const on = document.querySelector("#radiusPills .rpill.on");
+  return on ? parseInt(on.dataset.km, 10) : 100;
+}
+document.getElementById("radiusPills").addEventListener("click", e => {
+  const p = e.target.closest(".rpill"); if (!p) return;
+  document.querySelectorAll("#radiusPills .rpill").forEach(x => x.classList.toggle("on", x === p));
+  localStorage.setItem("flugwetter_radius", p.dataset.km);
+  if (lastOrigin) runFlySearch(lastOrigin.lat, lastOrigin.lon, lastOrigin.label);
+});
+
 // Kernsuche ab einem Ausgangspunkt (GPS oder PLZ).
 async function runFlySearch(lat, lon, label) {
+  lastOrigin = { lat, lon, label };
   const out = document.getElementById("flyResults");
-  const radius = parseInt(document.getElementById("radius").value, 10);
+  const radius = getRadius();
   const candidates = allKnownSpots()
     .map(s => ({ ...s, dist: haversine(lat, lon, s.lat, s.lon) }))
     .filter(s => s.dist <= radius)
@@ -340,9 +354,13 @@ document.getElementById("detailModal").addEventListener("click", e => { if (e.ta
 function renderDbSearch(query = "") {
   const wrap = document.getElementById("dbResults");
   const q = query.trim().toLowerCase();
-  let list = SPOT_DB.concat(loadUserSpots());
-  if (q) list = list.filter(s => (s.name + " " + (s.region||"")).toLowerCase().includes(q));
-  else list = list.slice(0, 8);
+  if (!q) {
+    wrap.innerHTML = `<p class="db-hint">🔎 Tippe einen Namen oder Ort (z. B. „Tegelberg", „Alb"), um in ${SPOT_DB.length} Startplätzen zu suchen.</p>`;
+    return;
+  }
+  const list = SPOT_DB.concat(loadUserSpots())
+    .filter(s => (s.name + " " + (s.region||"")).toLowerCase().includes(q))
+    .slice(0, 6);
   wrap.innerHTML = list.map(s => {
     const fav = isFav(s.id);
     return `<div class="db-row" data-spot="${s.id}">
@@ -400,10 +418,6 @@ document.body.addEventListener("click", e => {
   const row = e.target.closest("[data-spot]");
   if (row) openDetail(row.dataset.spot);
 });
-
-// Radius merken
-document.getElementById("radius").addEventListener("change", e =>
-  localStorage.setItem("flugwetter_radius", e.target.value));
 
 // DB-Suche
 document.getElementById("dbSearch").addEventListener("input", e => renderDbSearch(e.target.value));
@@ -486,7 +500,9 @@ document.getElementById("hintClose").addEventListener("click", () => {
   }
   if (localStorage.getItem(HINT_KEY) === "1") document.getElementById("hintBanner").style.display = "none";
   const r = localStorage.getItem("flugwetter_radius");
-  if (r) document.getElementById("radius").value = r;
+  if (r && document.querySelector(`#radiusPills .rpill[data-km="${r}"]`)) {
+    document.querySelectorAll("#radiusPills .rpill").forEach(x => x.classList.toggle("on", x.dataset.km === r));
+  }
   route();
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
