@@ -4,6 +4,7 @@ const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden Stunden
 const DEFAULT_RADIUS = 100;    // km
 const MAX_CANDIDATES = 100;    // max. Plätze pro Suche (Performance bei großer DB)
+const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
 
 function degToCompass(deg) {
   const d = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
@@ -267,7 +268,7 @@ function renderCard(spot, days, opts = {}) {
 
   // Aktionsleiste: Einstiegspunkte für den Flugtag
   const acts = [
-    `<a class="act nav" href="${mapsUrl(spot)}" target="_blank" rel="noopener">▶️ Navigation</a>`,
+    `<a class="act nav" href="${mapsUrl(spot)}" target="_blank" rel="noopener">${NAV_ICON} Navigation</a>`,
     `<a class="act" href="https://www.windy.com/?${spot.lat},${spot.lon},12" target="_blank" rel="noopener">🌬️ Windy</a>`,
   ];
   if (spot.webcam) acts.push(`<a class="act" href="${spot.webcam}" target="_blank" rel="noopener">📷 Webcam</a>`);
@@ -492,7 +493,7 @@ function renderFlyResults(rows, headline, truncated) {
           <div class="fr-sub">${r.subInfo}</div>
         </div>
         ${right}
-        <a class="fr-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">▶️</a>
+        <a class="fr-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">${NAV_ICON}</a>
         <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}" title="${fav?"Favorit":"Zu Favoriten"}">${fav?"★":"☆"}</button>
       </div>`;
   }).join("");

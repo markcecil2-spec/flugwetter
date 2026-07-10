@@ -270,10 +270,12 @@ header { position: relative; overflow: hidden; }
 .fr-nore { white-space: nowrap; font-size: 12px; font-weight: 600; color: #9a6b6b; }
 @media (prefers-color-scheme: dark) { .fr-nore { color: #c99a9a; } }
 .fr-nav {
-  flex: none; text-decoration: none; font-size: 15px; width: 34px; height: 34px;
+  flex: none; text-decoration: none; width: 34px; height: 34px;
   display: grid; place-items: center; border-radius: 10px;
-  background: rgba(14,165,233,.14);
+  background: rgba(14,165,233,.14); color: var(--sky);
 }
+.fr-nav .nav-ic { width: 18px; height: 18px; display: block; }
+.act .nav-ic { width: 14px; height: 14px; vertical-align: -2px; }
 .fr-nav:hover { background: rgba(14,165,233,.28); }
 .fr.nein .fr-nav { opacity: .5; }
 
