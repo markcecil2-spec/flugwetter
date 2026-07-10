@@ -239,7 +239,8 @@ function renderCard(spot, days) {
   // Aktionsleiste: Einstiegspunkte für den Flugtag
   const acts = [
     `<a class="act nav" href="${mapsUrl(spot)}" target="_blank" rel="noopener">▶️ Navigation</a>`,
-    `<a class="act" href="https://map.burnair.cloud/?lat=${spot.lat}&lon=${spot.lon}&zoom=12" target="_blank" rel="noopener">🌦 Burnair</a>`,
+    `<a class="act" href="https://map.burnair.cloud/#13/${spot.lat}/${spot.lon}" target="_blank" rel="noopener">🌦 Burnair</a>`,
+    `<a class="act" href="https://www.windy.com/?${spot.lat},${spot.lon},12" target="_blank" rel="noopener">🌬️ Windy</a>`,
   ];
   if (spot.webcam) acts.push(`<a class="act" href="${spot.webcam}" target="_blank" rel="noopener">📷 Webcam</a>`);
   if (spot.dhv) acts.push(`<a class="act" href="https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}" target="_blank" rel="noopener">📋 DHV</a>`);
