@@ -3,6 +3,7 @@
 const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden Stunden
 const DEFAULT_RADIUS = 100;    // km
+const MAX_CANDIDATES = 50;     // max. Plätze pro Umkreissuche (Performance bei großer DB)
 
 function degToCompass(deg) {
   const d = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
@@ -306,10 +307,12 @@ async function runFlySearch(lat, lon, label) {
   lastOrigin = { lat, lon, label };
   const out = document.getElementById("flyResults");
   const radius = getRadius();
-  const candidates = allKnownSpots()
+  const inRadius = allKnownSpots()
     .map(s => ({ ...s, dist: haversine(lat, lon, s.lat, s.lon) }))
     .filter(s => s.dist <= radius)
     .sort((a, b) => a.dist - b.dist);
+  const truncated = inRadius.length > MAX_CANDIDATES;
+  const candidates = inRadius.slice(0, MAX_CANDIDATES);
 
   if (!candidates.length) {
     out.innerHTML = `<p class="empty">Kein Startplatz im Umkreis von ${radius} km${label ? " um " + label : ""}. (Die Datenbank wächst noch.)</p>`;
@@ -326,7 +329,7 @@ async function runFlySearch(lat, lon, label) {
       rank[a.ts.status] - rank[b.ts.status] ||
       ((a.drive ?? Infinity) - (b.drive ?? Infinity)) ||
       a.spot.dist - b.spot.dist);
-    renderFlyResults(rows, radius, label);
+    renderFlyResults(rows, radius, label, truncated);
   } catch (e) {
     out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
   }
@@ -363,9 +366,10 @@ document.getElementById("plzInput").addEventListener("keydown", e => { if (e.key
 function mapsUrl(s) {
   return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;
 }
-function renderFlyResults(rows, radius, label) {
+function renderFlyResults(rows, radius, label, truncated) {
   const flyable = rows.filter(r => r.ts.status !== "nein").length;
-  const head = `<div class="fly-head">Heute im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""} · <b>${flyable}</b> von ${rows.length} fliegbar</div>`;
+  const scope = truncated ? `<b>${flyable}</b> fliegbar (nächste ${rows.length} Plätze)` : `<b>${flyable}</b> von ${rows.length} fliegbar`;
+  const head = `<div class="fly-head">Heute im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""} · ${scope}</div>`;
   const list = rows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
