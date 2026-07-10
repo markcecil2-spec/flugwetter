@@ -84,6 +84,14 @@ const SPOT_DB = [
     lat: 48.8332, lon: 9.3781, elevation: 400, dhv: 615,
     sectors: [[135, 270]], sectorLabel: "SO–W", windMin: 3, windMax: 26, gustMax: 30 },
 
+  { id: "db_neidlingen", name: "Neidlingen (Aurach)", region: "Neidlingen · Schwäbische Alb",
+    lat: 48.5772, lon: 9.5928, elevation: 770,
+    sectors: [[220, 320]], sectorLabel: "SW–NW", windMin: 3, windMax: 26, gustMax: 30 },
+
+  { id: "db_messelberg", name: "Messelberg", region: "Donzdorf · Schwäbische Alb",
+    lat: 48.6797, lon: 9.8389, elevation: 700,
+    sectors: [[225, 300]], sectorLabel: "W", windMin: 3, windMax: 26, gustMax: 30 },
+
   // --- Schwarzwald ---
   { id: "db_merkur", name: "Merkur", region: "Baden-Baden · Nordschwarzwald",
     lat: 48.7647, lon: 8.2794, elevation: 651, dhv: 987,
