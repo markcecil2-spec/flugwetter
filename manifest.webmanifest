@@ -1,7 +1,7 @@
 {
-  "name": "Flugwetter · Gleitschirm",
-  "short_name": "Flugwetter",
-  "description": "Grüne Fenster für deine Gleitschirm-Startplätze – nächste 7 Tage.",
+  "name": "GoFlyToday",
+  "short_name": "GoFlyToday",
+  "description": "Sag mir in 5 Sekunden, ob sich heute die Anfahrt zum Startplatz lohnt.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#0b1220",

@@ -102,18 +102,31 @@ function analyse(spot, data) {
   });
 }
 
-// Status "heute" für einen Platz (aus Tag-0-Daten): {status:'gut'|'grenz'|'nein', win?, reason?}
+// Kurz-Label für den Grund (Anzeige rechts neben dem Ergebnis)
+function grenzLabel(r) {
+  return r === "böig" ? "💨 Böig" : r === "schwach" ? "🍃 Wenig Wind" : r === "recht stark" ? "💨 Recht stark" : "Grenzwertig";
+}
+function neinLabel(r) {
+  const m = { "Regen": "🌧️ Regen", "Richtung": "🧭 Windrichtung", "zu stark": "💨 Zu viel Wind", "Böen": "💨 Böig", "Nacht": "🌙 Nachts" };
+  return m[r] || r;
+}
+function dominantReason(hours, rating) {
+  const c = {};
+  hours.forEach(x => { if (x.rating === rating) c[x.reason] = (c[x.reason] || 0) + 1; });
+  const top = Object.entries(c).sort((a, b) => b[1] - a[1])[0];
+  return top ? top[0] : "";
+}
+
+// Status "heute" für einen Platz (aus Tag-0-Daten): {status, win?, reason?, reasonLabel}
 function todayStatus(days) {
   const day = days[0];
-  if (!day) return { status: "nein", reason: "—" };
+  if (!day) return { status: "nein", reason: "—", reasonLabel: "—" };
   const green = day.windows.filter(w => w.color === "gut");
   const yellow = day.windows.filter(w => w.color === "grenz");
-  if (green.length) return { status: "gut", win: green[0] };
-  if (yellow.length) return { status: "grenz", win: yellow[0] };
-  const reasons = {};
-  day.dayHours.forEach(x => { if (x.rating === "nein") reasons[x.reason] = (reasons[x.reason] || 0) + 1; });
-  const top = Object.entries(reasons).sort((a, b) => b[1] - a[1])[0];
-  return { status: "nein", reason: top ? top[0] : "—" };
+  if (green.length) return { status: "gut", win: green[0], reasonLabel: "💨 Wind passt" };
+  if (yellow.length) return { status: "grenz", win: yellow[0], reasonLabel: grenzLabel(dominantReason(day.dayHours, "grenz")) };
+  const r = dominantReason(day.dayHours, "nein") || "—";
+  return { status: "nein", reason: r, reasonLabel: neinLabel(r) };
 }
 
 // ---------------- Fetching ----------------
@@ -143,6 +156,25 @@ async function fetchElevation(lat, lon) {
   if (!res.ok) throw new Error("Höhe?");
   return Math.round((await res.json()).elevation[0]);
 }
+// Fahrzeit (Auto) von einem Startpunkt zu vielen Zielen in EINEM Aufruf (OSRM, gratis, ohne Schlüssel).
+// Gibt Sekunden je Ziel zurück (gleiche Reihenfolge wie `spots`), oder [] bei Fehler.
+async function fetchDriveTimes(origin, spots) {
+  const coords = [[origin.lon, origin.lat], ...spots.map(s => [s.lon, s.lat])]
+    .map(c => c[0].toFixed(5) + "," + c[1].toFixed(5)).join(";");
+  const url = `https://router.project-osrm.org/table/v1/driving/${coords}?sources=0&annotations=duration`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("OSRM " + res.status);
+  const j = await res.json();
+  return (j.durations && j.durations[0]) ? j.durations[0].slice(1) : [];
+}
+function formatDur(sec) {
+  if (sec == null || isNaN(sec)) return "";
+  const m = Math.round(sec / 60);
+  if (m < 60) return m + " min";
+  return Math.floor(m / 60) + " h " + (m % 60).toString().padStart(2, "0") + " min";
+}
+// Kompakte Fensterzeit für die Ergebnisliste: „15–22 Uhr"
+function winTimeShort(w) { return `${w.from.getHours()}–${(w.to.getHours() + 1) % 24} Uhr`; }
 
 // ---------------- Speicher: User-Plätze + Favoriten ----------------
 const USER_KEY = "flugwetter_user_spots", FAV_KEY = "flugwetter_favorites";
@@ -203,6 +235,15 @@ function renderCard(spot, days) {
   const del = spot.id.startsWith("user_")
     ? `<button class="ic0" data-del="${spot.id}" title="Eigenen Platz löschen">🗑</button>` : "";
 
+  // Aktionsleiste: Einstiegspunkte für den Flugtag
+  const acts = [
+    `<a class="act nav" href="${mapsUrl(spot)}" target="_blank" rel="noopener">▶️ Navigation</a>`,
+    `<a class="act" href="https://map.burnair.cloud/?lat=${spot.lat}&lon=${spot.lon}&zoom=12" target="_blank" rel="noopener">🌦 Burnair</a>`,
+  ];
+  if (spot.webcam) acts.push(`<a class="act" href="${spot.webcam}" target="_blank" rel="noopener">📷 Webcam</a>`);
+  if (spot.dhv) acts.push(`<a class="act" href="https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}" target="_blank" rel="noopener">📋 DHV</a>`);
+  const actions = `<div class="actions">${acts.join("")}</div>`;
+
   return `
     <div class="card">
       <div class="card-head">
@@ -217,6 +258,7 @@ function renderCard(spot, days) {
         </div>
       </div>
       <div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>
+      ${actions}
       ${nowBar}
       <div class="days">${daysHtml}</div>
     </div>`;
@@ -276,28 +318,35 @@ async function runFlySearch(lat, lon, label) {
   out.innerHTML = `<p class="loading-line">🔎 Prüfe ${candidates.length} Plätze …</p>`;
   try {
     const results = await fetchBulkToday(candidates);
-    const rows = candidates.map((s, i) => ({ spot: s, ts: todayStatus(analyse(s, results[i])) }));
+    let drive = [];
+    try { drive = await fetchDriveTimes({ lat, lon }, candidates); } catch { drive = []; }
+    const rows = candidates.map((s, i) => ({ spot: s, ts: todayStatus(analyse(s, results[i])), drive: drive[i] }));
     const rank = { gut: 0, grenz: 1, nein: 2 };
-    rows.sort((a, b) => rank[a.ts.status] - rank[b.ts.status] || a.spot.dist - b.spot.dist);
+    rows.sort((a, b) =>
+      rank[a.ts.status] - rank[b.ts.status] ||
+      ((a.drive ?? Infinity) - (b.drive ?? Infinity)) ||
+      a.spot.dist - b.spot.dist);
     renderFlyResults(rows, radius, label);
   } catch (e) {
     out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
   }
 }
 
-// Button: Standort per GPS
-document.getElementById("flyBtn").addEventListener("click", () => {
+// Standort per GPS (Button + Auto-Start)
+function startGpsSearch() {
   const out = document.getElementById("flyResults"), btn = document.getElementById("flyBtn");
   if (!navigator.geolocation) { out.innerHTML = `<p class="empty">Standort nicht unterstützt – nutze die PLZ-Suche.</p>`; return; }
   btn.classList.add("busy"); out.innerHTML = `<p class="loading-line">📍 Standort wird ermittelt …</p>`;
   navigator.geolocation.getCurrentPosition(async pos => {
+    localStorage.setItem("flugwetter_geo_ok", "1");   // ab jetzt beim Öffnen automatisch
     await runFlySearch(pos.coords.latitude, pos.coords.longitude, null);
     btn.classList.remove("busy");
   }, () => {
     btn.classList.remove("busy");
     out.innerHTML = `<p class="empty">Standort nicht verfügbar (Berechtigung?). Nutze die PLZ-Suche unten.</p>`;
   });
-});
+}
+document.getElementById("flyBtn").addEventListener("click", startGpsSearch);
 
 // PLZ-Suche
 async function plzSearch() {
@@ -311,23 +360,27 @@ async function plzSearch() {
 document.getElementById("plzBtn").addEventListener("click", plzSearch);
 document.getElementById("plzInput").addEventListener("keydown", e => { if (e.key === "Enter") plzSearch(); });
 
+function mapsUrl(s) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;
+}
 function renderFlyResults(rows, radius, label) {
   const flyable = rows.filter(r => r.ts.status !== "nein").length;
   const head = `<div class="fly-head">Heute im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""} · <b>${flyable}</b> von ${rows.length} fliegbar</div>`;
   const list = rows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
-    const right = ts.status === "nein"
-      ? `<span class="fr-reason">${ts.reason}</span>`
-      : `<span class="fr-win">${windowLabel(ts.win)}</span>`;
+    const drv = formatDur(r.drive);
+    const line1 = ts.status === "nein" ? ts.reasonLabel : winTimeShort(ts.win);
+    const line2 = ts.status === "nein" ? "" : `<div class="fr-line2">${ts.reasonLabel}</div>`;
     return `
       <div class="fr ${ts.status}" data-spot="${s.id}">
         <span class="fr-dot">${statusDot(ts.status)}</span>
         <div class="fr-mid">
           <div class="fr-name">${s.name} <span class="fr-go">›</span></div>
-          <div class="fr-sub">${s.dist} km · ${s.sectorLabel}</div>
+          <div class="fr-sub">${drv ? "🚗 " + drv + " · " : ""}${s.dist} km</div>
         </div>
-        ${right}
+        <div class="fr-right"><div class="fr-line1">${line1}</div>${line2}</div>
+        <a class="fr-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">▶️</a>
         <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}" title="${fav?"Favorit":"Zu Favoriten"}">${fav?"★":"☆"}</button>
       </div>`;
   }).join("");
@@ -372,11 +425,10 @@ function renderDbSearch(query = "") {
 
 // ---------------- Router ----------------
 const PAGES = {
-  home:      { title: "Wo kann ich fliegen?", sub: "Heute · in deiner Nähe" },
+  home:      { title: "GoFlyToday", sub: "In 5 Sek.: Lohnt sich heute die Anfahrt?" },
   favorites: { title: "Favoriten", sub: "Deine Plätze · 7-Tage-Ansicht" },
   add:       { title: "Fluggebiet hinzufügen", sub: "Aus Datenbank oder eigenen Platz" },
-  info:      { title: "Info", sub: "Wie die App funktioniert" },
-  legal:     { title: "Recht", sub: "Rechtliche Einordnung" },
+  info:      { title: "Info & Recht", sub: "Wie die App funktioniert" },
 };
 function route() {
   let id = location.hash.replace("#/", "") || "home";
@@ -388,6 +440,8 @@ function route() {
   window.scrollTo(0, 0);
   if (id === "favorites") renderFavorites();
   if (id === "add") renderDbSearch();
+  // Killer-Feature: wenn Standort schon erlaubt, „Heute"-Liste automatisch laden
+  if (id === "home" && localStorage.getItem("flugwetter_geo_ok") === "1" && !lastOrigin) startGpsSearch();
 }
 window.addEventListener("hashchange", route);
 
@@ -396,6 +450,7 @@ window.addEventListener("hashchange", route);
 
 // Favoriten-Stern & Löschen (Event-Delegation über die ganze Seite)
 document.body.addEventListener("click", e => {
+  if (e.target.closest("a")) return;   // echte Links (Navigation/Deep-Links) normal öffnen lassen
   const favBtn = e.target.closest("[data-fav]");
   if (favBtn) {
     toggleFav(favBtn.dataset.fav);
