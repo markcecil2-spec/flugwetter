@@ -83,4 +83,33 @@ const SPOT_DB = [
   { id: "db_kleinheppach", name: "Kleinheppacher Kopf", region: "Korb · Remstal",
     lat: 48.8332, lon: 9.3781, elevation: 400, dhv: 615,
     sectors: [[135, 270]], sectorLabel: "SO–W", windMin: 3, windMax: 26, gustMax: 30 },
+
+  // --- Schwarzwald ---
+  { id: "db_merkur", name: "Merkur", region: "Baden-Baden · Nordschwarzwald",
+    lat: 48.7647, lon: 8.2794, elevation: 651, dhv: 987,
+    sectors: [[220, 300], [20, 50]], sectorLabel: "W & NO", ...DEF },
+
+  { id: "db_hornleberg", name: "Hörnleberg", region: "Winden im Elztal · Schwarzwald",
+    lat: 48.1274, lon: 8.0444, elevation: 870, dhv: 294,
+    sectors: [[340, 70], [200, 250]], sectorLabel: "N–NO & S–WSW", ...DEF },
+
+  { id: "db_kandel", name: "Kandel", region: "Waldkirch · Schwarzwald (nur Erfahrene)",
+    lat: 48.0568, lon: 8.0131, elevation: 1150,
+    sectors: [[175, 245]], sectorLabel: "S–SW", ...DEF },
+
+  { id: "db_schauinsland", name: "Schauinsland", region: "Freiburg · Schwarzwald (nur Erfahrene)",
+    lat: 47.9097, lon: 7.8897, elevation: 1180, dhv: 575,
+    sectors: [[225, 300]], sectorLabel: "W", ...DEF },
+
+  { id: "db_hochblauen", name: "Hochblauen", region: "Badenweiler · Südschwarzwald",
+    lat: 47.7785, lon: 7.7000, elevation: 1166, dhv: 301,
+    sectors: [[330, 50], [70, 110], [185, 215]], sectorLabel: "N–NO · O · SSW", ...DEF },
+
+  { id: "db_hasenhorn", name: "Hasenhorn / Todtnau", region: "Todtnau · Südschwarzwald",
+    lat: 47.8381, lon: 7.9932, elevation: 1296, dhv: 1076,
+    sectors: [[200, 290]], sectorLabel: "SW–W", ...DEF },
+
+  { id: "db_belchen_aitern", name: "Belchen (Aitern)", region: "Aitern · Südschwarzwald",
+    lat: 47.8114, lon: 7.8982, elevation: 894, dhv: 723,
+    sectors: [[130, 195]], sectorLabel: "SO–S", ...DEF },
 ];
