@@ -249,8 +249,14 @@ function renderCard(spot, days, opts = {}) {
   if (spot.dhv) acts.push(`<a class="act" href="https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}" target="_blank" rel="noopener">📋 DHV</a>`);
   const actions = `<div class="actions">${acts.join("")}</div>`;
 
-  const toggle = opts.collapsible
-    ? `<button class="days-toggle" aria-expanded="false"><span class="dt-arrow">▾</span> Wochenübersicht</button>` : "";
+  const metaHtml = `<div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>`;
+
+  // Kompakt (Favoriten): nur Kopf + Aktionen sichtbar, Rest im Aufklapp-Menü.
+  const body = opts.collapsible
+    ? `${actions}
+      <button class="days-toggle" aria-expanded="false"><span class="dt-arrow">▾</span> Details &amp; Wochenübersicht</button>
+      <div class="fav-more collapsed">${metaHtml}${nowBar}<div class="days">${daysHtml}</div></div>`
+    : `${metaHtml}${actions}${nowBar}<div class="days">${daysHtml}</div>`;
 
   return `
     <div class="card">
@@ -265,11 +271,7 @@ function renderCard(spot, days, opts = {}) {
           ${del}
         </div>
       </div>
-      <div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>
-      ${actions}
-      ${nowBar}
-      ${toggle}
-      <div class="days${opts.collapsible ? " collapsed" : ""}">${daysHtml}</div>
+      ${body}
     </div>`;
 }
 
@@ -520,9 +522,9 @@ document.body.addEventListener("click", e => {
   const dtog = e.target.closest(".days-toggle");
   if (dtog) {
     const card = dtog.closest(".card");
-    const daysEl = card && card.querySelector(".days");
-    if (daysEl) {
-      const open = daysEl.classList.toggle("collapsed") === false;
+    const moreEl = card && card.querySelector(".fav-more");
+    if (moreEl) {
+      const open = moreEl.classList.toggle("collapsed") === false;
       dtog.setAttribute("aria-expanded", open ? "true" : "false");
       dtog.querySelector(".dt-arrow").textContent = open ? "▴" : "▾";
     }

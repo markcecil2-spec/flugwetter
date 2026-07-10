@@ -331,7 +331,7 @@ header { position: relative; overflow: hidden; }
 .day-toggle .rpill { min-width: 96px; text-align: center; }
 
 /* Wochenübersicht auf-/zuklappen (Favoriten) */
-.days.collapsed { display: none; }
+.days.collapsed, .fav-more.collapsed { display: none; }
 .days-toggle {
   width: 100%; margin-top: 8px; background: rgba(148,163,184,.12); border: 1px solid var(--line);
   color: var(--text); font-size: 13px; font-weight: 700; padding: 10px; border-radius: 10px; cursor: pointer;
