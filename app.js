@@ -1,14 +1,13 @@
-// Flugwetter-App – Kernlogik: Vorhersage holen, Regeln prüfen, grüne Fenster anzeigen.
+// Flugwetter-App – Logik: Datenbank + Favoriten, Umkreissuche, Ampel, 3h-Fenster.
 
 const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden Stunden
+const DEFAULT_RADIUS = 100;    // km
 
-// Grad -> Himmelsrichtung (Kürzel)
 function degToCompass(deg) {
-  const dirs = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
-  return dirs[Math.round(deg / 22.5) % 16];
+  const d = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
+  return d[Math.round(deg / 22.5) % 16];
 }
-
-// WMO-Wettercode -> Emoji
 function weatherEmoji(code) {
   if (code === 0) return "☀️";
   if (code === 1) return "🌤️";
@@ -21,42 +20,103 @@ function weatherEmoji(code) {
   if (code >= 80 && code <= 82) return "🌦️";
   if (code >= 85 && code <= 86) return "🌨️";
   if (code >= 95) return "⛈️";
-  return "❓";
+  return "•";
 }
-
-// Liegt eine Windrichtung in einem der erlaubten Sektoren? (mit Wrap über 360°)
 function inSectors(dir, sectors) {
-  return sectors.some(([from, to]) => {
-    if (from <= to) return dir >= from && dir <= to;
-    return dir >= from || dir <= to;
-  });
+  return sectors.some(([f, t]) => (f <= t ? dir >= f && dir <= t : dir >= f || dir <= t));
+}
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371, rad = Math.PI / 180;
+  const dLat = (lat2 - lat1) * rad, dLon = (lon2 - lon1) * rad;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)**2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(a)));
 }
 
-function checkHour(spot, ws, wd, wg, rain, isDay) {
-  const reasons = [];
-  if (!isDay) reasons.push("Nacht");
-  if (!inSectors(wd, spot.sectors)) reasons.push("Richtung");
-  if (ws < spot.windMin) reasons.push("zu schwach");
-  if (ws > spot.windMax) reasons.push("zu stark");
-  if (wg > spot.gustMax) reasons.push("Böen");
-  if (rain > 0) reasons.push("Regen");
-  return { ok: reasons.length === 0, reasons };
+// Bewertung einer Stunde: 'gut' | 'grenz' | 'nein' + Grund (bei nein/grenz).
+function rateHour(spot, ws, wd, wg, rain, isDay) {
+  if (!isDay) return { rating: "nein", reason: "Nacht" };
+  if (rain > 0) return { rating: "nein", reason: "Regen" };
+  if (!inSectors(wd, spot.sectors)) return { rating: "nein", reason: "Richtung" };
+  if (ws > spot.windMax) return { rating: "nein", reason: "zu stark" };
+  if (wg > spot.gustMax) return { rating: "nein", reason: "Böen" };
+  if (ws < spot.windMin) return { rating: "grenz", reason: "schwach" };
+  if (wg >= spot.gustMax * 0.85) return { rating: "grenz", reason: "böig" };
+  if (ws >= spot.windMax * 0.85) return { rating: "grenz", reason: "recht stark" };
+  return { rating: "gut", reason: "" };
 }
 
-function buildDaylight(daily) {
+function fmtHour(d) { return d.getHours().toString().padStart(2, "0") + ":00"; }
+function fmtHourPlus(d) { return ((d.getHours() + 1) % 24).toString().padStart(2, "0") + ":00"; }
+
+// Fenster (≥ MIN_WINDOW zusammenhängende flugbare Stunden). Farbe: gut=alle gut, sonst grenz.
+function findWindows(hours) {
+  const wins = []; let run = [];
+  const flush = () => {
+    if (run.length >= MIN_WINDOW) {
+      const anyGrenz = run.some(h => h.rating === "grenz");
+      wins.push({ from: run[0].t, to: run[run.length - 1].t, color: anyGrenz ? "grenz" : "gut", hours: run.length });
+    }
+    run = [];
+  };
+  for (const h of hours) { if (h.rating === "nein") flush(); else run.push(h); }
+  flush();
+  return wins;
+}
+function windowLabel(w) {
+  return `${w.color === "gut" ? "🟢" : "🟡"} ${fmtHour(w.from)}–${fmtHourPlus(w.to)}`;
+}
+
+function buildDailyMap(daily) {
   const map = {};
   daily.time.forEach((d, i) => {
     map[d] = {
       sunrise: new Date(daily.sunrise[i]),
       sunset: new Date(daily.sunset[i]),
-      code: daily.weather_code[i],
-      tmax: Math.round(daily.temperature_2m_max[i]),
-      tmin: Math.round(daily.temperature_2m_min[i]),
+      code: daily.weather_code ? daily.weather_code[i] : null,
+      tmax: daily.temperature_2m_max ? Math.round(daily.temperature_2m_max[i]) : null,
+      tmin: daily.temperature_2m_min ? Math.round(daily.temperature_2m_min[i]) : null,
     };
   });
   return map;
 }
 
+// Wandelt Open-Meteo-Antwort in bewertete Tage um.
+function analyse(spot, data) {
+  const h = data.hourly;
+  const dmap = buildDailyMap(data.daily);
+  const days = {};
+  for (let i = 0; i < h.time.length; i++) {
+    const t = new Date(h.time[i]);
+    const key = h.time[i].slice(0, 10);
+    const dl = dmap[key];
+    const isDay = dl ? (t >= dl.sunrise && t <= dl.sunset) : (t.getHours() >= 8 && t.getHours() <= 20);
+    const ws = h.wind_speed_10m[i], wd = h.wind_direction_10m[i], wg = h.wind_gusts_10m[i], rain = h.precipitation[i];
+    const { rating, reason } = rateHour(spot, ws, wd, wg, rain, isDay);
+    if (!days[key]) days[key] = { key, date: t, wx: dl, hours: [] };
+    days[key].hours.push({ t, ws, wd, wg, rain, rating, reason, isDay });
+  }
+  return Object.values(days).map(day => {
+    const dayHours = day.hours.filter(x => x.isDay);
+    const windows = findWindows(dayHours);
+    return { ...day, dayHours, windows };
+  });
+}
+
+// Status "heute" für einen Platz (aus Tag-0-Daten): {status:'gut'|'grenz'|'nein', win?, reason?}
+function todayStatus(days) {
+  const day = days[0];
+  if (!day) return { status: "nein", reason: "—" };
+  const green = day.windows.filter(w => w.color === "gut");
+  const yellow = day.windows.filter(w => w.color === "grenz");
+  if (green.length) return { status: "gut", win: green[0] };
+  if (yellow.length) return { status: "grenz", win: yellow[0] };
+  const reasons = {};
+  day.dayHours.forEach(x => { if (x.rating === "nein") reasons[x.reason] = (reasons[x.reason] || 0) + 1; });
+  const top = Object.entries(reasons).sort((a, b) => b[1] - a[1])[0];
+  return { status: "nein", reason: top ? top[0] : "—" };
+}
+
+// ---------------- Fetching ----------------
 async function fetchForecast(spot) {
   let url = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}` +
     `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation` +
@@ -64,170 +124,234 @@ async function fetchForecast(spot) {
     `&timezone=Europe%2FBerlin&forecast_days=7&wind_speed_unit=kmh`;
   if (spot.elevation != null && !isNaN(spot.elevation)) url += `&elevation=${spot.elevation}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Open-Meteo Fehler " + res.status);
+  if (!res.ok) throw new Error("Open-Meteo " + res.status);
   return res.json();
 }
-
-// Ermittelt die Geländehöhe (m ü. NN) für Koordinaten via Open-Meteo.
+// Mehrere Plätze in EINEM Aufruf (nur heute) – für die Umkreissuche.
+async function fetchBulkToday(spots) {
+  const lats = spots.map(s => s.lat).join(","), lons = spots.map(s => s.lon).join(",");
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}` +
+    `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation` +
+    `&daily=sunrise,sunset&timezone=Europe%2FBerlin&forecast_days=1&wind_speed_unit=kmh`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Open-Meteo " + res.status);
+  const j = await res.json();
+  return Array.isArray(j) ? j : [j];
+}
 async function fetchElevation(lat, lon) {
   const res = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`);
-  if (!res.ok) throw new Error("Höhe konnte nicht ermittelt werden");
-  const j = await res.json();
-  return Math.round(j.elevation[0]);
+  if (!res.ok) throw new Error("Höhe?");
+  return Math.round((await res.json()).elevation[0]);
 }
 
-function analyse(spot, data) {
-  const h = data.hourly;
-  const daylight = buildDaylight(data.daily);
-  const days = {};
-
-  for (let i = 0; i < h.time.length; i++) {
-    const t = new Date(h.time[i]);
-    const dayKey = h.time[i].slice(0, 10);
-    const dl = daylight[dayKey];
-    const isDay = dl ? (t >= dl.sunrise && t <= dl.sunset) : (t.getHours() >= 8 && t.getHours() <= 20);
-
-    const ws = h.wind_speed_10m[i];
-    const wd = h.wind_direction_10m[i];
-    const wg = h.wind_gusts_10m[i];
-    const rain = h.precipitation[i];
-    const { ok, reasons } = checkHour(spot, ws, wd, wg, rain, isDay);
-
-    if (!days[dayKey]) days[dayKey] = { key: dayKey, date: t, wx: dl, hours: [] };
-    days[dayKey].hours.push({ t, ws, wd, wg, rain, ok, reasons, isDay });
-  }
-
-  return Object.values(days).map(day => {
-    const dayHours = day.hours.filter(x => x.isDay);
-    const greenHours = dayHours.filter(x => x.ok);
-    return { ...day, dayHours, greenCount: greenHours.length, greenHours };
-  });
+// ---------------- Speicher: User-Plätze + Favoriten ----------------
+const USER_KEY = "flugwetter_user_spots", FAV_KEY = "flugwetter_favorites";
+function loadUserSpots() { try { return JSON.parse(localStorage.getItem(USER_KEY)) || []; } catch { return []; } }
+function saveUserSpots(l) { localStorage.setItem(USER_KEY, JSON.stringify(l)); }
+function loadFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch { return []; } }
+function saveFavs(l) { localStorage.setItem(FAV_KEY, JSON.stringify(l)); }
+function isFav(id) { return loadFavs().includes(id); }
+function toggleFav(id) {
+  const f = loadFavs(); const i = f.indexOf(id);
+  if (i >= 0) f.splice(i, 1); else f.push(id);
+  saveFavs(f);
 }
+function allKnownSpots() { return SPOT_DB.concat(loadUserSpots()); }
+function getSpot(id) { return allKnownSpots().find(s => s.id === id); }
+function favoriteSpots() { const f = loadFavs(); return allKnownSpots().filter(s => f.includes(s.id)); }
 
-function fmtHour(d) { return d.getHours().toString().padStart(2, "0") + ":00"; }
-
-function greenWindows(dayHours) {
-  const windows = [];
-  let start = null, prev = null;
-  for (const x of dayHours) {
-    if (x.ok) { if (start === null) start = x.t; prev = x.t; }
-    else if (start !== null) { windows.push([start, prev]); start = null; }
-  }
-  if (start !== null) windows.push([start, prev]);
-  return windows.map(([a, b]) =>
-    a.getTime() === b.getTime()
-      ? `${fmtHour(a)}`
-      : `${fmtHour(a)}–${(b.getHours() + 1).toString().padStart(2, "0")}:00`
-  );
+// ---------------- Rendering: Favoriten-Karten (7 Tage) ----------------
+function statusDot(status) {
+  return status === "gut" ? "🟢" : status === "grenz" ? "🟡" : "🔴";
 }
-
-function renderSpot(spot, days) {
-  const totalGreen = days.reduce((s, d) => s + d.greenCount, 0);
-  const statusClass = totalGreen > 0 ? "green" : "red";
+function renderCard(spot, days) {
+  const ts = todayStatus(days);
+  const badge = ts.status === "nein"
+    ? `<span class="badge red">🔴 heute nichts</span>`
+    : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} heute ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
 
   const daysHtml = days.slice(0, 7).map(day => {
-    const wins = greenWindows(day.dayHours);
     const hoursHtml = day.dayHours.map(x => {
-      const cls = x.ok ? "h ok" : "h";
-      const title = x.ok
-        ? `${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`
-        : x.reasons.join(", ");
+      const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
+      const title = x.rating === "nein" ? x.reason
+        : `${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}${x.reason ? " · " + x.reason : ""}`;
       return `<span class="${cls}" title="${title}">${x.t.getHours()}</span>`;
     }).join("");
-    const wx = day.wx
-      ? `<div class="wx">${weatherEmoji(day.wx.code)} <span class="tmax">${day.wx.tmax}°</span> / <span class="tmin">${day.wx.tmin}°</span></div>`
-      : "";
+    const wx = day.wx && day.wx.code != null
+      ? `<div class="wx">${weatherEmoji(day.wx.code)} <span class="tmax">${day.wx.tmax}°</span> / <span class="tmin">${day.wx.tmin}°</span></div>` : "";
+    const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "—";
     return `
-      <div class="day ${wins.length ? "hasgreen" : ""}">
-        <div class="dlabel">${WEEKDAYS[day.date.getDay()]}<br>${day.date.getDate()}.${day.date.getMonth() + 1}.</div>
-        <div class="dright">
-          <div class="hours">${hoursHtml}</div>
-          ${wx}
-          <div class="wins">${wins.length ? "🟢 " + wins.join(", ") : "—"}</div>
-        </div>
+      <div class="day ${day.windows.length ? "hasgreen" : ""}">
+        <div class="dlabel">${WEEKDAYS[day.date.getDay()]}<br>${day.date.getDate()}.${day.date.getMonth()+1}.</div>
+        <div class="dright"><div class="hours">${hoursHtml}</div>${wx}<div class="wins">${winTxt}</div></div>
       </div>`;
   }).join("");
 
-  const del = spot.custom
-    ? `<button class="del" data-del="${spot.id}" title="Fluggebiet löschen">🗑</button>`
-    : "";
+  const del = spot.id.startsWith("user_")
+    ? `<button class="ic0" data-del="${spot.id}" title="Eigenen Platz löschen">🗑</button>` : "";
 
   return `
     <div class="card">
       <div class="card-head">
         <div>
-          <div class="spot-name">${spot.name} ${spot.custom ? '<span class="mine">eigenes</span>' : ""}</div>
+          <div class="spot-name">${spot.name}</div>
           <div class="spot-region">${spot.region || ""}</div>
         </div>
         <div class="head-right">
-          <div class="badge ${statusClass}">${totalGreen > 0 ? totalGreen + "h grün" : "kein Fenster"}</div>
+          ${badge}
+          <button class="ic0 star on" data-fav="${spot.id}" title="Aus Favoriten entfernen">★</button>
           ${del}
         </div>
       </div>
-      <div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation != null ? " · " + spot.elevation + " m" : ""}</div>
+      <div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>
       <div class="days">${daysHtml}</div>
     </div>`;
 }
 
-// ---- Eigene Fluggebiete (lokal im Browser gespeichert) ----
-const USER_KEY = "flugwetter_user_spots";
-function loadUserSpots() {
-  try { return JSON.parse(localStorage.getItem(USER_KEY)) || []; } catch { return []; }
-}
-function saveUserSpots(list) { localStorage.setItem(USER_KEY, JSON.stringify(list)); }
-function allSpots() { return SPOTS.concat(loadUserSpots()); }
-function deleteUserSpot(id) { saveUserSpots(loadUserSpots().filter(s => s.id !== id)); load(); }
-
-async function load() {
-  const container = document.getElementById("spots");
-  const updated = document.getElementById("updated");
-  const spots = allSpots();
-  container.innerHTML = spots.map(s => `<div class="card loading">Lade ${s.name} …</div>`).join("");
-
-  const cards = await Promise.all(spots.map(async spot => {
-    try {
-      const data = await fetchForecast(spot);
-      return renderSpot(spot, analyse(spot, data));
-    } catch (e) {
-      return `<div class="card"><div class="spot-name">${spot.name}</div><div class="spot-region">Fehler: ${e.message}</div></div>`;
-    }
+async function renderFavorites() {
+  const list = document.getElementById("favList");
+  const empty = document.getElementById("favEmpty");
+  const favs = favoriteSpots();
+  empty.hidden = favs.length > 0;
+  if (!favs.length) { list.innerHTML = ""; return; }
+  list.innerHTML = favs.map(s => `<div class="card loading">Lade ${s.name} …</div>`).join("");
+  const cards = await Promise.all(favs.map(async s => {
+    try { return renderCard(s, analyse(s, await fetchForecast(s))); }
+    catch (e) { return `<div class="card"><div class="spot-name">${s.name}</div><div class="spot-region">Fehler: ${e.message}</div></div>`; }
   }));
-
-  container.innerHTML = cards.join("");
-  updated.textContent = "Aktualisiert: " + new Date().toLocaleString("de-DE");
+  list.innerHTML = cards.join("");
 }
 
-document.getElementById("spots").addEventListener("click", e => {
-  const btn = e.target.closest("[data-del]");
-  if (btn && confirm("Dieses Fluggebiet löschen?")) deleteUserSpot(btn.dataset.del);
-});
-document.getElementById("refresh").addEventListener("click", load);
+// ---------------- „Wo kann ich heute fliegen?" ----------------
+async function findFlyable() {
+  const out = document.getElementById("flyResults");
+  const btn = document.getElementById("flyBtn");
+  if (!navigator.geolocation) { out.innerHTML = `<p class="empty">Standort wird nicht unterstützt.</p>`; return; }
+  btn.classList.add("busy"); out.innerHTML = `<p class="loading-line">📍 Standort wird ermittelt …</p>`;
 
-// ---- Seiten-Router (Tab-Navigation) ----
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    const radius = parseInt(document.getElementById("radius").value, 10);
+    const candidates = allKnownSpots()
+      .map(s => ({ ...s, dist: haversine(lat, lon, s.lat, s.lon) }))
+      .filter(s => s.dist <= radius)
+      .sort((a, b) => a.dist - b.dist);
+
+    if (!candidates.length) {
+      btn.classList.remove("busy");
+      out.innerHTML = `<p class="empty">Kein Startplatz im Umkreis von ${radius} km in der Datenbank. (Die Datenbank wächst noch.)</p>`;
+      return;
+    }
+    out.innerHTML = `<p class="loading-line">🔎 Prüfe ${candidates.length} Plätze …</p>`;
+    try {
+      const results = await fetchBulkToday(candidates);
+      const rows = candidates.map((s, i) => ({ spot: s, ts: todayStatus(analyse(s, results[i])) }));
+      const rank = { gut: 0, grenz: 1, nein: 2 };
+      rows.sort((a, b) => rank[a.ts.status] - rank[b.ts.status] || a.spot.dist - b.spot.dist);
+      renderFlyResults(rows, radius);
+    } catch (e) {
+      out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
+    }
+    btn.classList.remove("busy");
+  }, () => {
+    btn.classList.remove("busy");
+    out.innerHTML = `<p class="empty">Standort nicht verfügbar (Berechtigung?). Erlaube die Ortung und versuch es erneut.</p>`;
+  });
+}
+
+function renderFlyResults(rows, radius) {
+  const flyable = rows.filter(r => r.ts.status !== "nein").length;
+  const head = `<div class="fly-head">Heute im Umkreis ${radius} km · <b>${flyable}</b> von ${rows.length} fliegbar</div>`;
+  const list = rows.map(r => {
+    const s = r.spot, ts = r.ts;
+    const fav = isFav(s.id);
+    const right = ts.status === "nein"
+      ? `<span class="fr-reason">${ts.reason}</span>`
+      : `<span class="fr-win">${windowLabel(ts.win)}</span>`;
+    return `
+      <div class="fr ${ts.status}">
+        <span class="fr-dot">${statusDot(ts.status)}</span>
+        <div class="fr-mid">
+          <div class="fr-name">${s.name}</div>
+          <div class="fr-sub">${s.dist} km · ${s.sectorLabel}</div>
+        </div>
+        ${right}
+        <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}" title="${fav?"Favorit":"Zu Favoriten"}">${fav?"★":"☆"}</button>
+      </div>`;
+  }).join("");
+  document.getElementById("flyResults").innerHTML = head + `<div class="fr-list">${list}</div>`;
+}
+
+// ---------------- Neu: Datenbank-Suche + eigener Platz ----------------
+function renderDbSearch(query = "") {
+  const wrap = document.getElementById("dbResults");
+  const q = query.trim().toLowerCase();
+  let list = SPOT_DB.concat(loadUserSpots());
+  if (q) list = list.filter(s => (s.name + " " + (s.region||"")).toLowerCase().includes(q));
+  else list = list.slice(0, 8);
+  wrap.innerHTML = list.map(s => {
+    const fav = isFav(s.id);
+    return `<div class="db-row">
+      <div><div class="fr-name">${s.name}</div><div class="fr-sub">${s.region||""} · ${s.sectorLabel}</div></div>
+      <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}">${fav?"★":"☆"}</button>
+    </div>`;
+  }).join("") || `<p class="empty">Nichts gefunden.</p>`;
+}
+
+// ---------------- Router ----------------
 const PAGES = {
-  spots: { title: "Fluggebiete", sub: "Passt das Wetter? · nächste 7 Tage" },
-  add:   { title: "Neues Fluggebiet", sub: "Startplatz anlegen" },
+  home:  { title: "Wo kann ich fliegen?", sub: "Heute · in deiner Nähe · Favoriten" },
+  add:   { title: "Fluggebiet hinzufügen", sub: "Aus Datenbank oder eigenen Platz" },
   info:  { title: "Info", sub: "Wie die App funktioniert" },
   legal: { title: "Recht", sub: "Rechtliche Einordnung" },
 };
 function route() {
-  let id = location.hash.replace("#/", "") || "spots";
-  if (!PAGES[id]) id = "spots";
+  let id = location.hash.replace("#/", "") || "home";
+  if (!PAGES[id]) id = "home";
   document.querySelectorAll(".page").forEach(p => p.hidden = p.id !== "page-" + id);
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === id));
   document.getElementById("pageTitle").textContent = PAGES[id].title;
   document.getElementById("pageSub").textContent = PAGES[id].sub;
-  document.getElementById("refresh").style.visibility = id === "spots" ? "visible" : "hidden";
   window.scrollTo(0, 0);
+  if (id === "home") renderFavorites();
+  if (id === "add") renderDbSearch();
 }
 window.addEventListener("hashchange", route);
 
-// ---- Formular: Fluggebiet anlegen ----
+// ---------------- Events ----------------
+document.getElementById("flyBtn").addEventListener("click", findFlyable);
+
+// Favoriten-Stern & Löschen (Event-Delegation über die ganze Seite)
+document.body.addEventListener("click", e => {
+  const favBtn = e.target.closest("[data-fav]");
+  if (favBtn) {
+    toggleFav(favBtn.dataset.fav);
+    if (!document.getElementById("page-home").hidden) renderFavorites();
+    if (!document.getElementById("page-add").hidden) renderDbSearch(document.getElementById("dbSearch").value);
+    // Fly-Ergebnisse-Stern sofort umschalten
+    const s = favBtn.classList.toggle("on"); favBtn.textContent = favBtn.classList.contains("on") ? "★" : "☆";
+    return;
+  }
+  const del = e.target.closest("[data-del]");
+  if (del && confirm("Diesen eigenen Platz löschen (und aus Favoriten entfernen)?")) {
+    saveUserSpots(loadUserSpots().filter(s => s.id !== del.dataset.del));
+    const f = loadFavs().filter(id => id !== del.dataset.del); saveFavs(f);
+    renderFavorites();
+  }
+});
+
+// Radius merken
+document.getElementById("radius").addEventListener("change", e =>
+  localStorage.setItem("flugwetter_radius", e.target.value));
+
+// DB-Suche
+document.getElementById("dbSearch").addEventListener("input", e => renderDbSearch(e.target.value));
+
+// --- Formular „eigener Platz" ---
 const COMPASS_16 = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
 const form = document.getElementById("spotForm");
 const compassEl = document.getElementById("compass");
 const selectedDirs = new Set();
-
 COMPASS_16.forEach((label, i) => {
   const b = document.createElement("button");
   b.type = "button"; b.className = "cdir"; b.textContent = label;
@@ -237,48 +361,30 @@ COMPASS_16.forEach((label, i) => {
   });
   compassEl.appendChild(b);
 });
-
 function resetForm() {
-  form.reset();
-  selectedDirs.clear();
+  form.reset(); selectedDirs.clear();
   compassEl.querySelectorAll(".on").forEach(b => b.classList.remove("on"));
   document.getElementById("formErr").hidden = true;
 }
 document.getElementById("resetBtn").addEventListener("click", resetForm);
-
-function coords() {
-  return {
-    lat: parseFloat(form.lat.value.replace(",", ".")),
-    lon: parseFloat(form.lon.value.replace(",", ".")),
-  };
-}
-
+function coords() { return { lat: parseFloat(form.lat.value.replace(",", ".")), lon: parseFloat(form.lon.value.replace(",", ".")) }; }
 document.getElementById("geoBtn").addEventListener("click", () => {
-  if (!navigator.geolocation) return alert("Standort wird von diesem Browser nicht unterstützt.");
+  if (!navigator.geolocation) return alert("Standort nicht unterstützt.");
   navigator.geolocation.getCurrentPosition(async pos => {
-    form.lat.value = pos.coords.latitude.toFixed(5);
-    form.lon.value = pos.coords.longitude.toFixed(5);
-    tryElevation();
-  }, () => alert("Standort konnte nicht ermittelt werden (Berechtigung?)."));
+    form.lat.value = pos.coords.latitude.toFixed(5); form.lon.value = pos.coords.longitude.toFixed(5); tryElevation();
+  }, () => alert("Standort nicht verfügbar (Berechtigung?)."));
 });
-
 document.getElementById("elevBtn").addEventListener("click", tryElevation);
 async function tryElevation() {
   const { lat, lon } = coords();
   if (isNaN(lat) || isNaN(lon)) return alert("Bitte zuerst gültige Koordinaten eingeben.");
   form.elevation.value = "…";
-  try { form.elevation.value = await fetchElevation(lat, lon); }
-  catch { form.elevation.value = ""; alert("Höhe konnte nicht ermittelt werden."); }
+  try { form.elevation.value = await fetchElevation(lat, lon); } catch { form.elevation.value = ""; alert("Höhe konnte nicht ermittelt werden."); }
 }
-
-function dirsToSectors(indices) {
-  return [...indices].sort((a, b) => a - b).map(i => {
-    const c = i * 22.5;
-    return [(c - 11.25 + 360) % 360, (c + 11.25) % 360];
-  });
+function dirsToSectors(idx) {
+  return [...idx].sort((a, b) => a - b).map(i => { const c = i * 22.5; return [(c-11.25+360)%360, (c+11.25)%360]; });
 }
-function showErr(msg) { const el = document.getElementById("formErr"); el.textContent = msg; el.hidden = false; }
-
+function showErr(m) { const el = document.getElementById("formErr"); el.textContent = m; el.hidden = false; }
 form.addEventListener("submit", async e => {
   e.preventDefault();
   const { lat, lon } = coords();
@@ -286,29 +392,32 @@ form.addEventListener("submit", async e => {
   if (isNaN(lat) || lat < -90 || lat > 90) return showErr("Breitengrad ungültig (z. B. 47.5446).");
   if (isNaN(lon) || lon < -180 || lon > 180) return showErr("Längengrad ungültig (z. B. 10.0528).");
   if (selectedDirs.size === 0) return showErr("Bitte mindestens eine Windrichtung wählen.");
-
   let elevation = parseInt(form.elevation.value, 10);
   if (isNaN(elevation)) { try { elevation = await fetchElevation(lat, lon); } catch { elevation = null; } }
-
   const dirs = [...selectedDirs].sort((a, b) => a - b);
   const spot = {
-    id: "user_" + Date.now(), custom: true,
-    name: form.name.value.trim(), region: form.region.value.trim(),
-    lat, lon, elevation,
-    sectors: dirsToSectors(selectedDirs),
+    id: "user_" + Date.now(), name: form.name.value.trim(), region: form.region.value.trim(),
+    lat, lon, elevation, sectors: dirsToSectors(selectedDirs),
     sectorLabel: dirs.map(i => COMPASS_16[i]).join(", "),
     windMin: parseFloat(form.windMin.value) || 0,
     windMax: parseFloat(form.windMax.value) || 30,
     gustMax: parseFloat(form.gustMax.value) || 35,
   };
   const list = loadUserSpots(); list.push(spot); saveUserSpots(list);
+  const f = loadFavs(); f.push(spot.id); saveFavs(f);   // eigener Platz ist automatisch Favorit
   resetForm();
-  location.hash = "#/spots";
-  load();
+  location.hash = "#/home";
 });
 
-// Start
-route();
-load();
-
+// ---------------- Start ----------------
+(function init() {
+  // Migration: bestehende eigene Plätze (aus älterer Version) automatisch favorisieren.
+  if (localStorage.getItem(FAV_KEY) === null) {
+    const ids = loadUserSpots().map(s => s.id);
+    saveFavs(ids);
+  }
+  const r = localStorage.getItem("flugwetter_radius");
+  if (r) document.getElementById("radius").value = r;
+  route();
+})();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});

@@ -1,6 +1,6 @@
 // Minimaler Service Worker – macht die App installierbar und cached die Hülle.
-const CACHE = "flugwetter-v3";
-const ASSETS = ["./", "index.html", "style.css", "spots.js", "app.js", "manifest.webmanifest", "icons/icon.svg"];
+const CACHE = "flugwetter-v4";
+const ASSETS = ["./", "index.html", "style.css", "database.js", "app.js", "manifest.webmanifest", "icons/icon.svg"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

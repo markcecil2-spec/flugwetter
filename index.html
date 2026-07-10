@@ -16,70 +16,74 @@
       <div class="brand">
         <span class="logo">🪂</span>
         <div>
-          <h1 id="pageTitle">Fluggebiete</h1>
-          <p class="sub" id="pageSub">Passt das Wetter? · nächste 7 Tage</p>
+          <h1 id="pageTitle">Wo kann ich fliegen?</h1>
+          <p class="sub" id="pageSub">Heute · in deiner Nähe · Favoriten</p>
         </div>
       </div>
-      <button id="refresh" class="btn-ghost" title="Aktualisieren">↻</button>
     </div>
   </header>
 
   <main class="wrap">
-    <!-- SEITE: Fluggebiete -->
-    <section id="page-spots" class="page">
-      <p id="updated" class="updated">Lade …</p>
-      <div id="spots" class="spot-list"></div>
-      <div id="emptyHint" class="empty" hidden>
-        <p>Noch keine eigenen Fluggebiete. Leg über <b>„＋ Neu"</b> deinen ersten Startplatz an.</p>
+    <!-- SEITE: Home / Fliegen -->
+    <section id="page-home" class="page">
+      <div class="hint-banner">
+        ℹ️ Diese App zeigt nur eine <b>Tendenz</b>. Vor dem Fliegen immer bei <b>Burnair</b>, <b>Windy</b> oder <b>DWD</b> gegenprüfen und die Bedingungen vor Ort selbst beurteilen.
+      </div>
+
+      <button id="flyBtn" class="fly-btn">
+        <span class="fly-emoji">🪂</span>
+        <span class="fly-text">Wo kann ich heute fliegen?</span>
+        <span class="fly-sub">Sucht Startplätze in deiner Nähe</span>
+      </button>
+      <div class="radius-row">
+        Umkreis:
+        <select id="radius">
+          <option value="50">50 km</option>
+          <option value="100" selected>100 km</option>
+          <option value="150">150 km</option>
+          <option value="250">250 km</option>
+        </select>
+      </div>
+      <div id="flyResults" class="fly-results"></div>
+
+      <h2 class="page-h">⭐ Deine Favoriten</h2>
+      <div id="favList" class="spot-list"></div>
+      <div id="favEmpty" class="empty" hidden>
+        <p>Noch keine Favoriten.<br>Über <b>„＋ Neu"</b> einen Platz aus der Datenbank wählen oder eigenen anlegen.</p>
       </div>
     </section>
 
-    <!-- SEITE: Neues Fluggebiet -->
+    <!-- SEITE: Neu -->
     <section id="page-add" class="page" hidden>
-      <h2 class="page-h">Neues Fluggebiet</h2>
+      <h2 class="page-h">Aus Datenbank hinzufügen</h2>
+      <input id="dbSearch" class="db-search" placeholder="🔎 Startplatz suchen (Name/Ort) …" />
+      <div id="dbResults" class="db-results"></div>
+
+      <h2 class="page-h">Oder eigenen Platz anlegen</h2>
       <form id="spotForm" class="card">
-        <label>Name <span class="req">*</span>
-          <input name="name" required placeholder="z. B. Hausberg" />
-        </label>
-        <label>Region / Ort
-          <input name="region" placeholder="z. B. Allgäu" />
-        </label>
+        <label>Name <span class="req">*</span><input name="name" required placeholder="z. B. Hausberg" /></label>
+        <label>Region / Ort<input name="region" placeholder="z. B. Allgäu" /></label>
         <div class="row">
-          <label>Breitengrad <span class="req">*</span>
-            <input name="lat" required inputmode="decimal" placeholder="47.5446" />
-          </label>
-          <label>Längengrad <span class="req">*</span>
-            <input name="lon" required inputmode="decimal" placeholder="10.0528" />
-          </label>
+          <label>Breitengrad <span class="req">*</span><input name="lat" required inputmode="decimal" placeholder="47.5446" /></label>
+          <label>Längengrad <span class="req">*</span><input name="lon" required inputmode="decimal" placeholder="10.0528" /></label>
         </div>
         <button type="button" id="geoBtn" class="btn-soft">📍 Mein Standort verwenden</button>
-        <p class="tip">Koordinaten findest du z. B. in Google Maps: lange auf den Startplatz tippen → die Zahlen erscheinen oben.</p>
-
+        <p class="tip">Koordinaten z. B. aus Google Maps: lange auf den Platz tippen → Zahlen erscheinen oben.</p>
         <label>Startplatzhöhe (m)
-          <div class="hrow">
-            <input name="elevation" inputmode="numeric" placeholder="wird automatisch ermittelt" />
-            <button type="button" id="elevBtn" class="btn-soft">🏔 ermitteln</button>
-          </div>
+          <div class="hrow"><input name="elevation" inputmode="numeric" placeholder="wird automatisch ermittelt" /><button type="button" id="elevBtn" class="btn-soft">🏔 ermitteln</button></div>
         </label>
-
-        <fieldset>
-          <legend>Erlaubte Windrichtung(en) <span class="req">*</span></legend>
-          <div id="compass" class="compass"></div>
-        </fieldset>
-
-        <details class="adv">
-          <summary>Erweiterte Grenzwerte</summary>
+        <fieldset><legend>Erlaubte Windrichtung(en) <span class="req">*</span></legend><div id="compass" class="compass"></div></fieldset>
+        <details class="adv"><summary>Erweiterte Grenzwerte</summary>
           <div class="row">
-            <label>Wind min (km/h)<input name="windMin" type="number" value="3" /></label>
-            <label>Wind max (km/h)<input name="windMax" type="number" value="26" /></label>
-            <label>Böen max (km/h)<input name="gustMax" type="number" value="30" /></label>
+            <label>Wind min<input name="windMin" type="number" value="3" /></label>
+            <label>Wind max<input name="windMax" type="number" value="26" /></label>
+            <label>Böen max<input name="gustMax" type="number" value="30" /></label>
           </div>
         </details>
-
         <p id="formErr" class="form-err" hidden></p>
         <div class="modal-actions">
           <button type="button" id="resetBtn" class="btn-soft">Leeren</button>
-          <button type="submit" class="btn-primary">Fluggebiet speichern</button>
+          <button type="submit" class="btn-primary">Speichern &amp; favorisieren</button>
         </div>
       </form>
     </section>
@@ -88,15 +92,16 @@
     <section id="page-info" class="page" hidden>
       <h2 class="page-h">Wie funktioniert die App?</h2>
       <div class="card prose">
-        <p>Für jedes Fluggebiet ist hinterlegt, aus welcher <b>Windrichtung</b> geflogen werden darf und in welchem Rahmen <b>Windstärke und Böen</b> passen. Die App holt die Vorhersage der nächsten 7 Tage und markiert jede Stunde:</p>
+        <p>Tippe auf <b>„Wo kann ich heute fliegen?"</b> – die App nimmt deinen Standort und prüft alle Startplätze im gewählten Umkreis gegen die Wettervorhersage. Ergebnis:</p>
         <ul>
-          <li><span class="chip green">grün</span> = Windrichtung passt, Wind &amp; Böen im Rahmen, kein Regen, und es ist Tag.</li>
-          <li>grau = passt (noch) nicht – fahr mit der Maus über die Stunde, dann siehst du den Grund (z.&nbsp;B. „Richtung", „zu stark", „Böen", „Regen").</li>
+          <li>🟢 <b>Gut</b> – Windrichtung passt, Wind &amp; Böen entspannt im Rahmen.</li>
+          <li>🟡 <b>Grenzwertig</b> – fliegbar, aber nah an den Grenzen (zu schwach, recht stark oder böig).</li>
+          <li>🔴 <b>Nicht</b> – Richtung falsch, zu viel Wind/Böen, Regen o. Ä.</li>
         </ul>
-        <p>Unter den Stunden siehst du <b>Wettersymbol und Temperatur</b> des Tages. Ein zusammenhängendes grünes Fenster wird als Zeitraum angezeigt, z.&nbsp;B. „11–14 Uhr".</p>
+        <p>Angezeigt werden nur <b>zusammenhängende Fenster ab 3 Stunden</b> – einzelne gute Stunden werden bewusst ignoriert.</p>
+        <p>Unter <b>„⭐ Favoriten"</b> siehst du deine Plätze mit 7-Tage-Ansicht, Wettersymbol und Temperatur. Favoriten legst du über <b>„＋ Neu"</b> an (aus der Datenbank oder selbst).</p>
         <h3>Für wen ist sie gedacht?</h3>
-        <p>Vor allem für <b>Flug&shy;anfänger</b> und Gelegenheits&shy;flieger, die schnell wissen wollen, <b>ob am Wunsch-Startplatz die Grund&shy;bedingungen passen</b> – ohne selbst Wetterkarten lesen zu müssen.</p>
-        <p>Für <b>erfahrene Piloten</b>, die gezielt auf Thermik oder Strecke gehen, ist sie nur bedingt geeignet: Sie prüft die <i>Grund&shy;bedingungen</i>, aber <b>nicht</b> Thermik-Qualität, Basis, Turbulenz oder Streckenwetter.</p>
+        <p>Vor allem für <b>Flug&shy;anfänger</b> und Gelegenheits&shy;flieger, die schnell wissen wollen, wo die <b>Grund&shy;bedingungen</b> passen. Für Thermik-/Streckenflug ist sie nur bedingt geeignet.</p>
       </div>
     </section>
 
@@ -104,28 +109,27 @@
     <section id="page-legal" class="page" hidden>
       <h2 class="page-h">Rechtliche Einordnung</h2>
       <div class="card prose legal">
-        <p><b>Nutzung ausschließlich auf eigene Gefahr und in Eigenverantwortung.</b> Die App ist eine unverbindliche Orientierungshilfe und <b>keine amtliche Flugwetter&shy;beratung</b>.</p>
+        <p><b>Nutzung auf eigene Gefahr und in Eigenverantwortung.</b> Unverbindliche Orientierungshilfe, <b>keine amtliche Flugwetter&shy;beratung</b>. Die App gibt nur eine <b>Tendenz</b> – prüfe vor dem Fliegen immer zusätzlich amtliche/spezialisierte Quellen (z. B. <b>Burnair</b>, <b>Windy</b>, <b>DWD</b>).</p>
         <ul>
-          <li>Die angezeigten Werte stammen aus <b>Wettermodell-Daten</b> (Open-Meteo / DWD-ICON) und können von der Realität abweichen. Keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität.</li>
-          <li>Der Modellwind bezieht sich auf <b>10 m über Grund</b> und entspricht nicht zwingend dem Wind am Hang.</li>
-          <li>Die App prüft <b>nicht</b>: Luftraum&shy;beschränkungen, NOTAMs, Sperrungen, Naturschutz-/Wildschutz&shy;zonen, Gelände- und Vereins&shy;regeln, Betriebszeiten, Thermik, Turbulenz oder lokale Windeffekte.</li>
-          <li>Die Beurteilung der Flug&shy;tauglichkeit und die Startentscheidung liegen <b>allein beim verantwortlichen Piloten</b>. Vor jedem Flug: eigene Beobachtung vor Ort, aktuelle Wetterberatung und die geltenden Gelände&shy;regeln (DHV) sowie erforderliche Berechtigungen/Einweisungen beachten.</li>
-          <li>Es wird <b>keine Haftung</b> für Schäden übernommen, die aus der Nutzung dieser App entstehen.</li>
+          <li>Werte aus <b>Wettermodell-Daten</b> (Open-Meteo / DWD-ICON), können abweichen. Keine Gewähr für Richtigkeit/Aktualität.</li>
+          <li>Modellwind = <b>10 m über Grund</b>, nicht zwingend der Wind am Hang.</li>
+          <li>Nicht geprüft werden: Luftraum, NOTAMs, Sperrungen, Naturschutz-/Wildschutz&shy;zonen, Gelände-/Vereins&shy;regeln, Thermik, Turbulenz, lokale Effekte.</li>
+          <li>Beurteilung &amp; Startentscheidung liegen <b>allein beim verantwortlichen Piloten</b>; Gelände&shy;regeln (DHV) und nötige Berechtigungen beachten.</li>
+          <li><b>Keine Haftung</b> für Schäden aus der Nutzung.</li>
         </ul>
-        <p class="dp"><b>Datenschutz:</b> Die App läuft lokal in deinem Browser. Selbst angelegte Fluggebiete werden nur auf deinem Gerät gespeichert. Für Vorhersage und Höhe werden die Koordinaten an Open-Meteo übertragen. „📍 Mein Standort" bleibt auf dem Gerät.</p>
+        <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät.</p>
       </div>
     </section>
   </main>
 
-  <!-- Untere Navigation -->
   <nav class="tabbar">
-    <a href="#/spots" data-tab="spots" class="tab"><span class="ti">🪂</span><span>Fluggebiete</span></a>
+    <a href="#/home" data-tab="home" class="tab"><span class="ti">🪂</span><span>Fliegen</span></a>
     <a href="#/add" data-tab="add" class="tab"><span class="ti">＋</span><span>Neu</span></a>
     <a href="#/info" data-tab="info" class="tab"><span class="ti">ℹ️</span><span>Info</span></a>
     <a href="#/legal" data-tab="legal" class="tab"><span class="ti">⚖️</span><span>Recht</span></a>
   </nav>
 
-  <script src="spots.js"></script>
+  <script src="database.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
