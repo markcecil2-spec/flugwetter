@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "de.goflytoday.twa",
+    "sha256_cert_fingerprints": ["8D:14:06:56:FE:D6:6C:A1:1B:52:CF:BB:36:4D:27:4E:90:27:3F:3A:00:0F:0C:3D:02:55:F7:48:3C:DC:C7:FD"]
+  }
+}]
