@@ -425,8 +425,8 @@ async function plzSearch() {
   try { const o = await geocodePlz(plz); await runFlySearch(o.lat, o.lon, o.label); }
   catch { out.innerHTML = `<p class="empty">PLZ ${plz} nicht gefunden.</p>`; }
 }
-document.getElementById("plzBtn").addEventListener("click", plzSearch);
 document.getElementById("plzInput").addEventListener("keydown", e => { if (e.key === "Enter") plzSearch(); });
+document.getElementById("plzInput").addEventListener("input", e => { if (/^\d{5}$/.test(e.target.value.trim())) plzSearch(); });
 
 // Regions-Auswahl
 document.getElementById("regionSelect").addEventListener("change", e => {

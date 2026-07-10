@@ -326,6 +326,16 @@ header { position: relative; overflow: hidden; }
 }
 .region-select:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
 
+/* PLZ + Region nebeneinander */
+.find-row { display: flex; gap: 8px; align-items: stretch; }
+.find-plz, .find-region {
+  flex: 1; min-width: 0; font-size: 15px; padding: 11px 12px;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text);
+}
+.find-plz { letter-spacing: 1px; }
+.find-region { cursor: pointer; }
+.find-plz:focus, .find-region:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
+
 /* Heute/Morgen-Umschalter */
 .day-toggle { display: flex; gap: 8px; justify-content: center; margin: 12px 0 2px; }
 .day-toggle .rpill { min-width: 96px; text-align: center; }
