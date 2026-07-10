@@ -60,4 +60,25 @@ const SPOT_DB = [
   { id: "db_wank", name: "Wank", region: "Garmisch-Partenkirchen · Werdenfels",
     lat: 47.5068, lon: 11.1473, elevation: 1730,
     sectors: [[45, 290]], sectorLabel: "NO–S–W", ...DEF },
+
+  // --- Chiemgau / Inntal / Allgäu (Ergänzung) ---
+  { id: "db_hochries", name: "Hochries", region: "Samerberg · Chiemgau",
+    lat: 47.7473, lon: 12.2483, elevation: 1560,
+    sectors: [[290, 340]], sectorLabel: "WNW–NNW", ...DEF },
+
+  { id: "db_hochplatte_chiemgau", name: "Hochplatte (Chiemgau)", region: "Marquartstein · Chiemgau",
+    lat: 47.7674, lon: 12.4210, elevation: 1020,
+    sectors: [[25, 70]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_mittag", name: "Mittag", region: "Immenstadt · Allgäu",
+    lat: 47.5376, lon: 10.2187, elevation: 1381,
+    sectors: [[280, 70], [157, 203]], sectorLabel: "NW–NO & S", ...DEF },
+
+  { id: "db_laber", name: "Laber", region: "Oberammergau (anspruchsvoll)",
+    lat: 47.5863, lon: 11.1036, elevation: 1682,
+    sectors: [[340, 20], [160, 200]], sectorLabel: "N & S", ...DEF },
+
+  { id: "db_heuberg", name: "Heuberg", region: "Nußdorf am Inn · Chiemgau",
+    lat: 47.7259, lon: 12.1839, elevation: 1338,
+    sectors: [[225, 315]], sectorLabel: "SW–NW", ...DEF },
 ];
