@@ -142,6 +142,23 @@ function dayStatus(days, idx = 0) {
 }
 function todayStatus(days) { return dayStatus(days, 0); }
 
+// Sterne-Bewertung für „heute" (emotional schnell erfassbar)
+function todayRating(days) {
+  const ts = todayStatus(days);
+  const day = days[0];
+  const green = day ? day.dayHours.filter(h => h.rating === "gut").length : 0;
+  const grenz = day ? day.dayHours.filter(h => h.rating === "grenz").length : 0;
+  if (ts.status === "gut") {
+    const stars = green >= 5 ? 5 : 4;
+    return { stars, label: stars === 5 ? "Heute sehr gut geeignet" : "Heute gut geeignet", cls: "gut" };
+  }
+  if (ts.status === "grenz") {
+    const stars = grenz >= 4 ? 3 : 2;
+    return { stars, label: "Grenzwertig", cls: "grenz" };
+  }
+  return { stars: 1, label: "Heute nicht geeignet", cls: "nein" };
+}
+
 // ---------------- Fetching ----------------
 async function fetchForecast(spot) {
   let url = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}` +
@@ -259,12 +276,15 @@ function renderCard(spot, days, opts = {}) {
 
   const metaHtml = `<div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>`;
 
+  const rt = todayRating(days);
+  const ratingBlock = `<div class="rating ${rt.cls}"><span class="stars">${"★".repeat(rt.stars)}<span class="star-off">${"★".repeat(5 - rt.stars)}</span></span><span class="rating-label">${rt.label}</span></div>`;
+
   // Kompakt (Favoriten): nur Kopf + Aktionen sichtbar, Rest im Aufklapp-Menü.
   const body = opts.collapsible
     ? `${actions}
       <button class="days-toggle" aria-expanded="false"><span class="dt-arrow">▾</span> Details &amp; Wochenübersicht</button>
       <div class="fav-more collapsed">${metaHtml}${nowBar}<div class="days">${daysHtml}</div></div>`
-    : `${metaHtml}${actions}${nowBar}<div class="days">${daysHtml}</div>`;
+    : `${ratingBlock}${metaHtml}${actions}${nowBar}<div class="days">${daysHtml}</div>`;
 
   return `
     <div class="card">
@@ -392,6 +412,22 @@ async function runRegionSearch(key) {
   await renderSearch(candidates, origin, `${dayWord()} · Region <b>${R.name}</b>`);
 }
 
+// Filter: nur eigene Favoriten prüfen
+async function runFavSearch() {
+  rerunSearch = () => runFavSearch();
+  const origin = lastOrigin;
+  const favs = favoriteSpots();
+  if (!favs.length) {
+    document.getElementById("flyResults").innerHTML = `<p class="empty">Noch keine Favoriten. Über „＋ Neu" hinzufügen.</p>`;
+    return;
+  }
+  const candidates = favs.map(s => {
+    const d = origin ? haversine(origin.lat, origin.lon, s.lat, s.lon) : null;
+    return { ...s, dist: d, sortKey: d ?? 0 };
+  });
+  await renderSearch(candidates, origin, `${dayWord()} · ⭐ Favoriten`);
+}
+
 // Heute/Morgen-Umschalter
 document.getElementById("dayToggle").addEventListener("click", e => {
   const b = e.target.closest("[data-day]"); if (!b) return;
@@ -430,7 +466,9 @@ document.getElementById("plzInput").addEventListener("input", e => { if (/^\d{5}
 
 // Regions-Auswahl
 document.getElementById("regionSelect").addEventListener("change", e => {
-  if (e.target.value) runRegionSearch(e.target.value);
+  const v = e.target.value;
+  if (v === "__fav__") runFavSearch();
+  else if (v) runRegionSearch(v);
 });
 
 function mapsUrl(s) {

@@ -99,6 +99,16 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .chip.green { background: var(--green); color: #fff; }
 .hint { font-style: italic; opacity: .85; }
 
+/* Sterne-Bewertung (Popup) */
+.rating { display: flex; align-items: center; gap: 10px; margin: 2px 0 12px; }
+.stars { font-size: 22px; letter-spacing: 2px; color: #f59e0b; line-height: 1; }
+.stars .star-off { color: rgba(148,163,184,.4); }
+.rating-label { font-weight: 800; font-size: 15px; }
+.rating.gut .rating-label { color: var(--green); }
+.rating.grenz .rating-label { color: #b45309; }
+.rating.nein .rating-label { color: #b91c1c; }
+@media (prefers-color-scheme: dark) { .rating.grenz .rating-label { color: #fbbf24; } .rating.nein .rating-label { color: #fca5a5; } }
+
 /* Karten-Kopf rechts: Badge + Löschen */
 .head-right { display: flex; align-items: center; gap: 8px; }
 .mine { font-size: 10px; font-weight: 600; color: var(--sky); background: rgba(14,165,233,.12); padding: 1px 7px; border-radius: 999px; vertical-align: middle; }
@@ -281,7 +291,8 @@ header { position: relative; overflow: hidden; }
 .act.nav { background: var(--sky); color: #fff; border-color: var(--sky); }
 
 /* Unterstützen (Buy Me a Coffee) */
-.support { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; margin-top: 22px; }
+.support { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin-top: 22px; }
+.support-emoji { font-size: 28px; line-height: 1; }
 .support-txt { font-size: 13.5px; line-height: 1.6; color: var(--text); }
 .bmc-btn {
   text-decoration: none; background: #ffdd00; color: #0d0c22; font-weight: 800; font-size: 15px;
