@@ -112,7 +112,7 @@ function neinLabel(r) {
   return m[r] || r;
 }
 function neinText(r) {
-  const m = { "Regen": "Regen", "Richtung": "Windrichtung", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts" };
+  const m = { "Regen": "Regen", "Richtung": "falsche Windrichtung", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts" };
   return m[r] || r;
 }
 // Klartext-Grund pro Stunde (für das Uhrzeit-Detail)
@@ -482,7 +482,7 @@ function renderFlyResults(rows, headline, truncated) {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
     const right = ts.status === "nein"
-      ? `<span class="fr-block">✗ ${ts.reasonLabel}</span>`
+      ? `<span class="fr-nore">${ts.reasonText}</span>`
       : `<div class="fr-right"><div class="fr-line1">${winTimeShort(ts.win)}</div><div class="fr-line2">${ts.reasonLabel}</div></div>`;
     return `
       <div class="fr ${ts.status}" data-spot="${s.id}">
