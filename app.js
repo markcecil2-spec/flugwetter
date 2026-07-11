@@ -143,21 +143,22 @@ function dayStatus(days, idx = 0) {
 }
 function todayStatus(days) { return dayStatus(days, 0); }
 
-// Sterne-Bewertung für „heute" (emotional schnell erfassbar)
-function todayRating(days) {
-  const ts = todayStatus(days);
-  const day = days[0];
+// Sterne-Bewertung für den gewählten Tag (emotional schnell erfassbar)
+function todayRating(days, idx = 0) {
+  const ts = dayStatus(days, idx);
+  const day = days[idx];
+  const w = idx === 1 ? "Morgen" : "Heute";
   const green = day ? day.dayHours.filter(h => h.rating === "gut").length : 0;
   const grenz = day ? day.dayHours.filter(h => h.rating === "grenz").length : 0;
   if (ts.status === "gut") {
     const stars = green >= 5 ? 5 : 4;
-    return { stars, label: stars === 5 ? "Heute sehr gut geeignet" : "Heute gut geeignet", cls: "gut" };
+    return { stars, label: stars === 5 ? `${w} sehr gut geeignet` : `${w} gut geeignet`, cls: "gut" };
   }
   if (ts.status === "grenz") {
     const stars = grenz >= 4 ? 3 : 2;
     return { stars, label: "Grenzwertig", cls: "grenz" };
   }
-  return { stars: 1, label: "Heute nicht geeignet", cls: "nein" };
+  return { stars: 1, label: `${w} nicht geeignet`, cls: "nein" };
 }
 
 // ---------------- Fetching ----------------
@@ -230,7 +231,9 @@ function statusDot(status) {
 function fmtTime(d) { return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0"); }
 
 function renderCard(spot, days, opts = {}) {
-  const ts = todayStatus(days);
+  const dayIdx = opts.dayIdx || 0;
+  const dayW = dayIdx === 1 ? "morgen" : "heute";
+  const ts = dayStatus(days, dayIdx);
   const now = new Date();
   const flat = days.flatMap(d => d.hours);
   const cur = flat.find(h => h.t.getHours() === now.getHours() && h.t.getDate() === now.getDate() && h.t.getMonth() === now.getMonth()) || flat[Math.min(12, flat.length - 1)];
@@ -242,8 +245,8 @@ function renderCard(spot, days, opts = {}) {
       ${sun ? `<span class="sun-txt">🌅 ${fmtTime(sun.sunrise)} · 🌇 ${fmtTime(sun.sunset)}</span>` : ""}
     </div>` : "";
   const badge = ts.status === "nein"
-    ? `<span class="badge red">🔴 heute: ${ts.reasonText}</span>`
-    : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} heute ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
+    ? `<span class="badge red">🔴 ${dayW}: ${ts.reasonText}</span>`
+    : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} ${dayW} ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
 
   const daysHtml = days.slice(0, 7).map(day => {
     const wd = WEEKDAYS[day.date.getDay()];
@@ -277,7 +280,7 @@ function renderCard(spot, days, opts = {}) {
 
   const metaHtml = `<div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>`;
 
-  const rt = todayRating(days);
+  const rt = todayRating(days, dayIdx);
   const ratingBlock = `<div class="rating ${rt.cls}"><span class="stars">${"★".repeat(rt.stars)}<span class="star-off">${"★".repeat(5 - rt.stars)}</span></span><span class="rating-label">${rt.label}</span></div>`;
 
   // Kompakt (Favoriten): nur Kopf + Aktionen sichtbar, Rest im Aufklapp-Menü.
@@ -535,7 +538,7 @@ async function openDetail(id) {
   const modal = document.getElementById("detailModal"), body = document.getElementById("detailBody");
   modal.hidden = false;
   body.innerHTML = `<div class="card loading">Lade 7-Tage-Vorhersage für ${spot.name} …</div>`;
-  try { body.innerHTML = renderCard(spot, analyse(spot, await fetchForecast(spot))); }
+  try { body.innerHTML = renderCard(spot, analyse(spot, await fetchForecast(spot)), { dayIdx: searchDay }); }
   catch (e) { body.innerHTML = `<div class="card">Fehler: ${e.message}</div>`; }
 }
 function closeDetail() {
