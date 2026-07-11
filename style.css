@@ -363,6 +363,9 @@ header { position: relative; overflow: hidden; }
 .day-toggle { display: flex; gap: 8px; justify-content: center; margin: 12px 0 2px; }
 .day-toggle .rpill { min-width: 96px; text-align: center; }
 
+/* Land-Umschalter (Region-Filter) */
+.country-toggle { display: flex; gap: 8px; justify-content: center; margin: 0 0 10px; }
+
 /* Wochenübersicht auf-/zuklappen (Favoriten) */
 .days.collapsed, .fav-more.collapsed { display: none; }
 .days-toggle {

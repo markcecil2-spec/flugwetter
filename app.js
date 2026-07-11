@@ -346,14 +346,20 @@ document.getElementById("radiusPills").addEventListener("click", e => {
 
 // Regionen (Zentrum + Radius km) für die Regions-Suche
 const REGIONS = {
-  allgaeu:       { name: "Allgäu",               lat: 47.55, lon: 10.25, r: 45 },
-  alb:           { name: "Schwäbische Alb",      lat: 48.45, lon: 9.35,  r: 60 },
-  schwarzwald:   { name: "Schwarzwald",          lat: 48.15, lon: 8.15,  r: 85 },
-  werdenfels:    { name: "Werdenfelser Land",    lat: 47.52, lon: 11.10, r: 28 },
-  voralpen:      { name: "Bayerische Voralpen",  lat: 47.65, lon: 11.50, r: 40 },
-  chiemgau:      { name: "Chiemgau",             lat: 47.75, lon: 12.50, r: 40 },
-  berchtesgaden: { name: "Berchtesgadener Land", lat: 47.63, lon: 12.99, r: 28 },
-  oesterreich:   { name: "Österreich",           lat: 47.3464, lon: 12.9527, r: 320 },
+  allgaeu:         { name: "Allgäu",               country: "de", lat: 47.55,   lon: 10.25,   r: 45 },
+  alb:             { name: "Schwäbische Alb",      country: "de", lat: 48.45,   lon: 9.35,    r: 60 },
+  schwarzwald:     { name: "Schwarzwald",          country: "de", lat: 48.15,   lon: 8.15,    r: 85 },
+  werdenfels:      { name: "Werdenfelser Land",    country: "de", lat: 47.52,   lon: 11.10,   r: 28 },
+  voralpen:        { name: "Bayerische Voralpen",  country: "de", lat: 47.65,   lon: 11.50,   r: 40 },
+  chiemgau:        { name: "Chiemgau",             country: "de", lat: 47.75,   lon: 12.50,   r: 40 },
+  berchtesgaden:   { name: "Berchtesgadener Land", country: "de", lat: 47.63,   lon: 12.99,   r: 28 },
+  tirol:           { name: "Tirol",                country: "at", lat: 47.1777, lon: 11.4725, r: 110 },
+  steiermark:      { name: "Steiermark",           country: "at", lat: 47.3339, lon: 14.5904, r: 100 },
+  oberoesterreich: { name: "Oberösterreich",       country: "at", lat: 48.1353, lon: 13.9855, r: 80 },
+  kaernten:        { name: "Kärnten",              country: "at", lat: 46.7719, lon: 13.8763, r: 85 },
+  salzburg_at:     { name: "Salzburg",             country: "at", lat: 47.4645, lon: 13.2025, r: 75 },
+  vorarlberg:      { name: "Vorarlberg",           country: "at", lat: 47.2126, lon: 9.9555,  r: 38 },
+  oesterreich:     { name: "Österreich (alle)",    country: "at", lat: 47.3464, lon: 12.9527, r: 320 },
 };
 
 // Gemeinsame Auswertung + Anzeige für eine Kandidatenliste.
@@ -436,6 +442,19 @@ document.getElementById("dayToggle").addEventListener("click", e => {
   searchDay = parseInt(b.dataset.day, 10);
   document.querySelectorAll("#dayToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
   if (rerunSearch) rerunSearch();
+});
+
+// Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
+function renderRegionOptions(country) {
+  const sel = document.getElementById("regionSelect");
+  const opts = ['<option value="">Region / Filter …</option>', '<option value="__fav__">⭐ Meine Favoriten</option>'];
+  Object.entries(REGIONS).forEach(([key, r]) => { if (r.country === country) opts.push(`<option value="${key}">${r.name}</option>`); });
+  sel.innerHTML = opts.join("");
+}
+document.getElementById("countryToggle").addEventListener("click", e => {
+  const b = e.target.closest("[data-country]"); if (!b) return;
+  document.querySelectorAll("#countryToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
+  renderRegionOptions(b.dataset.country);
 });
 
 // Standort per GPS (Button + Auto-Start)
