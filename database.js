@@ -2193,4 +2193,781 @@ const SPOT_DB = [
   { id: "db_879", name: "Zundelberg", region: "Spaichingen",
     lat: 48.0546, lon: 8.7492, elevation: 930, dhv: 879,
     sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  // --- Österreich ---
+  { id: "db_1438", name: "Adamsberg", region: "Galtür",
+    lat: 46.987, lon: 10.1996, elevation: 2315, dhv: 1438,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_1382", name: "Aineck", region: "Sankt Michael im Lungau",
+    lat: 47.057, lon: 13.6371, elevation: 2167, dhv: 1382,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1303", name: "Alkus", region: "Ainet",
+    lat: 46.8754, lon: 12.7022, elevation: 1309, dhv: 1303,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1383", name: "Almkopf", region: "Bichlbach",
+    lat: 47.4155, lon: 10.7659, elevation: 1770, dhv: 1383,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1930", name: "Bella Nova", region: "St. Gallenkirch",
+    lat: 46.9855, lon: 9.9647, elevation: 2120, dhv: 1930,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5165", name: "Bergkastel", region: "Nauders",
+    lat: 46.853, lon: 10.5442, elevation: 2427, dhv: 5165,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1391", name: "Bischling", region: "Werfenweng",
+    lat: 47.4641, lon: 13.2991, elevation: 1818, dhv: 1391,
+    sectors: [[78.75, 101.25], [168.75, 191.25], [213.75, 236.25]], sectorLabel: "O · S · SW", ...DEF },
+
+  { id: "db_1943", name: "Buchberg", region: "Mattsee",
+    lat: 47.9551, lon: 13.1169, elevation: 689, dhv: 1943,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_1371", name: "Bürgeralm", region: "Aflenz",
+    lat: 47.5777, lon: 15.2245, elevation: 1742, dhv: 1371,
+    sectors: [[168.75, 191.25], [191.25, 213.75]], sectorLabel: "S · SSW", ...DEF },
+
+  { id: "db_1208", name: "Choralpe", region: "Westendorf",
+    lat: 47.4188, lon: 12.244, elevation: 1797, dhv: 1208,
+    sectors: [[213.75, 281.25], [33.75, 146.25], [348.75, 56.25], [303.75, 326.25]], sectorLabel: "SW-W · NO-SO · N-NO · NW", ...DEF },
+
+  { id: "db_1457", name: "Christlum", region: "Achenkirch",
+    lat: 47.5041, lon: 11.6617, elevation: 1725, dhv: 1457,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1419", name: "Dachstein", region: "Ramsau",
+    lat: 47.4673, lon: 13.6275, elevation: 2593, dhv: 1419,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1219", name: "Diedamskopf", region: "Schoppernau",
+    lat: 47.3462, lon: 10.0259, elevation: 2077, dhv: 1219,
+    sectors: [[78.75, 281.25], [168.75, 191.25]], sectorLabel: "O-W · S", ...DEF },
+
+  { id: "db_5619", name: "Döbriach", region: "Döbriach",
+    lat: 46.7635, lon: 13.6644, elevation: 1050, dhv: 5619,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_1393", name: "Einberg", region: "Pichl",
+    lat: 47.6174, lon: 13.3607, elevation: 1635, dhv: 1393,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5153", name: "Eitzenberg", region: "Eitzenberg",
+    lat: 48.3518, lon: 13.7992, elevation: 448, dhv: 5153,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2117", name: "Elbigenalp Übungshang", region: "Elbigenalp",
+    lat: 47.2961, lon: 10.4396, elevation: 1079, dhv: 2117,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1304", name: "Elfer", region: "Neustift",
+    lat: 47.0976, lon: 11.3236, elevation: 1827, dhv: 1304,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_1305", name: "Emberger Alm", region: "Greifenburg",
+    lat: 46.7769, lon: 13.1496, elevation: 1889, dhv: 1305,
+    sectors: [[123.75, 191.25], [168.75, 236.25]], sectorLabel: "SO-S · S-SW", ...DEF },
+
+  { id: "db_1267", name: "Entscharn", region: "Bramberg",
+    lat: 47.2806, lon: 12.3424, elevation: 1137, dhv: 1267,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1415", name: "Feuerkogel", region: "Ebensee",
+    lat: 47.8165, lon: 13.7194, elevation: 1595, dhv: 1415,
+    sectors: [[348.75, 11.25], [78.75, 146.25]], sectorLabel: "N · O-SO", ...DEF },
+
+  { id: "db_1302", name: "Finkenberg", region: "Finkenberg",
+    lat: 47.169, lon: 11.799, elevation: 2074, dhv: 1302,
+    sectors: [[213.75, 281.25], [123.75, 146.25]], sectorLabel: "SW-W · SO", ...DEF },
+
+  { id: "db_1944", name: "Fohnsdorf", region: "Fohnsdorf",
+    lat: 47.2319, lon: 14.6898, elevation: 1310, dhv: 1944,
+    sectors: [[168.75, 236.25], [123.75, 236.25]], sectorLabel: "S-SW · SO-SW", ...DEF },
+
+  { id: "db_1307", name: "Fulseck", region: "Dorfgastein",
+    lat: 47.2343, lon: 13.148, elevation: 2015, dhv: 1307,
+    sectors: [[78.75, 101.25], [258.75, 326.25]], sectorLabel: "O · W-NW", ...DEF },
+
+  { id: "db_1298", name: "Gaisberg", region: "Salzburg",
+    lat: 47.8049, lon: 13.1139, elevation: 1263, dhv: 1298,
+    sectors: [[348.75, 56.25], [213.75, 281.25], [258.75, 326.25]], sectorLabel: "N-NO · SW-W · W-NW", ...DEF },
+
+  { id: "db_1334", name: "Gaislachkogel", region: "Sölden",
+    lat: 46.9542, lon: 10.9815, elevation: 2306, dhv: 1334,
+    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", ...DEF },
+
+  { id: "db_1912", name: "Gaschurn", region: "St. Gallenkirch",
+    lat: 46.9806, lon: 9.9935, elevation: 1971, dhv: 1912,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1512", name: "Gebrenzen", region: "Sankt Lambrecht",
+    lat: 47.0388, lon: 14.3315, elevation: 1859, dhv: 1512,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_1362", name: "Gelderkogel", region: "Fladnitz",
+    lat: 47.3039, lon: 15.4789, elevation: 1130, dhv: 1362,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1372", name: "Gemeindealpe", region: "Mitterbach",
+    lat: 47.8118, lon: 15.2487, elevation: 1598, dhv: 1372,
+    sectors: [[78.75, 146.25], [168.75, 236.25], [258.75, 326.25]], sectorLabel: "O-SO · S-SW · W-NW", ...DEF },
+
+  { id: "db_1251", name: "Gerlitzen", region: "Annenheim",
+    lat: 46.6924, lon: 13.9139, elevation: 1897, dhv: 1251,
+    sectors: [[123.75, 236.25], [168.75, 236.25], [123.75, 191.25]], sectorLabel: "SO-SW · S-SW · SO-S", ...DEF },
+
+  { id: "db_1451", name: "Giggijoch", region: "Sölden",
+    lat: 46.9792, lon: 10.9755, elevation: 2291, dhv: 1451,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_2112", name: "Goding", region: "Goding",
+    lat: 46.7785, lon: 14.921, elevation: 1193, dhv: 2112,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1250", name: "Goldeck", region: "Spittal an der Drau",
+    lat: 46.7589, lon: 13.4583, elevation: 2132, dhv: 1250,
+    sectors: [[146.25, 191.25], [258.75, 281.25]], sectorLabel: "SSO-S · W", ...DEF },
+
+  { id: "db_1462", name: "Golm", region: "Tschagguns",
+    lat: 47.0626, lon: 9.8375, elevation: 2068, dhv: 1462,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1444", name: "Golzentipp", region: "Obertilliach",
+    lat: 46.7253, lon: 12.6226, elevation: 2150, dhv: 1444,
+    sectors: [[213.75, 281.25], [123.75, 191.25]], sectorLabel: "SW-W · SO-S", ...DEF },
+
+  { id: "db_1308", name: "Göriach", region: "Göriach",
+    lat: 46.8615, lon: 13.3997, elevation: 1323, dhv: 1308,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2286", name: "Göriach", region: "Göriach",
+    lat: 47.207, lon: 13.7813, elevation: 2233, dhv: 2286,
+    sectors: [[78.75, 281.25]], sectorLabel: "O-W", ...DEF },
+
+  { id: "db_1306", name: "Greifenburg", region: "Greifenburg",
+    lat: 46.7612, lon: 13.2016, elevation: 1068, dhv: 1306,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1513", name: "Greim", region: "St. Peter am Kammersberg",
+    lat: 47.2255, lon: 14.1615, elevation: 1741, dhv: 1513,
+    sectors: [[78.75, 236.25]], sectorLabel: "O-SW", ...DEF },
+
+  { id: "db_1452", name: "Greit", region: "Pfunds",
+    lat: 46.9673, lon: 10.5611, elevation: 1505, dhv: 1452,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1945", name: "Grießenkar", region: "Wagrain",
+    lat: 47.3296, lon: 13.3482, elevation: 1808, dhv: 1945,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_1366", name: "Große Scheibe", region: "Mürzzuschlag",
+    lat: 47.6349, lon: 15.6896, elevation: 1449, dhv: 1366,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1514", name: "Großstübing", region: "Großstübing",
+    lat: 47.2082, lon: 15.2259, elevation: 978, dhv: 1514,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1323", name: "Gruberleiten Übungshang", region: "Ramsau am Dachstein",
+    lat: 47.4254, lon: 13.667, elevation: 1162, dhv: 1323,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1517", name: "Grubigstein", region: "Lermoos",
+    lat: 47.3857, lon: 10.8478, elevation: 2060, dhv: 1517,
+    sectors: [[123.75, 191.25], [78.75, 101.25]], sectorLabel: "SO-S · O", ...DEF },
+
+  { id: "db_1414", name: "Grünberg", region: "Gmunden",
+    lat: 47.8982, lon: 13.8177, elevation: 957, dhv: 1414,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1332", name: "Gschwandtkopf", region: "Seefeld",
+    lat: 47.3154, lon: 11.1786, elevation: 1412, dhv: 1332,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2270", name: "Gugglberg", region: "Zell am Ziller",
+    lat: 47.2285, lon: 11.8486, elevation: 1196, dhv: 2270,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2113", name: "Haas", region: "Wolfsberg",
+    lat: 46.8398, lon: 14.8852, elevation: 1030, dhv: 2113,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1244", name: "Hahnenkamm", region: "Reutte",
+    lat: 47.4764, lon: 10.6408, elevation: 1869, dhv: 1244,
+    sectors: [[258.75, 281.25], [123.75, 146.25]], sectorLabel: "W · SO", ...DEF },
+
+  { id: "db_1425", name: "Hahnenkamm Kitzbühel", region: "Kitzbühel",
+    lat: 47.4248, lon: 12.3703, elevation: 1650, dhv: 1425,
+    sectors: [[123.75, 146.25], [348.75, 11.25]], sectorLabel: "SO · N", ...DEF },
+
+  { id: "db_5817", name: "Haimburgerberg", region: "",
+    lat: 46.7189, lon: 14.6719, elevation: 1060, dhv: 5817,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1331", name: "Härmelekopf", region: "Seefeld",
+    lat: 47.3289, lon: 11.2272, elevation: 2011, dhv: 1331,
+    sectors: [[213.75, 303.75], [33.75, 236.25]], sectorLabel: "SW-WNW · NO-SW", ...DEF },
+
+  { id: "db_2359", name: "Harschbichl", region: "St. Johann in Tirol",
+    lat: 47.4845, lon: 12.4285, elevation: 1584, dhv: 2359,
+    sectors: [[78.75, 101.25], [258.75, 281.25]], sectorLabel: "O · W", ...DEF },
+
+  { id: "db_1324", name: "Hauser Kaibling", region: "Haus im Ennstal",
+    lat: 47.3744, lon: 13.7788, elevation: 1982, dhv: 1324,
+    sectors: [[213.75, 326.25], [33.75, 56.25]], sectorLabel: "SW-NW · NO", ...DEF },
+
+  { id: "db_1375", name: "Herndleck", region: "Ternberg",
+    lat: 47.9283, lon: 14.3284, elevation: 1026, dhv: 1375,
+    sectors: [[348.75, 101.25]], sectorLabel: "N-O", ...DEF },
+
+  { id: "db_2550", name: "Himmelreich", region: "Sankt Marein im Mürztal",
+    lat: 47.5074, lon: 15.3392, elevation: 1169, dhv: 2550,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1460", name: "Hinterhornalm", region: "Gnadenwald",
+    lat: 47.3345, lon: 11.5651, elevation: 1550, dhv: 1460,
+    sectors: [[78.75, 281.25], [123.75, 146.25]], sectorLabel: "O-W · SO", ...DEF },
+
+  { id: "db_1377", name: "Hirschwaldstein", region: "Micheldorf",
+    lat: 47.8865, lon: 14.1635, elevation: 939, dhv: 1377,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1949", name: "Hochalm Kirche", region: "Seckau",
+    lat: 47.3222, lon: 14.8027, elevation: 1836, dhv: 1949,
+    sectors: [[78.75, 281.25], [123.75, 236.25]], sectorLabel: "O-W · SO-SW", ...DEF },
+
+  { id: "db_1458", name: "Hochficht", region: "Schwarzenberg",
+    lat: 48.7364, lon: 13.9189, elevation: 1313, dhv: 1458,
+    sectors: [[168.75, 326.25]], sectorLabel: "S-NW", ...DEF },
+
+  { id: "db_1456", name: "Hochimst", region: "Hochimst",
+    lat: 47.256, lon: 10.6772, elevation: 2021, dhv: 1456,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1461", name: "Hochjoch", region: "Schruns",
+    lat: 47.064, lon: 9.9742, elevation: 2292, dhv: 1461,
+    sectors: [[213.75, 326.25], [213.75, 281.25], [303.75, 326.25]], sectorLabel: "SW-NW · SW-W · NW", ...DEF },
+
+  { id: "db_2110", name: "Hochkar", region: "Göstling",
+    lat: 47.7121, lon: 14.9043, elevation: 1753, dhv: 2110,
+    sectors: [[303.75, 11.25], [168.75, 191.25]], sectorLabel: "NW-N · S", ...DEF },
+
+  { id: "db_1392", name: "Hochstall", region: "Pichl",
+    lat: 47.6113, lon: 13.3839, elevation: 1235, dhv: 1392,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1326", name: "Hochstein", region: "Lienz",
+    lat: 46.8184, lon: 12.708, elevation: 1963, dhv: 1326,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1330", name: "Hochwurzen", region: "Pichl",
+    lat: 47.36, lon: 13.639, elevation: 1812, dhv: 1330,
+    sectors: [[303.75, 11.25], [258.75, 281.25], [78.75, 101.25]], sectorLabel: "NW-N · W · O", ...DEF },
+
+  { id: "db_1450", name: "Hochzeiger", region: "Jerzens",
+    lat: 47.1488, lon: 10.7948, elevation: 2434, dhv: 1450,
+    sectors: [[78.75, 146.25], [258.75, 11.25]], sectorLabel: "O-SO · W-N", ...DEF },
+
+  { id: "db_1910", name: "Hohe Munde", region: "Telfs",
+    lat: 47.345, lon: 11.1049, elevation: 1539, dhv: 1910,
+    sectors: [[78.75, 191.25], [123.75, 191.25]], sectorLabel: "O-S · SO-S", ...DEF },
+
+  { id: "db_1309", name: "Hohe Salve", region: "Söll",
+    lat: 47.4642, lon: 12.2025, elevation: 1815, dhv: 1309,
+    sectors: [[123.75, 191.25], [258.75, 326.25]], sectorLabel: "SO-S · W-NW", ...DEF },
+
+  { id: "db_1365", name: "Hohe Wand", region: "Maiersdorf",
+    lat: 47.8294, lon: 16.0416, elevation: 912, dhv: 1365,
+    sectors: [[78.75, 146.25], [168.75, 191.25]], sectorLabel: "O-SO · S", ...DEF },
+
+  { id: "db_1268", name: "Hollersbach", region: "Hollersbach",
+    lat: 47.2652, lon: 12.4274, elevation: 1145, dhv: 1268,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_1503", name: "Hundsheimer Berg", region: "Hundsheim",
+    lat: 48.1239, lon: 16.9396, elevation: 370, dhv: 1503,
+    sectors: [[123.75, 146.25], [258.75, 281.25], [168.75, 191.25]], sectorLabel: "SO · W · S", ...DEF },
+
+  { id: "db_1379", name: "Hutterer Höß", region: "Hinterstoder",
+    lat: 47.665, lon: 14.1702, elevation: 1807, dhv: 1379,
+    sectors: [[258.75, 281.25], [348.75, 56.25], [213.75, 236.25]], sectorLabel: "W · N-NO · SW", ...DEF },
+
+  { id: "db_2390", name: "Jocham", region: "Sankt Michael im Lungau",
+    lat: 47.1053, lon: 13.6635, elevation: 1324, dhv: 2390,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1435", name: "Jöchelspitze", region: "Bach",
+    lat: 47.2782, lon: 10.3701, elevation: 1884, dhv: 1435,
+    sectors: [[78.75, 191.25], [123.75, 236.25], [213.75, 281.25]], sectorLabel: "O-S · SO-SW · SW-W", ...DEF },
+
+  { id: "db_5166", name: "Kaiserburg", region: "Bad Kleinkirchheim",
+    lat: 46.7838, lon: 13.8261, elevation: 2017, dhv: 5166,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1421", name: "Kalmberg", region: "Gosau",
+    lat: 47.6124, lon: 13.5675, elevation: 1833, dhv: 1421,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1384", name: "Kapall", region: "St. Anton",
+    lat: 47.1483, lon: 10.2482, elevation: 2307, dhv: 1384,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1390", name: "Karkogel", region: "Abtenau",
+    lat: 47.5451, lon: 13.3599, elevation: 1189, dhv: 1390,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5151", name: "Kirchschlag", region: "Kirchschlag",
+    lat: 48.4071, lon: 14.2813, elevation: 841, dhv: 5151,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1427", name: "Kitzeck", region: "Kitzeck",
+    lat: 46.7753, lon: 15.4672, elevation: 471, dhv: 1427,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1380", name: "Kleinerberg", region: "Rosenau",
+    lat: 47.7341, lon: 14.3661, elevation: 1245, dhv: 1380,
+    sectors: [[258.75, 326.25], [168.75, 236.25], [78.75, 146.25]], sectorLabel: "W-NW · S-SW · O-SO", ...DEF },
+
+  { id: "db_1453", name: "Kobl", region: "Pfunds",
+    lat: 46.972, lon: 10.4956, elevation: 2121, dhv: 1453,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_2114", name: "Koralpe", region: "Wolfsberg",
+    lat: 46.7933, lon: 14.9516, elevation: 1906, dhv: 2114,
+    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", ...DEF },
+
+  { id: "db_2548", name: "Kramakogel", region: "St. Georgen ob Murau",
+    lat: 47.1143, lon: 14.1002, elevation: 1251, dhv: 2548,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5156", name: "Kranzhorn", region: "Erl",
+    lat: 47.7002, lon: 12.1859, elevation: 1320, dhv: 5156,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1436", name: "Kreuzjoch - Schlick 2000", region: "Fulpmes",
+    lat: 47.1447, lon: 11.3072, elevation: 2098, dhv: 1436,
+    sectors: [[78.75, 146.25], [78.75, 191.25]], sectorLabel: "O-SO · O-S", ...DEF },
+
+  { id: "db_1385", name: "Kriegerhorn", region: "Lech am Arlberg",
+    lat: 47.2141, lon: 10.1158, elevation: 2142, dhv: 1385,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_1422", name: "Krippenstein", region: "Obertraun",
+    lat: 47.5285, lon: 13.692, elevation: 1976, dhv: 1422,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5155", name: "Kronbauer", region: "Ottsdorf",
+    lat: 47.8993, lon: 14.0766, elevation: 870, dhv: 5155,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1364", name: "Kulm", region: "Stubenberg am See",
+    lat: 47.2282, lon: 15.7621, elevation: 925, dhv: 1364,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1426", name: "Lärchfilzkogel", region: "Fieberbrunn",
+    lat: 47.4431, lon: 12.549, elevation: 1641, dhv: 1426,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1441", name: "Lattenkopf", region: "Ischgl",
+    lat: 47.0179, lon: 10.2686, elevation: 2272, dhv: 1441,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1329", name: "Liezen", region: "Liezen",
+    lat: 47.582, lon: 14.2321, elevation: 1069, dhv: 1329,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5167", name: "Lippekogel", region: "Brückl",
+    lat: 46.7301, lon: 14.4997, elevation: 1001, dhv: 5167,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1416", name: "Loser", region: "Altausee",
+    lat: 47.663, lon: 13.7778, elevation: 1837, dhv: 1416,
+    sectors: [[78.75, 191.25], [123.75, 191.25], [123.75, 236.25]], sectorLabel: "O-S · SO-S · SO-SW", ...DEF },
+
+  { id: "db_4559", name: "Ludescherberg", region: "Ludesch",
+    lat: 47.1971, lon: 9.799, elevation: 896, dhv: 4559,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1313", name: "Markbachjoch", region: "Niederau",
+    lat: 47.4258, lon: 12.0704, elevation: 1704, dhv: 1313,
+    sectors: [[348.75, 56.25], [348.75, 11.25], [303.75, 11.25]], sectorLabel: "N-NO · N · NW-N", ...DEF },
+
+  { id: "db_1506", name: "Marsbach", region: "Marsbach",
+    lat: 48.4629, lon: 13.8173, elevation: 537, dhv: 1506,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1357", name: "Martele", region: "Lainach",
+    lat: 46.8803, lon: 12.9422, elevation: 1838, dhv: 1357,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_5163", name: "Matrei", region: "Matrei",
+    lat: 46.9931, lon: 12.5955, elevation: 2381, dhv: 5163,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1300", name: "Melchboden", region: "Schwendau",
+    lat: 47.2194, lon: 11.8231, elevation: 2041, dhv: 1300,
+    sectors: [[168.75, 191.25], [123.75, 146.25], [33.75, 146.25]], sectorLabel: "S · SO · NO-SO", ...DEF },
+
+  { id: "db_1369", name: "Messnerin", region: "Oberort",
+    lat: 47.5587, lon: 15.0829, elevation: 1798, dhv: 1369,
+    sectors: [[303.75, 326.25], [123.75, 236.25]], sectorLabel: "NW · SO-SW", ...DEF },
+
+  { id: "db_1314", name: "Michaelerberg", region: "Michaelerberg",
+    lat: 47.4114, lon: 13.8937, elevation: 1106, dhv: 1314,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_5150", name: "Mitterfeld", region: "Mitterfeld",
+    lat: 48.4604, lon: 14.2034, elevation: 763, dhv: 5150,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1909", name: "Mösern", region: "Telfs",
+    lat: 47.3139, lon: 11.1402, elevation: 1233, dhv: 1909,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1374", name: "Muckenkogel", region: "Lilienfeld",
+    lat: 47.9713, lon: 15.6101, elevation: 1284, dhv: 1374,
+    sectors: [[168.75, 191.25], [258.75, 281.25], [303.75, 326.25], [33.75, 56.25]], sectorLabel: "S · W · NW · NO", ...DEF },
+
+  { id: "db_1440", name: "Mutmanör", region: "Ischgl",
+    lat: 47.0304, lon: 10.2778, elevation: 2286, dhv: 1440,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1946", name: "Mutta", region: "Galtür",
+    lat: 46.9933, lon: 10.2131, elevation: 2174, dhv: 1946,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2474", name: "Muttenkopf", region: "Gereit",
+    lat: 47.0174, lon: 11.3703, elevation: 2607, dhv: 2474,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4444", name: "Nassereith", region: "Nassereith",
+    lat: 47.3021, lon: 10.8541, elevation: 902, dhv: 4444,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5164", name: "Nauders", region: "Nauders",
+    lat: 46.8853, lon: 10.53, elevation: 2020, dhv: 5164,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1243", name: "Neunerköpfle", region: "Tannheim",
+    lat: 47.4825, lon: 10.5419, elevation: 1824, dhv: 1243,
+    sectors: [[258.75, 326.25], [33.75, 146.25]], sectorLabel: "W-NW · NO-SO", ...DEF },
+
+  { id: "db_1220", name: "Niedere - Andelsbuch", region: "Andelsbuch",
+    lat: 47.4035, lon: 9.9385, elevation: 1552, dhv: 1220,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1459", name: "Nordkette", region: "Innsbruck",
+    lat: 47.3127, lon: 11.3844, elevation: 2268, dhv: 1459,
+    sectors: [[168.75, 191.25], [146.25, 213.75]], sectorLabel: "S · SSO-SSW", ...DEF },
+
+  { id: "db_5152", name: "Oed in Bergen", region: "Oed in Bergen",
+    lat: 48.3922, lon: 13.9724, elevation: 505, dhv: 5152,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5145", name: "Oedt", region: "Oedt",
+    lat: 48.6043, lon: 14.0482, elevation: 676, dhv: 5145,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1449", name: "Oetz", region: "Oetz",
+    lat: 47.2087, lon: 10.9352, elevation: 2136, dhv: 1449,
+    sectors: [[258.75, 281.25], [213.75, 236.25]], sectorLabel: "W · SW", ...DEF },
+
+  { id: "db_1504", name: "Ötscher", region: "Lackenhof",
+    lat: 47.8563, lon: 15.181, elevation: 1440, dhv: 1504,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2361", name: "Patscherkofel", region: "Patsch",
+    lat: 47.2087, lon: 11.4607, elevation: 2236, dhv: 2361,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1301", name: "Penken", region: "Mayrhofen",
+    lat: 47.1762, lon: 11.8167, elevation: 1975, dhv: 1301,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_1299", name: "Perler", region: "Schwendau",
+    lat: 47.2003, lon: 11.846, elevation: 1124, dhv: 1299,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_1389", name: "Pernegg", region: "Pichl",
+    lat: 47.607, lon: 13.3565, elevation: 1038, dhv: 1389,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_1509", name: "Petersberg", region: "Sillian",
+    lat: 46.7558, lon: 12.4278, elevation: 1327, dhv: 1509,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1500", name: "Petzen", region: "St. Michael ob Bleiburg",
+    lat: 46.5188, lon: 14.772, elevation: 1653, dhv: 1500,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_5149", name: "Pfarrkirchen", region: "Pfarrkirchen",
+    lat: 48.5089, lon: 13.82, elevation: 803, dhv: 5149,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1315", name: "Planai", region: "Schladming",
+    lat: 47.3718, lon: 13.7241, elevation: 1848, dhv: 1315,
+    sectors: [[303.75, 326.25], [33.75, 56.25], [303.75, 56.25]], sectorLabel: "NW · NO · NW-NO", ...DEF },
+
+  { id: "db_1370", name: "Polster", region: "Präbichl",
+    lat: 47.5324, lon: 14.961, elevation: 1874, dhv: 1370,
+    sectors: [[348.75, 11.25], [168.75, 281.25], [123.75, 191.25]], sectorLabel: "N · S-W · SO-S", ...DEF },
+
+  { id: "db_1428", name: "Pongratzen", region: "Pongratzen",
+    lat: 46.6534, lon: 15.3005, elevation: 876, dhv: 1428,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_1507", name: "Prägraten", region: "Prägraten",
+    lat: 47.038, lon: 12.3544, elevation: 2554, dhv: 1507,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1437", name: "Predigberg", region: "Galtür",
+    lat: 46.9634, lon: 10.2201, elevation: 2383, dhv: 1437,
+    sectors: [[78.75, 101.25], [348.75, 11.25], [213.75, 236.25]], sectorLabel: "O · N · SW", ...DEF },
+
+  { id: "db_1252", name: "Radsberg", region: "Rottenstein",
+    lat: 46.5726, lon: 14.4024, elevation: 815, dhv: 1252,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5146", name: "Rampetzreit", region: "Rampetzreit",
+    lat: 48.5931, lon: 13.9034, elevation: 654, dhv: 5146,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_2115", name: "Rauchbauer", region: "Wolfsberg",
+    lat: 46.8252, lon: 14.9209, elevation: 1318, dhv: 2115,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1367", name: "Rax", region: "Hirschwang an der Rax",
+    lat: 47.7134, lon: 15.7624, elevation: 1642, dhv: 1367,
+    sectors: [[78.75, 101.25], [78.75, 146.25]], sectorLabel: "O · O-SO", ...DEF },
+
+  { id: "db_5144", name: "Reischlberg", region: "Ulrichsberg",
+    lat: 48.7488, lon: 13.9044, elevation: 1260, dhv: 5144,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1940", name: "Reißeck", region: "Reißeck",
+    lat: 46.904, lon: 13.3343, elevation: 2260, dhv: 1940,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1948", name: "Reiter Gupf", region: "Nussdorf am Attersee",
+    lat: 47.8691, lon: 13.5088, elevation: 820, dhv: 1948,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1418", name: "Reiteralm", region: "Pichl",
+    lat: 47.353, lon: 13.5921, elevation: 1965, dhv: 1418,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1319", name: "Riesner Alm", region: "Donnersbachwald",
+    lat: 47.3683, lon: 14.0918, elevation: 1788, dhv: 1319,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1417", name: "Rittisberg", region: "Ramsau",
+    lat: 47.4195, lon: 13.6142, elevation: 1482, dhv: 1417,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1442", name: "Rofan", region: "Maurach",
+    lat: 47.4439, lon: 11.7635, elevation: 1838, dhv: 1442,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2358", name: "Roßkogel", region: "Kramsach",
+    lat: 47.4631, lon: 11.8292, elevation: 1759, dhv: 2358,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1358", name: "Rottenstein", region: "Rottenstein",
+    lat: 46.7681, lon: 13.2306, elevation: 1291, dhv: 1358,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1821", name: "Sattel", region: "Sillian",
+    lat: 46.7215, lon: 12.4079, elevation: 2100, dhv: 1821,
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", ...DEF },
+
+  { id: "db_1423", name: "Schafberg", region: "Sankt Gilgen",
+    lat: 47.7764, lon: 13.4318, elevation: 1712, dhv: 1423,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1499", name: "Schareck", region: "Heiligenblut",
+    lat: 47.0648, lon: 12.8572, elevation: 2533, dhv: 1499,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_5154", name: "Schaumberg", region: "Schaumberg",
+    lat: 48.3443, lon: 13.9733, elevation: 454, dhv: 5154,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_5148", name: "Scheiblberg", region: "Scheiblberg",
+    lat: 48.5589, lon: 13.9843, elevation: 627, dhv: 5148,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2111", name: "Schießling", region: "Turnau",
+    lat: 47.5704, lon: 15.2895, elevation: 1465, dhv: 2111,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1269", name: "Schmittenhöhe", region: "Zell am See",
+    lat: 47.3285, lon: 12.7372, elevation: 1942, dhv: 1269,
+    sectors: [[123.75, 191.25], [303.75, 11.25]], sectorLabel: "SO-S · NW-N", ...DEF },
+
+  { id: "db_1378", name: "Schnabelberg", region: "Waidhofen an der Ybbs",
+    lat: 47.9388, lon: 14.7381, elevation: 920, dhv: 1378,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1386", name: "Schnifis", region: "Schnifis",
+    lat: 47.2283, lon: 9.7395, elevation: 1310, dhv: 1386,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1376", name: "Schoberstein", region: "Ternberg",
+    lat: 47.905, lon: 14.3224, elevation: 1215, dhv: 1376,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1361", name: "Schöckel", region: "St. Radegund",
+    lat: 47.1983, lon: 15.46, elevation: 1419, dhv: 1361,
+    sectors: [[303.75, 326.25], [123.75, 146.25]], sectorLabel: "NW · SO", ...DEF },
+
+  { id: "db_1455", name: "Schönjoch", region: "Fiss",
+    lat: 47.0784, lon: 10.5985, elevation: 2471, dhv: 1455,
+    sectors: [[348.75, 11.25], [123.75, 236.25], [168.75, 191.25], [146.25, 236.25]], sectorLabel: "N · SO-SW · S · SSO-SW", ...DEF },
+
+  { id: "db_1497", name: "Schwarzenbach", region: "Schwarzenbach",
+    lat: 47.6446, lon: 16.3347, elevation: 464, dhv: 1497,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1447", name: "Seefelder Joch", region: "Seefeld",
+    lat: 47.3398, lon: 11.2396, elevation: 2059, dhv: 1447,
+    sectors: [[213.75, 56.25]], sectorLabel: "SW-NO", ...DEF },
+
+  { id: "db_1950", name: "Seeleiten", region: "Weyregg am Attersee",
+    lat: 47.8627, lon: 13.5726, elevation: 857, dhv: 1950,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1501", name: "Semslach", region: "Semslach",
+    lat: 46.9497, lon: 13.1696, elevation: 1315, dhv: 1501,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_2287", name: "Singerberg", region: "Ferlach",
+    lat: 46.5016, lon: 14.238, elevation: 1426, dhv: 2287,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1368", name: "Sonnwendstein", region: "Maria-Schutz",
+    lat: 47.6225, lon: 15.8581, elevation: 1482, dhv: 1368,
+    sectors: [[78.75, 101.25], [168.75, 236.25], [348.75, 11.25]], sectorLabel: "O · S-SW · N", ...DEF },
+
+  { id: "db_1381", name: "Speiereck", region: "Sankt Michael im Lungau",
+    lat: 47.1273, lon: 13.6247, elevation: 2380, dhv: 1381,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1335", name: "Spieljoch", region: "Fügen",
+    lat: 47.3246, lon: 11.7914, elevation: 2047, dhv: 1335,
+    sectors: [[123.75, 146.25], [33.75, 56.25]], sectorLabel: "SO · NO", ...DEF },
+
+  { id: "db_1498", name: "Spitzerberg Übungshang", region: "Hundsheim",
+    lat: 48.1004, lon: 16.9395, elevation: 217, dhv: 1498,
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", ...DEF },
+
+  { id: "db_1508", name: "Stalpe", region: "Sillian",
+    lat: 46.7574, lon: 12.4172, elevation: 1541, dhv: 1508,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1221", name: "Startplatz Bezau Süd", region: "Bezau",
+    lat: 47.3988, lon: 9.9443, elevation: 1672, dhv: 1221,
+    sectors: [[168.75, 191.25], [348.75, 56.25]], sectorLabel: "S · N-NO", ...DEF },
+
+  { id: "db_1445", name: "Startplatz Ebnerfeld", region: "Lienz",
+    lat: 46.8528, lon: 12.7947, elevation: 1397, dhv: 1445,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5800", name: "Startplatz Hochödenbauer", region: "Scheifling",
+    lat: 47.1687, lon: 14.3783, elevation: 1240, dhv: 5800,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2362", name: "Startplatz Übungshang Medraz", region: "Fulpmes",
+    lat: 47.1478, lon: 11.3416, elevation: 963, dhv: 2362,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1316", name: "Stoderzinken", region: "Gröbming",
+    lat: 47.4588, lon: 13.8277, elevation: 2028, dhv: 1316,
+    sectors: [[123.75, 146.25], [348.75, 11.25], [258.75, 281.25], [168.75, 191.25]], sectorLabel: "SO · N · W · S", ...DEF },
+
+  { id: "db_1523", name: "Stöfflerberg", region: "Kirchbach",
+    lat: 46.6511, lon: 13.1934, elevation: 1131, dhv: 1523,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1317", name: "Stubnerkogel", region: "Bad Gastein",
+    lat: 47.1138, lon: 13.0997, elevation: 2242, dhv: 1317,
+    sectors: [[78.75, 146.25], [303.75, 11.25]], sectorLabel: "O-SO · NW-N", ...DEF },
+
+  { id: "db_2355", name: "Sulzberg", region: "Langen bei Bregenz",
+    lat: 47.5226, lon: 9.8854, elevation: 804, dhv: 2355,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1363", name: "Teichalm", region: "Teichalm",
+    lat: 47.3581, lon: 15.4814, elevation: 1453, dhv: 1363,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1822", name: "Tessenberg", region: "Sillian",
+    lat: 46.7647, lon: 12.453, elevation: 1821, dhv: 1822,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1260", name: "Thurntaler", region: "Sillian",
+    lat: 46.772, lon: 12.3888, elevation: 2333, dhv: 1260,
+    sectors: [[78.75, 281.25], [123.75, 236.25], [123.75, 326.25]], sectorLabel: "O-W · SO-SW · SO-NW", ...DEF },
+
+  { id: "db_1388", name: "Trattberg", region: "Golling",
+    lat: 47.6375, lon: 13.2689, elevation: 1623, dhv: 1388,
+    sectors: [[168.75, 191.25], [258.75, 326.25]], sectorLabel: "S · W-NW", ...DEF },
+
+  { id: "db_1249", name: "Tschiernock", region: "Treffling",
+    lat: 46.8585, lon: 13.5522, elevation: 1669, dhv: 1249,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1311", name: "Unterberghorn", region: "Kössen",
+    lat: 47.6263, lon: 12.4359, elevation: 1642, dhv: 1311,
+    sectors: [[348.75, 56.25], [213.75, 281.25]], sectorLabel: "N-NO · SW-W", ...DEF },
+
+  { id: "db_1322", name: "Untersberg", region: "Fürstenbrunn",
+    lat: 47.7221, lon: 13.0076, elevation: 1751, dhv: 1322,
+    sectors: [[258.75, 281.25], [303.75, 348.75]], sectorLabel: "W · NW-NNW", ...DEF },
+
+  { id: "db_2473", name: "Upsspitze", region: "Lermoos",
+    lat: 47.431, lon: 10.8726, elevation: 2249, dhv: 2473,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1454", name: "Venet", region: "Zams",
+    lat: 47.1455, lon: 10.625, elevation: 2190, dhv: 1454,
+    sectors: [[258.75, 281.25], [303.75, 11.25], [168.75, 191.25], [348.75, 101.25]], sectorLabel: "W · NW-N · S · N-O", ...DEF },
+
+  { id: "db_1511", name: "Virgen", region: "Virgen",
+    lat: 47.0247, lon: 12.4264, elevation: 2098, dhv: 1511,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_1429", name: "Wechtisch", region: "Kohlberg",
+    lat: 46.6546, lon: 15.3563, elevation: 704, dhv: 1429,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_1952", name: "Weißenbach", region: "Haus im Ennstal",
+    lat: 47.4225, lon: 13.7759, elevation: 773, dhv: 1952,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_2357", name: "Wiedersberger Horn", region: "Alpbach",
+    lat: 47.3686, lon: 11.9307, elevation: 1871, dhv: 2357,
+    sectors: [[78.75, 101.25], [33.75, 56.25], [303.75, 326.25], [348.75, 11.25]], sectorLabel: "O · NO · NW · N", ...DEF },
+
+  { id: "db_1266", name: "Wildkogel", region: "Neukirchen",
+    lat: 47.2812, lon: 12.2871, elevation: 2117, dhv: 1266,
+    sectors: [[168.75, 191.25], [123.75, 191.25], [168.75, 236.25], [258.75, 281.25]], sectorLabel: "S · SO-S · S-SW · W", ...DEF },
+
+  { id: "db_1328", name: "Zettersfeld", region: "Lienz",
+    lat: 46.8748, lon: 12.7881, elevation: 2186, dhv: 1328,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1420", name: "Zwieselalm", region: "Gosau",
+    lat: 47.5388, lon: 13.477, elevation: 1568, dhv: 1420,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1424", name: "Zwölferhorn", region: "St. Gilgen",
+    lat: 47.7427, lon: 13.3518, elevation: 1505, dhv: 1424,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_1443", name: "Zwölferkopf", region: "Pertisau",
+    lat: 47.4275, lon: 11.6964, elevation: 1466, dhv: 1443,
+    sectors: [[348.75, 11.25], [213.75, 236.25], [258.75, 281.25]], sectorLabel: "N · SW · W", ...DEF },
 ];

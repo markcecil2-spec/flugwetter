@@ -353,6 +353,7 @@ const REGIONS = {
   voralpen:      { name: "Bayerische Voralpen",  lat: 47.65, lon: 11.50, r: 40 },
   chiemgau:      { name: "Chiemgau",             lat: 47.75, lon: 12.50, r: 40 },
   berchtesgaden: { name: "Berchtesgadener Land", lat: 47.63, lon: 12.99, r: 28 },
+  oesterreich:   { name: "Österreich",           lat: 47.3464, lon: 12.9527, r: 320 },
 };
 
 // Gemeinsame Auswertung + Anzeige für eine Kandidatenliste.
