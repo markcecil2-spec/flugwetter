@@ -117,6 +117,11 @@
 
     <!-- SEITE: Info -->
     <section id="page-info" class="page" hidden>
+      <div class="fb-card card">
+        <div><b>💬 Dein Feedback hilft!</b><br><span class="fb-sub">GoFlyToday ist noch jung – zwei Sätze von dir sind Gold wert.</span></div>
+        <button id="feedbackBtn" class="btn-primary">💬 Feedback senden</button>
+      </div>
+
       <h2 class="page-h">Wie funktioniert die App?</h2>
       <div class="card prose">
         <p>Tippe auf <b>„Wo kann ich heute fliegen?"</b> – die App nimmt deinen Standort und prüft alle Startplätze im gewählten Umkreis gegen die Wettervorhersage. Ergebnis:</p>
@@ -150,7 +155,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 31 · Juli 2026</p>
+      <p class="build">GoFlyToday · Version 32 · Juli 2026</p>
     </section>
   </main>
 
@@ -177,6 +182,29 @@
         <button id="detailClose" class="ic0" title="Schließen">✕</button>
       </div>
       <div id="detailBody" class="detail-body"></div>
+    </div>
+  </div>
+
+  <!-- Feedback-Fenster -->
+  <div id="feedbackModal" class="modal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>💬 Feedback</h2>
+        <button id="feedbackClose" class="ic0" title="Schließen">✕</button>
+      </div>
+      <div class="fb-form">
+        <div class="fb-cats">
+          <button type="button" class="fb-cat on" data-cat="Gefällt mir">👍 Gefällt mir</button>
+          <button type="button" class="fb-cat" data-cat="Fehler">🐞 Fehler</button>
+          <button type="button" class="fb-cat" data-cat="Idee">💡 Idee</button>
+        </div>
+        <textarea id="fbText" rows="4" placeholder="Deine Nachricht … (zwei Sätze reichen!)"></textarea>
+        <p class="fb-hint">Öffnet deine E-Mail-App mit fertiger Nachricht an den Entwickler.</p>
+        <div class="modal-actions">
+          <button type="button" id="fbCancel" class="btn-soft">Abbrechen</button>
+          <button type="button" id="fbSend" class="btn-primary">Senden</button>
+        </div>
+      </div>
     </div>
   </div>
 

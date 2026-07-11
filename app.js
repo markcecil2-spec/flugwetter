@@ -516,6 +516,28 @@ function closeDetail() {
 document.getElementById("detailClose").addEventListener("click", closeDetail);
 document.getElementById("detailModal").addEventListener("click", e => { if (e.target.id === "detailModal") closeDetail(); });
 
+// ---------------- Feedback ----------------
+const FB_MAIL = "markcecil2@gmail.com";
+const fbModal = document.getElementById("feedbackModal");
+function fbClose() { fbModal.hidden = true; }
+document.getElementById("feedbackBtn").addEventListener("click", () => { fbModal.hidden = false; document.getElementById("fbText").focus(); });
+document.getElementById("feedbackClose").addEventListener("click", fbClose);
+document.getElementById("fbCancel").addEventListener("click", fbClose);
+fbModal.addEventListener("click", e => { if (e.target === fbModal) fbClose(); });
+document.querySelectorAll(".fb-cat").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".fb-cat").forEach(x => x.classList.toggle("on", x === b));
+}));
+document.getElementById("fbSend").addEventListener("click", () => {
+  const cat = document.querySelector(".fb-cat.on")?.dataset.cat || "Feedback";
+  const ta = document.getElementById("fbText");
+  const text = ta.value.trim();
+  if (!text) { ta.focus(); return; }
+  const subject = `GoFlyToday Feedback: ${cat}`;
+  const body = `${text}\n\n—\nGesendet aus GoFlyToday`;
+  window.location.href = `mailto:${FB_MAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  ta.value = ""; fbClose();
+});
+
 // ---------------- Neu: Datenbank-Suche + eigener Platz ----------------
 function renderDbSearch(query = "") {
   const wrap = document.getElementById("dbResults");
