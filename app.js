@@ -284,7 +284,7 @@ function renderCard(spot, days, opts = {}) {
   const body = opts.collapsible
     ? `${actions}
       <button class="days-toggle" aria-expanded="false"><span class="dt-arrow">▾</span> Details &amp; Wochenübersicht</button>
-      <div class="fav-more collapsed">${metaHtml}${nowBar}<div class="days">${daysHtml}</div></div>`
+      <div class="fav-more collapsed">${ratingBlock}${metaHtml}${nowBar}<div class="days">${daysHtml}</div></div>`
     : `${ratingBlock}${metaHtml}${actions}${nowBar}<div class="days">${daysHtml}</div>`;
 
   return `
