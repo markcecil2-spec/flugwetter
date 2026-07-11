@@ -345,9 +345,12 @@ header { position: relative; overflow: hidden; }
 }
 .find-plz:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
 
-/* Regionen als Button-Gruppe (statt Dropdown) */
-.region-pills { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 4px; }
-.region-pill { font-size: 12.5px; padding: 7px 12px; }
+/* Region-Dropdown */
+.find-region {
+  width: 100%; font-size: 15px; padding: 11px 12px; margin-top: 4px; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text);
+}
+.find-region:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
 
 /* Heute/Morgen-Umschalter */
 .day-toggle { display: flex; gap: 8px; justify-content: center; margin: 12px 0 2px; }

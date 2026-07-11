@@ -360,6 +360,17 @@ const REGIONS = {
   salzburg_at:     { name: "Salzburg",             country: "at", lat: 47.4645, lon: 13.2025, r: 75 },
   vorarlberg:      { name: "Vorarlberg",           country: "at", lat: 47.2126, lon: 9.9555,  r: 38 },
   oesterreich:     { name: "Österreich (alle)",    country: "at", lat: 47.3464, lon: 12.9527, r: 320 },
+  bern:            { name: "Bern",                 country: "ch", lat: 46.6993, lon: 7.6290,  r: 70 },
+  wallis:          { name: "Wallis",                country: "ch", lat: 46.2432, lon: 7.4828,  r: 72 },
+  graubuenden:     { name: "Graubünden",            country: "ch", lat: 46.6820, lon: 9.5928,  r: 65 },
+  schwyz:          { name: "Schwyz",                country: "ch", lat: 47.0531, lon: 8.7208,  r: 25 },
+  waadt:           { name: "Waadt",                 country: "ch", lat: 46.4752, lon: 6.8354,  r: 60 },
+  uri:             { name: "Uri",                   country: "ch", lat: 46.8105, lon: 8.6529,  r: 30 },
+  tessin:          { name: "Tessin",                country: "ch", lat: 46.1835, lon: 8.9583,  r: 40 },
+  stgallen:        { name: "St. Gallen",            country: "ch", lat: 47.1610, lon: 9.3128,  r: 38 },
+  obwalden:        { name: "Obwalden",              country: "ch", lat: 46.8506, lon: 8.3245,  r: 22 },
+  luzern:          { name: "Luzern",                country: "ch", lat: 46.9611, lon: 8.2367,  r: 32 },
+  schweiz:         { name: "Schweiz (alle)",        country: "ch", lat: 46.7255, lon: 8.2455,  r: 170 },
 };
 
 // Gemeinsame Auswertung + Anzeige für eine Kandidatenliste.
@@ -444,28 +455,23 @@ document.getElementById("dayToggle").addEventListener("click", e => {
   if (rerunSearch) rerunSearch();
 });
 
-// Land-Umschalter – zeigt als Buttons nur die Regionen des gewählten Landes
-function renderRegionPills(country) {
-  const wrap = document.getElementById("regionPills");
-  const favBtn = `<button type="button" class="rpill region-pill" data-region="__fav__">⭐ Favoriten</button>`;
-  const regionBtns = Object.entries(REGIONS)
-    .filter(([, r]) => r.country === country)
-    .map(([key, r]) => `<button type="button" class="rpill region-pill" data-region="${key}">${r.name}</button>`)
-    .join("");
-  wrap.innerHTML = favBtn + regionBtns;
+// Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
+function renderRegionOptions(country) {
+  const sel = document.getElementById("regionSelect");
+  const opts = ['<option value="">Region / Filter …</option>', '<option value="__fav__">⭐ Meine Favoriten</option>'];
+  Object.entries(REGIONS).forEach(([key, r]) => { if (r.country === country) opts.push(`<option value="${key}">${r.name}</option>`); });
+  sel.innerHTML = opts.join("");
 }
 document.getElementById("countryToggle").addEventListener("click", e => {
   const b = e.target.closest("[data-country]"); if (!b) return;
   document.querySelectorAll("#countryToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
-  renderRegionPills(b.dataset.country);
+  renderRegionOptions(b.dataset.country);
 });
-document.getElementById("regionPills").addEventListener("click", e => {
-  const b = e.target.closest("[data-region]"); if (!b) return;
-  document.querySelectorAll("#regionPills .rpill").forEach(x => x.classList.toggle("on", x === b));
-  if (b.dataset.region === "__fav__") runFavSearch();
-  else runRegionSearch(b.dataset.region);
+document.getElementById("regionSelect").addEventListener("change", e => {
+  const v = e.target.value;
+  if (v === "__fav__") runFavSearch();
+  else if (v) runRegionSearch(v);
 });
-renderRegionPills("de");
 
 // Standort per GPS (Button + Auto-Start)
 function startGpsSearch() {
