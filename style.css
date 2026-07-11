@@ -337,27 +337,17 @@ header { position: relative; overflow: hidden; }
 /* „oder PLZ" */
 .or-divider { display: flex; align-items: center; gap: 10px; margin: 14px 2px 10px; color: var(--muted); font-size: 12px; }
 .or-divider::before, .or-divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-.plz-row { display: flex; gap: 8px; }
-.plz-row input { flex: 1; font-size: 16px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); letter-spacing: 2px; }
-.plz-row input:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
-.plz-row .btn-soft { white-space: nowrap; }
 
-/* Region-Dropdown */
-.region-select {
-  width: 100%; font-size: 16px; padding: 11px 13px; border: 1px solid var(--line);
-  border-radius: 12px; background: var(--card); color: var(--text); cursor: pointer;
-}
-.region-select:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
-
-/* PLZ + Region nebeneinander */
-.find-row { display: flex; gap: 8px; align-items: stretch; }
-.find-plz, .find-region {
-  flex: 1; min-width: 0; font-size: 15px; padding: 11px 12px;
+.plz-only-row { margin-bottom: 10px; }
+.find-plz {
+  width: 100%; font-size: 15px; padding: 11px 12px; letter-spacing: 1px;
   border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text);
 }
-.find-plz { letter-spacing: 1px; }
-.find-region { cursor: pointer; }
-.find-plz:focus, .find-region:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
+.find-plz:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
+
+/* Regionen als Button-Gruppe (statt Dropdown) */
+.region-pills { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 4px; }
+.region-pill { font-size: 12.5px; padding: 7px 12px; }
 
 /* Heute/Morgen-Umschalter */
 .day-toggle { display: flex; gap: 8px; justify-content: center; margin: 12px 0 2px; }

@@ -444,18 +444,28 @@ document.getElementById("dayToggle").addEventListener("click", e => {
   if (rerunSearch) rerunSearch();
 });
 
-// Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
-function renderRegionOptions(country) {
-  const sel = document.getElementById("regionSelect");
-  const opts = ['<option value="">Region / Filter …</option>', '<option value="__fav__">⭐ Meine Favoriten</option>'];
-  Object.entries(REGIONS).forEach(([key, r]) => { if (r.country === country) opts.push(`<option value="${key}">${r.name}</option>`); });
-  sel.innerHTML = opts.join("");
+// Land-Umschalter – zeigt als Buttons nur die Regionen des gewählten Landes
+function renderRegionPills(country) {
+  const wrap = document.getElementById("regionPills");
+  const favBtn = `<button type="button" class="rpill region-pill" data-region="__fav__">⭐ Favoriten</button>`;
+  const regionBtns = Object.entries(REGIONS)
+    .filter(([, r]) => r.country === country)
+    .map(([key, r]) => `<button type="button" class="rpill region-pill" data-region="${key}">${r.name}</button>`)
+    .join("");
+  wrap.innerHTML = favBtn + regionBtns;
 }
 document.getElementById("countryToggle").addEventListener("click", e => {
   const b = e.target.closest("[data-country]"); if (!b) return;
   document.querySelectorAll("#countryToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
-  renderRegionOptions(b.dataset.country);
+  renderRegionPills(b.dataset.country);
 });
+document.getElementById("regionPills").addEventListener("click", e => {
+  const b = e.target.closest("[data-region]"); if (!b) return;
+  document.querySelectorAll("#regionPills .rpill").forEach(x => x.classList.toggle("on", x === b));
+  if (b.dataset.region === "__fav__") runFavSearch();
+  else runRegionSearch(b.dataset.region);
+});
+renderRegionPills("de");
 
 // Standort per GPS (Button + Auto-Start)
 function startGpsSearch() {
@@ -484,13 +494,6 @@ async function plzSearch() {
 }
 document.getElementById("plzInput").addEventListener("keydown", e => { if (e.key === "Enter") plzSearch(); });
 document.getElementById("plzInput").addEventListener("input", e => { if (/^\d{5}$/.test(e.target.value.trim())) plzSearch(); });
-
-// Regions-Auswahl
-document.getElementById("regionSelect").addEventListener("change", e => {
-  const v = e.target.value;
-  if (v === "__fav__") runFavSearch();
-  else if (v) runRegionSearch(v);
-});
 
 function mapsUrl(s) {
   return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;
