@@ -1,21 +1,16 @@
 :root {
-  --bg: #f1f5f9;
-  --card: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --line: #e2e8f0;
-  --sky: #0ea5e9;
-  --sky-d: #0369a1;
-  --green: #16a34a;
-  --green-bg: #dcfce7;
-  --red: #ef4444;
-  --amber: #f59e0b;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b1220; --card: #131c2e; --text: #e8eef7; --muted: #93a4bd;
-    --line: #24304a; --green-bg: #14361f;
-  }
+  --bg: #0d1117;        /* Background */
+  --card: #151b24;      /* Surface */
+  --card-2: #1b2430;    /* etwas heller (Karten-Hover/Innenflächen) */
+  --text: #e8eef7;
+  --muted: #8a97a8;
+  --line: #232c39;
+  --sky: #06b6a4;       /* Primary (Teal, etwas dunkler & satter) */
+  --sky-d: #05998a;
+  --green: #22c55e;     /* Success */
+  --green-bg: rgba(34,197,94,.13);
+  --red: #ef4444;       /* Danger */
+  --amber: #facc15;     /* Warning */
 }
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; }
@@ -410,3 +405,167 @@ header { position: relative; overflow: hidden; }
 
 /* Datenbank-Suche: Hinweis wenn leer */
 .db-hint { font-size: 13px; color: var(--muted); line-height: 1.5; padding: 8px 2px 12px; margin: 0; }
+
+/* ============================================================
+   REDESIGN v2 – dunkles, ruhiges Design mit Teal-Akzent
+   ============================================================ */
+
+/* Header dunkel statt Blauverlauf */
+header { background: var(--card); border-bottom: 1px solid var(--line); box-shadow: none; color: var(--text); }
+.head { padding-top: 15px; padding-bottom: 15px; }
+.logo { font-size: 30px; }
+h1 { font-size: 21px; font-weight: 500; letter-spacing: .045em; }
+.sub { opacity: .7; }
+.clouds { display: none; }
+
+/* Hero mit Live-Zähler */
+/* Hero: Foto vollflächig hinter Titel + Bedienelementen, unten in den Hintergrund verlaufend */
+.home-hero { position: relative; margin: -12px -16px 14px; }
+.home-hero .hero-bg { position: absolute; inset: 0; overflow: hidden; }
+.home-hero .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 16%; display: block; }
+.home-hero .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,17,23,.4) 0%, rgba(13,17,23,.3) 26%, rgba(13,17,23,.5) 56%, rgba(13,17,23,.8) 86%, var(--bg) 100%); }
+.hero-fg { position: relative; padding: 44px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+.home-hero .hero-fg > * { margin: 0; }
+.home-hero .hero-fg .hero-content { margin-bottom: 26px; }
+.home-hero .hero-fg .select-wrap { margin-top: -7px; }
+.hero-content { text-align: left; }
+.hero-title { margin: 0; font-size: 26px; line-height: 1.2; font-weight: 600; letter-spacing: -.01em; color: #fff; text-shadow: 0 2px 16px rgba(0,0,0,.65); text-align: left; }
+.hero-title .ht-l, .hero-title .hl { display: block; }
+.hero-title .hl { color: var(--sky); font-weight: 700; }
+.hero-sub { justify-content: flex-start; }
+.hero-title .hl { color: var(--sky); }
+.hero-sub { margin: 8px 0 0; font-size: 13px; color: rgba(232,238,247,.92); text-shadow: 0 1px 8px rgba(0,0,0,.65); display: flex; align-items: center; gap: 6px; }
+.hero-sub .bolt { width: 15px; height: 15px; color: var(--sky); flex: none; }
+.day-toggle .ti-ic { width: 17px; height: 17px; flex: none; }
+
+/* Dropdown-Zeilen mit führender Flagge / Icon */
+.select-wrap { position: relative; }
+.find-select.has-lead { padding-left: 46px; }
+.sel-flag { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 24px; height: 17px; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,.14); pointer-events: none; display: block; }
+.sel-flag svg { width: 100%; height: 100%; display: block; }
+.sel-ic { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--muted); pointer-events: none; }
+.sel-ic svg { width: 100%; height: 100%; }
+
+/* Eigenes Land-Dropdown */
+.dd { position: relative; margin-bottom: 10px; }
+.dd-btn { position: relative; display: flex; align-items: center; width: 100%; text-align: left; cursor: pointer; }
+.dd-btn .sel-flag { pointer-events: none; }
+.dd-label { flex: 1; }
+.dd-chev { position: absolute; right: 23px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 12px; }
+.dd-menu { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 60; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px; box-shadow: 0 14px 34px rgba(0,0,0,.55); }
+.dd { z-index: 5; }
+.dd-menu[hidden] { display: none; }
+.dd-opt { display: flex; align-items: center; gap: 11px; width: 100%; text-align: left; background: none; border: none; color: var(--text); font-size: 15px; font-weight: 600; padding: 11px 12px; border-radius: 10px; cursor: pointer; }
+.dd-opt:hover { background: rgba(255,255,255,.06); }
+.dd-flag { width: 24px; height: 17px; border-radius: 3px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,.14); flex: none; display: block; }
+.dd-flag svg { width: 100%; height: 100%; display: block; }
+
+/* Hinweis-Icon (monochrom) */
+.hint-banner { align-items: center; }
+.hint-ic { flex: none; width: 18px; height: 18px; color: var(--sky); display: flex; }
+.hint-ic svg { width: 100%; height: 100%; }
+
+/* Monochrome Status-Punkte + Meta-Icons */
+.sdot { font-size: .8em; vertical-align: 1px; }
+.sdot.gut { color: var(--green); }
+.sdot.grenz { color: var(--amber); }
+.sdot.nein { color: var(--red); }
+.mi { width: 13px; height: 13px; vertical-align: -2px; color: var(--muted); }
+
+/* Suchleiste mit GPS-Button */
+.search-row { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px 6px 4px 14px; margin-bottom: 10px; }
+.search-ic { flex: none; color: var(--muted); display: flex; }
+.search-ic svg { width: 18px; height: 18px; }
+.search-input { flex: 1; min-width: 0; background: none; border: none; color: var(--text); font-size: 15px; padding: 12px 2px; outline: none; }
+.search-input::placeholder { color: var(--muted); }
+.gps-btn { flex: none; width: 40px; height: 40px; border-radius: 11px; border: none; background: rgba(6,182,164,.16); color: var(--sky); display: grid; place-items: center; cursor: pointer; transition: background .12s; }
+.gps-btn:hover { background: rgba(6,182,164,.28); }
+.gps-btn svg { width: 20px; height: 20px; }
+.gps-btn.busy { opacity: .6; pointer-events: none; }
+
+/* Land-/Region-Dropdowns (dunkle Zeilen wie im Design) */
+.find-select { width: 100%; font-size: 15px; font-weight: 600; padding: 13px 38px 13px 14px; margin-bottom: 10px; cursor: pointer; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 14px; appearance: none; -webkit-appearance: none; }
+.find-select:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
+/* Einheitliche Pfeile (▾) rechts – wie beim Land-Dropdown */
+.sel-chev { position: absolute; right: 23px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.dd-chev, .sel-chev { color: var(--muted); font-size: 12px; }
+
+/* Heute/Morgen: große Pills mit Icon */
+.day-toggle { gap: 10px; margin: 4px 0 12px; }
+.day-toggle .rpill { flex: 1; min-width: 0; padding: 13px 10px; font-size: 15px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+
+/* Pills: dunkle Fläche, Teal aktiv */
+.rpill { background: #273140; border-color: #313c4c; }
+.rpill.on { background: var(--sky); color: #05221d; border-color: var(--sky); box-shadow: 0 3px 12px rgba(6,182,164,.32); }
+/* Heute/Morgen + Umkreis: Text & Icon immer weiß (aktiv wie inaktiv), Umkreis-Label türkis */
+.day-toggle .rpill, .day-toggle .rpill.on, .radius-pills .rpill, .radius-pills .rpill.on { color: #fff; }
+.rlabel { color: var(--sky); }
+.find-plz, .find-region, .db-search, #fbText, #spotForm input, .cdir { background: var(--card); }
+
+/* Ergebnis-Karten (Startplätze) */
+.sc-list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.spot-card { position: relative; display: flex; align-items: center; gap: 11px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 12px 12px 44px; min-height: 70px; cursor: pointer; overflow: hidden; transition: border-color .12s, transform .06s; }
+.spot-card:active { transform: scale(.995); }
+.spot-card.gut { border-color: rgba(34,197,94,.35); }
+.spot-card.grenz { border-color: rgba(250,204,21,.3); }
+/* Ampel-Punkt links (grün/gelb/rot) statt Streifen */
+.sc-dot { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; border-radius: 50%; background: var(--muted); z-index: 2; box-shadow: 0 0 0 2.5px rgba(0,0,0,.3); }
+.spot-card.gut .sc-dot { background: var(--green); box-shadow: 0 0 0 2.5px rgba(0,0,0,.3), 0 0 10px rgba(34,197,94,.6); }
+.spot-card.grenz .sc-dot { background: var(--amber); box-shadow: 0 0 0 2.5px rgba(0,0,0,.3), 0 0 10px rgba(250,204,21,.55); }
+.spot-card.nein .sc-dot { background: var(--red); box-shadow: 0 0 0 2.5px rgba(0,0,0,.3), 0 0 10px rgba(239,68,68,.55); }
+/* Kleines Navigations-Icon pro Platz */
+.sc-nav { flex: none; width: 30px; height: 30px; border-radius: 9px; background: rgba(6,182,164,.16); color: var(--sky); display: grid; place-items: center; text-decoration: none; }
+.sc-nav:hover { background: rgba(6,182,164,.28); }
+.sc-nav svg { width: 16px; height: 16px; }
+.spot-card.nein .sc-nav { opacity: .55; }
+/* Postkarten-Illustration – nur linke Kachelhälfte, dahinter Name + Fahrzeit; blendet nach rechts in die Kachel aus */
+.sc-scene { position: absolute; left: 0; top: 0; bottom: 0; width: 64%; z-index: 0; background-size: cover; background-position: center; }
+.spot-card.nein .sc-scene { background-position: left center; }
+.sc-scene::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11,15,20,.55) 0%, rgba(11,15,20,.34) 42%, rgba(11,15,20,.7) 78%, var(--card) 100%); }
+.spot-card > .sc-main, .spot-card > .sc-right { position: relative; z-index: 1; }
+.spot-card .sc-name { color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,.72); }
+.spot-card .sc-meta { color: rgba(255,255,255,.9); text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.spot-card .sc-meta .mi { color: rgba(255,255,255,.85); }
+.spot-card .sc-wind { color: rgba(255,255,255,.7); }
+.sc-main { flex: 1; min-width: 0; }
+.sc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sc-name { font-weight: 700; font-size: 15.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.sc-wind { font-size: 11.5px; color: var(--muted); font-weight: 600; text-align: right; margin: 0; }
+.sc-right { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.sc-actions { display: flex; align-items: center; gap: 8px; margin-bottom: 1px; }
+.sc-right .star { font-size: 18px; padding: 0; line-height: 1; }
+.sc-time { font-size: 13px; font-weight: 700; white-space: nowrap; }
+.sc-time.gut { color: var(--green); }
+.sc-time.grenz { color: var(--amber); }
+.sc-nore { font-size: 12.5px; font-weight: 700; color: #ef7a7a; max-width: 96px; text-align: right; line-height: 1.15; }
+.sc-go { color: var(--muted); font-weight: 700; font-size: 17px; }
+
+/* Suchfeld: Chrome-Autofill nicht weiß färben */
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus,
+.search-input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 40px var(--card) inset;
+  caret-color: var(--text);
+  transition: background-color 100000s ease-in-out 0s;
+}
+
+/* Bottom-Nav dunkel */
+.tabbar { background: var(--card); border-top-color: var(--line); box-shadow: 0 -2px 16px rgba(0,0,0,.4); }
+
+/* Dark-Werte fest verankern (kein Light-Mode mehr) */
+.badge.amber { background: rgba(250,204,21,.16); color: var(--amber); }
+.badge.green { background: var(--green-bg); color: var(--green); }
+.rating.grenz .rating-label { color: var(--amber); }
+.rating.nein .rating-label { color: #fca5a5; }
+.hd-reason.nein { color: #fca5a5; }
+.hd-reason.grenz { color: var(--amber); }
+.stars { color: var(--amber); }
+
+/* Akzentflächen an Teal angleichen */
+.hint-banner { background: rgba(21,27,36,.72); border-color: rgba(6,182,164,.3); backdrop-filter: blur(2px); }
+.nowbar { background: rgba(6,182,164,.09); }
+.hour-detail { background: rgba(6,182,164,.1); border-color: rgba(6,182,164,.25); }
+.mine { color: var(--sky); background: rgba(6,182,164,.14); }

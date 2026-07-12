@@ -5,6 +5,9 @@ const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden S
 const DEFAULT_RADIUS = 100;    // km
 const MAX_CANDIDATES = 100;    // max. Plätze pro Suche (Performance bei großer DB)
 const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
+// Monochrome Meta-Icons (Fahrzeit / Entfernung)
+const IC_CAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14M5 13v4m14-4v4M7 17h.01M17 17h.01"/></svg>`;
+const IC_PIN = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>`;
 
 function degToCompass(deg) {
   const d = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
@@ -65,7 +68,7 @@ function findWindows(hours) {
   return wins;
 }
 function windowLabel(w) {
-  return `${w.color === "gut" ? "🟢" : "🟡"} ${fmtHour(w.from)}–${fmtHourPlus(w.to)}`;
+  return `${fmtHour(w.from)}–${fmtHourPlus(w.to)}`;
 }
 
 function buildDailyMap(daily) {
@@ -106,14 +109,14 @@ function analyse(spot, data) {
 
 // Kurz-Label für den Grund (Anzeige rechts neben dem Ergebnis)
 function grenzLabel(r) {
-  return r === "böig" ? "💨 Böig" : r === "schwach" ? "🍃 Wenig Wind" : r === "recht stark" ? "💨 Recht stark" : "Grenzwertig";
+  return r === "böig" ? "Böig" : r === "schwach" ? "Wenig Wind" : r === "recht stark" ? "Recht stark" : "Grenzwertig";
 }
 function neinLabel(r) {
-  const m = { "Regen": "🌧️ Regen", "Richtung": "🧭 Windrichtung", "zu stark": "💨 Zu viel Wind", "Böen": "💨 Böig", "Nacht": "🌙 Nachts" };
+  const m = { "Regen": "Regen", "Richtung": "Windrichtung", "zu stark": "Zu viel Wind", "Böen": "Böig", "Nacht": "Nachts" };
   return m[r] || r;
 }
 function neinText(r) {
-  const m = { "Regen": "Regen", "Richtung": "falsche Windrichtung", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts" };
+  const m = { "Regen": "Regen", "Richtung": "Falsche Windrichtung", "zu stark": "Zu viel Wind", "Böen": "Zu böig", "Nacht": "Nachts" };
   return m[r] || r;
 }
 // Klartext-Grund pro Stunde (für das Uhrzeit-Detail)
@@ -136,7 +139,7 @@ function dayStatus(days, idx = 0) {
   if (!day) return { status: "nein", reason: "—", reasonLabel: "—" };
   const green = day.windows.filter(w => w.color === "gut");
   const yellow = day.windows.filter(w => w.color === "grenz");
-  if (green.length) return { status: "gut", win: green[0], reasonLabel: "💨 Wind passt" };
+  if (green.length) return { status: "gut", win: green[0], reasonLabel: "Wind passt" };
   if (yellow.length) return { status: "grenz", win: yellow[0], reasonLabel: grenzLabel(dominantReason(day.dayHours, "grenz")) };
   const r = dominantReason(day.dayHours, "nein") || "—";
   return { status: "nein", reason: r, reasonLabel: neinLabel(r), reasonText: neinText(r) };
@@ -162,26 +165,72 @@ function todayRating(days, idx = 0) {
 }
 
 // ---------------- Fetching ----------------
+// Fetch mit automatischem Wiederholen bei Rate-Limit (429) oder Serverfehler (5xx).
+async function fetchRetry(url, tries = 4) {
+  let lastStatus = 0;
+  for (let i = 0; i < tries; i++) {
+    let res;
+    try { res = await fetch(url); }
+    catch (e) { if (i === tries - 1) throw e; await sleep(600 * (i + 1)); continue; }
+    if (res.ok) return res;
+    lastStatus = res.status;
+    if (res.status === 429 || res.status >= 500) { await sleep(800 * Math.pow(2, i)); continue; }
+    throw new Error("HTTP " + res.status);
+  }
+  throw new Error(lastStatus === 429 ? "Wetterdienst ausgelastet – bitte kurz warten und erneut suchen." : "HTTP " + lastStatus);
+}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ---- Wetter-Cache (Gerät, 60 Min) – spart Abrufe bei wiederholten Suchen / erneutem Öffnen ----
+const WX_TTL = 60 * 60 * 1000;
+function wxDay() { const d = new Date(); return `${d.getFullYear()}${d.getMonth() + 1}${d.getDate()}`; }
+function wxKey(kind, lat, lon) { return `wx_${kind}_${wxDay()}_${lat.toFixed(3)}_${lon.toFixed(3)}`; }
+function wxGet(key) {
+  try { const o = JSON.parse(localStorage.getItem(key)); return (o && Date.now() - o.t < WX_TTL) ? o.d : null; }
+  catch { return null; }
+}
+function wxSet(key, data) {
+  try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: data })); }
+  catch {
+    try { Object.keys(localStorage).filter(k => k.startsWith("wx_")).forEach(k => localStorage.removeItem(k)); localStorage.setItem(key, JSON.stringify({ t: Date.now(), d: data })); } catch {}
+  }
+}
+function wxSweep() {
+  try { Object.keys(localStorage).filter(k => k.startsWith("wx_")).forEach(k => { try { if (Date.now() - JSON.parse(localStorage.getItem(k)).t >= WX_TTL) localStorage.removeItem(k); } catch { localStorage.removeItem(k); } }); } catch {}
+}
+wxSweep();
+
 async function fetchForecast(spot) {
+  const key = wxKey("f7", spot.lat, spot.lon);
+  const cached = wxGet(key); if (cached) return cached;
   let url = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}` +
     `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation` +
     `&daily=sunrise,sunset,weather_code,temperature_2m_max,temperature_2m_min` +
     `&timezone=Europe%2FBerlin&forecast_days=7&wind_speed_unit=kmh`;
   if (spot.elevation != null && !isNaN(spot.elevation)) url += `&elevation=${spot.elevation}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Open-Meteo " + res.status);
-  return res.json();
+  const data = await (await fetchRetry(url)).json();
+  wxSet(key, data);
+  return data;
 }
 // Mehrere Plätze in EINEM Aufruf (heute + morgen) – für die Umkreis-/Regionssuche.
+// Bereits zwischengespeicherte Plätze werden aus dem Cache bedient; nur fehlende werden angefragt.
 async function fetchBulkToday(spots) {
-  const lats = spots.map(s => s.lat).join(","), lons = spots.map(s => s.lon).join(",");
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}` +
-    `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation` +
-    `&daily=sunrise,sunset&timezone=Europe%2FBerlin&forecast_days=2&wind_speed_unit=kmh`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Open-Meteo " + res.status);
-  const j = await res.json();
-  return Array.isArray(j) ? j : [j];
+  const out = new Array(spots.length);
+  const missIdx = [], missSpots = [];
+  spots.forEach((s, i) => {
+    const c = wxGet(wxKey("b2", s.lat, s.lon));
+    if (c) out[i] = c; else { missIdx.push(i); missSpots.push(s); }
+  });
+  if (missSpots.length) {
+    const lats = missSpots.map(s => s.lat).join(","), lons = missSpots.map(s => s.lon).join(",");
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}` +
+      `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation` +
+      `&daily=sunrise,sunset&timezone=Europe%2FBerlin&forecast_days=2&wind_speed_unit=kmh`;
+    const j = await (await fetchRetry(url)).json();
+    const arr = Array.isArray(j) ? j : [j];
+    arr.forEach((d, k) => { out[missIdx[k]] = d; wxSet(wxKey("b2", missSpots[k].lat, missSpots[k].lon), d); });
+  }
+  return out;
 }
 async function fetchElevation(lat, lon) {
   const res = await fetch(`https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lon}`);
@@ -226,7 +275,8 @@ function favoriteSpots() { const f = loadFavs(); return allKnownSpots().filter(s
 
 // ---------------- Rendering: Favoriten-Karten (7 Tage) ----------------
 function statusDot(status) {
-  return status === "gut" ? "🟢" : status === "grenz" ? "🟡" : "🔴";
+  const cls = status === "gut" ? "gut" : status === "grenz" ? "grenz" : "nein";
+  return `<span class="sdot ${cls}">●</span>`;
 }
 function fmtTime(d) { return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0"); }
 
@@ -245,7 +295,7 @@ function renderCard(spot, days, opts = {}) {
       ${sun ? `<span class="sun-txt">🌅 ${fmtTime(sun.sunrise)} · 🌇 ${fmtTime(sun.sunset)}</span>` : ""}
     </div>` : "";
   const badge = ts.status === "nein"
-    ? `<span class="badge red">🔴 ${dayW}: ${ts.reasonText}</span>`
+    ? `<span class="badge red">${statusDot("nein")} ${dayW}: ${ts.reasonText}</span>`
     : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} ${dayW} ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
 
   const daysHtml = days.slice(0, 7).map(day => {
@@ -390,8 +440,8 @@ async function renderSearch(candidates, origin, headline) {
     if (origin) { try { drive = await fetchDriveTimes(origin, candidates); } catch { drive = []; } }
     const rows = candidates.map((s, i) => {
       const drv = drive[i];
-      const subInfo = (drv != null ? "🚗 " + formatDur(drv) + " · " : "") +
-        (s.dist != null ? s.dist + " km" : (s.region || ""));
+      const subInfo = (drv != null ? IC_CAR + " " + formatDur(drv) + " · " : "") +
+        (s.dist != null ? IC_PIN + " " + s.dist + " km" : (s.region || ""));
       return { spot: s, ts: dayStatus(analyse(s, results[i]), searchDay), drive: drv, subInfo };
     });
     const rank = { gut: 0, grenz: 1, nein: 2 };
@@ -465,11 +515,39 @@ function renderRegionOptions(country) {
   Object.entries(REGIONS).forEach(([key, r]) => { if (r.country === country) opts.push(`<option value="${key}">${r.name}</option>`); });
   sel.innerHTML = opts.join("");
 }
-document.getElementById("countryToggle").addEventListener("click", e => {
-  const b = e.target.closest("[data-country]"); if (!b) return;
-  document.querySelectorAll("#countryToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
-  renderRegionOptions(b.dataset.country);
-});
+// Länderflaggen als kleine SVG (plattformübergreifend, statt Emoji)
+const FLAGS = {
+  de: `<svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg>`,
+  at: `<svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#ED2939"/><rect width="5" height="1" y="1" fill="#fff"/><rect width="5" height="1" y="2" fill="#ED2939"/></svg>`,
+  ch: `<svg viewBox="0 0 5 5" preserveAspectRatio="none"><rect width="5" height="5" fill="#D52B1E"/><rect x="2" y="1" width="1" height="3" fill="#fff"/><rect x="1" y="2" width="3" height="1" fill="#fff"/></svg>`,
+};
+// Eigenes Land-Dropdown (kein natives <select> → wird von Chrome nicht als Adressfeld autofill-gefärbt)
+const COUNTRIES = [["de", "Deutschland"], ["at", "Österreich"], ["ch", "Schweiz"]];
+(function initCountryDD() {
+  const dd = document.getElementById("countryDD");
+  const btn = document.getElementById("countryBtn");
+  const menu = document.getElementById("countryMenu");
+  menu.innerHTML = COUNTRIES.map(([v, n]) =>
+    `<button type="button" class="dd-opt" role="option" data-country="${v}"><span class="dd-flag">${FLAGS[v]}</span>${n}</button>`).join("");
+  const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
+  const setCountry = v => {
+    const c = COUNTRIES.find(x => x[0] === v) || COUNTRIES[0];
+    document.getElementById("countryFlag").innerHTML = FLAGS[v] || "";
+    document.getElementById("countryLabel").textContent = c[1];
+    renderRegionOptions(v);
+  };
+  btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const open = menu.hidden; menu.hidden = !open; btn.setAttribute("aria-expanded", String(open));
+  });
+  menu.addEventListener("click", e => {
+    const o = e.target.closest("[data-country]"); if (!o) return;
+    setCountry(o.dataset.country); close();
+  });
+  document.addEventListener("click", e => { if (!dd.contains(e.target)) close(); });
+  setCountry("de");
+})();
+updateHero(null);
 document.getElementById("regionSelect").addEventListener("change", e => {
   const v = e.target.value;
   if (v === "__fav__") runFavSearch();
@@ -478,58 +556,119 @@ document.getElementById("regionSelect").addEventListener("change", e => {
 
 // Standort per GPS (Button + Auto-Start)
 function startGpsSearch() {
-  const out = document.getElementById("flyResults"), btn = document.getElementById("flyBtn");
-  if (!navigator.geolocation) { out.innerHTML = `<p class="empty">Standort nicht unterstützt – nutze die PLZ-Suche.</p>`; return; }
-  btn.classList.add("busy"); out.innerHTML = `<p class="loading-line">📍 Standort wird ermittelt …</p>`;
+  const out = document.getElementById("flyResults"), btn = document.getElementById("gpsBtn");
+  if (!navigator.geolocation) { out.innerHTML = `<p class="empty">Standort nicht unterstützt – nutze die Suche.</p>`; return; }
+  if (btn) btn.classList.add("busy"); out.innerHTML = `<p class="loading-line">📍 Standort wird ermittelt …</p>`;
   navigator.geolocation.getCurrentPosition(async pos => {
     localStorage.setItem("flugwetter_geo_ok", "1");   // ab jetzt beim Öffnen automatisch
     await runFlySearch(pos.coords.latitude, pos.coords.longitude, null);
-    btn.classList.remove("busy");
+    if (btn) btn.classList.remove("busy");
   }, () => {
-    btn.classList.remove("busy");
-    out.innerHTML = `<p class="empty">Standort nicht verfügbar (Berechtigung?). Nutze die PLZ-Suche unten.</p>`;
+    if (btn) btn.classList.remove("busy");
+    out.innerHTML = `<p class="empty">Standort nicht verfügbar (Berechtigung?). Nutze die Suche oder eine Region.</p>`;
   });
 }
-document.getElementById("flyBtn").addEventListener("click", startGpsSearch);
+document.getElementById("gpsBtn").addEventListener("click", startGpsSearch);
 
 // PLZ-Suche
 async function plzSearch() {
   const inp = document.getElementById("plzInput"), out = document.getElementById("flyResults");
   const plz = inp.value.trim();
-  if (!/^\d{5}$/.test(plz)) { out.innerHTML = `<p class="empty">Bitte eine 5-stellige Postleitzahl eingeben.</p>`; return; }
+  if (!/^\d{5}$/.test(plz)) return;
   out.innerHTML = `<p class="loading-line">🔎 Suche PLZ ${plz} …</p>`;
   try { const o = await geocodePlz(plz); await runFlySearch(o.lat, o.lon, o.label); }
   catch { out.innerHTML = `<p class="empty">PLZ ${plz} nicht gefunden.</p>`; }
 }
-document.getElementById("plzInput").addEventListener("keydown", e => { if (e.key === "Enter") plzSearch(); });
-document.getElementById("plzInput").addEventListener("input", e => { if (/^\d{5}$/.test(e.target.value.trim())) plzSearch(); });
+
+// Startplatz-Namenssuche (wenn Text statt PLZ eingegeben wird)
+async function runNameSearch(q) {
+  const ql = q.trim().toLowerCase();
+  if (ql.length < 2) return;
+  const matches = allKnownSpots()
+    .filter(s => (s.name + " " + (s.region || "")).toLowerCase().includes(ql))
+    .map(s => { const d = lastOrigin ? haversine(lastOrigin.lat, lastOrigin.lon, s.lat, s.lon) : null; return { ...s, dist: d, sortKey: d ?? 0 }; })
+    .slice(0, 40);
+  const out = document.getElementById("flyResults");
+  if (!matches.length) { out.innerHTML = `<p class="empty">Kein Startplatz „${q}“ gefunden.</p>`; return; }
+  rerunSearch = () => runNameSearch(q);
+  await renderSearch(matches, lastOrigin, `Suche „${q}“`);
+}
+
+// Kombiniertes Suchfeld: 5 Ziffern → PLZ, sonst Startplatzname (entprellt)
+let nameSearchTimer;
+function handleSearchInput(v) {
+  clearTimeout(nameSearchTimer);
+  v = v.trim();
+  if (/^\d{5}$/.test(v)) { plzSearch(); return; }
+  if (v.length >= 2 && !/^\d+$/.test(v)) nameSearchTimer = setTimeout(() => runNameSearch(v), 350);
+}
+document.getElementById("plzInput").addEventListener("input", e => handleSearchInput(e.target.value));
+document.getElementById("plzInput").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const v = e.target.value.trim();
+  clearTimeout(nameSearchTimer);
+  if (/^\d{5}$/.test(v)) plzSearch(); else if (v.length >= 2) runNameSearch(v);
+});
 
 function mapsUrl(s) {
   return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;
 }
+// Kategorie-Illustration pro Platz (dezente Postkarten-Grafik, kein Foto des echten Orts).
+// Zuordnung nach echter Startplatzhöhe: Alpen / Mittelgebirge / Hügelland.
+function spotScene(spot, status) {
+  if (status === "nein") return { cat: "nein", img: "img/cat-nein.jpg" };  // Schlechtwetter-Motiv
+  const e = spot.elevation;
+  const cat = (e != null && e >= 1500) ? "alpen" : (e == null || e >= 700) ? "mittel" : "huegel";
+  // deterministischer Bild-Index 1..10 aus dem Namen: jeder Platz stabil gleich, aber Vielfalt über Plätze
+  let h = 0; const n = spot.name || "";
+  for (let i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) >>> 0;
+  const idx = (h % 10) + 1;
+  return { cat, img: `img/cat-${cat}-${idx}.jpg` };
+}
+
+// Große Hero-Überschrift mit Live-Zähler ("Heute kannst du 13 Startplätze fliegen.")
+function updateHero(flyable) {
+  const el = document.getElementById("heroTitle");
+  if (!el) return;
+  const w = searchDay === 1 ? "Morgen" : "Heute";
+  let l1, mid, l3;
+  if (flyable == null) { l1 = "Wo kannst du"; mid = w.toLowerCase(); l3 = "fliegen?"; }
+  else { const word = flyable === 1 ? "Startplatz" : "Startplätzen"; l1 = `${w} kannst du an`; mid = `${flyable} ${word}`; l3 = "fliegen."; }
+  el.innerHTML = `<span class="ht-l">${l1}</span><span class="hl">${mid}</span><span class="ht-l">${l3}</span>`;
+}
+
 function renderFlyResults(rows, headline, truncated) {
   const flyable = rows.filter(r => r.ts.status !== "nein").length;
+  updateHero(flyable);
   const scope = truncated ? `<b>${flyable}</b> fliegbar (nächste ${rows.length} Plätze)` : `<b>${flyable}</b> von ${rows.length} fliegbar`;
   const head = `<div class="fly-head">${headline} · ${scope}</div>`;
   const list = rows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
-    const right = ts.status === "nein"
-      ? `<span class="fr-nore">${ts.reasonText}</span>`
-      : `<div class="fr-right"><div class="fr-line1">${winTimeShort(ts.win)}</div><div class="fr-line2">${ts.reasonLabel}</div></div>`;
+    const timeSlot = ts.status === "nein"
+      ? `<span class="sc-nore">${ts.reasonText}</span>`
+      : `<span class="sc-time ${ts.status}">${winTimeShort(ts.win)}</span>`;
+    const windSlot = ts.status === "nein" ? "" : `<div class="sc-wind">${ts.reasonLabel}</div>`;
+    const scene = spotScene(s, ts.status);
     return `
-      <div class="fr ${ts.status}" data-spot="${s.id}">
-        <span class="fr-dot">${statusDot(ts.status)}</span>
-        <div class="fr-mid">
-          <div class="fr-name">${s.name} <span class="fr-go">›</span></div>
-          <div class="fr-sub">${r.subInfo}</div>
+      <div class="spot-card ${ts.status} sc-${scene.cat}" data-spot="${s.id}">
+        <div class="sc-scene" style="background-image:url(${scene.img})"></div>
+        <span class="sc-dot"></span>
+        <div class="sc-main">
+          <div class="sc-name">${s.name}</div>
+          <div class="sc-meta">${r.subInfo}</div>
         </div>
-        ${right}
-        <a class="fr-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">${NAV_ICON}</a>
-        <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}" title="${fav?"Favorit":"Zu Favoriten"}">${fav?"★":"☆"}</button>
+        <div class="sc-right">
+          <div class="sc-actions">
+            <a class="sc-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">${NAV_ICON}</a>
+            <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}" title="${fav?"Favorit":"Zu Favoriten"}">${fav?"★":"☆"}</button>
+          </div>
+          ${timeSlot}
+          ${windSlot}
+        </div>
       </div>`;
   }).join("");
-  document.getElementById("flyResults").innerHTML = head + `<div class="fr-list">${list}</div>`;
+  document.getElementById("flyResults").innerHTML = head + `<div class="sc-list">${list}</div>`;
 }
 
 // ---------------- Detail-Fenster: 7-Tage-Vorhersage ----------------
@@ -592,7 +731,7 @@ function renderDbSearch(query = "") {
 
 // ---------------- Router ----------------
 const PAGES = {
-  home:      { title: "GoFlyToday", sub: "In 5 Sek.: Lohnt sich heute die Anfahrt?" },
+  home:      { title: "GoFlyToday", sub: "Wetter. Startplätze. Entscheidung." },
   favorites: { title: "Favoriten", sub: "Deine Plätze · 7-Tage-Ansicht" },
   add:       { title: "Fluggebiet hinzufügen", sub: "Aus Datenbank oder eigenen Platz" },
   info:      { title: "Info & Recht", sub: "Wie die App funktioniert" },
@@ -668,6 +807,8 @@ document.body.addEventListener("click", e => {
     }
     return;
   }
+  // Navi-Icon: eigener Link (Maps), nicht das Detail öffnen
+  if (e.target.closest(".sc-nav")) return;
   // Klick auf eine Ergebnis-/Suchzeile -> 7-Tage-Detail
   const row = e.target.closest("[data-spot]");
   if (row) openDetail(row.dataset.spot);
