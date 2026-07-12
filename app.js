@@ -688,7 +688,7 @@ document.getElementById("detailClose").addEventListener("click", closeDetail);
 document.getElementById("detailModal").addEventListener("click", e => { if (e.target.id === "detailModal") closeDetail(); });
 
 // ---------------- Feedback ----------------
-const FB_MAIL = "markcecil2@gmail.com";
+const FB_MAIL = "goflytoday.app@gmail.com";
 const fbModal = document.getElementById("feedbackModal");
 function fbClose() { fbModal.hidden = true; }
 document.getElementById("feedbackBtn").addEventListener("click", () => { fbModal.hidden = false; document.getElementById("fbText").focus(); });
