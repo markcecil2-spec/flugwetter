@@ -740,6 +740,7 @@ function route() {
   let id = location.hash.replace("#/", "") || "home";
   if (!PAGES[id]) id = "home";
   document.querySelectorAll(".page").forEach(p => p.hidden = p.id !== "page-" + id);
+  document.body.classList.toggle("route-home", id === "home");   // Startseite: Header transparent über dem Bild
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === id));
   document.getElementById("pageTitle").textContent = PAGES[id].title;
   document.getElementById("pageSub").textContent = PAGES[id].sub;
