@@ -427,7 +427,7 @@ body:not(.route-home) main.wrap { padding-top: calc(72px + env(safe-area-inset-t
 .home-hero .hero-bg { position: absolute; inset: 0; overflow: hidden; }
 .home-hero .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 16%; display: block; }
 .home-hero .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,17,23,.4) 0%, rgba(13,17,23,.3) 26%, rgba(13,17,23,.5) 56%, rgba(13,17,23,.8) 86%, var(--bg) 100%); }
-.hero-fg { position: relative; padding: calc(82px + env(safe-area-inset-top)) 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+.hero-fg { position: relative; padding: calc(106px + env(safe-area-inset-top)) 16px 16px; display: flex; flex-direction: column; gap: 12px; }
 .home-hero .hero-fg > * { margin: 0; }
 .home-hero .hero-fg .hero-content { margin-bottom: 26px; }
 .home-hero .hero-fg .select-wrap { margin-top: -7px; }
