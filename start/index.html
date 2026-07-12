@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GoFlyToday – In 5 Sekunden sehen, wo heute das Fliegen passt</title>
+  <meta name="description" content="GoFlyToday zeigt Gleitschirmpiloten in Sekunden, an welchen Startplätzen in der Nähe heute Wind und Wetter passen – mit Ampel, Fahrzeit und Navigation. Über 1000 Startplätze in DE, AT & CH." />
+  <meta name="theme-color" content="#0d1117" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <meta property="og:title" content="GoFlyToday – Wo kann ich heute fliegen?" />
+  <meta property="og:description" content="In 5 Sekunden sehen, ob sich die Anfahrt zum Startplatz lohnt. Über 1000 Startplätze in DE, AT & CH." />
+  <meta property="og:image" content="/img/hero-start.jpg" />
+  <meta property="og:type" content="website" />
+  <style>
+    :root{
+      --bg:#0d1117; --card:#151b24; --card2:#1b2430; --line:#232c39;
+      --text:#e8eef7; --muted:#8a97a8; --sky:#06b6a4; --sky-d:#05998a;
+      --green:#22c55e; --amber:#facc15; --red:#ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.55;overflow-x:hidden}
+    a{color:var(--sky);text-decoration:none}
+    .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+    .btn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--sky),var(--sky-d));color:#05221d;font-weight:800;font-size:16px;padding:14px 24px;border-radius:14px;box-shadow:0 6px 22px rgba(6,182,164,.3);transition:transform .1s,filter .15s}
+    .btn:hover{filter:brightness(1.05)}
+    .btn:active{transform:scale(.98)}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);box-shadow:none;font-weight:700}
+    .btn svg{width:20px;height:20px}
+
+    /* Nav */
+    .nav{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+    .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:700;font-size:18px;letter-spacing:.02em}
+    .brand img{width:34px;height:34px;border-radius:9px}
+    .nav .btn{padding:9px 16px;font-size:14px}
+
+    /* Hero */
+    .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+    .hero-bg{position:absolute;inset:0}
+    .hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
+    .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,17,23,.55) 0%,rgba(13,17,23,.5) 40%,rgba(13,17,23,.82) 80%,var(--bg) 100%)}
+    .hero-in{position:relative;padding:86px 0 76px;text-align:center}
+    .hero h1{margin:0 0 16px;font-size:44px;line-height:1.1;font-weight:600;letter-spacing:-.02em;text-shadow:0 2px 20px rgba(0,0,0,.5)}
+    .hero h1 .hl{color:var(--sky)}
+    .hero p.lead{max-width:620px;margin:0 auto 30px;font-size:18px;color:#dbe4ef;text-shadow:0 1px 10px rgba(0,0,0,.5)}
+    .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+    .hero .note{margin-top:18px;font-size:13.5px;color:#aeb9c7}
+
+    /* Sections */
+    section{padding:64px 0}
+    .sec-h{text-align:center;margin:0 0 8px;font-size:28px;font-weight:600;letter-spacing:-.01em}
+    .sec-sub{text-align:center;color:var(--muted);margin:0 auto 40px;max-width:560px;font-size:15.5px}
+
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .feat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px}
+    .feat .ic{width:44px;height:44px;border-radius:12px;background:rgba(6,182,164,.14);color:var(--sky);display:grid;place-items:center;margin-bottom:14px}
+    .feat .ic svg{width:24px;height:24px}
+    .feat h3{margin:0 0 7px;font-size:18px;font-weight:600}
+    .feat p{margin:0;color:var(--muted);font-size:14.5px}
+
+    /* Ampel row */
+    .ampel{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:28px}
+    .amp{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 16px;font-size:14px;font-weight:600}
+    .dot{width:12px;height:12px;border-radius:50%}
+    .dot.g{background:var(--green)} .dot.y{background:var(--amber)} .dot.r{background:var(--red)}
+
+    /* Zielgruppe */
+    .who{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px}
+    .who ul{margin:14px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:10px 24px}
+    .who li{position:relative;padding-left:26px;color:var(--text);font-size:15px}
+    .who li::before{content:"";position:absolute;left:0;top:8px;width:14px;height:14px;border-radius:50%;background:rgba(6,182,164,.18);box-shadow:inset 0 0 0 2px var(--sky)}
+
+    /* Steps */
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .step{text-align:center;padding:8px}
+    .step .n{width:44px;height:44px;border-radius:50%;background:var(--sky);color:#05221d;font-weight:800;display:grid;place-items:center;margin:0 auto 12px;font-size:18px}
+    .step h4{margin:0 0 5px;font-size:16px;font-weight:600}
+    .step p{margin:0;color:var(--muted);font-size:14px}
+
+    /* CTA band */
+    .band{background:linear-gradient(135deg,rgba(6,182,164,.14),rgba(6,182,164,.05));border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;padding:60px 20px}
+    .band h2{margin:0 0 12px;font-size:26px;font-weight:600}
+    .band p{color:var(--muted);margin:0 0 26px}
+
+    .disc{max-width:720px;margin:34px auto 0;font-size:13px;color:var(--muted);text-align:center;line-height:1.6}
+
+    footer{border-top:1px solid var(--line);padding:34px 0;color:var(--muted);font-size:13.5px}
+    footer .wrap{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;justify-content:space-between}
+    footer a{color:var(--muted)}
+    footer a:hover{color:var(--text)}
+
+    @media(max-width:640px){
+      .hero h1{font-size:33px}
+      .hero p.lead{font-size:16px}
+      .grid,.who ul,.steps{grid-template-columns:1fr}
+      .sec-h{font-size:24px}
+      section{padding:48px 0}
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="wrap">
+      <div class="brand"><img src="/icons/icon-192.png" alt="GoFlyToday" />GoFlyToday</div>
+      <a class="btn" href="/">🪂 App öffnen</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-bg" aria-hidden="true"><img src="/img/hero-start.jpg" alt="Gleitschirmflieger im Sonnenuntergang über einem Alpental" /></div>
+    <div class="wrap hero-in">
+      <h1>Wo kann ich <span class="hl">heute</span><br>fliegen?</h1>
+      <p class="lead">GoFlyToday zeigt dir in 5 Sekunden, an welchen Startplätzen in deiner Nähe heute Wind und Wetter passen – mit Ampel, Fahrzeit und Navigation.</p>
+      <div class="cta-row">
+        <a class="btn" href="/">🪂 Jetzt starten</a>
+        <a class="btn ghost" href="#funktionen">Mehr erfahren</a>
+      </div>
+      <p class="note">Kostenlos · über 1000 Startplätze in Deutschland, Österreich &amp; der Schweiz</p>
+    </div>
+  </header>
+
+  <section id="funktionen">
+    <div class="wrap">
+      <h2 class="sec-h">Was GoFlyToday kann</h2>
+      <p class="sec-sub">Öffnen, Standort oder Region wählen – und sofort sehen, wo sich die Anfahrt lohnt.</p>
+      <div class="grid">
+        <div class="feat">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg></div>
+          <h3>Wo kann ich fliegen?</h3>
+          <p>Standort, PLZ oder Region wählen – du bekommst eine sortierte Liste fliegbarer Startplätze mit klarer Ampel (grün / gelb / rot) und Grund.</p>
+        </div>
+        <div class="feat">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14M5 13v4m14-4v4M7 17h.01M17 17h.01"/></svg></div>
+          <h3>Fahrzeit &amp; Navigation</h3>
+          <p>Sieh sofort, wie weit es ist und wie lange du fährst – und starte mit einem Tipp direkt die Navigation zum Startplatz.</p>
+        </div>
+        <div class="feat">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <h3>Heute, morgen &amp; 7 Tage</h3>
+          <p>Schneller Tages-Check für heute und morgen, plus eine 7-Tage-Vorschau je Platz mit Wind, Wetter und Sonnenzeiten.</p>
+        </div>
+        <div class="feat">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-16 5 9 3-5 4 12z"/></svg></div>
+          <h3>Über 1000 Startplätze</h3>
+          <p>Deutschland, Österreich und die Schweiz – aus der offiziellen DHV-Datenbank, mit geprüften Windrichtungen (nie geraten).</p>
+        </div>
+      </div>
+
+      <div class="ampel">
+        <div class="amp"><span class="dot g"></span> Gut fliegbar</div>
+        <div class="amp"><span class="dot y"></span> Grenzwertig</div>
+        <div class="amp"><span class="dot r"></span> Heute nicht</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <h2 class="sec-h">In drei Schritten in der Luft</h2>
+      <p class="sec-sub">Kein Konto, keine Einrichtung – einfach öffnen.</p>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><h4>Öffnen</h4><p>App starten – GoFlyToday nutzt deinen Standort oder deine PLZ.</p></div>
+        <div class="step"><div class="n">2</div><h4>Vergleichen</h4><p>Fliegbare Plätze im Umkreis mit Ampel, Zeitfenster und Fahrzeit.</p></div>
+        <div class="step"><div class="n">3</div><h4>Losfliegen</h4><p>Passenden Platz wählen und direkt die Navigation starten.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="who">
+        <h2 class="sec-h" style="text-align:left;font-size:22px;margin-bottom:4px">Für wen ist GoFlyToday?</h2>
+        <p style="color:var(--muted);margin:0;font-size:15px">Egal, wie viel Flug- und Wettererfahrung du schon mitbringst:</p>
+        <ul>
+          <li>Frisch mit dem A-Schein in der Tasche</li>
+          <li>Wochenend- und Feierabendflieger</li>
+          <li>Wiedereinsteiger mit neuer Lust aufs Fliegen</li>
+          <li>Alle, die sich nicht lange in die Wetterkunde einlesen möchten</li>
+          <li>Piloten, die mehrere Startplätze in der Nähe vergleichen wollen</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="band">
+    <div class="wrap">
+      <h2>Bereit für den nächsten Flugtag?</h2>
+      <p>In 5 Sekunden wissen, ob sich die Anfahrt lohnt.</p>
+      <a class="btn" href="/">🪂 GoFlyToday öffnen</a>
+      <p class="note" style="color:var(--muted);margin-top:18px;font-size:13.5px">Bald auch im Google Play Store.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <p class="disc">Wichtiger Hinweis: GoFlyToday ist eine unverbindliche Orientierungshilfe und ersetzt keine offizielle Flugwetterberatung. Prüfe vor jedem Flug zusätzlich spezialisierte Quellen (z. B. Burnair, Windy, DWD) und beurteile die Bedingungen vor Ort selbst. Die Startentscheidung liegt allein beim verantwortlichen Piloten.</p>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <div>© 2026 GoFlyToday · Mark Cecil</div>
+      <div style="display:flex;gap:22px;flex-wrap:wrap">
+        <a href="mailto:goflytoday.app@gmail.com">goflytoday.app@gmail.com</a>
+        <a href="/datenschutz.html">Impressum &amp; Datenschutz</a>
+        <a href="/">Zur App</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
