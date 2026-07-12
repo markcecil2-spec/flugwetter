@@ -3,7 +3,7 @@
 const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden Stunden
 const DEFAULT_RADIUS = 100;    // km
-const MAX_CANDIDATES = 100;    // max. Plätze pro Suche (Performance bei großer DB)
+const MAX_CANDIDATES = 50;    // max. Plätze pro Suche (Performance bei großer DB)
 const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
 // Monochrome Meta-Icons (Fahrzeit / Entfernung)
 const IC_CAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14M5 13v4m14-4v4M7 17h.01M17 17h.01"/></svg>`;
@@ -511,7 +511,7 @@ document.getElementById("dayToggle").addEventListener("click", e => {
 // Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
 function renderRegionOptions(country) {
   const sel = document.getElementById("regionSelect");
-  const opts = ['<option value="">Region / Filter …</option>', '<option value="__fav__">⭐ Meine Favoriten</option>'];
+  const opts = ['<option value="">Region / Filter …</option>'];
   Object.entries(REGIONS).forEach(([key, r]) => { if (r.country === country) opts.push(`<option value="${key}">${r.name}</option>`); });
   sel.innerHTML = opts.join("");
 }
