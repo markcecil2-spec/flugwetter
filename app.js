@@ -514,7 +514,7 @@ async function runRegionSearch(key) {
         dist: origin ? haversine(origin.lat, origin.lon, s.lat, s.lon) : null,
         sortKey: origin ? haversine(origin.lat, origin.lon, s.lat, s.lon) : toCenter };
     })
-    .filter(s => s._c <= R.r)
+    .filter(s => s._c <= R.r && (!s.country || s.country === R.country))
     .sort((a, b) => a.sortKey - b.sortKey);
   await renderSearch(candidates, origin, `${dayWord()} · Region <b>${R.name}</b>`);
 }
