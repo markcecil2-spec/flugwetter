@@ -430,6 +430,35 @@ const REGIONS = {
   obwalden:        { name: "Obwalden",              country: "ch", lat: 46.8506, lon: 8.3245,  r: 22 },
   luzern:          { name: "Luzern",                country: "ch", lat: 46.9611, lon: 8.2367,  r: 32 },
   schweiz:         { name: "Schweiz (alle)",        country: "ch", lat: 46.7255, lon: 8.2455,  r: 170 },
+  rhonealpes_fr:   { name: "Rhône-Alpes",           country: "fr", lat: 45.4655, lon: 5.9135,  r: 180 },
+  hautesavoie_fr:  { name: "Haute-Savoie",          country: "fr", lat: 45.9752, lon: 6.6043,  r: 55 },
+  provence_fr:     { name: "Provence",              country: "fr", lat: 44.1226, lon: 6.2527,  r: 120 },
+  savoie_fr:       { name: "Savoie",                country: "fr", lat: 45.5704, lon: 6.4906,  r: 65 },
+  isere_fr:        { name: "Isère",                 country: "fr", lat: 45.1346, lon: 5.7896,  r: 50 },
+  puydedome_fr:    { name: "Puy-de-Dôme",           country: "fr", lat: 45.5807, lon: 3.1024,  r: 60 },
+  hautepyrenees_fr:{ name: "Hautes-Pyrénées",       country: "fr", lat: 42.8864, lon: 0.1470,  r: 40 },
+  hautesalpes_fr:  { name: "Hautes-Alpes",          country: "fr", lat: 44.6802, lon: 6.2126,  r: 55 },
+  ain_fr:          { name: "Ain",                   country: "fr", lat: 46.0977, lon: 5.6472,  r: 65 },
+  drome_fr:        { name: "Drôme",                 country: "fr", lat: 44.5035, lon: 5.3674,  r: 65 },
+  doubs_fr:        { name: "Doubs",                 country: "fr", lat: 47.1077, lon: 6.3193,  r: 110 },
+  saoneetloire_fr: { name: "Saône-et-Loire",        country: "fr", lat: 46.5919, lon: 4.5514,  r: 50 },
+  jura_fr:         { name: "Jura (FR)",             country: "fr", lat: 46.6691, lon: 5.8667,  r: 45 },
+  corse_fr:        { name: "Korsika",               country: "fr", lat: 42.4367, lon: 9.1534,  r: 65 },
+  vosges_fr:       { name: "Vogesen",               country: "fr", lat: 48.0367, lon: 6.8159,  r: 65 },
+  ariege_fr:       { name: "Ariège",                country: "fr", lat: 42.8281, lon: 1.4871,  r: 50 },
+  cantal_fr:       { name: "Cantal",                country: "fr", lat: 45.0887, lon: 2.7187,  r: 25 },
+  cotesdarmor_fr:  { name: "Côtes-d'Armor",         country: "fr", lat: 48.6753, lon: -3.0817, r: 50 },
+  hautegaronne_fr: { name: "Haute-Garonne",         country: "fr", lat: 42.9436, lon: 0.7780,  r: 50 },
+  ardeche_fr:      { name: "Ardèche",               country: "fr", lat: 44.7947, lon: 4.3568,  r: 70 },
+  var_fr:          { name: "Var",                   country: "fr", lat: 43.4442, lon: 6.2191,  r: 60 },
+  frankreich:      { name: "Frankreich (alle)",     country: "fr", lat: 45.8432, lon: 4.2100,  r: 710 },
+  sudtirol_it:     { name: "Südtirol",              country: "it", lat: 46.5726, lon: 11.5399, r: 160 },
+  lombardei_it:    { name: "Lombardei",             country: "it", lat: 46.0038, lon: 9.7884,  r: 155 },
+  piemont_it:      { name: "Piemont",               country: "it", lat: 45.2564, lon: 7.7534,  r: 235 },
+  venetien_it:     { name: "Venetien",              country: "it", lat: 45.8959, lon: 11.4492, r: 95 },
+  ligurien_it:     { name: "Ligurien",              country: "it", lat: 44.1268, lon: 8.3967,  r: 120 },
+  friaul_it:       { name: "Friaul",                country: "it", lat: 46.2988, lon: 13.0226, r: 110 },
+  italien:         { name: "Italien (alle)",        country: "it", lat: 43.4161, lon: 11.6762, r: 790 },
 };
 
 // Gemeinsame Auswertung + Anzeige für eine Kandidatenliste.
@@ -526,9 +555,11 @@ const FLAGS = {
   de: `<svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg>`,
   at: `<svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#ED2939"/><rect width="5" height="1" y="1" fill="#fff"/><rect width="5" height="1" y="2" fill="#ED2939"/></svg>`,
   ch: `<svg viewBox="0 0 5 5" preserveAspectRatio="none"><rect width="5" height="5" fill="#D52B1E"/><rect x="2" y="1" width="1" height="3" fill="#fff"/><rect x="1" y="2" width="3" height="1" fill="#fff"/></svg>`,
+  fr: `<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#0055A4"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#EF4135"/></svg>`,
+  it: `<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#008C45"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#CD212A"/></svg>`,
 };
 // Eigenes Land-Dropdown (kein natives <select> → wird von Chrome nicht als Adressfeld autofill-gefärbt)
-const COUNTRIES = [["de", "Deutschland"], ["at", "Österreich"], ["ch", "Schweiz"]];
+const COUNTRIES = [["de", "Deutschland"], ["at", "Österreich"], ["ch", "Schweiz"], ["fr", "Frankreich"], ["it", "Italien"]];
 (function initCountryDD() {
   const dd = document.getElementById("countryDD");
   const btn = document.getElementById("countryBtn");

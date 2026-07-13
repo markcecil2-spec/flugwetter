@@ -5437,4 +5437,5815 @@ const SPOT_DB = [
   { id: "db_1412", name: "Zugerberg", region: "Zug",
     lat: 47.1479, lon: 8.5358, elevation: 945, dhv: 1412,
     sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  // --- Frankreich ---
+  { id: "db_5464", name: "A Punta", region: "Tox",
+    lat: 42.2409, lon: 9.4416, elevation: 500, dhv: 5464,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3320_SW", name: "Accous (SW)", region: "Accous",
+    lat: 42.9752, lon: 0.5614, elevation: 1199, dhv: 3320,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4995_SW", name: "Accous (SW)", region: "Accous",
+    lat: 42.9758, lon: -0.5631, elevation: 1181, dhv: 4995,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3320_W", name: "Accous (W)", region: "Accous",
+    lat: 42.9797, lon: 0.572, elevation: 1204, dhv: 3320,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_4995_W", name: "Accous (W)", region: "Accous",
+    lat: 42.977, lon: -0.5469, elevation: 1592, dhv: 4995,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2152", name: "Agnis", region: "Signes",
+    lat: 43.3023, lon: 5.8732, elevation: 696, dhv: 2152,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1807", name: "Agy", region: "Cluses",
+    lat: 46.0801, lon: 6.619, elevation: 1256, dhv: 1807,
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", ...DEF },
+
+  { id: "db_4182_N", name: "Aiguille du Midi (N)", region: "Chamonix",
+    lat: 45.8811, lon: 6.8972, elevation: 3587, dhv: 4182,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_4182_S", name: "Aiguille du Midi (S)", region: "Chamonix",
+    lat: 45.8644, lon: 6.8967, elevation: 3473, dhv: 4182,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2141", name: "Aiguines", region: "Aiguines",
+    lat: 43.7796, lon: 6.2562, elevation: 1001, dhv: 2141,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5054", name: "Algrange", region: "Algrange",
+    lat: 49.3574, lon: 6.0564, elevation: 369, dhv: 5054,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3004", name: "Alprech", region: "Le Portel",
+    lat: 50.6942, lon: 1.5637, elevation: 35, dhv: 3004,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4911", name: "Amfreville-sous-les-Monts", region: "Amfreville-sous-les-Monts",
+    lat: 49.3019, lon: 1.2644, elevation: 105, dhv: 4911,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4888", name: "Amigny", region: "Sancerre",
+    lat: 47.3304, lon: 2.7937, elevation: 342, dhv: 4888,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_1891", name: "Andey", region: "Faucigny",
+    lat: 46.0541, lon: 6.4079, elevation: 1061, dhv: 1891,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3321", name: "Arbas", region: "Arbas",
+    lat: 42.9701, lon: 0.8861, elevation: 1076, dhv: 3321,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_3101", name: "Arcy sur Cure", region: "Arcy-sur-Cure",
+    lat: 47.6006, lon: 3.7776, elevation: 219, dhv: 3101,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2289", name: "Arfuyen", region: "Malaucene",
+    lat: 44.1926, lon: 5.1018, elevation: 569, dhv: 2289,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3308", name: "Argeliers", region: "Ageliers",
+    lat: 43.3154, lon: 2.8843, elevation: 206, dhv: 3308,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4976", name: "Arros", region: "Le Verdon-sur-Mer",
+    lat: 45.5461, lon: -1.0978, elevation: 17, dhv: 4976,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3327_S", name: "Arrouyes (S)", region: "Bareges",
+    lat: 42.915, lon: 0.1014, elevation: 2117, dhv: 3327,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3327_SO", name: "Arrouyes (SO)", region: "Bareges",
+    lat: 42.9114, lon: 0.1088, elevation: 1857, dhv: 3327,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_4892", name: "Athie", region: "Athie",
+    lat: 47.5734, lon: 4.2724, elevation: 374, dhv: 4892,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3198", name: "Aubas", region: "Condat-sur-Vezere",
+    lat: 45.0886, lon: 1.2152, elevation: 189, dhv: 3198,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_4883", name: "Auberville", region: "Villers-sur-Mer",
+    lat: 49.3184, lon: -0.0189, elevation: 63, dhv: 4883,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_4996", name: "Aucun", region: "Aucun",
+    lat: 42.9902, lon: -0.1964, elevation: 1370, dhv: 4996,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3046", name: "Aunay", region: "Saint-Georges-D&#039;Annay",
+    lat: 49.0019, lon: -0.655, elevation: 265, dhv: 3046,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2140", name: "Auron", region: "St. Etienne de Tinee",
+    lat: 44.2363, lon: 6.9045, elevation: 2231, dhv: 2140,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_1876", name: "Aussois", region: "Aussois",
+    lat: 45.2622, lon: 6.7379, elevation: 2576, dhv: 1876,
+    sectors: [[123.75, 146.25], [78.75, 191.25]], sectorLabel: "SO · O-S", ...DEF },
+
+  { id: "db_4936", name: "Auteuil", region: "Auteuil",
+    lat: 49.3307, lon: 2.0911, elevation: 196, dhv: 4936,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2305", name: "Avoriaz", region: "Avoriaz",
+    lat: 46.1944, lon: 6.7678, elevation: 1797, dhv: 2305,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3245", name: "Ayet", region: "Ayet",
+    lat: 44.3399, lon: 0.3334, elevation: 152, dhv: 3245,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3098_NO", name: "Ballon D'Alsace (NO)", region: "Saint-Maurice-sur-Moselle",
+    lat: 47.8243, lon: 6.8447, elevation: 1230, dhv: 3098,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3098_NW", name: "Ballon D'Alsace (NW)", region: "Saint-Maurice-sur-Moselle",
+    lat: 47.8251, lon: 6.8413, elevation: 1232, dhv: 3098,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3098_SO", name: "Ballon D'Alsace (SO)", region: "Saint-Maurice-sur-Moselle",
+    lat: 47.8227, lon: 6.846, elevation: 1235, dhv: 3098,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1892", name: "Ban Rouge", region: "Notro Dame de Bellecombes",
+    lat: 45.8032, lon: 6.5826, elevation: 1958, dhv: 1892,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3037", name: "Banc des Deux Amants", region: "Pitres",
+    lat: 49.3191, lon: 1.2462, elevation: 107, dhv: 3037,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5015", name: "Barcelonnette", region: "Barcelonnette",
+    lat: 44.4019, lon: 6.6672, elevation: 1601, dhv: 5015,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2142", name: "Bargemon", region: "Bargemon",
+    lat: 43.6388, lon: 6.5616, elevation: 1015, dhv: 2142,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3228", name: "Barjac", region: "Barjac",
+    lat: 44.5021, lon: 3.4186, elevation: 972, dhv: 3228,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3032", name: "Barneville-sur-Seine", region: "Barneville-sur-Seine",
+    lat: 49.3881, lon: 0.8487, elevation: 127, dhv: 3032,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5088", name: "Basse des Feignes", region: "La Bresse",
+    lat: 48.0035, lon: 6.8431, elevation: 1011, dhv: 5088,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5004", name: "Batere", region: "Corsavy",
+    lat: 42.504, lon: 2.5478, elevation: 1588, dhv: 5004,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4991_NO", name: "Bauigura (NO)", region: "Helette",
+    lat: 43.2947, lon: -1.2888, elevation: 840, dhv: 4991,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4991_W", name: "Bauigura (W)", region: "Helette",
+    lat: 43.2907, lon: -1.2936, elevation: 870, dhv: 4991,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_4893", name: "Baulme la Roche", region: "Baulme la Roche",
+    lat: 47.3489, lon: 4.8017, elevation: 567, dhv: 4893,
+    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", ...DEF },
+
+  { id: "db_3107", name: "Baume les Dames", region: "Baume-les Dames",
+    lat: 47.3489, lon: 6.3808, elevation: 465, dhv: 3107,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5044", name: "Baumes-de-Venise", region: "Baumes-de-Venise",
+    lat: 44.1259, lon: 5.0172, elevation: 240, dhv: 5044,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_4919", name: "Beaulieu-sur-Layon", region: "Beaulieu-sur-Layon",
+    lat: 47.3097, lon: -0.5997, elevation: 68, dhv: 4919,
+    sectors: [[213.75, 281.25], [213.75, 236.25]], sectorLabel: "SW-W · SW", ...DEF },
+
+  { id: "db_1815", name: "Beausses", region: "Rustrel",
+    lat: 43.9419, lon: 5.4762, elevation: 936, dhv: 1815,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4899", name: "Beg Leguer", region: "Lannion",
+    lat: 48.7505, lon: -3.5493, elevation: 73, dhv: 4899,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4962", name: "Belesta", region: "Belesta",
+    lat: 42.9, lon: 1.9639, elevation: 908, dhv: 4962,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5063", name: "Belfahy", region: "Plancher-les-Mines",
+    lat: 47.7751, lon: 6.7378, elevation: 811, dhv: 5063,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5055", name: "Belmont", region: "Belmont",
+    lat: 48.4192, lon: 7.2389, elevation: 927, dhv: 5055,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3143", name: "Belvedere", region: "Lezat",
+    lat: 46.5034, lon: 5.9368, elevation: 907, dhv: 3143,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2208", name: "Belvedere Serre-Poncon", region: "La Batie Neuve",
+    lat: 44.584, lon: 6.2355, elevation: 1569, dhv: 2208,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3093", name: "Benevise", region: "Rupt-sur-Moselle",
+    lat: 47.9229, lon: 6.6856, elevation: 800, dhv: 3093,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3147", name: "Berce la Ville", region: "Berze-la-Ville",
+    lat: 46.3678, lon: 4.7046, elevation: 431, dhv: 3147,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1272_NW", name: "Bergies (NW)", region: "Sederon",
+    lat: 44.2039, lon: 5.5106, elevation: 1332, dhv: 1272,
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", ...DEF },
+
+  { id: "db_1272_SO", name: "Bergies (SO)", region: "Sederon",
+    lat: 44.2031, lon: 5.5103, elevation: 1334, dhv: 1272,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3052", name: "Berjou", region: "Berjou",
+    lat: 48.8552, lon: -0.4858, elevation: 224, dhv: 3052,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_4949", name: "Beynes", region: "Beynes",
+    lat: 48.8538, lon: 1.89, elevation: 115, dhv: 4949,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3216", name: "Bigaroque", region: "Coux-en-Bigaroque",
+    lat: 44.8523, lon: 0.9373, elevation: 133, dhv: 3216,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3332", name: "Birout' Ale", region: "Barrettali",
+    lat: 42.8828, lon: 9.3502, elevation: 573, dhv: 3332,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1871", name: "Bisanne", region: "Villard sur Doron",
+    lat: 45.747, lon: 6.5073, elevation: 1925, dhv: 1871,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3121", name: "Bligny sur Ouche", region: "Bligny sur Ouche",
+    lat: 47.1145, lon: 4.6757, elevation: 511, dhv: 3121,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3102", name: "Bois de Breuleux", region: "Echenoz-la-Meline",
+    lat: 47.6006, lon: 6.1282, elevation: 366, dhv: 3102,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3326", name: "Bonida", region: "Bareges",
+    lat: 42.9186, lon: 0.1269, elevation: 2300, dhv: 3326,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3206", name: "Bordas", region: "Grun-Bordas",
+    lat: 45.0478, lon: 0.6675, elevation: 195, dhv: 3206,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3186", name: "Bort les Orgues", region: "Bort les Orgues",
+    lat: 45.3958, lon: 2.4835, elevation: 753, dhv: 3186,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3041", name: "Bosville", region: "Bosville",
+    lat: 49.1184, lon: 1.1195, elevation: 113, dhv: 3041,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2316", name: "Bouc Blanc", region: "Bozel",
+    lat: 45.4107, lon: 6.6146, elevation: 2195, dhv: 2316,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2315", name: "Bozel", region: "Bozel",
+    lat: 45.4559, lon: 6.6571, elevation: 1461, dhv: 2315,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4876", name: "Brasles", region: "Brasles",
+    lat: 49.0549, lon: 3.4388, elevation: 189, dhv: 4876,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3062_SO", name: "Breitenbach (SO)", region: "Breitenbach",
+    lat: 48.3835, lon: 7.2828, elevation: 938, dhv: 3062,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3062_SW", name: "Breitenbach (SW)", region: "Breitenbach",
+    lat: 48.3833, lon: 7.2804, elevation: 932, dhv: 3062,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_4969_SW", name: "Brezons (SW)", region: "Brezons",
+    lat: 45.0066, lon: 2.8144, elevation: 1291, dhv: 4969,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4969_W", name: "Brezons (W)", region: "Brezons",
+    lat: 45.0022, lon: 2.8198, elevation: 1158, dhv: 4969,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_4990", name: "Brionnet", region: "Saurier",
+    lat: 45.5288, lon: 3.0586, elevation: 883, dhv: 4990,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_3202", name: "Bros", region: "Bros",
+    lat: 45.0665, lon: 1.8996, elevation: 455, dhv: 3202,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4970", name: "Bruget", region: "Vic-sur-Cere",
+    lat: 44.9844, lon: 2.6579, elevation: 1079, dhv: 4970,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3293", name: "Brunas", region: "Creissels",
+    lat: 44.0733, lon: 3.0641, elevation: 708, dhv: 3293,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_1273_NW", name: "Buc (NW)", region: "Mévouillon",
+    lat: 44.2072, lon: 5.4775, elevation: 1427, dhv: 1273,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1273_SW", name: "Buc (SW)", region: "Mévouillon",
+    lat: 44.2255, lon: 5.4723, elevation: 1023, dhv: 1273,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2211", name: "Butte de L'Aigle", region: "Aurel",
+    lat: 44.7026, lon: 5.3187, elevation: 930, dhv: 2211,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2146", name: "Cagnorina", region: "Tende",
+    lat: 44.0974, lon: 7.5967, elevation: 1076, dhv: 2146,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1793", name: "Cairn", region: "Orciers",
+    lat: 44.6977, lon: 6.3047, elevation: 2052, dhv: 1793,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3044", name: "Cambolle", region: "Evreux",
+    lat: 49.028, lon: 1.1273, elevation: 122, dhv: 3044,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5006", name: "Camelas", region: "Thuir",
+    lat: 42.6248, lon: 2.6811, elevation: 492, dhv: 5006,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4913", name: "Cameros", region: "Saint-Nic",
+    lat: 48.2024, lon: -4.3152, elevation: 22, dhv: 4913,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3100_N", name: "Camps de Cesar (N)", region: "Vaivre-et-Montoille",
+    lat: 47.6268, lon: 6.0893, elevation: 354, dhv: 3100,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3100_SW", name: "Camps de Cesar (SW)", region: "Vaivre-et-Montoille",
+    lat: 47.6222, lon: 6.0897, elevation: 364, dhv: 3100,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3330", name: "Caoubere", region: "Bareges",
+    lat: 42.9019, lon: 0.1134, elevation: 1822, dhv: 3330,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3342", name: "Cap de Pales", region: "Germ",
+    lat: 42.7724, lon: 0.4548, elevation: 2186, dhv: 3342,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_4579", name: "Capu di Manganu", region: "Calacuccia",
+    lat: 42.3524, lon: 8.9636, elevation: 1629, dhv: 4579,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3054_NW", name: "Carolles (NW)", region: "Carolles",
+    lat: 48.756, lon: -1.5728, elevation: 43, dhv: 3054,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3054_W", name: "Carolles (W)", region: "Carolles",
+    lat: 48.7542, lon: -1.5726, elevation: 55, dhv: 3054,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4927_S", name: "Carteret (S)", region: "Barneville-Carteret",
+    lat: 49.3736, lon: -1.8054, elevation: 57, dhv: 4927,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4927_W", name: "Carteret (W)", region: "Barneville-Carteret",
+    lat: 49.3737, lon: -1.8074, elevation: 51, dhv: 4927,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3297", name: "Carvel", region: "Courris",
+    lat: 43.956, lon: 2.419, elevation: 429, dhv: 3297,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3231", name: "Castelfranc", region: "Anglars-Juillard",
+    lat: 44.5024, lon: 1.2119, elevation: 220, dhv: 3231,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3153", name: "Catray", region: "Villes",
+    lat: 46.1105, lon: 5.7568, elevation: 1068, dhv: 3153,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3289", name: "Cazals", region: "Cazals",
+    lat: 44.1167, lon: 1.7313, elevation: 307, dhv: 3289,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3316", name: "Cazavet", region: "Cazeaux",
+    lat: 42.9835, lon: 1.0357, elevation: 906, dhv: 3316,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2290", name: "Ceillac", region: "Ceillac",
+    lat: 44.6666, lon: 6.7853, elevation: 1810, dhv: 2290,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5008_NO", name: "Cerbere (NO)", region: "Cerbere",
+    lat: 42.4513, lon: 3.1497, elevation: 296, dhv: 5008,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5008_O", name: "Cerbere (O)", region: "Cerbere",
+    lat: 42.4531, lon: 3.1357, elevation: 451, dhv: 5008,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3348", name: "Ceret", region: "Ceret",
+    lat: 42.4591, lon: 2.7675, elevation: 819, dhv: 3348,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3350", name: "Cervione", region: "Cervione",
+    lat: 42.3292, lon: 9.4745, elevation: 743, dhv: 3350,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_3295", name: "Cezas", region: "Laroque",
+    lat: 43.9675, lon: 3.7826, elevation: 678, dhv: 3295,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1800", name: "Chabanon", region: "Selonnet",
+    lat: 44.3352, lon: 6.2921, elevation: 1969, dhv: 1800,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3190", name: "Chabraire", region: "Cheylade",
+    lat: 45.1561, lon: 2.7333, elevation: 1531, dhv: 3190,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_1338_N", name: "Chabre (N)", region: "Laragne",
+    lat: 44.3031, lon: 5.7766, elevation: 1264, dhv: 1338,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1338_S", name: "Chabre (S)", region: "Laragne",
+    lat: 44.2983, lon: 5.7658, elevation: 1314, dhv: 1338,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1846", name: "Chalais", region: "Voreppe",
+    lat: 45.2932, lon: 5.661, elevation: 1033, dhv: 1846,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3040", name: "Chamery", region: "Chamery",
+    lat: 49.1649, lon: 3.9532, elevation: 255, dhv: 3040,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1278", name: "Chamoux", region: "Chamoux-sur-Gelon",
+    lat: 45.5294, lon: 6.2527, elevation: 1251, dhv: 1278,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3055", name: "Champeaux", region: "Saint Jean le Thomas",
+    lat: 48.7325, lon: -1.5365, elevation: 63, dhv: 3055,
+    sectors: [[168.75, 191.25], [168.75, 236.25]], sectorLabel: "S · S-SW", ...DEF },
+
+  { id: "db_2158", name: "Champfromier", region: "Champfromier",
+    lat: 46.2148, lon: 5.8144, elevation: 1187, dhv: 2158,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3085", name: "Champis", region: "La Bresse",
+    lat: 48.033, lon: 6.9465, elevation: 1173, dhv: 3085,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1880", name: "Champlaurent", region: "Chamoux",
+    lat: 45.5149, lon: 6.2155, elevation: 1263, dhv: 1880,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_4891", name: "Champtin", region: "Champtin",
+    lat: 47.3079, lon: 2.7805, elevation: 327, dhv: 4891,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_4993", name: "Chapelle de la Madeleine", region: "Trois-Villes",
+    lat: 43.147, lon: -0.845, elevation: 770, dhv: 4993,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3324", name: "Char de Moulis", region: "Moulis",
+    lat: 42.9521, lon: 1.101, elevation: 824, dhv: 3324,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5053", name: "Charezier", region: "Charezier",
+    lat: 46.6204, lon: 5.7314, elevation: 566, dhv: 5053,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3092", name: "Charmoilles", region: "Rolampont",
+    lat: 47.9374, lon: 5.3588, elevation: 442, dhv: 3092,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_3196_N", name: "Chassaure (N)", region: "Lavoute-sur-Loire",
+    lat: 45.1124, lon: 3.9169, elevation: 873, dhv: 3196,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3196_NO", name: "Chassaure (NO)", region: "Lavoute-sur-Loire",
+    lat: 45.1034, lon: 3.9301, elevation: 920, dhv: 3196,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_1803", name: "Chastelard", region: "Banon",
+    lat: 44.0513, lon: 5.6835, elevation: 902, dhv: 1803,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3333", name: "Chateau de Peyrepertuse", region: "Duilhac-sous-Peyrepertuse",
+    lat: 42.8696, lon: 2.5598, elevation: 659, dhv: 3333,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5079", name: "Chatel", region: "Chatel",
+    lat: 46.2767, lon: 6.8577, elevation: 1978, dhv: 5079,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4918", name: "Chaudefonds-sur-Layon", region: "Chaudefonds-sur-Layon",
+    lat: 47.3227, lon: -0.7175, elevation: 54, dhv: 4918,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3210", name: "Chaudeyrolles", region: "Chaudeyrolles",
+    lat: 44.9352, lon: 4.1912, elevation: 1390, dhv: 3210,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_4887", name: "Chavignol", region: "Sancerre",
+    lat: 47.3419, lon: 2.7916, elevation: 324, dhv: 4887,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2313", name: "Cherier", region: "Arcon",
+    lat: 45.9844, lon: 3.9202, elevation: 848, dhv: 2313,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_3082", name: "Chevre Roche", region: "Vagny",
+    lat: 48.0387, lon: 6.7084, elevation: 812, dhv: 3082,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2160", name: "Cheynet", region: "Rochessauve",
+    lat: 44.6825, lon: 4.6145, elevation: 629, dhv: 2160,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_5058", name: "Chiroubles", region: "Chiroubles",
+    lat: 46.1905, lon: 4.631, elevation: 689, dhv: 5058,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5023", name: "Chorges", region: "Chorges",
+    lat: 44.5817, lon: 6.281, elevation: 1599, dhv: 5023,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1864", name: "Clamontard", region: "Luc en Diois",
+    lat: 44.6032, lon: 5.4414, elevation: 1065, dhv: 1864,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3300", name: "Claret", region: "Claret",
+    lat: 43.8757, lon: 3.8867, elevation: 355, dhv: 3300,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3105", name: "Clerval", region: "Clerval",
+    lat: 47.3911, lon: 6.5075, elevation: 501, dhv: 3105,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2212", name: "Clot du Ciel", region: "Aurel",
+    lat: 44.6712, lon: 5.3212, elevation: 1091, dhv: 2212,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3130", name: "Clucy", region: "Salins-les-Bains",
+    lat: 46.9464, lon: 5.895, elevation: 700, dhv: 3130,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2206", name: "Col Bas", region: "Seynes les Alpes",
+    lat: 44.3846, lon: 6.3961, elevation: 2155, dhv: 2206,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4967", name: "Col d'Aulac", region: "Le Vaulmier",
+    lat: 45.1941, lon: 2.5822, elevation: 1202, dhv: 4967,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2210", name: "Col D'Ey", region: "Sainte Jalle",
+    lat: 44.311, lon: 5.2819, elevation: 797, dhv: 2210,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_4578_NW", name: "Col de Bataille (NW)", region: "Speloncato",
+    lat: 42.5485, lon: 8.9983, elevation: 1115, dhv: 4578,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4578_W", name: "Col de Bataille (W)", region: "Speloncato",
+    lat: 42.5505, lon: 9.0084, elevation: 1153, dhv: 4578,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5075", name: "Col de Chaussy", region: "Sainte-Marie-de-Cuines",
+    lat: 45.3469, lon: 6.3448, elevation: 1674, dhv: 5075,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5264", name: "Col de Couraduque", region: "Aucun",
+    lat: 42.9966, lon: -0.1886, elevation: 1451, dhv: 5264,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1264_NW", name: "Col de Forclaz (NW)", region: "Doussard",
+    lat: 45.8084, lon: 6.2443, elevation: 1153, dhv: 1264,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1264_SW", name: "Col de Forclaz (SW)", region: "Doussard",
+    lat: 45.8116, lon: 6.2445, elevation: 1189, dhv: 1264,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1264_W", name: "Col de Forclaz (W)", region: "Doussard",
+    lat: 45.8141, lon: 6.247, elevation: 1288, dhv: 1264,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_3334", name: "Col de la Core", region: "Bethmale",
+    lat: 42.8616, lon: 1.1084, elevation: 1452, dhv: 3334,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3315", name: "Col de la Courade", region: "Campan",
+    lat: 42.9981, lon: 0.1681, elevation: 1257, dhv: 3315,
+    sectors: [[348.75, 101.25]], sectorLabel: "N-O", ...DEF },
+
+  { id: "db_2318", name: "Col de la Loze", region: "Bozel",
+    lat: 45.4081, lon: 6.6027, elevation: 2294, dhv: 2318,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2199", name: "Col de Meyrand", region: "Valgorge",
+    lat: 44.6068, lon: 4.0761, elevation: 1376, dhv: 2199,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_4961", name: "Col de Pailheres", region: "Mijanes",
+    lat: 42.7343, lon: 2.0063, elevation: 1923, dhv: 4961,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3345", name: "Col de Salvi", region: "Montegrosso",
+    lat: 42.5524, lon: 8.8631, elevation: 497, dhv: 3345,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3195", name: "Col de Serre", region: "Dienne",
+    lat: 45.1333, lon: 2.789, elevation: 1443, dhv: 3195,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_2298", name: "Col de Vassieux", region: "Die",
+    lat: 44.8288, lon: 5.358, elevation: 1336, dhv: 2298,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2302", name: "Col de Volent", region: "Joncheres",
+    lat: 44.5588, lon: 5.3827, elevation: 1486, dhv: 2302,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3156", name: "Col des Fretes", region: "Talloires",
+    lat: 45.8565, lon: 6.2465, elevation: 1619, dhv: 3156,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1883", name: "Col du Banchet", region: "Verel",
+    lat: 45.5668, lon: 5.7315, elevation: 560, dhv: 1883,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1866", name: "Col du Deves", region: "Roynac",
+    lat: 44.6593, lon: 4.9357, elevation: 434, dhv: 1866,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5019", name: "Col du Granon", region: "Saint-Chaffrey",
+    lat: 44.9641, lon: 6.6028, elevation: 2395, dhv: 5019,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2143", name: "Col du Lachens Nord", region: "La Roque Esclapon",
+    lat: 43.745, lon: 6.653, elevation: 1657, dhv: 2143,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2144", name: "Col du Lachens Süd", region: "La Roque Esclapon",
+    lat: 43.7445, lon: 6.657, elevation: 1616, dhv: 2144,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2145", name: "Col du Lachens West", region: "La Roque Esclapon",
+    lat: 43.7391, lon: 6.641, elevation: 1427, dhv: 2145,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5027", name: "Col du Noyer", region: "Le Noyer",
+    lat: 44.6913, lon: 5.986, elevation: 1655, dhv: 5027,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2299", name: "Col du Russet", region: "Die",
+    lat: 44.8322, lon: 5.4126, elevation: 1511, dhv: 2299,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1275", name: "Col du Sapenay", region: "Chindrieux",
+    lat: 45.811, lon: 5.8643, elevation: 867, dhv: 1275,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1856", name: "Col du Serpaton", region: "Gresse en Vercors",
+    lat: 44.91, lon: 5.5905, elevation: 1578, dhv: 1856,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1865", name: "Col du Trallu", region: "Peyrus",
+    lat: 44.8901, lon: 5.1413, elevation: 994, dhv: 1865,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3282", name: "Colle di Tende", region: "Tende",
+    lat: 44.1503, lon: 7.5673, elevation: 1883, dhv: 3282,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1961", name: "Colombiers", region: "Entraigues",
+    lat: 44.8687, lon: 5.9311, elevation: 1693, dhv: 1961,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3020", name: "Combe", region: "Osmoy-Saint-Valery",
+    lat: 49.7877, lon: 1.2941, elevation: 142, dhv: 3020,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_5068", name: "Combottier", region: "Bourg St. Maurice",
+    lat: 45.6524, lon: 6.8143, elevation: 2027, dhv: 5068,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4880", name: "Commes", region: "Commes",
+    lat: 49.3464, lon: -0.7259, elevation: 47, dhv: 4880,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3243", name: "Compolibat", region: "Compolibat",
+    lat: 44.3632, lon: 2.2064, elevation: 601, dhv: 3243,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1844", name: "Connex", region: "Notre Dame de Vaux",
+    lat: 44.9964, lon: 5.7307, elevation: 1598, dhv: 1844,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2147", name: "Contras", region: "L&#039;Hospitalet",
+    lat: 44.1164, lon: 5.7239, elevation: 1613, dhv: 2147,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5036", name: "Corbara", region: "Corbara",
+    lat: 42.6166, lon: 8.9035, elevation: 290, dhv: 5036,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3323", name: "Cornudere", region: "Arbas",
+    lat: 42.9581, lon: 0.8907, elevation: 1528, dhv: 3323,
+    sectors: [[348.75, 191.25]], sectorLabel: "N-S", ...DEF },
+
+  { id: "db_1795", name: "Costias", region: "Les Orres",
+    lat: 44.5232, lon: 6.5558, elevation: 1729, dhv: 1795,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1847", name: "Cote 2000", region: "Villard de Lans",
+    lat: 45.03, lon: 5.568, elevation: 1694, dhv: 1847,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5050", name: "Cote de Bienne", region: "Saint-Claude",
+    lat: 46.4392, lon: 5.8813, elevation: 870, dhv: 5050,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3208", name: "Cote de Jor", region: "Saint-Leon-sur-Vezere",
+    lat: 45.0171, lon: 1.0709, elevation: 219, dhv: 3208,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2157", name: "Cote du Baron", region: "Privas",
+    lat: 44.7123, lon: 4.6031, elevation: 499, dhv: 2157,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3109", name: "Cote du Bois des Grands Cantons", region: "Vieilley",
+    lat: 47.3253, lon: 6.0902, elevation: 571, dhv: 3109,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5060", name: "Cote Rouge", region: "Colombier",
+    lat: 47.6703, lon: 6.2542, elevation: 332, dhv: 5060,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5022", name: "Couchon d'Ancelle", region: "Saint-Leger-Les-Meleres",
+    lat: 44.6357, lon: 6.2238, elevation: 1967, dhv: 5022,
+    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", ...DEF },
+
+  { id: "db_5071", name: "Courchevel", region: "Saint-Bon-Tarentaise",
+    lat: 45.417, lon: 6.6353, elevation: 1727, dhv: 5071,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1802", name: "Courchon", region: "Moustiers St. Marie",
+    lat: 43.843, lon: 6.2302, elevation: 907, dhv: 1802,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_4920_S", name: "Courousse (S)", region: "La Chapelle-Saint-Florent",
+    lat: 47.3221, lon: -1.0411, elevation: 52, dhv: 4920,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4920_SO", name: "Courousse (SO)", region: "La Chapelle-Saint-Florent",
+    lat: 47.3199, lon: -1.0442, elevation: 53, dhv: 4920,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1851", name: "Courtet", region: "St. Baudille",
+    lat: 44.7701, lon: 5.7984, elevation: 1355, dhv: 1851,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3001", name: "Cran Aux Oeufs", region: "Audighen",
+    lat: 50.847, lon: 1.5845, elevation: 29, dhv: 3001,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3230", name: "Crayssac", region: "Parnac",
+    lat: 44.503, lon: 1.3206, elevation: 241, dhv: 3230,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4916_O", name: "Cret de L'Oeillon (O)", region: "Doizieux",
+    lat: 45.3937, lon: 4.613, elevation: 1321, dhv: 4916,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_4916_S", name: "Cret de L'Oeillon (S)", region: "Doizieux",
+    lat: 45.3887, lon: 4.6044, elevation: 1373, dhv: 4916,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2204", name: "Crete de Charmy", region: "Confort",
+    lat: 46.1609, lon: 5.8358, elevation: 976, dhv: 2204,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1810", name: "Crete du Merle", region: "La Clusaz",
+    lat: 45.8967, lon: 6.4406, elevation: 1476, dhv: 1810,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2182", name: "Croix de Boutieres", region: "Boree",
+    lat: 44.8989, lon: 4.1863, elevation: 1498, dhv: 2182,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2297", name: "Croix de Justin", region: "Die",
+    lat: 44.7433, lon: 5.3497, elevation: 934, dhv: 2297,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3164", name: "Croix de St Sandoux", region: "Saint Sandoux",
+    lat: 45.6321, lon: 3.1162, elevation: 766, dhv: 3164,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2314", name: "Croix Rampau", region: "Polemieux",
+    lat: 45.8676, lon: 4.8012, elevation: 447, dhv: 2314,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3288", name: "Cucuyon", region: "Archail",
+    lat: 44.1068, lon: 6.362, elevation: 1755, dhv: 3288,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2209", name: "Cuges les Pins", region: "Cuges les Pins",
+    lat: 43.2806, lon: 5.6698, elevation: 464, dhv: 2209,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4997", name: "Cuyerosse", region: "Aucun",
+    lat: 42.9813, lon: -0.1925, elevation: 1181, dhv: 4997,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_4938", name: "Dannes", region: "Dannes",
+    lat: 50.5799, lon: 1.6319, elevation: 153, dhv: 4938,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1797", name: "Dauban", region: "Banon",
+    lat: 44.0105, lon: 5.6545, elevation: 851, dhv: 1797,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3313", name: "Daüsse", region: "Soueich",
+    lat: 43.0478, lon: 0.7918, elevation: 549, dhv: 3313,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3026", name: "Deliette", region: "Flamanville",
+    lat: 49.5577, lon: 1.8505, elevation: 39, dhv: 3026,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1861", name: "Dent de Crolles", region: "Saint Hilaire",
+    lat: 45.3087, lon: 5.8549, elevation: 2032, dhv: 1861,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1858_NW", name: "Dent Percee (NW)", region: "Lans en Versors",
+    lat: 45.1043, lon: 5.6189, elevation: 1779, dhv: 1858,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1858_W", name: "Dent Percee (W)", region: "Lans en Versors",
+    lat: 45.0993, lon: 5.5952, elevation: 1396, dhv: 1858,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3144_NW", name: "Des Gros Gres (NW)", region: "Blanot",
+    lat: 46.5042, lon: 4.7574, elevation: 449, dhv: 3144,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3144_W", name: "Des Gros Gres (W)", region: "Blanot",
+    lat: 46.4962, lon: 4.7508, elevation: 520, dhv: 3144,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4939", name: "Dezize-les-Maranges", region: "Dezize-les-Maranges",
+    lat: 46.9129, lon: 4.6639, elevation: 421, dhv: 4939,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4925", name: "Dielette", region: "Siouville-Hague",
+    lat: 49.5577, lon: -1.8507, elevation: 36, dhv: 4925,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5087", name: "Domes di Miage", region: "Les Contamines",
+    lat: 45.8149, lon: 6.7961, elevation: 3558, dhv: 5087,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5017_NW", name: "Dormillouse (NW)", region: "Montclar",
+    lat: 44.4081, lon: 6.3856, elevation: 2459, dhv: 5017,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5017_W", name: "Dormillouse (W)", region: "Montclar",
+    lat: 44.4032, lon: 6.3703, elevation: 1868, dhv: 5017,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3238", name: "Douelle", region: "Douelle",
+    lat: 44.4637, lon: 1.3722, elevation: 285, dhv: 3238,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5009_N", name: "Dourgne (N)", region: "Dourgne",
+    lat: 43.4794, lon: 2.1638, elevation: 547, dhv: 5009,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5009_NW", name: "Dourgne (NW)", region: "Dourgne",
+    lat: 43.4777, lon: 2.1553, elevation: 523, dhv: 5009,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3236", name: "Dreuilh", region: "Larnagol",
+    lat: 44.4805, lon: 1.7948, elevation: 297, dhv: 3236,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3064", name: "Du Coucou", region: "Bassemberg",
+    lat: 48.3001, lon: 7.3089, elevation: 760, dhv: 3064,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1863", name: "Du Fort", region: "Mevouillon",
+    lat: 44.2382, lon: 5.4822, elevation: 1081, dhv: 1863,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3221", name: "Dune de Pyla", region: "La Teste-de-Buch",
+    lat: 44.586, lon: -1.2149, elevation: 56, dhv: 3221,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3023", name: "Ecalgrain", region: "Laye",
+    lat: 49.6941, lon: 1.9331, elevation: 98, dhv: 3023,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_4921", name: "Ecalgrain", region: "Auderuille",
+    lat: 49.694, lon: -1.9331, elevation: 98, dhv: 4921,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3122", name: "Echevannes les Doues", region: "Enchevannes",
+    lat: 47.0672, lon: 6.2342, elevation: 691, dhv: 3122,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3339", name: "Ens", region: "Ens",
+    lat: 42.8058, lon: 0.3326, elevation: 1323, dhv: 3339,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1825", name: "Entrevernes", region: "Lathuile",
+    lat: 45.7889, lon: 6.1938, elevation: 824, dhv: 1825,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_2417", name: "Etretat 1", region: "Etretat",
+    lat: 49.7114, lon: 0.2056, elevation: 53, dhv: 2417,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2418", name: "Etretat 2", region: "Etretat",
+    lat: 49.6977, lon: 0.1822, elevation: 50, dhv: 2418,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2164", name: "Evosges", region: "Evosges",
+    lat: 45.9513, lon: 5.4863, elevation: 718, dhv: 2164,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2412", name: "Fecamp", region: "Fecamp",
+    lat: 49.7511, lon: 0.3508, elevation: 72, dhv: 2412,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1812", name: "Flegere", region: "Chamonix",
+    lat: 45.9686, lon: 6.8756, elevation: 2364, dhv: 1812,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_3349", name: "Fontfrede", region: "Ceret",
+    lat: 42.4502, lon: 2.7643, elevation: 1008, dhv: 3349,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_5005", name: "Forca Real", region: "Montner",
+    lat: 42.7266, lon: 2.7015, elevation: 448, dhv: 5005,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3112", name: "Fort de la Dame Blanche", region: "Bonnay",
+    lat: 47.3186, lon: 6.0604, elevation: 595, dhv: 3112,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5064", name: "Fort de la Plate", region: "Bourg St. Maurice",
+    lat: 45.5875, lon: 6.7436, elevation: 1960, dhv: 5064,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3116_NO", name: "Fort de Planoise (NO)", region: "Beure",
+    lat: 47.2084, lon: 5.9837, elevation: 443, dhv: 3116,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3116_SW", name: "Fort de Planoise (SW)", region: "Beure",
+    lat: 47.2045, lon: 5.9776, elevation: 467, dhv: 3116,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3115", name: "Fort de Rosemont", region: "Besancon",
+    lat: 47.2216, lon: 5.9994, elevation: 432, dhv: 3115,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1884", name: "Fort du Truc", region: "Bourg St. Maurice",
+    lat: 45.633, lon: 6.75, elevation: 1745, dhv: 1884,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3008", name: "Frencq", region: "Frencq",
+    lat: 50.5592, lon: 1.6679, elevation: 132, dhv: 3008,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5047", name: "Frenelots", region: "Les Fins",
+    lat: 47.0603, lon: 6.6393, elevation: 948, dhv: 5047,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_2546", name: "Fumay", region: "Fumay",
+    lat: 49.9873, lon: 4.7209, elevation: 364, dhv: 2546,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3222", name: "Gap Charance", region: "Gap",
+    lat: 44.5673, lon: 6.0183, elevation: 1545, dhv: 3222,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_2188", name: "Garde-Grosse", region: "Nyons",
+    lat: 44.3367, lon: 5.1543, elevation: 924, dhv: 2188,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3207", name: "Gaudissont", region: "Saint-Jean-en-Royans",
+    lat: 45.0068, lon: 5.3174, elevation: 843, dhv: 3207,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3310", name: "Gensac", region: "Gensac-sur-Garonne",
+    lat: 43.2126, lon: 1.1313, elevation: 304, dhv: 3310,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4965", name: "Ginoles", region: "Ginoles",
+    lat: 42.8747, lon: 2.1513, elevation: 671, dhv: 4965,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2291", name: "Gippieres", region: "Malaucene",
+    lat: 44.168, lon: 5.1015, elevation: 512, dhv: 2291,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2300", name: "Glandasse", region: "Chatillon en Diois",
+    lat: 44.7255, lon: 5.4864, elevation: 1756, dhv: 2300,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2165", name: "Glandieu", region: "St. Benoit",
+    lat: 45.6716, lon: 5.6152, elevation: 453, dhv: 2165,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4875", name: "Glennes", region: "Revillon",
+    lat: 49.366, lon: 3.7071, elevation: 111, dhv: 4875,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1787", name: "Gourdon", region: "Gourdon",
+    lat: 43.7231, lon: 6.9439, elevation: 1124, dhv: 1787,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5014", name: "Grand Berard", region: "Barcelonnette",
+    lat: 44.4192, lon: 6.6511, elevation: 2174, dhv: 5014,
+    sectors: [[78.75, 281.25]], sectorLabel: "O-W", ...DEF },
+
+  { id: "db_3126", name: "Grand Bois Bannal", region: "Arc sous Cicon",
+    lat: 47.0372, lon: 6.3862, elevation: 931, dhv: 3126,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4944", name: "Grand Chassaigne", region: "Verze",
+    lat: 46.3948, lon: 4.7282, elevation: 466, dhv: 4944,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2213", name: "Grand Cret", region: "Quincie",
+    lat: 46.1262, lon: 4.5822, elevation: 676, dhv: 2213,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3019", name: "Grand Terne", region: "Joigny-sur-Meuse",
+    lat: 49.8416, lon: 4.7633, elevation: 236, dhv: 3019,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3188", name: "Grand Togny", region: "Vanosc",
+    lat: 45.2484, lon: 4.5363, elevation: 1130, dhv: 3188,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4929", name: "Granville", region: "Granville",
+    lat: 48.835, lon: -1.6117, elevation: 34, dhv: 4929,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3048", name: "Grauves", region: "Grauves",
+    lat: 48.9825, lon: 3.9637, elevation: 228, dhv: 3048,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1789", name: "Greolieres", region: "Greolieres",
+    lat: 43.8097, lon: 6.9592, elevation: 1495, dhv: 1789,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3141", name: "Grusse", region: "Grusse",
+    lat: 46.5895, lon: 5.5091, elevation: 452, dhv: 3141,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3150", name: "Gueret", region: "Gueret",
+    lat: 46.1702, lon: 1.8301, elevation: 581, dhv: 3150,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_1341", name: "Gustiberg", region: "Urbes",
+    lat: 47.8937, lon: 6.9344, elevation: 1007, dhv: 1341,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5078", name: "Habere-Poche", region: "Habere-Poche",
+    lat: 46.2383, lon: 6.4944, elevation: 1493, dhv: 5078,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1999", name: "Haselbourg", region: "Haselbourg",
+    lat: 48.684, lon: 7.1995, elevation: 369, dhv: 1999,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1995", name: "Hatrize", region: "Hatrize",
+    lat: 49.1868, lon: 5.8937, elevation: 205, dhv: 1995,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2539", name: "Haulme", region: "Haulme",
+    lat: 49.8628, lon: 4.7787, elevation: 303, dhv: 2539,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3090", name: "Haut de Comte", region: "Saulxures-sur-Moselotte",
+    lat: 47.9606, lon: 6.799, elevation: 841, dhv: 3090,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4998", name: "Hautacam", region: "Prechac",
+    lat: 42.9823, lon: -0.0328, elevation: 1197, dhv: 4998,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1991", name: "Haute-Kontz", region: "Contz",
+    lat: 49.4554, lon: 6.3302, elevation: 228, dhv: 1991,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_4946", name: "Henouville", region: "Henouville",
+    lat: 49.4798, lon: 0.9405, elevation: 81, dhv: 4946,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4930", name: "Hermonville", region: "Hermonville",
+    lat: 49.3405, lon: 3.8938, elevation: 184, dhv: 4930,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3080", name: "Hohrodberg", region: "Hohrod",
+    lat: 48.0693, lon: 7.1308, elevation: 920, dhv: 3080,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1998", name: "Hommert", region: "Hommert",
+    lat: 48.6804, lon: 7.189, elevation: 429, dhv: 1998,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2166", name: "Innimond Ost", region: "Innimond",
+    lat: 45.7848, lon: 5.5918, elevation: 1022, dhv: 2166,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2167", name: "Innimond West", region: "Innimond",
+    lat: 45.7974, lon: 5.5794, elevation: 1077, dhv: 2167,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1845", name: "Jas d'Oris", region: "Oris-en-Rattier",
+    lat: 44.9283, lon: 5.8868, elevation: 1721, dhv: 1845,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3043", name: "Jeufosse", region: "Jeufosse",
+    lat: 49.036, lon: 1.5393, elevation: 125, dhv: 3043,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3053", name: "Joselle", region: "Geville",
+    lat: 48.7842, lon: 5.6806, elevation: 352, dhv: 3053,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_1990_NO", name: "Kanfen (NO)", region: "Kanfen",
+    lat: 49.4469, lon: 6.0997, elevation: 416, dhv: 1990,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_1990_SO", name: "Kanfen (SO)", region: "Kanfen",
+    lat: 49.4441, lon: 6.0968, elevation: 410, dhv: 1990,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3069", name: "Kemberg", region: "Saulcy-Sur-Meurthe",
+    lat: 48.2567, lon: 6.932, elevation: 723, dhv: 3069,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1792", name: "Kennedy", region: "Bar sur Loup",
+    lat: 43.7041, lon: 6.9807, elevation: 591, dhv: 1792,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_4915", name: "Kervel", region: "Kervel",
+    lat: 48.1251, lon: -4.2719, elevation: 32, dhv: 4915,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3078", name: "Kervigen", region: "Plomodiern",
+    lat: 48.157, lon: -4.2782, elevation: 42, dhv: 3078,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1857", name: "L'Aigle", region: "Lans en Vercors",
+    lat: 45.1184, lon: 5.5972, elevation: 1280, dhv: 1857,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1959", name: "L'Aiguille", region: "Chamrousse",
+    lat: 45.1301, lon: 5.8833, elevation: 1804, dhv: 1959,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1853", name: "L'Alevoux", region: "St. Pierre",
+    lat: 45.1224, lon: 5.3789, elevation: 794, dhv: 1853,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1798_O", name: "L'Andran (O)", region: "Digne les Bains",
+    lat: 44.1157, lon: 6.2137, elevation: 1195, dhv: 1798,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1798_SW", name: "L'Andran (SW)", region: "Digne les Bains",
+    lat: 44.1138, lon: 6.2148, elevation: 1177, dhv: 1798,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3152", name: "L'Angleton", region: "Le Poizat",
+    lat: 46.1423, lon: 5.7056, elevation: 1145, dhv: 3152,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2317", name: "L'Arclusaz", region: "St. Pierre D&#039;Albigny",
+    lat: 45.5916, lon: 6.1752, elevation: 1438, dhv: 2317,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1868", name: "L'Ebaudia", region: "Albertville",
+    lat: 45.6076, lon: 6.3812, elevation: 1665, dhv: 1868,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5039", name: "L'Eclose", region: "Alpe d Huez",
+    lat: 45.0875, lon: 6.0646, elevation: 1761, dhv: 5039,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5043", name: "L'Escalet", region: "Ramatuelle",
+    lat: 43.1845, lon: 6.6378, elevation: 139, dhv: 5043,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_4975_NW", name: "L'Etang (NW)", region: "Saint-Beat",
+    lat: 42.9023, lon: 0.7672, elevation: 1793, dhv: 4975,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4975_W", name: "L'Etang (W)", region: "Saint-Beat",
+    lat: 42.8983, lon: 0.7551, elevation: 1705, dhv: 4975,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3028", name: "L'Otan", region: "Octeville-sur-Mer",
+    lat: 49.5474, lon: 0.0861, elevation: 94, dhv: 3028,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3319", name: "La Bergerie", region: "Prechac",
+    lat: 42.9823, lon: 0.0329, elevation: 1195, dhv: 3319,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3283", name: "La Bicyclette", region: "Saint-Antonin",
+    lat: 44.1435, lon: 1.7722, elevation: 353, dhv: 3283,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3097", name: "La Bouloie", region: "Bussang",
+    lat: 47.8701, lon: 6.8668, elevation: 1054, dhv: 3097,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1834", name: "La Bourgeoise", region: "Samoen",
+    lat: 46.1151, lon: 6.7203, elevation: 1741, dhv: 1834,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1878", name: "La Cachette", region: "Bourg St. Maurice",
+    lat: 45.584, lon: 6.804, elevation: 2129, dhv: 1878,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5041", name: "La Cadiere D'Azur", region: "La Cardiere D&#039;Azur",
+    lat: 43.1971, lon: 5.7366, elevation: 219, dhv: 5041,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1850", name: "La Chapelle", region: "Allevard",
+    lat: 45.3852, lon: 6.0387, elevation: 996, dhv: 1850,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1832", name: "La Chapelle des Hermones", region: "Ocier",
+    lat: 46.3069, lon: 6.5181, elevation: 1303, dhv: 1832,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1826", name: "La Charmante", region: "Bellegrade",
+    lat: 46.1382, lon: 5.856, elevation: 1340, dhv: 1826,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3075", name: "La Closerie", region: "Le Bonhomme",
+    lat: 48.1872, lon: 7.0958, elevation: 1066, dhv: 3075,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3782_NO", name: "La Clusaz (NO)", region: "La Clusaz",
+    lat: 45.901, lon: 6.4602, elevation: 1451, dhv: 3782,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3782_NW", name: "La Clusaz (NW)", region: "La Clusaz",
+    lat: 45.8912, lon: 6.4515, elevation: 1829, dhv: 3782,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4890", name: "La Cochette", region: "Bue",
+    lat: 47.3152, lon: 2.7804, elevation: 364, dhv: 4890,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3010", name: "La Comte", region: "La Comte",
+    lat: 50.4164, lon: 2.5132, elevation: 163, dhv: 3010,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3128", name: "La Cote des Sapenetes", region: "Amathay-Vesigneux",
+    lat: 47.0178, lon: 6.2155, elevation: 859, dhv: 3128,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1994", name: "La Cote Saint Germain", region: "Lion-Devent-Dun",
+    lat: 49.4105, lon: 5.2525, elevation: 322, dhv: 1994,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_1796", name: "La Croix", region: "Banon",
+    lat: 44.0497, lon: 5.6351, elevation: 1041, dhv: 1796,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1960", name: "La Croix", region: "Chamrousse",
+    lat: 45.1252, lon: 5.899, elevation: 2160, dhv: 1960,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3204", name: "La Denise", region: "Le Puy-en-Velay",
+    lat: 45.0582, lon: 3.8541, elevation: 876, dhv: 3204,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3005", name: "La Falaise", region: "Equihen-Plage",
+    lat: 50.6796, lon: 1.5671, elevation: 25, dhv: 3005,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1872", name: "La Fenetre 7", region: "La Bathie",
+    lat: 45.6504, lon: 6.4675, elevation: 1411, dhv: 1872,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3182", name: "La Fournaise", region: "Chaumeil",
+    lat: 45.4685, lon: 1.8499, elevation: 871, dhv: 3182,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5020", name: "La Grave", region: "La Grave",
+    lat: 45.0099, lon: 6.2636, elevation: 3196, dhv: 5020,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3056", name: "La Guimorais", region: "Saint-Coulomb",
+    lat: 48.694, lon: -1.9372, elevation: 29, dhv: 3056,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3224", name: "La Haute-Beaume", region: "La Haute-Beaume",
+    lat: 44.5629, lon: 5.6458, elevation: 1442, dhv: 3224,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3029", name: "La Heve", region: "Sainte-Adresse",
+    lat: 49.5111, lon: 0.0681, elevation: 77, dhv: 3029,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3187", name: "La Jasserie", region: "La Valla-en-Gier",
+    lat: 45.3852, lon: 4.5678, elevation: 1366, dhv: 3187,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4951", name: "La Jonchere", region: "La Jonchere",
+    lat: 46.0061, lon: 1.4448, elevation: 665, dhv: 4951,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1843", name: "La Lia", region: "Cognin les Georges",
+    lat: 45.1754, lon: 5.4372, elevation: 688, dhv: 1843,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2170", name: "La Liouffe", region: "Ancy",
+    lat: 45.8384, lon: 4.495, elevation: 702, dhv: 2170,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1336_S", name: "La Longeagne (S)", region: "Aspres",
+    lat: 44.5408, lon: 5.7129, elevation: 1517, dhv: 1336,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1336_SW", name: "La Longeagne (SW)", region: "Aspres",
+    lat: 44.5505, lon: 5.7019, elevation: 1529, dhv: 1336,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3284", name: "La Marche", region: "Saint-Antonin",
+    lat: 44.145, lon: 1.7799, elevation: 316, dhv: 3284,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2321", name: "La Masse", region: "Les Menuires",
+    lat: 45.2967, lon: 6.5092, elevation: 2753, dhv: 2321,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3103", name: "La Mine D'or", region: "Penestin",
+    lat: 47.4831, lon: -2.4959, elevation: 12, dhv: 3103,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3111", name: "La Montagne", region: "Grenois",
+    lat: 47.3251, lon: 3.538, elevation: 358, dhv: 3111,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2176", name: "La Montagnes du Puy", region: "Lesches-en-Diois",
+    lat: 44.6091, lon: 5.5459, elevation: 1450, dhv: 2176,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3191", name: "La Paille", region: "Satillieu",
+    lat: 45.1439, lon: 4.6251, elevation: 773, dhv: 3191,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3215", name: "La Palombiere", region: "Saint-Cyprien",
+    lat: 44.8598, lon: 1.0203, elevation: 198, dhv: 3215,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_2419", name: "La Place", region: "Cap D&#039;Antifer",
+    lat: 49.6899, lon: 0.1706, elevation: 82, dhv: 2419,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4979", name: "La Plogne", region: "Cajarc",
+    lat: 44.4822, lon: 1.8351, elevation: 282, dhv: 4979,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_2171", name: "La Poletta", region: "La Rosiere",
+    lat: 45.6366, lon: 6.8583, elevation: 2119, dhv: 2171,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3181", name: "La Roche Nite", region: "Compains",
+    lat: 45.4675, lon: 2.9972, elevation: 1156, dhv: 3181,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_2163", name: "La Roche Parstire", region: "Areches",
+    lat: 45.6811, lon: 6.6009, elevation: 1944, dhv: 2163,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3066_NO", name: "La Roche St. Martin (NO)", region: "Saint-Die-Des Vosges",
+    lat: 48.2786, lon: 6.9326, elevation: 573, dhv: 3066,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3066_NW", name: "La Roche St. Martin (NW)", region: "Saint-Die-Des Vosges",
+    lat: 48.2722, lon: 6.9309, elevation: 649, dhv: 3066,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5067", name: "La Rosiere", region: "Bourg St. Maurice",
+    lat: 45.6253, lon: 6.8493, elevation: 1785, dhv: 5067,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1848_S", name: "La Scia (S)", region: "St. Pierre",
+    lat: 45.3451, lon: 5.8482, elevation: 1684, dhv: 1848,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1848_W", name: "La Scia (W)", region: "St. Pierre",
+    lat: 45.3454, lon: 5.8459, elevation: 1650, dhv: 1848,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3301_S", name: "La Seranne (S)", region: "Les Prats",
+    lat: 43.8678, lon: 3.6391, elevation: 878, dhv: 3301,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3301_SO", name: "La Seranne (SO)", region: "Les Prats",
+    lat: 43.8691, lon: 3.6406, elevation: 896, dhv: 3301,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3301_SW", name: "La Seranne (SW)", region: "Les Prats",
+    lat: 43.8679, lon: 3.6367, elevation: 896, dhv: 3301,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3301_W", name: "La Seranne (W)", region: "Les Prats",
+    lat: 43.8706, lon: 3.6404, elevation: 920, dhv: 3301,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2172", name: "La Sevoliere", region: "La Rosiere",
+    lat: 45.6401, lon: 6.8519, elevation: 2096, dhv: 2172,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3081", name: "La Sotiere", region: "Sapois",
+    lat: 48.0395, lon: 6.782, elevation: 913, dhv: 3081,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3183", name: "La Table D'Orientation", region: "Chaumeil",
+    lat: 45.4713, lon: 1.8425, elevation: 895, dhv: 3183,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1816", name: "La Tour", region: "Sault",
+    lat: 44.0413, lon: 5.4034, elevation: 993, dhv: 1816,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2195", name: "La Trappe", region: "Mevouillon",
+    lat: 44.2358, lon: 5.5119, elevation: 1083, dhv: 2195,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5038", name: "La Trappe", region: "Mevouillon",
+    lat: 44.2531, lon: 5.5059, elevation: 1129, dhv: 5038,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2191", name: "La Vesanciere", region: "Vesancy",
+    lat: 46.3678, lon: 6.0802, elevation: 1269, dhv: 2191,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4943", name: "La Vierge", region: "Cortambert",
+    lat: 46.4603, lon: 4.7173, elevation: 461, dhv: 4943,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2292", name: "La Viste", region: "Marseille",
+    lat: 43.3608, lon: 5.3556, elevation: 133, dhv: 2292,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3340_NO", name: "Lac de Oo (NO)", region: "Oo",
+    lat: 42.7907, lon: 0.4923, elevation: 1370, dhv: 3340,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_3340_O", name: "Lac de Oo (O)", region: "Oo",
+    lat: 42.7858, lon: 0.4912, elevation: 1560, dhv: 3340,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_3340_SO", name: "Lac de Oo (SO)", region: "Oo",
+    lat: 42.7991, lon: 0.4892, elevation: 1482, dhv: 3340,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5021", name: "Lac du Pontet", region: "La Grave",
+    lat: 45.0502, lon: 6.3546, elevation: 2013, dhv: 5021,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3110", name: "Lac Kyr", region: "Plombieres-les-Dijon",
+    lat: 47.3262, lon: 4.9862, elevation: 323, dhv: 3110,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_2544", name: "Laifour", region: "Laifour",
+    lat: 49.9171, lon: 4.7046, elevation: 336, dhv: 2544,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3089", name: "Lambert", region: "Saulxures-sur-Moselotte",
+    lat: 47.9643, lon: 6.8039, elevation: 915, dhv: 3089,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4923", name: "Landemer", region: "Urville-Nacqueville",
+    lat: 49.6787, lon: -1.7744, elevation: 77, dhv: 4923,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_5072", name: "Lanslevillard", region: "Lanslevillard",
+    lat: 45.2736, lon: 6.936, elevation: 2316, dhv: 5072,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3241", name: "Laparade", region: "Laparade",
+    lat: 44.3835, lon: 0.4427, elevation: 167, dhv: 3241,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4980", name: "Laparade 2", region: "Laparade",
+    lat: 44.3909, lon: 0.4559, elevation: 166, dhv: 4980,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3302", name: "Lauret", region: "Sauteyrargues",
+    lat: 43.8393, lon: 3.8984, elevation: 273, dhv: 3302,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1790", name: "Lavina", region: "Sospel",
+    lat: 43.8669, lon: 7.4135, elevation: 1092, dhv: 1790,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3163", name: "Le Bien", region: "Job",
+    lat: 45.6236, lon: 3.7605, elevation: 976, dhv: 3163,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4885", name: "Le Billot", region: "L&#039;Oudon",
+    lat: 48.9652, lon: 0.0712, elevation: 173, dhv: 4885,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1265", name: "Le Brèvent", region: "Chamonix",
+    lat: 45.9366, lon: 6.8512, elevation: 2045, dhv: 1265,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1805_SO", name: "Le Chalvet (SO)", region: "Saint Andre les Alpes",
+    lat: 43.9766, lon: 6.4914, elevation: 1515, dhv: 1805,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1805_W", name: "Le Chalvet (W)", region: "Saint Andre les Alpes",
+    lat: 43.9784, lon: 6.4798, elevation: 1568, dhv: 1805,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2203", name: "Le Chanay", region: "Tenay",
+    lat: 45.9437, lon: 5.5124, elevation: 947, dhv: 2203,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5040", name: "Le Chatel", region: "Mens",
+    lat: 44.8168, lon: 5.8108, elevation: 1862, dhv: 5040,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2162", name: "Le Cormet de Roseland", region: "Beaufort sur Doron",
+    lat: 45.6881, lon: 6.6942, elevation: 2030, dhv: 2162,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3162", name: "Le Cornillon", region: "Job",
+    lat: 45.638, lon: 3.753, elevation: 1114, dhv: 3162,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2149", name: "Le Cousson", region: "Digne les Bains",
+    lat: 44.0536, lon: 6.2392, elevation: 1479, dhv: 2149,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1830", name: "Le Couteau", region: "Ocier",
+    lat: 46.2933, lon: 6.4992, elevation: 1314, dhv: 1830,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_1852", name: "Le Cret", region: "Meaudre",
+    lat: 45.1168, lon: 5.5164, elevation: 1320, dhv: 1852,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_1359", name: "Le Drumont", region: "Urbes",
+    lat: 47.8985, lon: 6.9191, elevation: 1174, dhv: 1359,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_5029", name: "Le Garlaban", region: "Aubagne",
+    lat: 43.3309, lon: 5.5547, elevation: 585, dhv: 5029,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2161_SW", name: "Le Grand Colombier (SW)", region: "Culoz",
+    lat: 45.8816, lon: 5.7574, elevation: 1424, dhv: 2161,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2161_W", name: "Le Grand Colombier (W)", region: "Culoz",
+    lat: 45.9057, lon: 5.7614, elevation: 1512, dhv: 2161,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3030", name: "Le Grand Larris", region: "Ons-en-Bray",
+    lat: 49.405, lon: 1.8984, elevation: 204, dhv: 3030,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1854", name: "Le Grand Ratz", region: "La Buisse",
+    lat: 45.3275, lon: 5.6359, elevation: 810, dhv: 1854,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3171", name: "Le Grande Cascade", region: "Le Mont-Dore",
+    lat: 45.5675, lon: 2.821, elevation: 1360, dhv: 3171,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3077", name: "Le Grande Roche", region: "Lapoutroie",
+    lat: 48.1777, lon: 7.1594, elevation: 1015, dhv: 3077,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1890", name: "Le Grande Sure", region: "Alpe d&#039;Huez",
+    lat: 45.0996, lon: 6.0602, elevation: 2090, dhv: 1890,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1835", name: "Le Hucel", region: "Lugrin",
+    lat: 46.3991, lon: 6.7043, elevation: 944, dhv: 1835,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3170", name: "Le Mareuilh", region: "Le Mont-Dore",
+    lat: 45.5692, lon: 2.8296, elevation: 1551, dhv: 3170,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3149", name: "Le Maupuy", region: "Gueret",
+    lat: 46.1637, lon: 1.8377, elevation: 603, dhv: 3149,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3015", name: "Le Mont Clairon", region: "Neuville les Bray",
+    lat: 49.9194, lon: 2.7294, elevation: 76, dhv: 3015,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3132", name: "Le Mont des 3 Croix", region: "Santenay",
+    lat: 46.9196, lon: 4.6698, elevation: 503, dhv: 3132,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3298", name: "Le Piardel", region: "Plaisance",
+    lat: 43.9266, lon: 2.5204, elevation: 588, dhv: 3298,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_2138", name: "Le Pic", region: "Valdeblore",
+    lat: 44.0582, lon: 7.2174, elevation: 1749, dhv: 2138,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_4977", name: "Le Pin Sec", region: "Naujac-sur-Mer",
+    lat: 45.2651, lon: -1.1649, elevation: 15, dhv: 4977,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1869", name: "Le Plan de Languot", region: "Albertville",
+    lat: 45.6818, lon: 6.322, elevation: 1157, dhv: 1869,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5056", name: "Le Plat du Mont", region: "Saint-Forgeux",
+    lat: 45.8468, lon: 4.4711, elevation: 596, dhv: 5056,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2293", name: "Le Plateau", region: "La Seyne-sur-mer",
+    lat: 43.0552, lon: 5.8586, elevation: 168, dhv: 2293,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_5077", name: "Le Pleney", region: "Morzine",
+    lat: 46.1696, lon: 6.693, elevation: 1486, dhv: 5077,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5081", name: "Le Prarion", region: "Saint-Gervais-les-Bains",
+    lat: 45.8856, lon: 6.7518, elevation: 1846, dhv: 5081,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3167", name: "Le Puy Gros", region: "La Bourboule",
+    lat: 45.5993, lon: 2.7897, elevation: 1469, dhv: 3167,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_4974", name: "Le Relais", region: "Arbas",
+    lat: 43.0073, lon: 0.9188, elevation: 800, dhv: 4974,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1276_NW", name: "Le Revard (NW)", region: "Mery",
+    lat: 45.6725, lon: 5.9732, elevation: 1417, dhv: 1276,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1276_SW", name: "Le Revard (SW)", region: "Mery",
+    lat: 45.6832, lon: 5.9756, elevation: 1516, dhv: 1276,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3214", name: "Le Roc", region: "Souillac",
+    lat: 44.8735, lon: 1.4506, elevation: 266, dhv: 3214,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4926", name: "Le Rozel", region: "Le Rozel",
+    lat: 49.475, lon: -1.8436, elevation: 47, dhv: 4926,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1263", name: "Le Saix", region: "Samoen",
+    lat: 46.0537, lon: 6.6976, elevation: 1630, dhv: 1263,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5000", name: "Le Serre", region: "Vignet",
+    lat: 42.8342, lon: 0.2747, elevation: 1901, dhv: 5000,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5083", name: "Le Signal", region: "Les Contamines",
+    lat: 45.7862, lon: 6.6954, elevation: 1863, dhv: 5083,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3244", name: "Le Single", region: "Ispagnac",
+    lat: 44.3579, lon: 3.5404, elevation: 1024, dhv: 3244,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1874", name: "Le Sire", region: "Les Deserts",
+    lat: 45.6314, lon: 5.9651, elevation: 1485, dhv: 1874,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3318", name: "Le Soc", region: "Aucun",
+    lat: 42.9902, lon: 0.1964, elevation: 1369, dhv: 3318,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3205", name: "Le Temple", region: "Le Temple",
+    lat: 45.0496, lon: 1.9262, elevation: 457, dhv: 3205,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1222_SO", name: "Le Treh (SO)", region: "Fellering",
+    lat: 47.9263, lon: 7.0149, elevation: 1245, dhv: 1222,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1222_SW", name: "Le Treh (SW)", region: "Fellering",
+    lat: 47.9256, lon: 7.0115, elevation: 1227, dhv: 1222,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2407", name: "Le Treport", region: "Treport",
+    lat: 50.0594, lon: 1.3662, elevation: 66, dhv: 2407,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1907", name: "Le Trochet", region: "Saint Chaffrey",
+    lat: 44.9521, lon: 6.5933, elevation: 1954, dhv: 1907,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_4877", name: "Le Vernet", region: "Le Vernet",
+    lat: 46.1032, lon: 3.4541, elevation: 418, dhv: 4877,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3237", name: "Le Villard", region: "Les Salelles",
+    lat: 44.4683, lon: 3.2715, elevation: 915, dhv: 3237,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3212", name: "Leoncel", region: "Leoncel",
+    lat: 44.9048, lon: 5.2077, elevation: 1224, dhv: 3212,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5002", name: "Les Angles", region: "Les Angles",
+    lat: 42.5729, lon: 2.0536, elevation: 2105, dhv: 5002,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_5066", name: "Les Arcs", region: "Bourg St. Maurice",
+    lat: 45.5738, lon: 6.8119, elevation: 2386, dhv: 5066,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_2379", name: "Les Bouchaux", region: "La Bresse",
+    lat: 47.9946, lon: 6.8893, elevation: 1004, dhv: 2379,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_1811", name: "Les Carroz", region: "Les Carroz",
+    lat: 46.0308, lon: 6.6704, elevation: 1805, dhv: 1811,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5065", name: "Les Chapelles", region: "Bourg St. Maurice",
+    lat: 45.5949, lon: 6.7347, elevation: 1295, dhv: 5065,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4948", name: "Les Cheminets", region: "Equiqueville",
+    lat: 49.808, lon: 1.2598, elevation: 145, dhv: 4948,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5049", name: "Les Cheneviers", region: "Saint-Claude",
+    lat: 46.4243, lon: 5.8729, elevation: 869, dhv: 5049,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2319", name: "Les Deux Lacs", region: "Val Thorens",
+    lat: 45.2915, lon: 6.5725, elevation: 2381, dhv: 2319,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5700", name: "Les deux Potes", region: "Crozet",
+    lat: 46.2986, lon: 5.9833, elevation: 1514, dhv: 5700,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_1860_SW", name: "Les Deux-Alpes (SW)", region: "Les Deux-Alpes",
+    lat: 44.9967, lon: 6.1471, elevation: 2363, dhv: 1860,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1860_W", name: "Les Deux-Alpes (W)", region: "Les Deux-Alpes",
+    lat: 44.9996, lon: 6.1285, elevation: 1665, dhv: 1860,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5032", name: "Les Goudes", region: "Marseille",
+    lat: 43.2135, lon: 5.3486, elevation: 37, dhv: 5032,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1813", name: "Les Grand Montets", region: "Chamonix",
+    lat: 45.9478, lon: 6.96, elevation: 3236, dhv: 1813,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3117", name: "Les Grands Pres", region: "Beure",
+    lat: 47.195, lon: 5.9914, elevation: 464, dhv: 3117,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5001", name: "Les Granges", region: "Vignet",
+    lat: 42.8414, lon: 0.0254, elevation: 1627, dhv: 5001,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5084", name: "Les Houches", region: "Passy",
+    lat: 45.8855, lon: 6.7527, elevation: 1842, dhv: 5084,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3173", name: "Les Lanchettes", region: "Bourg-Saint-Maurice",
+    lat: 45.5704, lon: 6.8435, elevation: 2489, dhv: 3173,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5057", name: "Les Martinieres", region: "Saint-Forgeux",
+    lat: 45.8438, lon: 4.4846, elevation: 634, dhv: 5057,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3012", name: "Les Mouettes", region: "Criel-sur-mer",
+    lat: 50.0285, lon: 1.3008, elevation: 82, dhv: 3012,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5024", name: "Les Orres", region: "Les Orres",
+    lat: 44.4687, lon: 6.5731, elevation: 2540, dhv: 5024,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2309", name: "Les Plagnes", region: "Allevard",
+    lat: 45.3876, lon: 6.1475, elevation: 2071, dhv: 2309,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2150", name: "Les Richards", region: "Saint Jean Saint Nicolas",
+    lat: 44.6807, lon: 6.2317, elevation: 1519, dhv: 2150,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4928", name: "Les Roches de Ham", region: "Troisgots",
+    lat: 49.0267, lon: -1.0413, elevation: 79, dhv: 4928,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3059", name: "Les Rousseaux", region: "Pagny-la-Blanche-Cote",
+    lat: 48.534, lon: 5.7412, elevation: 377, dhv: 3059,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5074", name: "Les Trois Croix", region: "St.-Jean-de-Maurienne",
+    lat: 45.2591, lon: 6.2965, elevation: 1517, dhv: 5074,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3002", name: "Licques", region: "Licques",
+    lat: 50.7993, lon: 1.9473, elevation: 152, dhv: 3002,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3018", name: "Londinieres", region: "Londinieres",
+    lat: 49.8499, lon: 1.4102, elevation: 172, dhv: 3018,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3123", name: "Longeville", region: "Enchevannes",
+    lat: 47.0563, lon: 6.2154, elevation: 704, dhv: 3123,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3135", name: "Longvilles", region: "Metabief",
+    lat: 46.7504, lon: 6.3439, elevation: 1294, dhv: 3135,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1993", name: "Lorry Mardigny", region: "Mardigny",
+    lat: 48.9676, lon: 6.0784, elevation: 370, dhv: 1993,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_3232", name: "Luzech", region: "Luzech",
+    lat: 44.4925, lon: 1.2868, elevation: 258, dhv: 3232,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1849_NW", name: "Malatrait (NW)", region: "Allevard",
+    lat: 45.3937, lon: 6.1067, elevation: 1398, dhv: 1849,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1849_S", name: "Malatrait (S)", region: "Allevard",
+    lat: 45.3912, lon: 6.1066, elevation: 1366, dhv: 1849,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4952", name: "Malay-le-Grand", region: "Malay-le-Grand",
+    lat: 48.165, lon: 3.3499, elevation: 132, dhv: 4952,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2311", name: "Malleval", region: "Malleval en Vercors",
+    lat: 45.1308, lon: 5.4445, elevation: 1381, dhv: 2311,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4909", name: "Malval", region: "Malval",
+    lat: 46.3538, lon: 1.8815, elevation: 302, dhv: 4909,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3142", name: "Mancey", region: "Mancey",
+    lat: 46.5814, lon: 4.8181, elevation: 477, dhv: 3142,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3203_NW", name: "Mandailles (NW)", region: "Mandailles",
+    lat: 45.0511, lon: 2.664, elevation: 1541, dhv: 3203,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3203_SW", name: "Mandailles (SW)", region: "Mandailles",
+    lat: 45.0645, lon: 2.6737, elevation: 1349, dhv: 3203,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4910", name: "Marais-Vernier", region: "Marais-Vernier",
+    lat: 49.4024, lon: 0.4672, elevation: 105, dhv: 4910,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1842", name: "Marlens", region: "Marlens",
+    lat: 45.7775, lon: 6.3395, elevation: 951, dhv: 1842,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3291", name: "Marnaves", region: "Marnaves",
+    lat: 44.1063, lon: 1.8853, elevation: 363, dhv: 3291,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3104", name: "Mathay", region: "Mathay",
+    lat: 47.4314, lon: 6.7958, elevation: 489, dhv: 3104,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3346", name: "Mauroux", region: "Targassonne",
+    lat: 42.5104, lon: 1.9887, elevation: 2073, dhv: 3346,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3125", name: "Meix Musy", region: "Villers-le-Lac",
+    lat: 47.0334, lon: 6.6718, elevation: 1280, dhv: 3125,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3127_O", name: "Meloisey (O)", region: "Meloisey",
+    lat: 47.0385, lon: 4.7229, elevation: 552, dhv: 3127,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3127_SO", name: "Meloisey (SO)", region: "Meloisey",
+    lat: 47.0362, lon: 4.7137, elevation: 535, dhv: 3127,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3227", name: "Mende Nord", region: "Mende",
+    lat: 44.5078, lon: 3.478, elevation: 1046, dhv: 3227,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3226", name: "Mende Ost", region: "Mende",
+    lat: 44.5191, lon: 3.4562, elevation: 1052, dhv: 3226,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3233", name: "Mende Süd", region: "Mende",
+    lat: 44.4901, lon: 3.5103, elevation: 1021, dhv: 3233,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3072", name: "Menez-Hom", region: "Saint-Nic",
+    lat: 48.2198, lon: -4.2351, elevation: 326, dhv: 3072,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3248", name: "Merigot", region: "Saint-Antoinin-Noble-Val",
+    lat: 44.1589, lon: 1.7729, elevation: 320, dhv: 3248,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3133", name: "Mesvres", region: "Broye",
+    lat: 46.8531, lon: 4.2816, elevation: 594, dhv: 3133,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5048", name: "Metabief", region: "Metabief",
+    lat: 46.7606, lon: 6.3571, elevation: 1225, dhv: 5048,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_2304", name: "Mevouillon", region: "Mevouillon",
+    lat: 44.2356, lon: 5.4821, elevation: 1024, dhv: 2304,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1262_SW", name: "Mieussy (SW)", region: "Mieussy",
+    lat: 46.1418, lon: 6.546, elevation: 1632, dhv: 1262,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1262_W", name: "Mieussy (W)", region: "Mieussy",
+    lat: 46.1452, lon: 6.5477, elevation: 1652, dhv: 1262,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2190", name: "Mijoux", region: "Mijoux",
+    lat: 46.3663, lon: 6.0107, elevation: 1323, dhv: 2190,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3290_NW", name: "Millau (NW)", region: "Millau",
+    lat: 44.1109, lon: 3.1023, elevation: 824, dhv: 3290,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3290_S", name: "Millau (S)", region: "Millau",
+    lat: 44.11, lon: 3.1032, elevation: 818, dhv: 3290,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3290_W", name: "Millau (W)", region: "Millau",
+    lat: 44.1103, lon: 3.1011, elevation: 807, dhv: 3290,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_2139", name: "Millefonts", region: "Valdeblore",
+    lat: 44.0963, lon: 7.1919, elevation: 2074, dhv: 2139,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3220", name: "Mirabel", region: "Mirabel",
+    lat: 44.6071, lon: 4.5014, elevation: 532, dhv: 3220,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1274", name: "Mison", region: "Mison",
+    lat: 44.2781, lon: 5.8371, elevation: 663, dhv: 1274,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3016", name: "Monchy", region: "Pierrecourt",
+    lat: 49.891, lon: 1.6775, elevation: 170, dhv: 3016,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4945", name: "Monsard", region: "Bussieres",
+    lat: 46.3439, lon: 4.7075, elevation: 376, dhv: 4945,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_1889", name: "Mont Bisanne West", region: "Villard sur Doron",
+    lat: 45.7465, lon: 6.5046, elevation: 1916, dhv: 1889,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5086", name: "Mont Blanc", region: "Chamonix",
+    lat: 45.8328, lon: 6.8643, elevation: 4780, dhv: 5086,
+    sectors: [[213.75, 56.25]], sectorLabel: "SW-NO", ...DEF },
+
+  { id: "db_5085", name: "Mont Blanc du Tacul", region: "Chamonix",
+    lat: 45.8578, lon: 6.886, elevation: 4180, dhv: 5085,
+    sectors: [[213.75, 56.25]], sectorLabel: "SW-NO", ...DEF },
+
+  { id: "db_3286", name: "Mont Bouquet", region: "Seynes",
+    lat: 44.1318, lon: 4.2856, elevation: 605, dhv: 3286,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3287_S", name: "Mont Bouquet Süd (S)", region: "Seynes",
+    lat: 44.1216, lon: 4.2758, elevation: 479, dhv: 3287,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3287_SO", name: "Mont Bouquet Süd (SO)", region: "Seynes",
+    lat: 44.122, lon: 4.2786, elevation: 497, dhv: 3287,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5046", name: "Mont Chateleu", region: "Les Gras",
+    lat: 46.9897, lon: 6.5732, elevation: 1273, dhv: 5046,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1827", name: "Mont Chery", region: "Les Gets",
+    lat: 46.1681, lon: 6.6468, elevation: 1793, dhv: 1827,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3165_SO", name: "Mont Chouve (SO)", region: "Job",
+    lat: 45.6304, lon: 3.7822, elevation: 1424, dhv: 3165,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3165_SW", name: "Mont Chouve (SW)", region: "Job",
+    lat: 45.6314, lon: 3.7822, elevation: 1442, dhv: 3165,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3184", name: "Mont Chuyer", region: "Chuyer",
+    lat: 45.469, lon: 4.6932, elevation: 753, dhv: 3184,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1271", name: "Mont Colombis", region: "Espinasses",
+    lat: 44.4925, lon: 6.2161, elevation: 1717, dhv: 1271,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2180", name: "Mont D'Alambre", region: "Les Estables",
+    lat: 44.917, lon: 4.1533, elevation: 1687, dhv: 2180,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5082", name: "Mont D'Arbois", region: "Saint-Gervais-les-Bains",
+    lat: 45.8548, lon: 6.669, elevation: 1812, dhv: 5082,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3136", name: "Mont D'Or", region: "Jougne",
+    lat: 46.7333, lon: 6.3567, elevation: 1447, dhv: 3136,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3138_NW", name: "Mont Dardon (NW)", region: "Issy-L&#039;Eveque",
+    lat: 46.6774, lon: 4.0362, elevation: 485, dhv: 3138,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3138_S", name: "Mont Dardon (S)", region: "Issy-L&#039;Eveque",
+    lat: 46.6758, lon: 4.0357, elevation: 475, dhv: 3138,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2179", name: "Mont de la Chambre", region: "Les Menuires",
+    lat: 45.3179, lon: 6.5783, elevation: 2811, dhv: 2179,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3099", name: "Mont de Vannes", region: "Belonchamp",
+    lat: 47.7586, lon: 6.6208, elevation: 579, dhv: 3099,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1801", name: "Mont Denier", region: "Moustiers St. Marie",
+    lat: 43.854, lon: 6.2672, elevation: 1397, dhv: 1801,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_2000", name: "Mont Donon", region: "Grandfontaine",
+    lat: 48.5121, lon: 7.1633, elevation: 970, dhv: 2000,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2202", name: "Mont du Balvay", region: "Balvay",
+    lat: 46.1828, lon: 5.4666, elevation: 592, dhv: 2202,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1888", name: "Mont du Chat", region: "Yenne",
+    lat: 45.6627, lon: 5.8212, elevation: 1468, dhv: 1888,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1831", name: "Mont Forchat", region: "Ocier",
+    lat: 46.2738, lon: 6.4881, elevation: 1507, dhv: 1831,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3027", name: "Mont Fort", region: "Letanne",
+    lat: 49.5571, lon: 5.0608, elevation: 243, dhv: 3027,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_3353", name: "Mont Gozzi", region: "Afa",
+    lat: 42.0115, lon: 8.7813, elevation: 628, dhv: 3353,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1784_S", name: "Mont Gros (S)", region: "Roquebrune Cap Martin",
+    lat: 43.7654, lon: 7.4427, elevation: 658, dhv: 1784,
+    sectors: [[78.75, 281.25]], sectorLabel: "O-W", ...DEF },
+
+  { id: "db_1784_SO", name: "Mont Gros (SO)", region: "Roquebrune Cap Martin",
+    lat: 43.7559, lon: 7.4107, elevation: 694, dhv: 1784,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1794", name: "Mont Guillaume", region: "Embrun",
+    lat: 44.5685, lon: 6.4324, elevation: 1586, dhv: 1794,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2320", name: "Mont Jovet", region: "Bozel",
+    lat: 45.4857, lon: 6.6393, elevation: 2277, dhv: 2320,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1828_NO", name: "Mont Lachat (NO)", region: "Les Grand-Bornand",
+    lat: 45.9605, lon: 6.476, elevation: 2012, dhv: 1828,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_1828_SW", name: "Mont Lachat (SW)", region: "Les Grand-Bornand",
+    lat: 45.9582, lon: 6.4768, elevation: 2020, dhv: 1828,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3211", name: "Mont Mercou", region: "Creysse",
+    lat: 44.9116, lon: 1.5824, elevation: 306, dhv: 3211,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2181", name: "Mont Mezenc", region: "Boree",
+    lat: 44.9103, lon: 4.1938, elevation: 1686, dhv: 2181,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_5059", name: "Mont Moiran", region: "Oricourt",
+    lat: 47.6225, lon: 6.349, elevation: 378, dhv: 5059,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2186", name: "Mont Myon", region: "Pressiant",
+    lat: 46.3306, lon: 5.3973, elevation: 628, dhv: 2186,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1838", name: "Mont Paccard", region: "Saint Gervais",
+    lat: 45.8954, lon: 6.7279, elevation: 1259, dhv: 1838,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3140", name: "Mont Pejus", region: "Burnand",
+    lat: 46.5957, lon: 4.6391, elevation: 345, dhv: 3140,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3129_N", name: "Mont Poupet (N)", region: "Saint-Thiebaud",
+    lat: 46.9716, lon: 5.8775, elevation: 789, dhv: 3129,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3129_NW", name: "Mont Poupet (NW)", region: "Saint-Thiebaud",
+    lat: 46.9703, lon: 5.8742, elevation: 779, dhv: 3129,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3129_S", name: "Mont Poupet (S)", region: "Saint-Thiebaud",
+    lat: 46.9692, lon: 5.8762, elevation: 812, dhv: 3129,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3129_SO", name: "Mont Poupet (SO)", region: "Saint-Thiebaud",
+    lat: 46.9693, lon: 5.8747, elevation: 799, dhv: 3129,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5033", name: "Mont Pugget", region: "Marseille",
+    lat: 43.2221, lon: 5.4587, elevation: 560, dhv: 5033,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5031", name: "Mont Rose", region: "Marseille",
+    lat: 43.2299, lon: 5.3503, elevation: 49, dhv: 5031,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2187", name: "Mont Semiol", region: "Chatelneuf",
+    lat: 45.6334, lon: 3.9688, elevation: 1007, dhv: 2187,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1817_N", name: "Mont Ventoux (N)", region: "Ventoux",
+    lat: 44.1749, lon: 5.2787, elevation: 1849, dhv: 1817,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1817_S", name: "Mont Ventoux (S)", region: "Ventoux",
+    lat: 44.1739, lon: 5.2649, elevation: 1813, dhv: 1817,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5045", name: "Mont Vouillot", region: "Morteau",
+    lat: 47.0728, lon: 6.604, elevation: 1096, dhv: 5045,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4874", name: "Mont-Saint-Pere", region: "Mont-Saint-Pere",
+    lat: 49.0714, lon: 3.475, elevation: 164, dhv: 4874,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2205", name: "Montagne de Gache", region: "Sisteron",
+    lat: 44.2305, lon: 5.9838, elevation: 1170, dhv: 2205,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4985", name: "Montagne de la Plate", region: "Chambon-sur-Lac",
+    lat: 45.5335, lon: 2.8679, elevation: 1510, dhv: 4985,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_2189", name: "Montagne de Parves", region: "Parves",
+    lat: 45.7392, lon: 5.7281, elevation: 527, dhv: 2189,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_3225", name: "Montagne de Ruy", region: "Vesc",
+    lat: 44.5079, lon: 5.1575, elevation: 925, dhv: 3225,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_4912", name: "Montagne St-Michel", region: "Saint-Rivoal",
+    lat: 48.3501, lon: -3.9454, elevation: 369, dhv: 4912,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1855", name: "Montaud", region: "Montaud",
+    lat: 45.2447, lon: 5.5748, elevation: 1312, dhv: 1855,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3229", name: "Montbrun", region: "Montbrun",
+    lat: 44.5091, lon: 1.8939, elevation: 295, dhv: 3229,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3148", name: "Montcusel", region: "Dortan",
+    lat: 46.3392, lon: 5.659, elevation: 647, dhv: 3148,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1791", name: "Monte Grosso", region: "Sospel",
+    lat: 43.9124, lon: 7.4648, elevation: 1197, dhv: 1791,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3114", name: "Montfaucon", region: "Montfaucon",
+    lat: 47.2407, lon: 6.0819, elevation: 576, dhv: 3114,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_4879", name: "Montherme", region: "Montherme",
+    lat: 49.8892, lon: 4.7254, elevation: 358, dhv: 4879,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3305", name: "Montjoux", region: "Dio-Et-Valquieres",
+    lat: 43.6727, lon: 3.1957, elevation: 570, dhv: 3305,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1277", name: "Montlambert", region: "Montlambert",
+    lat: 45.5531, lon: 6.1046, elevation: 889, dhv: 1277,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4940", name: "Moroges", region: "Moroges",
+    lat: 46.7374, lon: 4.6664, elevation: 447, dhv: 4940,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_1808_S", name: "Morzine (S)", region: "Morzine",
+    lat: 46.1904, lon: 6.7281, elevation: 1550, dhv: 1808,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1808_SW", name: "Morzine (SW)", region: "Morzine",
+    lat: 46.1917, lon: 6.7217, elevation: 1532, dhv: 1808,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2376", name: "Moutiers des Fees", region: "La Bresse",
+    lat: 48.0191, lon: 6.8751, elevation: 1019, dhv: 2376,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2377", name: "Moyenmont", region: "La Bresse",
+    lat: 48.0025, lon: 6.845, elevation: 952, dhv: 2377,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2375_S", name: "Moyenmont (S)", region: "La Bresse",
+    lat: 48.0088, lon: 6.9034, elevation: 933, dhv: 2375,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2375_SW", name: "Moyenmont (SW)", region: "La Bresse",
+    lat: 48.0089, lon: 6.8975, elevation: 926, dhv: 2375,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3058", name: "Mundolsheim", region: "Mundolsheim",
+    lat: 48.6331, lon: 7.6985, elevation: 174, dhv: 3058,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3031", name: "Murvaux", region: "Lion-devant-Dun",
+    lat: 49.4018, lon: 5.2472, elevation: 310, dhv: 3031,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3209", name: "Musan", region: "Oriol-en-Royans",
+    lat: 44.9898, lon: 5.2357, elevation: 1076, dhv: 3209,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2217", name: "Naves", region: "Naves",
+    lat: 45.553, lon: 6.5496, elevation: 1988, dhv: 2217,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5052", name: "Ney", region: "Ney",
+    lat: 46.732, lon: 5.8936, elevation: 696, dhv: 5052,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2538", name: "Nohan", region: "Thilay",
+    lat: 49.8731, lon: 4.8311, elevation: 310, dhv: 2538,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5051_NW", name: "Noirmont (NW)", region: "Rousses",
+    lat: 46.4872, lon: 6.1071, elevation: 1394, dhv: 5051,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5051_W", name: "Noirmont (W)", region: "Rousses",
+    lat: 46.4804, lon: 6.1047, elevation: 1420, dhv: 5051,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4895", name: "Nolay", region: "Nolay",
+    lat: 46.9626, lon: 4.6237, elevation: 495, dhv: 4895,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3247", name: "Novis", region: "Novis",
+    lat: 44.2574, lon: 3.118, elevation: 867, dhv: 3247,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4954", name: "Noyers", region: "Noyers",
+    lat: 47.7071, lon: 3.9886, elevation: 220, dhv: 4954,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3009", name: "Olhain", region: "Olhain",
+    lat: 50.4335, lon: 2.5858, elevation: 169, dhv: 3009,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4937", name: "Ommeel", region: "Ommeel",
+    lat: 48.8111, lon: 0.1601, elevation: 223, dhv: 4937,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3022", name: "Omonville", region: "Omonville-sur-Rogue",
+    lat: 49.7007, lon: 1.8351, elevation: 72, dhv: 3022,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_4922", name: "Omonville-la-Rogue", region: "Omonville-la-Rogue",
+    lat: 49.6952, lon: -1.8321, elevation: 78, dhv: 4922,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_4935", name: "Ons-en-Bray", region: "Ons-en-Bray",
+    lat: 49.4084, lon: 1.891, elevation: 194, dhv: 4935,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1820", name: "Opies", region: "Aureille",
+    lat: 43.7021, lon: 4.9854, elevation: 236, dhv: 1820,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3065", name: "Ormont", region: "Saint-Die-Des-Vosges",
+    lat: 48.3025, lon: 6.9925, elevation: 793, dhv: 3065,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4957", name: "Orus", region: "Vicdessos",
+    lat: 42.7888, lon: 1.5056, elevation: 1406, dhv: 4957,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5003", name: "Osseja", region: "Osseja",
+    lat: 42.4018, lon: 2.05, elevation: 2220, dhv: 5003,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3045", name: "Ouffieres", region: "Ouffieres",
+    lat: 49.0149, lon: -0.4747, elevation: 81, dhv: 3045,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1992", name: "Pagny-La-Blanche-Cote", region: "Pagny-La-Blanche-Cote",
+    lat: 48.5435, lon: 5.7085, elevation: 324, dhv: 1992,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3038", name: "Panorama d'Anfreville", region: "Pitres",
+    lat: 49.3161, lon: 1.244, elevation: 102, dhv: 3038,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3242", name: "Paros", region: "Ispagnac",
+    lat: 44.3766, lon: 3.5106, elevation: 932, dhv: 3242,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1873", name: "Pas de la Fosse", region: "St. Baldolph",
+    lat: 45.5154, lon: 5.9261, elevation: 847, dhv: 1873,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3335", name: "Pech", region: "Roquefeuil",
+    lat: 42.8214, lon: 1.9874, elevation: 1134, dhv: 3335,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3246", name: "Pech de Berre", region: "Nicole",
+    lat: 44.3245, lon: 0.3467, elevation: 138, dhv: 3246,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3331", name: "Pech des Fayettes", region: "Tuchan",
+    lat: 42.8914, lon: 2.6908, elevation: 664, dhv: 3331,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2178", name: "Pelvoux", region: "Pelvoux",
+    lat: 44.8576, lon: 6.4587, elevation: 2233, dhv: 2178,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_3240", name: "Penne D'Agenais", region: "Penne D&#039;Agenais",
+    lat: 44.3904, lon: 0.8234, elevation: 208, dhv: 3240,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_4901", name: "Perros-Guirec", region: "Perres-Guirec",
+    lat: 48.8209, lon: -3.4647, elevation: 43, dhv: 4901,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3084_S", name: "Petit Hohneck (S)", region: "Muhlbach-sur-Munster",
+    lat: 48.029, lon: 7.0606, elevation: 885, dhv: 3084,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3084_SO", name: "Petit Hohneck (SO)", region: "Muhlbach-sur-Munster",
+    lat: 48.0352, lon: 7.0338, elevation: 1280, dhv: 3084,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_2192", name: "Petit Mont Rond", region: "Vesancy",
+    lat: 46.3585, lon: 6.0181, elevation: 1517, dhv: 2192,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4955", name: "Peyre Mensongere", region: "Uston",
+    lat: 42.7978, lon: 1.2267, elevation: 1691, dhv: 4955,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_4999", name: "Pic Ayre", region: "Bareges",
+    lat: 42.8768, lon: 0.0709, elevation: 2240, dhv: 4999,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1957", name: "Pic Blanc", region: "Alpe d&#039;Huez",
+    lat: 45.1247, lon: 6.1278, elevation: 3265, dhv: 1957,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3285", name: "Pic D'Andan", region: "Millau",
+    lat: 44.1358, lon: 3.0628, elevation: 818, dhv: 3285,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4994", name: "Pic D'Anie", region: "Lescun",
+    lat: 42.9437, lon: -0.7205, elevation: 2434, dhv: 4994,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4956", name: "Pic de Arreche", region: "Uston",
+    lat: 42.7713, lon: 1.3021, elevation: 1718, dhv: 4956,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3314", name: "Pic de Brau", region: "Magrie",
+    lat: 43.012, lon: 2.2258, elevation: 595, dhv: 3314,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_4992", name: "Pic de Jara", region: "Saint-Martin-D&#039;Arrossa",
+    lat: 43.1997, lon: -1.2936, elevation: 789, dhv: 4992,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_3139", name: "Pic De L'Aigle", region: "La Chaux-Du-Dombief",
+    lat: 46.615, lon: 5.9023, elevation: 971, dhv: 3139,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3306", name: "Pic de Vissou", region: "Cabrieres",
+    lat: 43.5971, lon: 3.3511, elevation: 345, dhv: 3306,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1818", name: "Pic des Mouchers", region: "Puyloubier",
+    lat: 43.5389, lon: 5.6448, elevation: 974, dhv: 1818,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_4963", name: "Pic du Midi", region: "Roquefeuil",
+    lat: 42.8118, lon: 1.9936, elevation: 1112, dhv: 4963,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_4960", name: "Pic Galinat", region: "Montferrier",
+    lat: 42.826, lon: 1.7428, elevation: 2089, dhv: 4960,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3178", name: "Pic St. Piere", region: "Saint-Diery",
+    lat: 45.5347, lon: 2.989, elevation: 976, dhv: 3178,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3312", name: "Picon", region: "Roquefort-sur-Garonne",
+    lat: 43.1596, lon: 0.9903, elevation: 493, dhv: 3312,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5025", name: "Pierre Arnoux", region: "Savines-le-Lac",
+    lat: 44.5125, lon: 6.3991, elevation: 1281, dhv: 5025,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3189", name: "Pierres de Labro", region: "Dienne",
+    lat: 45.1686, lon: 2.7898, elevation: 1323, dhv: 3189,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3024", name: "Pierres Pouquellees", region: "Vauville",
+    lat: 49.6499, lon: 1.8559, elevation: 121, dhv: 3024,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5035", name: "Pigno", region: "Olmeto",
+    lat: 42.6944, lon: 9.3982, elevation: 936, dhv: 5035,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3322", name: "Piscatelle", region: "Arbas",
+    lat: 42.9665, lon: 0.9302, elevation: 1360, dhv: 3322,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_3336", name: "Pla de Adet", region: "Vignec",
+    lat: 42.8136, lon: 0.2981, elevation: 1624, dhv: 3336,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4904", name: "Plage Bonaparte", region: "Plouha",
+    lat: 48.7058, lon: -2.9225, elevation: 47, dhv: 4904,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1261", name: "Plaine-Joux", region: "Passy",
+    lat: 45.9496, lon: 6.7395, elevation: 1357, dhv: 1261,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3154", name: "Plan De L'Aiguille", region: "Chamonix",
+    lat: 45.9023, lon: 6.8838, elevation: 2270, dhv: 3154,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1879", name: "Plan de l'Ours", region: "Bourg St. Maurice",
+    lat: 45.5526, lon: 6.7716, elevation: 1821, dhv: 1879,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5062", name: "Planche des Belles Filles", region: "Plancher-les-Mines",
+    lat: 47.7674, lon: 6.7739, elevation: 1136, dhv: 5062,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_1824", name: "Planfait", region: "Talloires",
+    lat: 45.8532, lon: 6.223, elevation: 950, dhv: 1824,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3086", name: "Planois", region: "Basse-sur-le-Rupt",
+    lat: 47.9814, lon: 6.7655, elevation: 850, dhv: 3086,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5487", name: "Plateau de Cavillore", region: "Gourdon",
+    lat: 43.7291, lon: 6.975, elevation: 1024, dhv: 5487,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3087", name: "Plateau de Chauffourt", region: "Chauffourt",
+    lat: 47.9772, lon: 5.4228, elevation: 466, dhv: 3087,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1862_N", name: "Plateau de St. Ange (N)", region: "Varces",
+    lat: 45.0961, lon: 5.6467, elevation: 998, dhv: 1862,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1862_O", name: "Plateau de St. Ange (O)", region: "Varces",
+    lat: 45.0817, lon: 5.6328, elevation: 1236, dhv: 1862,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3174", name: "Plateaux de Laschaux", region: "Saurier",
+    lat: 45.554, lon: 3.0624, elevation: 836, dhv: 3174,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3199_N", name: "Plomb du Cantal (N)", region: "Lioran",
+    lat: 45.064, lon: 2.7619, elevation: 1783, dhv: 3199,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3199_W", name: "Plomb du Cantal (W)", region: "Lioran",
+    lat: 45.0626, lon: 2.7604, elevation: 1797, dhv: 3199,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4902", name: "Plouezec", region: "Plouezec",
+    lat: 48.7616, lon: -2.9859, elevation: 57, dhv: 4902,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3083", name: "Poele Sauvage", region: "Saint Etienne les Remiremont",
+    lat: 48.0364, lon: 6.6158, elevation: 771, dhv: 3083,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4900", name: "Pointe de Bihit", region: "Trebeurden",
+    lat: 48.761, lon: -3.5772, elevation: 60, dhv: 4900,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_4903", name: "Pointe de Bilfot", region: "Plouezec",
+    lat: 48.7656, lon: -2.9544, elevation: 47, dhv: 4903,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3341", name: "Pointe de Solaru", region: "Nonza",
+    lat: 42.7973, lon: 9.3547, elevation: 266, dhv: 3341,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4905", name: "Pointe de Tournemine", region: "Plerin",
+    lat: 48.5763, lon: -2.7756, elevation: 62, dhv: 4905,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_4906", name: "Pointe des Tablettes", region: "Plerin",
+    lat: 48.5593, lon: -2.7392, elevation: 64, dhv: 4906,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4907_NW", name: "Pointe du Rosellier (NW)", region: "Plerin",
+    lat: 48.5547, lon: -2.7153, elevation: 51, dhv: 4907,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4907_SO", name: "Pointe du Rosellier (SO)", region: "Plerin",
+    lat: 48.5536, lon: -2.7152, elevation: 56, dhv: 4907,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5030", name: "Pointe Piazza", region: "Marseille",
+    lat: 43.22, lon: 5.3544, elevation: 163, dhv: 5030,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3299", name: "Pompignan", region: "Pompignan",
+    lat: 43.8768, lon: 3.8577, elevation: 348, dhv: 3299,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2201", name: "Port", region: "Champfromier",
+    lat: 46.1587, lon: 5.5735, elevation: 690, dhv: 2201,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4932", name: "Port a Binson", region: "Mareuil-le-Port",
+    lat: 49.0726, lon: 3.7626, elevation: 204, dhv: 4932,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3337", name: "Port de Lers", region: "Port",
+    lat: 42.8125, lon: 1.3932, elevation: 1371, dhv: 3337,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1887", name: "Pra Plan", region: "Macot la Plagne",
+    lat: 45.5774, lon: 6.6235, elevation: 2088, dhv: 1887,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5016", name: "Pra-Loup", region: "Uvernet-Fours",
+    lat: 44.3555, lon: 6.5951, elevation: 2045, dhv: 5016,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1875", name: "Pragondran", region: "Pragondran",
+    lat: 45.6269, lon: 5.9463, elevation: 902, dhv: 1875,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5070", name: "Pralognan", region: "Pralognan-la-Vanoise",
+    lat: 45.387, lon: 6.7337, elevation: 1980, dhv: 5070,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1823", name: "Prarion", region: "Passy",
+    lat: 45.8961, lon: 6.7499, elevation: 1934, dhv: 1823,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3325", name: "Prat d'Albis", region: "Ganac",
+    lat: 42.9219, lon: 1.5815, elevation: 1182, dhv: 3325,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1837", name: "Pre Richard", region: "Bernex",
+    lat: 46.3467, lon: 6.6962, elevation: 1336, dhv: 1837,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3185", name: "Pre Rond", region: "Chapelle-du Bard",
+    lat: 45.4066, lon: 6.1285, elevation: 1558, dhv: 3185,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3131", name: "Pretin", region: "Pretin",
+    lat: 46.9423, lon: 5.8438, elevation: 570, dhv: 3131,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1882", name: "Provinces", region: "Nances",
+    lat: 45.6019, lon: 5.8073, elevation: 1126, dhv: 1882,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_4964", name: "Puivert", region: "Puivert",
+    lat: 42.892, lon: 2.0674, elevation: 806, dhv: 4964,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4968", name: "Puy Brunet", region: "Saint-Jacques-des-Blats",
+    lat: 45.0571, lon: 2.7456, elevation: 1681, dhv: 4968,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4972_SO", name: "Puy de Bort (SO)", region: "Bort-les-Orgues",
+    lat: 45.3956, lon: 2.4622, elevation: 797, dhv: 4972,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4972_SW", name: "Puy de Bort (SW)", region: "Bort-les-Orgues",
+    lat: 45.3963, lon: 2.4562, elevation: 797, dhv: 4972,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4988", name: "Puy de Chambourguet", region: "Besse-et-Saint-Anastaise",
+    lat: 45.5119, lon: 2.8657, elevation: 1491, dhv: 4988,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3160", name: "Puy de Corent", region: "Veyre-Monton",
+    lat: 45.6607, lon: 3.1775, elevation: 598, dhv: 3160,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4981", name: "Puy de Dome", region: "Saint-Genes-Champanelle",
+    lat: 45.7721, lon: 2.9655, elevation: 1425, dhv: 4981,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3172", name: "Puy de L'Angle", region: "Le Mont-Dore",
+    lat: 45.5727, lon: 2.8395, elevation: 1715, dhv: 3172,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4983", name: "Puy de L'Ouire", region: "Rochefort-Montagne",
+    lat: 45.6285, lon: 2.8313, elevation: 1482, dhv: 4983,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_4971", name: "Puy de la Monediere", region: "Veix",
+    lat: 45.4862, lon: 1.8393, elevation: 896, dhv: 4971,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4986", name: "Puy de la Perdix", region: "Besse-et-Saint-Anastaise",
+    lat: 45.5214, lon: 2.8296, elevation: 1786, dhv: 4986,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3169", name: "Puy de la Tache", region: "Le Mont-Dore",
+    lat: 45.5921, lon: 2.845, elevation: 1604, dhv: 3169,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4989", name: "Puy de Paillarent", region: "Besse-et-Saint-Anastaise",
+    lat: 45.5095, lon: 2.8253, elevation: 1712, dhv: 4989,
+    sectors: [[123.75, 326.25]], sectorLabel: "SO-NW", ...DEF },
+
+  { id: "db_3177", name: "Puy de Roche Cobiere", region: "Saurier",
+    lat: 45.5457, lon: 3.0395, elevation: 848, dhv: 3177,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3200", name: "Puy de Rocher", region: "Albeperre",
+    lat: 45.0703, lon: 2.7692, elevation: 1796, dhv: 3200,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4984_N", name: "Puy de Sancy (N)", region: "Le Mont-Dore",
+    lat: 45.5287, lon: 2.8138, elevation: 1839, dhv: 4984,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_4984_S", name: "Puy de Sancy (S)", region: "Le Mont-Dore",
+    lat: 45.5279, lon: 2.814, elevation: 1842, dhv: 4984,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3157", name: "Puy de St. Romain", region: "Mirefleurs",
+    lat: 45.6799, lon: 3.2424, elevation: 752, dhv: 3157,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3201", name: "Puy du Tour", region: "Le Chambon",
+    lat: 45.0815, lon: 1.9211, elevation: 377, dhv: 3201,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_4987", name: "Puy Ferrand", region: "Besse-et-Saint-Anastaise",
+    lat: 45.5246, lon: 2.8261, elevation: 1838, dhv: 4987,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3193_NO", name: "Puy Mary (NO)", region: "Le Cluax",
+    lat: 45.1242, lon: 2.6736, elevation: 1671, dhv: 3193,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3193_W", name: "Puy Mary (W)", region: "Le Cluax",
+    lat: 45.1217, lon: 2.6714, elevation: 1663, dhv: 3193,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1956", name: "Puy-Aillaud", region: "Vallouise",
+    lat: 44.8503, lon: 6.4782, elevation: 1662, dhv: 1956,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2193", name: "Quincie", region: "Quincie",
+    lat: 46.1073, lon: 4.6181, elevation: 434, dhv: 2193,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5026", name: "Rabou", region: "Rabou",
+    lat: 44.5937, lon: 6.0315, elevation: 1613, dhv: 5026,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3197_S", name: "Redondet (S)", region: "Mandailles-Saint-Julien",
+    lat: 45.1043, lon: 2.6613, elevation: 1526, dhv: 3197,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3197_SO", name: "Redondet (SO)", region: "Mandailles-Saint-Julien",
+    lat: 45.1069, lon: 2.6717, elevation: 1580, dhv: 3197,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3057", name: "Reinhartsmunster", region: "Reinhartsmunster",
+    lat: 48.6774, lon: 7.3121, elevation: 515, dhv: 3057,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_4878_SO", name: "Revin (SO)", region: "Revin",
+    lat: 49.9484, lon: 4.6245, elevation: 354, dhv: 4878,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_4878_SW", name: "Revin (SW)", region: "Revin",
+    lat: 49.9386, lon: 4.6537, elevation: 357, dhv: 4878,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3095_NO", name: "Revolles (NO)", region: "Bussang",
+    lat: 47.8948, lon: 6.847, elevation: 947, dhv: 3095,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3095_SO", name: "Revolles (SO)", region: "Bussang",
+    lat: 47.8922, lon: 6.8456, elevation: 938, dhv: 3095,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4953", name: "Rigny-le-Ferron", region: "Rigny-le-Ferron",
+    lat: 48.1941, lon: 3.6379, elevation: 184, dhv: 4953,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4958_N", name: "Risoul (N)", region: "Vicdessos",
+    lat: 42.7636, lon: 1.5082, elevation: 1327, dhv: 4958,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_4958_NO", name: "Risoul (NO)", region: "Vicdessos",
+    lat: 42.7435, lon: 1.5198, elevation: 1707, dhv: 4958,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4958_W", name: "Risoul (W)", region: "Vicdessos",
+    lat: 42.759, lon: 1.5121, elevation: 1391, dhv: 4958,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3307", name: "Roc de Albine", region: "Sauveterre",
+    lat: 43.4432, lon: 2.5349, elevation: 806, dhv: 3307,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4982", name: "Roche de la Pause", region: "Job",
+    lat: 45.6312, lon: 3.8036, elevation: 1517, dhv: 4982,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2378", name: "Roche de Minuit", region: "La Bresse",
+    lat: 47.9889, lon: 6.8613, elevation: 926, dhv: 2378,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1886", name: "Roche de Mio", region: "Macot la Plagne",
+    lat: 45.4933, lon: 6.7343, elevation: 2696, dhv: 1886,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3106", name: "Roche les Clerval", region: "Roche-les-Clerval",
+    lat: 47.3576, lon: 6.481, elevation: 558, dhv: 3106,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1806", name: "Rochebrune", region: "Megeve",
+    lat: 45.8332, lon: 6.6128, elevation: 1731, dhv: 1806,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3192", name: "Rocher de Laqueuille", region: "Dienne",
+    lat: 45.1484, lon: 2.7939, elevation: 1273, dhv: 3192,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3137", name: "Roches Aigues", region: "Pannessieres",
+    lat: 46.7053, lon: 5.6034, elevation: 508, dhv: 3137,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2183", name: "Roches des Cuzets", region: "Boree",
+    lat: 44.8921, lon: 4.1851, elevation: 1546, dhv: 2183,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_3074_S", name: "Roocourt la Cote le Denot (S)", region: "Bologne",
+    lat: 48.214, lon: 5.1526, elevation: 340, dhv: 3074,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3074_SW", name: "Roocourt la Cote le Denot (SW)", region: "Bologne",
+    lat: 48.2191, lon: 5.1496, elevation: 337, dhv: 3074,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3068", name: "Rosnoen", region: "Rosenoen",
+    lat: 48.2629, lon: -4.2141, elevation: 127, dhv: 3068,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2380", name: "Rothenbachkopf/Batteriekopf", region: "Wildenstein",
+    lat: 48.0044, lon: 6.9802, elevation: 1206, dhv: 2380,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2294", name: "Saint Amand", region: "Suzette",
+    lat: 44.1863, lon: 5.0684, elevation: 657, dhv: 2294,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3249", name: "Saint Antonin Noble Val", region: "Saint-Antoinin-Noble-Val",
+    lat: 44.1593, lon: 1.768, elevation: 300, dhv: 3249,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3303", name: "Saint Come", region: "Saint Come",
+    lat: 43.835, lon: 4.1976, elevation: 173, dhv: 3303,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3344", name: "Saint Florent", region: "Saint Florent",
+    lat: 42.6697, lon: 9.2944, elevation: 113, dhv: 3344,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2295", name: "Saint Hippolyte le Graveyron", region: "Saint Hippolyte le Graveyron",
+    lat: 44.1324, lon: 5.0765, elevation: 389, dhv: 2295,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3120_NW", name: "Saint Michel Chef (NW)", region: "Saint-Michel-Chef",
+    lat: 47.1884, lon: -2.1602, elevation: 15, dhv: 3120,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3120_W", name: "Saint Michel Chef (W)", region: "Saint-Michel-Chef",
+    lat: 47.1909, lon: -2.1607, elevation: 15, dhv: 3120,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4908", name: "Saint Pabu", region: "La ville Berneuf",
+    lat: 48.6025, lon: -2.5092, elevation: 57, dhv: 4908,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1804", name: "Saint Pancrace", region: "Oraison",
+    lat: 43.8997, lon: 5.921, elevation: 528, dhv: 1804,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4894", name: "Saint Romain", region: "Saint Romain",
+    lat: 46.9986, lon: 4.697, elevation: 523, dhv: 4894,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2169_S", name: "Saint Sorlin (S)", region: "Saint Sorlin",
+    lat: 45.8806, lon: 5.4101, elevation: 745, dhv: 2169,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2169_SW", name: "Saint Sorlin (SW)", region: "Saint Sorlin",
+    lat: 45.8801, lon: 5.3987, elevation: 643, dhv: 2169,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3239", name: "Saint Vincent Rive D'Olt", region: "Saint Vincent Rive D&#039;Olt",
+    lat: 44.4597, lon: 1.2943, elevation: 236, dhv: 3239,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5042", name: "Saint-Baume", region: "Plan-D&#039;Aups-Saint-Baume",
+    lat: 43.3209, lon: 5.7403, elevation: 969, dhv: 5042,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_1270_S", name: "Saint-Geniez (S)", region: "Saint-Geniez",
+    lat: 44.2492, lon: 6.0665, elevation: 1346, dhv: 1270,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1270_SW", name: "Saint-Geniez (SW)", region: "Saint-Geniez",
+    lat: 44.2531, lon: 6.0701, elevation: 1631, dhv: 1270,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3096", name: "Saint-Martin-sur-Armancon", region: "Saint-Martin-sur-Armancon",
+    lat: 47.8738, lon: 4.0569, elevation: 236, dhv: 3096,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4950", name: "Saint-Sulpice-Lauriere", region: "Saint-Sulpice-Lauriere",
+    lat: 46.0482, lon: 1.4487, elevation: 643, dhv: 4950,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_4934", name: "Saint-Urbain-Maconcourt", region: "Saint-Urbain-Maconcourt",
+    lat: 48.4057, lon: 5.1774, elevation: 315, dhv: 4934,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5486", name: "Saint-Vallier-de Thiey", region: "Saint-Vallier-de Thiey",
+    lat: 43.71, lon: 6.8283, elevation: 1004, dhv: 5486,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1340", name: "Saint-Vincent-Les-Forts (St. Vincent)", region: "St. Vincent les forts",
+    lat: 44.4433, lon: 6.3716, elevation: 1257, dhv: 1340,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_2153", name: "Sainte Anastasie", region: "Sainte Anastasie sur Issole",
+    lat: 43.3543, lon: 6.1201, elevation: 435, dhv: 2153,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3079", name: "Sainte Colombe", region: "Eaux-Puiseaux",
+    lat: 48.1214, lon: 3.9049, elevation: 265, dhv: 3079,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3073", name: "Sainte Germaine", region: "Bar Sur Aube",
+    lat: 48.2191, lon: 4.6989, elevation: 309, dhv: 3073,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2214", name: "Sainte Marie", region: "St. Etienne la Varenne",
+    lat: 46.0842, lon: 4.6081, elevation: 579, dhv: 2214,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1819_SW", name: "Sainte Victoire (SW)", region: "Puyloubier",
+    lat: 43.5323, lon: 5.5733, elevation: 714, dhv: 1819,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1819_W", name: "Sainte Victoire (W)", region: "Puyloubier",
+    lat: 43.5316, lon: 5.5667, elevation: 500, dhv: 1819,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5061", name: "Sainte-Marie-en-Chanois", region: "Amage",
+    lat: 47.8378, lon: 6.528, elevation: 456, dhv: 5061,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1769_N", name: "Saleve (N)", region: "Veyrier",
+    lat: 46.1487, lon: 6.1891, elevation: 1183, dhv: 1769,
+    sectors: [[303.75, 11.25], [348.75, 11.25]], sectorLabel: "NW-N · N", ...DEF },
+
+  { id: "db_1769_SW", name: "Saleve (SW)", region: "Veyrier",
+    lat: 46.1301, lon: 6.1726, elevation: 1268, dhv: 1769,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1833_N", name: "Sambuy (N)", region: "Seythenex",
+    lat: 45.6985, lon: 6.2721, elevation: 1818, dhv: 1833,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1833_W", name: "Sambuy (W)", region: "Seythenex",
+    lat: 45.6953, lon: 6.2643, elevation: 2066, dhv: 1833,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3352", name: "San Bastiano 1", region: "Calcatoggio",
+    lat: 42.0248, lon: 8.7315, elevation: 439, dhv: 3352,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5037", name: "San Bastiano 2", region: "Calcatoggio",
+    lat: 42.0212, lon: 8.7549, elevation: 653, dhv: 5037,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4886", name: "Sancerre", region: "Sancerre",
+    lat: 47.3298, lon: 2.8284, elevation: 232, dhv: 4886,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3000", name: "Sangatte", region: "Sangatte",
+    lat: 50.9412, lon: 1.7378, elevation: 10, dhv: 3000,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4896", name: "Santenay", region: "Le Haut Santenay",
+    lat: 46.9235, lon: 4.678, elevation: 465, dhv: 4896,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1881", name: "Sapenay", region: "Cessens",
+    lat: 45.7998, lon: 5.8679, elevation: 774, dhv: 1881,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3234", name: "Saujac", region: "Saujac",
+    lat: 44.4876, lon: 1.8912, elevation: 295, dhv: 3234,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3017_N", name: "Saussemare (N)", region: "Saint-Aubin-sur-Mer",
+    lat: 49.8926, lon: 0.8633, elevation: 10, dhv: 3017,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3017_NW", name: "Saussemare (NW)", region: "Saint-Aubin-sur-Mer",
+    lat: 49.8947, lon: 0.8765, elevation: 7, dhv: 3017,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3235", name: "Saut de la Mounine", region: "Ambeyrac",
+    lat: 44.4855, lon: 1.9197, elevation: 307, dhv: 3235,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3108", name: "Savigny", region: "Savigny-sous-Malain",
+    lat: 47.3395, lon: 4.7513, elevation: 573, dhv: 3108,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2384", name: "Schnepfenriedkopf", region: "Mittlach",
+    lat: 47.9792, lon: 7.0428, elevation: 1229, dhv: 2384,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_3060", name: "Schwarzenbach", region: "Russ",
+    lat: 48.4984, lon: 7.2825, elevation: 485, dhv: 3060,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3328", name: "Semaphore", region: "Leucate Plage",
+    lat: 42.9158, lon: 3.0586, elevation: 38, dhv: 3328,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1809", name: "Semnoz", region: "Gruffy",
+    lat: 45.7972, lon: 6.1048, elevation: 1685, dhv: 1809,
+    sectors: [[258.75, 326.25], [258.75, 281.25]], sectorLabel: "W-NW · W", ...DEF },
+
+  { id: "db_3021", name: "Seneville sur Fecamp", region: "Seneville sur Fecamp",
+    lat: 49.7795, lon: 0.4137, elevation: 93, dhv: 3021,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3146", name: "Septmoncel", region: "Septmoncel",
+    lat: 46.371, lon: 5.8986, elevation: 1027, dhv: 3146,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2196_NO", name: "Serre de Barre (NO)", region: "Gravieres",
+    lat: 44.402, lon: 4.0757, elevation: 829, dhv: 2196,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2196_SW", name: "Serre de Barre (SW)", region: "Gravieres",
+    lat: 44.3969, lon: 4.0833, elevation: 882, dhv: 2196,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2185", name: "Serre en Don", region: "Accons",
+    lat: 44.871, lon: 4.3951, elevation: 1188, dhv: 2185,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_2406", name: "Siebach", region: "Fellering",
+    lat: 47.9039, lon: 6.9922, elevation: 662, dhv: 2406,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1996", name: "Sion", region: "Vaudemont",
+    lat: 48.4087, lon: 6.0693, elevation: 520, dhv: 1996,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2296", name: "Siou Blanc", region: "Signes",
+    lat: 43.2687, lon: 5.8935, elevation: 727, dhv: 2296,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3061", name: "Socourt", region: "Socourt",
+    lat: 48.3882, lon: 6.2494, elevation: 338, dhv: 3061,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2306", name: "Solaison", region: "Bonneville",
+    lat: 46.0424, lon: 6.4254, elevation: 1666, dhv: 2306,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2301", name: "Solaure", region: "Die",
+    lat: 44.6912, lon: 5.354, elevation: 1224, dhv: 2301,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5018", name: "Sommet du Prorel", region: "Briacon",
+    lat: 44.9052, lon: 6.5812, elevation: 2541, dhv: 5018,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3070", name: "Soncourt", region: "Soncourt-Sur-Marne",
+    lat: 48.2559, lon: 5.1022, elevation: 320, dhv: 3070,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5007", name: "Sorede", region: "Sorede",
+    lat: 42.5148, lon: 2.9732, elevation: 505, dhv: 5007,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5010", name: "Soreze", region: "Soreze",
+    lat: 43.4419, lon: 2.0739, elevation: 523, dhv: 5010,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_1785", name: "Sospel", region: "Sospel",
+    lat: 43.8869, lon: 7.4546, elevation: 731, dhv: 1785,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2194", name: "Soubeyrand", region: "Le Poet Sigilat",
+    lat: 44.3755, lon: 5.3331, elevation: 1196, dhv: 2194,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3213", name: "Soult", region: "Floirac",
+    lat: 44.8981, lon: 1.6543, elevation: 242, dhv: 3213,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3039", name: "St. Clair sur Epte", region: "Buchet",
+    lat: 49.2003, lon: 1.704, elevation: 101, dhv: 3039,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2184", name: "St. Clement", region: "Saint-Clement",
+    lat: 44.9514, lon: 4.2613, elevation: 1151, dhv: 2184,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2197", name: "St. Desirat", region: "St. Desirat",
+    lat: 45.2538, lon: 4.7968, elevation: 283, dhv: 2197,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3304", name: "St. Dionizy", region: "St. Dionizy",
+    lat: 43.7989, lon: 4.2237, elevation: 168, dhv: 3304,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1279_O", name: "St. Hilaire (O)", region: "Lumbin",
+    lat: 45.314, lon: 5.8723, elevation: 1313, dhv: 1279,
+    sectors: [[78.75, 101.25], [78.75, 146.25]], sectorLabel: "O · O-SO", ...DEF },
+
+  { id: "db_1279_S", name: "St. Hilaire (S)", region: "Lumbin",
+    lat: 45.3083, lon: 5.8833, elevation: 912, dhv: 1279,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1279_SO", name: "St. Hilaire (SO)", region: "Lumbin",
+    lat: 45.3105, lon: 5.8903, elevation: 945, dhv: 1279,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3051", name: "St. Marc D'Ouilly", region: "Cossesseville",
+    lat: 48.8826, lon: -0.445, elevation: 175, dhv: 3051,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3294_N", name: "St. Marcel De Campes (N)", region: "Cordes",
+    lat: 44.0636, lon: 1.9701, elevation: 289, dhv: 3294,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3294_NW", name: "St. Marcel De Campes (NW)", region: "Cordes",
+    lat: 44.0643, lon: 1.9757, elevation: 286, dhv: 3294,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1859", name: "St. Martin", region: "St. Martin en Vercors",
+    lat: 45.0228, lon: 5.4651, elevation: 1248, dhv: 1859,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3047", name: "St. Martin de Sallen", region: "Curcy-sur-Orne",
+    lat: 48.9933, lon: -0.4986, elevation: 105, dhv: 3047,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_4897", name: "St. Michel en Greve", region: "St. Michel en Greve",
+    lat: 48.672, lon: -3.5739, elevation: 75, dhv: 4897,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3049_SW", name: "St. Omer (SW)", region: "Clecy",
+    lat: 48.9296, lon: -0.47, elevation: 186, dhv: 3049,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3049_W", name: "St. Omer (W)", region: "Clecy",
+    lat: 48.926, lon: -0.4665, elevation: 206, dhv: 3049,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2215", name: "St. Quinis", region: "St. Quinis",
+    lat: 43.3543, lon: 6.1201, elevation: 434, dhv: 2215,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2198", name: "St. Sebastien", region: "St. Paul le Jeune",
+    lat: 44.3137, lon: 4.1451, elevation: 418, dhv: 2198,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_5073", name: "St.-Jean-de-Maurienne", region: "St.-Jean-de-Maurienne",
+    lat: 45.2876, lon: 6.32, elevation: 1272, dhv: 5073,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4947", name: "Ste-Marguerite-sur-Mer", region: "Quiberville",
+    lat: 49.9089, lon: 0.9371, elevation: 8, dhv: 4947,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1997", name: "Stonne", region: "Stonne",
+    lat: 49.5503, lon: 4.9292, elevation: 318, dhv: 1997,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_4966", name: "Suc d'Armont", region: "Plaisance",
+    lat: 43.9128, lon: 2.5738, elevation: 632, dhv: 4966,
+    sectors: [[168.75, 11.25]], sectorLabel: "S-N", ...DEF },
+
+  { id: "db_5028", name: "Suc de Vent", region: "Villevocance",
+    lat: 45.1877, lon: 4.582, elevation: 1140, dhv: 5028,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3292", name: "Sueille", region: "Saint-Jean-Du-Gard",
+    lat: 44.1064, lon: 3.9032, elevation: 447, dhv: 3292,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4942", name: "Suin", region: "Suin",
+    lat: 46.4339, lon: 4.4755, elevation: 582, dhv: 4942,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3343", name: "Superbagneres", region: "Bagneres de Luchon",
+    lat: 42.7682, lon: 0.58, elevation: 1760, dhv: 3343,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5034", name: "Teghime", region: "Olmeto",
+    lat: 42.6747, lon: 9.3775, elevation: 614, dhv: 5034,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1836", name: "Telecabine des Memises", region: "Thollon",
+    lat: 46.3812, lon: 6.728, elevation: 1623, dhv: 1836,
+    sectors: [[348.75, 56.25], [348.75, 11.25]], sectorLabel: "N-NO · N", ...DEF },
+
+  { id: "db_3179", name: "Telepherique", region: "Mont Dore",
+    lat: 45.5326, lon: 2.814, elevation: 1742, dhv: 3179,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3071_N", name: "Tertre de la Fille Morte (N)", region: "Sainte-Marie-Aux-Mines",
+    lat: 48.2169, lon: 7.1993, elevation: 1080, dhv: 3071,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3071_W", name: "Tertre de la Fille Morte (W)", region: "Sainte-Marie-Aux-Mines",
+    lat: 48.2187, lon: 7.193, elevation: 1037, dhv: 3071,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1885", name: "Tete de Solaise", region: "Val d&#039;Isere",
+    lat: 45.4344, lon: 6.9916, elevation: 2515, dhv: 1885,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3094", name: "Tete des Renards", region: "Le Menil",
+    lat: 47.9029, lon: 6.8044, elevation: 850, dhv: 3094,
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", ...DEF },
+
+  { id: "db_5080", name: "Tete du Mottey", region: "Saint-Gervais-les-Bains",
+    lat: 45.843, lon: 6.7008, elevation: 1878, dhv: 5080,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3091", name: "Theatre Graviers", region: "Saulxures-sur-Moselotte",
+    lat: 47.9536, lon: 6.7227, elevation: 763, dhv: 3091,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4933", name: "Thonnance-les-Joinville", region: "Thonnance-les-Joinville",
+    lat: 48.4522, lon: 5.1754, elevation: 287, dhv: 4933,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5069_NW", name: "Tignes (NW)", region: "Tignes",
+    lat: 45.4562, lon: 6.9196, elevation: 2675, dhv: 5069,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5069_SW", name: "Tignes (SW)", region: "Tignes",
+    lat: 45.455, lon: 6.9206, elevation: 2671, dhv: 5069,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5629", name: "Tolla", region: "Tolla",
+    lat: 41.9974, lon: 8.967, elevation: 1419, dhv: 5629,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2168", name: "Torcieu", region: "Torcieu",
+    lat: 45.911, lon: 5.3973, elevation: 559, dhv: 2168,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_3329", name: "Tourmalet", region: "Bareges",
+    lat: 42.911, lon: 0.1434, elevation: 2206, dhv: 3329,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_4882", name: "Tracy", region: "Tracy-sur-Mer",
+    lat: 49.343, lon: -0.6358, elevation: 28, dhv: 4882,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4898", name: "Tredrez-Locquemeau", region: "Tredrez-Locquemeau",
+    lat: 48.6952, lon: -3.5793, elevation: 54, dhv: 4898,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4914", name: "Trefeuntec", region: "Trefeuntec",
+    lat: 48.1312, lon: -4.2763, elevation: 21, dhv: 4914,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_4973", name: "Tremolat", region: "Tremolat",
+    lat: 44.8878, lon: 0.8188, elevation: 150, dhv: 4973,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1829", name: "Tres le Mont", region: "Ocier",
+    lat: 46.2856, lon: 6.4892, elevation: 1350, dhv: 1829,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3180", name: "Trossagne", region: "Ourciere",
+    lat: 45.5189, lon: 2.9836, elevation: 1103, dhv: 3180,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3063", name: "Tuchenn Kador", region: "Botmeur",
+    lat: 48.3741, lon: -3.9519, elevation: 370, dhv: 3063,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3088", name: "Tumulus", region: "Vecoux",
+    lat: 47.9661, lon: 6.6511, elevation: 780, dhv: 3088,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3134", name: "Uchon", region: "Uchon",
+    lat: 46.8069, lon: 4.2534, elevation: 636, dhv: 3134,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3338_NO", name: "Val Louron (NO)", region: "Genos",
+    lat: 42.7768, lon: 0.3784, elevation: 1997, dhv: 3338,
+    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", ...DEF },
+
+  { id: "db_3338_O", name: "Val Louron (O)", region: "Genos",
+    lat: 42.8078, lon: 0.3775, elevation: 1657, dhv: 3338,
+    sectors: [[78.75, 101.25], [33.75, 146.25]], sectorLabel: "O · NO-SO", ...DEF },
+
+  { id: "db_3338_W", name: "Val Louron (W)", region: "Genos",
+    lat: 42.8055, lon: 0.4297, elevation: 1441, dhv: 3338,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1870_SW", name: "Val Pelouse (SW)", region: "Arvillard",
+    lat: 45.4193, lon: 6.1688, elevation: 1715, dhv: 1870,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1870_W", name: "Val Pelouse (W)", region: "Arvillard",
+    lat: 45.4209, lon: 6.174, elevation: 1863, dhv: 1870,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3219", name: "Valgorge", region: "Valgorge",
+    lat: 44.6101, lon: 4.1017, elevation: 1402, dhv: 3219,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1877", name: "Vallandry", region: "Bourg St. Maurice",
+    lat: 45.5603, lon: 6.7653, elevation: 1590, dhv: 1877,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3217", name: "Vallon de la Saume", region: "Noyer",
+    lat: 44.7015, lon: 5.9932, elevation: 1767, dhv: 3217,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_2307", name: "Varan", region: "Sallanches",
+    lat: 45.9432, lon: 6.6828, elevation: 1515, dhv: 2307,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2312", name: "Varces", region: "Varces",
+    lat: 45.0966, lon: 5.6462, elevation: 982, dhv: 2312,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2308", name: "Vaugelaz", region: "Bourg St. Maurice",
+    lat: 45.6038, lon: 6.7146, elevation: 1901, dhv: 2308,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1958", name: "Vaujany", region: "Vaujany",
+    lat: 45.1632, lon: 6.0587, elevation: 1822, dhv: 1958,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4924", name: "Vauville", region: "Vauville",
+    lat: 49.6498, lon: -1.8558, elevation: 121, dhv: 4924,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4941", name: "Vaux-en-Pre", region: "Vaux-en-Pre",
+    lat: 46.6292, lon: 4.5867, elevation: 387, dhv: 4941,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_3113_O", name: "Velars (O)", region: "Velars-sur-Ouche",
+    lat: 47.3016, lon: 4.9005, elevation: 540, dhv: 3113,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3113_W", name: "Velars (W)", region: "Velars-sur-Ouche",
+    lat: 47.3022, lon: 4.9, elevation: 540, dhv: 3113,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4889", name: "Venoize", region: "Sancerre",
+    lat: 47.3218, lon: 2.7986, elevation: 342, dhv: 4889,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4959", name: "Verdun", region: "Verdun",
+    lat: 42.7905, lon: 1.7057, elevation: 1025, dhv: 4959,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3351", name: "Vero", region: "Vero",
+    lat: 42.0722, lon: 8.9073, elevation: 874, dhv: 3351,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4978", name: "Vesoles", region: "Saint-Etienne-D&#039;Albgnan",
+    lat: 43.5612, lon: 2.8264, elevation: 1095, dhv: 4978,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4881", name: "Vierville-sur-Mer", region: "Vierville-sur-Mer",
+    lat: 49.3823, lon: -0.9094, elevation: 19, dhv: 4881,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4884", name: "Villerville", region: "Villerville",
+    lat: 49.3911, lon: 0.1075, elevation: 18, dhv: 4884,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1799", name: "Villevieille", region: "Digne les Bains",
+    lat: 44.0763, lon: 6.2413, elevation: 1003, dhv: 1799,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4931", name: "Vincelles", region: "Vincelles",
+    lat: 49.0999, lon: 3.6533, elevation: 178, dhv: 4931,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2310", name: "Vizille", region: "Vizille",
+    lat: 45.0369, lon: 5.7858, elevation: 981, dhv: 2310,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5630", name: "Vizzavona", region: "Vivario",
+    lat: 42.1033, lon: 9.1066, elevation: 1108, dhv: 5630,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3067", name: "Vouecourt", region: "Vouecourt",
+    lat: 48.265, lon: 5.1439, elevation: 324, dhv: 3067,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3003_NW", name: "Wimereux (NW)", region: "Wimereux",
+    lat: 50.7515, lon: 1.5979, elevation: 37, dhv: 3003,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3003_SW", name: "Wimereux (SW)", region: "Wimereux",
+    lat: 50.7501, lon: 1.5959, elevation: 25, dhv: 3003,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  // --- Italien ---
+  { id: "db_3851", name: "Agira", region: "Agira",
+    lat: 37.6555, lon: 14.5298, elevation: 786, dhv: 3851,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1232", name: "Ahornach", region: "Sand in Taufers",
+    lat: 46.926, lon: 11.9677, elevation: 1425, dhv: 1232,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2002", name: "Albino", region: "Albino",
+    lat: 45.7834, lon: 9.7996, elevation: 1082, dhv: 2002,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3803", name: "Alghero", region: "Alghero",
+    lat: 40.5075, lon: 8.3834, elevation: 345, dhv: 3803,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1969", name: "Alpe Bil", region: "Macugnagna",
+    lat: 45.9757, lon: 7.9676, elevation: 1686, dhv: 1969,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1932", name: "Alpe Cavalotti", region: "Unchio",
+    lat: 45.9862, lon: 8.52, elevation: 1179, dhv: 1932,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1554", name: "Alpe Cermis", region: "Cavalese",
+    lat: 46.244, lon: 11.5036, elevation: 2197, dhv: 1554,
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", ...DEF },
+
+  { id: "db_2022", name: "Alpe Giumello", region: "Taceno",
+    lat: 46.0452, lon: 9.3564, elevation: 1545, dhv: 2022,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5452", name: "Alpe Lusentino", region: "Domodossola",
+    lat: 46.1026, lon: 8.2541, elevation: 1124, dhv: 5452,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2020_S", name: "Alpe Mara (S)", region: "Sondrio",
+    lat: 46.1886, lon: 9.8856, elevation: 1210, dhv: 2020,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2020_SW", name: "Alpe Mara (SW)", region: "Sondrio",
+    lat: 46.2069, lon: 9.9214, elevation: 1793, dhv: 2020,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5444", name: "Alpe Mera", region: "Scopello",
+    lat: 45.7388, lon: 8.0869, elevation: 1738, dhv: 5444,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_2048", name: "Alpe Motta", region: "Campodolciono",
+    lat: 46.4174, lon: 9.3619, elevation: 1919, dhv: 2048,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3700", name: "Alpe Quaggione", region: "Verbania",
+    lat: 45.9137, lon: 8.382, elevation: 1313, dhv: 3700,
+    sectors: [[33.75, 191.25]], sectorLabel: "NO-S", ...DEF },
+
+  { id: "db_3703", name: "Alpo di Storo", region: "Bondone",
+    lat: 45.8099, lon: 10.5739, elevation: 1491, dhv: 3703,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1550", name: "Antenna Castalunga", region: "Bassano del Grappa",
+    lat: 45.8117, lon: 11.7451, elevation: 741, dhv: 1550,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_3801", name: "Argentiera", region: "La Lacuna",
+    lat: 40.7584, lon: 8.1613, elevation: 21, dhv: 3801,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3855", name: "Assoro", region: "Assoro",
+    lat: 37.6259, lon: 14.427, elevation: 872, dhv: 3855,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_5339", name: "Atena Lucana", region: "Polla",
+    lat: 40.5075, lon: 15.5405, elevation: 891, dhv: 5339,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5328", name: "Atrigna", region: "Atrigna",
+    lat: 39.8622, lon: 15.7964, elevation: 104, dhv: 5328,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5381", name: "Avellino", region: "Avellino",
+    lat: 40.8835, lon: 14.8797, elevation: 845, dhv: 5381,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1917_S", name: "Aviano (S)", region: "Aviano",
+    lat: 46.0873, lon: 12.53, elevation: 1087, dhv: 1917,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1917_SO", name: "Aviano (SO)", region: "Aviano",
+    lat: 46.0811, lon: 12.5408, elevation: 779, dhv: 1917,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3871", name: "Avola", region: "Avola",
+    lat: 36.9515, lon: 15.1507, elevation: 264, dhv: 3871,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3832", name: "Bagaladi", region: "Bagaladi",
+    lat: 38.0364, lon: 15.8085, elevation: 966, dhv: 3832,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3823", name: "Bagnara", region: "Bagnara",
+    lat: 38.2818, lon: 15.818, elevation: 534, dhv: 3823,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2121", name: "Baita", region: "Concei",
+    lat: 45.9242, lon: 10.76, elevation: 1481, dhv: 2121,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1551_S", name: "Bassano (S)", region: "Borso del Grappa",
+    lat: 45.8615, lon: 11.8039, elevation: 1558, dhv: 1551,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1551_SO", name: "Bassano (SO)", region: "Borso del Grappa",
+    lat: 45.8244, lon: 11.7712, elevation: 858, dhv: 1551,
+    sectors: [[123.75, 146.25], [123.75, 191.25]], sectorLabel: "SO · SO-S", ...DEF },
+
+  { id: "db_1551_W", name: "Bassano (W)", region: "Borso del Grappa",
+    lat: 45.8283, lon: 11.768, elevation: 980, dhv: 1551,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5331", name: "Baunei", region: "Baunei",
+    lat: 40.0344, lon: 9.665, elevation: 650, dhv: 5331,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5443", name: "Bellon", region: "Saint Maurice",
+    lat: 45.7293, lon: 7.2303, elevation: 1517, dhv: 5443,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1242_SW", name: "Belvedere (SW)", region: "Canazei",
+    lat: 46.4742, lon: 11.8019, elevation: 2348, dhv: 1242,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1242_W", name: "Belvedere (W)", region: "Canazei",
+    lat: 46.4828, lon: 11.7946, elevation: 2076, dhv: 1242,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_2032", name: "Bergeggi", region: "Bergeggi",
+    lat: 44.2515, lon: 8.4402, elevation: 275, dhv: 2032,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1927", name: "Bernadia", region: "Torlano di Sopra",
+    lat: 46.2252, lon: 13.2636, elevation: 699, dhv: 1927,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5447", name: "Betulle", region: "Carreggiata",
+    lat: 46.0228, lon: 9.4128, elevation: 1767, dhv: 5447,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2272", name: "Bevera", region: "Ventimiglia",
+    lat: 43.8315, lon: 7.5671, elevation: 425, dhv: 2272,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3707", name: "Bielli", region: "Bielli",
+    lat: 45.7857, lon: 11.6349, elevation: 802, dhv: 3707,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5438", name: "Bielmonte", region: "Sagliano Micca",
+    lat: 45.6605, lon: 8.0744, elevation: 1452, dhv: 5438,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3794", name: "Bocca della Selva", region: "Cusano Mutri",
+    lat: 41.3687, lon: 14.5225, elevation: 1185, dhv: 3794,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2125_NO", name: "Boe (NO)", region: "Corvara",
+    lat: 46.5265, lon: 11.8616, elevation: 2199, dhv: 2125,
+    sectors: [[348.75, 101.25]], sectorLabel: "N-O", ...DEF },
+
+  { id: "db_2125_O", name: "Boe (O)", region: "Corvara",
+    lat: 46.5217, lon: 11.8505, elevation: 2485, dhv: 2125,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3841", name: "Bolognetta", region: "Bolognetta",
+    lat: 37.9487, lon: 13.4512, elevation: 770, dhv: 3841,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2034", name: "Borgio Verezzi", region: "Borgio Verezzi",
+    lat: 44.1649, lon: 8.3192, elevation: 273, dhv: 2034,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2013", name: "Bormio", region: "Bormio",
+    lat: 46.4205, lon: 10.4116, elevation: 2973, dhv: 2013,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3808", name: "Bortigali", region: "Bortigali",
+    lat: 40.2968, lon: 8.8409, elevation: 1019, dhv: 3808,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3809_NW", name: "Bosa (NW)", region: "Bosa",
+    lat: 40.2814, lon: 8.4862, elevation: 93, dhv: 3809,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3809_W", name: "Bosa (W)", region: "Bosa",
+    lat: 40.281, lon: 8.4885, elevation: 157, dhv: 3809,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3717", name: "Boves", region: "Boves",
+    lat: 44.2988, lon: 7.5532, elevation: 1058, dhv: 3717,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5391", name: "Boville Ernica", region: "Boville Ernica",
+    lat: 41.6405, lon: 13.4719, elevation: 437, dhv: 5391,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5424", name: "Bric Rond", region: "Malzat",
+    lat: 44.8692, lon: 7.0699, elevation: 2466, dhv: 5424,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3816", name: "Buggerru", region: "Buggerru",
+    lat: 39.4109, lon: 8.4254, elevation: 498, dhv: 3816,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5488", name: "Bulga", region: "Bosa",
+    lat: 40.3012, lon: 8.5095, elevation: 141, dhv: 5488,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3712_SW", name: "Ca' del Monte (SW)", region: "Cecima",
+    lat: 44.8163, lon: 9.0733, elevation: 674, dhv: 3712,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3712_W", name: "Ca' del Monte (W)", region: "Cecima",
+    lat: 44.8183, lon: 9.0712, elevation: 677, dhv: 3712,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3713", name: "Cabella Ligure", region: "Cabella Ligure",
+    lat: 44.6962, lon: 9.1412, elevation: 1501, dhv: 3713,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5382", name: "Cairano", region: "Cairano",
+    lat: 40.896, lon: 15.3655, elevation: 778, dhv: 5382,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5335", name: "Cala Gonone", region: "Cala Gonone",
+    lat: 40.2754, lon: 9.5944, elevation: 568, dhv: 5335,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3766", name: "Calascio", region: "Volpe",
+    lat: 42.3254, lon: 13.7092, elevation: 1323, dhv: 3766,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5334", name: "Calda Terme", region: "Latronico",
+    lat: 40.1052, lon: 15.9756, elevation: 1451, dhv: 5334,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5445", name: "Caltrano", region: "Chiuppano",
+    lat: 45.7795, lon: 11.5023, elevation: 736, dhv: 5445,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3796", name: "Calvisi", region: "Calvisi",
+    lat: 41.332, lon: 14.4542, elevation: 1020, dhv: 3796,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5388", name: "Campitello Matese", region: "Campitello Matese",
+    lat: 41.4551, lon: 14.4243, elevation: 1690, dhv: 5388,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3723", name: "Campo Cecina", region: "Carrara",
+    lat: 44.1147, lon: 10.1151, elevation: 1103, dhv: 3723,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3725", name: "Campo Cucco", region: "Gaggio Montano",
+    lat: 44.2126, lon: 10.9394, elevation: 897, dhv: 3725,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5392", name: "Campocatino", region: "Guarcino",
+    lat: 41.8288, lon: 13.3297, elevation: 1771, dhv: 5392,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3792", name: "Campochiaro", region: "Campochiaro",
+    lat: 41.4371, lon: 14.4985, elevation: 1067, dhv: 3792,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2275", name: "Campogrosso", region: "Recoaro Terme",
+    lat: 45.7288, lon: 11.1795, elevation: 1459, dhv: 2275,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2323", name: "Campogrosso", region: "Recoaro Terme Vicence",
+    lat: 45.7295, lon: 11.1785, elevation: 1457, dhv: 2323,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3813", name: "Campotenese", region: "Campotenese",
+    lat: 39.8479, lon: 16.0902, elevation: 1300, dhv: 3813,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5397", name: "Cannatina", region: "Brittoli",
+    lat: 42.3087, lon: 13.8261, elevation: 1360, dhv: 5397,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3699", name: "Capanna Bruno", region: "San Fedele",
+    lat: 45.9435, lon: 9.0657, elevation: 1093, dhv: 3699,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2028", name: "Capo Mele", region: "Laigueglia",
+    lat: 43.9651, lon: 8.1606, elevation: 200, dhv: 2028,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_3825", name: "Capo Milazzo", region: "Milazzo",
+    lat: 38.2635, lon: 15.2382, elevation: 44, dhv: 3825,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3863", name: "Capo Rossello", region: "Lido Rossello",
+    lat: 37.2965, lon: 13.4532, elevation: 59, dhv: 3863,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5460", name: "Carosello 3000", region: "Livigno",
+    lat: 46.517, lon: 10.0875, elevation: 2772, dhv: 5460,
+    sectors: [[348.75, 191.25]], sectorLabel: "N-S", ...DEF },
+
+  { id: "db_3790_S", name: "Cassino (S)", region: "Caira",
+    lat: 41.551, lon: 13.8004, elevation: 783, dhv: 3790,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3790_SO", name: "Cassino (SO)", region: "Caira",
+    lat: 41.5472, lon: 13.8122, elevation: 702, dhv: 3790,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3800", name: "Castel San Giorgio", region: "Lanzara",
+    lat: 40.778, lon: 14.6574, elevation: 284, dhv: 3800,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5409", name: "Casteldimezzo", region: "Casteldimezzo",
+    lat: 43.9613, lon: 12.7986, elevation: 163, dhv: 5409,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2019", name: "Castionetto", region: "Chiuro",
+    lat: 46.1907, lon: 10.0163, elevation: 1604, dhv: 2019,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3870", name: "Cavalli", region: "Chiaramonte Gulfi",
+    lat: 36.9823, lon: 14.6928, elevation: 749, dhv: 3870,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5312", name: "Cefalu", region: "Cefalu",
+    lat: 38.0184, lon: 14.0094, elevation: 477, dhv: 5312,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1976", name: "Celle", region: "Caprie",
+    lat: 45.1315, lon: 7.36, elevation: 1017, dhv: 1976,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1558", name: "Ceresana", region: "Cogollo",
+    lat: 45.804, lon: 11.4381, elevation: 1227, dhv: 1558,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3807", name: "Certosa di Padula", region: "Padula Salerno",
+    lat: 40.3253, lon: 15.6958, elevation: 1372, dhv: 3807,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3772", name: "Cervara di Roma", region: "Cervara di Roma",
+    lat: 41.9845, lon: 13.0743, elevation: 1171, dhv: 3772,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1978", name: "Chiamberlando", region: "Susa",
+    lat: 45.1474, lon: 7.087, elevation: 1021, dhv: 1978,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5433", name: "Chianoco", region: "Bruzolo",
+    lat: 45.1543, lon: 7.1809, elevation: 830, dhv: 5433,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3704", name: "Chiesa S. Antonio", region: "Zogno",
+    lat: 45.8064, lon: 9.6339, elevation: 970, dhv: 3704,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2124_NW", name: "Ciampinoi (NW)", region: "Selva di Val Gardena",
+    lat: 46.5393, lon: 11.7529, elevation: 2225, dhv: 2124,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2124_SO", name: "Ciampinoi (SO)", region: "Selva di Val Gardena",
+    lat: 46.5383, lon: 11.7521, elevation: 2221, dhv: 2124,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3710", name: "Ciavanis", region: "Chialamberto",
+    lat: 45.3784, lon: 7.3568, elevation: 1739, dhv: 3710,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3760", name: "Cima Alta", region: "Isola del Gran Sasso",
+    lat: 42.4976, lon: 13.582, elevation: 1678, dhv: 3760,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_1974", name: "Cima Bossola", region: "Rueglio",
+    lat: 45.4835, lon: 7.7364, elevation: 1221, dhv: 1974,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1343", name: "Col Alto", region: "Corvara",
+    lat: 46.5523, lon: 11.8867, elevation: 1959, dhv: 1343,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1239_N", name: "Col Rodella (N)", region: "Canazei",
+    lat: 46.4973, lon: 11.7524, elevation: 2380, dhv: 1239,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_1239_SO", name: "Col Rodella (SO)", region: "Canazei",
+    lat: 46.497, lon: 11.7534, elevation: 2371, dhv: 1239,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1239_SW", name: "Col Rodella (SW)", region: "Canazei",
+    lat: 46.4949, lon: 11.7501, elevation: 2383, dhv: 1239,
+    sectors: [[213.75, 236.25], [168.75, 281.25]], sectorLabel: "SW · S-W", ...DEF },
+
+  { id: "db_2387", name: "Col Visentin", region: "Revine Lago",
+    lat: 46.0537, lon: 12.2821, elevation: 1706, dhv: 2387,
+    sectors: [[78.75, 281.25]], sectorLabel: "O-W", ...DEF },
+
+  { id: "db_2127", name: "Colalta", region: "Baselga di Pine",
+    lat: 46.1324, lon: 11.2896, elevation: 1940, dhv: 2127,
+    sectors: [[348.75, 11.25]], sectorLabel: "N-N", ...DEF },
+
+  { id: "db_5426", name: "Colle Azara", region: "Villar Perosa",
+    lat: 44.9234, lon: 7.1816, elevation: 1575, dhv: 5426,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3702", name: "Colle Campeggia", region: "Villaggio del Sole",
+    lat: 45.8368, lon: 11.7483, elevation: 1080, dhv: 3702,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3770", name: "Colle Delle Vacches", region: "Fonte D&#039;Amore",
+    lat: 42.1192, lon: 13.925, elevation: 1095, dhv: 3770,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1985", name: "Colli Berici", region: "San Germano",
+    lat: 45.4072, lon: 11.4719, elevation: 260, dhv: 1985,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3708", name: "Colli di S. Fermo", region: "Grone",
+    lat: 45.7431, lon: 9.9369, elevation: 1229, dhv: 3708,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2324", name: "Colonei", region: "Caprino Varonese",
+    lat: 45.6516, lon: 10.8144, elevation: 1364, dhv: 2324,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3872", name: "Comiso", region: "Comiso",
+    lat: 36.9279, lon: 14.6064, elevation: 480, dhv: 3872,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2015", name: "Confinale", region: "S. Antonio",
+    lat: 46.4596, lon: 10.4575, elevation: 2203, dhv: 2015,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2130", name: "Corno Nero", region: "Cavalese",
+    lat: 46.3343, lon: 11.4553, elevation: 2399, dhv: 2130,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2274", name: "Corteno Golgi", region: "Edolo",
+    lat: 46.1789, lon: 10.2543, elevation: 1483, dhv: 2274,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2425", name: "Cratere", region: "Porto di Lavente",
+    lat: 38.4033, lon: 14.9656, elevation: 371, dhv: 2425,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2039", name: "Creto", region: "Genova",
+    lat: 44.4779, lon: 9.0048, elevation: 624, dhv: 2039,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1925", name: "Cuarnan", region: "Gemona del Friuli",
+    lat: 46.2735, lon: 13.175, elevation: 1134, dhv: 1925,
+    sectors: [[168.75, 191.25], [168.75, 236.25]], sectorLabel: "S · S-SW", ...DEF },
+
+  { id: "db_5456", name: "Cucal", region: "Cavalese",
+    lat: 46.3103, lon: 11.4823, elevation: 1551, dhv: 5456,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3726", name: "Cusercoli", region: "Cusercoli",
+    lat: 44.0496, lon: 11.9904, elevation: 464, dhv: 3726,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5801", name: "Da Moni", region: "Romano d‘ Ezzelino",
+    lat: 45.8033, lon: 11.7444, elevation: 550, dhv: 5801,
+    sectors: [[146.25, 168.75]], sectorLabel: "SSO", ...DEF },
+
+  { id: "db_2126", name: "Dantercepies", region: "Selva di Val Gardena",
+    lat: 46.5538, lon: 11.7991, elevation: 2265, dhv: 2126,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3728", name: "Diecimo", region: "Diecimo",
+    lat: 43.9821, lon: 10.5, elevation: 736, dhv: 3728,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2011", name: "Dos del Curu", region: "Cevo",
+    lat: 46.1028, lon: 10.388, elevation: 2017, dhv: 2011,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1908", name: "Dosso del Sabion", region: "Pinzolo",
+    lat: 46.1668, lon: 10.8065, elevation: 2071, dhv: 1908,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2133", name: "Duca D'Aosta", region: "Cortina D&#039;Ampezzo",
+    lat: 46.536, lon: 12.0866, elevation: 2032, dhv: 2133,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_5512", name: "Egghof", region: "Taufers i. M.",
+    lat: 46.6594, lon: 10.4658, elevation: 1710, dhv: 5512,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3858_O", name: "Enna (O)", region: "Enna",
+    lat: 37.5675, lon: 14.2895, elevation: 964, dhv: 3858,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3858_SW", name: "Enna (SW)", region: "Enna",
+    lat: 37.5583, lon: 14.2759, elevation: 958, dhv: 3858,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5315", name: "Erice", region: "Erice",
+    lat: 38.0338, lon: 12.5765, elevation: 617, dhv: 5315,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3810", name: "Falapato", region: "Castelsaraceno",
+    lat: 40.1492, lon: 15.9568, elevation: 1216, dhv: 3810,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2325", name: "Faraoro", region: "Chiuppano",
+    lat: 45.7893, lon: 11.4841, elevation: 1295, dhv: 2325,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5672", name: "Faserno", region: "Storo",
+    lat: 45.8688, lon: 10.5466, elevation: 1457, dhv: 5672,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2030", name: "Finale Ligure", region: "Finale Ligure",
+    lat: 44.1841, lon: 8.373, elevation: 269, dhv: 2030,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5410", name: "Folgorito", region: "Querceta",
+    lat: 44.016, lon: 10.1939, elevation: 698, dhv: 5410,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3750_NO", name: "Fontanile (NO)", region: "Castelluccio",
+    lat: 42.8184, lon: 13.1784, elevation: 1835, dhv: 3750,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3750_SO", name: "Fontanile (SO)", region: "Castelluccio",
+    lat: 42.8103, lon: 13.1817, elevation: 1658, dhv: 3750,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3750_SW", name: "Fontanile (SW)", region: "Castelluccio",
+    lat: 42.81, lon: 13.1754, elevation: 1701, dhv: 3750,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3750_W", name: "Fontanile (W)", region: "Castelluccio",
+    lat: 42.8132, lon: 13.1765, elevation: 1819, dhv: 3750,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3753", name: "Forca di Presta", region: "Castelluccio",
+    lat: 42.7852, lon: 13.2517, elevation: 1613, dhv: 3753,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5311", name: "Fraginesi", region: "Trapani",
+    lat: 38.0126, lon: 12.8251, elevation: 453, dhv: 5311,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5327", name: "Frascineto", region: "Frascineto",
+    lat: 39.849, lon: 16.2635, elevation: 924, dhv: 5327,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5389", name: "Frosolone", region: "Frosolone",
+    lat: 41.5997, lon: 14.3981, elevation: 1342, dhv: 5389,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3761", name: "Funivia Assergi", region: "Forte Cerreto",
+    lat: 42.4418, lon: 13.5583, elevation: 2112, dhv: 3761,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3771_O", name: "Gagliano Atero (O)", region: "Gagliano Atero",
+    lat: 42.108, lon: 13.6988, elevation: 941, dhv: 3771,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3771_SO", name: "Gagliano Atero (SO)", region: "Gagliano Atero",
+    lat: 42.11, lon: 13.6945, elevation: 1030, dhv: 3771,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5442", name: "Gaiane", region: "Adrara",
+    lat: 45.7136, lon: 9.9379, elevation: 956, dhv: 5442,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1233", name: "Gais", region: "Gais",
+    lat: 46.8496, lon: 11.9741, elevation: 1620, dhv: 1233,
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", ...DEF },
+
+  { id: "db_3843", name: "Galladoro", region: "Letojanni Messina",
+    lat: 37.8964, lon: 15.308, elevation: 456, dhv: 3843,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_3793", name: "Gallinola", region: "San Gregorio Matese",
+    lat: 41.4254, lon: 14.4323, elevation: 1620, dhv: 3793,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5510", name: "Gamassen", region: "Mals",
+    lat: 46.6943, lon: 10.5786, elevation: 1662, dhv: 5510,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3683", name: "Gampielalm", region: "Pfunders",
+    lat: 46.9148, lon: 11.7053, elevation: 2006, dhv: 3683,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3787", name: "Genzano di Roma", region: "Genzano di Roma",
+    lat: 41.6991, lon: 12.6726, elevation: 342, dhv: 3787,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3861_NW", name: "Gerace (NW)", region: "Enna",
+    lat: 37.4701, lon: 14.2341, elevation: 693, dhv: 3861,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3861_W", name: "Gerace (W)", region: "Enna",
+    lat: 37.4615, lon: 14.2316, elevation: 642, dhv: 3861,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_2024", name: "Germasino", region: "Dongo",
+    lat: 46.1422, lon: 9.2217, elevation: 1330, dhv: 2024,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_4576", name: "Gesturi", region: "Gesturi",
+    lat: 39.7357, lon: 8.9994, elevation: 570, dhv: 4576,
+    sectors: [[123.75, 146.25], [123.75, 191.25]], sectorLabel: "SO · SO-S", ...DEF },
+
+  { id: "db_5476", name: "Gewingesalm", region: "Ridnaun",
+    lat: 46.9093, lon: 11.2684, elevation: 2055, dhv: 5476,
+    sectors: [[303.75, 101.25]], sectorLabel: "NW-O", ...DEF },
+
+  { id: "db_2042", name: "Ginestre", region: "Sestri Lavente",
+    lat: 44.2614, lon: 9.4121, elevation: 217, dhv: 2042,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3773", name: "Gioia dei Marsi", region: "Gioia dei Marsi",
+    lat: 41.9501, lon: 13.7175, elevation: 1319, dhv: 3773,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1236_O", name: "Gitschberg (O)", region: "Meransen",
+    lat: 46.8544, lon: 11.6886, elevation: 2281, dhv: 1236,
+    sectors: [[78.75, 146.25], [78.75, 101.25], [33.75, 146.25], [101.25, 123.75]], sectorLabel: "O-SO · O · NO-SO · OSO", ...DEF },
+
+  { id: "db_1236_SO", name: "Gitschberg (SO)", region: "Meransen",
+    lat: 46.8242, lon: 11.6789, elevation: 1497, dhv: 1236,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1236_SW", name: "Gitschberg (SW)", region: "Meransen",
+    lat: 46.8475, lon: 11.6841, elevation: 2137, dhv: 1236,
+    sectors: [[213.75, 281.25], [213.75, 236.25]], sectorLabel: "SW-W · SW", ...DEF },
+
+  { id: "db_1253", name: "Glaiten", region: "St. Leonhard",
+    lat: 46.826, lon: 11.2426, elevation: 1305, dhv: 1253,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5441", name: "Gole", region: "Sale Marasino",
+    lat: 45.6899, lon: 10.1341, elevation: 1025, dhv: 5441,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3815", name: "Gonnesfaradiga", region: "Gonnesfaradiga",
+    lat: 39.4838, lon: 8.681, elevation: 617, dhv: 3815,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2365", name: "Gran Monte", region: "Pradielis",
+    lat: 46.2828, lon: 13.2912, elevation: 964, dhv: 2365,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5398", name: "Gran Sasso", region: "Prati di Tivo",
+    lat: 42.4897, lon: 13.5694, elevation: 1965, dhv: 5398,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5307", name: "Gratteri", region: "Gratteri",
+    lat: 37.9606, lon: 13.9816, elevation: 932, dhv: 5307,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3685", name: "Grente", region: "Antholz",
+    lat: 46.8477, lon: 12.0629, elevation: 2195, dhv: 3685,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5405", name: "Gualdo Tadino", region: "Gualdo Tadino",
+    lat: 43.2417, lon: 12.8121, elevation: 1280, dhv: 5405,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5324", name: "Guasila", region: "Guasila",
+    lat: 39.6065, lon: 9.0418, elevation: 368, dhv: 5324,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3739", name: "Gubbio", region: "Gubbio",
+    lat: 43.3646, lon: 12.5738, elevation: 945, dhv: 3739,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3818", name: "Guroneddu", region: "Seruci",
+    lat: 39.2487, lon: 8.3996, elevation: 96, dhv: 3818,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_1238_NO", name: "Helm (NO)", region: "Sexten",
+    lat: 46.716, lon: 12.3742, elevation: 2215, dhv: 1238,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1238_S", name: "Helm (S)", region: "Sexten",
+    lat: 46.7153, lon: 12.3734, elevation: 2191, dhv: 1238,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1238_SW", name: "Helm (SW)", region: "Sexten",
+    lat: 46.7151, lon: 12.3702, elevation: 2166, dhv: 1238,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1254", name: "Hirzer", region: "Saltaus",
+    lat: 46.7354, lon: 11.2522, elevation: 2087, dhv: 1254,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2471", name: "Hoch Joch", region: "Ultimo Bolzano",
+    lat: 46.5728, lon: 10.9969, elevation: 2331, dhv: 2471,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1255", name: "Hochmut", region: "Dorf Tirol",
+    lat: 46.7017, lon: 11.1312, elevation: 1400, dhv: 1255,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2044", name: "I Casoni", region: "I Casoni",
+    lat: 44.2973, lon: 9.7837, elevation: 1003, dhv: 2044,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5428", name: "Il Podio", region: "Dubbione",
+    lat: 44.9476, lon: 7.2362, elevation: 903, dhv: 5428,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3757", name: "Ionella", region: "Ionella",
+    lat: 42.6776, lon: 13.6209, elevation: 1063, dhv: 3757,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_5308", name: "Isnello", region: "Isnello",
+    lat: 37.9674, lon: 14.0049, elevation: 855, dhv: 5308,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_5408", name: "Isolabona", region: "Isolabona",
+    lat: 43.8881, lon: 7.6219, elevation: 702, dhv: 5408,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1559", name: "Kanzel", region: "Sulden",
+    lat: 46.5228, lon: 10.607, elevation: 2329, dhv: 1559,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1235_N", name: "Kronplatz (N)", region: "Bruneck",
+    lat: 46.7395, lon: 11.9596, elevation: 2265, dhv: 1235,
+    sectors: [[348.75, 11.25], [348.75, 56.25]], sectorLabel: "N · N-NO", ...DEF },
+
+  { id: "db_1235_O", name: "Kronplatz (O)", region: "Bruneck",
+    lat: 46.7388, lon: 11.9666, elevation: 2249, dhv: 1235,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1235_SO", name: "Kronplatz (SO)", region: "Bruneck",
+    lat: 46.7381, lon: 11.9591, elevation: 2261, dhv: 1235,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1235_SW", name: "Kronplatz (SW)", region: "Bruneck",
+    lat: 46.7389, lon: 11.9569, elevation: 2263, dhv: 1235,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1235_W", name: "Kronplatz (W)", region: "Bruneck",
+    lat: 46.7374, lon: 11.9548, elevation: 2249, dhv: 1235,
+    sectors: [[258.75, 326.25], [258.75, 281.25]], sectorLabel: "W-NW · W", ...DEF },
+
+  { id: "db_5457", name: "Kurtatsch", region: "Kurtatsch",
+    lat: 46.3295, lon: 11.21, elevation: 1157, dhv: 5457,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3767", name: "L'Aquila", region: "Contrada D&#039;Appolloni",
+    lat: 42.3185, lon: 13.2516, elevation: 1306, dhv: 3767,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_3748", name: "La Banditella", region: "Cupi",
+    lat: 42.9876, lon: 13.1412, elevation: 1509, dhv: 3748,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2277", name: "La Guardia", region: "Recoaro Terme",
+    lat: 45.7192, lon: 11.1817, elevation: 1125, dhv: 2277,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1240", name: "La Lokomotiva", region: "Canazei",
+    lat: 46.5078, lon: 11.7718, elevation: 2312, dhv: 1240,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1903", name: "La Magdeleine", region: "Antey-Saint-Andre",
+    lat: 45.8175, lon: 7.6125, elevation: 1858, dhv: 1903,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2046", name: "La Penna", region: "Mendatica",
+    lat: 44.0484, lon: 7.7725, elevation: 1882, dhv: 2046,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_1977_S", name: "La Riposa (S)", region: "Susa",
+    lat: 45.1784, lon: 7.0815, elevation: 2169, dhv: 1977,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1977_SW", name: "La Riposa (SW)", region: "Susa",
+    lat: 45.1658, lon: 7.0821, elevation: 1816, dhv: 1977,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3743", name: "La Rocca", region: "Morichella",
+    lat: 43.0661, lon: 13.2537, elevation: 821, dhv: 3743,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3752", name: "La Rotonda", region: "Castelluccio",
+    lat: 42.8004, lon: 13.2178, elevation: 1392, dhv: 3752,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3785", name: "Lago Albano", region: "Marino Roma",
+    lat: 41.7602, lon: 12.6752, elevation: 463, dhv: 3785,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5404", name: "Lago di Caccamo", region: "Pievefavera",
+    lat: 43.1247, lon: 13.1924, elevation: 789, dhv: 5404,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_5511", name: "Langenstein", region: "Sulden",
+    lat: 46.519, lon: 10.5771, elevation: 2313, dhv: 5511,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_3692", name: "Lavinaspitz", region: "Kaltern",
+    lat: 46.3889, lon: 11.2104, elevation: 1646, dhv: 3692,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_2426", name: "Lentia", region: "Lentia",
+    lat: 38.4094, lon: 14.9417, elevation: 126, dhv: 2426,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3798", name: "Littigheddu", region: "San Giovanni",
+    lat: 40.8808, lon: 8.7858, elevation: 391, dhv: 3798,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3799", name: "Loggia di Pilato", region: "Impalata",
+    lat: 40.8759, lon: 17.2861, elevation: 339, dhv: 3799,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1538", name: "Lüsen", region: "Lüsen",
+    lat: 46.7629, lon: 11.7544, elevation: 1603, dhv: 1538,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3846", name: "Madonna dell' Alto", region: "Calcarelli",
+    lat: 37.8315, lon: 14.0498, elevation: 1783, dhv: 3846,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5395", name: "Maiella", region: "Bocca di Valle",
+    lat: 42.1598, lon: 14.133, elevation: 1900, dhv: 5395,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2134", name: "Malga Losch", region: "Voltago Agordino",
+    lat: 46.2601, lon: 11.9617, elevation: 1708, dhv: 2134,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5437", name: "Malga Rialto", region: "Pozza",
+    lat: 45.6515, lon: 11.2369, elevation: 1077, dhv: 5437,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3693", name: "Malgola", region: "Predazzo",
+    lat: 46.3051, lon: 11.6109, elevation: 1410, dhv: 3693,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1918", name: "Maniago", region: "Maniago",
+    lat: 46.177, lon: 12.6765, elevation: 836, dhv: 1918,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5330", name: "Maratea", region: "Acquafredda",
+    lat: 40.0302, lon: 15.7069, elevation: 931, dhv: 5330,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5449", name: "Margone", region: "Sarche",
+    lat: 46.0742, lon: 10.9694, elevation: 947, dhv: 5449,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3806", name: "Marsicovetere", region: "Masicovetere",
+    lat: 40.377, lon: 15.8333, elevation: 1162, dhv: 3806,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3735", name: "Massanera", region: "Regello",
+    lat: 43.7015, lon: 11.556, elevation: 1055, dhv: 3735,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5299", name: "Mellini 1", region: "Mellini",
+    lat: 37.172, lon: 15.1403, elevation: 270, dhv: 5299,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5300", name: "Mellini 2", region: "Mellini",
+    lat: 37.183, lon: 15.1137, elevation: 325, dhv: 5300,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_2041", name: "Mendatica", region: "Mendatica",
+    lat: 44.0898, lon: 7.7927, elevation: 1221, dhv: 2041,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2472", name: "Meran 2000", region: "Meran",
+    lat: 46.6769, lon: 11.2541, elevation: 1876, dhv: 2472,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5390", name: "Miranda", region: "Miranda",
+    lat: 41.6387, lon: 14.2678, elevation: 1160, dhv: 5390,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1348", name: "Misurina", region: "Misurina",
+    lat: 46.6124, lon: 12.2918, elevation: 2301, dhv: 1348,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3715_NO", name: "Mofestino (NO)", region: "Mofestino",
+    lat: 44.4278, lon: 10.8259, elevation: 757, dhv: 3715,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3715_O", name: "Mofestino (O)", region: "Mofestino",
+    lat: 44.4256, lon: 10.8254, elevation: 753, dhv: 3715,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1896", name: "Molveno", region: "Molveno",
+    lat: 46.1543, lon: 10.9556, elevation: 1485, dhv: 1896,
+    sectors: [[123.75, 236.25], [168.75, 191.25]], sectorLabel: "SO-SW · S", ...DEF },
+
+  { id: "db_2260_N", name: "Mombarcaro (N)", region: "Mombarcaro",
+    lat: 44.4692, lon: 8.0843, elevation: 868, dhv: 2260,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_2260_SO", name: "Mombarcaro (SO)", region: "Mombarcaro",
+    lat: 44.4658, lon: 8.0916, elevation: 842, dhv: 2260,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_5451", name: "Moncucco", region: "Domodossola",
+    lat: 46.0915, lon: 8.2268, elevation: 1815, dhv: 5451,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1979", name: "Mont San Giorgio", region: "Piossasco",
+    lat: 44.9969, lon: 7.448, elevation: 809, dhv: 1979,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3842", name: "Montagna Grande", region: "Contrada Castello",
+    lat: 37.8998, lon: 12.7702, elevation: 656, dhv: 3842,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3844", name: "Montagna Grande Süd", region: "Contrada Castello",
+    lat: 37.8913, lon: 12.7486, elevation: 682, dhv: 3844,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5429", name: "Montalto Pavese", region: "Pezzolo",
+    lat: 44.9677, lon: 9.2285, elevation: 430, dhv: 5429,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2393", name: "Monte Acuto", region: "Cagli",
+    lat: 43.4954, lon: 12.6637, elevation: 1185, dhv: 2393,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5333", name: "Monte Alpi", region: "Case Baroni",
+    lat: 40.0986, lon: 15.9695, elevation: 1270, dhv: 5333,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3727", name: "Monte Altuzzo", region: "Ponzalla",
+    lat: 44.0416, lon: 11.3904, elevation: 896, dhv: 3727,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3795", name: "Monte Ariola", region: "San Potito",
+    lat: 41.3603, lon: 14.4174, elevation: 1133, dhv: 3795,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1342", name: "Monte Avena", region: "Feltre",
+    lat: 46.0297, lon: 11.8264, elevation: 1394, dhv: 1342,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1895", name: "Monte Baldo", region: "Malcesine",
+    lat: 45.7775, lon: 10.8628, elevation: 1742, dhv: 1895,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2038", name: "Monte Banca", region: "Montoggio",
+    lat: 44.5363, lon: 9.0437, elevation: 901, dhv: 2038,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3719_NW", name: "Monte Battaglia (NW)", region: "San Ruffillo",
+    lat: 44.2219, lon: 11.5825, elevation: 658, dhv: 3719,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3719_SO", name: "Monte Battaglia (SO)", region: "San Ruffillo",
+    lat: 44.2227, lon: 11.5844, elevation: 643, dhv: 3719,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2135", name: "Monte Belpo", region: "Costermano",
+    lat: 45.6164, lon: 10.7614, elevation: 864, dhv: 2135,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_2023_SO", name: "Monte Berlinghera (SO)", region: "Gera Lario",
+    lat: 46.1908, lon: 9.3905, elevation: 1080, dhv: 2023,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2023_SW", name: "Monte Berlinghera (SW)", region: "Gera Lario",
+    lat: 46.2103, lon: 9.3888, elevation: 1881, dhv: 2023,
+    sectors: [[213.75, 281.25], [213.75, 236.25]], sectorLabel: "SW-W · SW", ...DEF },
+
+  { id: "db_2003", name: "Monte Blum", region: "Rovetta",
+    lat: 45.9108, lon: 9.9803, elevation: 1296, dhv: 2003,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5421", name: "Monte Boglelio", region: "Bastardini",
+    lat: 44.7482, lon: 9.2133, elevation: 1459, dhv: 5421,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1986_NO", name: "Monte Bondone (NO)", region: "Lasino",
+    lat: 46.0411, lon: 11.0264, elevation: 1535, dhv: 1986,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_1986_SW", name: "Monte Bondone (SW)", region: "Lasino",
+    lat: 45.9972, lon: 11.0252, elevation: 1739, dhv: 1986,
+    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", ...DEF },
+
+  { id: "db_1986_W", name: "Monte Bondone (W)", region: "Lasino",
+    lat: 46.0426, lon: 11.0132, elevation: 1313, dhv: 1986,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3709", name: "Monte Bronzone", region: "Sarnico",
+    lat: 45.6928, lon: 9.9953, elevation: 939, dhv: 3709,
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", ...DEF },
+
+  { id: "db_5414_N", name: "Monte Caio (N)", region: "Schia",
+    lat: 44.4649, lon: 10.1619, elevation: 1452, dhv: 5414,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5414_S", name: "Monte Caio (S)", region: "Schia",
+    lat: 44.4641, lon: 10.1604, elevation: 1469, dhv: 5414,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3733", name: "Monte Capanne", region: "San Giuliano Terme",
+    lat: 43.7784, lon: 10.4404, elevation: 334, dhv: 3733,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_4573", name: "Monte Capanne", region: "Marcianna",
+    lat: 42.7725, lon: 10.1693, elevation: 951, dhv: 4573,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3764", name: "Monte Cappucciata", region: "Villa Santa Lucia",
+    lat: 42.3447, lon: 13.7849, elevation: 1503, dhv: 3764,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5338", name: "Monte Carmelo", region: "Sant Arsenio",
+    lat: 40.4771, lon: 15.4592, elevation: 1118, dhv: 5338,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3732", name: "Monte Carpegna", region: "Carpegna",
+    lat: 43.8015, lon: 12.3349, elevation: 1316, dhv: 3732,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1929", name: "Monte Carso", region: "Dorligo della Valle",
+    lat: 45.607, lon: 13.8695, elevation: 423, dhv: 1929,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5480", name: "Monte Carza", region: "Cannero Riviera",
+    lat: 46.0421, lon: 8.6736, elevation: 1080, dhv: 5480,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1972_S", name: "Monte Cavallaria, Cima Cavallaria, (S)", region: "Borgofranco D&#039;Ivrea",
+    lat: 45.5206, lon: 7.8072, elevation: 1436, dhv: 1972,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1972_SO", name: "Monte Cavallaria, Cima Cavallaria, (SO)", region: "Borgofranco D&#039;Ivrea",
+    lat: 45.5072, lon: 7.8099, elevation: 975, dhv: 1972,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1972_SW", name: "Monte Cavallaria, Cima Cavallaria, (SW)", region: "Borgofranco D&#039;Ivrea",
+    lat: 45.5134, lon: 7.7969, elevation: 1374, dhv: 1972,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1549", name: "Monte Cesen", region: "Valdobbiadene",
+    lat: 45.9309, lon: 12.0205, elevation: 1390, dhv: 1549,
+    sectors: [[78.75, 281.25], [168.75, 191.25]], sectorLabel: "O-W · S", ...DEF },
+
+  { id: "db_5417", name: "Monte Chiappo", region: "Aie Cosola",
+    lat: 44.6827, lon: 9.1984, elevation: 1668, dhv: 5417,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1897", name: "Monte Chiaro", region: "Belluna",
+    lat: 46.0475, lon: 9.3483, elevation: 1527, dhv: 1897,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5332", name: "Monte Coccovello", region: "Acquafredda",
+    lat: 40.0483, lon: 15.6987, elevation: 1130, dhv: 5332,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3831", name: "Monte Cofano", region: "San Vito lo Capo",
+    lat: 38.0999, lon: 12.6841, elevation: 286, dhv: 3831,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1899", name: "Monte Cornizzolo", region: "Cesana Brianza",
+    lat: 45.8332, lon: 9.3021, elevation: 1035, dhv: 1899,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3705", name: "Monte Corno", region: "Chiuppano",
+    lat: 45.8, lon: 11.5444, elevation: 1189, dhv: 3705,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3763", name: "Monte Cosce", region: "Rocchette",
+    lat: 42.4062, lon: 12.6327, elevation: 1093, dhv: 3763,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5802", name: "Monte Crapene", region: "Livigno",
+    lat: 46.5467, lon: 10.1692, elevation: 2420, dhv: 5802,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_3762_NW", name: "Monte Cristo (NW)", region: "Forte Correto",
+    lat: 42.3968, lon: 13.5671, elevation: 1627, dhv: 3762,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3762_SW", name: "Monte Cristo (SW)", region: "Forte Correto",
+    lat: 42.4129, lon: 13.5752, elevation: 1896, dhv: 3762,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5431", name: "Monte Cuccetto", region: "Castelnuovo",
+    lat: 44.9768, lon: 7.2344, elevation: 1605, dhv: 5431,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3740_NO", name: "Monte Cucco (NO)", region: "Sigillo",
+    lat: 43.3565, lon: 12.7714, elevation: 1120, dhv: 3740,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3740_SW", name: "Monte Cucco (SW)", region: "Sigillo",
+    lat: 43.3571, lon: 12.7498, elevation: 1188, dhv: 3740,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_4572", name: "Monte di Capaccio Vecchio", region: "Capaccio",
+    lat: 40.4493, lon: 15.0495, elevation: 207, dhv: 4572,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2021", name: "Monte Farno", region: "Gandino",
+    lat: 45.8319, lon: 9.9075, elevation: 1286, dhv: 2021,
+    sectors: [[123.75, 236.25], [78.75, 281.25], [168.75, 191.25]], sectorLabel: "SO-SW · O-W · S", ...DEF },
+
+  { id: "db_5430", name: "Monte Freidur", region: "Roletto",
+    lat: 44.9731, lon: 7.3031, elevation: 1452, dhv: 5430,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_3729", name: "Monte Gabberi", region: "Camaiore",
+    lat: 43.9668, lon: 10.2953, elevation: 1081, dhv: 3729,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3698", name: "Monte Galbiga", region: "Porlezza",
+    lat: 46.0107, lon: 9.1598, elevation: 1672, dhv: 3698,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5304", name: "Monte Gallo", region: "Poggioreale",
+    lat: 37.7882, lon: 13.0699, elevation: 538, dhv: 5304,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5450", name: "Monte Gazza", region: "Sarche",
+    lat: 46.081, lon: 10.9591, elevation: 1558, dhv: 5450,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3741", name: "Monte Gemmo", region: "Esanatoglia",
+    lat: 43.2187, lon: 12.9544, elevation: 1156, dhv: 3741,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5394", name: "Monte Gennaro", region: "Marcellina",
+    lat: 42.035, lon: 12.8251, elevation: 757, dhv: 5394,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5412", name: "Monte Gianni", region: "Popolano",
+    lat: 44.0806, lon: 11.6335, elevation: 581, dhv: 5412,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3695", name: "Monte Gnino", region: "Porlezza",
+    lat: 46.0539, lon: 9.1301, elevation: 898, dhv: 3695,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5316", name: "Monte Griffone", region: "Croceverde",
+    lat: 38.0577, lon: 13.4085, elevation: 500, dhv: 5316,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2423", name: "Monte Guardia", region: "Lipari",
+    lat: 38.4549, lon: 14.9438, elevation: 344, dhv: 2423,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2007", name: "Monte Guglielmo", region: "Sale Marasino",
+    lat: 45.7251, lon: 10.1463, elevation: 1132, dhv: 2007,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3835", name: "Monte Icini", region: "Castellamare del Golfo",
+    lat: 38.0012, lon: 12.8592, elevation: 1061, dhv: 3835,
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", ...DEF },
+
+  { id: "db_5313", name: "Monte Lascari", region: "Cocuzzola",
+    lat: 38.0207, lon: 13.9606, elevation: 276, dhv: 5313,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_5418", name: "Monte Lesima", region: "Lama",
+    lat: 44.6848, lon: 9.2546, elevation: 1635, dhv: 5418,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2009", name: "Monte Linzone", region: "Palazago",
+    lat: 45.7766, lon: 9.5318, elevation: 1372, dhv: 2009,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_2258", name: "Monte Liretta", region: "Villar san Constanzo",
+    lat: 44.499, lon: 7.382, elevation: 1071, dhv: 2258,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3868", name: "Monte Lungo", region: "Femmina Morta",
+    lat: 37.0881, lon: 14.1828, elevation: 52, dhv: 3868,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3690", name: "Monte Lussari", region: "Camporosso",
+    lat: 46.4827, lon: 13.5206, elevation: 1731, dhv: 3690,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4577", name: "Monte Maccione", region: "Oliena",
+    lat: 40.2577, lon: 9.424, elevation: null, dhv: 4577,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_2006_O", name: "Monte Maddalena (O)", region: "Brescia",
+    lat: 45.5491, lon: 10.2848, elevation: 841, dhv: 2006,
+    sectors: [[78.75, 101.25], [78.75, 146.25]], sectorLabel: "O · O-SO", ...DEF },
+
+  { id: "db_2006_SW", name: "Monte Maddalena (SW)", region: "Brescia",
+    lat: 45.5371, lon: 10.2707, elevation: 624, dhv: 2006,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3711", name: "Monte Madonna", region: "Ghetto",
+    lat: 45.3565, lon: 11.6544, elevation: 461, dhv: 3711,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3839", name: "Monte Maganoce Nord", region: "Santa Christina Gela",
+    lat: 37.9607, lon: 13.2989, elevation: 871, dhv: 3839,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_3840", name: "Monte Maganoce Süd", region: "Santa Christina Gela",
+    lat: 37.9582, lon: 13.2883, elevation: 824, dhv: 3840,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_2037", name: "Monte Maggio", region: "Casella",
+    lat: 44.5559, lon: 9.0077, elevation: 946, dhv: 2037,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2261_NO", name: "Monte Malanotte (NO)", region: "Frabosa",
+    lat: 44.2592, lon: 7.7945, elevation: 1715, dhv: 2261,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_2261_W", name: "Monte Malanotte (W)", region: "Frabosa",
+    lat: 44.2596, lon: 7.7938, elevation: 1712, dhv: 2261,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1970", name: "Monte Moro", region: "Macugnagna",
+    lat: 45.9966, lon: 7.9778, elevation: 2797, dhv: 1970,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3738", name: "Monte Murano", region: "Serra san Quirico",
+    lat: 43.4386, lon: 13.0009, elevation: 804, dhv: 3738,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_2391_O", name: "Monte Nerone (O)", region: "Apecchio Pesaro",
+    lat: 43.5552, lon: 12.5235, elevation: 1372, dhv: 2391,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2391_W", name: "Monte Nerone (W)", region: "Apecchio Pesaro",
+    lat: 43.5538, lon: 12.5055, elevation: 1417, dhv: 2391,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1557", name: "Monte Novegno", region: "Schio",
+    lat: 45.763, lon: 11.3089, elevation: 1517, dhv: 1557,
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", ...DEF },
+
+  { id: "db_2122", name: "Monte Nozzolo", region: "Concei",
+    lat: 45.9339, lon: 10.6887, elevation: 2049, dhv: 2122,
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", ...DEF },
+
+  { id: "db_1901", name: "Monte Nudo", region: "Cittiglio",
+    lat: 45.9221, lon: 8.674, elevation: 1063, dhv: 1901,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_4575", name: "Monte Ortobene", region: "Nuoro",
+    lat: 40.3235, lon: 9.3765, elevation: 878, dhv: 4575,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2018", name: "Monte Padrio", region: "Corteno Golgi",
+    lat: 46.1863, lon: 10.227, elevation: 2121, dhv: 2018,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1555", name: "Monte Panarotta", region: "Levico Terme",
+    lat: 46.0418, lon: 11.3171, elevation: 1481, dhv: 1555,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5342", name: "Monte Parratiello", region: "Muro Lucano",
+    lat: 40.7261, lon: 15.4717, elevation: 909, dhv: 5342,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_5415", name: "Monte Pelpi", region: "Isola",
+    lat: 44.5434, lon: 9.6528, elevation: 1478, dhv: 5415,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5420", name: "Monte Penice", region: "Bobbio",
+    lat: 44.7884, lon: 9.3209, elevation: 1371, dhv: 5420,
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", ...DEF },
+
+  { id: "db_1915", name: "Monte Piana", region: "Misurina",
+    lat: 46.6117, lon: 12.2521, elevation: 2237, dhv: 1915,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5631", name: "Monte Pic", region: "St. Ulrich",
+    lat: 46.5803, lon: 11.7247, elevation: 2364, dhv: 5631,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2416", name: "Monte Piccaro", region: "Ceriale",
+    lat: 44.1058, lon: 8.2309, elevation: 253, dhv: 2416,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3724", name: "Monte Piella", region: "Porretta Therme",
+    lat: 44.1334, lon: 10.9361, elevation: 1174, dhv: 3724,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_2029", name: "Monte Pisciavino", region: "Alassio",
+    lat: 44.0278, lon: 8.1628, elevation: 577, dhv: 2029,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3722", name: "Monte Pizzo", region: "Lizzano in Belvedere",
+    lat: 44.1544, lon: 10.8851, elevation: 1169, dhv: 3722,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2386_S", name: "Monte Pizzoc (S)", region: "Fregona",
+    lat: 46.043, lon: 12.3384, elevation: 1537, dhv: 2386,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2386_SW", name: "Monte Pizzoc (SW)", region: "Fregona",
+    lat: 46.0387, lon: 12.3502, elevation: 1545, dhv: 2386,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2001_S", name: "Monte Pizzocolo (S)", region: "Gardone",
+    lat: 45.6653, lon: 10.5611, elevation: 1152, dhv: 2001,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2001_W", name: "Monte Pizzocolo (W)", region: "Gardone",
+    lat: 45.6679, lon: 10.5612, elevation: 1216, dhv: 2001,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3836", name: "Monte Pizzuta", region: "Piana Degli Albanesi",
+    lat: 37.9961, lon: 13.2539, elevation: 1180, dhv: 3836,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5343", name: "Monte Pizzuto", region: "Caranna",
+    lat: 40.7779, lon: 17.4207, elevation: 360, dhv: 5343,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_2364", name: "Monte Postoucicco", region: "Pradielis",
+    lat: 46.2849, lon: 13.2443, elevation: 769, dhv: 2364,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2366", name: "Monte Purgessimo", region: "Purgessimo",
+    lat: 46.1046, lon: 13.4866, elevation: 425, dhv: 2366,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2005", name: "Monte Rambasi", region: "Valbondione",
+    lat: 46.0263, lon: 10.0153, elevation: 1345, dhv: 2005,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3774_NO", name: "Monte Ripoli (NO)", region: "Tivoli",
+    lat: 41.9426, lon: 12.8083, elevation: 511, dhv: 3774,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3774_SW", name: "Monte Ripoli (SW)", region: "Tivoli",
+    lat: 41.9416, lon: 12.8069, elevation: 505, dhv: 3774,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2424", name: "Monte Rosa", region: "Canneto",
+    lat: 38.483, lon: 14.9765, elevation: 220, dhv: 2424,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_2422_S", name: "Monte San Angelo (S)", region: "Lipari",
+    lat: 38.4851, lon: 14.9326, elevation: 503, dhv: 2422,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2422_SO", name: "Monte San Angelo (SO)", region: "Lipari",
+    lat: 38.4873, lon: 14.9363, elevation: 535, dhv: 2422,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5329", name: "Monte San Biagio", region: "Maratea",
+    lat: 39.9851, lon: 15.7244, elevation: 459, dhv: 5329,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2263", name: "Monte San Giorgio", region: "Piossasco",
+    lat: 44.9963, lon: 7.4474, elevation: 804, dhv: 2263,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5406", name: "Monte San Vicino", region: "Matelica",
+    lat: 43.3172, lon: 13.0577, elevation: 1193, dhv: 5406,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3864", name: "Monte Scala", region: "Cotomino",
+    lat: 37.2515, lon: 14.4233, elevation: 776, dhv: 3864,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3859_N", name: "Monte Scalpello (N)", region: "Catenanuova",
+    lat: 37.5504, lon: 14.6525, elevation: 495, dhv: 3859,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_3859_NW", name: "Monte Scalpello (NW)", region: "Catenanuova",
+    lat: 37.5482, lon: 14.652, elevation: 581, dhv: 3859,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3859_SO", name: "Monte Scalpello (SO)", region: "Catenanuova",
+    lat: 37.5488, lon: 14.6548, elevation: 579, dhv: 3859,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2004", name: "Monte Scanapa", region: "Castione della Presolana",
+    lat: 45.9199, lon: 10.0884, elevation: 1619, dhv: 2004,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1983", name: "Monte Sertore", region: "Pigra",
+    lat: 45.9777, lon: 9.121, elevation: 1397, dhv: 1983,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2131", name: "Monte Seura", region: "Santa Cristina",
+    lat: 46.5391, lon: 11.7269, elevation: 2024, dhv: 2131,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3696", name: "Monte Sighignola", region: "Arogno",
+    lat: 45.9675, lon: 8.9936, elevation: 1293, dhv: 3696,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2264", name: "Monte Soglio", region: "Corio",
+    lat: 45.3383, lon: 7.5431, elevation: 1325, dhv: 2264,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5320_O", name: "Monte Stella (O)", region: "Stilo",
+    lat: 38.4782, lon: 16.4592, elevation: 670, dhv: 5320,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_5320_SO", name: "Monte Stella (SO)", region: "Stilo",
+    lat: 38.4653, lon: 16.4409, elevation: 803, dhv: 5320,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3742_N", name: "Monte Subasio (N)", region: "Assisi",
+    lat: 43.0707, lon: 12.6692, elevation: 1203, dhv: 3742,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_3742_O", name: "Monte Subasio (O)", region: "Assisi",
+    lat: 43.0642, lon: 12.6747, elevation: 1253, dhv: 3742,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3742_S", name: "Monte Subasio (S)", region: "Assisi",
+    lat: 43.0459, lon: 12.6769, elevation: 1243, dhv: 3742,
+    sectors: [[168.75, 236.25], [168.75, 191.25]], sectorLabel: "S-SW · S", ...DEF },
+
+  { id: "db_3742_W", name: "Monte Subasio (W)", region: "Assisi",
+    lat: 43.0566, lon: 12.6678, elevation: 1255, dhv: 3742,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1556", name: "Monte Summano", region: "Schio",
+    lat: 45.7564, lon: 11.3902, elevation: 1132, dhv: 1556,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2027", name: "Monte Tenchia", region: "Cercivento",
+    lat: 46.5504, lon: 12.9767, elevation: 1590, dhv: 2027,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2265", name: "Monte Tovo", region: "Doccio",
+    lat: 45.7528, lon: 8.2212, elevation: 1238, dhv: 2265,
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", ...DEF },
+
+  { id: "db_2123_O", name: "Monte Tremalzo (O)", region: "Tremalzo",
+    lat: 45.8364, lon: 10.6905, elevation: 1685, dhv: 2123,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_2123_SO", name: "Monte Tremalzo (SO)", region: "Tremalzo",
+    lat: 45.8375, lon: 10.705, elevation: 1824, dhv: 2123,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1982", name: "Monte Tremezzo", region: "Tremezzo",
+    lat: 46.0013, lon: 9.1867, elevation: 1656, dhv: 1982,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_5341", name: "Monte Tubenna", region: "San Mango Piemonte",
+    lat: 40.7072, lon: 14.8451, elevation: 643, dhv: 5341,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3854", name: "Monte Vaccaro", region: "La Rosamarina",
+    lat: 37.6254, lon: 14.6515, elevation: 544, dhv: 3854,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1893", name: "Monte Valinis", region: "Meduno",
+    lat: 46.2307, lon: 12.8064, elevation: 975, dhv: 1893,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5423", name: "Monte Vandalino", region: "Bobbio Pellice",
+    lat: 44.8363, lon: 7.1683, elevation: 2031, dhv: 5423,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3845", name: "Monte Veneretta", region: "Taormina",
+    lat: 37.8694, lon: 15.2676, elevation: 785, dhv: 3845,
+    sectors: [[78.75, 236.25]], sectorLabel: "O-SW", ...DEF },
+
+  { id: "db_5337", name: "Monte Volturino", region: "Marsicovetere",
+    lat: 40.4043, lon: 15.8175, elevation: 1587, dhv: 5337,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5383", name: "Monte Vulture", region: "Foggianello",
+    lat: 40.9547, lon: 15.6263, elevation: 1219, dhv: 5383,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_5459", name: "Monte Zoncolan", region: "Paluzza",
+    lat: 46.5065, lon: 12.9325, elevation: 1696, dhv: 5459,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_5439", name: "Montefalcone", region: "Valdagno",
+    lat: 45.6648, lon: 11.2102, elevation: 1537, dhv: 5439,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3776_NO", name: "Montefalcone (NO)", region: "Montefalcone nel Sannio",
+    lat: 41.8512, lon: 14.6688, elevation: 912, dhv: 3776,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3776_SW", name: "Montefalcone (SW)", region: "Montefalcone nel Sannio",
+    lat: 41.8582, lon: 14.6464, elevation: 842, dhv: 3776,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3758", name: "Montefiascone", region: "Montefiascone",
+    lat: 42.5523, lon: 12.02, elevation: 535, dhv: 3758,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2259_O", name: "Montemale (O)", region: "San Giorgio",
+    lat: 44.4316, lon: 7.3629, elevation: 1097, dhv: 2259,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2259_SO", name: "Montemale (SO)", region: "San Giorgio",
+    lat: 44.4321, lon: 7.3571, elevation: 1130, dhv: 2259,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2026", name: "Montemezzo", region: "Gera Lario",
+    lat: 46.2067, lon: 9.3569, elevation: 1753, dhv: 2026,
+    sectors: [[123.75, 281.25], [123.75, 236.25]], sectorLabel: "SO-W · SO-SW", ...DEF },
+
+  { id: "db_2262_O", name: "Montemoro (O)", region: "Frabosa",
+    lat: 44.2686, lon: 7.7928, elevation: 1655, dhv: 2262,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2262_W", name: "Montemoro (W)", region: "Frabosa",
+    lat: 44.2693, lon: 7.7926, elevation: 1631, dhv: 2262,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_2047", name: "Monterosso", region: "Monterosso al Mare",
+    lat: 44.1527, lon: 9.6696, elevation: 508, dhv: 2047,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3718", name: "Montevenere", region: "San Benedetto",
+    lat: 44.236, lon: 11.2576, elevation: 866, dhv: 3718,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_1981", name: "Montoso Monumento", region: "Bagnolo",
+    lat: 44.7637, lon: 7.2503, elevation: 1249, dhv: 1981,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3736", name: "Montrago", region: "Pian di Sco",
+    lat: 43.6539, lon: 11.6038, elevation: 1254, dhv: 3736,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3701", name: "Mottarone", region: "Omegna",
+    lat: 45.8803, lon: 8.4482, elevation: 1406, dhv: 3701,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2017", name: "Mottolino", region: "Livigno",
+    lat: 46.5284, lon: 10.1609, elevation: 2363, dhv: 2017,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_2266", name: "Muanda", region: "Sordevolo",
+    lat: 45.591, lon: 7.9714, elevation: 1140, dhv: 2266,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1926", name: "Musi", region: "Musi",
+    lat: 46.3222, lon: 13.2646, elevation: 1108, dhv: 1926,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2469", name: "Muteck", region: "Ultimo Bolzano",
+    lat: 46.5387, lon: 10.9071, elevation: 2508, dhv: 2469,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3817", name: "Nebida", region: "Gonnesa",
+    lat: 39.2946, lon: 8.4396, elevation: 126, dhv: 3817,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5298", name: "Niscemi 1", region: "Niscemi",
+    lat: 37.1134, lon: 14.3734, elevation: 217, dhv: 5298,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3866", name: "Niscemi 2", region: "Niscemi",
+    lat: 37.1432, lon: 14.3811, elevation: 284, dhv: 3866,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3865", name: "Niscemi 3", region: "Niscemi",
+    lat: 37.1608, lon: 14.4131, elevation: 358, dhv: 3865,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2033", name: "Noli", region: "Noli",
+    lat: 44.1961, lon: 8.411, elevation: 271, dhv: 2033,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1987", name: "Nomesino", region: "Mori",
+    lat: 45.8701, lon: 10.9556, elevation: 923, dhv: 1987,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_3789", name: "Norma", region: "Norma",
+    lat: 41.5911, lon: 12.9571, elevation: 420, dhv: 3789,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_3755_S", name: "Norsi (S)", region: "Capoliveri Livorno",
+    lat: 42.7649, lon: 10.3395, elevation: 45, dhv: 3755,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3755_SW", name: "Norsi (SW)", region: "Capoliveri Livorno",
+    lat: 42.7669, lon: 10.3354, elevation: 142, dhv: 3755,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5305", name: "Nuova Gibellina", region: "Nuova Gibellina",
+    lat: 37.8028, lon: 12.9141, elevation: 608, dhv: 5305,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3857", name: "Oliveto del Principe", region: "Centuripe",
+    lat: 37.5982, lon: 14.7314, elevation: 481, dhv: 3857,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5407", name: "Onferno", region: "Castelo di Onferno",
+    lat: 43.8648, lon: 12.5472, elevation: 521, dhv: 5407,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5434", name: "Orgiano", region: "Orgiano",
+    lat: 45.3678, lon: 11.4644, elevation: 117, dhv: 5434,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2012", name: "Ortise", region: "Pellizzano",
+    lat: 46.3275, lon: 10.7782, elevation: 1597, dhv: 2012,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3765", name: "Ortona", region: "San Donato-moro",
+    lat: 42.3319, lon: 14.4216, elevation: 63, dhv: 3765,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1786_O", name: "Ospedaletti (O)", region: "Ospedaletti",
+    lat: 43.8338, lon: 7.7159, elevation: 891, dhv: 1786,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1786_SO", name: "Ospedaletti (SO)", region: "Ospedaletti",
+    lat: 43.8078, lon: 7.6891, elevation: 529, dhv: 1786,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1786_SW", name: "Ospedaletti (SW)", region: "Ospedaletti",
+    lat: 43.8285, lon: 7.7142, elevation: 759, dhv: 1786,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5416", name: "Paesana", region: "Paesana",
+    lat: 44.6577, lon: 7.26, elevation: 1380, dhv: 5416,
+    sectors: [[101.25, 191.25]], sectorLabel: "OSO-S", ...DEF },
+
+  { id: "db_5393", name: "Palmoli", region: "Palmoli",
+    lat: 41.9382, lon: 14.5792, elevation: 718, dhv: 5393,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_5340", name: "Palomonte", region: "Palomonte",
+    lat: 40.6902, lon: 15.324, elevation: 1086, dhv: 5340,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5385", name: "Panni", region: "Panni",
+    lat: 41.2275, lon: 15.2682, elevation: 767, dhv: 5385,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5399", name: "Pantani", region: "San Pellegrino",
+    lat: 42.7409, lon: 13.1775, elevation: 1696, dhv: 5399,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5322", name: "Paola", region: "Paola",
+    lat: 39.343, lon: 16.0622, elevation: 639, dhv: 5322,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3684", name: "Partinges", region: "Freienfeld",
+    lat: 46.8783, lon: 11.5005, elevation: 1404, dhv: 3684,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3860", name: "Passo Funnuto", region: "Campofranco",
+    lat: 37.473, lon: 13.6804, elevation: 421, dhv: 3860,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5303", name: "Paterno", region: "Paterno",
+    lat: 37.5617, lon: 14.8935, elevation: 260, dhv: 5303,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1923", name: "Paularo", region: "Paularo",
+    lat: 46.5531, lon: 13.0871, elevation: 1584, dhv: 1923,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5325", name: "Pauli Arbarei", region: "Pauli Arbarei",
+    lat: 39.6837, lon: 8.9392, elevation: 255, dhv: 5325,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3848", name: "Petralia", region: "Petralia Soprana",
+    lat: 37.8031, lon: 14.0978, elevation: 1077, dhv: 3848,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1234", name: "Pfalzen", region: "Pfalzen",
+    lat: 46.8309, lon: 11.8726, elevation: 1621, dhv: 1234,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5448", name: "Pian Bello", region: "Cannero Riviera",
+    lat: 46.0434, lon: 8.6564, elevation: 1254, dhv: 5448,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5499", name: "Pian dell'Alpe", region: "Pourierres",
+    lat: 45.0623, lon: 7.0262, elevation: 1943, dhv: 5499,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2137", name: "Piana da Bobbio", region: "Barzio",
+    lat: 45.9563, lon: 9.4826, elevation: 1559, dhv: 2137,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3838_NO", name: "Piana degli Albanesi (NO)", region: "San Cipirello",
+    lat: 37.969, lon: 13.2572, elevation: 1153, dhv: 3838,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3838_SW", name: "Piana degli Albanesi (SW)", region: "San Cipirello",
+    lat: 37.9696, lon: 13.2506, elevation: 1088, dhv: 3838,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2267", name: "Piana di Vigezzo", region: "Santa Maria Maggiore",
+    lat: 46.1733, lon: 8.496, elevation: 2011, dhv: 2267,
+    sectors: [[123.75, 236.25], [168.75, 236.25]], sectorLabel: "SO-SW · S-SW", ...DEF },
+
+  { id: "db_3744_NO", name: "Piani di Montioli (NO)", region: "San Cassiono",
+    lat: 43.0406, lon: 13.2338, elevation: 1269, dhv: 3744,
+    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", ...DEF },
+
+  { id: "db_3744_O", name: "Piani di Montioli (O)", region: "San Cassiono",
+    lat: 43.0394, lon: 13.2411, elevation: 1171, dhv: 3744,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3730", name: "Piano dei Massi", region: "Schignano",
+    lat: 43.9617, lon: 11.0881, elevation: 844, dhv: 3730,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5301", name: "Piano Palmatico", region: "Catania",
+    lat: 37.2067, lon: 14.4881, elevation: 488, dhv: 5301,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3686", name: "Pichlberg", region: "Sarnthein",
+    lat: 46.7001, lon: 11.4552, elevation: 2415, dhv: 3686,
+    sectors: [[213.75, 281.25], [213.75, 236.25]], sectorLabel: "SW-W · SW", ...DEF },
+
+  { id: "db_3779", name: "Piglio", region: "Piglio",
+    lat: 41.818, lon: 13.1448, elevation: 750, dhv: 3779,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3802", name: "Pignola Potenza", region: "Pignola Potenza",
+    lat: 40.5573, lon: 15.7822, elevation: 999, dhv: 3802,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3697", name: "Pigra", region: "Pigra",
+    lat: 45.9584, lon: 9.1209, elevation: 1045, dhv: 3697,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3827", name: "Pilone", region: "Villa san Giovanni",
+    lat: 38.24, lon: 15.6855, elevation: 299, dhv: 3827,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5319", name: "Piraino", region: "Zappardino",
+    lat: 38.1545, lon: 14.8841, elevation: 604, dhv: 5319,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_2132", name: "Piz la Villa", region: "Badia",
+    lat: 46.5884, lon: 11.8872, elevation: 1764, dhv: 2132,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3688", name: "Piz la Villa", region: "Corvara",
+    lat: 46.566, lon: 11.9062, elevation: 2037, dhv: 3688,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3828", name: "Pizzi Calori", region: "Gioiosa Marea",
+    lat: 38.1799, lon: 14.9199, elevation: 439, dhv: 3828,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3820_N", name: "Pizzo Calabro (N)", region: "Vibo Marina",
+    lat: 38.7335, lon: 16.1794, elevation: 351, dhv: 3820,
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", ...DEF },
+
+  { id: "db_3820_NW", name: "Pizzo Calabro (NW)", region: "Vibo Marina",
+    lat: 38.7208, lon: 16.1599, elevation: 357, dhv: 3820,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3746", name: "Pizzo di Meta", region: "Brilli",
+    lat: 43.0175, lon: 13.2393, elevation: 1534, dhv: 3746,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3852", name: "Pizzo Guarino", region: "Regalbuto",
+    lat: 37.6375, lon: 14.5934, elevation: 496, dhv: 3852,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5597", name: "Pizzo Stagnataro", region: "Santo Stefano Quisquina",
+    lat: 37.6631, lon: 13.5108, elevation: 1306, dhv: 5597,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3731", name: "Pizzorne", region: "Marlia",
+    lat: 43.934, lon: 10.5844, elevation: 929, dhv: 3731,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_2016", name: "Plator", region: "Valdidentro",
+    lat: 46.5004, lon: 10.3025, elevation: 1942, dhv: 2016,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3689", name: "Plattkofel", region: "Canazei",
+    lat: 46.5056, lon: 11.7363, elevation: 2521, dhv: 3689,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_1537", name: "Plose", region: "Brixen",
+    lat: 46.6876, lon: 11.7122, elevation: 2054, dhv: 1537,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3759_SW", name: "Poggio Bustone (SW)", region: "Poggio Bustone",
+    lat: 42.5149, lon: 12.8834, elevation: 1248, dhv: 3759,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3759_W", name: "Poggio Bustone (W)", region: "Poggio Bustone",
+    lat: 42.494, lon: 12.8976, elevation: 1010, dhv: 3759,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_3834", name: "Poggio Maria", region: "Cocuzzola",
+    lat: 38.01, lon: 13.9492, elevation: 300, dhv: 3834,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_5419", name: "Poggiolo", region: "Poggiolo",
+    lat: 44.7515, lon: 9.4088, elevation: 713, dhv: 5419,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3833", name: "Pollina", region: "Pollina",
+    lat: 38.0137, lon: 14.1389, elevation: 313, dhv: 3833,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3737", name: "Portonovo", region: "Poggio",
+    lat: 43.5651, lon: 13.5774, elevation: 114, dhv: 3737,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1928", name: "Porzus", region: "Attimis",
+    lat: 46.184, lon: 13.3326, elevation: 676, dhv: 1928,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5673_SO", name: "Possagno (SO)", region: "Possagno",
+    lat: 45.8834, lon: 11.8502, elevation: 1414, dhv: 5673,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5673_SW", name: "Possagno (SW)", region: "Possagno",
+    lat: 45.8817, lon: 11.8412, elevation: 1473, dhv: 5673,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3812", name: "Praia a Mare", region: "Praia a Mare",
+    lat: 39.8918, lon: 15.8047, elevation: 564, dhv: 3812,
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", ...DEF },
+
+  { id: "db_3745_NW", name: "Prati di Ragnolo (NW)", region: "Brilli",
+    lat: 43.0156, lon: 13.2146, elevation: 1497, dhv: 3745,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3745_O", name: "Prati di Ragnolo (O)", region: "Brilli",
+    lat: 43.0278, lon: 13.2173, elevation: 1408, dhv: 3745,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2008", name: "Pratino", region: "Palazago",
+    lat: 45.7684, lon: 9.5493, elevation: 1041, dhv: 2008,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5425", name: "Prato delle Grange", region: "Villar Perosa",
+    lat: 44.9216, lon: 7.2074, elevation: 1462, dhv: 5425,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5411", name: "Prato Fiorito", region: "San Cassiano",
+    lat: 44.0546, lon: 10.6198, elevation: 1200, dhv: 5411,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5453", name: "Prato Valentino", region: "Chiuro",
+    lat: 46.2039, lon: 10.0437, elevation: 2091, dhv: 5453,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3837", name: "Pratoni Kumeta", region: "Traversa",
+    lat: 37.9744, lon: 13.229, elevation: 797, dhv: 3837,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_5455", name: "Predazzo", region: "Predazzo",
+    lat: 46.2818, lon: 11.6243, elevation: 1810, dhv: 5455,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5477", name: "Prischer Alm", region: "Ridnaun",
+    lat: 46.9321, lon: 11.3062, elevation: 2185, dhv: 5477,
+    sectors: [[123.75, 281.25]], sectorLabel: "SO-W", ...DEF },
+
+  { id: "db_1968", name: "Provaccio", region: "Vanzone",
+    lat: 45.975, lon: 8.1333, elevation: 1133, dhv: 1968,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2031", name: "Puerta del Sol", region: "Alassio",
+    lat: 43.9921, lon: 8.1589, elevation: 188, dhv: 2031,
+    sectors: [[33.75, 56.25], [33.75, 101.25]], sectorLabel: "NO · NO-O", ...DEF },
+
+  { id: "db_3769", name: "Punta Aderci", region: "Vasto Chieti",
+    lat: 42.1723, lon: 14.7031, elevation: 18, dhv: 3769,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3714", name: "Quinzano", region: "Quinzano",
+    lat: 44.585, lon: 10.2215, elevation: 756, dhv: 3714,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3849", name: "Raffo", region: "Borgo Pala",
+    lat: 37.7807, lon: 14.1454, elevation: 987, dhv: 3849,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5306", name: "Randazzo", region: "Randazzo",
+    lat: 37.9111, lon: 14.9554, elevation: 1253, dhv: 5306,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_3721", name: "Raticosa", region: "Poggio",
+    lat: 44.1636, lon: 11.3674, elevation: 931, dhv: 3721,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2397", name: "Refugio Posa Puner", region: "Miane",
+    lat: 45.9468, lon: 12.0612, elevation: 1097, dhv: 2397,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2014", name: "Reit", region: "Bormio",
+    lat: 46.4715, lon: 10.3824, elevation: 1408, dhv: 2014,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2043", name: "Rena", region: "Sestri Lavente",
+    lat: 44.2533, lon: 9.4359, elevation: 135, dhv: 2043,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_1914", name: "Revine Lago", region: "Revine Lago",
+    lat: 46.0024, lon: 12.2082, elevation: 1101, dhv: 1914,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1894", name: "Rifugio Dolada", region: "Pieve d&#039;Alpago",
+    lat: 46.1917, lon: 12.3524, elevation: 1484, dhv: 1894,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5402_S", name: "Rifugio Perugia (S)", region: "San Pellegrino",
+    lat: 42.7652, lon: 13.1779, elevation: 1469, dhv: 5402,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5402_SW", name: "Rifugio Perugia (SW)", region: "San Pellegrino",
+    lat: 42.767, lon: 13.1779, elevation: 1501, dhv: 5402,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3691", name: "Rifugio Scotter", region: "San Vito",
+    lat: 46.4714, lon: 12.2364, elevation: 1568, dhv: 3691,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3788", name: "Rignano Garganico", region: "Rignano Garganico",
+    lat: 41.6767, lon: 15.5813, elevation: 568, dhv: 3788,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3869", name: "Rigolizia", region: "Rigolizia",
+    lat: 36.9921, lon: 14.9067, elevation: 610, dhv: 3869,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_5403", name: "Ripetitori Fiastra", region: "San Lorenzo al Lago",
+    lat: 43.0209, lon: 13.1492, elevation: 1290, dhv: 5403,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_5462", name: "Rittner Horn", region: "Collalbo",
+    lat: 46.5952, lon: 11.4519, elevation: 2051, dhv: 5462,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5435", name: "Rivotti", region: "Migliere",
+    lat: 45.3807, lon: 7.2724, elevation: 1658, dhv: 5435,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3791", name: "Roccasecca", region: "Priverno",
+    lat: 41.4597, lon: 13.2295, elevation: 642, dhv: 3791,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3775", name: "Roccaspinalveti", region: "Fraine",
+    lat: 41.902, lon: 14.4536, elevation: 1307, dhv: 3775,
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", ...DEF },
+
+  { id: "db_1237", name: "Rodeneck", region: "Rodeneck",
+    lat: 46.7896, lon: 11.7186, elevation: 1494, dhv: 1237,
+    sectors: [[101.25, 258.75]], sectorLabel: "OSO-WSW", ...DEF },
+
+  { id: "db_1971", name: "Roffelstaffel", region: "Macugnagna",
+    lat: 45.9731, lon: 7.9234, elevation: 1944, dhv: 1971,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3756", name: "Roiano", region: "Battaglia",
+    lat: 42.6953, lon: 13.6226, elevation: 1082, dhv: 3756,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_5427", name: "Roletto", region: "Roletto",
+    lat: 44.9333, lon: 7.3111, elevation: 852, dhv: 5427,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2271", name: "Rollo", region: "Andora",
+    lat: 43.946, lon: 8.125, elevation: 351, dhv: 2271,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_5314", name: "Romitello", region: "Borgetto",
+    lat: 38.0306, lon: 13.1662, elevation: 844, dhv: 5314,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3694", name: "Roncegno", region: "Roncegno",
+    lat: 46.08, lon: 11.3959, elevation: 1682, dhv: 3694,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_4443", name: "Rosbella", region: "Boves",
+    lat: 44.2989, lon: 7.5517, elevation: 1060, dhv: 4443,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_1345", name: "Rosengarten", region: "Karersee",
+    lat: 46.4153, lon: 11.6153, elevation: 2147, dhv: 1345,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1953", name: "Rosengartenhütte", region: "Welschnofen",
+    lat: 46.4428, lon: 11.6117, elevation: 2316, dhv: 1953,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_1975", name: "Rosselli", region: "Val della Torre",
+    lat: 45.1619, lon: 7.4637, elevation: 976, dhv: 1975,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3706", name: "Rubbio", region: "Brombe",
+    lat: 45.7937, lon: 11.6636, elevation: 869, dhv: 3706,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1980", name: "Rucas", region: "Bagnolo",
+    lat: 44.7447, lon: 7.2303, elevation: 1568, dhv: 1980,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_2025", name: "Samolaco", region: "Samolaco",
+    lat: 46.2314, lon: 9.3808, elevation: 958, dhv: 2025,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3786_SO", name: "San Donato (SO)", region: "Santa Maria del Campo",
+    lat: 41.7268, lon: 13.7494, elevation: 937, dhv: 3786,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3786_SW", name: "San Donato (SW)", region: "Santa Maria del Campo",
+    lat: 41.7259, lon: 13.7885, elevation: 1161, dhv: 3786,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1973", name: "San Giacomo", region: "Andrate",
+    lat: 45.5461, lon: 7.8751, elevation: 1236, dhv: 1973,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3829", name: "San Giorgio", region: "Gioiosa Marea",
+    lat: 38.1558, lon: 14.9305, elevation: 728, dhv: 3829,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_4574_S", name: "San Marcello Pistoiese (S)", region: "Lizzano Pistoiese",
+    lat: 44.0876, lon: 10.801, elevation: 1192, dhv: 4574,
+    sectors: [[168.75, 191.25], [168.75, 236.25]], sectorLabel: "S · S-SW", ...DEF },
+
+  { id: "db_4574_SW", name: "San Marcello Pistoiese (SW)", region: "Lizzano Pistoiese",
+    lat: 44.1294, lon: 10.7802, elevation: 1697, dhv: 4574,
+    sectors: [[168.75, 281.25], [213.75, 236.25]], sectorLabel: "S-W · SW", ...DEF },
+
+  { id: "db_3797", name: "San Michele", region: "Frasso Telesino",
+    lat: 41.1661, lon: 14.5401, elevation: 980, dhv: 3797,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3754", name: "San Pellegrino", region: "Castelluccio",
+    lat: 42.7644, lon: 13.1643, elevation: 1296, dhv: 3754,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5387", name: "San Potito Sannitico", region: "San Potito Sannitico",
+    lat: 41.3471, lon: 14.4337, elevation: 1199, dhv: 5387,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1924", name: "San Simeone", region: "Bordano",
+    lat: 46.33, lon: 13.1019, elevation: 1144, dhv: 1924,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5317", name: "San Vito Lo Capo", region: "San Vito Lo Capo",
+    lat: 38.1327, lon: 12.7602, elevation: 643, dhv: 5317,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_5302", name: "Santa Caterina", region: "Villasmundo",
+    lat: 37.2104, lon: 15.1006, elevation: 290, dhv: 5302,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_3862", name: "Santa Croce", region: "Mirabella",
+    lat: 37.3464, lon: 14.4734, elevation: 562, dhv: 3862,
+    sectors: [[78.75, 101.25]], sectorLabel: "O", ...DEF },
+
+  { id: "db_2322", name: "Santa Elisabetta", region: "Cuorgne",
+    lat: 45.4369, lon: 7.6428, elevation: 1383, dhv: 2322,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3830", name: "Santa Lucia del Mela", region: "Santa Lucia del Mela",
+    lat: 38.1255, lon: 15.2892, elevation: 652, dhv: 3830,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_5596", name: "Santa Rosalia", region: "Santa Stefano Quisquina",
+    lat: 37.6215, lon: 13.5155, elevation: 1093, dhv: 5596,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3687", name: "Sarnthein", region: "Sarnthein",
+    lat: 46.644, lon: 11.3819, elevation: 1519, dhv: 3687,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1900", name: "Sasso del Ferro", region: "Cittiglio",
+    lat: 45.9115, lon: 8.6432, elevation: 1044, dhv: 1900,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3747", name: "Sassotetto", region: "Brilli",
+    lat: 43.005, lon: 13.2339, elevation: 1541, dhv: 3747,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1919", name: "Sauris", region: "Sauris",
+    lat: 46.4773, lon: 12.6868, elevation: 1852, dhv: 1919,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5380", name: "Scalera", region: "Scalera",
+    lat: 40.8638, lon: 15.7107, elevation: 697, dhv: 5380,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5454", name: "Scermendone", region: "Piani",
+    lat: 46.2173, lon: 9.6998, elevation: 2128, dhv: 5454,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_3778", name: "Schiavi di Abruzzo", region: "Schiavi di Abruzzo",
+    lat: 41.8307, lon: 14.4842, elevation: 1169, dhv: 3778,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1352", name: "Schluderns", region: "Schlunders",
+    lat: 46.6857, lon: 10.5856, elevation: 1586, dhv: 1352,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2468", name: "Schwemmalm", region: "Ultimo Bolzano",
+    lat: 46.5349, lon: 10.9231, elevation: 2147, dhv: 2468,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3826", name: "Scilla", region: "Scilla",
+    lat: 38.243, lon: 15.698, elevation: 505, dhv: 3826,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_3814", name: "Scivu", region: "Arbus",
+    lat: 39.4955, lon: 8.413, elevation: 22, dhv: 3814,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
+  { id: "db_2120", name: "Seaoi", region: "Concei",
+    lat: 45.9181, lon: 10.765, elevation: 1683, dhv: 2120,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3734", name: "Secchieta", region: "San Donato Fronzano",
+    lat: 43.7205, lon: 11.5657, elevation: 1304, dhv: 3734,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1548_S", name: "Seceda (S)", region: "St. Ulrich",
+    lat: 46.5969, lon: 11.7245, elevation: 2441, dhv: 1548,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1548_SW", name: "Seceda (SW)", region: "St. Ulrich",
+    lat: 46.5938, lon: 11.7225, elevation: 2364, dhv: 1548,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1241", name: "Sellapass", region: "Canazei",
+    lat: 46.5096, lon: 11.7681, elevation: 2259, dhv: 1241,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_5384", name: "Senarico", region: "Senarico",
+    lat: 40.9763, lon: 16.222, elevation: 639, dhv: 5384,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3856", name: "Serra della Moneta", region: "Santo Stefano Quisquina",
+    lat: 37.6093, lon: 13.5116, elevation: 1159, dhv: 3856,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5422_S", name: "Serre Sarsena (S)", region: "Bobbio Pellice",
+    lat: 44.8203, lon: 7.1142, elevation: 1402, dhv: 5422,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5422_SW", name: "Serre Sarsena (SW)", region: "Bobbio Pellice",
+    lat: 44.8267, lon: 7.1086, elevation: 1770, dhv: 5422,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3777_O", name: "Serrone (O)", region: "La Forma",
+    lat: 41.8472, lon: 13.1094, elevation: 1288, dhv: 3777,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_3777_SO", name: "Serrone (SO)", region: "La Forma",
+    lat: 41.848, lon: 13.1128, elevation: 1364, dhv: 3777,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3777_SW", name: "Serrone (SW)", region: "La Forma",
+    lat: 41.8467, lon: 13.1066, elevation: 1236, dhv: 3777,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3720", name: "Sestola", region: "Sestola",
+    lat: 44.2167, lon: 10.7602, elevation: 1495, dhv: 3720,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_5326", name: "Setzu", region: "Setzu",
+    lat: 39.7359, lon: 8.9524, elevation: 533, dhv: 5326,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3716", name: "Soglio", region: "Calvari",
+    lat: 44.4018, lon: 9.2851, elevation: 567, dhv: 3716,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3819", name: "Solanas", region: "Solanas",
+    lat: 39.1308, lon: 9.4354, elevation: 58, dhv: 3819,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_1988_O", name: "Somator (O)", region: "Mori",
+    lat: 45.8763, lon: 10.9728, elevation: 1252, dhv: 1988,
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", ...DEF },
+
+  { id: "db_1988_S", name: "Somator (S)", region: "Mori",
+    lat: 45.8763, lon: 10.9709, elevation: 1266, dhv: 1988,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_1349", name: "Sonnenberg", region: "Naturns",
+    lat: 46.6587, lon: 10.9841, elevation: 1243, dhv: 1349,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1231_S", name: "Speikboden (S)", region: "Sand in Taufers",
+    lat: 46.915, lon: 11.898, elevation: 2318, dhv: 1231,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_1231_SO", name: "Speikboden (SO)", region: "Sand in Taufers",
+    lat: 46.9152, lon: 11.9033, elevation: 2387, dhv: 1231,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5386", name: "Sperlonga", region: "Sperlonga",
+    lat: 41.2497, lon: 13.4619, elevation: 188, dhv: 5386,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3824", name: "Sperone", region: "Campo Inglese",
+    lat: 38.2718, lon: 15.5929, elevation: 143, dhv: 3824,
+    sectors: [[348.75, 11.25]], sectorLabel: "N", ...DEF },
+
+  { id: "db_1353", name: "Spitzbühl", region: "St. Ulrich",
+    lat: 46.5295, lon: 11.5996, elevation: 1935, dhv: 1353,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_2040_S", name: "Spotorno (S)", region: "Spotorno",
+    lat: 44.2435, lon: 8.4203, elevation: 409, dhv: 2040,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2040_SO", name: "Spotorno (SO)", region: "Spotorno",
+    lat: 44.235, lon: 8.4245, elevation: 157, dhv: 2040,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_1344", name: "St. Martin", region: "Coldrano",
+    lat: 46.6384, lon: 10.8537, elevation: 1723, dhv: 1344,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_2497", name: "Startplatz Pfurnernock", region: "Terenten",
+    lat: 46.8553, lon: 11.7623, elevation: 2142, dhv: 2497,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5401", name: "Tabellone", region: "San Pellegrino",
+    lat: 42.7811, lon: 13.1603, elevation: 1610, dhv: 5401,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_2273", name: "Taggia", region: "Taggia",
+    lat: 43.8709, lon: 7.8676, elevation: 451, dhv: 2273,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1256", name: "Taser Alm", region: "Schenna",
+    lat: 46.7064, lon: 11.2222, elevation: 1454, dhv: 1256,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_1921", name: "Tenchia", region: "Cercivento",
+    lat: 46.5539, lon: 12.9785, elevation: 1618, dhv: 1921,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_3853", name: "Timpa di Acireale", region: "Santa Tecla",
+    lat: 37.6318, lon: 15.1676, elevation: 194, dhv: 3853,
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", ...DEF },
+
+  { id: "db_3811", name: "Tiro a Piattello", region: "Maratea",
+    lat: 39.9744, lon: 15.7399, elevation: 478, dhv: 3811,
+    sectors: [[258.75, 281.25]], sectorLabel: "W", ...DEF },
+
+  { id: "db_3768", name: "Tocco da Casauria", region: "Localita Villa",
+    lat: 42.1928, lon: 13.9079, elevation: 604, dhv: 3768,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_2036", name: "Toirano", region: "Toirano",
+    lat: 44.132, lon: 8.1873, elevation: 471, dhv: 2036,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3867", name: "Torre di Gaffe", region: "Gaffe",
+    lat: 37.1409, lon: 13.8308, elevation: 11, dhv: 3867,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5344", name: "Torre Moscia", region: "Selva di Fasano",
+    lat: 40.8262, lon: 17.2994, elevation: 405, dhv: 5344,
+    sectors: [[168.75, 191.25], [168.75, 236.25]], sectorLabel: "S · S-SW", ...DEF },
+
+  { id: "db_1920", name: "Trava", region: "Trava",
+    lat: 46.4463, lon: 12.9011, elevation: 1072, dhv: 1920,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5396", name: "Trevignano Romano", region: "Trevignano Romano",
+    lat: 42.1665, lon: 12.2635, elevation: 350, dhv: 5396,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_5432", name: "Tuccetti", region: "Bertassi",
+    lat: 45.0763, lon: 7.3475, elevation: 978, dhv: 5432,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_3784", name: "Tuscola", region: "Grottaferrata",
+    lat: 41.7981, lon: 12.7068, elevation: 617, dhv: 3784,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2128", name: "Uwaldalm", region: "Valle di Casies",
+    lat: 46.8555, lon: 12.2673, elevation: 2218, dhv: 2128,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_2010", name: "Valcava", region: "Palazago",
+    lat: 45.7809, lon: 9.5124, elevation: 1245, dhv: 2010,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5440_S", name: "Vallene (S)", region: "Vallene",
+    lat: 45.6617, lon: 10.9781, elevation: 1302, dhv: 5440,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_5440_SW", name: "Vallene (SW)", region: "Vallene",
+    lat: 45.6689, lon: 10.9722, elevation: 1401, dhv: 5440,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1922", name: "Valsecca", region: "Ravascletto",
+    lat: 46.5478, lon: 12.9298, elevation: 1906, dhv: 1922,
+    sectors: [[168.75, 191.25]], sectorLabel: "S", ...DEF },
+
+  { id: "db_2035", name: "Varazze", region: "Varazze",
+    lat: 44.3725, lon: 8.5952, elevation: 384, dhv: 2035,
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", ...DEF },
+
+  { id: "db_5458", name: "Varmost", region: "Forni di Sopra",
+    lat: 46.4499, lon: 12.3991, elevation: 1754, dhv: 5458,
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", ...DEF },
+
+  { id: "db_5413", name: "Vedegheto", region: "Vedegheto",
+    lat: 44.331, lon: 11.1022, elevation: 766, dhv: 5413,
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", ...DEF },
+
+  { id: "db_3749", name: "Veletta", region: "Castelluccio",
+    lat: 42.8273, lon: 13.1951, elevation: 1599, dhv: 3749,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_5400", name: "Vetosole", region: "San Pellegrino",
+    lat: 42.7742, lon: 13.17, elevation: 1667, dhv: 5400,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_3751", name: "Vettoretto", region: "Castelluccio",
+    lat: 42.7999, lon: 13.2482, elevation: 1510, dhv: 3751,
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", ...DEF },
+
+  { id: "db_3821", name: "Vibo Marina", region: "Vibo Marina",
+    lat: 38.7064, lon: 16.1387, elevation: 425, dhv: 3821,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_5809", name: "Vibo Valentina", region: "Vibo Valentia",
+    lat: 38.6792, lon: 15.9562, elevation: 443, dhv: 5809,
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", ...DEF },
+
+  { id: "db_3847", name: "Vicari", region: "Vicari",
+    lat: 37.8211, lon: 13.5759, elevation: 712, dhv: 3847,
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", ...DEF },
+
+  { id: "db_1257", name: "Vigiljoch", region: "Lana",
+    lat: 46.6244, lon: 11.1179, elevation: 1486, dhv: 1257,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5323", name: "Villacidro", region: "Villacidro",
+    lat: 39.4385, lon: 8.7244, elevation: 484, dhv: 5323,
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", ...DEF },
+
+  { id: "db_5463", name: "Vöran", region: "Burgstall",
+    lat: 46.6002, lon: 11.2244, elevation: 1163, dhv: 5463,
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", ...DEF },
+
+  { id: "db_1228", name: "Watles", region: "Malles",
+    lat: 46.719, lon: 10.4851, elevation: 2482, dhv: 1228,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3850", name: "Zafferana", region: "Zafferana",
+    lat: 37.683, lon: 15.0862, elevation: 944, dhv: 3850,
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", ...DEF },
+
+  { id: "db_3822", name: "Zambrone", region: "Zambrone",
+    lat: 38.6967, lon: 15.9685, elevation: 227, dhv: 3822,
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", ...DEF },
+
 ];
