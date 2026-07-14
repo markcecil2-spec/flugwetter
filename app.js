@@ -406,6 +406,11 @@ function renderCard(spot, days, opts = {}) {
     `<a class="act nav" href="${mapsUrl(spot)}" target="_blank" rel="noopener">${NAV_ICON} Navigation</a>`,
     `<a class="act" href="https://www.windy.com/?${spot.lat},${spot.lon},12" target="_blank" rel="noopener">🌬️ Windy</a>`,
   ];
+  if (spot.acc && spot.acc.includes("b")) {
+    const base = (spot.name || "").replace(/\s*\([^)]*\)\s*$/, "").trim();  // Richtungs-Suffix „(N)" weg
+    const q = encodeURIComponent(`${base} ${spot.region || ""} Bergbahn Seilbahn`.replace(/\s+/g, " ").trim());
+    acts.push(`<a class="act" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">🚠 Bergbahn</a>`);
+  }
   if (spot.webcam) acts.push(`<a class="act" href="${spot.webcam}" target="_blank" rel="noopener">📷 Webcam</a>`);
   if (spot.dhv) acts.push(`<a class="act" href="https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}" target="_blank" rel="noopener">📋 DHV</a>`);
   const actions = `<div class="actions">${acts.join("")}</div>`;
@@ -549,9 +554,15 @@ const REGIONS = {
 // candidates: mit .dist (Anzeige-km oder null) und .sortKey (Zahl). origin: {lat,lon} oder null (für Fahrzeit).
 async function renderSearch(candidates, origin, headline) {
   const out = document.getElementById("flyResults");
+  if (accFilter !== "all") candidates = candidates.filter(s => accMatch(s, accFilter));
   const truncated = candidates.length > MAX_CANDIDATES;
   candidates = candidates.slice(0, MAX_CANDIDATES);
-  if (!candidates.length) { out.innerHTML = `<p class="empty">Kein Startplatz gefunden. (Die Datenbank wächst noch.)</p>`; return; }
+  if (!candidates.length) {
+    out.innerHTML = accFilter !== "all"
+      ? `<p class="empty">Kein Startplatz „${accLabel(accFilter)}" im gewählten Bereich. Filter „Zustieg" ändern oder Umkreis vergrößern.</p>`
+      : `<p class="empty">Kein Startplatz gefunden. (Die Datenbank wächst noch.)</p>`;
+    return;
+  }
   out.innerHTML = `<p class="loading-line">🔎 Prüfe ${candidates.length} Plätze …</p>`;
   try {
     const results = await fetchBulkToday(candidates);
@@ -627,6 +638,7 @@ document.getElementById("dayToggle").addEventListener("click", e => {
   const b = e.target.closest("[data-day]"); if (!b) return;
   searchDay = parseInt(b.dataset.day, 10);
   document.querySelectorAll("#dayToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
+  updateGreeting();
   if (rerunSearch) rerunSearch();
 });
 
@@ -636,6 +648,16 @@ function applyLevelUI() {
   const sub = document.getElementById("levelSub"); if (sub) sub.textContent = curLevel().hint;
   const idx = LEVEL_ORDER.indexOf(LEVEL);
   const seg = document.getElementById("levelSeg"); if (seg) seg.style.setProperty("--lvl", idx);
+  updateFilterSummary();
+}
+// Zusammenfassung am Filter-Knopf: aktive Liga (wenn nicht Anfänger) + Zustieg (wenn nicht Egal)
+function updateFilterSummary() {
+  const sum = document.getElementById("filterSummary");
+  if (!sum) return;
+  const parts = [];
+  if (LEVEL !== "anfaenger") parts.push(curLevel().name);
+  if (accFilter !== "all") parts.push(accShort(accFilter));
+  sum.textContent = parts.length ? "· " + parts.join(" · ") : "";
 }
 document.getElementById("levelSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-level]"); if (!b || !LEVELS[b.dataset.level]) return;
@@ -644,6 +666,43 @@ document.getElementById("levelSeg").addEventListener("click", e => {
   applyLevelUI();
   if (rerunSearch) rerunSearch();
   if (!document.getElementById("page-favorites").hidden) renderFavorites();
+});
+
+// Zustieg-Filter (DHV-Erschließung): acc-Code f=zu Fuß, a=Auto, b=Bergbahn.
+let accFilter = localStorage.getItem("flugwetter_acc") || "all";
+function accMatch(spot, f) {
+  if (f === "all") return true;
+  const a = spot.acc;
+  if (a == null) return false;              // unbekannt -> nur bei „Egal"
+  if (f === "foot") return a === "f";       // NUR zu Fuß = echtes Hike & Fly
+  if (f === "auto") return a.includes("a");
+  if (f === "bahn") return a.includes("b");
+  return true;
+}
+function accLabel(f) {
+  return { foot: "Hike & Fly (nur zu Fuß)", auto: "mit Auto erreichbar", bahn: "mit Bergbahn erreichbar" }[f] || "";
+}
+function accShort(f) {
+  return { foot: "🥾 Hike & Fly", auto: "🚗 Auto", bahn: "🚠 Bergbahn" }[f] || "";
+}
+function applyAccUI() {
+  document.querySelectorAll("#accSeg .apill").forEach(x => x.classList.toggle("on", x.dataset.acc === accFilter));
+  updateFilterSummary();
+}
+document.getElementById("accSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-acc]"); if (!b) return;
+  accFilter = b.dataset.acc;
+  localStorage.setItem("flugwetter_acc", accFilter);
+  applyAccUI();
+  if (rerunSearch) rerunSearch();
+});
+// Filter-Bereich auf-/zuklappen
+document.getElementById("filterToggle").addEventListener("click", () => {
+  const panel = document.getElementById("filterPanel"), btn = document.getElementById("filterToggle");
+  const open = panel.hidden;
+  panel.hidden = !open;
+  btn.setAttribute("aria-expanded", String(open));
+  btn.classList.toggle("open", open);
 });
 
 // Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
@@ -777,11 +836,48 @@ function updateHero(flyable) {
   el.innerHTML = `<span class="ht-l">${l1}</span><span class="hl">${mid}</span><span class="ht-l">${l3}</span>`;
 }
 
+// Zeitabhängige Begrüßung
+function timeGreeting() {
+  const h = new Date().getHours();
+  if (h < 5)  return "Gute Nacht 🌙";
+  if (h < 11) return "Guten Morgen ☀️";
+  if (h < 14) return "Guten Mittag 🌤️";
+  if (h < 18) return "Schönen Nachmittag 🪂";
+  if (h < 22) return "Guten Abend 🌆";
+  return "Gute Nacht 🌙";
+}
+// Abend/Nacht: heute wird's kaum noch was -> auf morgen früh schubsen
+function isEvening() { const h = new Date().getHours(); return h >= 20 || h < 5; }
+
+function updateGreeting() {
+  const g = document.getElementById("heroGreet");
+  if (g) g.textContent = timeGreeting();
+  const hint = document.getElementById("eveningHint");
+  if (!hint) return;
+  if (isEvening() && searchDay === 0 && sessionStorage.getItem("eveDismissed") !== "1") {
+    hint.innerHTML =
+      `<span class="eve-txt">🌙 Heute wird's kaum noch was – wie sieht's morgen früh aus?</span>` +
+      `<button type="button" id="eveToMorgen" class="eve-btn">Morgen ansehen →</button>` +
+      `<button type="button" id="eveClose" class="eve-x" title="Ausblenden" aria-label="Ausblenden">✕</button>`;
+    hint.hidden = false;
+    document.getElementById("eveToMorgen").addEventListener("click", () => {
+      const b = document.querySelector('#dayToggle [data-day="1"]');
+      if (b) b.click();               // schaltet auf „Morgen" + rechnet neu
+      hint.hidden = true;
+    });
+    document.getElementById("eveClose").addEventListener("click", () => {
+      sessionStorage.setItem("eveDismissed", "1"); hint.hidden = true;
+    });
+  } else {
+    hint.hidden = true;
+  }
+}
+
 function renderFlyResults(rows, headline, truncated) {
   const flyable = rows.filter(r => r.ts.status !== "nein").length;
   updateHero(flyable);
   const scope = truncated ? `<b>${flyable}</b> fliegbar (nächste ${rows.length} Plätze)` : `<b>${flyable}</b> von ${rows.length} fliegbar`;
-  const head = `<div class="fly-head">${headline} · ${scope}<span class="fly-lg" title="Bewertet für deine Liga – oben unter „Dein Können“ änderbar">Liga: ${curLevel().name}</span></div>`;
+  const head = `<div class="fly-head">${headline} · ${scope}<span class="fly-lg">Liga: ${curLevel().name}</span></div>`;
   const list = rows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
@@ -888,6 +984,7 @@ function route() {
   window.scrollTo(0, 0);
   if (id === "favorites") renderFavorites();
   if (id === "add") renderDbSearch();
+  if (id === "home") updateGreeting();
   // Killer-Feature: wenn Standort schon erlaubt, „Heute"-Liste automatisch laden
   if (id === "home" && localStorage.getItem("flugwetter_geo_ok") === "1" && !lastOrigin) startGpsSearch();
 }
@@ -1041,6 +1138,7 @@ document.getElementById("hintClose").addEventListener("click", () => {
     document.querySelectorAll("#radiusPills .rpill").forEach(x => x.classList.toggle("on", x.dataset.km === r));
   }
   applyLevelUI();
+  applyAccUI();
   route();
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
