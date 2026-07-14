@@ -2,6 +2,19 @@
 
 const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden Stunden
+
+// Liga/Können: Toleranz-Profil, das ÜBER den Matcher gelegt wird (kein Datenfilter!).
+// Die App zeigt allen dieselben ehrlichen Werte – nur die Ampel-Schwelle wandert mit.
+// Standard = Anfänger (sicherste Stufe); man muss sich aktiv hochstufen.
+const LEVELS = {
+  anfaenger:       { name: "Anfänger",       hint: "ruhige, frontale Bedingungen", windMax: 18, gustMax: 24, dirTol: 8 },
+  fortgeschritten: { name: "Fortgeschritten", hint: "auch mal böig oder schräg",    windMax: 26, gustMax: 32, dirTol: 15 },
+  profi:           { name: "Profi",          hint: "ich schätze selbst ein",        windMax: 35, gustMax: 42, dirTol: 22 },
+};
+const LEVEL_ORDER = ["anfaenger", "fortgeschritten", "profi"];
+const LEVEL_KEY = "flugwetter_level";
+let LEVEL = (LEVELS[localStorage.getItem(LEVEL_KEY)] ? localStorage.getItem(LEVEL_KEY) : "anfaenger");
+function curLevel() { return LEVELS[LEVEL] || LEVELS.anfaenger; }
 const DEFAULT_RADIUS = 100;    // km
 const MAX_CANDIDATES = 50;    // max. Plätze pro Suche (Performance bei großer DB)
 const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
@@ -27,8 +40,12 @@ function weatherEmoji(code) {
   if (code >= 95) return "⛈️";
   return "•";
 }
-function inSectors(dir, sectors) {
-  return sectors.some(([f, t]) => (f <= t ? dir >= f && dir <= t : dir >= f || dir <= t));
+function inSectors(dir, sectors, tol = 0) {
+  return sectors.some(([f, t]) => {
+    if (tol > 0 && ((t - f + 360) % 360) + 2 * tol >= 360) return true; // aufgeweitet > Vollkreis
+    const lo = (f - tol + 360) % 360, hi = (t + tol) % 360;
+    return lo <= hi ? (dir >= lo && dir <= hi) : (dir >= lo || dir <= hi);
+  });
 }
 function haversine(lat1, lon1, lat2, lon2) {
   const R = 6371, rad = Math.PI / 180;
@@ -38,15 +55,19 @@ function haversine(lat1, lon1, lat2, lon2) {
 }
 
 // Bewertung einer Stunde: 'gut' | 'grenz' | 'nein' + Grund (bei nein/grenz).
-function rateHour(spot, ws, wd, wg, rain, isDay) {
+function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
+  const L = curLevel();
+  // Liga bestimmt die Toleranz (Windobergrenze, Böen, Richtungs-Spielraum).
+  const windMax = L.windMax, gustMax = L.gustMax, dirTol = L.dirTol;
   if (!isDay) return { rating: "nein", reason: "Nacht" };
+  if (wc === 95 || wc === 96 || wc === 99) return { rating: "nein", reason: "Gewitter" };  // Gewitter (WMO) – unabhängig vom Regen
   if (rain > 0) return { rating: "nein", reason: "Regen" };
-  if (!inSectors(wd, spot.sectors)) return { rating: "nein", reason: "Richtung" };
-  if (ws > spot.windMax) return { rating: "nein", reason: "zu stark" };
-  if (wg > spot.gustMax) return { rating: "nein", reason: "Böen" };
+  if (!inSectors(wd, spot.sectors, dirTol)) return { rating: "nein", reason: "Richtung" };
+  if (ws > windMax) return { rating: "nein", reason: "zu stark" };
+  if (wg > gustMax) return { rating: "nein", reason: "Böen" };
   if (ws < spot.windMin) return { rating: "grenz", reason: "schwach" };
-  if (wg >= spot.gustMax * 0.85) return { rating: "grenz", reason: "böig" };
-  if (ws >= spot.windMax * 0.85) return { rating: "grenz", reason: "recht stark" };
+  if (wg >= gustMax * 0.85) return { rating: "grenz", reason: "böig" };
+  if (ws >= windMax * 0.85) return { rating: "grenz", reason: "recht stark" };
   return { rating: "gut", reason: "" };
 }
 
@@ -68,7 +89,8 @@ function findWindows(hours) {
   return wins;
 }
 function windowLabel(w) {
-  return `${fmtHour(w.from)}–${fmtHourPlus(w.to)}`;
+  // Ende = letzte tatsächlich fliegbare Stunde (kein +1 -> nie zu optimistisch).
+  return `${fmtHour(w.from)}–${fmtHour(w.to)}`;
 }
 
 function buildDailyMap(daily) {
@@ -96,9 +118,14 @@ function analyse(spot, data) {
     const dl = dmap[key];
     const isDay = dl ? (t >= dl.sunrise && t <= dl.sunset) : (t.getHours() >= 8 && t.getHours() <= 20);
     const ws = h.wind_speed_10m[i], wd = h.wind_direction_10m[i], wg = h.wind_gusts_10m[i], rain = h.precipitation[i];
-    const { rating, reason } = rateHour(spot, ws, wd, wg, rain, isDay);
+    const wc = h.weather_code ? h.weather_code[i] : null;
+    // Flugart-Rohdaten (optional – nur vorhanden, wenn die Abfrage sie geliefert hat)
+    const cl = h.cloud_cover_low ? h.cloud_cover_low[i] : null;
+    const rad = h.shortwave_radiation ? h.shortwave_radiation[i] : null;
+    const cape = h.cape ? h.cape[i] : null;
+    const { rating, reason } = rateHour(spot, ws, wd, wg, rain, isDay, wc);
     if (!days[key]) days[key] = { key, date: t, wx: dl, hours: [] };
-    days[key].hours.push({ t, ws, wd, wg, rain, rating, reason, isDay });
+    days[key].hours.push({ t, ws, wd, wg, rain, rating, reason, isDay, cl, rad, cape, wc });
   }
   return Object.values(days).map(day => {
     const dayHours = day.hours.filter(x => x.isDay);
@@ -153,15 +180,66 @@ function todayRating(days, idx = 0) {
   const w = idx === 1 ? "Morgen" : "Heute";
   const green = day ? day.dayHours.filter(h => h.rating === "gut").length : 0;
   const grenz = day ? day.dayHours.filter(h => h.rating === "grenz").length : 0;
+  const type = flightType(day);
   if (ts.status === "gut") {
     const stars = green >= 5 ? 5 : 4;
-    return { stars, label: stars === 5 ? `${w} sehr gut geeignet` : `${w} gut geeignet`, cls: "gut" };
+    const q = stars === 5 ? "sehr gut" : "gut";
+    return { stars, label: type ? `${w} ${q} – ${type.label}` : `${w} ${q} geeignet`, cls: "gut", type };
   }
   if (ts.status === "grenz") {
     const stars = grenz >= 4 ? 3 : 2;
-    return { stars, label: "Grenzwertig", cls: "grenz" };
+    return { stars, label: type ? `Grenzwertig · ${type.label}` : "Grenzwertig", cls: "grenz", type };
   }
   return { stars: 1, label: `${w} nicht geeignet`, cls: "nein" };
+}
+
+// Kompakte Sterne+Kurzurteil pro Tag (für die 7-Tage-Liste – ohne "Heute/Morgen"-Präfix)
+function dayVerdict(days, idx) {
+  const ts = dayStatus(days, idx);
+  const day = days[idx];
+  const green = day ? day.dayHours.filter(h => h.rating === "gut").length : 0;
+  const grenz = day ? day.dayHours.filter(h => h.rating === "grenz").length : 0;
+  if (ts.status === "gut") { const stars = green >= 5 ? 5 : 4; const type = flightType(day); return { stars, cls: "gut", text: type ? type.label : (stars === 5 ? "sehr gut" : "gut") }; }
+  if (ts.status === "grenz") { const stars = grenz >= 4 ? 3 : 2; return { stars, cls: "grenz", text: ts.reasonLabel || "grenzwertig" }; }
+  return { stars: 1, cls: "nein", text: ts.reasonText || "nicht geeignet" };
+}
+function starStr(n) { return `<span class="on">${"★".repeat(n)}</span><span class="off">${"☆".repeat(5 - n)}</span>`; }
+
+// ---- Flugart-Einordnung: Abgleiter / Soaring / Thermik / Streckenflug ----
+// Heuristik: Wind → Soaring; Sonneneinstrahlung + CAPE + tiefe Wolken → Thermik. Schwellen justierbar.
+// Bewusst vorsichtig/konservativ + als Tendenz formuliert (kein Versprechen, kein Thermik-Forecast).
+const FLIGHT = {
+  radTherm: 500,    // W/m² Mindest-Mittags-Einstrahlung für Thermik-Tendenz
+  capeTherm: 300,   // J/kg Konvektions-Energie
+  lowCloudMax: 55,  // % tiefe Wolken – darüber kaum Thermik
+  soarWind: 16,     // km/h: ab hier Hangsoaring realistisch
+  soarWindMax: 38,  // darüber nicht mehr als „Soaring" labeln
+};
+function flightType(day) {
+  if (!day || !day.windows || !day.windows.length) return null;
+  const fly = day.dayHours.filter(h => h.rating !== "nein");
+  if (!fly.length) return null;
+  const mid = fly.filter(h => { const hr = h.t.getHours(); return hr >= 11 && hr <= 16; });
+  const pool = mid.length ? mid : fly;
+  const hasData = pool.some(h => h.rad != null);
+  const rad = Math.max(0, ...pool.map(h => h.rad || 0));
+  const cape = Math.max(0, ...pool.map(h => h.cape || 0));
+  const lowCloud = Math.min(100, ...pool.map(h => (h.cl == null ? 100 : h.cl)));
+  const soar = fly.some(h => h.ws >= FLIGHT.soarWind && h.ws <= FLIGHT.soarWindMax);
+  const therm = hasData && lowCloud <= FLIGHT.lowCloudMax && rad >= FLIGHT.radTherm && cape >= FLIGHT.capeTherm;
+  if (therm && soar) return { key: "th", label: "Thermik & Soaring möglich" };
+  if (therm) return { key: "th", label: "Thermik-Tendenz" };
+  if (soar) return { key: "soar", label: "Soaring möglich" };
+  return { key: "glide", label: "eher Abgleiter" };
+}
+
+// DHV-Schwierigkeits-Hinweis: 1 = anspruchsvoll, 2 = sehr anspruchsvoll (nur für Erfahrene).
+// Bei Liga „Anfänger" kommt ein deutlicher Zusatz dazu (warnen, aber nicht verstecken).
+function diffWarn(spot) {
+  const d = spot.diff || 0;
+  if (!d) return null;
+  const text = d === 2 ? "Sehr anspruchsvoll – nur für Erfahrene" : "Anspruchsvolles Gelände";
+  return { d, text };
 }
 
 // ---------------- Fetching ----------------
@@ -201,13 +279,15 @@ function wxSweep() {
 wxSweep();
 
 async function fetchForecast(spot) {
-  const key = wxKey("f7", spot.lat, spot.lon);
+  const key = wxKey("f7v", spot.lat, spot.lon);
   const cached = wxGet(key); if (cached) return cached;
-  let url = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}` +
-    `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation` +
+  // KEIN &elevation: der Parameter macht Open-Meteo instabil (12 m Höhendifferenz drehte die
+  // Windrichtung um 90°+) und wich vom Bulk-Abruf ab -> Liste und Detail widersprachen sich.
+  // Beide Pfade nutzen jetzt Open-Meteos eigene Geländehöhe = konsistent.
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}` +
+    `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,weather_code,cloud_cover_low,shortwave_radiation,cape` +
     `&daily=sunrise,sunset,weather_code,temperature_2m_max,temperature_2m_min` +
     `&timezone=Europe%2FBerlin&forecast_days=7&wind_speed_unit=kmh`;
-  if (spot.elevation != null && !isNaN(spot.elevation)) url += `&elevation=${spot.elevation}`;
   const data = await (await fetchRetry(url)).json();
   wxSet(key, data);
   return data;
@@ -218,17 +298,17 @@ async function fetchBulkToday(spots) {
   const out = new Array(spots.length);
   const missIdx = [], missSpots = [];
   spots.forEach((s, i) => {
-    const c = wxGet(wxKey("b2", s.lat, s.lon));
+    const c = wxGet(wxKey("b2u", s.lat, s.lon));
     if (c) out[i] = c; else { missIdx.push(i); missSpots.push(s); }
   });
   if (missSpots.length) {
     const lats = missSpots.map(s => s.lat).join(","), lons = missSpots.map(s => s.lon).join(",");
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}` +
-      `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation` +
+      `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,weather_code,cloud_cover_low,shortwave_radiation,cape` +
       `&daily=sunrise,sunset&timezone=Europe%2FBerlin&forecast_days=2&wind_speed_unit=kmh`;
     const j = await (await fetchRetry(url)).json();
     const arr = Array.isArray(j) ? j : [j];
-    arr.forEach((d, k) => { out[missIdx[k]] = d; wxSet(wxKey("b2", missSpots[k].lat, missSpots[k].lon), d); });
+    arr.forEach((d, k) => { out[missIdx[k]] = d; wxSet(wxKey("b2u", missSpots[k].lat, missSpots[k].lon), d); });
   }
   return out;
 }
@@ -255,7 +335,7 @@ function formatDur(sec) {
   return Math.floor(m / 60) + " h " + (m % 60).toString().padStart(2, "0") + " min";
 }
 // Kompakte Fensterzeit für die Ergebnisliste: „15–22 Uhr"
-function winTimeShort(w) { return `${w.from.getHours()}–${(w.to.getHours() + 1) % 24} Uhr`; }
+function winTimeShort(w) { return `${w.from.getHours()}–${w.to.getHours()} Uhr`; }
 
 // ---------------- Speicher: User-Plätze + Favoriten ----------------
 const USER_KEY = "flugwetter_user_spots", FAV_KEY = "flugwetter_favorites";
@@ -298,8 +378,9 @@ function renderCard(spot, days, opts = {}) {
     ? `<span class="badge red">${statusDot("nein")} ${dayW}: ${ts.reasonText}</span>`
     : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} ${dayW} ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
 
-  const daysHtml = days.slice(0, 7).map(day => {
+  const daysHtml = days.slice(0, 7).map((day, i) => {
     const wd = WEEKDAYS[day.date.getDay()];
+    const rv = dayVerdict(days, i);
     const hoursHtml = day.dayHours.map(x => {
       const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
       const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`;
@@ -308,11 +389,12 @@ function renderCard(spot, days, opts = {}) {
     }).join("");
     const wx = day.wx && day.wx.code != null
       ? `<div class="wx">${weatherEmoji(day.wx.code)} <span class="tmax">${day.wx.tmax}°</span> / <span class="tmin">${day.wx.tmin}°</span></div>` : "";
-    const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "—";
+    const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "";
+    const rating = `<div class="drating ${rv.cls}"><span class="dstars">${starStr(rv.stars)}</span><span class="dverdict">${rv.text}</span>${winTxt ? `<span class="dwin"> · ${winTxt}</span>` : ""}</div>`;
     return `
       <div class="day ${day.windows.length ? "hasgreen" : ""}">
         <div class="dlabel">${wd}<br>${day.date.getDate()}.${day.date.getMonth()+1}.</div>
-        <div class="dright"><div class="hours">${hoursHtml}</div>${wx}<div class="wins">${winTxt}</div><div class="hour-detail" hidden></div></div>
+        <div class="dright"><div class="hours">${hoursHtml}</div><div class="dbottom">${wx}${rating}</div><div class="hour-detail" hidden></div></div>
       </div>`;
   }).join("");
 
@@ -329,16 +411,18 @@ function renderCard(spot, days, opts = {}) {
   const actions = `<div class="actions">${acts.join("")}</div>`;
 
   const metaHtml = `<div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>`;
+  const diffHtml = (() => { const w = diffWarn(spot); return w ? `<div class="spot-warn d${w.d}">⚠️ ${w.text}</div>` : ""; })();
 
   const rt = todayRating(days, dayIdx);
   const ratingBlock = `<div class="rating ${rt.cls}"><span class="stars">${"★".repeat(rt.stars)}<span class="star-off">${"★".repeat(5 - rt.stars)}</span></span><span class="rating-label">${rt.label}</span></div>`;
+  const ftHint = rt.type ? `<div class="ft-hint">Flugart nur grobe Schätzung – kein Thermik-Forecast</div>` : "";
 
   // Kompakt (Favoriten): nur Kopf + Aktionen sichtbar, Rest im Aufklapp-Menü.
   const body = opts.collapsible
     ? `${actions}
       <button class="days-toggle" aria-expanded="false"><span class="dt-arrow">▾</span> Details &amp; Wochenübersicht</button>
-      <div class="fav-more collapsed">${ratingBlock}${metaHtml}${nowBar}<div class="days">${daysHtml}</div></div>`
-    : `${ratingBlock}${metaHtml}${actions}${nowBar}<div class="days">${daysHtml}</div>`;
+      <div class="fav-more collapsed">${ratingBlock}${ftHint}${metaHtml}${diffHtml}${nowBar}<div class="days">${daysHtml}</div></div>`
+    : `${ratingBlock}${ftHint}${metaHtml}${diffHtml}${actions}${nowBar}<div class="days">${daysHtml}</div>`;
 
   return `
     <div class="card">
@@ -477,7 +561,10 @@ async function renderSearch(candidates, origin, headline) {
       const drv = drive[i];
       const subInfo = (drv != null ? IC_CAR + " " + formatDur(drv) + " · " : "") +
         (s.dist != null ? IC_PIN + " " + s.dist + " km" : (s.region || ""));
-      return { spot: s, ts: dayStatus(analyse(s, results[i]), searchDay), drive: drv, subInfo };
+      const days = analyse(s, results[i]);
+      const ts = dayStatus(days, searchDay);
+      ts.type = flightType(days[searchDay]);
+      return { spot: s, ts, drive: drv, subInfo };
     });
     const rank = { gut: 0, grenz: 1, nein: 2 };
     rows.sort((a, b) =>
@@ -541,6 +628,22 @@ document.getElementById("dayToggle").addEventListener("click", e => {
   searchDay = parseInt(b.dataset.day, 10);
   document.querySelectorAll("#dayToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
   if (rerunSearch) rerunSearch();
+});
+
+// Liga/Können-Umschalter: ändert nur das Urteil (Ampel), nicht die Daten.
+function applyLevelUI() {
+  document.querySelectorAll("#levelSeg .lseg").forEach(x => x.classList.toggle("on", x.dataset.level === LEVEL));
+  const sub = document.getElementById("levelSub"); if (sub) sub.textContent = curLevel().hint;
+  const idx = LEVEL_ORDER.indexOf(LEVEL);
+  const seg = document.getElementById("levelSeg"); if (seg) seg.style.setProperty("--lvl", idx);
+}
+document.getElementById("levelSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-level]"); if (!b || !LEVELS[b.dataset.level]) return;
+  LEVEL = b.dataset.level;
+  localStorage.setItem(LEVEL_KEY, LEVEL);
+  applyLevelUI();
+  if (rerunSearch) rerunSearch();
+  if (!document.getElementById("page-favorites").hidden) renderFavorites();
 });
 
 // Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
@@ -678,14 +781,14 @@ function renderFlyResults(rows, headline, truncated) {
   const flyable = rows.filter(r => r.ts.status !== "nein").length;
   updateHero(flyable);
   const scope = truncated ? `<b>${flyable}</b> fliegbar (nächste ${rows.length} Plätze)` : `<b>${flyable}</b> von ${rows.length} fliegbar`;
-  const head = `<div class="fly-head">${headline} · ${scope}</div>`;
+  const head = `<div class="fly-head">${headline} · ${scope}<span class="fly-lg" title="Bewertet für deine Liga – oben unter „Dein Können“ änderbar">Liga: ${curLevel().name}</span></div>`;
   const list = rows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
     const timeSlot = ts.status === "nein"
       ? `<span class="sc-nore">${ts.reasonText}</span>`
       : `<span class="sc-time ${ts.status}">${winTimeShort(ts.win)}</span>`;
-    const windSlot = ts.status === "nein" ? "" : `<div class="sc-wind">${ts.reasonLabel}</div>`;
+    const windSlot = ts.status === "nein" ? "" : `<div class="sc-wind">${ts.status === "gut" && ts.type ? ts.type.label : ts.reasonLabel}</div>`;
     const scene = spotScene(s, ts.status);
     return `
       <div class="spot-card ${ts.status} sc-${scene.cat}" data-spot="${s.id}">
@@ -694,6 +797,7 @@ function renderFlyResults(rows, headline, truncated) {
         <div class="sc-main">
           <div class="sc-name">${s.name}</div>
           <div class="sc-meta">${r.subInfo}</div>
+          ${(() => { const w = diffWarn(s); return w ? `<div class="sc-warn d${w.d}">⚠️ ${w.text}</div>` : ""; })()}
         </div>
         <div class="sc-right">
           <div class="sc-actions">
@@ -936,6 +1040,7 @@ document.getElementById("hintClose").addEventListener("click", () => {
   if (r && document.querySelector(`#radiusPills .rpill[data-km="${r}"]`)) {
     document.querySelectorAll("#radiusPills .rpill").forEach(x => x.classList.toggle("on", x.dataset.km === r));
   }
+  applyLevelUI();
   route();
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
