@@ -104,6 +104,8 @@
     footer .wrap{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;justify-content:space-between}
     footer a{color:var(--muted)}
     footer a:hover{color:var(--text)}
+    .bmc-foot{display:inline-flex;align-items:center;gap:6px;background:#ffdd00;color:#0d0c22 !important;font-weight:700;padding:6px 13px;border-radius:999px;font-size:13px}
+    .bmc-foot:hover{filter:brightness(0.95)}
 
     @media(max-width:640px){
       .hero h1{font-size:33px}
@@ -239,10 +241,11 @@
   <footer>
     <div class="wrap">
       <div>© 2026 GoFlyToday · Mark Cecil</div>
-      <div style="display:flex;gap:22px;flex-wrap:wrap">
+      <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">
         <a href="mailto:goflytoday.app@gmail.com">goflytoday.app@gmail.com</a>
         <a href="/datenschutz.html">Impressum &amp; Datenschutz</a>
         <a href="/">Zur App</a>
+        <a class="bmc-foot" href="https://buymeacoffee.com/GoFlyToday" target="_blank" rel="noopener">☕ Kaffee spendieren</a>
       </div>
     </div>
   </footer>

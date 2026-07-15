@@ -133,7 +133,9 @@
     <!-- SEITE: Favoriten -->
     <section id="page-favorites" class="page" hidden>
       <h2 class="page-h">★ Deine Favoriten</h2>
+      <div id="favSummary"></div>
       <div id="favList" class="spot-list"></div>
+      <div id="favTip"></div>
       <div id="favEmpty" class="empty" hidden>
         <p>Noch keine Favoriten.<br>Über <b>„＋ Neu"</b> einen Platz aus der Datenbank wählen oder eigenen anlegen.</p>
       </div>
@@ -141,37 +143,48 @@
 
     <!-- SEITE: Neu -->
     <section id="page-add" class="page" hidden>
-      <h2 class="page-h">Aus Datenbank hinzufügen</h2>
-      <input id="dbSearch" class="db-search" placeholder="🔎 Startplatz suchen (Name/Ort) …" />
-      <div id="dbResults" class="db-results"></div>
-
-      <h2 class="page-h">Oder eigenen Platz anlegen</h2>
-      <form id="spotForm" class="card">
-        <label>Name <span class="req">*</span><input name="name" required placeholder="z. B. Hausberg" /></label>
-        <label>Region / Ort<input name="region" placeholder="z. B. Allgäu" /></label>
-        <div class="row">
-          <label>Breitengrad <span class="req">*</span><input name="lat" required inputmode="decimal" placeholder="47.5446" /></label>
-          <label>Längengrad <span class="req">*</span><input name="lon" required inputmode="decimal" placeholder="10.0528" /></label>
-        </div>
-        <button type="button" id="geoBtn" class="btn-soft">📍 Mein Standort verwenden</button>
-        <p class="tip">Koordinaten z. B. aus Google Maps: lange auf den Platz tippen → Zahlen erscheinen oben.</p>
-        <label>Startplatzhöhe (m)
-          <div class="hrow"><input name="elevation" inputmode="numeric" placeholder="wird automatisch ermittelt" /><button type="button" id="elevBtn" class="btn-soft">🏔 ermitteln</button></div>
-        </label>
-        <fieldset><legend>Erlaubte Windrichtung(en) <span class="req">*</span></legend><div id="compass" class="compass"></div></fieldset>
-        <details class="adv"><summary>Erweiterte Grenzwerte</summary>
-          <div class="row">
-            <label>Wind min<input name="windMin" type="number" value="3" /></label>
-            <label>Wind max<input name="windMax" type="number" value="26" /></label>
-            <label>Böen max<input name="gustMax" type="number" value="30" /></label>
+      <div class="card add-sec">
+        <div class="add-sec-head"><span class="ash-num gut">🔎</span><h2>1. Aus Datenbank hinzufügen</h2></div>
+        <div class="add-db-row">
+          <div class="add-db-search">
+            <input id="dbSearch" class="db-search" placeholder="🔎 Startplatz suchen (Name/Ort) …" />
+            <p class="tip">Tippe einen Namen oder Ort (z. B. „Tegelberg", „Alb"), um in 2809 Startplätzen zu suchen.</p>
+            <div id="dbResults" class="db-results"></div>
           </div>
-        </details>
-        <p id="formErr" class="form-err" hidden></p>
-        <div class="modal-actions">
-          <button type="button" id="resetBtn" class="btn-soft">Leeren</button>
-          <button type="submit" class="btn-primary">Speichern &amp; favorisieren</button>
+          <div class="add-db-info"><span class="adi-ic">🗄️</span><span>Über 2800 Startplätze aus der offiziellen DHV-Geländedatenbank mit geprüften Windrichtungen.</span></div>
         </div>
-      </form>
+      </div>
+
+      <div class="card add-sec">
+        <div class="add-sec-head"><span class="ash-num">✏️</span><h2>2. Eigenen Platz anlegen</h2></div>
+        <form id="spotForm">
+          <label><span class="fl-row"><span class="fl-ic">⛰️</span>Name <span class="req">*</span></span><input name="name" required placeholder="z. B. Hausberg" /></label>
+          <label><span class="fl-row"><span class="fl-ic">📍</span>Region / Ort</span><input name="region" placeholder="z. B. Allgäu" /></label>
+          <div class="row">
+            <label><span class="fl-row"><span class="fl-ic">🎯</span>Breitengrad <span class="req">*</span></span><input name="lat" required inputmode="decimal" placeholder="47.5446" /></label>
+            <label><span class="fl-row"><span class="fl-ic">🎯</span>Längengrad <span class="req">*</span></span><input name="lon" required inputmode="decimal" placeholder="10.0528" /></label>
+          </div>
+          <button type="button" id="geoBtn" class="btn-soft">📍 Mein Standort verwenden</button>
+          <p class="tip">Koordinaten z. B. aus Google Maps: lange auf den Platz tippen → Zahlen erscheinen oben.</p>
+          <label>Startplatzhöhe (m)
+            <div class="hrow"><input name="elevation" inputmode="numeric" placeholder="wird automatisch ermittelt" /><button type="button" id="elevBtn" class="btn-soft">🏔 ermitteln</button></div>
+          </label>
+          <fieldset><legend>Erlaubte Windrichtung(en) <span class="req">*</span></legend><div id="compass" class="compass"></div></fieldset>
+          <details class="adv"><summary>Erweiterte Grenzwerte</summary>
+            <div class="row">
+              <label>Wind min<input name="windMin" type="number" value="3" /></label>
+              <label>Wind max<input name="windMax" type="number" value="26" /></label>
+              <label>Böen max<input name="gustMax" type="number" value="30" /></label>
+            </div>
+          </details>
+          <div class="add-hint"><span class="ah-ic">💡</span><span><b>Tipp</b><br>Je genauer die Daten, desto besser sind die Wetterprognosen für deinen Platz.</span></div>
+          <p id="formErr" class="form-err" hidden></p>
+          <div class="modal-actions">
+            <button type="button" id="resetBtn" class="btn-soft">Leeren</button>
+            <button type="submit" class="btn-primary">Speichern &amp; favorisieren</button>
+          </div>
+        </form>
+      </div>
     </section>
 
     <!-- SEITE: Info -->
@@ -182,25 +195,39 @@
       </div>
 
       <h2 class="page-h">Wie funktioniert die App?</h2>
-      <div class="card prose">
-        <p>Tippe auf <b>„Wo kann ich heute fliegen?"</b> – die App nimmt deinen Standort und prüft alle Startplätze im gewählten Umkreis gegen die Wettervorhersage. Ergebnis:</p>
-        <ul>
-          <li>🟢 <b>Gut</b> – Windrichtung passt, Wind &amp; Böen entspannt im Rahmen.</li>
-          <li>🟡 <b>Grenzwertig</b> – fliegbar, aber nah an den Grenzen (zu schwach, recht stark oder böig).</li>
-          <li>🔴 <b>Nicht</b> – Richtung falsch, zu viel Wind/Böen, Regen o. Ä.</li>
-        </ul>
-        <p>Angezeigt werden nur <b>zusammenhängende Fenster ab 3 Stunden</b> – einzelne gute Stunden werden bewusst ignoriert.</p>
-        <p>Unter <b>„⭐ Favoriten"</b> siehst du deine Plätze mit 7-Tage-Ansicht, Wettersymbol und Temperatur. Favoriten legst du über <b>„＋ Neu"</b> an (aus der Datenbank oder selbst).</p>
-        <p><b>Abgedeckt sind aktuell:</b> Deutschland, Österreich, Schweiz, Frankreich und Italien – über <b>2800 Startplätze</b> aus der offiziellen DHV-Geländedatenbank, mit geprüften Windrichtungen (nie geraten).</p>
-        <h3>Für wen ist sie gedacht?</h3>
-        <p>GoFlyToday hilft dir, schnell den Überblick zu bekommen – egal, wie viel Flug- und Wettererfahrung du schon mitbringst:</p>
-        <ul>
-          <li>Frisch mit dem A-Schein in der Tasche</li>
-          <li>Wochenend- und Feierabendflieger</li>
-          <li>Wiedereinsteiger, die wieder Lust aufs Fliegen haben</li>
-          <li>Alle, die sich nicht erst lange in die Wetterkunde einlesen möchten</li>
-          <li>Piloten, die mehrere Startplätze in der Nähe vergleichen wollen</li>
-        </ul>
+      <div class="card">
+        <p class="info-lead">Tippe auf <b>„Wo kann ich heute fliegen?"</b> – die App nimmt deinen Standort und prüft alle Startplätze im gewählten Umkreis gegen die Wettervorhersage.</p>
+        <div class="ampel-cards">
+          <div class="ampel-card gut">
+            <span class="ac-dot">🟢</span>
+            <div><b>Gut</b> – Windrichtung passt<br><span>Wind &amp; Böen entspannt im Rahmen.</span></div>
+          </div>
+          <div class="ampel-card grenz">
+            <span class="ac-dot">🟡</span>
+            <div><b>Grenzwertig</b> – fliegbar, aber nah an den Grenzen<br><span>(zu schwach, recht stark oder böig).</span></div>
+          </div>
+          <div class="ampel-card nein">
+            <span class="ac-dot">🔴</span>
+            <div><b>Nicht</b> – Richtung falsch, zu viel Wind/Böen, Regen o. Ä.<br><span>Angezeigt werden nur zusammenhängende Fenster ab 3 Stunden – einzelne gute Stunden werden bewusst ignoriert.</span></div>
+          </div>
+        </div>
+        <div class="info-tip-row">
+          <div class="info-tip"><span class="it-ic">⭐</span><span>Unter <b>„Favoriten"</b> siehst du deine Plätze mit 7-Tage-Ansicht, Wettersymbol und Temperatur.</span></div>
+          <div class="info-tip"><span class="it-ic">➕</span><span>Favoriten legst du über <b>„＋ Neu"</b> an (aus der Datenbank oder selbst).</span></div>
+        </div>
+        <div class="info-coverage">
+          <span class="ic-globe">🌍</span>
+          <span><b>Abgedeckt sind aktuell:</b> Deutschland, Österreich, Schweiz, Frankreich und Italien – über <b>2800 Startplätze</b> aus der offiziellen DHV-Geländedatenbank, mit geprüften Windrichtungen (nie geraten).</span>
+        </div>
+      </div>
+
+      <h2 class="page-h">Für wen ist sie gedacht?</h2>
+      <div class="audience-cards">
+        <div class="aud-card"><span class="aud-ic">🎒</span>Frisch mit dem A-Schein in der Tasche</div>
+        <div class="aud-card"><span class="aud-ic">📅</span>Wochenend- und Feierabendflieger</div>
+        <div class="aud-card"><span class="aud-ic">🔄</span>Wiedereinsteiger, die wieder Lust aufs Fliegen haben</div>
+        <div class="aud-card"><span class="aud-ic">👥</span>Alle, die sich nicht erst lange in die Wetterkunde einlesen möchten</div>
+        <div class="aud-card"><span class="aud-ic">📍</span>Piloten, die mehrere Startplätze in der Nähe vergleichen wollen</div>
       </div>
 
       <div class="support card">
@@ -210,19 +237,26 @@
       </div>
 
       <h2 class="page-h">Rechtliche Einordnung</h2>
-      <div class="card prose legal">
-        <p><b>Nutzung auf eigene Gefahr und in Eigenverantwortung.</b> Unverbindliche Orientierungshilfe, <b>keine amtliche Flugwetter&shy;beratung</b>. Die App gibt nur eine <b>Tendenz</b> – prüfe vor dem Fliegen immer zusätzlich amtliche/spezialisierte Quellen (z. B. <b>Burnair</b>, <b>Windy</b>, <b>DWD</b>).</p>
-        <ul>
-          <li>Werte aus <b>Wettermodell-Daten</b> (Open-Meteo / DWD-ICON), können abweichen. Keine Gewähr für Richtigkeit/Aktualität.</li>
-          <li>Modellwind = <b>10 m über Grund</b>, nicht zwingend der Wind am Hang.</li>
-          <li>Nicht geprüft werden: Luftraum, NOTAMs, Sperrungen, Naturschutz-/Wildschutz&shy;zonen, Gelände-/Vereins&shy;regeln, Thermik, Turbulenz, lokale Effekte.</li>
-          <li>Beurteilung &amp; Startentscheidung liegen <b>allein beim verantwortlichen Piloten</b>; Gelände&shy;regeln (DHV) und nötige Berechtigungen beachten.</li>
-          <li><b>Keine Haftung</b> für Schäden aus der Nutzung.</li>
-        </ul>
+      <div class="card legal">
+        <div class="legal-head">
+          <span class="lg-ic">🛡️</span>
+          <p><b>Nutzung auf eigene Gefahr und in Eigenverantwortung.</b> Unverbindliche Orientierungshilfe, <b>keine amtliche Flugwetter&shy;beratung</b>. Die App gibt nur eine <b>Tendenz</b> – prüfe vor dem Fliegen immer zusätzlich amtliche/spezialisierte Quellen (z. B. <b>Burnair</b>, <b>Windy</b>, <b>DWD</b>).</p>
+        </div>
+        <div class="legal-cols">
+          <ul>
+            <li>Werte aus <b>Wettermodell-Daten</b> (Open-Meteo / DWD-ICON), können abweichen. Keine Gewähr für Richtigkeit/Aktualität.</li>
+            <li>Modellwind = <b>10 m über Grund</b>, nicht zwingend der Wind am Hang.</li>
+            <li>Nicht geprüft werden: Luftraum, NOTAMs, Sperrungen, Naturschutz-/Wildschutz&shy;zonen, Gelände-/Vereins&shy;regeln, Thermik, Turbulenz, lokale Effekte.</li>
+          </ul>
+          <ul>
+            <li>Beurteilung &amp; Startentscheidung liegen <b>allein beim verantwortlichen Piloten</b>; Gelände&shy;regeln (DHV) und nötige Berechtigungen beachten.</li>
+            <li><b>Keine Haftung</b> für Schäden aus der Nutzung.</li>
+          </ul>
+        </div>
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 58 · Juli 2026</p>
+      <p class="build">GoFlyToday · Version 60 · Juli 2026</p>
     </section>
   </main>
 
@@ -244,10 +278,6 @@
   <!-- Detail-Fenster: 7-Tage-Vorhersage -->
   <div id="detailModal" class="modal" hidden>
     <div class="modal-card detail">
-      <div class="modal-head">
-        <h2>7-Tage-Vorhersage</h2>
-        <button id="detailClose" class="ic0" title="Schließen">✕</button>
-      </div>
       <div id="detailBody" class="detail-body"></div>
     </div>
   </div>
