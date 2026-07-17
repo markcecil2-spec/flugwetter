@@ -79,10 +79,34 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .dtab-panels { display: grid; }
 .dtab-panels .dtab-panel { grid-column: 1; grid-row: 1; min-width: 0; }
 .dtab-panel[hidden] { display: block; visibility: hidden; pointer-events: none; }
-.wetter-top { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
-.wetter-top .badge { flex: none; }
-.wetter-top .rating { flex: 1; min-width: 0; margin: 0; }
 .spot-meta b { color: var(--text); }
+
+/* Große Status-Karte oben im Wetter-Tab */
+.status-card { display: flex; align-items: center; gap: 14px; background: var(--card-2); border-radius: 16px; padding: 14px 16px; margin: 0 0 12px; border: 1px solid var(--line); }
+.status-card.gut { border-color: rgba(34,197,94,.35); }
+.status-card.grenz { border-color: rgba(250,204,21,.35); }
+.status-card.nein { border-color: var(--line); }
+.sc-icon { flex: none; width: 52px; height: 52px; border-radius: 50%; background: rgba(148,163,184,.14); display: grid; place-items: center; font-size: 26px; }
+.status-card.gut .sc-icon { background: var(--green-bg); }
+.status-card.grenz .sc-icon { background: rgba(250,204,21,.14); }
+.sc-mid { flex: 1; min-width: 0; }
+.sc-title { font-weight: 800; font-size: 17px; }
+.status-card.gut .sc-title { color: var(--green); }
+.status-card.grenz .sc-title { color: var(--amber); }
+.status-card.nein .sc-title { color: var(--muted); }
+.sc-stars { font-size: 15px; letter-spacing: 1.5px; color: var(--amber); margin: 2px 0; }
+.sc-stars .star-off { color: rgba(148,163,184,.35); }
+.sc-type-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-top: 3px; }
+.bar-segs { display: inline-flex; gap: 2px; }
+.bar-seg { width: 12px; height: 5px; border-radius: 2px; background: rgba(148,163,184,.25); }
+.bar-seg.on.gut { background: var(--green); }
+.bar-seg.on.grenz { background: var(--amber); }
+.bar-seg.on.nein { background: var(--red); }
+.sc-best { flex: none; text-align: center; background: rgba(0,0,0,.18); border-radius: 12px; padding: 8px 12px; }
+.sc-best-label { display: block; font-size: 9.5px; color: var(--muted); margin-bottom: 2px; }
+.sc-best b { font-size: 13px; color: var(--text); white-space: nowrap; }
+.status-card.gut .sc-best b { color: var(--green); }
+.status-card.grenz .sc-best b { color: var(--amber); }
 
 /* Details-Tab (neues Layout): Icon-Karten, Datentabelle, Start-/Landeplatz-Karten, Aktionen */
 .na { color: var(--muted); font-style: italic; }
@@ -123,19 +147,21 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 
 .days { display: flex; flex-direction: column; gap: 6px; }
 .day {
-  display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: start;
+  display: grid; grid-template-columns: 54px 1fr; gap: 10px; align-items: start;
   padding: 12px 9px; border-radius: 10px;
 }
 .day.hasgreen { background: var(--green-bg); }
-.dlabel { font-size: 12px; font-weight: 700; color: var(--muted); line-height: 1.25; }
+.dlabel { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.dlabel-wd { font-size: 12px; font-weight: 700; color: var(--muted); line-height: 1.25; }
 .dright { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.hours { display: flex; flex-wrap: wrap; gap: 3px; }
+.hours { display: flow-root; } /* Block-Formatierungskontext, damit die Stunden um den rechts verankerten Kompass fließen */
 .h {
-  font-size: 10px; width: 20px; height: 20px; display: grid; place-items: center;
-  border-radius: 5px; background: rgba(148,163,184,.16); color: var(--muted); cursor: default;
+  font-size: 10px; width: 20px; height: 20px; display: inline-grid; place-items: center;
+  margin: 0 3px 3px 0; border-radius: 5px; background: rgba(148,163,184,.16); color: var(--muted); cursor: default;
 }
 .h.ok { background: var(--green); color: #fff; font-weight: 700; }
-.wx { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.wx { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; font-size: 11px; color: var(--muted); font-weight: 600; }
+.wx-ic { font-size: 20px; line-height: 1.1; }
 .wx .tmax { color: var(--text); }
 .wins { font-size: 12px; color: var(--green); font-weight: 600; }
 .day:not(.hasgreen) .wins { color: var(--muted); font-weight: 400; }
@@ -242,13 +268,10 @@ section:last-child { margin-bottom: 44px; }
 .ash-num { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(6,182,164,.16); font-size: 15px; flex: none; }
 .add-db-row { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
 .add-db-search { flex: 1 1 260px; min-width: 0; }
-.add-db-info { flex: 0 1 200px; display: flex; gap: 10px; align-items: flex-start; background: var(--card-2); border-radius: 12px; padding: 12px; font-size: 12px; line-height: 1.5; color: var(--text); }
-.adi-ic { font-size: 20px; flex: none; color: var(--sky); }
 .fl-row { display: flex; align-items: center; gap: 5px; }
 .add-hint { display: flex; gap: 10px; align-items: flex-start; background: var(--card-2); border-radius: 12px; padding: 12px 13px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 .add-hint b { color: var(--text); }
 .ah-ic { font-size: 17px; flex: none; }
-@media (max-width: 520px) { .add-db-info { flex-basis: 100%; } }
 fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 12px; margin: 0; }
 legend { font-size: 12.5px; font-weight: 700; padding: 0 6px; }
 .compass { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -323,9 +346,23 @@ header { position: relative; overflow: hidden; }
 .wind-txt { flex: 1; min-width: 140px; }
 .sun-txt { flex: none; color: var(--muted); white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) { .wind-ind { animation: none; } }
-.nb-txt { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 140px; }
-.scp { width: 64px; height: 64px; flex: none; }
+.scp { width: 64px; height: 64px; flex: none; transition: opacity .15s; }
+.scp.idle { opacity: .55; }
 .scp-dir { font-size: 10px; font-weight: 700; fill: var(--muted); }
+/* Kompakter Kompass je Tag: rechts fest verankert, Stunden-Pillen fließen darum (ab einer
+   gewissen Uhrzeit rutschen sie dadurch automatisch in die nächste Zeile) */
+.scp-day-wrap { float: right; margin: 0 0 6px 8px; }
+.scp.scp-sm { width: 42px; height: 42px; }
+/* Uhrzeit-Tap: Winddetail-Leiste unter den Stunden (volle Breite, gut lesbar) */
+.hour-detail {
+  margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--text);
+  background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.25);
+  border-radius: 8px; padding: 8px 10px;
+}
+.hd-reason { font-weight: 800; }
+.hd-reason.nein { color: var(--red); }
+.hd-reason.grenz { color: var(--amber); }
+.hd-reason.gut { color: var(--green); }
 /* Live-Windstation (Pioupiou) */
 .livewind { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 9px 12px; margin: -2px 0 10px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--line); font-size: 12.5px; color: var(--text); }
 .lw-fit { font-weight: 700; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
@@ -539,19 +576,9 @@ header { position: relative; overflow: hidden; }
 .fav-tip-txt { font-size: 13px; color: var(--muted); }
 .fav-tip-txt b { color: var(--green); }
 
-/* Uhrzeit-Tap: Winddetail */
-.hour-detail {
-  margin-top: 8px; font-size: 12.5px; font-weight: 600; color: var(--text);
-  background: rgba(14,165,233,.1); border: 1px solid rgba(14,165,233,.25);
-  border-radius: 8px; padding: 8px 10px;
-}
+/* Uhrzeit-Tap: Stunde markieren (Kompakt-Kompass daneben zeigt Details, s. .scp-day-*) */
 .h { cursor: pointer; }
 .h.sel { outline: 2px solid var(--sky); outline-offset: 1px; }
-.hd-reason { font-weight: 800; }
-.hd-reason.nein { color: #b91c1c; }
-.hd-reason.grenz { color: #b45309; }
-.hd-reason.gut { color: var(--green); }
-@media (prefers-color-scheme: dark) { .hd-reason.nein { color: #fca5a5; } .hd-reason.grenz { color: #fbbf24; } }
 
 /* Formular: kein horizontales Überlaufen auf dem Handy */
 #spotForm input { width: 100%; min-width: 0; }
@@ -786,12 +813,9 @@ body:not(.route-home) main.wrap { padding-top: calc(72px + env(safe-area-inset-t
 .badge.green { background: var(--green-bg); color: var(--green); }
 .rating.grenz .rating-label { color: var(--amber); }
 .rating.nein .rating-label { color: #fca5a5; }
-.hd-reason.nein { color: #fca5a5; }
-.hd-reason.grenz { color: var(--amber); }
 .stars { color: var(--amber); }
 
 /* Akzentflächen an Teal angleichen */
 .hint-banner { background: rgba(21,27,36,.72); border-color: rgba(6,182,164,.3); backdrop-filter: blur(2px); }
 .nowbar { background: rgba(6,182,164,.09); }
-.hour-detail { background: rgba(6,182,164,.1); border-color: rgba(6,182,164,.25); }
 .mine { color: var(--sky); background: rgba(6,182,164,.14); }

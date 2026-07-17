@@ -61,22 +61,28 @@ function sectorWedgePath(cx, cy, rInner, rOuter, from, to) {
   const p0i = polarPt(cx, cy, rInner, from), p1i = polarPt(cx, cy, rInner, a1);
   return `M ${p0o.x.toFixed(1)} ${p0o.y.toFixed(1)} A ${rOuter} ${rOuter} 0 ${large} 1 ${p1o.x.toFixed(1)} ${p1o.y.toFixed(1)} L ${p1i.x.toFixed(1)} ${p1i.y.toFixed(1)} A ${rInner} ${rInner} 0 ${large} 0 ${p0i.x.toFixed(1)} ${p0i.y.toFixed(1)} Z`;
 }
-function spotCompassSvg(spot, wd) {
+// opts.neutral -> grau/inaktiv (Standardzustand, bevor eine Stunde angetippt wurde)
+// opts.compact -> kleine Variante ohne N/O/S/W-Beschriftung (für die Zeile neben den Stunden-Pillen)
+// opts.rating -> "gut"/"grenz"/"nein" der angetippten Stunde: grün/gelb/rot (nicht nur Richtung, ganze Ampel)
+function spotCompassSvg(spot, wd, opts = {}) {
   const cx = 50, cy = 50, rInner = 28, rOuter = 46;
-  const wedges = (spot.sectors || []).map(([f, t]) => `<path d="${sectorWedgePath(cx, cy, rInner, rOuter, f, t)}" fill="var(--green)"/>`).join("");
-  const labels = [["N", 0], ["O", 90], ["S", 180], ["W", 270]].map(([label, deg]) => {
+  const wedgeColor = opts.neutral ? "rgba(148,163,184,.35)" : "var(--green)";
+  const wedges = (spot.sectors || []).map(([f, t]) => `<path d="${sectorWedgePath(cx, cy, rInner, rOuter, f, t)}" fill="${wedgeColor}"/>`).join("");
+  const labels = opts.compact ? "" : [["N", 0], ["O", 90], ["S", 180], ["W", 270]].map(([label, deg]) => {
     const p = polarPt(cx, cy, rOuter + 10, deg);
     return `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" class="scp-dir">${label}</text>`;
   }).join("");
   const needleTip = polarPt(cx, cy, rOuter - 3, wd);
+  const ratingColor = { gut: "var(--green)", grenz: "var(--amber)", nein: "var(--red)" }[opts.rating];
   const fits = inSectors(wd, spot.sectors, curLevel().dirTol);
-  const needleColor = fits ? "var(--green)" : "var(--red)";
-  return `<svg viewBox="0 0 100 100" class="scp" aria-hidden="true">
+  const needleColor = opts.neutral ? "var(--muted)" : (ratingColor || (fits ? "var(--green)" : "var(--red)"));
+  const viewBox = opts.compact ? "10 10 80 80" : "0 0 100 100";
+  return `<svg viewBox="${viewBox}" class="scp${opts.neutral ? " idle" : ""}${opts.compact ? " scp-sm" : ""}" aria-hidden="true">
     <circle cx="${cx}" cy="${cy}" r="${(rInner + rOuter) / 2}" fill="none" stroke="rgba(148,163,184,.22)" stroke-width="${rOuter - rInner}"/>
     ${wedges}
     ${labels}
-    <line x1="${cx}" y1="${cy}" x2="${needleTip.x.toFixed(1)}" y2="${needleTip.y.toFixed(1)}" stroke="${needleColor}" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="${cx}" cy="${cy}" r="4.5" fill="${needleColor}"/>
+    <line x1="${cx}" y1="${cy}" x2="${needleTip.x.toFixed(1)}" y2="${needleTip.y.toFixed(1)}" stroke="${needleColor}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="5" fill="${needleColor}"/>
   </svg>`;
 }
 function haversine(lat1, lon1, lat2, lon2) {
@@ -447,6 +453,31 @@ function formatDur(sec) {
 }
 // Kompakte Fensterzeit für die Ergebnisliste: „15–22 Uhr"
 function winTimeShort(w) { return `${w.from.getHours()}–${w.to.getHours()} Uhr`; }
+// „06:00 – 13:00" fürs Statuskarten-Badge
+function winTimeFull(w) { return `${String(w.from.getHours()).padStart(2, "0")}:00 – ${String(w.to.getHours()).padStart(2, "0")}:00`; }
+// 5-Segment-Balken (z.B. für die Flugart-Einschätzung in der Statuskarte)
+function barSegments(n, cls) {
+  let s = "";
+  for (let i = 0; i < 5; i++) s += `<span class="bar-seg ${i < n ? "on " + cls : ""}"></span>`;
+  return `<span class="bar-segs">${s}</span>`;
+}
+// Große Status-Karte oben im Wetter-Tab: Icon, Bewertung, Sterne, Flugart-Tendenz, beste Zeit
+function statusCardHtml(day, rt, ts, dayW) {
+  const cls = ts.status === "nein" ? "nein" : ts.status;
+  const statusWord = ts.status === "nein" ? "Nicht fliegbar" : rt.stars >= 5 ? "Sehr gut" : rt.stars >= 4 ? "Gut" : "Grenzwertig";
+  const icon = day && day.wx && day.wx.code != null ? weatherEmoji(day.wx.code) : "🪂";
+  const typeRow = rt.type ? `<div class="sc-type-row"><span>${rt.type.label}</span>${barSegments(rt.stars, cls)}</div>` : "";
+  const best = ts.status !== "nein" ? `<div class="sc-best"><span class="sc-best-label">Beste Zeit</span><b>${winTimeFull(ts.win)}</b></div>` : "";
+  return `<div class="status-card ${cls}">
+    <div class="sc-icon">${icon}</div>
+    <div class="sc-mid">
+      <div class="sc-title">${dayW === "morgen" ? "Morgen: " : ""}${statusWord}</div>
+      <div class="sc-stars">${starStr(rt.stars)}</div>
+      ${typeRow}
+    </div>
+    ${best}
+  </div>`;
+}
 
 // ---------------- Favoriten-Karte: "Heute auf einen Blick" (Wind-Box, Stunden-Streifen) ----------------
 // Windspanne über das beste Zeitfenster (nicht nur eine Momentaufnahme) – echte Stundenwerte.
@@ -601,11 +632,8 @@ function renderCard(spot, days, opts = {}) {
   const sun = days[0] && days[0].wx;
   const nowBar = cur ? `
     <div class="nowbar">
-      <div class="nb-txt">
-        <span class="wind-ind"><svg viewBox="0 0 24 24" style="transform:rotate(${Math.round((cur.wd + 180) % 360)}deg)"><path d="M12 2 L19 21 L12 16.5 L5 21 Z"/></svg></span>
-        <span class="wind-txt">jetzt <b>${Math.round(cur.ws)}</b> km/h aus <b>${degToCompass(cur.wd)}</b> · Böen ${Math.round(cur.wg)}</span>
-      </div>
-      ${spotCompassSvg(spot, cur.wd)}
+      <span class="wind-ind"><svg viewBox="0 0 24 24" style="transform:rotate(${Math.round((cur.wd + 180) % 360)}deg)"><path d="M12 2 L19 21 L12 16.5 L5 21 Z"/></svg></span>
+      <span class="wind-txt">jetzt <b>${Math.round(cur.ws)}</b> km/h aus <b>${degToCompass(cur.wd)}</b> · Böen ${Math.round(cur.wg)}</span>
       ${sun ? `<span class="sun-txt">🌅 ${fmtTime(sun.sunrise)} · 🌇 ${fmtTime(sun.sunset)}</span>` : ""}
     </div>` : "";
   let liveHtml = "";
@@ -638,16 +666,20 @@ function renderCard(spot, days, opts = {}) {
       const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
       const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`;
       const rtxt = hourReason(x.rating, x.reason);
-      return `<span class="${cls}" title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}">${x.t.getHours()}</span>`;
+      const hourLabel = `${wd} ${x.t.getHours()} Uhr`;
+      return `<span class="${cls}" title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}">${x.t.getHours()}</span>`;
     }).join("");
     const wx = day.wx && day.wx.code != null
-      ? `<div class="wx">${weatherEmoji(day.wx.code)} <span class="tmax">${day.wx.tmax}°</span> / <span class="tmin">${day.wx.tmin}°</span></div>` : "";
+      ? `<div class="wx"><span class="wx-ic">${weatherEmoji(day.wx.code)}</span><span class="wx-temp"><span class="tmax">${day.wx.tmax}°</span> / <span class="tmin">${day.wx.tmin}°</span></span></div>` : "";
     const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "";
     const rating = `<div class="drating ${rv.cls}"><span class="dstars">${starStr(rv.stars)}</span><span class="dverdict">${rv.text}</span>${winTxt ? `<span class="dwin"> · ${winTxt}</span>` : ""}</div>`;
     return `
       <div class="day ${day.windows.length ? "hasgreen" : ""}">
-        <div class="dlabel">${wd}<br>${day.date.getDate()}.${day.date.getMonth()+1}.</div>
-        <div class="dright"><div class="hours">${hoursHtml}</div><div class="dbottom">${wx}${rating}</div><div class="hour-detail" hidden></div></div>
+        <div class="dlabel"><div class="dlabel-wd">${wd} ${day.date.getDate()}.${day.date.getMonth()+1}.</div>${wx}</div>
+        <div class="dright"><div class="hours">
+          <div class="scp-day-wrap">${spotCompassSvg(spot, 0, { neutral: true, compact: true })}</div>
+          ${hoursHtml}
+        </div><div class="hour-detail" hidden></div><div class="dbottom">${rating}</div></div>
       </div>`;
   }).join("");
 
@@ -681,6 +713,7 @@ function renderCard(spot, days, opts = {}) {
   const rt = todayRating(days, dayIdx);
   const ratingBlock = `<div class="rating ${rt.cls}"><span class="stars">${"★".repeat(rt.stars)}<span class="star-off">${"★".repeat(5 - rt.stars)}</span></span><span class="rating-label">${rt.label}</span></div>`;
   const ftHint = rt.type ? `<div class="ft-hint">Flugart nur grobe Schätzung – kein Thermik-Forecast</div>` : "";
+  const statusCard = statusCardHtml(days[dayIdx], rt, ts, dayW);
 
   // Kompakt (Favoriten): "Heute auf einen Blick" (Status, beste Zeit, Wind, Stunden) immer sichtbar,
   // Rest (7-Tage, Meta-Infos) im Aufklapp-Menü.
@@ -706,7 +739,7 @@ function renderCard(spot, days, opts = {}) {
         <button type="button" class="dtab" data-tab="details" role="tab">Details</button>
       </div>
       <div class="dtab-panels">
-        <div class="dtab-panel" id="dtab-wetter"><div class="wetter-top">${ratingBlock}${badge}</div>${ftHint}${nowBar}${liveHtml}<div class="days">${daysHtml}</div></div>
+        <div class="dtab-panel" id="dtab-wetter">${statusCard}${ftHint}${nowBar}${liveHtml}<div class="days">${daysHtml}</div></div>
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
           const thStart = thermikStartHour(days[dayIdx], ts.win);
@@ -755,7 +788,7 @@ function renderCard(spot, days, opts = {}) {
           </div>
         </div>
       </div>`;
-  return `<div class="card">${head}${body}</div>`;
+  return `<div class="card" data-spot="${spot.id}">${head}${body}</div>`;
 }
 
 async function renderFavorites() {
@@ -1404,21 +1437,24 @@ document.body.addEventListener("click", e => {
     return;
   }
 
-  // Tap auf eine Stunde -> Winddetails anzeigen (Handy-tauglich, kein Hover nötig)
+  // Tap auf eine Stunde -> Kompass des jeweiligen Tages färbt sich ein, Info-Leiste darunter zeigt Details
   const hcell = e.target.closest(".h[data-info]");
   if (hcell) {
     const card = hcell.closest(".card");
-    if (card) {
-      card.querySelectorAll(".hour-detail").forEach(x => { x.hidden = true; x.textContent = ""; });
-      card.querySelectorAll(".h.sel").forEach(x => x.classList.remove("sel"));
+    if (card) card.querySelectorAll(".h.sel").forEach(x => x.classList.remove("sel"));
+    hcell.classList.add("sel");
+    const dayEl = hcell.closest(".day");
+    const scpWrap = dayEl && dayEl.querySelector(".scp-day-wrap");
+    const spotForCompass = card && getSpot(card.dataset.spot);
+    if (scpWrap && spotForCompass && hcell.dataset.wd) {
+      scpWrap.innerHTML = spotCompassSvg(spotForCompass, +hcell.dataset.wd, { compact: true, rating: hcell.dataset.rating });
     }
-    const hd = hcell.closest(".day")?.querySelector(".hour-detail");
+    const hd = dayEl && dayEl.querySelector(".hour-detail");
     if (hd) {
       const rea = hcell.dataset.reason, rating = hcell.dataset.rating;
       hd.innerHTML = hcell.dataset.info + (rea ? ` · <span class="hd-reason ${rating}">${rea}</span>` : "");
       hd.hidden = false;
     }
-    hcell.classList.add("sel");
     return;
   }
 
