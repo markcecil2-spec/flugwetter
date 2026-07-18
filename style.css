@@ -8,6 +8,7 @@
   --sky: #06b6a4;       /* Primary (Teal, etwas dunkler & satter) */
   --sky-d: #05998a;
   --green: #22c55e;     /* Success */
+  --green-d: #16803d;   /* dunkleres Grün, z.B. Kompass-Nadel */
   --green-bg: rgba(34,197,94,.13);
   --red: #ef4444;       /* Danger */
   --amber: #facc15;     /* Warning */

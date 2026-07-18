@@ -73,9 +73,9 @@ function spotCompassSvg(spot, wd, opts = {}) {
     return `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" class="scp-dir">${label}</text>`;
   }).join("");
   const needleTip = polarPt(cx, cy, rOuter - 3, wd);
-  const ratingColor = { gut: "var(--green)", grenz: "var(--amber)", nein: "var(--red)" }[opts.rating];
+  const ratingColor = { gut: "var(--green-d)", grenz: "var(--amber)", nein: "var(--red)" }[opts.rating];
   const fits = inSectors(wd, spot.sectors, curLevel().dirTol);
-  const needleColor = opts.neutral ? "var(--muted)" : (ratingColor || (fits ? "var(--green)" : "var(--red)"));
+  const needleColor = opts.neutral ? "var(--muted)" : (ratingColor || (fits ? "var(--green-d)" : "var(--red)"));
   const viewBox = opts.compact ? "10 10 80 80" : "0 0 100 100";
   return `<svg viewBox="${viewBox}" class="scp${opts.neutral ? " idle" : ""}${opts.compact ? " scp-sm" : ""}" aria-hidden="true">
     <circle cx="${cx}" cy="${cy}" r="${(rInner + rOuter) / 2}" fill="none" stroke="rgba(148,163,184,.22)" stroke-width="${rOuter - rInner}"/>
@@ -219,16 +219,18 @@ function todayRating(days, idx = 0) {
   const ts = dayStatus(days, idx);
   const day = days[idx];
   const w = idx === 1 ? "Morgen" : "Heute";
-  const green = day ? day.dayHours.filter(h => h.rating === "gut").length : 0;
-  const grenz = day ? day.dayHours.filter(h => h.rating === "grenz").length : 0;
+  // Sterne richten sich nach der Länge des tatsächlich nutzbaren Fensters (ts.win), nicht nach
+  // der Summe verstreuter Einzel-Stunden über den Tag – sonst zählen isolierte Gut-Stunden
+  // zwischen zwei Falsch-Richtung-Stunden mit, obwohl daraus kein wirklich fliegbares Fenster wird.
+  const winHours = ts.win ? ts.win.hours : 0;
   const type = flightType(day, ts.win);
   if (ts.status === "gut") {
-    const stars = green >= 5 ? 5 : 4;
+    const stars = winHours >= 5 ? 5 : 4;
     const q = stars === 5 ? "sehr gut" : "gut";
     return { stars, label: type ? `${w} ${q} – ${type.label}` : `${w} ${q} geeignet`, cls: "gut", type };
   }
   if (ts.status === "grenz") {
-    const stars = grenz >= 4 ? 3 : 2;
+    const stars = winHours >= 4 ? 3 : 2;
     return { stars, label: type ? `Grenzwertig · ${type.label}` : "Grenzwertig", cls: "grenz", type };
   }
   return { stars: 1, label: `${w} nicht geeignet`, cls: "nein" };
@@ -238,10 +240,9 @@ function todayRating(days, idx = 0) {
 function dayVerdict(days, idx) {
   const ts = dayStatus(days, idx);
   const day = days[idx];
-  const green = day ? day.dayHours.filter(h => h.rating === "gut").length : 0;
-  const grenz = day ? day.dayHours.filter(h => h.rating === "grenz").length : 0;
-  if (ts.status === "gut") { const stars = green >= 5 ? 5 : 4; const type = flightType(day, ts.win); return { stars, cls: "gut", text: type ? type.label : (stars === 5 ? "sehr gut" : "gut") }; }
-  if (ts.status === "grenz") { const stars = grenz >= 4 ? 3 : 2; return { stars, cls: "grenz", text: ts.reasonLabel || "grenzwertig" }; }
+  const winHours = ts.win ? ts.win.hours : 0;
+  if (ts.status === "gut") { const stars = winHours >= 5 ? 5 : 4; const type = flightType(day, ts.win); return { stars, cls: "gut", text: type ? type.label : (stars === 5 ? "sehr gut" : "gut") }; }
+  if (ts.status === "grenz") { const stars = winHours >= 4 ? 3 : 2; return { stars, cls: "grenz", text: ts.reasonLabel || "grenzwertig" }; }
   return { stars: 1, cls: "nein", text: ts.reasonText || "nicht geeignet" };
 }
 function starStr(n) { return `<span class="on">${"★".repeat(n)}</span><span class="off">${"☆".repeat(5 - n)}</span>`; }
