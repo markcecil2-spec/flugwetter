@@ -66,9 +66,6 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 }
 .badge.green { background: var(--green-bg); color: var(--green); }
 .badge.red { background: rgba(148,163,184,.18); color: var(--muted); }
-.spot-meta { color: var(--muted); font-size: 12px; margin: 10px 0 8px; }
-.spot-access { font-size: 13px; color: var(--text); margin: 0 0 12px; }
-.spot-access .sa-label { color: var(--muted); font-weight: 600; }
 .dhv-extra { margin: 0 0 12px; }
 .dhv-line { font-size: 13px; color: var(--text); margin: 0 0 6px; }
 .dhv-line .sa-label { color: var(--muted); font-weight: 600; }
@@ -80,7 +77,6 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .dtab-panels { display: grid; }
 .dtab-panels .dtab-panel { grid-column: 1; grid-row: 1; min-width: 0; }
 .dtab-panel[hidden] { display: block; visibility: hidden; pointer-events: none; }
-.spot-meta b { color: var(--text); }
 
 /* Große Status-Karte oben im Wetter-Tab */
 .status-card { display: flex; align-items: center; gap: 14px; background: var(--card-2); border-radius: 16px; padding: 14px 16px; margin: 0 0 12px; border: 1px solid var(--line); }
@@ -96,7 +92,7 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .status-card.grenz .sc-title { color: var(--amber); }
 .status-card.nein .sc-title { color: var(--muted); }
 .sc-stars { font-size: 15px; letter-spacing: 1.5px; color: var(--amber); margin: 2px 0; }
-.sc-stars .star-off { color: rgba(148,163,184,.35); }
+.sc-stars .off { color: rgba(148,163,184,.35); }
 .sc-type-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-top: 3px; }
 .bar-segs { display: inline-flex; gap: 2px; }
 .bar-seg { width: 12px; height: 5px; border-radius: 2px; background: rgba(148,163,184,.25); }
@@ -191,16 +187,6 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
 .chip.green { background: var(--green); color: #fff; }
 .hint { font-style: italic; opacity: .85; }
-
-/* Sterne-Bewertung (Popup) */
-.rating { display: flex; align-items: center; gap: 10px; margin: 2px 0 12px; }
-.stars { font-size: 22px; letter-spacing: 2px; color: #f59e0b; line-height: 1; }
-.stars .star-off { color: rgba(148,163,184,.4); }
-.rating-label { font-weight: 800; font-size: 15px; }
-.rating.gut .rating-label { color: var(--green); }
-.rating.grenz .rating-label { color: #b45309; }
-.rating.nein .rating-label { color: #b91c1c; }
-@media (prefers-color-scheme: dark) { .rating.grenz .rating-label { color: #fbbf24; } .rating.nein .rating-label { color: #fca5a5; } }
 
 /* Karten-Kopf rechts: Badge + Löschen */
 .head-right { display: flex; align-items: center; gap: 8px; }
@@ -399,6 +385,37 @@ header { position: relative; overflow: hidden; }
 .rpill:hover { border-color: var(--sky); }
 .rpill.on { background: var(--sky); color: #fff; border-color: var(--sky); box-shadow: 0 2px 8px rgba(14,165,233,.35); }
 
+/* Liste/Karte-Umschalter */
+.view-toggle { display: flex; gap: 4px; background: #1b2430; border: 1px solid var(--line); border-radius: 12px; padding: 4px; margin: 10px 0 0; }
+.vpill { flex: 1 1 0; display: flex; align-items: center; justify-content: center; gap: 6px; background: transparent; border: 0; color: var(--muted); font-size: 13.5px; font-weight: 600; padding: 9px; border-radius: 9px; cursor: pointer; font-family: inherit; }
+.vpill.on { background: var(--sky); color: #05221d; }
+
+/* Kartenansicht */
+.map-view { position: relative; margin-top: 12px; border-radius: 16px; overflow: hidden; height: 60vh; min-height: 380px; border: 1px solid var(--line); }
+.map-el { width: 100%; height: 100%; background: var(--card-2); }
+.map-locate {
+  position: absolute; right: 12px; bottom: 12px; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--card); color: var(--text); border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0,0,0,.4);
+  display: grid; place-items: center; cursor: pointer; z-index: 5;
+}
+.map-locate:hover { border-color: var(--sky); color: var(--sky); }
+.map-legend { position: absolute; left: 12px; bottom: 12px; background: rgba(21,27,36,.92); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; font-size: 11.5px; z-index: 5; backdrop-filter: blur(3px); }
+.map-legend-head { font-weight: 700; font-size: 12.5px; margin-bottom: 1px; }
+.map-legend-sub { color: var(--muted); margin-bottom: 6px; }
+.map-legend-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; }
+.ml-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.ml-dot.gut { background: var(--green); }
+.ml-dot.grenz { background: var(--amber); }
+.ml-dot.nein { background: var(--red); }
+.map-marker { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.85); box-shadow: 0 2px 5px rgba(0,0,0,.5); cursor: pointer; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #05221d; }
+.map-marker.gut { background: var(--green); }
+.map-marker.grenz { background: var(--amber); }
+.map-marker.nein { background: var(--red); color: #fff; }
+.map-marker-label { display: none; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
+  margin-bottom: 5px; white-space: nowrap; background: rgba(21,27,36,.85); color: #e8edf3; font-size: 11px; font-weight: 600;
+  padding: 1px 6px; border-radius: 6px; pointer-events: none; }
+#mapEl.show-labels .map-marker-label { display: block; }
+
 /* Fly-Ergebnisse */
 .fly-results { margin-top: 12px; }
 .loading-line { color: var(--muted); font-size: 13px; padding: 10px 2px; }
@@ -436,19 +453,8 @@ header { position: relative; overflow: hidden; }
   background: rgba(14,165,233,.14); color: var(--sky);
 }
 .fr-nav .nav-ic { width: 18px; height: 18px; display: block; }
-.act .nav-ic { width: 14px; height: 14px; vertical-align: -2px; }
 .fr-nav:hover { background: rgba(14,165,233,.28); }
 .fr.nein .fr-nav { opacity: .5; }
-
-/* Aktionsleiste in der Karte (Deep-Links) */
-.actions { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
-.act {
-  text-decoration: none; font-size: 12.5px; font-weight: 600; color: var(--text);
-  background: rgba(148,163,184,.14); border: 1px solid var(--line);
-  padding: 7px 11px; border-radius: 999px; white-space: nowrap;
-}
-.act:hover { border-color: var(--sky); }
-.act.nav { background: var(--sky); color: #fff; border-color: var(--sky); }
 
 /* Unterstützen (Buy Me a Coffee) */
 .support { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin-top: 22px; }
@@ -520,15 +526,13 @@ header { position: relative; overflow: hidden; }
 /* Land-Umschalter (Region-Filter) */
 .country-toggle { display: flex; gap: 8px; justify-content: center; margin: 0 0 10px; }
 
-/* Wochenübersicht auf-/zuklappen (Favoriten) */
-.days.collapsed, .fav-more.collapsed { display: none; }
+/* "Details & Wochenübersicht" (Favoriten) -> öffnet das Detailfenster */
 .days-toggle {
   width: 100%; margin-top: 8px; background: rgba(148,163,184,.12); border: 1px solid var(--line);
   color: var(--text); font-size: 13px; font-weight: 700; padding: 10px; border-radius: 10px; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
 .days-toggle:hover { background: rgba(148,163,184,.2); }
-.dt-arrow { font-size: 12px; }
 
 /* Favoriten: "Heute auf einen Blick" (immer sichtbar) */
 .fav-today { margin: 4px 0 12px; }
@@ -544,18 +548,6 @@ header { position: relative; overflow: hidden; }
 .fav-best { margin-left: auto; text-align: right; font-size: 12px; }
 .fav-best .fb-label { display: block; color: var(--muted); font-size: 10.5px; }
 .fav-best b { font-size: 13px; }
-.fav-wind { display: flex; align-items: baseline; gap: 10px; background: var(--card-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; margin-bottom: 10px; font-size: 12.5px; }
-.fav-wind-dir { font-weight: 700; color: var(--sky); }
-.fav-wind-val { font-weight: 700; font-size: 14px; }
-.fav-wind-val small { font-weight: 500; color: var(--muted); font-size: 11px; }
-.fav-wind-gust { color: var(--muted); margin-left: auto; }
-.fav-hours { display: flex; gap: 3px; overflow-x: auto; padding-bottom: 2px; }
-.fh-col { flex: 1 0 26px; text-align: center; }
-.fh-time { font-size: 9.5px; color: var(--muted); }
-.fh-ic { font-size: 13px; margin: 2px 0; }
-.fh-bar { height: 4px; border-radius: 2px; background: rgba(148,163,184,.18); }
-.fh-bar.gut { background: var(--green); }
-.fh-bar.grenz { background: var(--amber); }
 
 /* Favoriten: Übersichtskarte + Tipp für morgen */
 .fav-summary { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
@@ -812,9 +804,6 @@ body:not(.route-home) main.wrap { padding-top: calc(72px + env(safe-area-inset-t
 /* Dark-Werte fest verankern (kein Light-Mode mehr) */
 .badge.amber { background: rgba(250,204,21,.16); color: var(--amber); }
 .badge.green { background: var(--green-bg); color: var(--green); }
-.rating.grenz .rating-label { color: var(--amber); }
-.rating.nein .rating-label { color: #fca5a5; }
-.stars { color: var(--amber); }
 
 /* Akzentflächen an Teal angleichen */
 .hint-banner { background: rgba(21,27,36,.72); border-color: rgba(6,182,164,.3); backdrop-filter: blur(2px); }

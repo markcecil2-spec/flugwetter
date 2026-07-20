@@ -287,16 +287,6 @@ function diffWarn(spot) {
   const text = d === 2 ? "Sehr anspruchsvoll – nur für Erfahrene" : "Anspruchsvolles Gelände";
   return { d, text };
 }
-// „Über den Platz": Zustieg aus dem acc-Feld sichtbar machen (kein neuer Scrape)
-function accInfo(spot) {
-  const a = spot.acc; if (!a) return "";
-  const parts = [];
-  if (a.includes("f")) parts.push("🥾 zu Fuß");
-  if (a.includes("a")) parts.push("🚗 Auto");
-  if (a.includes("b")) parts.push("🚠 Bergbahn");
-  if (!parts.length) return "";
-  return `<div class="spot-access"><span class="sa-label">Zustieg:</span> ${parts.join(" · ")}</div>`;
-}
 // Ergänzende Original-DHV-Angaben (Bundesland/Gemeinde, Höhendifferenz, Gleitschirm-Ausstattung,
 // offizielle Bemerkung). Nur Felder, die wir noch nicht in anderer Form zeigen (Höhe/Windrichtung
 // stehen schon oben) – bewusst kompakt, kein komplettes DHV-Datenblatt.
@@ -480,30 +470,7 @@ function statusCardHtml(day, rt, ts, dayW) {
   </div>`;
 }
 
-// ---------------- Favoriten-Karte: "Heute auf einen Blick" (Wind-Box, Stunden-Streifen) ----------------
-// Windspanne über das beste Zeitfenster (nicht nur eine Momentaufnahme) – echte Stundenwerte.
-function favWindBoxHtml(day, win) {
-  if (!day || !win) return "";
-  const hrs = day.dayHours.filter(h => h.t >= win.from && h.t <= win.to);
-  if (!hrs.length) return "";
-  const speeds = hrs.map(h => h.ws);
-  const min = Math.round(Math.min(...speeds)), max = Math.round(Math.max(...speeds));
-  const gustMax = Math.round(Math.max(...hrs.map(h => h.wg)));
-  return `<div class="fav-wind">
-    <span class="fav-wind-dir">${degToCompass(hrs[0].wd)}</span>
-    <span class="fav-wind-val">${min === max ? min : `${min}–${max}`} <small>km/h</small></span>
-    <span class="fav-wind-gust">Böen ${gustMax} km/h</span>
-  </div>`;
-}
-// Stunden-Streifen für heute (Wetter-Icon + Farbbalken je Stunde) – eigene, kompakte Ansicht nur
-// für die Favoriten-Karte (Wetter-Tab im Detailfenster bleibt unverändert, nutzt eigene Darstellung).
-function favHourlyStripHtml(day) {
-  if (!day || !day.dayHours.length) return "";
-  return `<div class="fav-hours">${day.dayHours.map(h => {
-    const cls = h.rating === "gut" ? "gut" : h.rating === "grenz" ? "grenz" : "nein";
-    return `<div class="fh-col"><div class="fh-time">${h.t.getHours()}</div><div class="fh-ic">${weatherEmoji(h.wc)}</div><div class="fh-bar ${cls}"></div></div>`;
-  }).join("")}</div>`;
-}
+// ---------------- Favoriten-Karte: "Heute auf einen Blick" ----------------
 // Aggregierte Übersicht über alle Favoriten (heute): wie viele fliegbar, gemeinsame beste Zeit,
 // Stunden mit/ohne gute Bedingungen, Starkwind-Warnungen – reine Aggregation echter Werte.
 function favoritesSummaryHtml(results) {
@@ -702,22 +669,17 @@ function renderCard(spot, days, opts = {}) {
   }
   if (spot.webcam) actList.push({ icon: "📷", label: "Webcam", href: spot.webcam });
   if (spot.dhv) actList.push({ icon: "📋", label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
-  const actions = `<div class="actions">${actList.map(a => `<a class="act${a.cls ? " " + a.cls : ""}" href="${a.href}" target="_blank" rel="noopener">${a.icon} ${a.label}</a>`).join("")}</div>`;
   // Landeplatz hat im Details-Tab schon einen eigenen Navigations-Button an der Karte -> hier redundant
   const actionsBadges = `<div class="dv-actions">${actList.filter(a => a.label !== "Landeplatz").map(a => `<a class="dv-act" href="${a.href}" target="_blank" rel="noopener"><span class="dv-act-ic">${a.icon}</span><span>${a.label}</span></a>`).join("")}</div>`;
 
-  const metaHtml = `<div class="spot-meta">Erlaubt: <b>${spot.sectorLabel}</b> · Wind ${spot.windMin}–${spot.windMax} km/h · Böen ≤ ${spot.gustMax}${spot.elevation!=null?" · "+spot.elevation+" m":""}</div>`;
   const diffHtml = (() => { const w = diffWarn(spot); return w ? `<div class="spot-warn d${w.d}">⚠️ ${w.text}</div>` : ""; })();
-  const accHtml = accInfo(spot);
-  const dhvHtml = dhvExtra(spot);
 
   const rt = todayRating(days, dayIdx);
-  const ratingBlock = `<div class="rating ${rt.cls}"><span class="stars">${"★".repeat(rt.stars)}<span class="star-off">${"★".repeat(5 - rt.stars)}</span></span><span class="rating-label">${rt.label}</span></div>`;
   const ftHint = rt.type ? `<div class="ft-hint">Flugart nur grobe Schätzung – kein Thermik-Forecast</div>` : "";
   const statusCard = statusCardHtml(days[dayIdx], rt, ts, dayW);
 
-  // Kompakt (Favoriten): "Heute auf einen Blick" (Status, beste Zeit, Wind, Stunden) immer sichtbar,
-  // Rest (7-Tage, Meta-Infos) im Aufklapp-Menü.
+  // Kompakt (Favoriten): nur Status auf einen Blick; "Details & Wochenübersicht" öffnet das volle
+  // Detailfenster (Wetter/Details-Tabs) – Wind-Box/Stunden/Aktionen stehen da schon, keine Dopplung.
   const favToday = opts.collapsible ? `
     <div class="fav-today">
       <div class="fav-today-top">
@@ -725,13 +687,10 @@ function renderCard(spot, days, opts = {}) {
         <span class="fav-status-txt ${ts.status}">${ts.status === "nein" ? "Heute nicht fliegbar" : ts.status === "grenz" ? "Heute grenzwertig fliegbar" : "Heute fliegbar"}</span>
         ${ts.status !== "nein" ? `<span class="fav-best"><span class="fb-label">Beste Zeit</span><b>${winTimeShort(ts.win)}</b></span>` : ""}
       </div>
-      ${ts.status !== "nein" ? favWindBoxHtml(days[0], ts.win) : ""}
-      ${favHourlyStripHtml(days[0])}
     </div>` : "";
   const body = opts.collapsible
-    ? `${favToday}${diffHtml}${actions}
-      <button class="days-toggle" aria-expanded="false"><span class="dt-arrow">▾</span> Details &amp; Wochenübersicht</button>
-      <div class="fav-more collapsed">${ratingBlock}${ftHint}${metaHtml}${accHtml}${dhvHtml}${nowBar}${liveHtml}<div class="days">${daysHtml}</div></div>`
+    ? `${favToday}${diffHtml}
+      <button class="days-toggle" type="button" data-open-detail="${spot.id}">Details &amp; Wochenübersicht</button>`
     // Detailfenster: Wetter-Tab unverändert; Details-Tab neu nach Mockup (Zustiegs-/Flugart-Karten,
     // Startplatz-Datentabelle, Start-/Landeplatz-Karten mit Bild+Navigation, Aktionen).
     : `
@@ -934,10 +893,104 @@ async function renderSearch(candidates, origin, headline) {
       rank[a.ts.status] - rank[b.ts.status] ||
       ((a.drive ?? a.spot.sortKey ?? Infinity) - (b.drive ?? b.spot.sortKey ?? Infinity)));
     renderFlyResults(rows, headline, truncated);
+    lastRows = rows;
+    updateMapMarkers(rows);
   } catch (e) {
     out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
   }
 }
+
+// ---------------- Kartenansicht (MapLibre GL JS + OpenFreeMap, beides kostenlos/ohne Key) ----------------
+// MapLibre wird erst beim ersten "Karte"-Klick nachgeladen (kein Ballast fürs Erststart-Ladegewicht).
+// "bright" statt Geländekarte: klar/farbig statt überladen (Höhenlinien+Schummerung machten die Marker unlesbar).
+const MAP_STYLE = "https://tiles.openfreemap.org/styles/bright";
+let lastRows = [];
+let mapInstance = null;
+let mapMarkers = [];
+let mapLibrePromise = null;
+function loadMapLibre() {
+  if (window.maplibregl) return Promise.resolve();
+  if (mapLibrePromise) return mapLibrePromise;
+  mapLibrePromise = new Promise((resolve, reject) => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css";
+    document.head.appendChild(link);
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js";
+    script.onload = resolve;
+    script.onerror = () => reject(new Error("Karte konnte nicht geladen werden (keine Verbindung?)"));
+    document.head.appendChild(script);
+  });
+  return mapLibrePromise;
+}
+const MAP_LABEL_ZOOM = 10; // ab dieser Zoomstufe werden Startplatz-Namen neben den Punkten eingeblendet
+function rowsBounds(rows) {
+  if (!rows.length) return null;
+  let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+  rows.forEach(r => {
+    minLat = Math.min(minLat, r.spot.lat); maxLat = Math.max(maxLat, r.spot.lat);
+    minLon = Math.min(minLon, r.spot.lon); maxLon = Math.max(maxLon, r.spot.lon);
+  });
+  return [[minLon, minLat], [maxLon, maxLat]];
+}
+function updateMapLabelVisibility() {
+  document.getElementById("mapEl").classList.toggle("show-labels", mapInstance.getZoom() >= MAP_LABEL_ZOOM);
+}
+async function ensureMap() {
+  if (mapInstance) return mapInstance;
+  await loadMapLibre();
+  // Startzentrum direkt setzen statt per flyTo danach -> greift auch, bevor die Karte "ready" ist
+  const center = lastOrigin ? [lastOrigin.lon, lastOrigin.lat] : [10.4, 49.5];
+  const zoom = lastOrigin ? 8 : 5.4;
+  mapInstance = new maplibregl.Map({
+    container: "mapEl",
+    style: MAP_STYLE,
+    center, zoom, attributionControl: true,
+  });
+  mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+  mapInstance.on("zoom", updateMapLabelVisibility);
+  const bounds = rowsBounds(lastRows);
+  if (bounds) mapInstance.fitBounds(bounds, { padding: 50, animate: false, maxZoom: 13 });
+  updateMapMarkers(lastRows, { flyTo: false });
+  updateMapLabelVisibility();
+  return mapInstance;
+}
+// Marker aus den aktuellen Suchergebnissen aufbauen – dieselben Daten wie die Listenansicht (rows).
+function updateMapMarkers(rows, opts = {}) {
+  if (!mapInstance) return;
+  mapMarkers.forEach(m => m.remove());
+  mapMarkers = [];
+  rows.forEach(r => {
+    const el = document.createElement("div");
+    el.className = `map-marker ${r.ts.status}`;
+    el.title = r.spot.name;
+    el.innerHTML = `<span class="map-marker-label">${r.spot.name}</span>`;
+    el.addEventListener("click", () => openDetail(r.spot.id));
+    const marker = new maplibregl.Marker({ element: el }).setLngLat([r.spot.lon, r.spot.lat]).addTo(mapInstance);
+    mapMarkers.push(marker);
+  });
+  if (opts.flyTo === false) return;
+  const bounds = rowsBounds(rows);
+  if (bounds) mapInstance.fitBounds(bounds, { padding: 50, duration: 600, maxZoom: 13 });
+  else if (lastOrigin) mapInstance.flyTo({ center: [lastOrigin.lon, lastOrigin.lat], zoom: 8, duration: 600 });
+  updateMapLabelVisibility();
+}
+document.getElementById("viewToggle").addEventListener("click", async e => {
+  const b = e.target.closest(".vpill"); if (!b) return;
+  document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x === b));
+  const isMap = b.dataset.view === "map";
+  document.getElementById("flyResults").hidden = isMap;
+  document.getElementById("mapView").hidden = !isMap;
+  if (isMap) {
+    try { await ensureMap(); mapInstance.resize(); }
+    catch (e) { document.getElementById("mapEl").innerHTML = `<p class="empty">${e.message}</p>`; }
+  }
+});
+document.getElementById("mapLocateBtn").addEventListener("click", () => {
+  if (lastOrigin && mapInstance) { mapInstance.flyTo({ center: [lastOrigin.lon, lastOrigin.lat], zoom: 9, duration: 600 }); return; }
+  startGpsSearch();
+});
 
 // Umkreissuche ab einem Punkt (GPS oder PLZ)
 async function runFlySearch(lat, lon, label) {
@@ -1425,16 +1478,11 @@ document.body.addEventListener("click", e => {
     return;
   }
 
-  // Wochenübersicht auf-/zuklappen (Favoriten)
+  // "Details & Wochenübersicht" (Favoriten) -> öffnet das volle Detailfenster (Wetter/Details-Tabs)
   const dtog = e.target.closest(".days-toggle");
   if (dtog) {
-    const card = dtog.closest(".card");
-    const moreEl = card && card.querySelector(".fav-more");
-    if (moreEl) {
-      const open = moreEl.classList.toggle("collapsed") === false;
-      dtog.setAttribute("aria-expanded", open ? "true" : "false");
-      dtog.querySelector(".dt-arrow").textContent = open ? "▴" : "▾";
-    }
+    const id = dtog.dataset.openDetail;
+    if (id) openDetail(id);
     return;
   }
 

@@ -116,6 +116,11 @@
           </div>
         </div>
 
+        <div class="view-toggle" id="viewToggle" role="group" aria-label="Ansicht">
+          <button type="button" class="vpill on" data-view="list">☰ Liste</button>
+          <button type="button" class="vpill" data-view="map">🗺️ Karte</button>
+        </div>
+
         <div id="hintBanner" class="hint-banner">
           <span class="hint-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></span>
           <span class="hint-text">Diese App zeigt nur eine <b>Tendenz</b>. Vor dem Fliegen immer bei <b>Burnair</b>, <b>Windy</b> oder <b>DWD</b> gegenprüfen und die Bedingungen vor Ort selbst beurteilen.</span>
@@ -127,6 +132,19 @@
       <div class="home-body">
         <div id="eveningHint" class="evening-hint" hidden></div>
         <div id="flyResults" class="fly-results"></div>
+        <div id="mapView" class="map-view" hidden>
+          <div id="mapEl" class="map-el"></div>
+          <button type="button" id="mapLocateBtn" class="map-locate" title="Meinen Standort finden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          </button>
+          <div class="map-legend">
+            <div class="map-legend-head">Legende</div>
+            <div class="map-legend-sub">Startplätze nach Flugbedingungen</div>
+            <div class="map-legend-row"><span class="ml-dot gut"></span>Gut</div>
+            <div class="map-legend-row"><span class="ml-dot grenz"></span>Grenzwertig</div>
+            <div class="map-legend-row"><span class="ml-dot nein"></span>Nicht</div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -254,7 +272,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 62 · Juli 2026</p>
+      <p class="build">GoFlyToday · Version 63 · Juli 2026</p>
     </section>
   </main>
 
