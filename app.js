@@ -7,7 +7,7 @@ const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden S
 // Die App zeigt allen dieselben ehrlichen Werte – nur die Ampel-Schwelle wandert mit.
 // Standard = Anfänger (sicherste Stufe); man muss sich aktiv hochstufen.
 const LEVELS = {
-  anfaenger:       { name: "Anfänger",       hint: "ruhige, frontale Bedingungen", windMax: 18, gustMax: 24, dirTol: 8 },
+  anfaenger:       { name: "Anfänger",       hint: "ruhige, frontale Bedingungen", windMax: 18, gustMax: 24, dirTol: 8, buffer: true },
   fortgeschritten: { name: "Fortgeschritten", hint: "auch mal böig oder schräg",    windMax: 26, gustMax: 32, dirTol: 15 },
   profi:           { name: "Profi",          hint: "ich schätze selbst ein",        windMax: 35, gustMax: 42, dirTol: 22 },
 };
@@ -97,16 +97,24 @@ function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
   const L = curLevel();
   // Liga bestimmt die Toleranz (Windobergrenze, Böen, Richtungs-Spielraum).
   const windMax = L.windMax, gustMax = L.gustMax, dirTol = L.dirTol;
+  // Für Anfänger ein Puffer über den harten Grenzen: statt sofort "nein" gibt's dort erst
+  // "grenzwertig" (mehr zutrauen, aber trotzdem warnen) - Fortgeschritten/Profi unverändert hart.
+  const dirTolBuf = dirTol + (L.buffer ? 6 : 0);
+  const windMaxBuf = windMax * (L.buffer ? 1.15 : 1);
+  const gustMaxBuf = gustMax * (L.buffer ? 1.15 : 1);
   if (!isDay) return { rating: "nein", reason: "Nacht" };
   if (wc === 95 || wc === 96 || wc === 99) return { rating: "nein", reason: "Gewitter" };  // Gewitter (WMO) – unabhängig vom Regen
   if (rain > 0) return { rating: "nein", reason: "Regen" };
   // Richtung nur prüfen, wenn genug Wind da ist. Bei Nullwind (< windMin) ist die Richtung
   // bedeutungslos (Nullwind-Start) -> nicht wegen „falscher Richtung" ablehnen.
-  if (ws >= spot.windMin && !inSectors(wd, spot.sectors, dirTol)) return { rating: "nein", reason: "Richtung" };
-  if (ws > windMax) return { rating: "nein", reason: "zu stark" };
-  if (wg > gustMax) return { rating: "nein", reason: "Böen" };   // böig bleibt K.o. – auch bei Nullwind-Schnitt
+  if (ws >= spot.windMin && !inSectors(wd, spot.sectors, dirTolBuf)) return { rating: "nein", reason: "Richtung" };
+  if (ws > windMaxBuf) return { rating: "nein", reason: "zu stark" };
+  if (wg > gustMaxBuf) return { rating: "nein", reason: "Böen" };   // böig bleibt K.o. – auch bei Nullwind-Schnitt
   // Nullwind/schwach: grenzwertig fliegbar. Passt die Richtung eigentlich NICHT, extra erklären.
   if (ws < spot.windMin) return { rating: "grenz", reason: inSectors(wd, spot.sectors, dirTol) ? "schwach" : "nullwind" };
+  if (ws >= spot.windMin && !inSectors(wd, spot.sectors, dirTol)) return { rating: "grenz", reason: "randrichtung" };
+  if (ws > windMax) return { rating: "grenz", reason: "sehr stark" };
+  if (wg > gustMax) return { rating: "grenz", reason: "sehr böig" };
   if (wg >= gustMax * 0.85) return { rating: "grenz", reason: "böig" };
   if (ws >= windMax * 0.85) return { rating: "grenz", reason: "recht stark" };
   return { rating: "gut", reason: "" };
@@ -164,9 +172,10 @@ function analyse(spot, data) {
     const cl = h.cloud_cover_low ? h.cloud_cover_low[i] : null;
     const rad = h.shortwave_radiation ? h.shortwave_radiation[i] : null;
     const cape = h.cape ? h.cape[i] : null;
+    const temp = h.temperature_2m ? h.temperature_2m[i] : null;
     const { rating, reason } = rateHour(spot, ws, wd, wg, rain, isDay, wc);
     if (!days[key]) days[key] = { key, date: t, wx: dl, hours: [] };
-    days[key].hours.push({ t, ws, wd, wg, rain, rating, reason, isDay, cl, rad, cape, wc });
+    days[key].hours.push({ t, ws, wd, wg, rain, rating, reason, isDay, cl, rad, cape, wc, temp });
   }
   return Object.values(days).map(day => {
     const dayHours = day.hours.filter(x => x.isDay);
@@ -177,7 +186,9 @@ function analyse(spot, data) {
 
 // Kurz-Label für den Grund (Anzeige rechts neben dem Ergebnis)
 function grenzLabel(r) {
-  return r === "böig" ? "Böig" : r === "schwach" ? "Wenig Wind" : r === "nullwind" ? "Nullwind" : r === "recht stark" ? "Recht stark" : "Grenzwertig";
+  const m = { "böig": "Böig", "schwach": "Wenig Wind", "nullwind": "Nullwind", "recht stark": "Recht stark",
+    "randrichtung": "Richtung knapp", "sehr stark": "Sehr stark", "sehr böig": "Sehr böig" };
+  return m[r] || "Grenzwertig";
 }
 function neinLabel(r) {
   const m = { "Regen": "Regen", "Richtung": "Windrichtung", "zu stark": "Zu viel Wind", "Böen": "Böig", "Nacht": "Nachts" };
@@ -190,7 +201,8 @@ function neinText(r) {
 // Klartext-Grund pro Stunde (für das Uhrzeit-Detail)
 function hourReason(rating, reason) {
   if (rating === "gut") return "passt ✓";
-  const grenz = { "schwach": "grenzwertig – wenig Wind", "böig": "grenzwertig – böig", "recht stark": "grenzwertig – recht stark", "nullwind": "kaum Wind – Richtung egal (Nullwind-Start)" };
+  const grenz = { "schwach": "grenzwertig – wenig Wind", "böig": "grenzwertig – böig", "recht stark": "grenzwertig – recht stark", "nullwind": "kaum Wind – Richtung egal (Nullwind-Start)",
+    "randrichtung": "grenzwertig – Richtung knapp daneben", "sehr stark": "grenzwertig – sehr stark", "sehr böig": "grenzwertig – sehr böig" };
   const nein = { "Richtung": "falsche Windrichtung", "Regen": "Regen", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts", "schwach": "zu wenig Wind" };
   return rating === "grenz" ? (grenz[reason] || "grenzwertig") : (nein[reason] || reason);
 }
@@ -363,9 +375,9 @@ async function fetchForecast(spot) {
   // Windrichtung um 90°+) und wich vom Bulk-Abruf ab -> Liste und Detail widersprachen sich.
   // Beide Pfade nutzen jetzt Open-Meteos eigene Geländehöhe = konsistent.
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}` +
-    `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,weather_code,cloud_cover_low,shortwave_radiation,cape` +
+    `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,weather_code,cloud_cover_low,shortwave_radiation,cape,temperature_2m` +
     `&daily=sunrise,sunset,weather_code,temperature_2m_max,temperature_2m_min` +
-    `&timezone=Europe%2FBerlin&forecast_days=7&wind_speed_unit=kmh`;
+    `&timezone=Europe%2FBerlin&forecast_days=5&wind_speed_unit=kmh`;
   const data = await (await fetchRetry(url)).json();
   wxSet(key, data);
   return data;
@@ -554,12 +566,15 @@ function iconCardsHtml(spot, thStart, driveSec) {
     cards.push({ img: "icons/ic-thermik.png", label: "Thermik", sub });
   }
   cards.push({ img: null, ic: "🚌", label: "ÖPNV", sub: NA });
-  return `<div class="dv-cards">${cards.map(c => `
-    <div class="dv-card">
+  if (spot.livewetter) cards.push({ img: null, ic: "📡", label: "Live-Wetter", sub: `<span class="dv-dot gut"></span>Station live ansehen`, href: spot.livewetter });
+  if (spot.webcam) cards.push({ img: null, ic: "📷", label: "Webcam", sub: `<span class="dv-dot gut"></span>Live-Bild ansehen`, href: spot.webcam });
+  return `<div class="dv-cards">${cards.map(c => { const tag = c.href ? "a" : "div";
+    const attrs = c.href ? ` href="${c.href}" target="_blank" rel="noopener"` : "";
+    return `<${tag} class="dv-card"${attrs}>
       ${c.img ? `<img src="${c.img}" alt="">` : `<div class="dv-card-ic">${c.ic}</div>`}
       <div class="dv-card-label">${c.label}</div>
       <div class="dv-card-sub">${c.sub}</div>
-    </div>`).join("")}</div>`;
+    </${tag}>`; }).join("")}</div>`;
 }
 // Startplatz-Datentabelle (links im neuen Layout) – zeigt "nicht verfügbar" statt erfundener Werte
 function startplatzTableHtml(spot, diffL) {
@@ -635,15 +650,15 @@ function renderCard(spot, days, opts = {}) {
       const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`;
       const rtxt = hourReason(x.rating, x.reason);
       const hourLabel = `${wd} ${x.t.getHours()} Uhr`;
-      return `<span class="${cls}" title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}">${x.t.getHours()}</span>`;
+      const hwx = x.wc != null ? `<span class="h-wx">${weatherEmoji(x.wc)}</span>` : "";
+      const htemp = x.temp != null ? `<span class="h-temp">${Math.round(x.temp)}°</span>` : "";
+      return `<span class="${cls}" title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}"><span class="h-num">${x.t.getHours()}</span>${hwx}${htemp}</span>`;
     }).join("");
-    const wx = day.wx && day.wx.code != null
-      ? `<div class="wx"><span class="wx-ic">${weatherEmoji(day.wx.code)}</span><span class="wx-temp"><span class="tmax">${day.wx.tmax}°</span> / <span class="tmin">${day.wx.tmin}°</span></span></div>` : "";
     const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "";
     const rating = `<div class="drating ${rv.cls}"><span class="dstars">${starStr(rv.stars)}</span><span class="dverdict">${rv.text}</span>${winTxt ? `<span class="dwin"> · ${winTxt}</span>` : ""}</div>`;
     return `
       <div class="day ${day.windows.length ? "hasgreen" : ""}">
-        <div class="dlabel"><div class="dlabel-wd">${wd} ${day.date.getDate()}.${day.date.getMonth()+1}.</div>${wx}</div>
+        <div class="dlabel-wd">${wd} ${day.date.getDate()}.${day.date.getMonth()+1}.</div>
         <div class="dright"><div class="hours">
           <div class="scp-day-wrap">${spotCompassSvg(spot, 0, { neutral: true, compact: true })}</div>
           ${hoursHtml}
@@ -667,7 +682,6 @@ function renderCard(spot, days, opts = {}) {
   if (spot.landeLat != null && spot.landeLon != null) {
     actList.push({ icon: "🛬", label: "Landeplatz", href: mapsUrl({ lat: spot.landeLat, lon: spot.landeLon }) });
   }
-  if (spot.webcam) actList.push({ icon: "📷", label: "Webcam", href: spot.webcam });
   if (spot.dhv) actList.push({ icon: "📋", label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
   // Landeplatz hat im Details-Tab schon einen eigenen Navigations-Button an der Karte -> hier redundant
   const actionsBadges = `<div class="dv-actions">${actList.filter(a => a.label !== "Landeplatz").map(a => `<a class="dv-act" href="${a.href}" target="_blank" rel="noopener"><span class="dv-act-ic">${a.icon}</span><span>${a.label}</span></a>`).join("")}</div>`;
@@ -1338,7 +1352,7 @@ async function openDetail(id) {
   const spot = getSpot(id); if (!spot) return;
   const modal = document.getElementById("detailModal"), body = document.getElementById("detailBody");
   modal.hidden = false;
-  body.innerHTML = `<div class="card loading">Lade 7-Tage-Vorhersage für ${spot.name} …</div>`;
+  body.innerHTML = `<div class="card loading">Lade 5-Tage-Vorhersage für ${spot.name} …</div>`;
   try {
     const [data, stations] = await Promise.all([fetchForecast(spot), fetchPiou()]);
     const live = liveWind(spot, stations);
@@ -1400,7 +1414,7 @@ function renderDbSearch(query = "") {
 // ---------------- Router ----------------
 const PAGES = {
   home:      { title: "GoFlyToday", sub: "Wetter. Startplätze. Entscheidung." },
-  favorites: { title: "Favoriten", sub: "Deine Plätze · 7-Tage-Ansicht" },
+  favorites: { title: "Favoriten", sub: "Deine Plätze · 5-Tage-Ansicht" },
   add:       { title: "Fluggebiet hinzufügen", sub: "Aus Datenbank oder eigenen Platz" },
   info:      { title: "Info & Recht", sub: "Wie die App funktioniert" },
 };
