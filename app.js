@@ -967,6 +967,7 @@ const SATELLITE_STYLE = {
 };
 const MINI_MAP_STYLES = { street: MAP_STYLE, sat: SATELLITE_STYLE, terrain: TERRAIN_STYLE };
 let miniMapStyleMode = "street";
+let mapStyleMode = "street";
 let lastRows = [];
 let mapInstance = null;
 let mapMarkers = [];
@@ -1044,7 +1045,7 @@ async function ensureMap() {
   const zoom = lastOrigin ? 8 : 5.4;
   mapInstance = new maplibregl.Map({
     container: "mapEl",
-    style: MAP_STYLE,
+    style: MINI_MAP_STYLES[mapStyleMode],
     center, zoom, attributionControl: true,
   });
   mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
@@ -1056,18 +1057,31 @@ async function ensureMap() {
   return mapInstance;
 }
 // Marker aus den aktuellen Suchergebnissen aufbauen – dieselben Daten wie die Listenansicht (rows).
+const START_ICON_BY_STATUS = { gut: "icons/marker-start-gut.png", grenz: "icons/marker-start-grenz.png", nein: "icons/marker-start-nein.png" };
 function updateMapMarkers(rows, opts = {}) {
   if (!mapInstance) return;
   mapMarkers.forEach(m => m.remove());
   mapMarkers = [];
   rows.forEach(r => {
     const el = document.createElement("div");
-    el.className = `map-marker ${r.ts.status}`;
+    el.className = "map-marker";
     el.title = r.spot.name;
-    el.innerHTML = `<span class="map-marker-label">${r.spot.name}</span>`;
+    el.innerHTML = `<img src="${START_ICON_BY_STATUS[r.ts.status] || START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label">${r.spot.name}</span>`;
     el.addEventListener("click", () => openDetail(r.spot.id));
     const marker = new maplibregl.Marker({ element: el }).setLngLat([r.spot.lon, r.spot.lat]).addTo(mapInstance);
     mapMarkers.push(marker);
+
+    const landePlaetze = [];
+    if (r.spot.landeLat != null && r.spot.landeLon != null) landePlaetze.push({ name: r.spot.landeName || "Landeplatz", lat: r.spot.landeLat, lon: r.spot.landeLon });
+    if (Array.isArray(r.spot.landeExtra)) landePlaetze.push(...r.spot.landeExtra);
+    landePlaetze.forEach(l => {
+      const lEl = document.createElement("div");
+      lEl.className = "map-lande-marker"; lEl.title = l.name;
+      lEl.innerHTML = `<img src="icons/marker-lande-black.png" alt="">`;
+      lEl.addEventListener("click", () => openDetail(r.spot.id));
+      const lMarker = new maplibregl.Marker({ element: lEl }).setLngLat([l.lon, l.lat]).addTo(mapInstance);
+      mapMarkers.push(lMarker);
+    });
   });
   if (opts.flyTo === false) return;
   const bounds = rowsBounds(rows);
@@ -1437,12 +1451,17 @@ function renderFlyResults(rows, headline, truncated) {
 
 // ---------------- Detail-Fenster: 7-Tage-Vorhersage ----------------
 let currentDetailSpot = null;
+let detailHistoryPushed = false; // Handy-/TWA-Zurück soll das Detail-Fenster schliessen statt die App zu verlassen
 async function openDetail(id) {
   const spot = getSpot(id); if (!spot) return;
   removeMiniMap();
   currentDetailSpot = spot;
   const modal = document.getElementById("detailModal"), body = document.getElementById("detailBody");
   modal.hidden = false;
+  if (!detailHistoryPushed) {
+    history.pushState({ detailOpen: true }, "", location.href);
+    detailHistoryPushed = true;
+  }
   body.innerHTML = `<div class="card loading">Lade 5-Tage-Vorhersage für ${spot.name} …</div>`;
   try {
     const [data, stations] = await Promise.all([fetchForecast(spot), fetchPiou()]);
@@ -1454,12 +1473,19 @@ async function openDetail(id) {
     body.innerHTML = renderCard(spot, analyse(spot, data), { dayIdx: searchDay, live, driveSec });
   } catch (e) { body.innerHTML = `<div class="card">Fehler: ${e.message}</div>`; }
 }
-function closeDetail() {
+function closeDetail(fromPopstate = false) {
   document.getElementById("detailModal").hidden = true;
   document.getElementById("detailBody").innerHTML = "";
   removeMiniMap();
   currentDetailSpot = null;
+  if (detailHistoryPushed) {
+    detailHistoryPushed = false;
+    if (!fromPopstate) history.back(); // legt den gepushten Eintrag wieder ab, damit "Zurück" danach nicht ins Leere laeuft
+  }
 }
+window.addEventListener("popstate", () => {
+  if (!document.getElementById("detailModal").hidden) closeDetail(true);
+});
 document.getElementById("detailModal").addEventListener("click", e => { if (e.target.id === "detailModal") closeDetail(); });
 
 // ---------------- Feedback ----------------
@@ -1586,12 +1612,19 @@ document.body.addEventListener("click", e => {
     return;
   }
 
-  // Mini-Karte (Live-Tab): Kartenstil umschalten (Karte/Satellit/Gelände)
+  // Kartenstil umschalten (Karte/Satellit/Gelände) - Hauptkarte (#mapView) und Mini-Karte (Live-Tab)
+  // teilen sich dieselbe Button-Klasse, aber je ihre eigene Karteninstanz + ihren eigenen Modus.
   const styleBtn = e.target.closest(".mini-style-btn");
   if (styleBtn) {
-    miniMapStyleMode = styleBtn.dataset.ministyle;
+    const mode = styleBtn.dataset.ministyle;
     styleBtn.parentElement.querySelectorAll(".mini-style-btn").forEach(b => b.classList.toggle("on", b === styleBtn));
-    if (miniMapInstance) miniMapInstance.setStyle(MINI_MAP_STYLES[miniMapStyleMode]);
+    if (styleBtn.closest("#mapView")) {
+      mapStyleMode = mode;
+      if (mapInstance) mapInstance.setStyle(MINI_MAP_STYLES[mode]);
+    } else {
+      miniMapStyleMode = mode;
+      if (miniMapInstance) miniMapInstance.setStyle(MINI_MAP_STYLES[mode]);
+    }
     return;
   }
 

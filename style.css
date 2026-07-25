@@ -394,14 +394,15 @@ header { position: relative; overflow: hidden; }
 .ml-dot.gut { background: var(--green); }
 .ml-dot.grenz { background: var(--amber); }
 .ml-dot.nein { background: var(--red); }
-.map-marker { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.85); box-shadow: 0 2px 5px rgba(0,0,0,.5); cursor: pointer; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #05221d; }
-.map-marker.gut { background: var(--green); }
-.map-marker.grenz { background: var(--amber); }
-.map-marker.nein { background: var(--red); color: #fff; }
+.map-marker { cursor: pointer; line-height: 1; }
+.map-marker img { width: 30px; height: 30px; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
 .map-marker-label { display: none; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
   margin-bottom: 5px; white-space: nowrap; background: rgba(21,27,36,.85); color: #e8edf3; font-size: 11px; font-weight: 600;
   padding: 1px 6px; border-radius: 6px; pointer-events: none; }
 #mapEl.show-labels .map-marker-label { display: block; }
+.map-lande-marker { display: none; cursor: pointer; line-height: 1; }
+.map-lande-marker img { width: 22px; height: 22px; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+#mapEl.show-labels .map-lande-marker { display: block; }
 
 /* Mini-Karte im "Live"-Tab: Start-/Landeplatz */
 .mini-map-wrap { position: relative; border-radius: 14px; overflow: hidden; height: 220px; border: 1px solid var(--line); margin-top: 8px; }
