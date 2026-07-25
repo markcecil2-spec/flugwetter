@@ -421,6 +421,28 @@ async function fetchPiou() {
     return arr;
   } catch { return piouCache.list || []; }
 }
+// Wetter-Verlauf (Open-Meteo Historien-API, gratis/ohne Key) - letzte N Tage fuer den Startplatz.
+// Aeltestes waehlbares Datum in etwa - Open-Meteo-Archiv geht Jahrzehnte zurueck, aber die letzten
+// 2 Tage sind oft noch unvollstaendig, deshalb als spaetestes Datum sperren.
+function histMaxDate() {
+  const d = new Date(); d.setDate(d.getDate() - 2);
+  return d.toISOString().slice(0, 10);
+}
+// Ein einzelner vergangener Tag, gleiche Felder wie die Vorhersage -> laeuft durch dieselbe
+// analyse()-Funktion und dieselbe Tages-Karte (dayCardHtml).
+async function fetchHistoryDay(spot, dateStr) {
+  const key = wxKey("histday_" + dateStr, spot.lat, spot.lon);
+  const cached = wxGet(key); if (cached) return cached;
+  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${spot.lat}&longitude=${spot.lon}` +
+    `&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,weather_code,cloud_cover_low,shortwave_radiation,cape,temperature_2m` +
+    `&daily=sunrise,sunset,weather_code,temperature_2m_max,temperature_2m_min` +
+    `&timezone=Europe%2FBerlin&wind_speed_unit=kmh&start_date=${dateStr}&end_date=${dateStr}`;
+  const res = await fetchRetry(url);
+  if (!res.ok) throw new Error("Verlauf für dieses Datum nicht verfügbar");
+  const data = await res.json();
+  wxSet(key, data);
+  return data;
+}
 function havFine(a, b, c, d) { const R = 6371, r = Math.PI / 180; const x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); }
 // Nächste Station ≤ 2 km mit frischer Messung (≤ 60 Min) – sonst null (nicht faken)
 function liveWind(spot, stations) {
@@ -630,6 +652,32 @@ function liveCardsHtml(spot) {
     </div>
     ${satHtml}`;
 }
+// Ein Tag als Karte (Kompass + Stunden-Streifen + Sterne-Urteil) - fuer Vorhersage-Tage UND fuer den
+// Wetter-Verlauf (historischer Tag, gleiche Datenform dank identischer Open-Meteo-Felder).
+function dayCardHtml(spot, days, i) {
+  const day = days[i];
+  const wd = WEEKDAYS[day.date.getDay()];
+  const rv = dayVerdict(days, i);
+  const hoursHtml = day.dayHours.map(x => {
+    const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
+    const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`;
+    const rtxt = hourReason(x.rating, x.reason);
+    const hourLabel = `${wd} ${x.t.getHours()} Uhr`;
+    const hwx = x.wc != null ? `<span class="h-wx">${weatherEmoji(x.wc)}</span>` : "";
+    const htemp = x.temp != null ? `<span class="h-temp">${Math.round(x.temp)}°</span>` : "";
+    return `<span class="${cls}" title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}"><span class="h-num">${x.t.getHours()}</span>${hwx}${htemp}</span>`;
+  }).join("");
+  const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "";
+  const rating = `<div class="drating ${rv.cls}"><span class="dstars">${starStr(rv.stars)}</span><span class="dverdict">${rv.text}</span>${winTxt ? `<span class="dwin"> · ${winTxt}</span>` : ""}</div>`;
+  return `
+    <div class="day ${day.windows.length ? "hasgreen" : ""}">
+      <div class="dlabel-wd">${wd} ${day.date.getDate()}.${day.date.getMonth()+1}.</div>
+      <div class="dright"><div class="hours">
+        <div class="scp-day-wrap">${spotCompassSvg(spot, 0, { neutral: true, compact: true })}</div>
+        ${hoursHtml}
+      </div><div class="hour-detail" hidden></div><div class="dbottom">${rating}</div></div>
+    </div>`;
+}
 function renderCard(spot, days, opts = {}) {
   const dayIdx = opts.dayIdx || 0;
   const dayW = dayIdx === 1 ? "morgen" : "heute";
@@ -673,29 +721,7 @@ function renderCard(spot, days, opts = {}) {
     ? `<span class="badge red">${statusDot("nein")} ${dayW}: ${ts.reasonText}</span>`
     : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} ${dayW} ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
 
-  const daysHtml = days.slice(0, 7).map((day, i) => {
-    const wd = WEEKDAYS[day.date.getDay()];
-    const rv = dayVerdict(days, i);
-    const hoursHtml = day.dayHours.map(x => {
-      const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
-      const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`;
-      const rtxt = hourReason(x.rating, x.reason);
-      const hourLabel = `${wd} ${x.t.getHours()} Uhr`;
-      const hwx = x.wc != null ? `<span class="h-wx">${weatherEmoji(x.wc)}</span>` : "";
-      const htemp = x.temp != null ? `<span class="h-temp">${Math.round(x.temp)}°</span>` : "";
-      return `<span class="${cls}" title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}"><span class="h-num">${x.t.getHours()}</span>${hwx}${htemp}</span>`;
-    }).join("");
-    const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "";
-    const rating = `<div class="drating ${rv.cls}"><span class="dstars">${starStr(rv.stars)}</span><span class="dverdict">${rv.text}</span>${winTxt ? `<span class="dwin"> · ${winTxt}</span>` : ""}</div>`;
-    return `
-      <div class="day ${day.windows.length ? "hasgreen" : ""}">
-        <div class="dlabel-wd">${wd} ${day.date.getDate()}.${day.date.getMonth()+1}.</div>
-        <div class="dright"><div class="hours">
-          <div class="scp-day-wrap">${spotCompassSvg(spot, 0, { neutral: true, compact: true })}</div>
-          ${hoursHtml}
-        </div><div class="hour-detail" hidden></div><div class="dbottom">${rating}</div></div>
-      </div>`;
-  }).join("");
+  const daysHtml = days.slice(0, 7).map((day, i) => dayCardHtml(spot, days, i)).join("");
 
   const del = spot.id.startsWith("user_")
     ? `<button class="ic0" data-del="${spot.id}" title="Eigenen Platz löschen">🗑</button>` : "";
@@ -744,7 +770,13 @@ function renderCard(spot, days, opts = {}) {
         <button type="button" class="dtab" data-tab="details" role="tab">Details</button>
       </div>
       <div class="dtab-panels">
-        <div class="dtab-panel" id="dtab-wetter">${statusCard}${ftHint}${liveHtml}<div class="days">${daysHtml}</div></div>
+        <div class="dtab-panel" id="dtab-wetter">${statusCard}${ftHint}${liveHtml}<div class="days">${daysHtml}</div>
+          <div class="hist-section">
+            <h3 class="dv-h3">📅 Wetter-Verlauf</h3>
+            <input type="date" class="hist-date" data-hist="${spot.id}" max="${histMaxDate()}">
+            <div class="hist-body"></div>
+          </div>
+        </div>
         <div class="dtab-panel" id="dtab-live" hidden>${nowBar}${liveCardsHtml(spot)}</div>
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
@@ -1702,6 +1734,20 @@ document.body.addEventListener("click", e => {
   // im offenen Detail-Fenster irgendwo danebenklickt - der ganze Kartenwrapper traegt data-spot).
   const row = e.target.closest("[data-spot]");
   if (row && !row.closest("#detailModal")) openDetail(row.dataset.spot);
+});
+
+// Wetter-Verlauf: Datum waehlen -> genau diesen Tag laden und als dieselbe Tages-Karte anzeigen.
+document.body.addEventListener("change", e => {
+  const dateEl = e.target.closest(".hist-date");
+  if (!dateEl) return;
+  const body = dateEl.nextElementSibling;
+  const spot = getSpot(dateEl.dataset.hist);
+  if (!dateEl.value) { body.innerHTML = ""; return; }
+  body.innerHTML = `<p class="loading-line">Lade ${dateEl.value} …</p>`;
+  fetchHistoryDay(spot, dateEl.value).then(data => {
+    const days = analyse(spot, data);
+    body.innerHTML = days.length ? dayCardHtml(spot, days, 0) : `<p class="empty">Keine Daten für dieses Datum.</p>`;
+  }).catch(err => { body.innerHTML = `<p class="empty">${err.message}</p>`; });
 });
 
 // DB-Suche

@@ -445,6 +445,16 @@ header { position: relative; overflow: hidden; }
   border-radius: 999px; cursor: pointer; font-family: inherit;
 }
 .fav-only-btn.on { background: var(--sky); color: #05221d; border-color: var(--sky); }
+
+/* Wetter-Verlauf (Datum waehlen) */
+.hist-section { margin-top: 14px; }
+.hist-date {
+  width: 100%; font-size: 15px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--card); color: var(--text); font-family: inherit;
+}
+.hist-date:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
+.hist-body { margin-top: 10px; }
+.hist-body:not(:empty) .day { background: var(--card-2); border-radius: 12px; padding: 12px 9px; }
 .fr-list { display: flex; flex-direction: column; gap: 6px; }
 .fr {
   display: flex; align-items: center; gap: 8px; padding: 10px 10px; border-radius: 12px;
