@@ -1002,7 +1002,7 @@ const SPOT_DB = [
 
   { id: "db_679", name: "Hohenneuffen West", region: "Neuffen",
     lat: 48.5495, lon: 9.4045, elevation: 712, dhv: 679,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "f", hoehendiff: 232, gemeinde: "72639 Neuffen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hohenneuffen West (Top-)Landeplatz Erkenbrechtsweiler", landeLat: 48.5543, landeLon: 9.4043, landeHoehe: 480, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "f", hoehendiff: 232, gemeinde: "72639 Neuffen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hohenneuffen West (Top-)Landeplatz Erkenbrechtsweiler", landeLat: 48.5543, landeLon: 9.4043, landeHoehe: 480, webcam: "https://www.dc-hohenneuffen.de/webcams/", ...DEF },
 
   { id: "db_2467", name: "Hohenöllen", region: "Hohenöllen",
     lat: 49.6247, lon: 7.6214, elevation: 290, dhv: 2467,
@@ -1226,7 +1226,7 @@ const SPOT_DB = [
 
   { id: "db_615", name: "Kleinheppacher Kopf", region: "Korb",
     lat: 48.8332, lon: 9.3781, elevation: 400, dhv: 615,
-    sectors: [[123.75, 281.25]], sectorLabel: "SO-W", country: "de", acc: "f", hoehendiff: 190, gemeinde: "71404 Korb", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Flughöhenbeschränkung beachten. Der Einflug in den Luftraum C und Luftraum D (nicht Kontrollzone) sowie der Einflug in die Kontrollzone Stuttgart ist grundsätzlich nicht gestattet. Der Einsatz eines geeigneten Höhenmessers ist vorgeschrieben. Alle Piloten haben sich in die besonderen Regelungen für den Segelflug im Raum Stuttgart, in die Luftraumstruktur und die naturschutzfachlichen Auflagen einweisen zu lassen. Die Nähe zu der VFR-Einflugstrecke E1 ist zu beachten.", landeName: "Kleinheppacher Kopf Landeplatz", landeLat: 48.8338, landeLon: 9.3688, landeHoehe: 210, ...DEF },
+    sectors: [[123.75, 281.25]], sectorLabel: "SO-W", country: "de", acc: "f", hoehendiff: 190, gemeinde: "71404 Korb", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Flughöhenbeschränkung beachten. Der Einflug in den Luftraum C und Luftraum D (nicht Kontrollzone) sowie der Einflug in die Kontrollzone Stuttgart ist grundsätzlich nicht gestattet. Der Einsatz eines geeigneten Höhenmessers ist vorgeschrieben. Alle Piloten haben sich in die besonderen Regelungen für den Segelflug im Raum Stuttgart, in die Luftraumstruktur und die naturschutzfachlichen Auflagen einweisen zu lassen. Die Nähe zu der VFR-Einflugstrecke E1 ist zu beachten.", landeName: "Kleinheppacher Kopf Landeplatz", landeLat: 48.8338, landeLon: 9.3688, landeHoehe: 210, livewetter: "https://holfuy.com/de/data/529", webcam: "https://holfuy.com/de/data/529", ...DEF },
 
   { id: "db_2613", name: "Klippeneck Schlepp", region: "Denkingen",
     lat: 48.1134, lon: 8.7723, elevation: 698, dhv: 2613,
