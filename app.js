@@ -565,7 +565,7 @@ function iconCardsHtml(spot, thStart, driveSec) {
     const sub = thStart != null ? `<span class="dv-dot gut"></span>gut · ab ${thStart} Uhr` : `<span class="dv-dot gut"></span>möglich`;
     cards.push({ img: "icons/ic-thermik.png", label: "Thermik", sub });
   }
-  cards.push({ img: null, ic: "🚌", label: "ÖPNV", sub: NA });
+  cards.push({ img: null, ic: "🚌", label: "ÖPNV", sub: `<span class="dv-dot nein"></span>nicht verfügbar` });
   return `<div class="dv-cards">${cards.map(c => { const tag = c.href ? "a" : "div";
     const attrs = c.href ? ` href="${c.href}" target="_blank" rel="noopener"` : "";
     return `<${tag} class="dv-card"${attrs}>
@@ -580,7 +580,8 @@ function startplatzTableHtml(spot, diffL) {
   const rows = [
     ["Ort", ort || null],
     ["Startrichtung", spot.sectorLabel || null],
-    ["Höhe", spot.elevation != null ? spot.elevation + " m" : null],
+    ["Höhe Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : null],
+    ["Höhe Landeplatz", spot.landeHoehe != null ? spot.landeHoehe + " m ü. NN" + (spot.landeExtra?.length ? ` (+${spot.landeExtra.length} weitere, siehe Live-Tab)` : "") : null],
     ["Höhendifferenz", spot.hoehendiff ? spot.hoehendiff + " m" : null],
     ["Windbereich", `${spot.windMin}–${spot.windMax} km/h`],
     ["Böen", `max. ${spot.gustMax} km/h`],
@@ -591,30 +592,43 @@ function startplatzTableHtml(spot, diffL) {
   return `<div class="dv-table">${rows.map(([label, val]) => `
     <div class="dv-row"><span class="dv-row-label">${label}</span><span class="dv-row-val">${val != null ? val : NA}</span></div>`).join("")}</div>`;
 }
-// "Live"-Tab: Live-Wetterstation + Live-Cam, jeweils nur falls fürs Gelände hinterlegt.
+// "Live"-Tab: Live-Wetterstation + Live-Cam, jeweils nur falls fürs Gelände hinterlegt,
+// plus Übersichtskarte mit Start- und Landeplatz + Link auf ein Satellitenbild des Landeplatzes.
 function liveCardsHtml(spot) {
   const cards = [];
   if (spot.livewetter) cards.push({ ic: "📡", label: "Live-Wetter", sub: "Station live ansehen", href: spot.livewetter });
   if (spot.webcam) cards.push({ ic: "📷", label: "Live-Cam", sub: "Live-Bild ansehen", href: spot.webcam });
-  if (!cards.length) return `<p class="empty">Für dieses Gelände sind noch keine Live-Daten hinterlegt.</p>`;
-  return `<div class="dv-cards">${cards.map(c => `
+  const cardsHtml = cards.length ? `<div class="dv-cards">${cards.map(c => `
     <a class="dv-card" href="${c.href}" target="_blank" rel="noopener">
       <div class="dv-card-ic">${c.ic}</div>
       <div class="dv-card-label">${c.label}</div>
       <div class="dv-card-sub"><span class="dv-dot gut"></span>${c.sub}</div>
-    </a>`).join("")}</div>`;
-}
-// Start-/Landeplatz-Karte mit Illustration (kein echtes Foto) + optionalem Navigations-Button
-function placeCardHtml(icon, name, region, elevation, img, navHref, navLabel) {
-  return `<div class="dv-place">
-    <div class="dv-place-head">
-      <span class="dv-pin">${icon}</span>
-      <div class="dv-place-txt"><div class="dv-place-name">${name}</div><div class="dv-place-region">${region || ""}</div></div>
-      ${elevation != null ? `<span class="dv-place-h">${elevation} m<br><small>ü. NN</small></span>` : ""}
+    </a>`).join("")}</div>` : `<p class="empty">Für dieses Gelände sind noch keine Live-Daten hinterlegt.</p>`;
+  const satCards = [];
+  if (spot.lat != null && spot.lon != null) satCards.push({ ic: "icons/marker-start.png", label: spot.name, href: mapsUrl(spot) });
+  const landePlaetzeNav = [];
+  if (spot.landeLat != null && spot.landeLon != null) landePlaetzeNav.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon });
+  if (Array.isArray(spot.landeExtra)) landePlaetzeNav.push(...spot.landeExtra);
+  landePlaetzeNav.forEach(l => satCards.push({ ic: "icons/marker-lande.png", label: l.name, href: mapsUrl({ lat: l.lat, lon: l.lon }) }));
+  const satHtml = satCards.length ? `
+    <h3 class="dv-h3">🚗 Navigieren zu Start- und Landeplätzen</h3>
+    <div class="dv-cards">${satCards.map(c => `
+    <a class="dv-card" href="${c.href}" target="_blank" rel="noopener">
+      <img class="dv-card-ic-img" src="${c.ic}" alt="">
+      <div class="dv-card-label">${c.label}</div>
+    </a>`).join("")}</div>` : "";
+  return `${cardsHtml}
+    <h3 class="dv-h3">Start &amp; Landeplatz</h3>
+    <div class="mini-map-wrap">
+      <div id="miniMap" class="mini-map"></div>
+      <div class="mini-style-toggle" role="group" aria-label="Kartenstil">
+        <button type="button" class="mini-style-btn on" data-ministyle="street">Karte</button>
+        <button type="button" class="mini-style-btn" data-ministyle="sat">Satellit</button>
+        <button type="button" class="mini-style-btn" data-ministyle="terrain">Gelände</button>
+      </div>
+      <div class="mini-map-legend"><img src="icons/marker-start.png" alt=""><span>Startplatz</span><img src="icons/marker-lande.png" alt=""><span>Landeplatz</span></div>
     </div>
-    <div class="dv-place-img" style="background-image:url(${img})"></div>
-    ${navHref ? `<a class="dv-place-nav" href="${navHref}" target="_blank" rel="noopener">${NAV_ICON} ${navLabel}</a>` : ""}
-  </div>`;
+    ${satHtml}`;
 }
 function renderCard(spot, days, opts = {}) {
   const dayIdx = opts.dayIdx || 0;
@@ -624,10 +638,16 @@ function renderCard(spot, days, opts = {}) {
   const flat = days.flatMap(d => d.hours);
   const cur = flat.find(h => h.t.getHours() === now.getHours() && h.t.getDate() === now.getDate() && h.t.getMonth() === now.getMonth()) || flat[Math.min(12, flat.length - 1)];
   const sun = days[0] && days[0].wx;
+  const nowFit = cur ? (cur.rating === "gut"
+    ? `<span class="lw-fit gut">✓ passt gerade</span>`
+    : cur.rating === "grenz"
+      ? `<span class="lw-fit grenz">grenzwertig · ${grenzLabel(cur.reason)}</span>`
+      : `<span class="lw-fit nein">passt gerade nicht · ${neinText(cur.reason)}</span>`) : "";
   const nowBar = cur ? `
     <div class="nowbar">
       <span class="wind-ind"><svg viewBox="0 0 24 24" style="transform:rotate(${Math.round((cur.wd + 180) % 360)}deg)"><path d="M12 2 L19 21 L12 16.5 L5 21 Z"/></svg></span>
       <span class="wind-txt">jetzt <b>${Math.round(cur.ws)}</b> km/h aus <b>${degToCompass(cur.wd)}</b> · Böen ${Math.round(cur.wg)}</span>
+      ${nowFit}
       ${sun ? `<span class="sun-txt">🌅 ${fmtTime(sun.sunrise)} · 🌇 ${fmtTime(sun.sunset)}</span>` : ""}
     </div>` : "";
   let liveHtml = "";
@@ -682,7 +702,6 @@ function renderCard(spot, days, opts = {}) {
 
   // Aktionsleiste: Einstiegspunkte für den Flugtag (als Objekte -> zwei Anzeigeformen: Pillen & Badges)
   const actList = [
-    { icon: NAV_ICON, label: "Navigation", href: mapsUrl(spot), cls: "nav" },
     { icon: "🌬️", label: "Windy", href: `https://www.windy.com/?${spot.lat},${spot.lon},12` },
   ];
   if (spot.acc && spot.acc.includes("b")) {
@@ -725,31 +744,18 @@ function renderCard(spot, days, opts = {}) {
         <button type="button" class="dtab" data-tab="details" role="tab">Details</button>
       </div>
       <div class="dtab-panels">
-        <div class="dtab-panel" id="dtab-wetter">${statusCard}${ftHint}${nowBar}${liveHtml}<div class="days">${daysHtml}</div></div>
-        <div class="dtab-panel" id="dtab-live" hidden>${liveCardsHtml(spot)}</div>
+        <div class="dtab-panel" id="dtab-wetter">${statusCard}${ftHint}${liveHtml}<div class="days">${daysHtml}</div></div>
+        <div class="dtab-panel" id="dtab-live" hidden>${nowBar}${liveCardsHtml(spot)}</div>
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
           const thStart = thermikStartHour(days[dayIdx], ts.win);
-          const startImg = spotScene(spot, ts.status).img;
-          const startCard = placeCardHtml("📍", spot.name, spot.region || "", spot.elevation, startImg, mapsUrl(spot), "Zum Startplatz navigieren");
-          const landeCard = spot.landeName
-            ? placeCardHtml("📍", spot.landeName, spot.gemeinde || "", spot.landeHoehe, sceneImgFor(spot.landeName, spot.landeHoehe).img, mapsUrl({ lat: spot.landeLat, lon: spot.landeLon }), "Zum Landeplatz navigieren")
-            : "";
           return `
             ${diffHtml}
             ${iconCardsHtml(spot, thStart, opts.driveSec)}
-            <div class="dv-cols">
-              <div class="dv-col-left">
-                ${startplatzTableHtml(spot, diffL)}
-              </div>
-              <div class="dv-col-right">
-                ${startCard}
-                ${landeCard}
-              </div>
-            </div>
-            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}
             <h3 class="dv-h3">Aktionen &amp; Tools</h3>
-            ${actionsBadges}`;
+            ${actionsBadges}
+            ${startplatzTableHtml(spot, diffL)}
+            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}`;
         })()}</div>
       </div>`;
 
@@ -931,6 +937,36 @@ async function renderSearch(candidates, origin, headline) {
 // MapLibre wird erst beim ersten "Karte"-Klick nachgeladen (kein Ballast fürs Erststart-Ladegewicht).
 // "bright" statt Geländekarte: klar/farbig statt überladen (Höhenlinien+Schummerung machten die Marker unlesbar).
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/bright";
+// Zusatz-Stile nur fuer die kleine Start/Landeplatz-Karte im Live-Tab (dort will man Gelaende/Satellit sehen).
+// Hinweis Esri World Imagery: laut Nutzungsbedingungen fuer "commercial use" eigentlich ArcGIS-Lizenz noetig,
+// wird aber breit von der OSM-/Hobby-Community fuer genau solche Low-Traffic-Zwecke genutzt (keine harten
+// Limits, kein Key noetig). Bei Bedarf spaeter durch eine lizenzierte Quelle ersetzen.
+const TERRAIN_STYLE = {
+  version: 8,
+  sources: {
+    otm: {
+      type: "raster",
+      tiles: ["https://a.tile.opentopomap.org/{z}/{x}/{y}.png", "https://b.tile.opentopomap.org/{z}/{x}/{y}.png", "https://c.tile.opentopomap.org/{z}/{x}/{y}.png"],
+      tileSize: 256, maxzoom: 17,
+      attribution: '© OpenStreetMap contributors, SRTM | © <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA)',
+    },
+  },
+  layers: [{ id: "otm", type: "raster", source: "otm" }],
+};
+const SATELLITE_STYLE = {
+  version: 8,
+  sources: {
+    esri: {
+      type: "raster",
+      tiles: ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],
+      tileSize: 256, maxzoom: 19,
+      attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
+    },
+  },
+  layers: [{ id: "esri", type: "raster", source: "esri" }],
+};
+const MINI_MAP_STYLES = { street: MAP_STYLE, sat: SATELLITE_STYLE, terrain: TERRAIN_STYLE };
+let miniMapStyleMode = "street";
 let lastRows = [];
 let mapInstance = null;
 let mapMarkers = [];
@@ -963,6 +999,42 @@ function rowsBounds(rows) {
 }
 function updateMapLabelVisibility() {
   document.getElementById("mapEl").classList.toggle("show-labels", mapInstance.getZoom() >= MAP_LABEL_ZOOM);
+}
+
+// ---------------- Mini-Karte im "Live"-Tab: Start- + Landeplatz auf einen Blick ----------------
+let miniMapInstance = null;
+function removeMiniMap() {
+  if (miniMapInstance) { miniMapInstance.remove(); miniMapInstance = null; }
+}
+async function ensureMiniMap(spot) {
+  if (!document.getElementById("miniMap")) return; // Tab evtl. schon wieder verlassen
+  await loadMapLibre();
+  if (!document.getElementById("miniMap")) return; // erneut prüfen (async Ladezeit)
+  removeMiniMap();
+  const hasLande = spot.landeLat != null && spot.landeLon != null;
+  const landePlaetze = [];
+  if (hasLande) landePlaetze.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon });
+  if (Array.isArray(spot.landeExtra)) landePlaetze.push(...spot.landeExtra);
+  const points = [[spot.lon, spot.lat], ...landePlaetze.map(l => [l.lon, l.lat])];
+  miniMapInstance = new maplibregl.Map({
+    container: "miniMap", style: MINI_MAP_STYLES[miniMapStyleMode],
+    center: [spot.lon, spot.lat], zoom: 12, attributionControl: true, interactive: true,
+  });
+  miniMapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+  const startEl = document.createElement("div");
+  startEl.className = "mini-marker mini-start"; startEl.innerHTML = `<img src="icons/marker-start.png" alt="Startplatz">`; startEl.title = spot.name;
+  startEl.addEventListener("click", () => window.open(satMapsUrl(spot.lat, spot.lon), "_blank"));
+  new maplibregl.Marker({ element: startEl }).setLngLat([spot.lon, spot.lat]).addTo(miniMapInstance);
+  landePlaetze.forEach(l => {
+    const landeEl = document.createElement("div");
+    landeEl.className = "mini-marker mini-lande"; landeEl.innerHTML = `<img src="icons/marker-lande.png" alt="Landeplatz">`; landeEl.title = l.name;
+    landeEl.addEventListener("click", () => window.open(satMapsUrl(l.lat, l.lon), "_blank"));
+    new maplibregl.Marker({ element: landeEl }).setLngLat([l.lon, l.lat]).addTo(miniMapInstance);
+  });
+  if (points.length > 1) {
+    const lons = points.map(p => p[0]), lats = points.map(p => p[1]);
+    miniMapInstance.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 50, animate: false, maxZoom: 15 });
+  }
 }
 async function ensureMap() {
   if (mapInstance) return mapInstance;
@@ -1263,6 +1335,9 @@ document.getElementById("plzInput").addEventListener("keydown", e => {
 function mapsUrl(s) {
   return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;
 }
+function satMapsUrl(lat, lon) {
+  return `https://www.google.com/maps/@?api=1&map_action=map&center=${lat},${lon}&zoom=18&basemap=satellite`;
+}
 // Kategorie-Illustration (dezente Postkarten-Grafik, kein echtes Foto des Orts – haben wir nicht).
 // Zuordnung nach Höhe: Alpen / Mittelgebirge / Hügelland; Bild-Index deterministisch aus dem Namen.
 function sceneImgFor(name, elevation) {
@@ -1361,8 +1436,11 @@ function renderFlyResults(rows, headline, truncated) {
 }
 
 // ---------------- Detail-Fenster: 7-Tage-Vorhersage ----------------
+let currentDetailSpot = null;
 async function openDetail(id) {
   const spot = getSpot(id); if (!spot) return;
+  removeMiniMap();
+  currentDetailSpot = spot;
   const modal = document.getElementById("detailModal"), body = document.getElementById("detailBody");
   modal.hidden = false;
   body.innerHTML = `<div class="card loading">Lade 5-Tage-Vorhersage für ${spot.name} …</div>`;
@@ -1379,6 +1457,8 @@ async function openDetail(id) {
 function closeDetail() {
   document.getElementById("detailModal").hidden = true;
   document.getElementById("detailBody").innerHTML = "";
+  removeMiniMap();
+  currentDetailSpot = null;
 }
 document.getElementById("detailModal").addEventListener("click", e => { if (e.target.id === "detailModal") closeDetail(); });
 
@@ -1496,12 +1576,22 @@ document.body.addEventListener("click", e => {
     return;
   }
 
-  // Detailfenster: Tab Wetter <-> Details umschalten
+  // Detailfenster: Tab Wetter <-> Live <-> Details umschalten
   const tab = e.target.closest(".dtab");
   if (tab) {
     const wrap = tab.closest("#detailBody"); if (!wrap) return;
     wrap.querySelectorAll(".dtab").forEach(t => t.classList.toggle("on", t === tab));
     wrap.querySelectorAll(".dtab-panel").forEach(p => { p.hidden = p.id !== "dtab-" + tab.dataset.tab; });
+    if (tab.dataset.tab === "live" && currentDetailSpot) ensureMiniMap(currentDetailSpot);
+    return;
+  }
+
+  // Mini-Karte (Live-Tab): Kartenstil umschalten (Karte/Satellit/Gelände)
+  const styleBtn = e.target.closest(".mini-style-btn");
+  if (styleBtn) {
+    miniMapStyleMode = styleBtn.dataset.ministyle;
+    styleBtn.parentElement.querySelectorAll(".mini-style-btn").forEach(b => b.classList.toggle("on", b === styleBtn));
+    if (miniMapInstance) miniMapInstance.setStyle(MINI_MAP_STYLES[miniMapStyleMode]);
     return;
   }
 
@@ -1554,9 +1644,10 @@ document.body.addEventListener("click", e => {
   }
   // Navi-Icon: eigener Link (Maps), nicht das Detail öffnen
   if (e.target.closest(".sc-nav")) return;
-  // Klick auf eine Ergebnis-/Suchzeile -> 7-Tage-Detail
+  // Klick auf eine Ergebnis-/Suchzeile -> 7-Tage-Detail (nicht erneut auslösen, wenn man schon
+  // im offenen Detail-Fenster irgendwo danebenklickt - der ganze Kartenwrapper traegt data-spot).
   const row = e.target.closest("[data-spot]");
-  if (row) openDetail(row.dataset.spot);
+  if (row && !row.closest("#detailModal")) openDetail(row.dataset.spot);
 });
 
 // DB-Suche

@@ -18,7 +18,7 @@ const SPOT_DB = [
 
   { id: "db_188", name: "Adolzfurt", region: "Bretzfeld",
     lat: 49.1606, lon: 9.4713, elevation: 365, dhv: 188,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 140, gemeinde: "74626 Bretzfeld", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Anlaufstrecke in Waldschneise, Abheben vor Dornenhecke, danach hohe Pfähle. Nur starten bei Windstärke ab 3m/sec. aus 240° bis 280°. Flugbetrieb nur in Absprache mit dem Geländehalter.", landeName: "Adolzfurt Landeplatz 2", landeLat: 49.1619, landeLon: 9.4685, landeHoehe: 325, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 140, gemeinde: "74626 Bretzfeld", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Anlaufstrecke in Waldschneise, Abheben vor Dornenhecke, danach hohe Pfähle. Nur starten bei Windstärke ab 3m/sec. aus 240° bis 280°. Flugbetrieb nur in Absprache mit dem Geländehalter.", landeName: "Adolzfurt Landeplatz 2", landeLat: 49.1619, landeLon: 9.4685, landeHoehe: 325, landeExtra: [{ name: "Adolzfurt Landeplatz 1", lat: 49.158863, lon: 9.462586, hoehe: 225 }], ...DEF },
 
   { id: "db_257", name: "Adorf / Wirmighausen", region: "Diemelsee",
     lat: 51.3508, lon: 8.8305, elevation: 465, dhv: 257,
@@ -46,7 +46,7 @@ const SPOT_DB = [
 
   { id: "db_655", name: "Alter Steinbruch", region: "Lindenfels",
     lat: 49.6952, lon: 8.776, elevation: 520, dhv: 655,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", diff: 1, acc: "f", hoehendiff: 255, gemeinde: "64678 Lindenfels", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "schriftl. Einweisung. B 47 darf nur mit mind. 50m Höhe überflogen werden. Flugbetrieb endet um 19:00 Uhr. Starts bei Windstille + Rückenwind verboten. Start nur mit ausreichend Gegenwind durchführen. Aufgrund der anspruchsvollen Start- Landeverhältnisse benötigen alle Piloten für Starts am Alten Steinbruch eine umfangreiche Einweisung durch den Geländehalter. A-Schein Piloten dürfen das Gelände nutzen, wenn sie dem Geländehalter ausreichende Flugerfahrung nachweisen. Doppelsitzerflüge dürfen nur von sehr erfahrenen Piloten bei guten Witterungsbedingungen durchgeführt werden.", landeName: "Alter Steinbruch Landeplatz", landeLat: 49.6880, landeLon: 8.7684, landeHoehe: 440, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", diff: 1, acc: "f", hoehendiff: 255, gemeinde: "64678 Lindenfels", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "schriftl. Einweisung. B 47 darf nur mit mind. 50m Höhe überflogen werden. Flugbetrieb endet um 19:00 Uhr. Starts bei Windstille + Rückenwind verboten. Start nur mit ausreichend Gegenwind durchführen. Aufgrund der anspruchsvollen Start- Landeverhältnisse benötigen alle Piloten für Starts am Alten Steinbruch eine umfangreiche Einweisung durch den Geländehalter. A-Schein Piloten dürfen das Gelände nutzen, wenn sie dem Geländehalter ausreichende Flugerfahrung nachweisen. Doppelsitzerflüge dürfen nur von sehr erfahrenen Piloten bei guten Witterungsbedingungen durchgeführt werden.", landeName: "Alter Steinbruch Landeplatz", landeLat: 49.6880, landeLon: 8.7684, landeHoehe: 440, landeExtra: [{ name: "Alter Steinbruch Landeplatz Schlierbach", lat: 49.685983, lon: 8.76745, hoehe: 265 }], ...DEF },
 
   { id: "db_314", name: "Altglashütten / Kapellenhof", region: "Feldberg",
     lat: 47.8489, lon: 8.1036, elevation: 1150, dhv: 314,
@@ -102,7 +102,7 @@ const SPOT_DB = [
 
   { id: "db_898", name: "Am Saalenweg", region: "Mandern",
     lat: 51.1181, lon: 9.1917, elevation: 290, dhv: 898,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fa", hoehendiff: 70, gemeinde: "34537 Mandern", bundesland: "Hessen", gleitschirm: "1-sitzig / Schulung", landeName: "Am Weinberge Landeplatz", landeLat: 51.1201, landeLon: 9.1912, landeHoehe: 290, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fa", hoehendiff: 70, gemeinde: "34537 Mandern", bundesland: "Hessen", gleitschirm: "1-sitzig / Schulung", landeName: "Am Weinberge Landeplatz", landeLat: 51.1201, landeLon: 9.1912, landeHoehe: 290, landeExtra: [{ name: "Am Weinberge- Am Saalenweg Landeplatz", lat: 51.120257, lon: 9.189821, hoehe: 220 }], ...DEF },
 
   { id: "db_226", name: "Am Schützenkreuz Übungshang", region: "Birkenau",
     lat: 49.5458, lon: 8.7431, elevation: 380, dhv: 226,
@@ -238,11 +238,11 @@ const SPOT_DB = [
 
   { id: "db_5604_N", name: "Bierbach (N)", region: "Fränkisch-Crumbach",
     lat: 49.761, lon: 8.8504, elevation: 253, dhv: 5604,
-    sectors: [[303.75, 101.25]], sectorLabel: "NW-O", country: "de", acc: "f", hoehendiff: 49, gemeinde: "64407 Fränkisch-Crumbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Bierbach Landeplatz Ost", landeLat: 49.7613, landeLon: 8.8535, landeHoehe: 217, ...DEF },
+    sectors: [[303.75, 101.25]], sectorLabel: "NW-O", country: "de", acc: "f", hoehendiff: 49, gemeinde: "64407 Fränkisch-Crumbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Bierbach Landeplatz Ost", landeLat: 49.7613, landeLon: 8.8535, landeHoehe: 217, landeExtra: [{ name: "Bierbach Landeplatz Nord-West", lat: 49.7609, lon: 8.859469, hoehe: 204 }], ...DEF },
 
   { id: "db_5604_W", name: "Bierbach (W)", region: "Fränkisch-Crumbach",
     lat: 49.7601, lon: 8.8608, elevation: 239, dhv: 5604,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 49, gemeinde: "64407 Fränkisch-Crumbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Bierbach Landeplatz Nord-West", landeLat: 49.7609, landeLon: 8.8595, landeHoehe: 204, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 49, gemeinde: "64407 Fränkisch-Crumbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Bierbach Landeplatz Nord-West", landeLat: 49.7609, landeLon: 8.8595, landeHoehe: 204, landeExtra: [{ name: "Bierbach Landeplatz Ost", lat: 49.761339, lon: 8.853453, hoehe: 217 }], ...DEF },
 
   { id: "db_1122", name: "Blankenhain Übungshang", region: "Rottdorf",
     lat: 50.8463, lon: 11.3475, elevation: 446, dhv: 1122,
@@ -250,7 +250,7 @@ const SPOT_DB = [
 
   { id: "db_1067", name: "Blättersberg", region: "Weyher",
     lat: 49.266, lon: 8.0701, elevation: 550, dhv: 1067,
-    sectors: [[101.25, 213.75]], sectorLabel: "OSO-SSW", country: "de", diff: 2, acc: "f", hoehendiff: 305, gemeinde: "76835 Weyher", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Steiler Schneisenstartplatz Richtung Süden oberhalb von Weyher in der Pfalz.", landeName: "Blättersberg LP Fischer (Ausweich-LP)", landeLat: 49.2638, landeLon: 8.0805, landeHoehe: 245, ...DEF },
+    sectors: [[101.25, 213.75]], sectorLabel: "OSO-SSW", country: "de", diff: 2, acc: "f", hoehendiff: 305, gemeinde: "76835 Weyher", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Steiler Schneisenstartplatz Richtung Süden oberhalb von Weyher in der Pfalz.", landeName: "Blättersberg LP Fischer (Ausweich-LP)", landeLat: 49.2638, landeLon: 8.0805, landeHoehe: 245, landeExtra: [{ name: "Blättersberg LP Hasental", lat: 49.257743, lon: 8.074371, hoehe: 245 }], ...DEF },
 
   { id: "db_352_N", name: "Blomberg (N)", region: "Wackersberg",
     lat: 47.7345, lon: 11.5072, elevation: 1215, dhv: 352,
@@ -282,15 +282,15 @@ const SPOT_DB = [
 
   { id: "db_612_N", name: "Brauneck (N)", region: "Lenggries",
     lat: 47.6641, lon: 11.5245, elevation: 1555, dhv: 612,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampe für Drachen direkt am Gipfel. Infotafel beachten.", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampe für Drachen direkt am Gipfel. Infotafel beachten.", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, landeExtra: [{ name: "Brauneck Landeplatz für HG", lat: 47.679229, lon: 11.557274, hoehe: 700 }], webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", ...DEF },
 
   { id: "db_612_O", name: "Brauneck (O)", region: "Lenggries",
     lat: 47.6673, lon: 11.5385, elevation: 1550, dhv: 612,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, landeExtra: [{ name: "Brauneck Landeplatz für HG", lat: 47.679229, lon: 11.557274, hoehe: 700 }], webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", ...DEF },
 
   { id: "db_612_S", name: "Brauneck (S)", region: "Lenggries",
     lat: 47.6635, lon: 11.5237, elevation: 1545, dhv: 612,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampe für Drachen; Naturstart für Gleitschirme. Achtung: Bahnseil muss überflogen werden.", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampe für Drachen; Naturstart für Gleitschirme. Achtung: Bahnseil muss überflogen werden.", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, landeExtra: [{ name: "Brauneck Landeplatz für HG", lat: 47.679229, lon: 11.557274, hoehe: 700 }], webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", ...DEF },
 
   { id: "db_175", name: "Braunenberg", region: "Oberalfingen / Aalen",
     lat: 48.8599, lon: 10.1346, elevation: 661, dhv: 175,
@@ -310,11 +310,11 @@ const SPOT_DB = [
 
   { id: "db_288_N", name: "Breitnau (N)", region: "Münstertal",
     lat: 47.8698, lon: 7.8337, elevation: 980, dhv: 288,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 771, gemeinde: "79244 Münstertal", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Start nur nach Absprache und Freigabe durch den Geländehalter / Grundbesitzer erlaubt. Wenn sich auf der Weide am Startplatz Kühe befinden, besteht vollständiges Startverbot.", landeName: "Breitnau Landeplatz Laisacker", landeLat: 47.8568, landeLon: 7.7799, landeHoehe: 375, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 771, gemeinde: "79244 Münstertal", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Start nur nach Absprache und Freigabe durch den Geländehalter / Grundbesitzer erlaubt. Wenn sich auf der Weide am Startplatz Kühe befinden, besteht vollständiges Startverbot.", landeName: "Breitnau Landeplatz Laisacker", landeLat: 47.8568, landeLon: 7.7799, landeHoehe: 375, landeExtra: [{ name: "Breitnau Landeplatz Etzenbach", lat: 47.863262, lon: 7.760188, hoehe: 340 }], ...DEF },
 
   { id: "db_288_SW", name: "Breitnau (SW)", region: "Münstertal",
     lat: 47.8561, lon: 7.8364, elevation: 1111, dhv: 288,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 771, gemeinde: "79244 Münstertal", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Flug nur nach Absprache und Freigabe durch den Grundbesitzer da der Berg Privatgelände ist. Wenn am Startplatz Kühe auf der Weide sind besteht vollständiges Startverbot.", landeName: "Breitnau Landeplatz Laisacker", landeLat: 47.8568, landeLon: 7.7799, landeHoehe: 375, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 771, gemeinde: "79244 Münstertal", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Flug nur nach Absprache und Freigabe durch den Grundbesitzer da der Berg Privatgelände ist. Wenn am Startplatz Kühe auf der Weide sind besteht vollständiges Startverbot.", landeName: "Breitnau Landeplatz Laisacker", landeLat: 47.8568, landeLon: 7.7799, landeHoehe: 375, landeExtra: [{ name: "Breitnau Landeplatz Etzenbach", lat: 47.863262, lon: 7.760188, hoehe: 340 }], ...DEF },
 
   { id: "db_1771", name: "Brotdorf", region: "Merzig-Brotdorf",
     lat: 49.4701, lon: 6.6576, elevation: 320, dhv: 1771,
@@ -322,11 +322,11 @@ const SPOT_DB = [
 
   { id: "db_1110_SW", name: "Bruchhauser Steine (SW)", region: "Bruchhausen",
     lat: 51.3182, lon: 8.545, elevation: 710, dhv: 1110,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 255, gemeinde: "59939 Bruchhausen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampen- und Wiesenstart", landeName: "Bruchhauser Steine Landeplatz 3", landeLat: 51.3121, landeLon: 8.5405, landeHoehe: 475, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 255, gemeinde: "59939 Bruchhausen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampen- und Wiesenstart", landeName: "Bruchhauser Steine Landeplatz 3", landeLat: 51.3121, landeLon: 8.5405, landeHoehe: 475, landeExtra: [{ name: "Bruchhauser Steine Landeplatz 2", lat: 51.308886, lon: 8.538651, hoehe: 495 }, { name: "Bruchhauser Steine Landeplatz 1", lat: 51.322244, lon: 8.530282, hoehe: 455 }], ...DEF },
 
   { id: "db_1110_W", name: "Bruchhauser Steine (W)", region: "Bruchhausen",
     lat: 51.3161, lon: 8.5481, elevation: 700, dhv: 1110,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 255, gemeinde: "59939 Bruchhausen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wiesenstart", landeName: "Bruchhauser Steine Landeplatz 3", landeLat: 51.3121, landeLon: 8.5405, landeHoehe: 475, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 255, gemeinde: "59939 Bruchhausen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wiesenstart", landeName: "Bruchhauser Steine Landeplatz 3", landeLat: 51.3121, landeLon: 8.5405, landeHoehe: 475, landeExtra: [{ name: "Bruchhauser Steine Landeplatz 2", lat: 51.308886, lon: 8.538651, hoehe: 495 }, { name: "Bruchhauser Steine Landeplatz 1", lat: 51.322244, lon: 8.530282, hoehe: 455 }], ...DEF },
 
   { id: "db_5811", name: "Bruchhauser Steine West", region: "Bruchhausen",
     lat: 51.32, lon: 8.5386, elevation: 629, dhv: 5811,
@@ -346,15 +346,15 @@ const SPOT_DB = [
 
   { id: "db_505", name: "Büchelstein", region: "Grattersdorf",
     lat: 48.8082, lon: 13.1756, elevation: 830, dhv: 505,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 380, gemeinde: "94541 Grattersdorf", bundesland: "Bayern", bemerkung: "Rampenstart mit z.T. schwierigen Windverhältsnissen, deshalb Einweisung vor Erstflug durch Vereinsmitglied. Bitte jede Konfrontation mit Anwohnern vermeiden.", landeName: "Büchelstein Landeplatz 2", landeLat: 48.7970, landeLon: 13.1719, landeHoehe: 450, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 380, gemeinde: "94541 Grattersdorf", bundesland: "Bayern", bemerkung: "Rampenstart mit z.T. schwierigen Windverhältsnissen, deshalb Einweisung vor Erstflug durch Vereinsmitglied. Bitte jede Konfrontation mit Anwohnern vermeiden.", landeName: "Büchelstein Landeplatz 2", landeLat: 48.7970, landeLon: 13.1719, landeHoehe: 450, landeExtra: [{ name: "Büchelstein Landeplatz", lat: 48.789609, lon: 13.178448, hoehe: 450 }], ...DEF },
 
   { id: "db_408_N", name: "Buchenberg (N)", region: "Buching",
     lat: 47.6067, lon: 10.8111, elevation: 1134, dhv: 408,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 350, gemeinde: "87642 Buching", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Buchenberg Landeplatz GS", landeLat: 47.6126, landeLon: 10.7991, landeHoehe: 791, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 350, gemeinde: "87642 Buching", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Buchenberg Landeplatz GS", landeLat: 47.6126, landeLon: 10.7991, landeHoehe: 791, landeExtra: [{ name: "Buchenberg Landeplatz HG", lat: 47.61205, lon: 10.795279, hoehe: 787 }], ...DEF },
 
   { id: "db_408_NW", name: "Buchenberg (NW)", region: "Buching",
     lat: 47.6065, lon: 10.8104, elevation: 1137, dhv: 408,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fb", hoehendiff: 350, gemeinde: "87642 Buching", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Buchenberg Landeplatz GS", landeLat: 47.6126, landeLon: 10.7991, landeHoehe: 791, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fb", hoehendiff: 350, gemeinde: "87642 Buching", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Buchenberg Landeplatz GS", landeLat: 47.6126, landeLon: 10.7991, landeHoehe: 791, landeExtra: [{ name: "Buchenberg Landeplatz HG", lat: 47.61205, lon: 10.795279, hoehe: 787 }], ...DEF },
 
   { id: "db_358", name: "Bucherhang", region: "Bad Wiessee",
     lat: 47.6934, lon: 11.7208, elevation: 900, dhv: 358,
@@ -414,11 +414,11 @@ const SPOT_DB = [
 
   { id: "db_5732_N", name: "Dernbach Nord Übungshang (N)", region: "Dernbach",
     lat: 49.2461, lon: 8.0148, elevation: 288, dhv: 5732,
-    sectors: [[281.25, 33.75]], sectorLabel: "WNW-NNO", country: "de", acc: "f", hoehendiff: 41, gemeinde: "76857 Dernbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Übungshang mit 39m Höhenunterschied", landeName: "Dernbach Nord Übungshang Landung", landeLat: 49.2461, landeLon: 8.0148, landeHoehe: 249, ...DEF },
+    sectors: [[281.25, 33.75]], sectorLabel: "WNW-NNO", country: "de", acc: "f", hoehendiff: 41, gemeinde: "76857 Dernbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Übungshang mit 39m Höhenunterschied", landeName: "Dernbach Nord Übungshang Landung", landeLat: 49.2461, landeLon: 8.0148, landeHoehe: 249, landeExtra: [{ name: "Dernbach Süd Übungshang Landung", lat: 49.248772, lon: 8.013806, hoehe: 247 }], ...DEF },
 
   { id: "db_5732_S", name: "Dernbach Nord Übungshang (S)", region: "Dernbach",
     lat: 49.2488, lon: 8.0138, elevation: 278, dhv: 5732,
-    sectors: [[146.25, 213.75]], sectorLabel: "SSO-SSW", country: "de", acc: "f", hoehendiff: 41, gemeinde: "76857 Dernbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Übungshang mit 31m Höhenunterschied", landeName: "Dernbach Süd Übungshang Landung", landeLat: 49.2488, landeLon: 8.0138, landeHoehe: 247, ...DEF },
+    sectors: [[146.25, 213.75]], sectorLabel: "SSO-SSW", country: "de", acc: "f", hoehendiff: 41, gemeinde: "76857 Dernbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Übungshang mit 31m Höhenunterschied", landeName: "Dernbach Süd Übungshang Landung", landeLat: 49.2488, landeLon: 8.0138, landeHoehe: 247, landeExtra: [{ name: "Dernbach Nord Übungshang Landung", lat: 49.246117, lon: 8.014844, hoehe: 249 }], ...DEF },
 
   { id: "db_1224", name: "Dertingen", region: "Dertingen",
     lat: 49.7722, lon: 9.6162, elevation: 263, dhv: 1224,
@@ -434,7 +434,7 @@ const SPOT_DB = [
 
   { id: "db_693", name: "Donnersberg", region: "Dannenfels",
     lat: 49.6344, lon: 7.9312, elevation: 559, dhv: 693,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "de", diff: 2, acc: "f", hoehendiff: 242, gemeinde: "67814 Dannenfels", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Donnersberg oberer GS Startplatz. Unterhalb des GS-Startplatzes befindet sich eine ca. 3 m hohe Geländestufe. Die Nutzung ist ausschließlich erfahrenen Piloten mit der erforderlichen Flugpraxis und Geländekenntnis vorbehalten. Insgesamt handelt es sich um einen anspruchsvollen Schneisenstart.", landeName: "Donnersberg GS-LP", landeLat: 49.6375, landeLon: 7.9368, landeHoehe: 380, ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "de", diff: 2, acc: "f", hoehendiff: 242, gemeinde: "67814 Dannenfels", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Donnersberg oberer GS Startplatz. Unterhalb des GS-Startplatzes befindet sich eine ca. 3 m hohe Geländestufe. Die Nutzung ist ausschließlich erfahrenen Piloten mit der erforderlichen Flugpraxis und Geländekenntnis vorbehalten. Insgesamt handelt es sich um einen anspruchsvollen Schneisenstart.", landeName: "Donnersberg GS-LP", landeLat: 49.6375, landeLon: 7.9368, landeHoehe: 380, landeExtra: [{ name: "Donnersberg HG-LP", lat: 49.641272, lon: 7.945608, hoehe: 317 }], ...DEF },
 
   { id: "db_258", name: "Drehkopf", region: "Feldberg",
     lat: 47.8602, lon: 8.093, elevation: 1135, dhv: 258,
@@ -454,7 +454,7 @@ const SPOT_DB = [
 
   { id: "db_180", name: "Eberfirst", region: "Eberstadt",
     lat: 49.1879, lon: 9.3229, elevation: 300, dhv: 180,
-    sectors: [[191.25, 258.75], [213.75, 236.25]], sectorLabel: "SSW-WSW · SW", country: "de", diff: 2, acc: "fa", hoehendiff: 109, gemeinde: "74246 Eberstadt", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Ohne das Auffinden von Aufwinden nach dem Start ist der Hang rechtzeitig und mit einer ausreichenden Flughöhe in Richtung der Landeplätze zu verlassen. Die Sicherheitsmindesthöhen zu Gebäuden, Straßen, Stromleitungen, etc. sind während des gesamten Fluges gem. Flugbetriebsordnung (FBO) und §6 LuftVO zwingend einzuhalten. Beim Anflug zu den Landeplätzen 2 und 3 sind die Baumreihen und Hindernisse in ausreichender Höhe zu überfliegen (Leegefahr!).", landeName: "Eberfirst Obere Zwerchäcker (LP2)", landeLat: 49.1849, landeLon: 9.3189, landeHoehe: 210, ...DEF },
+    sectors: [[191.25, 258.75], [213.75, 236.25]], sectorLabel: "SSW-WSW · SW", country: "de", diff: 2, acc: "fa", hoehendiff: 109, gemeinde: "74246 Eberstadt", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Ohne das Auffinden von Aufwinden nach dem Start ist der Hang rechtzeitig und mit einer ausreichenden Flughöhe in Richtung der Landeplätze zu verlassen. Die Sicherheitsmindesthöhen zu Gebäuden, Straßen, Stromleitungen, etc. sind während des gesamten Fluges gem. Flugbetriebsordnung (FBO) und §6 LuftVO zwingend einzuhalten. Beim Anflug zu den Landeplätzen 2 und 3 sind die Baumreihen und Hindernisse in ausreichender Höhe zu überfliegen (Leegefahr!).", landeName: "Eberfirst Obere Zwerchäcker (LP2)", landeLat: 49.1849, landeLon: 9.3189, landeHoehe: 210, landeExtra: [{ name: "Eberfirst Lennacher Brunnen (LP3)", lat: 49.186878, lon: 9.315762, hoehe: 200 }, { name: "Eberfirst Landeplatz Maushecken (LP1)", lat: 49.183819, lon: 9.32166, hoehe: 191 }], ...DEF },
 
   { id: "db_303_O", name: "Eck (O)", region: "Gersbach",
     lat: 47.6843, lon: 7.9325, elevation: 925, dhv: 303,
@@ -514,7 +514,7 @@ const SPOT_DB = [
 
   { id: "db_742", name: "Entenberg", region: "Bad Laasphe",
     lat: 50.918, lon: 8.4342, elevation: 534, dhv: 742,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "f", hoehendiff: 230, gemeinde: "57334 Bad Laasphe", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Entenberg Landeplatz 1", landeLat: 50.9236, landeLon: 8.4378, landeHoehe: 304, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "f", hoehendiff: 230, gemeinde: "57334 Bad Laasphe", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Entenberg Landeplatz 1", landeLat: 50.9236, landeLon: 8.4378, landeHoehe: 304, landeExtra: [{ name: "Entenberg Landeplatz 2", lat: 50.922217, lon: 8.443551, hoehe: 304 }], ...DEF },
 
   { id: "db_2175", name: "Eppenhain", region: "Eppenhain",
     lat: 50.1728, lon: 8.3839, elevation: 422, dhv: 2175,
@@ -522,7 +522,7 @@ const SPOT_DB = [
 
   { id: "db_1159", name: "Erbach-Erlenbach", region: "Erbach",
     lat: 49.645, lon: 9.0197, elevation: 381, dhv: 1159,
-    sectors: [[258.75, 281.25], [281.25, 303.75]], sectorLabel: "W · WNW", country: "de", acc: "f", hoehendiff: 91, gemeinde: "64711 Erbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Erbach-Erlenbach West Landeplatz", landeLat: 49.6457, landeLon: 9.0170, landeHoehe: 348, ...DEF },
+    sectors: [[258.75, 281.25], [281.25, 303.75]], sectorLabel: "W · WNW", country: "de", acc: "f", hoehendiff: 91, gemeinde: "64711 Erbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Erbach-Erlenbach West Landeplatz", landeLat: 49.6457, landeLon: 9.0170, landeHoehe: 348, landeExtra: [{ name: "Erbach Landeplatz", lat: 49.650209, lon: 9.011278, hoehe: 290 }], ...DEF },
 
   { id: "db_728", name: "Erden", region: "Erden",
     lat: 49.9849, lon: 7.018, elevation: 290, dhv: 728,
@@ -530,7 +530,7 @@ const SPOT_DB = [
 
   { id: "db_134", name: "Erlau Ost-SP", region: "Fränkisch Crumbach",
     lat: 49.7428, lon: 8.822, elevation: 383, dhv: 134,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 2, acc: "f", hoehendiff: 172, gemeinde: "64407 Fränkisch Crumbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Erlau Holunderhof (Ausweich-LP)", landeLat: 49.7422, landeLon: 8.8253, landeHoehe: 291, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 2, acc: "f", hoehendiff: 172, gemeinde: "64407 Fränkisch Crumbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Erlau Holunderhof (Ausweich-LP)", landeLat: 49.7422, landeLon: 8.8253, landeHoehe: 291, landeExtra: [{ name: "Erlau LP Pfeifer", lat: 49.739722, lon: 8.831667, hoehe: 223 }, { name: "Erlau LP Schaffnit", lat: 49.742222, lon: 8.833611, hoehe: 211 }], ...DEF },
 
   { id: "db_5826", name: "Erlau SW-Startplatz GS", region: "Fränkisch Crumbach",
     lat: 49.7447, lon: 8.8342, elevation: 260, dhv: 5826,
@@ -538,7 +538,7 @@ const SPOT_DB = [
 
   { id: "db_2450", name: "Eschbach", region: "Usingen/Eschbach",
     lat: 50.354, lon: 8.5237, elevation: 380, dhv: 2450,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 57, gemeinde: "61250 Usingen/Eschbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Eschbach Toplandeplatz", landeLat: 50.3544, landeLon: 8.5235, landeHoehe: 380, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 57, gemeinde: "61250 Usingen/Eschbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Eschbach Toplandeplatz", landeLat: 50.3544, landeLon: 8.5235, landeHoehe: 380, landeExtra: [{ name: "Eschbach Obere Landewiese (I)", lat: 50.353394, lon: 8.524336, hoehe: 325 }, { name: "Eschbach Untere Landewiese (II)", lat: 50.351786, lon: 8.527717, hoehe: 323 }], ...DEF },
 
   { id: "db_590", name: "Eschlkam", region: "Eschlkam",
     lat: 49.2924, lon: 12.9286, elevation: 509, dhv: 590,
@@ -566,7 +566,7 @@ const SPOT_DB = [
 
   { id: "db_1025", name: "Fichtelberg", region: "Oberwiesenthal",
     lat: 50.4231, lon: 12.9524, elevation: 1190, dhv: 1025,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 1, acc: "fab", hoehendiff: 255, gemeinde: "09482 Oberwiesenthal", bundesland: "Sachsen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Fichtelberg Landeplatz Talstation", landeLat: 50.4227, landeLon: 12.9660, landeHoehe: 940, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 1, acc: "fab", hoehendiff: 255, gemeinde: "09482 Oberwiesenthal", bundesland: "Sachsen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Fichtelberg Landeplatz Talstation", landeLat: 50.4227, landeLon: 12.9660, landeHoehe: 940, landeExtra: [{ name: "Fichtelberg Landeplatz Panoramahotel", lat: 50.426319, lon: 12.968245, hoehe: 935 }], ...DEF },
 
   { id: "db_210", name: "Filzberg Übungsgelände", region: "Berka",
     lat: 51.3415, lon: 10.9424, elevation: 210, dhv: 210,
@@ -590,7 +590,7 @@ const SPOT_DB = [
 
   { id: "db_1076", name: "Fluggebiet Todtnau", region: "Todtnau",
     lat: 47.8381, lon: 7.9932, elevation: 1296, dhv: 1076,
-    sectors: [[213.75, 281.25], [191.25, 281.25]], sectorLabel: "SW-W · SSW-W", country: "de", acc: "f", hoehendiff: 675, gemeinde: "79674 Todtnau", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Am Silberberg ist eine zeitliche Flugverbotsregelung für den Startplatz jährlich vom 01.12.bis 30.06 aufgrund Wildschutz / Vogelschutz.", landeName: "Fluggebiet Todtnau Landeplatz Silberberg", landeLat: 47.8324, landeLon: 7.9691, landeHoehe: 720, ...DEF },
+    sectors: [[213.75, 281.25], [191.25, 281.25]], sectorLabel: "SW-W · SSW-W", country: "de", acc: "f", hoehendiff: 675, gemeinde: "79674 Todtnau", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Am Silberberg ist eine zeitliche Flugverbotsregelung für den Startplatz jährlich vom 01.12.bis 30.06 aufgrund Wildschutz / Vogelschutz.", landeName: "Fluggebiet Todtnau Landeplatz Silberberg", landeLat: 47.8324, landeLon: 7.9691, landeHoehe: 720, landeExtra: [{ name: "Fluggebiet Todtnau Landeplatz Gschwend", lat: 47.801267, lon: 7.953647, hoehe: 621 }], ...DEF },
 
   { id: "db_711", name: "Förlenberg", region: "Annweiler",
     lat: 49.1919, lon: 8.0045, elevation: 530, dhv: 711,
@@ -602,11 +602,11 @@ const SPOT_DB = [
 
   { id: "db_584_N", name: "Frauenberg (N)", region: "Sondershausen",
     lat: 51.3774, lon: 10.8344, elevation: 407, dhv: 584,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fa", hoehendiff: 177, gemeinde: "99706 Sondershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Frauenberg Landeplatz Nord", landeLat: 51.3806, landeLon: 10.8344, landeHoehe: 259, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fa", hoehendiff: 177, gemeinde: "99706 Sondershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Frauenberg Landeplatz Nord", landeLat: 51.3806, landeLon: 10.8344, landeHoehe: 259, landeExtra: [{ name: "Frauenberg Landeplatz Süd", lat: 51.370219, lon: 10.839911, hoehe: 230 }], ...DEF },
 
   { id: "db_584_O", name: "Frauenberg (O)", region: "Sondershausen",
     lat: 51.3769, lon: 10.8339, elevation: 388, dhv: 584,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fa", hoehendiff: 177, gemeinde: "99706 Sondershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Frauenberg Landeplatz Nord", landeLat: 51.3806, landeLon: 10.8344, landeHoehe: 259, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fa", hoehendiff: 177, gemeinde: "99706 Sondershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Frauenberg Landeplatz Nord", landeLat: 51.3806, landeLon: 10.8344, landeHoehe: 259, landeExtra: [{ name: "Frauenberg Landeplatz Süd", lat: 51.370219, lon: 10.839911, hoehe: 230 }], ...DEF },
 
   { id: "db_648", name: "Fridingen (Bergsteig/Riesen)", region: "Fridingen",
     lat: 48.0181, lon: 8.9137, elevation: 720, dhv: 648,
@@ -614,11 +614,11 @@ const SPOT_DB = [
 
   { id: "db_308_O", name: "Fröhnd Ittenschwander Horn (O)", region: "Fröhnd",
     lat: 47.7633, lon: 7.8592, elevation: 1000, dhv: 308,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", acc: "f", hoehendiff: 500, gemeinde: "79677 Fröhnd", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Besonderheiten und Gefahren: Einige Hindernisse am Start (Lift, Lichtmast, Antennenmast, Zaun). Insbesondere beim &#64258;achen SO-Start sicherstellen, dass der darunter quer laufende Fahrweg frei ist. Kein NO-Start bei Skibetrieb. Bei Soaring auf der NO-Seite Windkraftanlage großräumig meiden. Toplandung wegen Hindernissen sehr anspruchsvoll. Zwischenlandeplatz Hof zwischen Skilift und Grillhütten ansteuern, wenn ein sicheres Über&#64258;iegen der großen Überlandleitung quer der Flugrichtung zum Hauptlandeplatz Kastel nicht mehr sicher möglich ist. Beste Zeit: 10.30 bis 11.30 Uhr", landeName: "Fröhnd Kastel Hauptlandeplatz", landeLat: 47.7637, landeLon: 7.8851, landeHoehe: 500, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", acc: "f", hoehendiff: 500, gemeinde: "79677 Fröhnd", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Besonderheiten und Gefahren: Einige Hindernisse am Start (Lift, Lichtmast, Antennenmast, Zaun). Insbesondere beim &#64258;achen SO-Start sicherstellen, dass der darunter quer laufende Fahrweg frei ist. Kein NO-Start bei Skibetrieb. Bei Soaring auf der NO-Seite Windkraftanlage großräumig meiden. Toplandung wegen Hindernissen sehr anspruchsvoll. Zwischenlandeplatz Hof zwischen Skilift und Grillhütten ansteuern, wenn ein sicheres Über&#64258;iegen der großen Überlandleitung quer der Flugrichtung zum Hauptlandeplatz Kastel nicht mehr sicher möglich ist. Beste Zeit: 10.30 bis 11.30 Uhr", landeName: "Fröhnd Kastel Hauptlandeplatz", landeLat: 47.7637, landeLon: 7.8851, landeHoehe: 500, landeExtra: [{ name: "Fröhnd Schönau Landeplatz", lat: 47.786389, lon: 7.899722, hoehe: 510 }], ...DEF },
 
   { id: "db_308_S", name: "Fröhnd Ittenschwander Horn (S)", region: "Fröhnd",
     lat: 47.7709, lon: 7.9097, elevation: 1000, dhv: 308,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 500, gemeinde: "79677 Fröhnd", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Vieh am Startplatz nicht stören. Am Südstart Vorbereitung auf dem Weg am Holzbock, Wiese nur zum Start betreten. Hanglandung beim Wanderparkplatz (unterhalb Fahrweg zwischen Parkplatz und Holzer Kreuz) notfalls möglich und bei starkem Höhenverlust nach den Start sinnvoll. Weiter unten, besonders beim Ortsteil Künaberg, viele Stromleitungen. In Richtung Schönau eine große Überlandleitung. Beste Zeit: Südstart am frühen Nachmittag, Nordweststart im Hochsommer nach 18.00 Uhr. Bei NW-Start vom Schneckenkopf auf dem Landeplatz Schönau landen.", landeName: "Fröhnd Schönau Landeplatz", landeLat: 47.7864, landeLon: 7.8997, landeHoehe: 510, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 500, gemeinde: "79677 Fröhnd", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Vieh am Startplatz nicht stören. Am Südstart Vorbereitung auf dem Weg am Holzbock, Wiese nur zum Start betreten. Hanglandung beim Wanderparkplatz (unterhalb Fahrweg zwischen Parkplatz und Holzer Kreuz) notfalls möglich und bei starkem Höhenverlust nach den Start sinnvoll. Weiter unten, besonders beim Ortsteil Künaberg, viele Stromleitungen. In Richtung Schönau eine große Überlandleitung. Beste Zeit: Südstart am frühen Nachmittag, Nordweststart im Hochsommer nach 18.00 Uhr. Bei NW-Start vom Schneckenkopf auf dem Landeplatz Schönau landen.", landeName: "Fröhnd Schönau Landeplatz", landeLat: 47.7864, landeLon: 7.8997, landeHoehe: 510, landeExtra: [{ name: "Fröhnd Kastel Hauptlandeplatz", lat: 47.763694, lon: 7.885111, hoehe: 500 }], ...DEF },
 
   { id: "db_333", name: "Froschsee", region: "Ruhpolding",
     lat: 47.7572, lon: 12.6937, elevation: 890, dhv: 333,
@@ -630,7 +630,7 @@ const SPOT_DB = [
 
   { id: "db_286", name: "Fürstenberg", region: "Hüfingen",
     lat: 47.8893, lon: 8.5627, elevation: 900, dhv: 286,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "fa", hoehendiff: 155, gemeinde: "78183 Hüfingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Fürstenberg Landeplatz Süd", landeLat: 47.8847, landeLon: 8.5604, landeHoehe: 745, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "fa", hoehendiff: 155, gemeinde: "78183 Hüfingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Fürstenberg Landeplatz Süd", landeLat: 47.8847, landeLon: 8.5604, landeHoehe: 745, landeExtra: [{ name: "Fürstenberg Landeplatz Süd Drachen", lat: 47.88244, lon: 8.563482, hoehe: 750 }], ...DEF },
 
   { id: "db_809", name: "Fürstenberg Nordost", region: "Hüfingen",
     lat: 47.8911, lon: 8.5654, elevation: 856, dhv: 809,
@@ -658,11 +658,11 @@ const SPOT_DB = [
 
   { id: "db_3461_S", name: "Gänsberg West-Startplatz (S)", region: "Ramsthal",
     lat: 50.1411, lon: 10.0567, elevation: 309, dhv: 3461,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 102, gemeinde: "97729 Ramsthal", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Gänsberg Landeplatz 1", landeLat: 50.1406, landeLon: 10.0531, landeHoehe: 245, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 102, gemeinde: "97729 Ramsthal", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Gänsberg Landeplatz 1", landeLat: 50.1406, landeLon: 10.0531, landeHoehe: 245, landeExtra: [{ name: "Gänsberg Landeplatz 2", lat: 50.139223, lon: 10.053635, hoehe: 238 }], ...DEF },
 
   { id: "db_3461_W", name: "Gänsberg West-Startplatz (W)", region: "Ramsthal",
     lat: 50.1422, lon: 10.0572, elevation: 340, dhv: 3461,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 102, gemeinde: "97729 Ramsthal", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Gänsberg Landeplatz 1", landeLat: 50.1406, landeLon: 10.0531, landeHoehe: 245, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 102, gemeinde: "97729 Ramsthal", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Gänsberg Landeplatz 1", landeLat: 50.1406, landeLon: 10.0531, landeHoehe: 245, landeExtra: [{ name: "Gänsberg Landeplatz 2", lat: 50.139223, lon: 10.053635, hoehe: 238 }], ...DEF },
 
   { id: "db_1002", name: "Geba - Seeba Süd", region: "Seeba",
     lat: 50.5782, lon: 10.2947, elevation: 535, dhv: 1002,
@@ -670,15 +670,15 @@ const SPOT_DB = [
 
   { id: "db_832", name: "Geba Südwest", region: "Helmershausen",
     lat: 50.5692, lon: 10.255, elevation: 560, dhv: 832,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "98617 Helmershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Geba Südwest Landeplatz 2", landeLat: 50.5713, landeLon: 10.2437, landeHoehe: 410, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "98617 Helmershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Geba Südwest Landeplatz 2", landeLat: 50.5713, landeLon: 10.2437, landeHoehe: 410, landeExtra: [{ name: "Geba Südwest Landeplatz 1", lat: 50.565603, lon: 10.242734, hoehe: 410 }], ...DEF },
 
   { id: "db_186", name: "Geddelsbacher Hang", region: "Geddelsbach",
     lat: 49.1518, lon: 9.4954, elevation: 397, dhv: 186,
-    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "fa", hoehendiff: 152, gemeinde: "74626 Geddelsbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Geddelsbacher Hang Landeplatz 2", landeLat: 49.1464, landeLon: 9.4928, landeHoehe: 252, ...DEF },
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "fa", hoehendiff: 152, gemeinde: "74626 Geddelsbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Geddelsbacher Hang Landeplatz 2", landeLat: 49.1464, landeLon: 9.4928, landeHoehe: 252, landeExtra: [{ name: "Geddelsbacher Hang Landeplatz 1", lat: 49.146085, lon: 9.490505, hoehe: 245 }], ...DEF },
 
   { id: "db_800", name: "Gedeonseck", region: "Boppard",
     lat: 50.2437, lon: 7.5728, elevation: 280, dhv: 800,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", diff: 2, acc: "fab", hoehendiff: 200, gemeinde: "56154 Boppard", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Klippenstartähnliches Gelände ohne Startabbruchmöglichkeit! Deshalb darf das Gelände nur von erfahrenen Piloten beflogen werden. Einweisung erforderlich. Am Rhein gibt es nur auf der anderen Seite eine Landemöglichkeit.", landeName: "Gedeonseck Landeplatz", landeLat: 50.2417, landeLon: 7.5817, landeHoehe: 80, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", diff: 2, acc: "fab", hoehendiff: 200, gemeinde: "56154 Boppard", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Klippenstartähnliches Gelände ohne Startabbruchmöglichkeit! Deshalb darf das Gelände nur von erfahrenen Piloten beflogen werden. Einweisung erforderlich. Am Rhein gibt es nur auf der anderen Seite eine Landemöglichkeit.", landeName: "Gedeonseck Landeplatz", landeLat: 50.2417, landeLon: 7.5817, landeHoehe: 80, landeExtra: [{ name: "Gedeonseck Landeplatz 2", lat: 50.237708, lon: 7.575309, hoehe: 80 }], ...DEF },
 
   { id: "db_388_SW", name: "Gehwinde (SW)", region: "Schöllang",
     lat: 47.4705, lon: 10.3024, elevation: 1460, dhv: 388,
@@ -690,11 +690,11 @@ const SPOT_DB = [
 
   { id: "db_613_N", name: "Gipfelstation Nordwest (N)", region: "Grainbach",
     lat: 47.7484, lon: 12.2504, elevation: 1520, dhv: 613,
-    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "fb", hoehendiff: 873, gemeinde: "83122 Grainbach", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "GS- Landeplatz", landeLat: 47.7713, landeLon: 12.2322, landeHoehe: 687, ...DEF },
+    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "fb", hoehendiff: 873, gemeinde: "83122 Grainbach", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "GS- Landeplatz", landeLat: 47.7713, landeLon: 12.2322, landeHoehe: 687, landeExtra: [{ name: "HG- Landeplatz", lat: 47.775142, lon: 12.228942, hoehe: 687 }], ...DEF },
 
   { id: "db_613_W", name: "Gipfelstation Nordwest (W)", region: "Grainbach",
     lat: 47.7473, lon: 12.2482, elevation: 1560, dhv: 613,
-    sectors: [[281.25, 303.75]], sectorLabel: "WNW", country: "de", acc: "fb", hoehendiff: 873, gemeinde: "83122 Grainbach", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "GS- Landeplatz", landeLat: 47.7713, landeLon: 12.2322, landeHoehe: 687, ...DEF },
+    sectors: [[281.25, 303.75]], sectorLabel: "WNW", country: "de", acc: "fb", hoehendiff: 873, gemeinde: "83122 Grainbach", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "GS- Landeplatz", landeLat: 47.7713, landeLon: 12.2322, landeHoehe: 687, landeExtra: [{ name: "HG- Landeplatz", lat: 47.775142, lon: 12.228942, hoehe: 687 }], ...DEF },
 
   { id: "db_28", name: "Glauchberg", region: "Bärenstein",
     lat: 50.7986, lon: 13.7815, elevation: 545, dhv: 28,
@@ -738,11 +738,11 @@ const SPOT_DB = [
 
   { id: "db_498_N", name: "Grün (N)", region: "Weißenbrunn",
     lat: 50.178, lon: 11.3613, elevation: 440, dhv: 498,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "fa", hoehendiff: 85, gemeinde: "96369 Weißenbrunn", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Grün Landeplatz Nordhang", landeLat: 50.1802, landeLon: 11.3599, landeHoehe: 355, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "fa", hoehendiff: 85, gemeinde: "96369 Weißenbrunn", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Grün Landeplatz Nordhang", landeLat: 50.1802, landeLon: 11.3599, landeHoehe: 355, landeExtra: [{ name: "Grün Landeplatz Weißenbrunn", lat: 50.18223, lon: 11.356473, hoehe: 370 }], ...DEF },
 
   { id: "db_498_NO", name: "Grün (NO)", region: "Weißenbrunn",
     lat: 50.1809, lon: 11.3507, elevation: 440, dhv: 498,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "de", acc: "fa", hoehendiff: 85, gemeinde: "96369 Weißenbrunn", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Grün Landeplatz Weißenbrunn", landeLat: 50.1822, landeLon: 11.3565, landeHoehe: 370, ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "de", acc: "fa", hoehendiff: 85, gemeinde: "96369 Weißenbrunn", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Grün Landeplatz Weißenbrunn", landeLat: 50.1822, landeLon: 11.3565, landeHoehe: 370, landeExtra: [{ name: "Grün Landeplatz Nordhang", lat: 50.180169, lon: 11.359906, hoehe: 355 }], ...DEF },
 
   { id: "db_400", name: "Grüner Weg", region: "Fischen",
     lat: 47.4562, lon: 10.2585, elevation: 870, dhv: 400,
@@ -778,7 +778,7 @@ const SPOT_DB = [
 
   { id: "db_966", name: "Hahnberg", region: "Bad Wildungen",
     lat: 51.1039, lon: 9.0623, elevation: 510, dhv: 966,
-    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "f", hoehendiff: 195, gemeinde: "34537 Bad Wildungen", bundesland: "Hessen", gleitschirm: "1-sitzig / Schulung", landeName: "Hahnberg Landeplatz 2", landeLat: 51.1079, landeLon: 9.0623, landeHoehe: 340, ...DEF },
+    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "f", hoehendiff: 195, gemeinde: "34537 Bad Wildungen", bundesland: "Hessen", gleitschirm: "1-sitzig / Schulung", landeName: "Hahnberg Landeplatz 2", landeLat: 51.1079, landeLon: 9.0623, landeHoehe: 340, landeExtra: [{ name: "Hahnberg Landeplatz 1", lat: 51.111794, lon: 9.066768, hoehe: 340 }], ...DEF },
 
   { id: "db_502", name: "Hainberg", region: "Stadtsteinach",
     lat: 50.1626, lon: 11.5258, elevation: 524, dhv: 502,
@@ -798,19 +798,19 @@ const SPOT_DB = [
 
   { id: "db_5473_NO", name: "Halde Menteroda NW-Start (NO)", region: "Menteroda",
     lat: 51.3231, lon: 10.5727, elevation: 460, dhv: 5473,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 60, gemeinde: "99996 Menteroda", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Halde Menteroda NW-Landeplatz", landeLat: 51.3244, landeLon: 10.5753, landeHoehe: 432, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 60, gemeinde: "99996 Menteroda", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Halde Menteroda NW-Landeplatz", landeLat: 51.3244, landeLon: 10.5753, landeHoehe: 432, landeExtra: [{ name: "Halde Menteroda SW-Landeplatz", lat: 51.318567, lon: 10.563164, hoehe: 432 }, { name: "Halde Menteroda NO-Landeplatz", lat: 51.3235, lon: 10.562667, hoehe: 429 }, { name: "Halde Menteroda SO-Landeplatz", lat: 51.317917, lon: 10.569461, hoehe: 422 }], ...DEF },
 
   { id: "db_5473_NW", name: "Halde Menteroda NW-Start (NW)", region: "Menteroda",
     lat: 51.3227, lon: 10.5644, elevation: 482, dhv: 5473,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 60, gemeinde: "99996 Menteroda", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Halde Menteroda NO-Landeplatz", landeLat: 51.3235, landeLon: 10.5627, landeHoehe: 429, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 60, gemeinde: "99996 Menteroda", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Halde Menteroda NO-Landeplatz", landeLat: 51.3235, landeLon: 10.5627, landeHoehe: 429, landeExtra: [{ name: "Halde Menteroda NW-Landeplatz", lat: 51.324444, lon: 10.575275, hoehe: 432 }, { name: "Halde Menteroda SW-Landeplatz", lat: 51.318567, lon: 10.563164, hoehe: 432 }, { name: "Halde Menteroda SO-Landeplatz", lat: 51.317917, lon: 10.569461, hoehe: 422 }], ...DEF },
 
   { id: "db_5473_SO", name: "Halde Menteroda NW-Start (SO)", region: "Menteroda",
     lat: 51.3205, lon: 10.5688, elevation: 467, dhv: 5473,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 60, gemeinde: "99996 Menteroda", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Halde Menteroda SO-Landeplatz", landeLat: 51.3179, landeLon: 10.5695, landeHoehe: 422, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 60, gemeinde: "99996 Menteroda", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Halde Menteroda SO-Landeplatz", landeLat: 51.3179, landeLon: 10.5695, landeHoehe: 422, landeExtra: [{ name: "Halde Menteroda NW-Landeplatz", lat: 51.324444, lon: 10.575275, hoehe: 432 }, { name: "Halde Menteroda SW-Landeplatz", lat: 51.318567, lon: 10.563164, hoehe: 432 }, { name: "Halde Menteroda NO-Landeplatz", lat: 51.3235, lon: 10.562667, hoehe: 429 }], ...DEF },
 
   { id: "db_5473_SW", name: "Halde Menteroda NW-Start (SW)", region: "Menteroda",
     lat: 51.3205, lon: 10.5651, elevation: 477, dhv: 5473,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 60, gemeinde: "99996 Menteroda", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Halde Menteroda SW-Landeplatz", landeLat: 51.3186, landeLon: 10.5632, landeHoehe: 432, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 60, gemeinde: "99996 Menteroda", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Halde Menteroda SW-Landeplatz", landeLat: 51.3186, landeLon: 10.5632, landeHoehe: 432, landeExtra: [{ name: "Halde Menteroda NW-Landeplatz", lat: 51.324444, lon: 10.575275, hoehe: 432 }, { name: "Halde Menteroda NO-Landeplatz", lat: 51.3235, lon: 10.562667, hoehe: 429 }, { name: "Halde Menteroda SO-Landeplatz", lat: 51.317917, lon: 10.569461, hoehe: 422 }], ...DEF },
 
   { id: "db_3682", name: "Hallgarten", region: "Hallgarten",
     lat: 50.0386, lon: 8.0329, elevation: 295, dhv: 3682,
@@ -826,7 +826,7 @@ const SPOT_DB = [
 
   { id: "db_2502", name: "Hauchenberg", region: "Weitnau",
     lat: 47.6205, lon: 10.157, elevation: 1240, dhv: 2502,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 400, gemeinde: "87480 Weitnau", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hauchenberg Landeplatz 2", landeLat: 47.6333, landeLon: 10.1555, landeHoehe: 840, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 400, gemeinde: "87480 Weitnau", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hauchenberg Landeplatz 2", landeLat: 47.6333, landeLon: 10.1555, landeHoehe: 840, landeExtra: [{ name: "Hauchenberg Landeplatz", lat: 47.63428, lon: 10.157375, hoehe: 840 }], ...DEF },
 
   { id: "db_316", name: "Hausberg", region: "Garmisch-Partenkirchen",
     lat: 47.465, lon: 11.0962, elevation: 1250, dhv: 316,
@@ -834,15 +834,15 @@ const SPOT_DB = [
 
   { id: "db_509", name: "Hausstein", region: "Lallmig",
     lat: 48.871, lon: 13.0733, elevation: 880, dhv: 509,
-    sectors: [[101.25, 123.75]], sectorLabel: "OSO", country: "de", acc: "f", hoehendiff: 350, gemeinde: "94551 Lallmig", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Hausstein Landeplatz Böhaming für GS", landeLat: 48.8611, landeLon: 13.0814, landeHoehe: 530, ...DEF },
+    sectors: [[101.25, 123.75]], sectorLabel: "OSO", country: "de", acc: "f", hoehendiff: 350, gemeinde: "94551 Lallmig", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Hausstein Landeplatz Böhaming für GS", landeLat: 48.8611, landeLon: 13.0814, landeHoehe: 530, landeExtra: [{ name: "Hausstein Landeplatz Schaufling für HG", lat: 48.843889, lon: 13.071389, hoehe: 530 }], ...DEF },
 
   { id: "db_486_O", name: "Heckenkopf - Rauschen / Faulbach (O)", region: "Hasloch",
     lat: 49.7823, lon: 9.4661, elevation: 305, dhv: 486,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 169, gemeinde: "97907 Hasloch", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Mit dem Privat-Pkw darf nur bis zur Schranke gefahren werden - dann noch ca. 400m Fußweg. Mit dem Vereinsbus kann bis zum Startplatz gefahren werden. Der Vereinsbus muss nach dem Abladen wieder vor die Absperrung gefahren werden. Tandemstarts dürfen nur durchgeführt werden, wenn die Gegenwindkomponente einen sicheren Start zulässt.", landeName: "Heckenkopf Landeplatz", landeLat: 49.7853, landeLon: 9.4747, landeHoehe: 136, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 169, gemeinde: "97907 Hasloch", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Mit dem Privat-Pkw darf nur bis zur Schranke gefahren werden - dann noch ca. 400m Fußweg. Mit dem Vereinsbus kann bis zum Startplatz gefahren werden. Der Vereinsbus muss nach dem Abladen wieder vor die Absperrung gefahren werden. Tandemstarts dürfen nur durchgeführt werden, wenn die Gegenwindkomponente einen sicheren Start zulässt.", landeName: "Heckenkopf Landeplatz", landeLat: 49.7853, landeLon: 9.4747, landeHoehe: 136, landeExtra: [{ name: "Röttberg / Rauschen Landeplatz SW", lat: 49.789625, lon: 9.494087, hoehe: 141 }], ...DEF },
 
   { id: "db_486_SW", name: "Heckenkopf - Rauschen / Faulbach (SW)", region: "Hasloch",
     lat: 49.7909, lon: 9.5064, elevation: 220, dhv: 486,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 169, gemeinde: "97907 Hasloch", bundesland: "Bayern", gleitschirm: "1-sitzig mit unbeschränktem LFS", bemerkung: "Mit dem Privat-Pkw darf nur bis zur Schranke gefahren werden - dann noch ca. 400m Fußweg. Mit dem Vereinsbus kann bis zum Startplatz gefahren werden. Der Vereinsbus muss nach dem Abladen wieder vor die Absperrung gefahren werden.", landeName: "Röttberg / Rauschen Landeplatz SW", landeLat: 49.7896, landeLon: 9.4941, landeHoehe: 141, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 169, gemeinde: "97907 Hasloch", bundesland: "Bayern", gleitschirm: "1-sitzig mit unbeschränktem LFS", bemerkung: "Mit dem Privat-Pkw darf nur bis zur Schranke gefahren werden - dann noch ca. 400m Fußweg. Mit dem Vereinsbus kann bis zum Startplatz gefahren werden. Der Vereinsbus muss nach dem Abladen wieder vor die Absperrung gefahren werden.", landeName: "Röttberg / Rauschen Landeplatz SW", landeLat: 49.7896, landeLon: 9.4941, landeHoehe: 141, landeExtra: [{ name: "Heckenkopf Landeplatz", lat: 49.785278, lon: 9.474722, hoehe: 136 }, { name: "Röttberg / Rauschen Landeplatz SO", lat: 49.785752, lon: 9.475246, hoehe: 136 }], ...DEF },
 
   { id: "db_788", name: "Heckerbugl", region: "Affecking",
     lat: 48.892, lon: 11.8934, elevation: 410, dhv: 788,
@@ -882,11 +882,11 @@ const SPOT_DB = [
 
   { id: "db_439_N", name: "Hesselberg Nordhang (N)", region: "91726 Gerolfingen",
     lat: 49.0671, lon: 10.5358, elevation: 689, dhv: 439,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "91725 91726 Gerolfingen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Hesselberg Nordhang Landeplatz", landeLat: 49.0753, landeLon: 10.5339, landeHoehe: 489, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "91725 91726 Gerolfingen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Hesselberg Nordhang Landeplatz", landeLat: 49.0753, landeLon: 10.5339, landeHoehe: 489, landeExtra: [{ name: "Hesselberg Südhang Landeplatz", lat: 49.058064, lon: 10.528808, hoehe: 489 }], ...DEF },
 
   { id: "db_439_S", name: "Hesselberg Nordhang (S)", region: "91726 Gerolfingen",
     lat: 49.0666, lon: 10.5317, elevation: 689, dhv: 439,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "91725 91726 Gerolfingen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Hesselberg Südhang Landeplatz", landeLat: 49.0581, landeLon: 10.5288, landeHoehe: 489, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "91725 91726 Gerolfingen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Hesselberg Südhang Landeplatz", landeLat: 49.0581, landeLon: 10.5288, landeHoehe: 489, landeExtra: [{ name: "Hesselberg Nordhang Landeplatz", lat: 49.0753, lon: 10.533915, hoehe: 489 }], ...DEF },
 
   { id: "db_610", name: "Heubach Übungshang", region: "Kalbach-Heubach",
     lat: 50.3829, lon: 9.6942, elevation: 590, dhv: 610,
@@ -902,7 +902,7 @@ const SPOT_DB = [
 
   { id: "db_581", name: "Heue / Bergalingen", region: "Rickenbach",
     lat: 47.6196, lon: 7.9391, elevation: 850, dhv: 581,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 450, gemeinde: "79736 Rickenbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Heue / Bergalingen Toplandeplatz", landeLat: 47.6206, landeLon: 7.9422, landeHoehe: 865, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 450, gemeinde: "79736 Rickenbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Heue / Bergalingen Toplandeplatz", landeLat: 47.6206, landeLon: 7.9422, landeHoehe: 865, landeExtra: [{ name: "Heue / Bergalingen Ausweich-Landeplatz", lat: 47.619917, lon: 7.912361, hoehe: 420 }, { name: "Landeplatz am Meierhof in Wehr", lat: 47.628889, lon: 7.913333, hoehe: 420 }, { name: "Heue / Bergalingen Landeplatz", lat: 47.644444, lon: 7.906667, hoehe: 400 }], ...DEF },
 
   { id: "db_5590", name: "HG-Übungsgelände Auf Hostert", region: "Betteldorf",
     lat: 50.2456, lon: 6.745, elevation: 557, dhv: 5590,
@@ -910,7 +910,7 @@ const SPOT_DB = [
 
   { id: "db_702", name: "Hintereck", region: "Gütenbach",
     lat: 48.0492, lon: 8.1244, elevation: 990, dhv: 702,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fa", hoehendiff: 550, gemeinde: "78148 Gütenbach", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Aufgrund des Vogelschutzes kein Flugbetrieb vor dem 1.7. eines jeden Jahres.", landeName: "Hintereck Landeplatz Kraftwerk", landeLat: 48.0508, landeLon: 8.1047, landeHoehe: 480, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fa", hoehendiff: 550, gemeinde: "78148 Gütenbach", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Aufgrund des Vogelschutzes kein Flugbetrieb vor dem 1.7. eines jeden Jahres.", landeName: "Hintereck Landeplatz Kraftwerk", landeLat: 48.0508, landeLon: 8.1047, landeHoehe: 480, landeExtra: [{ name: "Hintereck Landeplatz Stratz", lat: 48.063056, lon: 8.100278, hoehe: 440 }], ...DEF },
 
   { id: "db_366", name: "Hinterholzhausen", region: "Langenpreising",
     lat: 48.4191, lon: 12.0085, elevation: 506, dhv: 366,
@@ -922,15 +922,15 @@ const SPOT_DB = [
 
   { id: "db_301_N", name: "Hochblauen Nord (N)", region: "Badenweiler",
     lat: 47.7785, lon: 7.7, elevation: 1166, dhv: 301,
-    sectors: [[348.75, 33.75]], sectorLabel: "N-NNO", country: "de", diff: 2, acc: "fa", hoehendiff: 718, gemeinde: "79410 Badenweiler", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hochblauen Landeplatz Marzell (Behelfslandeplatz)", landeLat: 47.7696, landeLon: 7.7240, landeHoehe: 694, ...DEF },
+    sectors: [[348.75, 33.75]], sectorLabel: "N-NNO", country: "de", diff: 2, acc: "fa", hoehendiff: 718, gemeinde: "79410 Badenweiler", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hochblauen Landeplatz Marzell (Behelfslandeplatz)", landeLat: 47.7696, landeLon: 7.7240, landeHoehe: 694, landeExtra: [{ name: "Hochblauen Landeplatz Lipberg", lat: 47.790244, lon: 7.657878, hoehe: 448 }], ...DEF },
 
   { id: "db_301_O", name: "Hochblauen Nord (O)", region: "Badenweiler",
     lat: 47.7767, lon: 7.7, elevation: 1153, dhv: 301,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 2, acc: "fa", hoehendiff: 718, gemeinde: "79410 Badenweiler", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hochblauen Landeplatz Marzell (Behelfslandeplatz)", landeLat: 47.7696, landeLon: 7.7240, landeHoehe: 694, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 2, acc: "fa", hoehendiff: 718, gemeinde: "79410 Badenweiler", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hochblauen Landeplatz Marzell (Behelfslandeplatz)", landeLat: 47.7696, landeLon: 7.7240, landeHoehe: 694, landeExtra: [{ name: "Hochblauen Landeplatz Lipberg", lat: 47.790244, lon: 7.657878, hoehe: 448 }], ...DEF },
 
   { id: "db_301_S", name: "Hochblauen Nord (S)", region: "Badenweiler",
     lat: 47.7766, lon: 7.7, elevation: 1152, dhv: 301,
-    sectors: [[191.25, 213.75]], sectorLabel: "SSW", country: "de", diff: 2, acc: "fa", hoehendiff: 718, gemeinde: "79410 Badenweiler", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hochblauen Landeplatz Marzell (Behelfslandeplatz)", landeLat: 47.7696, landeLon: 7.7240, landeHoehe: 694, ...DEF },
+    sectors: [[191.25, 213.75]], sectorLabel: "SSW", country: "de", diff: 2, acc: "fa", hoehendiff: 718, gemeinde: "79410 Badenweiler", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hochblauen Landeplatz Marzell (Behelfslandeplatz)", landeLat: 47.7696, landeLon: 7.7240, landeHoehe: 694, landeExtra: [{ name: "Hochblauen Landeplatz Lipberg", lat: 47.790244, lon: 7.657878, hoehe: 448 }], ...DEF },
 
   { id: "db_346_N", name: "Hochfelln Nordstart (N)", region: "Bergen",
     lat: 47.7628, lon: 12.5602, elevation: 1665, dhv: 346,
@@ -946,7 +946,7 @@ const SPOT_DB = [
 
   { id: "db_310", name: "Hochfirst", region: "Titisee-Neustadt",
     lat: 47.9014, lon: 8.1835, elevation: 1185, dhv: 310,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 365, gemeinde: "79822 Titisee-Neustadt", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schneise", landeName: "Hochfirst Landeplatz 1 (Titisee)", landeLat: 47.8986, landeLon: 8.1579, landeHoehe: 820, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 365, gemeinde: "79822 Titisee-Neustadt", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schneise", landeName: "Hochfirst Landeplatz 1 (Titisee)", landeLat: 47.8986, landeLon: 8.1579, landeHoehe: 820, landeExtra: [{ name: "Hochfirst Landeplatz 2 (Sonnenmatte)", lat: 47.918962, lon: 8.177433, hoehe: 820 }, { name: "Hochfirst Landeplatz 3 (OKAL)", lat: 47.920361, lon: 8.184583, hoehe: 820 }], ...DEF },
 
   { id: "db_382", name: "Hochgrat", region: "Oberstaufen",
     lat: 47.4942, lon: 10.0729, elevation: 1820, dhv: 382,
@@ -954,7 +954,7 @@ const SPOT_DB = [
 
   { id: "db_347", name: "Hochplatte", region: "Marquartstein",
     lat: 47.7674, lon: 12.421, elevation: 1020, dhv: 347,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "fb", hoehendiff: 495, gemeinde: "83250 Marquartstein", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startrampe unterhalb der Bergstation. Langer Flugweg zum Landeplatz. Wiesenstart vor der Rampe für GS (nur für geübte Starter).", landeName: "Hochplatte Landeplatz (Piesenhausen)", landeLat: 47.7652, landeLon: 12.4468, landeHoehe: 525, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "fb", hoehendiff: 495, gemeinde: "83250 Marquartstein", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startrampe unterhalb der Bergstation. Langer Flugweg zum Landeplatz. Wiesenstart vor der Rampe für GS (nur für geübte Starter).", landeName: "Hochplatte Landeplatz (Piesenhausen)", landeLat: 47.7652, landeLon: 12.4468, landeHoehe: 525, landeExtra: [{ name: "Hochplatte Landeplatz (Wessner Hof)", lat: 47.767639, lon: 12.456361, hoehe: 525 }], ...DEF },
 
   { id: "db_1939", name: "Hochzellberg", region: "Bodenmais",
     lat: 49.0755, lon: 13.1302, elevation: 1140, dhv: 1939,
@@ -998,11 +998,11 @@ const SPOT_DB = [
 
   { id: "db_1091", name: "Hohenneuffen - Nord", region: "Neuffen",
     lat: 48.5567, lon: 9.4047, elevation: 725, dhv: 1091,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", diff: 1, acc: "f", hoehendiff: 255, gemeinde: "72622 Neuffen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Starts und Landungen dürfen nur auf denjenigen Flächen erfolgen, die in den im Informationskasten am Startplatz ausgehängten Karten eingezeichnet sind. Es darf nur bei nördlichen Winden gestartet werden. Bei abweichenden Windrichtungen gibt es möglicherweise eine Lee-Situation oder Verwirbelungen in der Startschneise. Für Toplandungen benötigen die Piloten eine zusätzliche Einweisung.", landeName: "Hohenneuffen - Nord Toplandeplatz", landeLat: 48.5559, landeLon: 9.4062, landeHoehe: 725, livewetter: "https://www.ecowitt.net/home/share?authorize=87QAF0", webcam: "https://www.dc-hohenneuffen.de/webcams/", ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", diff: 1, acc: "f", hoehendiff: 255, gemeinde: "72622 Neuffen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Starts und Landungen dürfen nur auf denjenigen Flächen erfolgen, die in den im Informationskasten am Startplatz ausgehängten Karten eingezeichnet sind. Es darf nur bei nördlichen Winden gestartet werden. Bei abweichenden Windrichtungen gibt es möglicherweise eine Lee-Situation oder Verwirbelungen in der Startschneise. Für Toplandungen benötigen die Piloten eine zusätzliche Einweisung.", landeName: "Hohenneuffen - Nord Toplandeplatz", landeLat: 48.5559, landeLon: 9.4062, landeHoehe: 725, landeExtra: [{ name: "Hohenneuffen-Nord Skilift-Landeplatz", lat: 48.560704, lon: 9.40537, hoehe: 510 }, { name: "Hohenneuffen - Nord Haupt-Landeplatz", lat: 48.561855, lon: 9.40022, hoehe: 470 }, { name: "Hohenneuffen - Nord Landeplatz Beuren Feuerwehrhaus", lat: 48.56646, lon: 9.393509, hoehe: 470 }], livewetter: "https://www.ecowitt.net/home/share?authorize=87QAF0", webcam: "https://www.dc-hohenneuffen.de/webcams/", ...DEF },
 
   { id: "db_679", name: "Hohenneuffen West", region: "Neuffen",
     lat: 48.5495, lon: 9.4045, elevation: 712, dhv: 679,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "f", hoehendiff: 232, gemeinde: "72639 Neuffen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hohenneuffen West (Top-)Landeplatz Erkenbrechtsweiler", landeLat: 48.5543, landeLon: 9.4043, landeHoehe: 480, webcam: "https://www.dc-hohenneuffen.de/webcams/", ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "f", hoehendiff: 232, gemeinde: "72639 Neuffen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hohenneuffen West (Top-)Landeplatz Erkenbrechtsweiler", landeLat: 48.5543, landeLon: 9.4043, landeHoehe: 480, landeExtra: [{ name: "Hohenneuffen West Landeplatz Dürrer Bach (Hauptlandeplatz)", lat: 48.547778, lon: 9.389444, hoehe: 480 }], webcam: "https://www.dc-hohenneuffen.de/webcams/", ...DEF },
 
   { id: "db_2467", name: "Hohenöllen", region: "Hohenöllen",
     lat: 49.6247, lon: 7.6214, elevation: 290, dhv: 2467,
@@ -1046,19 +1046,19 @@ const SPOT_DB = [
 
   { id: "db_5710", name: "Hömberg", region: "Meschede",
     lat: 51.3179, lon: 8.2101, elevation: 514, dhv: 5710,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 170, gemeinde: "59872 Meschede", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig", landeName: "Hömberg Landeplatz 2", landeLat: 51.3231, landeLon: 8.2057, landeHoehe: 344, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 170, gemeinde: "59872 Meschede", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig", landeName: "Hömberg Landeplatz 2", landeLat: 51.3231, landeLon: 8.2057, landeHoehe: 344, landeExtra: [{ name: "Hömberg Landeplatz 1", lat: 51.323944, lon: 8.209417, hoehe: 384 }], ...DEF },
 
   { id: "db_5794_NW", name: "Homberg (NW)", region: "Bad Berleburg",
     lat: 51.0211, lon: 8.4886, elevation: 550, dhv: 5794,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 200, gemeinde: "57319 Bad Berleburg, ST Schwarzenau", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "B-Lizenz und Einweisung durch den Verein erforderlich. Enge Abflugschneise.", landeName: "Homberg Landeplatz 2, Auf dem Helm", landeLat: 51.0175, landeLon: 8.4953, landeHoehe: 466, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 200, gemeinde: "57319 Bad Berleburg, ST Schwarzenau", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "B-Lizenz und Einweisung durch den Verein erforderlich. Enge Abflugschneise.", landeName: "Homberg Landeplatz 2, Auf dem Helm", landeLat: 51.0175, landeLon: 8.4953, landeHoehe: 466, landeExtra: [{ name: "Homberg Landeplatz Ederaue (Hauptlandeplatz)", lat: 51.017534, lon: 8.47814, hoehe: 361 }], ...DEF },
 
   { id: "db_5794_S", name: "Homberg (S)", region: "Bad Berleburg",
     lat: 51.0204, lon: 8.4873, elevation: 550, dhv: 5794,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 200, gemeinde: "57319 Bad Berleburg, ST Schwarzenau", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit Einweisung", landeName: "Homberg Landeplatz 2, Auf dem Helm", landeLat: 51.0175, landeLon: 8.4953, landeHoehe: 466, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 200, gemeinde: "57319 Bad Berleburg, ST Schwarzenau", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit Einweisung", landeName: "Homberg Landeplatz 2, Auf dem Helm", landeLat: 51.0175, landeLon: 8.4953, landeHoehe: 466, landeExtra: [{ name: "Homberg Landeplatz Ederaue (Hauptlandeplatz)", lat: 51.017534, lon: 8.47814, hoehe: 361 }], ...DEF },
 
   { id: "db_5794_SO", name: "Homberg (SO)", region: "Bad Berleburg",
     lat: 51.0213, lon: 8.4893, elevation: 561, dhv: 5794,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 200, gemeinde: "57319 Bad Berleburg, ST Schwarzenau", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Zulassung gilt auch für Tandemflüge.", landeName: "Homberg Landeplatz 2, Auf dem Helm", landeLat: 51.0175, landeLon: 8.4953, landeHoehe: 466, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 200, gemeinde: "57319 Bad Berleburg, ST Schwarzenau", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Zulassung gilt auch für Tandemflüge.", landeName: "Homberg Landeplatz 2, Auf dem Helm", landeLat: 51.0175, landeLon: 8.4953, landeHoehe: 466, landeExtra: [{ name: "Homberg Landeplatz Ederaue (Hauptlandeplatz)", lat: 51.017534, lon: 8.47814, hoehe: 361 }], ...DEF },
 
   { id: "db_127", name: "Homberg-Züschen", region: "Winterberg",
     lat: 51.1346, lon: 8.5412, elevation: 710, dhv: 127,
@@ -1082,7 +1082,7 @@ const SPOT_DB = [
 
   { id: "db_1042", name: "Hörnle", region: "Bad Kohlgrub",
     lat: 47.6451, lon: 11.0539, elevation: 1450, dhv: 1042,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 520, gemeinde: "82433 Bad Kohlgrub", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Keine Starts am Gipfelkreuz erlaubt! Keine Starts in Richtung Sessellift erlaubt! Mindestabstand beachten! Keine Starts bei stärkerem West- oder Ostwind! Schneisenstart – d.h. Turbulenzen bei seitlichen Windrichtungen! Bei Weidebetrieb darf nur innerhalb des abgezäunten Bereichs (Weidezaun) gestartet werden und es dürfen sich keine Kühe im Start- und Abflugbereich befinden!", landeName: "Hörnle Landeplatz Sonnen", landeLat: 47.6581, landeLon: 11.0459, landeHoehe: 1000, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 520, gemeinde: "82433 Bad Kohlgrub", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Keine Starts am Gipfelkreuz erlaubt! Keine Starts in Richtung Sessellift erlaubt! Mindestabstand beachten! Keine Starts bei stärkerem West- oder Ostwind! Schneisenstart – d.h. Turbulenzen bei seitlichen Windrichtungen! Bei Weidebetrieb darf nur innerhalb des abgezäunten Bereichs (Weidezaun) gestartet werden und es dürfen sich keine Kühe im Start- und Abflugbereich befinden!", landeName: "Hörnle Landeplatz Sonnen", landeLat: 47.6581, landeLon: 11.0459, landeHoehe: 1000, landeExtra: [{ name: "Hörnle Landeplatz Kurhaus", lat: 47.662959, lon: 11.042761, hoehe: 930 }], ...DEF },
 
   { id: "db_5478", name: "Hörnle", region: "Brackenheim",
     lat: 49.1007, lon: 9.0724, elevation: 319, dhv: 5478,
@@ -1114,7 +1114,7 @@ const SPOT_DB = [
 
   { id: "db_4584", name: "Hündle", region: "Oberstaufen",
     lat: 47.5446, lon: 10.0528, elevation: 1035, dhv: 4584,
-    sectors: [[281.25, 348.75]], sectorLabel: "WNW-NNW", country: "de", acc: "fab", hoehendiff: 305, gemeinde: "87534 Oberstaufen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hündle Landeplatz 1", landeLat: 47.5521, landeLon: 10.0533, landeHoehe: 730, ...DEF },
+    sectors: [[281.25, 348.75]], sectorLabel: "WNW-NNW", country: "de", acc: "fab", hoehendiff: 305, gemeinde: "87534 Oberstaufen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hündle Landeplatz 1", landeLat: 47.5521, landeLon: 10.0533, landeHoehe: 730, landeExtra: [{ name: "Hündle Landeplatz 2", lat: 47.552953, lon: 10.054242, hoehe: 730 }], ...DEF },
 
   { id: "db_1083", name: "Hundsbach", region: "Hundsbach",
     lat: 50.0188, lon: 9.8714, elevation: 282, dhv: 1083,
@@ -1138,7 +1138,7 @@ const SPOT_DB = [
 
   { id: "db_265", name: "Imberger Horn", region: "Hindelang",
     lat: 47.4891, lon: 10.3634, elevation: 1350, dhv: 265,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 550, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Imberger Horn Landeplatz 2", landeLat: 47.5002, landeLon: 10.3676, landeHoehe: 800, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 550, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Imberger Horn Landeplatz 2", landeLat: 47.5002, landeLon: 10.3676, landeHoehe: 800, landeExtra: [{ name: "Imberger Horn Landeplatz 1", lat: 47.501127, lon: 10.364045, hoehe: 800 }], ...DEF },
 
   { id: "db_176", name: "Ipf", region: "Bopfingen",
     lat: 48.8705, lon: 10.3571, elevation: 688, dhv: 176,
@@ -1158,7 +1158,7 @@ const SPOT_DB = [
 
   { id: "db_574", name: "Jägerberg", region: "Jena",
     lat: 50.9698, lon: 11.6197, elevation: 298, dhv: 574,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 161, gemeinde: "07743 Jena", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Jägerberg Landeplatz 2 für GS", landeLat: 50.9672, landeLon: 11.6203, landeHoehe: 140, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 161, gemeinde: "07743 Jena", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Jägerberg Landeplatz 2 für GS", landeLat: 50.9672, landeLon: 11.6203, landeHoehe: 140, landeExtra: [{ name: "Jägerberg Hauptlandeplatz GS/HG", lat: 50.966819, lon: 11.629028, hoehe: 137 }], ...DEF },
 
   { id: "db_690", name: "Jägerkamp/Nagelspitz", region: "Schliersee",
     lat: 47.6792, lon: 11.904, elevation: 1490, dhv: 690,
@@ -1166,27 +1166,27 @@ const SPOT_DB = [
 
   { id: "db_521_N", name: "Jenner (N)", region: "Schönau am Königssee",
     lat: 47.5766, lon: 13.0247, elevation: 1790, dhv: 521,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 1170, gemeinde: "83471 Schönau am Königssee", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Die Startfläche ist durch die Baustraße sehr geschrumpft. Es können max. 2 Schirme ausgelegt werden (Stand Sept. 2019)", landeName: "Jenner Hauptlandeplatz GS - Brandnerfeld", landeLat: 47.5920, landeLon: 12.9966, landeHoehe: 635, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 1170, gemeinde: "83471 Schönau am Königssee", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Die Startfläche ist durch die Baustraße sehr geschrumpft. Es können max. 2 Schirme ausgelegt werden (Stand Sept. 2019)", landeName: "Jenner Hauptlandeplatz GS - Brandnerfeld", landeLat: 47.5920, landeLon: 12.9966, landeHoehe: 635, landeExtra: [{ name: "Jenner Bodnerfeld - Drachenlandeplatz", lat: 47.609369, lon: 12.975742, hoehe: 620 }], ...DEF },
 
   { id: "db_521_O", name: "Jenner (O)", region: "Schönau am Königssee",
     lat: 47.5798, lon: 13.0252, elevation: 1695, dhv: 521,
-    sectors: [[78.75, 146.25], [78.75, 101.25]], sectorLabel: "O-SO · O", country: "de", acc: "fb", hoehendiff: 1170, gemeinde: "83471 Schönau am Königssee", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Die Startfläche ist durch die Baustraße sehr geschrumpft. Es können max. 2 Schirme ausgelegt werden (Stand Sept. 2019)", landeName: "Jenner Hauptlandeplatz GS - Brandnerfeld", landeLat: 47.5920, landeLon: 12.9966, landeHoehe: 635, ...DEF },
+    sectors: [[78.75, 146.25], [78.75, 101.25]], sectorLabel: "O-SO · O", country: "de", acc: "fb", hoehendiff: 1170, gemeinde: "83471 Schönau am Königssee", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Die Startfläche ist durch die Baustraße sehr geschrumpft. Es können max. 2 Schirme ausgelegt werden (Stand Sept. 2019)", landeName: "Jenner Hauptlandeplatz GS - Brandnerfeld", landeLat: 47.5920, landeLon: 12.9966, landeHoehe: 635, landeExtra: [{ name: "Jenner Bodnerfeld - Drachenlandeplatz", lat: 47.609369, lon: 12.975742, hoehe: 620 }], ...DEF },
 
   { id: "db_521_W", name: "Jenner (W)", region: "Schönau am Königssee",
     lat: 47.5765, lon: 13.0345, elevation: 1770, dhv: 521,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fb", hoehendiff: 1170, gemeinde: "83471 Schönau am Königssee", bundesland: "Bayern", gleitschirm: "2-sitzig, Schulung 1-sitzig", landeName: "Jenner Hauptlandeplatz GS - Brandnerfeld", landeLat: 47.5920, landeLon: 12.9966, landeHoehe: 635, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fb", hoehendiff: 1170, gemeinde: "83471 Schönau am Königssee", bundesland: "Bayern", gleitschirm: "2-sitzig, Schulung 1-sitzig", landeName: "Jenner Hauptlandeplatz GS - Brandnerfeld", landeLat: 47.5920, landeLon: 12.9966, landeHoehe: 635, landeExtra: [{ name: "Jenner Bodnerfeld - Drachenlandeplatz", lat: 47.609369, lon: 12.975742, hoehe: 620 }], ...DEF },
 
   { id: "db_657_NW", name: "Jenzig (NW)", region: "Jena",
     lat: 50.9401, lon: 11.6243, elevation: 385, dhv: 657,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 180, gemeinde: "07703 Jena", bundesland: "Thüringen", gleitschirm: "1-sitzig mit unbeschränktem LFS", landeName: "Jenzig Landeplatz Nordwest", landeLat: 50.9464, landeLon: 11.6257, landeHoehe: 205, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 180, gemeinde: "07703 Jena", bundesland: "Thüringen", gleitschirm: "1-sitzig mit unbeschränktem LFS", landeName: "Jenzig Landeplatz Nordwest", landeLat: 50.9464, landeLon: 11.6257, landeHoehe: 205, landeExtra: [{ name: "Jenzig Landeplatz Süd", lat: 50.933673, lon: 11.638684, hoehe: 205 }, { name: "Jenzig Landeplatz Süd für HG", lat: 50.931522, lon: 11.636152, hoehe: 205 }], ...DEF },
 
   { id: "db_657_S", name: "Jenzig (S)", region: "Jena",
     lat: 50.9388, lon: 11.6331, elevation: 385, dhv: 657,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 180, gemeinde: "07703 Jena", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Jenzig Landeplatz Süd", landeLat: 50.9337, landeLon: 11.6387, landeHoehe: 205, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 180, gemeinde: "07703 Jena", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Jenzig Landeplatz Süd", landeLat: 50.9337, landeLon: 11.6387, landeHoehe: 205, landeExtra: [{ name: "Jenzig Landeplatz Nordwest", lat: 50.94645, lon: 11.625724, hoehe: 205 }, { name: "Jenzig Landeplatz Süd für HG", lat: 50.931522, lon: 11.636152, hoehe: 205 }], ...DEF },
 
   { id: "db_1130", name: "Kahle Pön", region: "Referinghausen",
     lat: 51.2618, lon: 8.6721, elevation: 740, dhv: 1130,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", diff: 1, acc: "fa", hoehendiff: 265, gemeinde: "59964 Referinghausen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit unbeschränktem LFS", landeName: "Kahle Pön Landeplatz für GS", landeLat: 51.2567, landeLon: 8.6813, landeHoehe: 570, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", diff: 1, acc: "fa", hoehendiff: 265, gemeinde: "59964 Referinghausen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit unbeschränktem LFS", landeName: "Kahle Pön Landeplatz für GS", landeLat: 51.2567, landeLon: 8.6813, landeHoehe: 570, landeExtra: [{ name: "Kahle Pön Landeplatz für HG", lat: 51.253159, lon: 8.689542, hoehe: 475 }], ...DEF },
 
   { id: "db_344", name: "Kampenwand", region: "Aschau",
     lat: 47.7533, lon: 12.3528, elevation: 1450, dhv: 344,
@@ -1274,11 +1274,11 @@ const SPOT_DB = [
 
   { id: "db_5792_N", name: "Kötzhelle (N)", region: "Meinerzhagen",
     lat: 51.1081, lon: 7.7949, elevation: 405, dhv: 5792,
-    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "f", hoehendiff: 56, gemeinde: "58540 Meinerzhagen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig", landeName: "Kötzhelle Landeplatz Haumchermühle (1)", landeLat: 51.1100, landeLon: 7.7947, landeHoehe: 349, ...DEF },
+    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "f", hoehendiff: 56, gemeinde: "58540 Meinerzhagen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig", landeName: "Kötzhelle Landeplatz Haumchermühle (1)", landeLat: 51.1100, landeLon: 7.7947, landeHoehe: 349, landeExtra: [{ name: "Kötzhelle Landeplatz Am Olleshahn (2)", lat: 51.111353, lon: 7.801566, hoehe: 366 }], ...DEF },
 
   { id: "db_5792_NW", name: "Kötzhelle (NW)", region: "Meinerzhagen",
     lat: 51.1082, lon: 7.7972, elevation: 400, dhv: 5792,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 56, gemeinde: "58540 Meinerzhagen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig", landeName: "Kötzhelle Landeplatz Haumchermühle (1)", landeLat: 51.1100, landeLon: 7.7947, landeHoehe: 349, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 56, gemeinde: "58540 Meinerzhagen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig", landeName: "Kötzhelle Landeplatz Haumchermühle (1)", landeLat: 51.1100, landeLon: 7.7947, landeHoehe: 349, landeExtra: [{ name: "Kötzhelle Landeplatz Am Olleshahn (2)", lat: 51.111353, lon: 7.801566, hoehe: 366 }], ...DEF },
 
   { id: "db_1125", name: "Krautheim", region: "Krautheim",
     lat: 49.3952, lon: 9.6492, elevation: 310, dhv: 1125,
@@ -1302,7 +1302,7 @@ const SPOT_DB = [
 
   { id: "db_5749", name: "Kuhhelle", region: "Lennestadt-Meggen",
     lat: 51.1272, lon: 8.0919, elevation: 580, dhv: 5749,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 210, gemeinde: "57368 Lennestadt-Meggen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Kuhhelle Halberbracht (LP 2)", landeLat: 51.1333, landeLon: 8.0883, landeHoehe: 470, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 210, gemeinde: "57368 Lennestadt-Meggen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Kuhhelle Halberbracht (LP 2)", landeLat: 51.1333, landeLon: 8.0883, landeHoehe: 470, landeExtra: [{ name: "Kuhhelle Zigarrenplatz (LP 1)", lat: 51.131798, lon: 8.078643, hoehe: 370 }], ...DEF },
 
   { id: "db_795", name: "Küppchen - Lasserg", region: "Münstermaifeld-Lasserg",
     lat: 50.2168, lon: 7.3845, elevation: 260, dhv: 795,
@@ -1314,7 +1314,7 @@ const SPOT_DB = [
 
   { id: "db_616", name: "Laber", region: "Oberammergau",
     lat: 47.5863, lon: 11.1036, elevation: 1682, dhv: 616,
-    sectors: [[348.75, 11.25], [168.75, 191.25]], sectorLabel: "N · S", country: "de", diff: 1, acc: "fb", hoehendiff: 802, gemeinde: "82487 Oberammergau", bundesland: "Bayern", gleitschirm: "2-sitzig, Schulung 1-sitzig", landeName: "Laber Landeplatz 3", landeLat: 47.6003, landeLon: 11.0782, landeHoehe: 880, ...DEF },
+    sectors: [[348.75, 11.25], [168.75, 191.25]], sectorLabel: "N · S", country: "de", diff: 1, acc: "fb", hoehendiff: 802, gemeinde: "82487 Oberammergau", bundesland: "Bayern", gleitschirm: "2-sitzig, Schulung 1-sitzig", landeName: "Laber Landeplatz 3", landeLat: 47.6003, landeLon: 11.0782, landeHoehe: 880, landeExtra: [{ name: "Laber Landeplatz Drachen", lat: 47.606102, lon: 11.071829, hoehe: 880 }], ...DEF },
 
   { id: "db_98", name: "Langer Berg", region: "Odernheim",
     lat: 49.7638, lon: 7.7137, elevation: 309, dhv: 98,
@@ -1326,7 +1326,7 @@ const SPOT_DB = [
 
   { id: "db_281", name: "Lauf", region: "Lauf",
     lat: 48.6251, lon: 8.1626, elevation: 790, dhv: 281,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 496, gemeinde: "77886 Lauf", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Lauf Sodkopf Landeplatz GS", landeLat: 48.6381, landeLon: 8.1464, landeHoehe: 294, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 496, gemeinde: "77886 Lauf", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Lauf Sodkopf Landeplatz GS", landeLat: 48.6381, landeLon: 8.1464, landeHoehe: 294, landeExtra: [{ name: "In der Au Landeplatz", lat: 48.642203, lon: 8.145504, hoehe: 304 }], ...DEF },
 
   { id: "db_920", name: "Lautersheim", region: "Göllheim",
     lat: 49.584, lon: 8.1069, elevation: 330, dhv: 920,
@@ -1346,7 +1346,7 @@ const SPOT_DB = [
 
   { id: "db_5767", name: "Lindewerrablick", region: "Lindewerra",
     lat: 51.3261, lon: 9.9475, elevation: 238, dhv: 5767,
-    sectors: [[146.25, 191.25]], sectorLabel: "SSO-S", country: "de", acc: "f", hoehendiff: 124, gemeinde: "37318 Lindewerra", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Lindewerrablick Landeplatz 2, Oberrieden", landeLat: 51.3206, landeLon: 9.9451, landeHoehe: 143, ...DEF },
+    sectors: [[146.25, 191.25]], sectorLabel: "SSO-S", country: "de", acc: "f", hoehendiff: 124, gemeinde: "37318 Lindewerra", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Lindewerrablick Landeplatz 2, Oberrieden", landeLat: 51.3206, landeLon: 9.9451, landeHoehe: 143, landeExtra: [{ name: "Lindewerrablick Landeplatz 3, Nord", lat: 51.312778, lon: 9.944444, hoehe: 143 }, { name: "Lindewerrablick Landeplatz 1, Sportplatz", lat: 51.3125, lon: 9.944444, hoehe: 114 }], ...DEF },
 
   { id: "db_765", name: "Lisberg", region: "Lisberg",
     lat: 49.885, lon: 10.7355, elevation: 325, dhv: 765,
@@ -1370,11 +1370,11 @@ const SPOT_DB = [
 
   { id: "db_85_S", name: "Maring-Noviand (S)", region: "Maring-Noviand",
     lat: 49.9459, lon: 7.0036, elevation: 275, dhv: 85,
-    sectors: [[146.25, 236.25]], sectorLabel: "SSO-SW", country: "de", acc: "f", hoehendiff: 155, gemeinde: "54484 Maring-Noviand", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Maring-Noviand Landeplatz Südwest", landeLat: 49.9412, landeLon: 7.0027, landeHoehe: 142, ...DEF },
+    sectors: [[146.25, 236.25]], sectorLabel: "SSO-SW", country: "de", acc: "f", hoehendiff: 155, gemeinde: "54484 Maring-Noviand", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Maring-Noviand Landeplatz Südwest", landeLat: 49.9412, landeLon: 7.0027, landeHoehe: 142, landeExtra: [{ name: "Maring-Noviand Landeplatz Südost", lat: 49.938056, lon: 6.9935, hoehe: 135 }], ...DEF },
 
   { id: "db_85_SO", name: "Maring-Noviand (SO)", region: "Maring-Noviand",
     lat: 49.9439, lon: 6.9903, elevation: 290, dhv: 85,
-    sectors: [[146.25, 168.75]], sectorLabel: "SSO", country: "de", acc: "f", hoehendiff: 155, gemeinde: "54484 Maring-Noviand", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Maring-Noviand Landeplatz Südost", landeLat: 49.9381, landeLon: 6.9935, landeHoehe: 135, ...DEF },
+    sectors: [[146.25, 168.75]], sectorLabel: "SSO", country: "de", acc: "f", hoehendiff: 155, gemeinde: "54484 Maring-Noviand", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Maring-Noviand Landeplatz Südost", landeLat: 49.9381, landeLon: 6.9935, landeHoehe: 135, landeExtra: [{ name: "Maring-Noviand Landeplatz Südwest", lat: 49.94125, lon: 7.002668, hoehe: 142 }], ...DEF },
 
   { id: "db_5728", name: "Marktschellenberg", region: "Marktschellenberg",
     lat: 47.6733, lon: 13.0331, elevation: 560, dhv: 5728,
@@ -1382,7 +1382,7 @@ const SPOT_DB = [
 
   { id: "db_2398", name: "Martinsthal", region: "Eltville",
     lat: 50.0544, lon: 8.1348, elevation: 249, dhv: 2398,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 94, gemeinde: "65344 Eltville", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig", landeName: "Martinsthal Landeplatz 3", landeLat: 50.0518, landeLon: 8.1339, landeHoehe: 155, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 94, gemeinde: "65344 Eltville", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig", landeName: "Martinsthal Landeplatz 3", landeLat: 50.0518, landeLon: 8.1339, landeHoehe: 155, landeExtra: [{ name: "Martinsthal Landeplatz 1", lat: 50.052267, lon: 8.131847, hoehe: 155 }, { name: "Martinsthal Landeplatz 2", lat: 50.051281, lon: 8.132206, hoehe: 155 }], ...DEF },
 
   { id: "db_658", name: "Mäusberg", region: "Karlburg",
     lat: 49.9906, lon: 9.7217, elevation: 300, dhv: 658,
@@ -1418,11 +1418,11 @@ const SPOT_DB = [
 
   { id: "db_987_NO", name: "Merkur (NO)", region: "Gernsbach",
     lat: 48.7647, lon: 8.2816, elevation: 653, dhv: 987,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", diff: 1, acc: "fb", hoehendiff: 413, gemeinde: "76593 Gernsbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Erreichbar mit Standseilbahn von Baden-Baden aus. Startplatz ist recht steil. Platz zum Auslegen von max. 2 Schirmen.", landeName: "Merkur Landeplatz Neuhaus/Staufenberg", landeLat: 48.7669, landeLon: 8.2953, landeHoehe: 360, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", diff: 1, acc: "fb", hoehendiff: 413, gemeinde: "76593 Gernsbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Erreichbar mit Standseilbahn von Baden-Baden aus. Startplatz ist recht steil. Platz zum Auslegen von max. 2 Schirmen.", landeName: "Merkur Landeplatz Neuhaus/Staufenberg", landeLat: 48.7669, landeLon: 8.2953, landeHoehe: 360, landeExtra: [{ name: "Merkur Landeplatz Großmatte Baden-Baden", lat: 48.763714, lon: 8.261118, hoehe: 240 }], ...DEF },
 
   { id: "db_987_W", name: "Merkur (W)", region: "Gernsbach",
     lat: 48.7647, lon: 8.2794, elevation: 651, dhv: 987,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fb", hoehendiff: 413, gemeinde: "76530 Baden-Baden", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Erreichbar mit Standseilbahn von Baden-Baden aus. Startplatz ist recht steil. Platz zum Auslegen von max. 2 Schirmen.", landeName: "Merkur Landeplatz Neuhaus/Staufenberg", landeLat: 48.7669, landeLon: 8.2953, landeHoehe: 360, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fb", hoehendiff: 413, gemeinde: "76530 Baden-Baden", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Erreichbar mit Standseilbahn von Baden-Baden aus. Startplatz ist recht steil. Platz zum Auslegen von max. 2 Schirmen.", landeName: "Merkur Landeplatz Neuhaus/Staufenberg", landeLat: 48.7669, landeLon: 8.2953, landeHoehe: 360, landeExtra: [{ name: "Merkur Landeplatz Großmatte Baden-Baden", lat: 48.763714, lon: 8.261118, hoehe: 240 }], ...DEF },
 
   { id: "db_2174", name: "Messbacher Höhenweg", region: "Fischbachtal",
     lat: 49.7484, lon: 8.8133, elevation: 360, dhv: 2174,
@@ -1430,7 +1430,7 @@ const SPOT_DB = [
 
   { id: "db_167", name: "Messelberg", region: "Donzdorf",
     lat: 48.6795, lon: 9.8389, elevation: 700, dhv: 167,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 212, gemeinde: "73072 Donzdorf", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wenn der Wind nicht exakt aus Westen ansteht, besteht generell am Startplatz die Gefahr von heftigen Turbulenzen (Schneisenstart). Bei Nord-Einschlag (Windrichtung NW) finden sich in der Regel Turbulenzen auch im gesamten Bereich des Messelberg-Hangs (Sektor 1b und II). Besonders für Gleitschirme ist hier die Gefahr von Klappern sehr gross.", landeName: "Messelberg Landeplatz 1 Pfaffenhalde", landeLat: 48.6823, landeLon: 9.8302, landeHoehe: 520, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 212, gemeinde: "73072 Donzdorf", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wenn der Wind nicht exakt aus Westen ansteht, besteht generell am Startplatz die Gefahr von heftigen Turbulenzen (Schneisenstart). Bei Nord-Einschlag (Windrichtung NW) finden sich in der Regel Turbulenzen auch im gesamten Bereich des Messelberg-Hangs (Sektor 1b und II). Besonders für Gleitschirme ist hier die Gefahr von Klappern sehr gross.", landeName: "Messelberg Landeplatz 1 Pfaffenhalde", landeLat: 48.6823, landeLon: 9.8302, landeHoehe: 520, landeExtra: [{ name: "Messelberg Landeplatz 2 Galgenläuchle", lat: 48.683369, lon: 9.824406, hoehe: 488 }], ...DEF },
 
   { id: "db_1007", name: "Michelsberg", region: "Münnerstadt",
     lat: 50.2516, lon: 10.1606, elevation: 380, dhv: 1007,
@@ -1438,15 +1438,15 @@ const SPOT_DB = [
 
   { id: "db_386_N", name: "Mittag (N)", region: "Immenstadt",
     lat: 47.5376, lon: 10.2187, elevation: 1381, dhv: 386,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Startplatz für Drachen und Gleitschirme liegt ca. 70 m unterhalb der Terrasse der Bergstation. Bei Nordwind nicht über den Grat versetzen lassen. Leesituation bei Westeinschlag! Überflugverbot Wintergatter vom 01.11.-15.05.", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Startplatz für Drachen und Gleitschirme liegt ca. 70 m unterhalb der Terrasse der Bergstation. Bei Nordwind nicht über den Grat versetzen lassen. Leesituation bei Westeinschlag! Überflugverbot Wintergatter vom 01.11.-15.05.", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, landeExtra: [{ name: "Mittag Landeplatz Schwarzkreuzwiese/am kleinen Alpsee", lat: 47.564722, lon: 10.206944, hoehe: 720 }], ...DEF },
 
   { id: "db_386_S", name: "Mittag (S)", region: "Immenstadt",
     lat: 47.5358, lon: 10.2157, elevation: 1443, dhv: 386,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Großer Startplatz oberhalb der Bergstation Richtung Süden/Gipfel (dem Wanderweg folgen). Rechtzeitig und mit ausreichend Höhe über den Grat in Richtung Landeplatz fliegen. Föhn beachten! Leesituation bei SW- und Westwind!", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Großer Startplatz oberhalb der Bergstation Richtung Süden/Gipfel (dem Wanderweg folgen). Rechtzeitig und mit ausreichend Höhe über den Grat in Richtung Landeplatz fliegen. Föhn beachten! Leesituation bei SW- und Westwind!", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, landeExtra: [{ name: "Mittag Landeplatz Schwarzkreuzwiese/am kleinen Alpsee", lat: 47.564722, lon: 10.206944, hoehe: 720 }], ...DEF },
 
   { id: "db_386_W", name: "Mittag (W)", region: "Immenstadt",
     lat: 47.5377, lon: 10.2165, elevation: 1391, dhv: 386,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Mit ausrechend Höhe über den Rücken (Sessellift) bzw. über die Mittelstation in Richtung Landeplatz fliegen. Kein Absitzen auf der Westseite im Steigbachtal riskieren.", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Mit ausrechend Höhe über den Rücken (Sessellift) bzw. über die Mittelstation in Richtung Landeplatz fliegen. Kein Absitzen auf der Westseite im Steigbachtal riskieren.", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, landeExtra: [{ name: "Mittag Landeplatz Schwarzkreuzwiese/am kleinen Alpsee", lat: 47.564722, lon: 10.206944, hoehe: 720 }], ...DEF },
 
   { id: "db_343", name: "Mittelstaufen", region: "Bad Reichenhall",
     lat: 47.7554, lon: 12.8331, elevation: 1657, dhv: 343,
@@ -1498,19 +1498,19 @@ const SPOT_DB = [
 
   { id: "db_395_NW", name: "Nebelhorn Gipfel Terassen-SP 1 (südl. Gipfelstation) (NW)", region: "Oberstdorf",
     lat: 47.4115, lon: 10.349, elevation: 1910, dhv: 395,
-    sectors: [[236.25, 11.25]], sectorLabel: "WSW-N", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "1. Alle Piloten benötigen eine Einweisung durch den ODV. Diese kann persönlich oder online erfolgen. 2. Landungen auf geeigneten Flächen am Zeigersattel sind zulässig, wenn eine Gefährdung Dritter ausgeschlossen ist und der Pilot die Toplandetechnik beherrscht. 3. Starts dürfen nur erfolgen, wenn keine Gefahr für Dritte besteht. Auf Wanderer und übrige Nutzer ist Rücksicht zu nehmen. Der Höfatsweg ist mit ausreichendem Sicherheitsabstand zu überfliegen. Nebelhorn Zeigersattel Startplatz Nord: N 47°24'33.95\" O 10°20'54.56\" 1. Start nur bei Wind aus Richtungen von 300°-350° bis 25km/h. Auf den Talwind ist zu achten. 2. Um die Leebereiche des gegenüberliegenden Gundkopfes zu meiden, ist gleich nach dem Start in Richtung Westen abzufliegen.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, ...DEF },
+    sectors: [[236.25, 11.25]], sectorLabel: "WSW-N", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "1. Alle Piloten benötigen eine Einweisung durch den ODV. Diese kann persönlich oder online erfolgen. 2. Landungen auf geeigneten Flächen am Zeigersattel sind zulässig, wenn eine Gefährdung Dritter ausgeschlossen ist und der Pilot die Toplandetechnik beherrscht. 3. Starts dürfen nur erfolgen, wenn keine Gefahr für Dritte besteht. Auf Wanderer und übrige Nutzer ist Rücksicht zu nehmen. Der Höfatsweg ist mit ausreichendem Sicherheitsabstand zu überfliegen. Nebelhorn Zeigersattel Startplatz Nord: N 47°24'33.95\" O 10°20'54.56\" 1. Start nur bei Wind aus Richtungen von 300°-350° bis 25km/h. Auf den Talwind ist zu achten. 2. Um die Leebereiche des gegenüberliegenden Gundkopfes zu meiden, ist gleich nach dem Start in Richtung Westen abzufliegen.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, landeExtra: [{ name: "Nebelhorn Oybele (LP 1)", lat: 47.401667, lon: 10.287778, hoehe: 830 }], ...DEF },
 
   { id: "db_395_S", name: "Nebelhorn Gipfel Terassen-SP 1 (südl. Gipfelstation) (S)", region: "Oberstdorf",
     lat: 47.4212, lon: 10.3422, elevation: 2170, dhv: 395,
-    sectors: [[123.75, 213.75], [191.25, 213.75]], sectorLabel: "SO-SSW · SSW", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "1. Alle Piloten benötigen fortgeschrittene Kenntnisse in Vorwärts- und Rückwärtsaufziehen und Flugtechnik sowie fundierter Einschätzung der Wind- und Wettersituation. Mindestqualifikation ist der Besitz des unbeschränkten Luftfahrerscheins. 2. Jeder Pilot benötigt eine Einweisung auf die besondere Startplatzsituation. Diese kann persönlich oder auch online erfolgen. Tandempiloten müssen persönlich eingewiesen werden. 3. Starts und Vorbereitungen auf präparierten Pisten sind während des Ski-Betriebs untersagt. Der Pistentrieb darf nicht beeinträchtigt werden. Ein Start ist nur zulässig, wenn keine Gefahr für Dritte besteht und der Luftraum frei ist. Der Startbereich ist entsprechend zu kennzeichnen. Es ist sicherzustellen, dass Wanderer auf dem Wanderweg sowie Skifahrer auf der Piste während des Ski-Betriebs durch abfliegende Piloten nicht gefährdet werden. Es ist stets ein ausreichender Sicherheitsabstand zu Personen, Gebäuden und den Seilen der Bergbahn einzuhalten. Außerhalb der Betriebszeiten der Seilbahn gibt es gesonderte Regelungen. Infos dazu beim Geländehalter. 4. Ein Start ist nur bei Vorwind zulässig. Die Abflugrichtung muss von der Seilbahn wegführen.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, ...DEF },
+    sectors: [[123.75, 213.75], [191.25, 213.75]], sectorLabel: "SO-SSW · SSW", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "1. Alle Piloten benötigen fortgeschrittene Kenntnisse in Vorwärts- und Rückwärtsaufziehen und Flugtechnik sowie fundierter Einschätzung der Wind- und Wettersituation. Mindestqualifikation ist der Besitz des unbeschränkten Luftfahrerscheins. 2. Jeder Pilot benötigt eine Einweisung auf die besondere Startplatzsituation. Diese kann persönlich oder auch online erfolgen. Tandempiloten müssen persönlich eingewiesen werden. 3. Starts und Vorbereitungen auf präparierten Pisten sind während des Ski-Betriebs untersagt. Der Pistentrieb darf nicht beeinträchtigt werden. Ein Start ist nur zulässig, wenn keine Gefahr für Dritte besteht und der Luftraum frei ist. Der Startbereich ist entsprechend zu kennzeichnen. Es ist sicherzustellen, dass Wanderer auf dem Wanderweg sowie Skifahrer auf der Piste während des Ski-Betriebs durch abfliegende Piloten nicht gefährdet werden. Es ist stets ein ausreichender Sicherheitsabstand zu Personen, Gebäuden und den Seilen der Bergbahn einzuhalten. Außerhalb der Betriebszeiten der Seilbahn gibt es gesonderte Regelungen. Infos dazu beim Geländehalter. 4. Ein Start ist nur bei Vorwind zulässig. Die Abflugrichtung muss von der Seilbahn wegführen.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, landeExtra: [{ name: "Nebelhorn Oybele (LP 1)", lat: 47.401667, lon: 10.287778, hoehe: 830 }], ...DEF },
 
   { id: "db_395_SW", name: "Nebelhorn Gipfel Terassen-SP 1 (südl. Gipfelstation) (SW)", region: "Oberstdorf",
     lat: 47.4207, lon: 10.3424, elevation: 2150, dhv: 395,
-    sectors: [[168.75, 281.25], [213.75, 281.25]], sectorLabel: "S-W · SW-W", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "1. Äußerst anspruchsvoller und hochalpiner Startplatz: Nur für Piloten mit unbeschränktem Luftfahrerschein zugelassen. Startrichtung 190° bis 260°. Piloten benötigen fortgeschrittenes fliegerisches Können, um sicherzustellen, frühzeitig und sicher abzuheben. 2. Jeder Pilot benötigt eine Einweisung auf die besondere Startplatzsituation. Diese kann persönlich oder auch online erfolgen. Tandempiloten müssen persönlich eingewiesen werden. 3. Starts dürfen nur erfolgen, wenn die Beschaffenheit des Startplatzes einen sicheren Start zulässt und die Windverhältnisse ein sicheres Abheben vor der Kante gewährleisten. Der Untergrund muss griffig sein. 4. Vor dem Start ist der Luftraum zu checken. Erfolgt ein Start am Terrassenstartplatz darf nicht gestartet werden, bis der Luftraum wieder frei ist. 5. Aufgrund der anspruchsvollen Geländesituation mit erheblichen Unebenheiten und im weiteren Verlauf steil abfallendem Gelände sowie einer potentiellen Leesituation, kann der Startplatz nur im Winter genutzt werden, wenn der Bereich so aufgefüllt und verdichtet wird, dass eine ebene bis konvexe Form hergestellt wird.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, ...DEF },
+    sectors: [[168.75, 281.25], [213.75, 281.25]], sectorLabel: "S-W · SW-W", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "1. Äußerst anspruchsvoller und hochalpiner Startplatz: Nur für Piloten mit unbeschränktem Luftfahrerschein zugelassen. Startrichtung 190° bis 260°. Piloten benötigen fortgeschrittenes fliegerisches Können, um sicherzustellen, frühzeitig und sicher abzuheben. 2. Jeder Pilot benötigt eine Einweisung auf die besondere Startplatzsituation. Diese kann persönlich oder auch online erfolgen. Tandempiloten müssen persönlich eingewiesen werden. 3. Starts dürfen nur erfolgen, wenn die Beschaffenheit des Startplatzes einen sicheren Start zulässt und die Windverhältnisse ein sicheres Abheben vor der Kante gewährleisten. Der Untergrund muss griffig sein. 4. Vor dem Start ist der Luftraum zu checken. Erfolgt ein Start am Terrassenstartplatz darf nicht gestartet werden, bis der Luftraum wieder frei ist. 5. Aufgrund der anspruchsvollen Geländesituation mit erheblichen Unebenheiten und im weiteren Verlauf steil abfallendem Gelände sowie einer potentiellen Leesituation, kann der Startplatz nur im Winter genutzt werden, wenn der Bereich so aufgefüllt und verdichtet wird, dass eine ebene bis konvexe Form hergestellt wird.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, landeExtra: [{ name: "Nebelhorn Oybele (LP 1)", lat: 47.401667, lon: 10.287778, hoehe: 830 }], ...DEF },
 
   { id: "db_951", name: "Neidlingen", region: "Neidlingen",
     lat: 48.5775, lon: 9.5932, elevation: 770, dhv: 951,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 2, acc: "f", hoehendiff: 268, gemeinde: "73272 Neidlingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Die enge steile Waldschneise setzt eine routinierte Starttechnik voraus.", landeName: "Neidlingen Landeplatz 3", landeLat: 48.5782, landeLon: 9.5931, landeHoehe: 772, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 2, acc: "f", hoehendiff: 268, gemeinde: "73272 Neidlingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Die enge steile Waldschneise setzt eine routinierte Starttechnik voraus.", landeName: "Neidlingen Landeplatz 3", landeLat: 48.5782, landeLon: 9.5931, landeHoehe: 772, landeExtra: [{ name: "Neidlingen Landeplatz 1", lat: 48.579439, lon: 9.5779, hoehe: 502 }, { name: "Neidlingen Landeplatz 2", lat: 48.577104, lon: 9.581752, hoehe: 502 }], ...DEF },
 
   { id: "db_614", name: "Netphen", region: "Netphen",
     lat: 50.9203, lon: 8.078, elevation: 360, dhv: 614,
@@ -1518,27 +1518,27 @@ const SPOT_DB = [
 
   { id: "db_964", name: "Neuberg", region: "Odernheim",
     lat: 49.7669, lon: 7.6918, elevation: 270, dhv: 964,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", acc: "fa", hoehendiff: 110, gemeinde: "55571 Odernheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Neuberg Landeplatz 1", landeLat: 49.7668, landeLon: 7.6968, landeHoehe: 160, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", acc: "fa", hoehendiff: 110, gemeinde: "55571 Odernheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Neuberg Landeplatz 1", landeLat: 49.7668, landeLon: 7.6968, landeHoehe: 160, landeExtra: [{ name: "Neuberg Landeplatz 2", lat: 49.773394, lon: 7.696137, hoehe: 160 }], ...DEF },
 
   { id: "db_248_N", name: "Neubürg (N)", region: "Mistelgau",
     lat: 49.8905, lon: 11.4017, elevation: 578, dhv: 248,
-    sectors: [[168.75, 168.75]], sectorLabel: "S-SSO", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Gefahr von Verwirbelungen bei starkem Seitenwind, Startplatz im Landschaftsschutzgebiet, Einweisung erforderlich!", landeName: "Hochfläche Neubürg", landeLat: 49.8907, landeLon: 11.3987, landeHoehe: 580, ...DEF },
+    sectors: [[168.75, 168.75]], sectorLabel: "S-SSO", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Gefahr von Verwirbelungen bei starkem Seitenwind, Startplatz im Landschaftsschutzgebiet, Einweisung erforderlich!", landeName: "Hochfläche Neubürg", landeLat: 49.8907, landeLon: 11.3987, landeHoehe: 580, landeExtra: [{ name: "Neubürg Landeplatz Nordost", lat: 49.89159, lon: 11.404693, hoehe: 537 }, { name: "Neubürg Landeplatz Südost", lat: 49.889184, lon: 11.404263, hoehe: 537 }, { name: "Neubürg Landeplatz West/Nordwest 1", lat: 49.892461, lon: 11.400079, hoehe: 458 }, { name: "Neubürg Landeplatz &quot;Pfanne&quot;", lat: 49.894641, lon: 11.399603, hoehe: 440 }], ...DEF },
 
   { id: "db_248_NO", name: "Neubürg (NO)", region: "Mistelgau",
     lat: 49.8919, lon: 11.4026, elevation: 578, dhv: 248,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Nur für geübte Piloten! Starts nur bei exaktem NO-Wind , Einweisung erforderlich!", landeName: "Neubürg Landeplatz Nordost", landeLat: 49.8916, landeLon: 11.4047, landeHoehe: 537, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Nur für geübte Piloten! Starts nur bei exaktem NO-Wind , Einweisung erforderlich!", landeName: "Neubürg Landeplatz Nordost", landeLat: 49.8916, landeLon: 11.4047, landeHoehe: 537, landeExtra: [{ name: "Hochfläche Neubürg", lat: 49.890715, lon: 11.398722, hoehe: 580 }, { name: "Neubürg Landeplatz Südost", lat: 49.889184, lon: 11.404263, hoehe: 537 }, { name: "Neubürg Landeplatz West/Nordwest 1", lat: 49.892461, lon: 11.400079, hoehe: 458 }, { name: "Neubürg Landeplatz &quot;Pfanne&quot;", lat: 49.894641, lon: 11.399603, hoehe: 440 }], ...DEF },
 
   { id: "db_248_NW", name: "Neubürg (NW)", region: "Mistelgau",
     lat: 49.892, lon: 11.4017, elevation: 578, dhv: 248,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Gefahr von Verwirbelungen bei starkem Seitenwind, Startplatz im Landschaftsschutzgebiet, Einweisung erforderlich!", landeName: "Neubürg Landeplatz West/Nordwest 1", landeLat: 49.8925, landeLon: 11.4001, landeHoehe: 458, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Gefahr von Verwirbelungen bei starkem Seitenwind, Startplatz im Landschaftsschutzgebiet, Einweisung erforderlich!", landeName: "Neubürg Landeplatz West/Nordwest 1", landeLat: 49.8925, landeLon: 11.4001, landeHoehe: 458, landeExtra: [{ name: "Hochfläche Neubürg", lat: 49.890715, lon: 11.398722, hoehe: 580 }, { name: "Neubürg Landeplatz Nordost", lat: 49.89159, lon: 11.404693, hoehe: 537 }, { name: "Neubürg Landeplatz Südost", lat: 49.889184, lon: 11.404263, hoehe: 537 }, { name: "Neubürg Landeplatz &quot;Pfanne&quot;", lat: 49.894641, lon: 11.399603, hoehe: 440 }], ...DEF },
 
   { id: "db_248_SW", name: "Neubürg (SW)", region: "Mistelgau",
     lat: 49.8905, lon: 11.4008, elevation: 578, dhv: 248,
-    sectors: [[191.25, 258.75]], sectorLabel: "SSW-WSW", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Gefahr von Verwirbelungen bei starkem Seitenwind, Startplatz im Landschaftsschutzgebiet, Einweisung erforderlich!", landeName: "Hochfläche Neubürg", landeLat: 49.8907, landeLon: 11.3987, landeHoehe: 580, ...DEF },
+    sectors: [[191.25, 258.75]], sectorLabel: "SSW-WSW", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Gefahr von Verwirbelungen bei starkem Seitenwind, Startplatz im Landschaftsschutzgebiet, Einweisung erforderlich!", landeName: "Hochfläche Neubürg", landeLat: 49.8907, landeLon: 11.3987, landeHoehe: 580, landeExtra: [{ name: "Neubürg Landeplatz Nordost", lat: 49.89159, lon: 11.404693, hoehe: 537 }, { name: "Neubürg Landeplatz Südost", lat: 49.889184, lon: 11.404263, hoehe: 537 }, { name: "Neubürg Landeplatz West/Nordwest 1", lat: 49.892461, lon: 11.400079, hoehe: 458 }, { name: "Neubürg Landeplatz &quot;Pfanne&quot;", lat: 49.894641, lon: 11.399603, hoehe: 440 }], ...DEF },
 
   { id: "db_248_W", name: "Neubürg (W)", region: "Mistelgau",
     lat: 49.8915, lon: 11.4013, elevation: 578, dhv: 248,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Gefahr von Verwirbelungen bei starkem Seitenwind, Startplatz im Landschaftsschutzgebiet, Einweisung erforderlich!", landeName: "Neubürg Landeplatz West/Nordwest 1", landeLat: 49.8925, landeLon: 11.4001, landeHoehe: 458, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 140, gemeinde: "95490 Mistelgau", bundesland: "Bayern", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Gefahr von Verwirbelungen bei starkem Seitenwind, Startplatz im Landschaftsschutzgebiet, Einweisung erforderlich!", landeName: "Neubürg Landeplatz West/Nordwest 1", landeLat: 49.8925, landeLon: 11.4001, landeHoehe: 458, landeExtra: [{ name: "Hochfläche Neubürg", lat: 49.890715, lon: 11.398722, hoehe: 580 }, { name: "Neubürg Landeplatz Nordost", lat: 49.89159, lon: 11.404693, hoehe: 537 }, { name: "Neubürg Landeplatz Südost", lat: 49.889184, lon: 11.404263, hoehe: 537 }, { name: "Neubürg Landeplatz &quot;Pfanne&quot;", lat: 49.894641, lon: 11.399603, hoehe: 440 }], ...DEF },
 
   { id: "db_589", name: "Neukenroth", region: "Stockheim",
     lat: 50.3258, lon: 11.2698, elevation: 481, dhv: 589,
@@ -1590,7 +1590,7 @@ const SPOT_DB = [
 
   { id: "db_3983", name: "Nordhelle Werdohl", region: "Werdohl",
     lat: 51.2467, lon: 7.7493, elevation: 405, dhv: 3983,
-    sectors: [[326.25, 56.25]], sectorLabel: "NNW-NO", country: "de", diff: 1, acc: "f", hoehendiff: 220, gemeinde: "58777 Werdohl", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Nordhelle Werdohl Landeplatz 1", landeLat: 51.2510, landeLon: 7.7480, landeHoehe: 185, ...DEF },
+    sectors: [[326.25, 56.25]], sectorLabel: "NNW-NO", country: "de", diff: 1, acc: "f", hoehendiff: 220, gemeinde: "58777 Werdohl", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Nordhelle Werdohl Landeplatz 1", landeLat: 51.2510, landeLon: 7.7480, landeHoehe: 185, landeExtra: [{ name: "Nordhelle Werdohl Ausweich-Landeplatz", lat: 51.254416, lon: 7.755018, hoehe: 185 }], ...DEF },
 
   { id: "db_551", name: "Nordwesthang Sassenroth", region: "Stadtverwaltung Herdorf",
     lat: 50.7698, lon: 7.9291, elevation: 370, dhv: 551,
@@ -1738,15 +1738,15 @@ const SPOT_DB = [
 
   { id: "db_341_N", name: "Predigtstuhl (N)", region: "Bad Reichenhall",
     lat: 47.6889, lon: 12.8897, elevation: 1720, dhv: 341,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", diff: 2, acc: "fb", hoehendiff: 1250, gemeinde: "83421 Bad Reichenhall", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Predigtstuhl Landeplatz Streitbichel", landeLat: 47.7191, landeLon: 12.8817, landeHoehe: 508, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", diff: 2, acc: "fb", hoehendiff: 1250, gemeinde: "83421 Bad Reichenhall", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Predigtstuhl Landeplatz Streitbichel", landeLat: 47.7191, landeLon: 12.8817, landeHoehe: 508, landeExtra: [{ name: "Predigtstuhl Landeplatz Weitwiese", lat: 47.721875, lon: 12.856363, hoehe: 470 }], ...DEF },
 
   { id: "db_341_NO", name: "Predigtstuhl (NO)", region: "Bad Reichenhall",
     lat: 47.6954, lon: 12.8822, elevation: 1610, dhv: 341,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", diff: 2, acc: "fb", hoehendiff: 1250, gemeinde: "83421 Bad Reichenhall", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz Schlegelmulde (Startrichtung NO) ist in 10 Minuten Gehzeit von der Bergstation zu erreichen. Dieser Startplatz ist eher den Drachenfliegern vorbehalten, da es sich um eine klippenartiges Gelände handelt. Der kurze Startplatz wird nach hinten durch einen Sessellift begrenzt und fällt nach vorne steil ab in das Alpgartental. Für Schirme mit größerer Spannweite und langen Leinen ist ein Start hier nicht ohne Risiko.", landeName: "Predigtstuhl Landeplatz Streitbichel", landeLat: 47.7191, landeLon: 12.8817, landeHoehe: 508, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", diff: 2, acc: "fb", hoehendiff: 1250, gemeinde: "83421 Bad Reichenhall", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz Schlegelmulde (Startrichtung NO) ist in 10 Minuten Gehzeit von der Bergstation zu erreichen. Dieser Startplatz ist eher den Drachenfliegern vorbehalten, da es sich um eine klippenartiges Gelände handelt. Der kurze Startplatz wird nach hinten durch einen Sessellift begrenzt und fällt nach vorne steil ab in das Alpgartental. Für Schirme mit größerer Spannweite und langen Leinen ist ein Start hier nicht ohne Risiko.", landeName: "Predigtstuhl Landeplatz Streitbichel", landeLat: 47.7191, landeLon: 12.8817, landeHoehe: 508, landeExtra: [{ name: "Predigtstuhl Landeplatz Weitwiese", lat: 47.721875, lon: 12.856363, hoehe: 470 }], ...DEF },
 
   { id: "db_341_W", name: "Predigtstuhl (W)", region: "Bad Reichenhall",
     lat: 47.692, lon: 12.8826, elevation: 1688, dhv: 341,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 2, acc: "fb", hoehendiff: 1250, gemeinde: "83421 Bad Reichenhall", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Dieser Startplatz ist für Gleitschirmfliegerbesser besser geeignet. Der Weg führt entlang der Lifttrasse zum Hochschlegel (1688m) und ist zu Fuß in 15 Minuten von der Schlegelmulde aus zu erreichen. Von den Startplätzen aus besteht zu keinem der Landeplätze eine direkte Sichtverbindung. Vor dem Start sollte man sich gleich für eine Flugroute entscheiden, denn verliert man beim Hangkratzen am Hochschlegel zu viel Höhe, droht eine Notlandung am Saalachsee.", landeName: "Predigtstuhl Landeplatz Streitbichel", landeLat: 47.7191, landeLon: 12.8817, landeHoehe: 508, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 2, acc: "fb", hoehendiff: 1250, gemeinde: "83421 Bad Reichenhall", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Dieser Startplatz ist für Gleitschirmfliegerbesser besser geeignet. Der Weg führt entlang der Lifttrasse zum Hochschlegel (1688m) und ist zu Fuß in 15 Minuten von der Schlegelmulde aus zu erreichen. Von den Startplätzen aus besteht zu keinem der Landeplätze eine direkte Sichtverbindung. Vor dem Start sollte man sich gleich für eine Flugroute entscheiden, denn verliert man beim Hangkratzen am Hochschlegel zu viel Höhe, droht eine Notlandung am Saalachsee.", landeName: "Predigtstuhl Landeplatz Streitbichel", landeLat: 47.7191, landeLon: 12.8817, landeHoehe: 508, landeExtra: [{ name: "Predigtstuhl Landeplatz Weitwiese", lat: 47.721875, lon: 12.856363, hoehe: 470 }], ...DEF },
 
   { id: "db_459", name: "Premberg", region: "Teublitz",
     lat: 49.2348, lon: 12.0732, elevation: 420, dhv: 459,
@@ -1754,7 +1754,7 @@ const SPOT_DB = [
 
   { id: "db_475", name: "Pröller", region: "St. Engelmar",
     lat: 49.0223, lon: 12.8215, elevation: 1018, dhv: 475,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 438, gemeinde: "94379 St. Engelmar", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Flacher Startplatz", landeName: "Pröller Landeplatz Unterfeld", landeLat: 49.0337, landeLon: 12.8405, landeHoehe: 580, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 438, gemeinde: "94379 St. Engelmar", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Flacher Startplatz", landeName: "Pröller Landeplatz Unterfeld", landeLat: 49.0337, landeLon: 12.8405, landeHoehe: 580, landeExtra: [{ name: "Pröller Landeplatz Klimmer", lat: 49.032993, lon: 12.846601, hoehe: 580 }], ...DEF },
 
   { id: "db_603", name: "Pröllerfeld / Tremmelhauserhöhe Übungshang", region: "Lappersdorf",
     lat: 49.0517, lon: 12.0529, elevation: 430, dhv: 603,
@@ -1770,7 +1770,7 @@ const SPOT_DB = [
 
   { id: "db_500", name: "Radspitze", region: "Seibelsdorf",
     lat: 50.2354, lon: 11.434, elevation: 668, dhv: 500,
-    sectors: [[191.25, 258.75]], sectorLabel: "SSW-WSW", country: "de", acc: "f", hoehendiff: 270, gemeinde: "96364 Seibelsdorf", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", bemerkung: "Schneisenstart: Gefahr von Rotoren und Leewirbeln bei seitlichen Windeinströmungen. Bei westlichen Windrichtungen (250°) ist die Wetterstation etwas im Lee und zeigt verfälschte Werte an. Am Start- und am unteren Parkplatz sind Geländetafeln mit allen wichtigen Informationen zum Fluggelände angebracht. Bitte vor dem Start unbedingt lesen.", landeName: "Radspitze Landeplatz GS", landeLat: 50.2276, landeLon: 11.4292, landeHoehe: 410, ...DEF },
+    sectors: [[191.25, 258.75]], sectorLabel: "SSW-WSW", country: "de", acc: "f", hoehendiff: 270, gemeinde: "96364 Seibelsdorf", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", bemerkung: "Schneisenstart: Gefahr von Rotoren und Leewirbeln bei seitlichen Windeinströmungen. Bei westlichen Windrichtungen (250°) ist die Wetterstation etwas im Lee und zeigt verfälschte Werte an. Am Start- und am unteren Parkplatz sind Geländetafeln mit allen wichtigen Informationen zum Fluggelände angebracht. Bitte vor dem Start unbedingt lesen.", landeName: "Radspitze Landeplatz GS", landeLat: 50.2276, landeLon: 11.4292, landeHoehe: 410, landeExtra: [{ name: "Radspitze Landeplatz HG", lat: 50.220169, lon: 11.430292, hoehe: 398 }], ...DEF },
 
   { id: "db_340", name: "Rampoldplatte", region: "Brannenburg",
     lat: 47.7256, lon: 12.0417, elevation: 1450, dhv: 340,
@@ -1798,7 +1798,7 @@ const SPOT_DB = [
 
   { id: "db_335", name: "Rauschberg", region: "Ruhpolding",
     lat: 47.7331, lon: 12.6856, elevation: 1650, dhv: 335,
-    sectors: [[281.25, 11.25]], sectorLabel: "WNW-N", country: "de", acc: "f", hoehendiff: 994, gemeinde: "83324 Ruhpolding", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Nord-SP: Rampe für GS und HG, WEST: Naturstartplatz für GS und HG, SÜDOST: Naturstartplatz für GS", landeName: "Grashof Ost Landeplatz", landeLat: 47.7459, landeLon: 12.6638, landeHoehe: 656, ...DEF },
+    sectors: [[281.25, 11.25]], sectorLabel: "WNW-N", country: "de", acc: "f", hoehendiff: 994, gemeinde: "83324 Ruhpolding", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Nord-SP: Rampe für GS und HG, WEST: Naturstartplatz für GS und HG, SÜDOST: Naturstartplatz für GS", landeName: "Grashof Ost Landeplatz", landeLat: 47.7459, landeLon: 12.6638, landeHoehe: 656, landeExtra: [{ name: "Fischerwirt Landeplatz", lat: 47.752139, lon: 12.665556, hoehe: 690 }, { name: "Grashof West Landeplatz", lat: 47.7475, lon: 12.661944, hoehe: 660 }], ...DEF },
 
   { id: "db_1128", name: "Rebberg", region: "Radolfzell",
     lat: 47.7678, lon: 8.9682, elevation: 490, dhv: 1128,
@@ -1874,7 +1874,7 @@ const SPOT_DB = [
 
   { id: "db_3256", name: "Rotstein", region: "Oberkochen",
     lat: 48.7799, lon: 10.1149, elevation: 686, dhv: 3256,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 194, gemeinde: "73447 Oberkochen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Rotstein Landeplatz 1", landeLat: 48.7802, landeLon: 10.1076, landeHoehe: 515, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 194, gemeinde: "73447 Oberkochen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Rotstein Landeplatz 1", landeLat: 48.7802, landeLon: 10.1076, landeHoehe: 515, landeExtra: [{ name: "Rotstein Landeplatz 2", lat: 48.786477, lon: 10.125905, hoehe: 492 }], ...DEF },
 
   { id: "db_668", name: "Saal-Rönkhausen", region: "Rönkhausen",
     lat: 51.2394, lon: 7.957, elevation: 526, dhv: 668,
@@ -1886,7 +1886,7 @@ const SPOT_DB = [
 
   { id: "db_740", name: "Salmaser Höhe/Salmas", region: "Thalkirchdorf",
     lat: 47.5699, lon: 10.0889, elevation: 1254, dhv: 740,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "f", hoehendiff: 513, gemeinde: "87534 Thalkirchdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Salmaser Höhe/Salmas Landeplatz", landeLat: 47.5562, landeLon: 10.0939, landeHoehe: 741, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "f", hoehendiff: 513, gemeinde: "87534 Thalkirchdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Salmaser Höhe/Salmas Landeplatz", landeLat: 47.5562, landeLon: 10.0939, landeHoehe: 741, landeExtra: [{ name: "Salmaser Höhe/Salmas Landeplatz 2", lat: 47.552847, lon: 10.0809, hoehe: 741 }], ...DEF },
 
   { id: "db_1152", name: "Sandkopf", region: "Oppenau",
     lat: 48.4965, lon: 8.2328, elevation: 930, dhv: 1152,
@@ -1942,19 +1942,19 @@ const SPOT_DB = [
 
   { id: "db_5669", name: "Schmirchauer Höhe", region: "Ronneburg",
     lat: 50.8472, lon: 12.1708, elevation: 372, dhv: 5669,
-    sectors: [[33.75, 146.25], [213.75, 326.25]], sectorLabel: "NO-SO · SW-NW", country: "de", hoehendiff: 51, gemeinde: "07580 Ronneburg", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schmirchauer Höhe Landeplatz Ost", landeLat: 50.8453, landeLon: 12.1739, landeHoehe: 321, ...DEF },
+    sectors: [[33.75, 146.25], [213.75, 326.25]], sectorLabel: "NO-SO · SW-NW", country: "de", hoehendiff: 51, gemeinde: "07580 Ronneburg", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schmirchauer Höhe Landeplatz Ost", landeLat: 50.8453, landeLon: 12.1739, landeHoehe: 321, landeExtra: [{ name: "Schmirchauer Höhe Landeplatz West", lat: 50.844722, lon: 12.1675, hoehe: 321 }], ...DEF },
 
   { id: "db_157", name: "Schnaithalde", region: "Burladingen",
     lat: 48.2965, lon: 9.0576, elevation: 820, dhv: 157,
-    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "de", acc: "f", hoehendiff: 150, gemeinde: "72393 Burladingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Schnaithalde Landeplatz Kather", landeLat: 48.3005, landeLon: 9.0627, landeHoehe: 670, ...DEF },
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "de", acc: "f", hoehendiff: 150, gemeinde: "72393 Burladingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Schnaithalde Landeplatz Kather", landeLat: 48.3005, landeLon: 9.0627, landeHoehe: 670, landeExtra: [{ name: "Schnaithalde Landeplatz Am Nikolausheim", lat: 48.300785, lon: 9.065668, hoehe: 670 }], ...DEF },
 
   { id: "db_985", name: "Schoden", region: "Schoden",
     lat: 49.6418, lon: 6.5933, elevation: 279, dhv: 985,
-    sectors: [[236.25, 258.75]], sectorLabel: "WSW", country: "de", acc: "f", hoehendiff: 138, gemeinde: "54441 Schoden", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schoden Toplandeplatz", landeLat: 49.6419, landeLon: 6.5936, landeHoehe: 281, ...DEF },
+    sectors: [[236.25, 258.75]], sectorLabel: "WSW", country: "de", acc: "f", hoehendiff: 138, gemeinde: "54441 Schoden", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schoden Toplandeplatz", landeLat: 49.6419, landeLon: 6.5936, landeHoehe: 281, landeExtra: [{ name: "Schoden Notlandeplatz", lat: 49.638333, lon: 6.588333, hoehe: 171 }, { name: "Schoden Landeplatz", lat: 49.640478, lon: 6.585594, hoehe: 141 }], ...DEF },
 
   { id: "db_853", name: "Schrattenbach", region: "Dietmannsried",
     lat: 47.8484, lon: 10.2977, elevation: 800, dhv: 853,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 100, gemeinde: "87463 Dietmannsried", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Waldschneise: Start anspruchsvoll.", landeName: "Schrattenbach Toplandeplatz", landeLat: 47.8485, landeLon: 10.2981, landeHoehe: 800, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 100, gemeinde: "87463 Dietmannsried", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Waldschneise: Start anspruchsvoll.", landeName: "Schrattenbach Toplandeplatz", landeLat: 47.8485, landeLon: 10.2981, landeHoehe: 800, landeExtra: [{ name: "Schrattenbach Landeplatz", lat: 47.848093, lon: 10.295197, hoehe: 700 }], ...DEF },
 
   { id: "db_193", name: "Schreckhof", region: "Mosbach-Diedesheim",
     lat: 49.3605, lon: 9.1075, elevation: 255, dhv: 193,
@@ -1978,7 +1978,7 @@ const SPOT_DB = [
 
   { id: "db_817", name: "Schulungsgelände Tegernsee, Schafstatt,", region: "Gmund a Teg.",
     lat: 47.7617, lon: 11.7588, elevation: 790, dhv: 817,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 50, gemeinde: "83703 Gmund a Teg.", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Schulungsgelände Tegernsee Landeplatz 2", landeLat: 47.7585, landeLon: 11.7587, landeHoehe: 740, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 50, gemeinde: "83703 Gmund a Teg.", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Schulungsgelände Tegernsee Landeplatz 2", landeLat: 47.7585, landeLon: 11.7587, landeHoehe: 740, landeExtra: [{ name: "Schulungsgelände Tegernsee, Schafstatt, Landeplatz", lat: 47.754099, lon: 11.755932, hoehe: 740 }], ...DEF },
 
   { id: "db_2585", name: "Schulungshang Niederwinden", region: "Winden",
     lat: 48.135, lon: 8.0258, elevation: 450, dhv: 2585,
@@ -2066,15 +2066,15 @@ const SPOT_DB = [
 
   { id: "db_2200", name: "Spielberg", region: "Hümpfershausen",
     lat: 50.6597, lon: 10.2238, elevation: 531, dhv: 2200,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 108, gemeinde: "98634 Hümpfershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Spielberg Haupt-Landeplatz", landeLat: 50.6637, landeLon: 10.2246, landeHoehe: 455, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 108, gemeinde: "98634 Hümpfershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Spielberg Haupt-Landeplatz", landeLat: 50.6637, landeLon: 10.2246, landeHoehe: 455, landeExtra: [{ name: "Spielberg Ausweich-Landeplatz", lat: 50.663975, lon: 10.230914, hoehe: 423 }], ...DEF },
 
   { id: "db_266_S", name: "Spieser (S)", region: "Hindelang",
     lat: 47.5272, lon: 10.3894, elevation: 1641, dhv: 266,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "f", hoehendiff: 839, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Almwiesen oberhalb von Oberjoch.", landeName: "Hirschberg / Jochschrofen Landeplatz Busbahnhof", landeLat: 47.5042, landeLon: 10.3718, landeHoehe: 802, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "f", hoehendiff: 839, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Almwiesen oberhalb von Oberjoch.", landeName: "Hirschberg / Jochschrofen Landeplatz Busbahnhof", landeLat: 47.5042, landeLon: 10.3718, landeHoehe: 802, landeExtra: [{ name: "Hirschberg Landeplatz 1", lat: 47.5003, lon: 10.367489, hoehe: 802 }], ...DEF },
 
   { id: "db_266_W", name: "Spieser (W)", region: "Hindelang",
     lat: 47.518, lon: 10.3768, elevation: 1470, dhv: 266,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 839, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Kurzer Startplatz auf nach West. Oststartplatz wegen Bewuchs nicht mehr nutzbar.", landeName: "Hirschberg / Jochschrofen Landeplatz Busbahnhof", landeLat: 47.5042, landeLon: 10.3718, landeHoehe: 802, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 839, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Kurzer Startplatz auf nach West. Oststartplatz wegen Bewuchs nicht mehr nutzbar.", landeName: "Hirschberg / Jochschrofen Landeplatz Busbahnhof", landeLat: 47.5042, landeLon: 10.3718, landeHoehe: 802, landeExtra: [{ name: "Hirschberg Landeplatz 1", lat: 47.5003, lon: 10.367489, hoehe: 802 }], ...DEF },
 
   { id: "db_278", name: "Spitzfelsen", region: "Hausach",
     lat: 48.293, lon: 8.2022, elevation: 570, dhv: 278,
@@ -2082,7 +2082,7 @@ const SPOT_DB = [
 
   { id: "db_971", name: "Sponsheimer Berg", region: "Laubenheim",
     lat: 49.9297, lon: 7.8911, elevation: 200, dhv: 971,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 60, gemeinde: "55452 Laubenheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Sponsheimer Berg Landeplatz", landeLat: 49.9308, landeLon: 7.8920, landeHoehe: 140, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 60, gemeinde: "55452 Laubenheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Sponsheimer Berg Landeplatz", landeLat: 49.9308, landeLon: 7.8920, landeHoehe: 140, landeExtra: [{ name: "Sponsheimer Berg Toplandeplatz", lat: 49.929217, lon: 7.888446, hoehe: 200 }], ...DEF },
 
   { id: "db_95", name: "Stachelhardt", region: "Bülgenauel / Hennef",
     lat: 50.7809, lon: 7.3767, elevation: 210, dhv: 95,
@@ -2090,19 +2090,19 @@ const SPOT_DB = [
 
   { id: "db_1169_S", name: "Startplatz Kandel (Kandel-West und Rampe) (S)", region: "Waldkirch",
     lat: 48.0568, lon: 8.0131, elevation: 1150, dhv: 1169,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 840, gemeinde: "79183 Waldkirch", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Flugbetrieb nur mit Flugleiter (DFC-Mitglied). B-Schein erforderlich. Abstand zu Wanderfalkenhorst immer einhalten (Info auf homepage des DFC Südschwarzwald): http://www.dgfc-suedschwarzwald.de/", landeName: "Landeplatz Glottertal", landeLat: 48.0455, landeLon: 7.9718, landeHoehe: 380, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 840, gemeinde: "79183 Waldkirch", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Flugbetrieb nur mit Flugleiter (DFC-Mitglied). B-Schein erforderlich. Abstand zu Wanderfalkenhorst immer einhalten (Info auf homepage des DFC Südschwarzwald): http://www.dgfc-suedschwarzwald.de/", landeName: "Landeplatz Glottertal", landeLat: 48.0455, landeLon: 7.9718, landeHoehe: 380, landeExtra: [{ name: "Landeplatz Heimeck", lat: 48.093717, lon: 7.992215, hoehe: 370 }, { name: "Landeplatz Eichbühl", lat: 48.102756, lon: 7.991008, hoehe: 360 }], ...DEF },
 
   { id: "db_1169_W", name: "Startplatz Kandel (Kandel-West und Rampe) (W)", region: "Waldkirch",
     lat: 48.0652, lon: 8.0152, elevation: 1200, dhv: 1169,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 840, gemeinde: "79183 Waldkirch", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wichtigster Startplatz am Kandel. Gleitschirmstarts neben der Rampe dürfen grundsätzlich nur von Vereinsmitglieder durchgeführt werden ! Gleitschirmfliegende Gastflieger benötigen den B-Schein und es gilt die Patenschaftsregelung, Flugbetrieb nur mit Flugleiter (DFC-Mitglied). Schutzzone Wanderfalkenhorst beachten!", landeName: "Landeplatz Heimeck", landeLat: 48.0937, landeLon: 7.9922, landeHoehe: 370, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 840, gemeinde: "79183 Waldkirch", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wichtigster Startplatz am Kandel. Gleitschirmstarts neben der Rampe dürfen grundsätzlich nur von Vereinsmitglieder durchgeführt werden ! Gleitschirmfliegende Gastflieger benötigen den B-Schein und es gilt die Patenschaftsregelung, Flugbetrieb nur mit Flugleiter (DFC-Mitglied). Schutzzone Wanderfalkenhorst beachten!", landeName: "Landeplatz Heimeck", landeLat: 48.0937, landeLon: 7.9922, landeHoehe: 370, landeExtra: [{ name: "Landeplatz Glottertal", lat: 48.045521, lon: 7.971804, hoehe: 380 }, { name: "Landeplatz Eichbühl", lat: 48.102756, lon: 7.991008, hoehe: 360 }], ...DEF },
 
   { id: "db_146_O", name: "Stauf (O)", region: "Eisenberg",
     lat: 49.5495, lon: 8.0275, elevation: 260, dhv: 146,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 70, gemeinde: "67304 Eisenberg", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Stauf Landeplatz Südost", landeLat: 49.5482, landeLon: 8.0302, landeHoehe: 190, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 70, gemeinde: "67304 Eisenberg", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Stauf Landeplatz Südost", landeLat: 49.5482, landeLon: 8.0302, landeHoehe: 190, landeExtra: [{ name: "Stauf Landeplatz West", lat: 49.549361, lon: 8.02225, hoehe: 190 }], ...DEF },
 
   { id: "db_146_SW", name: "Stauf (SW)", region: "Eisenberg",
     lat: 49.5495, lon: 8.0264, elevation: 260, dhv: 146,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 70, gemeinde: "67304 Eisenberg", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Stauf Landeplatz West", landeLat: 49.5494, landeLon: 8.0223, landeHoehe: 190, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 70, gemeinde: "67304 Eisenberg", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Stauf Landeplatz West", landeLat: 49.5494, landeLon: 8.0223, landeHoehe: 190, landeExtra: [{ name: "Stauf Landeplatz Südost", lat: 49.548178, lon: 8.03018, hoehe: 190 }], ...DEF },
 
   { id: "db_868", name: "Steinbruch Achenbach", region: "Breidenbach",
     lat: 50.8684, lon: 8.4105, elevation: 540, dhv: 868,
@@ -2158,19 +2158,19 @@ const SPOT_DB = [
 
   { id: "db_565_N", name: "Südhang Wasserkuppe (N)", region: "Gersfeld",
     lat: 50.5032, lon: 9.9391, elevation: 905, dhv: 565,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36136 Poppenhausen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Bei Nord und Nordostlagen geht es zur Abtsrodaer Kuppe. Über 300 m Höhendifferenz und gute thermische Möglichkeiten. Infotafel am Startplatz. Der Landeplatz befindet sich Richtung Dietges. Achtung: Keine Außenlandungen, da Kernzone des Biosphärenreservates Rhön. An Wochenenden ist teilweise ein Fahrdienst zw. Landeplatz und Wasserkuppe eingerichtet. Modellflugbetrieb beachten. Infos: www.rdg-ev.de", landeName: "Landewiese Schütz, In der Schlicht", landeLat: 50.5163, landeLon: 9.9409, landeHoehe: 600, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36136 Poppenhausen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Bei Nord und Nordostlagen geht es zur Abtsrodaer Kuppe. Über 300 m Höhendifferenz und gute thermische Möglichkeiten. Infotafel am Startplatz. Der Landeplatz befindet sich Richtung Dietges. Achtung: Keine Außenlandungen, da Kernzone des Biosphärenreservates Rhön. An Wochenenden ist teilweise ein Fahrdienst zw. Landeplatz und Wasserkuppe eingerichtet. Modellflugbetrieb beachten. Infos: www.rdg-ev.de", landeName: "Landewiese Schütz, In der Schlicht", landeLat: 50.5163, landeLon: 9.9409, landeHoehe: 600, landeExtra: [{ name: "Landewiese Münch, Am Heckenhöfchen", lat: 50.492381, lon: 9.909539, hoehe: 625 }, { name: "Landewiese Ochs, Tränkhof", lat: 50.502564, lon: 9.905548, hoehe: 570 }], ...DEF },
 
   { id: "db_565_NW", name: "Südhang Wasserkuppe (NW)", region: "Gersfeld",
     lat: 50.4909, lon: 9.9205, elevation: 875, dhv: 565,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36136 Poppenhausen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der markante Pferdskopf westlich der Wasserkuppe bietet Startmöglichkeiten bei West und Nordwest. Start unterhalb des Gipfels auf der Wiese. Gelände ist sehr thermisch. Landung auf \"Deltawiese\" oder am \"Heckenhöfchen. Infos: www.rdg-ev.de", landeName: "Landewiese Münch, Am Heckenhöfchen", landeLat: 50.4924, landeLon: 9.9095, landeHoehe: 625, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36136 Poppenhausen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der markante Pferdskopf westlich der Wasserkuppe bietet Startmöglichkeiten bei West und Nordwest. Start unterhalb des Gipfels auf der Wiese. Gelände ist sehr thermisch. Landung auf \"Deltawiese\" oder am \"Heckenhöfchen. Infos: www.rdg-ev.de", landeName: "Landewiese Münch, Am Heckenhöfchen", landeLat: 50.4924, landeLon: 9.9095, landeHoehe: 625, landeExtra: [{ name: "Landewiese Schütz, In der Schlicht", lat: 50.516292, lon: 9.94091, hoehe: 600 }, { name: "Landewiese Ochs, Tränkhof", lat: 50.502564, lon: 9.905548, hoehe: 570 }], ...DEF },
 
   { id: "db_565_S", name: "Südhang Wasserkuppe (S)", region: "Gersfeld",
     lat: 50.4974, lon: 9.9372, elevation: 914, dhv: 565,
-    sectors: [[168.75, 213.75]], sectorLabel: "S-SSW", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36129 Gersfeld", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Südhang der Wasserkuppe bietet mit einer Höhendifferenz von bis zu 160 m ein unglaubliches potential. Groundhandling, Start- und Landeübungen oder auch Thermikflüge sind hier möglich. Der Hang dürfte einer der besten Übungshänge in Deutschland sein. Landung im oberen Hangbereich der Baude oder beim Zuckerfeldlift. Infos: www.rdg-ev.de", landeName: "Landewiese Münch, Am Heckenhöfchen", landeLat: 50.4924, landeLon: 9.9095, landeHoehe: 625, ...DEF },
+    sectors: [[168.75, 213.75]], sectorLabel: "S-SSW", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36129 Gersfeld", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Südhang der Wasserkuppe bietet mit einer Höhendifferenz von bis zu 160 m ein unglaubliches potential. Groundhandling, Start- und Landeübungen oder auch Thermikflüge sind hier möglich. Der Hang dürfte einer der besten Übungshänge in Deutschland sein. Landung im oberen Hangbereich der Baude oder beim Zuckerfeldlift. Infos: www.rdg-ev.de", landeName: "Landewiese Münch, Am Heckenhöfchen", landeLat: 50.4924, landeLon: 9.9095, landeHoehe: 625, landeExtra: [{ name: "Landewiese Schütz, In der Schlicht", lat: 50.516292, lon: 9.94091, hoehe: 600 }, { name: "Landewiese Ochs, Tränkhof", lat: 50.502564, lon: 9.905548, hoehe: 570 }], ...DEF },
 
   { id: "db_565_W", name: "Südhang Wasserkuppe (W)", region: "Gersfeld",
     lat: 50.4968, lon: 9.9312, elevation: 900, dhv: 565,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36136 Poppenhausen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Westhang ist vielbeflogen und bietet vor allem nachmittags gute Thermik. Über 300 m Höhendifferenz. Landung auf der \"Deltawiese Sieblos\" oder Toplanding. Alternativstart am Fliegerdenkmal (Nordwest).", landeName: "Landewiese Münch, Am Heckenhöfchen", landeLat: 50.4924, landeLon: 9.9095, landeHoehe: 625, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36136 Poppenhausen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Westhang ist vielbeflogen und bietet vor allem nachmittags gute Thermik. Über 300 m Höhendifferenz. Landung auf der \"Deltawiese Sieblos\" oder Toplanding. Alternativstart am Fliegerdenkmal (Nordwest).", landeName: "Landewiese Münch, Am Heckenhöfchen", landeLat: 50.4924, landeLon: 9.9095, landeHoehe: 625, landeExtra: [{ name: "Landewiese Schütz, In der Schlicht", lat: 50.516292, lon: 9.94091, hoehe: 600 }, { name: "Landewiese Ochs, Tränkhof", lat: 50.502564, lon: 9.905548, hoehe: 570 }], ...DEF },
 
   { id: "db_328", name: "Sulzberg", region: "Brannenburg",
     lat: 47.7451, lon: 12.0625, elevation: 1050, dhv: 328,
@@ -2270,11 +2270,11 @@ const SPOT_DB = [
 
   { id: "db_336_N", name: "Unternberg Nord (N)", region: "Ruhpolding",
     lat: 47.7283, lon: 12.6383, elevation: 1381, dhv: 336,
-    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", diff: 1, acc: "fb", hoehendiff: 681, gemeinde: "83324 Ruhpolding", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Unternberg Laubau Not-Landeplatz", landeLat: 47.7250, landeLon: 12.6567, landeHoehe: 700, ...DEF },
+    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", diff: 1, acc: "fb", hoehendiff: 681, gemeinde: "83324 Ruhpolding", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Unternberg Laubau Not-Landeplatz", landeLat: 47.7250, landeLon: 12.6567, landeHoehe: 700, landeExtra: [{ name: "Unternberg Bärngschwendt Landeplatz", lat: 47.744444, lon: 12.626111, hoehe: 714 }], ...DEF },
 
   { id: "db_336_S", name: "Unternberg Nord (S)", region: "Ruhpolding",
     lat: 47.7267, lon: 12.6353, elevation: 1369, dhv: 336,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", diff: 1, acc: "fb", hoehendiff: 681, gemeinde: "83324 Ruhpolding", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Vom Südstart aus wird im Regelfall der Landeplatz \"Grashof West\" bzw. \"Grashof Ost\" angeflogen. Der Landeplatz Laubau darf aus Naturschutzgründen nur in der Zeit vom 1.8. bis 31.12 jeden Jahres angeflogen werden!", landeName: "Unternberg Laubau Not-Landeplatz", landeLat: 47.7250, landeLon: 12.6567, landeHoehe: 700, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", diff: 1, acc: "fb", hoehendiff: 681, gemeinde: "83324 Ruhpolding", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Vom Südstart aus wird im Regelfall der Landeplatz \"Grashof West\" bzw. \"Grashof Ost\" angeflogen. Der Landeplatz Laubau darf aus Naturschutzgründen nur in der Zeit vom 1.8. bis 31.12 jeden Jahres angeflogen werden!", landeName: "Unternberg Laubau Not-Landeplatz", landeLat: 47.7250, landeLon: 12.6567, landeHoehe: 700, landeExtra: [{ name: "Unternberg Bärngschwendt Landeplatz", lat: 47.744444, lon: 12.626111, hoehe: 714 }], ...DEF },
 
   { id: "db_582", name: "Unterschwarzach", region: "Creußen",
     lat: 49.8616, lon: 11.7139, elevation: 520, dhv: 582,
@@ -2286,7 +2286,7 @@ const SPOT_DB = [
 
   { id: "db_1223", name: "Urphar", region: "Urphar",
     lat: 49.7414, lon: 9.5646, elevation: 270, dhv: 1223,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 130, gemeinde: "97877 Urphar", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Urphar Landeplatz Nordwest", landeLat: 49.7456, landeLon: 9.5686, landeHoehe: 270, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 130, gemeinde: "97877 Urphar", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Urphar Landeplatz Nordwest", landeLat: 49.7456, landeLon: 9.5686, landeHoehe: 270, landeExtra: [{ name: "Urphar Landeplatz Nordost", lat: 49.75751, lon: 9.550745, hoehe: 140 }], ...DEF },
 
   { id: "db_5560", name: "V-Tal", region: "Donzdorf",
     lat: 48.7005, lon: 9.8082, elevation: 479, dhv: 5560,
@@ -2342,7 +2342,7 @@ const SPOT_DB = [
 
   { id: "db_2588", name: "Waldems-Esch", region: "Waldems-Esch",
     lat: 50.2472, lon: 8.3246, elevation: 305, dhv: 2588,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 75, gemeinde: "65529 Waldems-Esch", bundesland: "Hessen", gleitschirm: "1-sitzig mit Einweisung", landeName: "Waldems-Esch Landeplatz 1", landeLat: 50.2465, landeLon: 8.3229, landeHoehe: 230, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 75, gemeinde: "65529 Waldems-Esch", bundesland: "Hessen", gleitschirm: "1-sitzig mit Einweisung", landeName: "Waldems-Esch Landeplatz 1", landeLat: 50.2465, landeLon: 8.3229, landeHoehe: 230, landeExtra: [{ name: "Waldems-Esch Landeplatz 2", lat: 50.246272, lon: 8.320169, hoehe: 230 }], ...DEF },
 
   { id: "db_749", name: "Waldstetten/Skihütte", region: "Waldstetten",
     lat: 48.7518, lon: 9.815, elevation: 523, dhv: 749,
@@ -2350,15 +2350,15 @@ const SPOT_DB = [
 
   { id: "db_953_N", name: "Wallberg (N)", region: "Rottach-Egern",
     lat: 47.661, lon: 11.7906, elevation: 1604, dhv: 953,
-    sectors: [[348.75, 33.75]], sectorLabel: "N-NNO", country: "de", acc: "fb", hoehendiff: 965, gemeinde: "83700 Rottach-Egern", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Wallberg Landeplatz an der Wallbergstraße", landeLat: 47.6759, landeLon: 11.7710, landeHoehe: 755, ...DEF },
+    sectors: [[348.75, 33.75]], sectorLabel: "N-NNO", country: "de", acc: "fb", hoehendiff: 965, gemeinde: "83700 Rottach-Egern", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Wallberg Landeplatz an der Wallbergstraße", landeLat: 47.6759, landeLon: 11.7710, landeHoehe: 755, landeExtra: [{ name: "Wallberg Landeplatz Auf der Point", lat: 47.700231, lon: 11.758761, hoehe: 755 }], ...DEF },
 
   { id: "db_953_NW", name: "Wallberg (NW)", region: "Rottach-Egern",
     lat: 47.6659, lon: 11.7967, elevation: 1720, dhv: 953,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fb", hoehendiff: 965, gemeinde: "83700 Rottach-Egern", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Wallberg Landeplatz an der Wallbergstraße", landeLat: 47.6759, landeLon: 11.7710, landeHoehe: 755, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fb", hoehendiff: 965, gemeinde: "83700 Rottach-Egern", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Wallberg Landeplatz an der Wallbergstraße", landeLat: 47.6759, landeLon: 11.7710, landeHoehe: 755, landeExtra: [{ name: "Wallberg Landeplatz Auf der Point", lat: 47.700231, lon: 11.758761, hoehe: 755 }], ...DEF },
 
   { id: "db_953_W", name: "Wallberg (W)", region: "Rottach-Egern",
     lat: 47.6638, lon: 11.7949, elevation: 1646, dhv: 953,
-    sectors: [[213.75, 11.25]], sectorLabel: "SW-N", country: "de", acc: "fb", hoehendiff: 965, gemeinde: "83700 Rottach-Egern", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Wallberg Landeplatz an der Wallbergstraße", landeLat: 47.6759, landeLon: 11.7710, landeHoehe: 755, ...DEF },
+    sectors: [[213.75, 11.25]], sectorLabel: "SW-N", country: "de", acc: "fb", hoehendiff: 965, gemeinde: "83700 Rottach-Egern", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Wallberg Landeplatz an der Wallbergstraße", landeLat: 47.6759, landeLon: 11.7710, landeHoehe: 755, landeExtra: [{ name: "Wallberg Landeplatz Auf der Point", lat: 47.700231, lon: 11.758761, hoehe: 755 }], ...DEF },
 
   { id: "db_888", name: "Wanfried - Aue", region: "Wanfried",
     lat: 51.1722, lon: 10.1301, elevation: 345, dhv: 888,
@@ -2390,7 +2390,7 @@ const SPOT_DB = [
 
   { id: "db_396", name: "Weiherkopf / Hörnerbahn", region: "Bolsterlang",
     lat: 47.4652, lon: 10.2013, elevation: 1660, dhv: 396,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fb", hoehendiff: 820, gemeinde: "87538 Bolsterlang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Weiherkopf / Hörnerbahn Landeplatz (Talstation)", landeLat: 47.4617, landeLon: 10.2261, landeHoehe: 840, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fb", hoehendiff: 820, gemeinde: "87538 Bolsterlang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Weiherkopf / Hörnerbahn Landeplatz (Talstation)", landeLat: 47.4617, landeLon: 10.2261, landeHoehe: 840, landeExtra: [{ name: "Weiherkopf / Hörnerbahn Haupt-LP (Minigolfplatz)", lat: 47.463713, lon: 10.237842, hoehe: 840 }], ...DEF },
 
   { id: "db_629", name: "Weiherkuppe", region: "Poppenhausen",
     lat: 50.5112, lon: 9.9138, elevation: 720, dhv: 629,
@@ -2418,11 +2418,11 @@ const SPOT_DB = [
 
   { id: "db_4655_SW", name: "Weiskirchen (SW)", region: "Weiskirchen",
     lat: 49.5471, lon: 6.8229, elevation: 362, dhv: 4655,
-    sectors: [[168.75, 303.75]], sectorLabel: "S-WNW", country: "de", acc: "fa", hoehendiff: 38, gemeinde: "66709 Weiskirchen", bundesland: "Saarland", gleitschirm: "1-sitzig / Schulung", landeName: "Weiskirchen Landeplatz 2", landeLat: 49.5448, landeLon: 6.8206, landeHoehe: 330, ...DEF },
+    sectors: [[168.75, 303.75]], sectorLabel: "S-WNW", country: "de", acc: "fa", hoehendiff: 38, gemeinde: "66709 Weiskirchen", bundesland: "Saarland", gleitschirm: "1-sitzig / Schulung", landeName: "Weiskirchen Landeplatz 2", landeLat: 49.5448, landeLon: 6.8206, landeHoehe: 330, landeExtra: [{ name: "Weiskirchen Landeplatz 1", lat: 49.543333, lon: 6.82175, hoehe: 324 }], ...DEF },
 
   { id: "db_4655_W", name: "Weiskirchen (W)", region: "Weiskirchen",
     lat: 49.5436, lon: 6.8259, elevation: 360, dhv: 4655,
-    sectors: [[236.25, 281.25]], sectorLabel: "WSW-W", country: "de", acc: "fa", hoehendiff: 38, gemeinde: "66709 Weiskirchen", bundesland: "Saarland", gleitschirm: "1-sitzig / Schulung", landeName: "Weiskirchen Landeplatz 1", landeLat: 49.5433, landeLon: 6.8217, landeHoehe: 324, ...DEF },
+    sectors: [[236.25, 281.25]], sectorLabel: "WSW-W", country: "de", acc: "fa", hoehendiff: 38, gemeinde: "66709 Weiskirchen", bundesland: "Saarland", gleitschirm: "1-sitzig / Schulung", landeName: "Weiskirchen Landeplatz 1", landeLat: 49.5433, landeLon: 6.8217, landeHoehe: 324, landeExtra: [{ name: "Weiskirchen Landeplatz 2", lat: 49.544833, lon: 6.820611, hoehe: 330 }], ...DEF },
 
   { id: "db_5828", name: "Weiten Gesäß", region: "Michelstadt",
     lat: 49.693, lon: 9.0439, elevation: 360, dhv: 5828,
@@ -2494,7 +2494,7 @@ const SPOT_DB = [
 
   { id: "db_1003", name: "Wittelsbacher Turm", region: "Bad Kissingen",
     lat: 50.1631, lon: 10.0756, elevation: 385, dhv: 1003,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fa", hoehendiff: 111, gemeinde: "97688 Bad Kissingen", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "schwieriger Schneisenstart, kleiner Startplatz, Start nur bei N oder NNW-Wind, keinesfalls bei NO (Rotoren in der Schneise; Windfahne an Turmspitze und am Startplatz müssen gleiche Richtung haben), beim Soaren an der Abrisskante Entfernung zum Landeplatz beachten", landeName: "Toplandeplatz am Turm", landeLat: 50.1622, landeLon: 10.0765, landeHoehe: 395, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fa", hoehendiff: 111, gemeinde: "97688 Bad Kissingen", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "schwieriger Schneisenstart, kleiner Startplatz, Start nur bei N oder NNW-Wind, keinesfalls bei NO (Rotoren in der Schneise; Windfahne an Turmspitze und am Startplatz müssen gleiche Richtung haben), beim Soaren an der Abrisskante Entfernung zum Landeplatz beachten", landeName: "Toplandeplatz am Turm", landeLat: 50.1622, landeLon: 10.0765, landeHoehe: 395, landeExtra: [{ name: "Brandsgewänd Landeplatz", lat: 50.165422, lon: 10.07324, hoehe: 284 }], ...DEF },
 
   { id: "db_295", name: "Wittental", region: "Stegen",
     lat: 47.9903, lon: 7.9577, elevation: 471, dhv: 295,
@@ -2595,7 +2595,7 @@ const SPOT_DB = [
 
   { id: "db_1457", name: "Christlum", region: "Achenkirch",
     lat: 47.5041, lon: 11.6617, elevation: 1725, dhv: 1457,
-    sectors: [[33.75, 56.25], [123.75, 146.25]], sectorLabel: "NO · SO", country: "at", acc: "fb", hoehendiff: 785, gemeinde: "6215 Achenkirch", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz befindet sich wenige Höhenmeter nördlich oberhalb der Bergstation.", landeName: "Christlum Landeplatz Winter", landeLat: 47.5137, landeLon: 11.6992, landeHoehe: 940, ...DEF },
+    sectors: [[33.75, 56.25], [123.75, 146.25]], sectorLabel: "NO · SO", country: "at", acc: "fb", hoehendiff: 785, gemeinde: "6215 Achenkirch", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz befindet sich wenige Höhenmeter nördlich oberhalb der Bergstation.", landeName: "Christlum Landeplatz Winter", landeLat: 47.5137, landeLon: 11.6992, landeHoehe: 940, landeExtra: [{ name: "Christlum Landeplatz Sommer", lat: 47.504293, lon: 11.702647, hoehe: 940 }], ...DEF },
 
   { id: "db_1419", name: "Dachstein", region: "Ramsau",
     lat: 47.4673, lon: 13.6275, elevation: 2593, dhv: 1419,
@@ -2603,7 +2603,7 @@ const SPOT_DB = [
 
   { id: "db_1219", name: "Diedamskopf", region: "Schoppernau",
     lat: 47.3462, lon: 10.0259, elevation: 2077, dhv: 1219,
-    sectors: [[78.75, 281.25], [168.75, 191.25]], sectorLabel: "O-W · S", country: "at", acc: "fb", hoehendiff: 1251, gemeinde: "6886 Schoppernau", bundesland: "Vorarlberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Ein Starten ist nur von den markierten Startplätzen (Windsack) zulässig. Im Winter ist ein Starten auf den Skipisten nicht gestattet. Generell ist der festgelegte Flugkorridor einzuhalten. Flughöhe mindestens 300m, um das \"Wild\" nicht zu stören! (Infotafeln am Start- und Landeplatz und Infoblatt in der Talstation beachten). Verhaltensempfehlungen: • halte dich an den ausgewiesenen Flugraum (rot-markierte Fläche, meide insbesondere das Üntschen- und Kanisfluhgebiet! • gleite nicht entlang von baumarmen Berghängen und Bergrücken • halte dich so oft als möglich an eine Flughöhe von mind. 300 m • weiche Dir bekannten Wohnungen des Wildes aus • bleibe auf Distanz zu entdeckten Tieren", landeName: "Diedamskopf Landeplatz 2", landeLat: 47.3150, landeLon: 10.0091, landeHoehe: 831, ...DEF },
+    sectors: [[78.75, 281.25], [168.75, 191.25]], sectorLabel: "O-W · S", country: "at", acc: "fb", hoehendiff: 1251, gemeinde: "6886 Schoppernau", bundesland: "Vorarlberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Ein Starten ist nur von den markierten Startplätzen (Windsack) zulässig. Im Winter ist ein Starten auf den Skipisten nicht gestattet. Generell ist der festgelegte Flugkorridor einzuhalten. Flughöhe mindestens 300m, um das \"Wild\" nicht zu stören! (Infotafeln am Start- und Landeplatz und Infoblatt in der Talstation beachten). Verhaltensempfehlungen: • halte dich an den ausgewiesenen Flugraum (rot-markierte Fläche, meide insbesondere das Üntschen- und Kanisfluhgebiet! • gleite nicht entlang von baumarmen Berghängen und Bergrücken • halte dich so oft als möglich an eine Flughöhe von mind. 300 m • weiche Dir bekannten Wohnungen des Wildes aus • bleibe auf Distanz zu entdeckten Tieren", landeName: "Diedamskopf Landeplatz 2", landeLat: 47.3150, landeLon: 10.0091, landeHoehe: 831, landeExtra: [{ name: "Diedamskopf Landeplatz 1", lat: 47.314417, lon: 10.007489, hoehe: 826 }], ...DEF },
 
   { id: "db_5619", name: "Döbriach", region: "Döbriach",
     lat: 46.7635, lon: 13.6644, elevation: 1050, dhv: 5619,
@@ -2627,11 +2627,11 @@ const SPOT_DB = [
 
   { id: "db_1305_S", name: "Emberger Alm (S)", region: "Greifenburg",
     lat: 46.7723, lon: 13.1499, elevation: 1735, dhv: 1305,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "at", acc: "fa", hoehendiff: 1299, gemeinde: "9761 Greifenburg", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig", bemerkung: "Steiler Wiesenstartplatz in breiter Waldschneise für Drachen (Rampe) und Gleitschirme.", landeName: "Emberger Alm Landeplatz 2", landeLat: 46.7440, landeLon: 13.1274, landeHoehe: 606, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "at", acc: "fa", hoehendiff: 1299, gemeinde: "9761 Greifenburg", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig", bemerkung: "Steiler Wiesenstartplatz in breiter Waldschneise für Drachen (Rampe) und Gleitschirme.", landeName: "Emberger Alm Landeplatz 2", landeLat: 46.7440, landeLon: 13.1274, landeHoehe: 606, landeExtra: [{ name: "Emberger Alm Landeplatz Fliegercamp", lat: 46.746667, lon: 13.192528, hoehe: 590 }], ...DEF },
 
   { id: "db_1305_SO", name: "Emberger Alm (SO)", region: "Greifenburg",
     lat: 46.7769, lon: 13.1496, elevation: 1889, dhv: 1305,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "at", acc: "fa", hoehendiff: 1299, gemeinde: "9761 Greifenburg", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig", bemerkung: "Grashang oberhalb der Embergeralm. Zufahrtsmöglichkeit nur mit den Sammeltaxis oder ca. 20 Minuten zu Fuß von der Emberger Alm.", landeName: "Emberger Alm Landeplatz 2", landeLat: 46.7440, landeLon: 13.1274, landeHoehe: 606, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "at", acc: "fa", hoehendiff: 1299, gemeinde: "9761 Greifenburg", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig", bemerkung: "Grashang oberhalb der Embergeralm. Zufahrtsmöglichkeit nur mit den Sammeltaxis oder ca. 20 Minuten zu Fuß von der Emberger Alm.", landeName: "Emberger Alm Landeplatz 2", landeLat: 46.7440, landeLon: 13.1274, landeHoehe: 606, landeExtra: [{ name: "Emberger Alm Landeplatz Fliegercamp", lat: 46.746667, lon: 13.192528, hoehe: 590 }], ...DEF },
 
   { id: "db_1267", name: "Entscharn", region: "Bramberg",
     lat: 47.2806, lon: 12.3424, elevation: 1137, dhv: 1267,
@@ -2647,11 +2647,11 @@ const SPOT_DB = [
 
   { id: "db_1302_SO", name: "Finkenberg (SO)", region: "Finkenberg",
     lat: 47.168, lon: 11.8043, elevation: 2029, dhv: 1302,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fb", hoehendiff: 1428, gemeinde: "9292 Finkenberg", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz auf Wiesenflanke unterhalb der Bergstation.", landeName: "Finkenberg Landeplatz", landeLat: 47.1538, landeLon: 11.8191, landeHoehe: 916, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fb", hoehendiff: 1428, gemeinde: "9292 Finkenberg", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz auf Wiesenflanke unterhalb der Bergstation.", landeName: "Finkenberg Landeplatz", landeLat: 47.1538, landeLon: 11.8191, landeHoehe: 916, landeExtra: [{ name: "Penken Landeplatz", lat: 47.161773, lon: 11.853658, hoehe: 646 }], ...DEF },
 
   { id: "db_1302_SW", name: "Finkenberg (SW)", region: "Finkenberg",
     lat: 47.169, lon: 11.799, elevation: 2074, dhv: 1302,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "at", acc: "fb", hoehendiff: 1428, gemeinde: "6292 Finkenberg", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz neben der Bergstation der Katzenmoosbahn.", landeName: "Finkenberg Landeplatz", landeLat: 47.1538, landeLon: 11.8191, landeHoehe: 916, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "at", acc: "fb", hoehendiff: 1428, gemeinde: "6292 Finkenberg", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz neben der Bergstation der Katzenmoosbahn.", landeName: "Finkenberg Landeplatz", landeLat: 47.1538, landeLon: 11.8191, landeHoehe: 916, landeExtra: [{ name: "Penken Landeplatz", lat: 47.161773, lon: 11.853658, hoehe: 646 }], ...DEF },
 
   { id: "db_1944", name: "Fohnsdorf", region: "Fohnsdorf",
     lat: 47.2319, lon: 14.6898, elevation: 1310, dhv: 1944,
@@ -2659,27 +2659,27 @@ const SPOT_DB = [
 
   { id: "db_1307_O", name: "Fulseck (O)", region: "Dorfgastein",
     lat: 47.2343, lon: 13.148, elevation: 2015, dhv: 1307,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "at", acc: "fb", hoehendiff: 1189, gemeinde: "5632 Dorfgastein", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Startwiese unterhalb der Bergstation am Ende des Sesselliftes. Im Winter ca. 200 Meter nördlich der Piste. Starten bei Skibetrieb auf der Piste verboten.", landeName: "Fulseck Landeplatz 2", landeLat: 47.2251, landeLon: 13.1089, landeHoehe: 826, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "at", acc: "fb", hoehendiff: 1189, gemeinde: "5632 Dorfgastein", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Startwiese unterhalb der Bergstation am Ende des Sesselliftes. Im Winter ca. 200 Meter nördlich der Piste. Starten bei Skibetrieb auf der Piste verboten.", landeName: "Fulseck Landeplatz 2", landeLat: 47.2251, landeLon: 13.1089, landeHoehe: 826, landeExtra: [{ name: "Fulseck Landeplatz 1", lat: 47.245409, lon: 13.108706, hoehe: 859 }], ...DEF },
 
   { id: "db_1307_W", name: "Fulseck (W)", region: "Dorfgastein",
     lat: 47.2354, lon: 13.1474, elevation: 1998, dhv: 1307,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "at", acc: "fb", hoehendiff: 1189, gemeinde: "5632 Dorfgastein", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Startwiese unterhalb der Bergstation am Ende des Sesselliftes. Im Winter ca. 200 Meter nördlich der Piste. Starten bei Skibetrieb auf der Piste verboten.", landeName: "Fulseck Landeplatz 2", landeLat: 47.2251, landeLon: 13.1089, landeHoehe: 826, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "at", acc: "fb", hoehendiff: 1189, gemeinde: "5632 Dorfgastein", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Startwiese unterhalb der Bergstation am Ende des Sesselliftes. Im Winter ca. 200 Meter nördlich der Piste. Starten bei Skibetrieb auf der Piste verboten.", landeName: "Fulseck Landeplatz 2", landeLat: 47.2251, landeLon: 13.1089, landeHoehe: 826, landeExtra: [{ name: "Fulseck Landeplatz 1", lat: 47.245409, lon: 13.108706, hoehe: 859 }], ...DEF },
 
   { id: "db_1298_N", name: "Gaisberg (N)", region: "Salzburg",
     lat: 47.8049, lon: 13.1139, elevation: 1263, dhv: 1298,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "at", acc: "fa", hoehendiff: 833, gemeinde: "5023 Salzburg", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Kleine Startschneise hinter der Antenne.", landeName: "Gaisberg Hauptlandeplatz im Guggenthal", landeLat: 47.8180, landeLon: 13.1021, landeHoehe: 618, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "at", acc: "fa", hoehendiff: 833, gemeinde: "5023 Salzburg", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Kleine Startschneise hinter der Antenne.", landeName: "Gaisberg Hauptlandeplatz im Guggenthal", landeLat: 47.8180, landeLon: 13.1021, landeHoehe: 618, landeExtra: [{ name: "Gaisberg Landeplatz Glasenbach - ausschließlich für Drachenflieger", lat: 47.762167, lon: 13.080692, hoehe: 430 }], ...DEF },
 
   { id: "db_1298_SW", name: "Gaisberg (SW)", region: "Salzburg",
     lat: 47.8032, lon: 13.1097, elevation: 1257, dhv: 1298,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "at", acc: "fa", hoehendiff: 833, gemeinde: "5023 Salzburg", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Herrlicher Wiesenstartplatz linker Hand vor der Wendeschleife der Gaisbergstraße.", landeName: "Gaisberg Hauptlandeplatz im Guggenthal", landeLat: 47.8180, landeLon: 13.1021, landeHoehe: 618, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "at", acc: "fa", hoehendiff: 833, gemeinde: "5023 Salzburg", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Herrlicher Wiesenstartplatz linker Hand vor der Wendeschleife der Gaisbergstraße.", landeName: "Gaisberg Hauptlandeplatz im Guggenthal", landeLat: 47.8180, landeLon: 13.1021, landeHoehe: 618, landeExtra: [{ name: "Gaisberg Landeplatz Glasenbach - ausschließlich für Drachenflieger", lat: 47.762167, lon: 13.080692, hoehe: 430 }], ...DEF },
 
   { id: "db_1298_W", name: "Gaisberg (W)", region: "Salzburg",
     lat: 47.8045, lon: 13.1103, elevation: 1256, dhv: 1298,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "at", acc: "fa", hoehendiff: 833, gemeinde: "5023 Salzburg", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Steile, breite Startschneise hinter dem Bergrestaurant.", landeName: "Gaisberg Hauptlandeplatz im Guggenthal", landeLat: 47.8180, landeLon: 13.1021, landeHoehe: 618, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "at", acc: "fa", hoehendiff: 833, gemeinde: "5023 Salzburg", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", bemerkung: "Steile, breite Startschneise hinter dem Bergrestaurant.", landeName: "Gaisberg Hauptlandeplatz im Guggenthal", landeLat: 47.8180, landeLon: 13.1021, landeHoehe: 618, landeExtra: [{ name: "Gaisberg Landeplatz Glasenbach - ausschließlich für Drachenflieger", lat: 47.762167, lon: 13.080692, hoehe: 430 }], ...DEF },
 
   { id: "db_1334", name: "Gaislachkogel", region: "Sölden",
     lat: 46.9542, lon: 10.9815, elevation: 2306, dhv: 1334,
-    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", country: "at", acc: "fb", hoehendiff: 960, gemeinde: "6450 Sölden", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Nur Sommer-Startplatz. Dieser Startplatz liegt ca. 570 Meter nordwestlich der Mittelstation.", landeName: "Gaislachkogel Landeplatz 1", landeLat: 46.9606, landeLon: 11.0111, landeHoehe: 1357, ...DEF },
+    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", country: "at", acc: "fb", hoehendiff: 960, gemeinde: "6450 Sölden", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Nur Sommer-Startplatz. Dieser Startplatz liegt ca. 570 Meter nordwestlich der Mittelstation.", landeName: "Gaislachkogel Landeplatz 1", landeLat: 46.9606, landeLon: 11.0111, landeHoehe: 1357, landeExtra: [{ name: "Gaislachkogel Landeplatz 2", lat: 46.976506, lon: 11.010522, hoehe: 1346 }], ...DEF },
 
   { id: "db_1912", name: "Gaschurn", region: "St. Gallenkirch",
     lat: 46.9806, lon: 9.9935, elevation: 1971, dhv: 1912,
@@ -2687,7 +2687,7 @@ const SPOT_DB = [
 
   { id: "db_1512", name: "Gebrenzen", region: "Sankt Lambrecht",
     lat: 47.0388, lon: 14.3315, elevation: 1859, dhv: 1512,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "at", acc: "fb", hoehendiff: 843, gemeinde: "8813 Sankt Lambrecht", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", landeName: "Gebrenzen Landeplatz 1", landeLat: 47.0716, landeLon: 14.3072, landeHoehe: 1016, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "at", acc: "fb", hoehendiff: 843, gemeinde: "8813 Sankt Lambrecht", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", landeName: "Gebrenzen Landeplatz 1", landeLat: 47.0716, landeLon: 14.3072, landeHoehe: 1016, landeExtra: [{ name: "Gebrenzen Landeplatz 2", lat: 47.074708, lon: 14.312919, hoehe: 1016 }], ...DEF },
 
   { id: "db_1362", name: "Gelderkogel", region: "Fladnitz",
     lat: 47.3039, lon: 15.4789, elevation: 1130, dhv: 1362,
@@ -2707,11 +2707,11 @@ const SPOT_DB = [
 
   { id: "db_1251_S", name: "Gerlitzen (S)", region: "Annenheim",
     lat: 46.6924, lon: 13.9139, elevation: 1897, dhv: 1251,
-    sectors: [[123.75, 236.25], [168.75, 236.25]], sectorLabel: "SO-SW · S-SW", country: "at", acc: "fab", hoehendiff: 1395, gemeinde: "9521 Annenheim", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Die Startplätze befinden sich rund um den Steinturm unterhalb der Bergstation bis zur 4er-Sesselbahn. Rampe für HG vor dem Alpengasthof Pacheiner.", landeName: "Gerlitzen Landeplatz 2", landeLat: 46.6537, landeLon: 13.8911, landeHoehe: 509, ...DEF },
+    sectors: [[123.75, 236.25], [168.75, 236.25]], sectorLabel: "SO-SW · S-SW", country: "at", acc: "fab", hoehendiff: 1395, gemeinde: "9521 Annenheim", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Die Startplätze befinden sich rund um den Steinturm unterhalb der Bergstation bis zur 4er-Sesselbahn. Rampe für HG vor dem Alpengasthof Pacheiner.", landeName: "Gerlitzen Landeplatz 2", landeLat: 46.6537, landeLon: 13.8911, landeHoehe: 509, landeExtra: [{ name: "Gerlitzen Landeplatz 1", lat: 46.653914, lon: 13.887706, hoehe: 509 }, { name: "Gerlitzen Landeplatz 3", lat: 46.655254, lon: 13.880904, hoehe: 502 }], ...DEF },
 
   { id: "db_1251_SO", name: "Gerlitzen (SO)", region: "Annenheim",
     lat: 46.6693, lon: 13.9047, elevation: 1043, dhv: 1251,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "at", acc: "fab", hoehendiff: 1395, gemeinde: "9521 Annenheim", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Höhenflugstartplatz der Flugschule. Start nur mit Erlaubnis möglich!", landeName: "Gerlitzen Landeplatz 2", landeLat: 46.6537, landeLon: 13.8911, landeHoehe: 509, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "at", acc: "fab", hoehendiff: 1395, gemeinde: "9521 Annenheim", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Höhenflugstartplatz der Flugschule. Start nur mit Erlaubnis möglich!", landeName: "Gerlitzen Landeplatz 2", landeLat: 46.6537, landeLon: 13.8911, landeHoehe: 509, landeExtra: [{ name: "Gerlitzen Landeplatz 1", lat: 46.653914, lon: 13.887706, hoehe: 509 }, { name: "Gerlitzen Landeplatz 3", lat: 46.655254, lon: 13.880904, hoehe: 502 }], ...DEF },
 
   { id: "db_1451", name: "Giggijoch", region: "Sölden",
     lat: 46.9792, lon: 10.9755, elevation: 2291, dhv: 1451,
@@ -2811,11 +2811,11 @@ const SPOT_DB = [
 
   { id: "db_1425_N", name: "Hahnenkamm Kitzbühel (N)", region: "Kitzbühel",
     lat: 47.4266, lon: 12.3709, elevation: 1625, dhv: 1425,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "at", diff: 1, acc: "fb", hoehendiff: 859, gemeinde: "6370 Kitzbühel", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz liegt direkt neben dem Starthaus für das Skirennen an der Mausefalle.", landeName: "Hahnenkamm Kitzbühel Landeplatz 1", landeLat: 47.4429, landeLon: 12.3868, landeHoehe: 791, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "at", diff: 1, acc: "fb", hoehendiff: 859, gemeinde: "6370 Kitzbühel", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz liegt direkt neben dem Starthaus für das Skirennen an der Mausefalle.", landeName: "Hahnenkamm Kitzbühel Landeplatz 1", landeLat: 47.4429, landeLon: 12.3868, landeHoehe: 791, landeExtra: [{ name: "Hahnenkamm Kitzbühel Landeplatz 2", lat: 47.441176, lon: 12.390158, hoehe: 791 }], ...DEF },
 
   { id: "db_1425_SO", name: "Hahnenkamm Kitzbühel (SO)", region: "Kitzbühel",
     lat: 47.4248, lon: 12.3703, elevation: 1650, dhv: 1425,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", diff: 1, acc: "fb", hoehendiff: 859, gemeinde: "6370 Kitzbühel", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz liegt südwestlich der Bergstation und Gipfelrestaurants.", landeName: "Hahnenkamm Kitzbühel Landeplatz 2", landeLat: 47.4412, landeLon: 12.3902, landeHoehe: 791, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", diff: 1, acc: "fb", hoehendiff: 859, gemeinde: "6370 Kitzbühel", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz liegt südwestlich der Bergstation und Gipfelrestaurants.", landeName: "Hahnenkamm Kitzbühel Landeplatz 2", landeLat: 47.4412, landeLon: 12.3902, landeHoehe: 791, landeExtra: [{ name: "Hahnenkamm Kitzbühel Landeplatz 1", lat: 47.442889, lon: 12.386811, hoehe: 791 }], ...DEF },
 
   { id: "db_5817", name: "Haimburgerberg", region: "",
     lat: 46.7189, lon: 14.6719, elevation: 1060, dhv: 5817,
@@ -2831,19 +2831,19 @@ const SPOT_DB = [
 
   { id: "db_2359_O", name: "Harschbichl (O)", region: "St. Johann in Tirol",
     lat: 47.4845, lon: 12.4285, elevation: 1584, dhv: 2359,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "at", acc: "fb", hoehendiff: 912, gemeinde: "6380 St. Johann in Tirol", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz befindet sich direkt östlich vor der Bergstation (s. Foto).", landeName: "Harschbichl Landeplatz 2", landeLat: 47.4973, landeLon: 12.3875, landeHoehe: 689, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "at", acc: "fb", hoehendiff: 912, gemeinde: "6380 St. Johann in Tirol", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz befindet sich direkt östlich vor der Bergstation (s. Foto).", landeName: "Harschbichl Landeplatz 2", landeLat: 47.4973, landeLon: 12.3875, landeHoehe: 689, landeExtra: [{ name: "Harschbichl Landeplatz 1", lat: 47.513617, lon: 12.413319, hoehe: 672 }], ...DEF },
 
   { id: "db_2359_W", name: "Harschbichl (W)", region: "St. Johann in Tirol",
     lat: 47.482, lon: 12.4276, elevation: 1580, dhv: 2359,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fb", hoehendiff: 912, gemeinde: "6380 St. Johann in Tirol", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz befindet südlich etwas oberhalb der Bergstation Richtung Kitzbüheler Horn.", landeName: "Harschbichl Landeplatz 2", landeLat: 47.4973, landeLon: 12.3875, landeHoehe: 689, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fb", hoehendiff: 912, gemeinde: "6380 St. Johann in Tirol", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz befindet südlich etwas oberhalb der Bergstation Richtung Kitzbüheler Horn.", landeName: "Harschbichl Landeplatz 2", landeLat: 47.4973, landeLon: 12.3875, landeHoehe: 689, landeExtra: [{ name: "Harschbichl Landeplatz 1", lat: 47.513617, lon: 12.413319, hoehe: 672 }], ...DEF },
 
   { id: "db_1324_NO", name: "Hauser Kaibling (NO)", region: "Haus im Ennstal",
     lat: 47.3792, lon: 13.7671, elevation: 1796, dhv: 1324,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "at", acc: "fb", hoehendiff: 1287, gemeinde: "8967 Haus im Ennstal", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Nach nordosten ausgerichteter Wiesenstartplatz in einer Skischneise unterhalb der Bergstation.", landeName: "Hauser Kaibling Landeplatz 2", landeLat: 47.4085, landeLon: 13.7632, landeHoehe: 777, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "at", acc: "fb", hoehendiff: 1287, gemeinde: "8967 Haus im Ennstal", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Nach nordosten ausgerichteter Wiesenstartplatz in einer Skischneise unterhalb der Bergstation.", landeName: "Hauser Kaibling Landeplatz 2", landeLat: 47.4085, landeLon: 13.7632, landeHoehe: 777, landeExtra: [{ name: "Hauser Kaibling Landeplatz 1", lat: 47.419461, lon: 13.813458, hoehe: 695 }], ...DEF },
 
   { id: "db_1324_W", name: "Hauser Kaibling (W)", region: "Haus im Ennstal",
     lat: 47.3744, lon: 13.7788, elevation: 1982, dhv: 1324,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "at", acc: "fb", hoehendiff: 1287, gemeinde: "8967 Haus im Ennstal", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Nach Westen ausgerichteter Wiesenstartplatz südöstlich unterhalb des Gipfels.", landeName: "Hauser Kaibling Landeplatz 2", landeLat: 47.4085, landeLon: 13.7632, landeHoehe: 777, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "at", acc: "fb", hoehendiff: 1287, gemeinde: "8967 Haus im Ennstal", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Nach Westen ausgerichteter Wiesenstartplatz südöstlich unterhalb des Gipfels.", landeName: "Hauser Kaibling Landeplatz 2", landeLat: 47.4085, landeLon: 13.7632, landeHoehe: 777, landeExtra: [{ name: "Hauser Kaibling Landeplatz 1", lat: 47.419461, lon: 13.813458, hoehe: 695 }], ...DEF },
 
   { id: "db_1375", name: "Herndleck", region: "Ternberg",
     lat: 47.9283, lon: 14.3284, elevation: 1026, dhv: 1375,
@@ -2871,7 +2871,7 @@ const SPOT_DB = [
 
   { id: "db_1458", name: "Hochficht", region: "Schwarzenberg",
     lat: 48.7364, lon: 13.9189, elevation: 1313, dhv: 1458,
-    sectors: [[168.75, 326.25]], sectorLabel: "S-NW", country: "at", acc: "fa", hoehendiff: 646, gemeinde: "4164 Schwarzenberg", bundesland: "Oberösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Hochficht Landeplatz 2", landeLat: 48.7371, landeLon: 13.8994, landeHoehe: 926, ...DEF },
+    sectors: [[168.75, 326.25]], sectorLabel: "S-NW", country: "at", acc: "fa", hoehendiff: 646, gemeinde: "4164 Schwarzenberg", bundesland: "Oberösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Hochficht Landeplatz 2", landeLat: 48.7371, landeLon: 13.8994, landeHoehe: 926, landeExtra: [{ name: "Hochficht Landeplatz 3", lat: 48.741597, lon: 13.895494, hoehe: 997 }, { name: "Hochficht Landeplatz 1", lat: 48.707106, lon: 13.899217, hoehe: 667 }], ...DEF },
 
   { id: "db_1456", name: "Hochimst", region: "Hochimst",
     lat: 47.256, lon: 10.6772, elevation: 2021, dhv: 1456,
@@ -2903,7 +2903,7 @@ const SPOT_DB = [
 
   { id: "db_1326", name: "Hochstein", region: "Lienz",
     lat: 46.8184, lon: 12.708, elevation: 1963, dhv: 1326,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "at", acc: "fa", hoehendiff: 1272, gemeinde: "9900 Lienz", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", landeName: "Hochstein Landeplatz 1", landeLat: 46.8304, landeLon: 12.7533, landeHoehe: 691, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "at", acc: "fa", hoehendiff: 1272, gemeinde: "9900 Lienz", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", landeName: "Hochstein Landeplatz 1", landeLat: 46.8304, landeLon: 12.7533, landeHoehe: 691, landeExtra: [{ name: "Hochstein Landeplatz 2", lat: 46.820054, lon: 12.773731, hoehe: 691 }], ...DEF },
 
   { id: "db_1330_N", name: "Hochwurzen (N)", region: "Pichl",
     lat: 47.36, lon: 13.639, elevation: 1812, dhv: 1330,
@@ -2931,19 +2931,19 @@ const SPOT_DB = [
 
   { id: "db_1309_SO", name: "Hohe Salve (SO)", region: "Söll",
     lat: 47.4642, lon: 12.2025, elevation: 1815, dhv: 1309,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "at", acc: "fb", hoehendiff: 1213, gemeinde: "6306 Söll", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Südstartplatz in der Nähe des Kreuzes unterhalb des Gipfels. Hauptstartplatz von Hopferau aus.", landeName: "Hohe Salve Landeplatz 2", landeLat: 47.4468, landeLon: 12.1568, landeHoehe: 602, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "at", acc: "fb", hoehendiff: 1213, gemeinde: "6306 Söll", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Südstartplatz in der Nähe des Kreuzes unterhalb des Gipfels. Hauptstartplatz von Hopferau aus.", landeName: "Hohe Salve Landeplatz 2", landeLat: 47.4468, landeLon: 12.1568, landeHoehe: 602, landeExtra: [{ name: "Hohe Salve Landeplatz 1", lat: 47.500458, lon: 12.194173, hoehe: 697 }], ...DEF },
 
   { id: "db_1309_W", name: "Hohe Salve (W)", region: "Söll",
     lat: 47.4653, lon: 12.2031, elevation: 1815, dhv: 1309,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "at", acc: "fb", hoehendiff: 1213, gemeinde: "6306 Söll", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Schöner Wiesenhang Richtung West-/Nordwest.", landeName: "Hohe Salve Landeplatz 1", landeLat: 47.5005, landeLon: 12.1942, landeHoehe: 697, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "at", acc: "fb", hoehendiff: 1213, gemeinde: "6306 Söll", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Schöner Wiesenhang Richtung West-/Nordwest.", landeName: "Hohe Salve Landeplatz 1", landeLat: 47.5005, landeLon: 12.1942, landeHoehe: 697, landeExtra: [{ name: "Hohe Salve Landeplatz 2", lat: 47.446752, lon: 12.156822, hoehe: 602 }], ...DEF },
 
   { id: "db_1365_O", name: "Hohe Wand (O)", region: "Maiersdorf",
     lat: 47.8294, lon: 16.0416, elevation: 912, dhv: 1365,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "at", acc: "fa", hoehendiff: 506, gemeinde: "2724 Maiersdorf", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz in breiter Waldschneise. Hauptstartplatz für Gleitschirme.", landeName: "Hohe Wand Landeplatz 1", landeLat: 47.8271, landeLon: 16.0513, landeHoehe: 553, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "at", acc: "fa", hoehendiff: 506, gemeinde: "2724 Maiersdorf", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz in breiter Waldschneise. Hauptstartplatz für Gleitschirme.", landeName: "Hohe Wand Landeplatz 1", landeLat: 47.8271, landeLon: 16.0513, landeHoehe: 553, landeExtra: [{ name: "Hohe Wand Landeplatz 2", lat: 47.825373, lon: 16.059651, hoehe: 497 }, { name: "Hohe Wand Landeplatz 3", lat: 47.818861, lon: 16.067762, hoehe: 406 }, { name: "Hohe Wand Landeplatz HG", lat: 47.818371, lon: 16.066153, hoehe: 406 }], ...DEF },
 
   { id: "db_1365_S", name: "Hohe Wand (S)", region: "Maiersdorf",
     lat: 47.8302, lon: 16.0462, elevation: 863, dhv: 1365,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fa", hoehendiff: 506, gemeinde: "2724 Maiersdorf", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", bemerkung: "Kurzer Wiesenstartplatz auf Felsvorsprung. Bevorzugter Startplatz für Drachen.", landeName: "Hohe Wand Landeplatz 1", landeLat: 47.8271, landeLon: 16.0513, landeHoehe: 553, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fa", hoehendiff: 506, gemeinde: "2724 Maiersdorf", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", bemerkung: "Kurzer Wiesenstartplatz auf Felsvorsprung. Bevorzugter Startplatz für Drachen.", landeName: "Hohe Wand Landeplatz 1", landeLat: 47.8271, landeLon: 16.0513, landeHoehe: 553, landeExtra: [{ name: "Hohe Wand Landeplatz 2", lat: 47.825373, lon: 16.059651, hoehe: 497 }, { name: "Hohe Wand Landeplatz 3", lat: 47.818861, lon: 16.067762, hoehe: 406 }, { name: "Hohe Wand Landeplatz HG", lat: 47.818371, lon: 16.066153, hoehe: 406 }], ...DEF },
 
   { id: "db_1268", name: "Hollersbach", region: "Hollersbach",
     lat: 47.2652, lon: 12.4274, elevation: 1145, dhv: 1268,
@@ -2951,15 +2951,15 @@ const SPOT_DB = [
 
   { id: "db_1503_S", name: "Hundsheimer Berg (S)", region: "Hundsheim",
     lat: 48.1225, lon: 16.9363, elevation: 341, dhv: 1503,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fa", hoehendiff: 148, gemeinde: "2405 Hundsheim", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Hundsheimer Berg Landeplatz 1", landeLat: 48.1229, landeLon: 16.9442, landeHoehe: 279, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fa", hoehendiff: 148, gemeinde: "2405 Hundsheim", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Hundsheimer Berg Landeplatz 1", landeLat: 48.1229, landeLon: 16.9442, landeHoehe: 279, landeExtra: [{ name: "Hundsheimer Berg Landeplatz 2", lat: 48.123591, lon: 16.928515, hoehe: 222 }], ...DEF },
 
   { id: "db_1503_SO", name: "Hundsheimer Berg (SO)", region: "Hundsheim",
     lat: 48.1239, lon: 16.9396, elevation: 370, dhv: 1503,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fa", hoehendiff: 148, gemeinde: "2405 Hundsheim", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Hundsheimer Berg Landeplatz 1", landeLat: 48.1229, landeLon: 16.9442, landeHoehe: 279, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fa", hoehendiff: 148, gemeinde: "2405 Hundsheim", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Hundsheimer Berg Landeplatz 1", landeLat: 48.1229, landeLon: 16.9442, landeHoehe: 279, landeExtra: [{ name: "Hundsheimer Berg Landeplatz 2", lat: 48.123591, lon: 16.928515, hoehe: 222 }], ...DEF },
 
   { id: "db_1503_W", name: "Hundsheimer Berg (W)", region: "Hundsheim",
     lat: 48.1234, lon: 16.9351, elevation: 361, dhv: 1503,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fa", hoehendiff: 148, gemeinde: "2405 Hundsheim", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Hundsheimer Berg Landeplatz 2", landeLat: 48.1236, landeLon: 16.9285, landeHoehe: 222, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fa", hoehendiff: 148, gemeinde: "2405 Hundsheim", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Hundsheimer Berg Landeplatz 2", landeLat: 48.1236, landeLon: 16.9285, landeHoehe: 222, landeExtra: [{ name: "Hundsheimer Berg Landeplatz 1", lat: 48.122919, lon: 16.944158, hoehe: 279 }], ...DEF },
 
   { id: "db_1379_N", name: "Hutterer Höß (N)", region: "Hinterstoder",
     lat: 47.6691, lon: 14.1764, elevation: 1792, dhv: 1379,
@@ -2979,15 +2979,15 @@ const SPOT_DB = [
 
   { id: "db_1435_S", name: "Jöchelspitze (S)", region: "Bach",
     lat: 47.2766, lon: 10.3671, elevation: 1809, dhv: 1435,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "at", acc: "fb", hoehendiff: 825, gemeinde: "6653 Bach", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Schöner Wiesenstartplatz direkt neben dem Wanderweg zur Jöchelspitze. Bei Schulungsbetrieb haben Schüler Vorrang.", landeName: "Jöchelspitze Landeplatz 1", landeLat: 47.2683, landeLon: 10.3989, landeHoehe: 1059, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "at", acc: "fb", hoehendiff: 825, gemeinde: "6653 Bach", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Schöner Wiesenstartplatz direkt neben dem Wanderweg zur Jöchelspitze. Bei Schulungsbetrieb haben Schüler Vorrang.", landeName: "Jöchelspitze Landeplatz 1", landeLat: 47.2683, landeLon: 10.3989, landeHoehe: 1059, landeExtra: [{ name: "Jöchelspitze Landeplatz 2", lat: 47.266184, lon: 10.400856, hoehe: 1061 }], ...DEF },
 
   { id: "db_1435_SO", name: "Jöchelspitze (SO)", region: "Bach",
     lat: 47.2782, lon: 10.3701, elevation: 1884, dhv: 1435,
-    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "at", acc: "fb", hoehendiff: 825, gemeinde: "6653 Bach", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Weitere Startmöglichkeit oberhalb des 2ten Startplatzes mit besserer Einstiegsmöglichkeit in die Thermik. 15 Minuten Fußweg ab der Bergstation.", landeName: "Jöchelspitze Landeplatz 1", landeLat: 47.2683, landeLon: 10.3989, landeHoehe: 1059, ...DEF },
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "at", acc: "fb", hoehendiff: 825, gemeinde: "6653 Bach", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Weitere Startmöglichkeit oberhalb des 2ten Startplatzes mit besserer Einstiegsmöglichkeit in die Thermik. 15 Minuten Fußweg ab der Bergstation.", landeName: "Jöchelspitze Landeplatz 1", landeLat: 47.2683, landeLon: 10.3989, landeHoehe: 1059, landeExtra: [{ name: "Jöchelspitze Landeplatz 2", lat: 47.266184, lon: 10.400856, hoehe: 1061 }], ...DEF },
 
   { id: "db_1435_SW", name: "Jöchelspitze (SW)", region: "Bach",
     lat: 47.2751, lon: 10.364, elevation: 1763, dhv: 1435,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "at", acc: "fb", hoehendiff: 825, gemeinde: "6653 Bach", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz hinter der Bergstation. Für Drachen steht eine Rampe zur Verfügung. Rampe wurde 2017 komplett erneuert!", landeName: "Jöchelspitze Landeplatz 1", landeLat: 47.2683, landeLon: 10.3989, landeHoehe: 1059, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "at", acc: "fb", hoehendiff: 825, gemeinde: "6653 Bach", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz hinter der Bergstation. Für Drachen steht eine Rampe zur Verfügung. Rampe wurde 2017 komplett erneuert!", landeName: "Jöchelspitze Landeplatz 1", landeLat: 47.2683, landeLon: 10.3989, landeHoehe: 1059, landeExtra: [{ name: "Jöchelspitze Landeplatz 2", lat: 47.266184, lon: 10.400856, hoehe: 1061 }], ...DEF },
 
   { id: "db_5166", name: "Kaiserburg", region: "Bad Kleinkirchheim",
     lat: 46.7838, lon: 13.8261, elevation: 2017, dhv: 5166,
@@ -3003,7 +3003,7 @@ const SPOT_DB = [
 
   { id: "db_1390", name: "Karkogel", region: "Abtenau",
     lat: 47.5451, lon: 13.3599, elevation: 1189, dhv: 1390,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "at", acc: "fab", hoehendiff: 511, gemeinde: "5441 Abtenau", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", landeName: "Karkogel Landeplatz 1", landeLat: 47.5571, landeLon: 13.3523, landeHoehe: 742, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "at", acc: "fab", hoehendiff: 511, gemeinde: "5441 Abtenau", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", landeName: "Karkogel Landeplatz 1", landeLat: 47.5571, landeLon: 13.3523, landeHoehe: 742, landeExtra: [{ name: "Karkogel Landeplatz 2", lat: 47.547393, lon: 13.340149, hoehe: 678 }], ...DEF },
 
   { id: "db_5151", name: "Kirchschlag", region: "Kirchschlag",
     lat: 48.4071, lon: 14.2813, elevation: 841, dhv: 5151,
@@ -3043,11 +3043,11 @@ const SPOT_DB = [
 
   { id: "db_1436_O", name: "Kreuzjoch - Schlick 2000 (O)", region: "Fulpmes",
     lat: 47.1447, lon: 11.3072, elevation: 2098, dhv: 1436,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "at", acc: "fb", hoehendiff: 1181, gemeinde: "6166 Fulpmes", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz an der Bergstation der Kreuzjochbahn. Für Drachen steht eine Rampe Richtung Südosten zur Verfügung.", landeName: "Kreuzjoch - Schlick 2000 Landeplatz", landeLat: 47.1474, landeLon: 11.3454, landeHoehe: 917, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "at", acc: "fb", hoehendiff: 1181, gemeinde: "6166 Fulpmes", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz an der Bergstation der Kreuzjochbahn. Für Drachen steht eine Rampe Richtung Südosten zur Verfügung.", landeName: "Kreuzjoch - Schlick 2000 Landeplatz", landeLat: 47.1474, landeLon: 11.3454, landeHoehe: 917, landeExtra: [{ name: "Elfer Landeplatz", lat: 47.112364, lon: 11.31507, hoehe: 976 }], ...DEF },
 
   { id: "db_1436_SO", name: "Kreuzjoch - Schlick 2000 (SO)", region: "Fulpmes",
     lat: 47.1451, lon: 11.3076, elevation: 2098, dhv: 1436,
-    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "at", acc: "fb", hoehendiff: 1181, gemeinde: "6166 Fulpmes", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz an der Bergstation der Kreuzjochbahn. Für Drachen steht eine Rampe Richtung Südosten zur Verfügung.", landeName: "Kreuzjoch - Schlick 2000 Landeplatz", landeLat: 47.1474, landeLon: 11.3454, landeHoehe: 917, ...DEF },
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "at", acc: "fb", hoehendiff: 1181, gemeinde: "6166 Fulpmes", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz an der Bergstation der Kreuzjochbahn. Für Drachen steht eine Rampe Richtung Südosten zur Verfügung.", landeName: "Kreuzjoch - Schlick 2000 Landeplatz", landeLat: 47.1474, landeLon: 11.3454, landeHoehe: 917, landeExtra: [{ name: "Elfer Landeplatz", lat: 47.112364, lon: 11.31507, hoehe: 976 }], ...DEF },
 
   { id: "db_1385", name: "Kriegerhorn", region: "Lech am Arlberg",
     lat: 47.2141, lon: 10.1158, elevation: 2142, dhv: 1385,
@@ -3055,7 +3055,7 @@ const SPOT_DB = [
 
   { id: "db_1422", name: "Krippenstein", region: "Obertraun",
     lat: 47.5285, lon: 13.692, elevation: 1976, dhv: 1422,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "at", acc: "fb", hoehendiff: 1465, gemeinde: "4831 Obertraun", bundesland: "Oberösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Krippenstein Landeplatz 2", landeLat: 47.5509, landeLon: 13.6801, landeHoehe: 511, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "at", acc: "fb", hoehendiff: 1465, gemeinde: "4831 Obertraun", bundesland: "Oberösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Krippenstein Landeplatz 2", landeLat: 47.5509, landeLon: 13.6801, landeHoehe: 511, landeExtra: [{ name: "Krippenstein Landeplatz 1", lat: 47.553725, lon: 13.696635, hoehe: 518 }], ...DEF },
 
   { id: "db_5155", name: "Kronbauer", region: "Ottsdorf",
     lat: 47.8993, lon: 14.0766, elevation: 870, dhv: 5155,
@@ -3063,7 +3063,7 @@ const SPOT_DB = [
 
   { id: "db_1364", name: "Kulm", region: "Stubenberg am See",
     lat: 47.2282, lon: 15.7621, elevation: 925, dhv: 1364,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "at", acc: "fa", hoehendiff: 539, gemeinde: "8223 Stubenberg am See", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Kulm Landeplatz 2", landeLat: 47.2274, landeLon: 15.7766, landeHoehe: 611, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "at", acc: "fa", hoehendiff: 539, gemeinde: "8223 Stubenberg am See", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Kulm Landeplatz 2", landeLat: 47.2274, landeLon: 15.7766, landeHoehe: 611, landeExtra: [{ name: "Kulm Landeplatz 1", lat: 47.228195, lon: 15.795293, hoehe: 386 }], ...DEF },
 
   { id: "db_1426", name: "Lärchfilzkogel", region: "Fieberbrunn",
     lat: 47.4431, lon: 12.549, elevation: 1641, dhv: 1426,
@@ -3095,31 +3095,31 @@ const SPOT_DB = [
 
   { id: "db_1313", name: "Markbachjoch", region: "Niederau",
     lat: 47.4258, lon: 12.0704, elevation: 1704, dhv: 1313,
-    sectors: [[348.75, 56.25], [348.75, 11.25], [303.75, 11.25]], sectorLabel: "N-NO · N · NW-N", country: "at", acc: "fb", hoehendiff: 862, gemeinde: "6314 Niederau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Zum Startplatz am Rosskopf sollte man einen Fußmarsch von knapp einer Stunde einplanen.", landeName: "Markbachjoch Landeplatz 2", landeLat: 47.4472, landeLon: 12.0935, landeHoehe: 842, ...DEF },
+    sectors: [[348.75, 56.25], [348.75, 11.25], [303.75, 11.25]], sectorLabel: "N-NO · N · NW-N", country: "at", acc: "fb", hoehendiff: 862, gemeinde: "6314 Niederau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Zum Startplatz am Rosskopf sollte man einen Fußmarsch von knapp einer Stunde einplanen.", landeName: "Markbachjoch Landeplatz 2", landeLat: 47.4472, landeLon: 12.0935, landeHoehe: 842, landeExtra: [{ name: "Markbachjoch Landeplatz 1", lat: 47.446752, lon: 12.100303, hoehe: 856 }], ...DEF },
 
   { id: "db_1506", name: "Marsbach", region: "Marsbach",
     lat: 48.4629, lon: 13.8173, elevation: 537, dhv: 1506,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "at", acc: "fa", hoehendiff: 258, gemeinde: "4142 Marsbach", bundesland: "Oberösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Marsbach Landeplatz 1", landeLat: 48.4595, landeLon: 13.8151, landeHoehe: 296, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "at", acc: "fa", hoehendiff: 258, gemeinde: "4142 Marsbach", bundesland: "Oberösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Marsbach Landeplatz 1", landeLat: 48.4595, landeLon: 13.8151, landeHoehe: 296, landeExtra: [{ name: "Marsbach Landeplatz 2", lat: 48.449317, lon: 13.828053, hoehe: 279 }], ...DEF },
 
   { id: "db_1357", name: "Martele", region: "Lainach",
     lat: 46.8803, lon: 12.9422, elevation: 1838, dhv: 1357,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "at", acc: "fa", hoehendiff: 1010, gemeinde: "9833 Lainach", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig", bemerkung: "Kuppierter Wiesenstartplatz für Drachen und Gleitschirme.", landeName: "Martele Landeplatz 1", landeLat: 46.8577, landeLon: 12.9450, landeHoehe: 836, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "at", acc: "fa", hoehendiff: 1010, gemeinde: "9833 Lainach", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig", bemerkung: "Kuppierter Wiesenstartplatz für Drachen und Gleitschirme.", landeName: "Martele Landeplatz 1", landeLat: 46.8577, landeLon: 12.9450, landeHoehe: 836, landeExtra: [{ name: "Martele Landeplatz 2", lat: 46.870972, lon: 12.980611, hoehe: 828 }], ...DEF },
 
   { id: "db_5163", name: "Matrei", region: "Matrei",
     lat: 46.9931, lon: 12.5955, elevation: 2381, dhv: 5163,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "at", acc: "fb", hoehendiff: 1450, gemeinde: "9971 Matrei", bundesland: "Osttirol", gleitschirm: "1- und 2-sitzig", landeName: "Matrei Landeplatz 1", landeLat: 47.0067, landeLon: 12.6397, landeHoehe: 1359, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "at", acc: "fb", hoehendiff: 1450, gemeinde: "9971 Matrei", bundesland: "Osttirol", gleitschirm: "1- und 2-sitzig", landeName: "Matrei Landeplatz 1", landeLat: 47.0067, landeLon: 12.6397, landeHoehe: 1359, landeExtra: [{ name: "Matrei Landeplatz 2", lat: 46.989475, lon: 12.544017, hoehe: 931 }], ...DEF },
 
   { id: "db_1300_O", name: "Melchboden (O)", region: "Schwendau",
     lat: 47.2192, lon: 11.8245, elevation: 2015, dhv: 1300,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "at", acc: "fa", hoehendiff: 1439, gemeinde: "6283 Schwendau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Großer Startplatz östlich des Kiosks.", landeName: "Perler Landeplatz", landeLat: 47.1879, landeLon: 11.8645, landeHoehe: 602, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "at", acc: "fa", hoehendiff: 1439, gemeinde: "6283 Schwendau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Großer Startplatz östlich des Kiosks.", landeName: "Perler Landeplatz", landeLat: 47.1879, landeLon: 11.8645, landeHoehe: 602, landeExtra: [{ name: "Melchboden Landeplatz", lat: 47.181641, lon: 11.870148, hoehe: 613 }], ...DEF },
 
   { id: "db_1300_S", name: "Melchboden (S)", region: "Schwendau",
     lat: 47.2194, lon: 11.8231, elevation: 2041, dhv: 1300,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fa", hoehendiff: 1439, gemeinde: "6283 Schwendau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startfläche nördlich oberhalb des Kiosks. Achtung: bei Südwind Föhngefahr!", landeName: "Perler Landeplatz", landeLat: 47.1879, landeLon: 11.8645, landeHoehe: 602, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fa", hoehendiff: 1439, gemeinde: "6283 Schwendau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startfläche nördlich oberhalb des Kiosks. Achtung: bei Südwind Föhngefahr!", landeName: "Perler Landeplatz", landeLat: 47.1879, landeLon: 11.8645, landeHoehe: 602, landeExtra: [{ name: "Melchboden Landeplatz", lat: 47.181641, lon: 11.870148, hoehe: 613 }], ...DEF },
 
   { id: "db_1300_SO", name: "Melchboden (SO)", region: "Schwendau",
     lat: 47.2195, lon: 11.8241, elevation: 2037, dhv: 1300,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fa", hoehendiff: 1439, gemeinde: "6283 Schwendau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Großer Startplatz östlich des Kiosks.", landeName: "Perler Landeplatz", landeLat: 47.1879, landeLon: 11.8645, landeHoehe: 602, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fa", hoehendiff: 1439, gemeinde: "6283 Schwendau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Großer Startplatz östlich des Kiosks.", landeName: "Perler Landeplatz", landeLat: 47.1879, landeLon: 11.8645, landeHoehe: 602, landeExtra: [{ name: "Melchboden Landeplatz", lat: 47.181641, lon: 11.870148, hoehe: 613 }], ...DEF },
 
   { id: "db_1369_NW", name: "Messnerin (NW)", region: "Oberort",
     lat: 47.5587, lon: 15.0829, elevation: 1798, dhv: 1369,
@@ -3131,7 +3131,7 @@ const SPOT_DB = [
 
   { id: "db_1314", name: "Michaelerberg", region: "Michaelerberg",
     lat: 47.4114, lon: 13.8937, elevation: 1106, dhv: 1314,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "at", acc: "fa", hoehendiff: 430, gemeinde: "8962 Michaelerberg", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Einfacher, schulungstauglicher Wiesenstartplatz.", landeName: "Moosheim Flugschule Landeplatz 1", landeLat: 47.4247, landeLon: 13.8967, landeHoehe: 688, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "at", acc: "fa", hoehendiff: 430, gemeinde: "8962 Michaelerberg", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Einfacher, schulungstauglicher Wiesenstartplatz.", landeName: "Moosheim Flugschule Landeplatz 1", landeLat: 47.4247, landeLon: 13.8967, landeHoehe: 688, landeExtra: [{ name: "Moosheim-Ennswiese Landeplatz 2", lat: 47.428813, lon: 13.88938, hoehe: 676 }], ...DEF },
 
   { id: "db_5150", name: "Mitterfeld", region: "Mitterfeld",
     lat: 48.4604, lon: 14.2034, elevation: 763, dhv: 5150,
@@ -3143,19 +3143,19 @@ const SPOT_DB = [
 
   { id: "db_1374_NO", name: "Muckenkogel (NO)", region: "Lilienfeld",
     lat: 47.9865, lon: 15.5994, elevation: 1042, dhv: 1374,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "at", acc: "fb", hoehendiff: 865, gemeinde: "3180 Lilienfeld", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz oberhalb einer Waldschneise nordwestlich der Bergstation.", landeName: "Muckenkogel Landeplatz 1", landeLat: 48.0054, landeLon: 15.6030, landeHoehe: 419, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "at", acc: "fb", hoehendiff: 865, gemeinde: "3180 Lilienfeld", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz oberhalb einer Waldschneise nordwestlich der Bergstation.", landeName: "Muckenkogel Landeplatz 1", landeLat: 48.0054, landeLon: 15.6030, landeHoehe: 419, landeExtra: [{ name: "Muckenkogel Landeplatz 2", lat: 47.944637, lon: 15.596123, hoehe: 445 }], ...DEF },
 
   { id: "db_1374_NW", name: "Muckenkogel (NW)", region: "Lilienfeld",
     lat: 47.9852, lon: 15.601, elevation: 1090, dhv: 1374,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "at", acc: "fb", hoehendiff: 865, gemeinde: "3180 Lilienfeld", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz nordwestlich der Bergstation.", landeName: "Muckenkogel Landeplatz 1", landeLat: 48.0054, landeLon: 15.6030, landeHoehe: 419, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "at", acc: "fb", hoehendiff: 865, gemeinde: "3180 Lilienfeld", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz nordwestlich der Bergstation.", landeName: "Muckenkogel Landeplatz 1", landeLat: 48.0054, landeLon: 15.6030, landeHoehe: 419, landeExtra: [{ name: "Muckenkogel Landeplatz 2", lat: 47.944637, lon: 15.596123, hoehe: 445 }], ...DEF },
 
   { id: "db_1374_S", name: "Muckenkogel (S)", region: "Lilienfeld",
     lat: 47.9713, lon: 15.6101, elevation: 1284, dhv: 1374,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fb", hoehendiff: 865, gemeinde: "3180 Lilienfeld", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Muckenkogel Landeplatz 2", landeLat: 47.9446, landeLon: 15.5961, landeHoehe: 445, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fb", hoehendiff: 865, gemeinde: "3180 Lilienfeld", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Muckenkogel Landeplatz 2", landeLat: 47.9446, landeLon: 15.5961, landeHoehe: 445, landeExtra: [{ name: "Muckenkogel Landeplatz 1", lat: 48.005422, lon: 15.603, hoehe: 419 }], ...DEF },
 
   { id: "db_1374_W", name: "Muckenkogel (W)", region: "Lilienfeld",
     lat: 47.9771, lon: 15.6083, elevation: 1220, dhv: 1374,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fb", hoehendiff: 865, gemeinde: "3180 Lilienfeld", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Muckenkogel Landeplatz 1", landeLat: 48.0054, landeLon: 15.6030, landeHoehe: 419, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fb", hoehendiff: 865, gemeinde: "3180 Lilienfeld", bundesland: "Niederösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Muckenkogel Landeplatz 1", landeLat: 48.0054, landeLon: 15.6030, landeHoehe: 419, landeExtra: [{ name: "Muckenkogel Landeplatz 2", lat: 47.944637, lon: 15.596123, hoehe: 445 }], ...DEF },
 
   { id: "db_1440", name: "Mutmanör", region: "Ischgl",
     lat: 47.0304, lon: 10.2778, elevation: 2286, dhv: 1440,
@@ -3167,7 +3167,7 @@ const SPOT_DB = [
 
   { id: "db_2474", name: "Muttenkopf", region: "Gereit",
     lat: 47.0174, lon: 11.3703, elevation: 2607, dhv: 2474,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "f", hoehendiff: 1183, gemeinde: "6157 Gereit", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", landeName: "Muttenkopf Landeplatz 1", landeLat: 47.0096, landeLon: 11.4025, landeHoehe: 1431, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "f", hoehendiff: 1183, gemeinde: "6157 Gereit", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", landeName: "Muttenkopf Landeplatz 1", landeLat: 47.0096, landeLon: 11.4025, landeHoehe: 1431, landeExtra: [{ name: "Muttenkopf Landeplatz 2", lat: 47.008156, lon: 11.404753, hoehe: 1424 }], ...DEF },
 
   { id: "db_4444", name: "Nassereith", region: "Nassereith",
     lat: 47.3021, lon: 10.8541, elevation: 902, dhv: 4444,
@@ -3219,7 +3219,7 @@ const SPOT_DB = [
 
   { id: "db_1301", name: "Penken", region: "Mayrhofen",
     lat: 47.1762, lon: 11.8167, elevation: 1975, dhv: 1301,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "at", acc: "fb", hoehendiff: 1373, gemeinde: "6290 Mayrhofen", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz nordöstlich der Bergstation (Sessellift).", landeName: "Penken Landeplatz Edenlehen", landeLat: 47.1618, landeLon: 11.8537, landeHoehe: 646, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "at", acc: "fb", hoehendiff: 1373, gemeinde: "6290 Mayrhofen", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz nordöstlich der Bergstation (Sessellift).", landeName: "Penken Landeplatz Edenlehen", landeLat: 47.1618, landeLon: 11.8537, landeHoehe: 646, landeExtra: [{ name: "Melchboden Landeplatz", lat: 47.181473, lon: 11.870255, hoehe: 613 }, { name: "Perler Landeplatz", lat: 47.187861, lon: 11.864505, hoehe: 602 }], ...DEF },
 
   { id: "db_1299", name: "Perler", region: "Schwendau",
     lat: 47.2003, lon: 11.846, elevation: 1124, dhv: 1299,
@@ -3287,7 +3287,7 @@ const SPOT_DB = [
 
   { id: "db_1252", name: "Radsberg", region: "Rottenstein",
     lat: 46.5726, lon: 14.4024, elevation: 815, dhv: 1252,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "at", acc: "fa", hoehendiff: 405, gemeinde: "9131 Rottenstein", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz ist recht steil. Quer verlaufende Kabel beachten. Ein großer Windsack steht am höchsten Punkt, mehrere kleine Windfahnen sind an der Waldkante und rund um den Startplatz positioniert. Der Landeplatz ist vom Startplatz aus nicht zu sehen. Nach dem Start muss nach links (Osten) weggeflogen werden.", landeName: "Radsberg Landeplatz HG", landeLat: 46.5595, landeLon: 14.4089, landeHoehe: 410, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "at", acc: "fa", hoehendiff: 405, gemeinde: "9131 Rottenstein", bundesland: "Kärnten", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz ist recht steil. Quer verlaufende Kabel beachten. Ein großer Windsack steht am höchsten Punkt, mehrere kleine Windfahnen sind an der Waldkante und rund um den Startplatz positioniert. Der Landeplatz ist vom Startplatz aus nicht zu sehen. Nach dem Start muss nach links (Osten) weggeflogen werden.", landeName: "Radsberg Landeplatz HG", landeLat: 46.5595, landeLon: 14.4089, landeHoehe: 410, landeExtra: [{ name: "Radsberg Landeplatz GS", lat: 46.568125, lon: 14.42256, hoehe: 416 }], ...DEF },
 
   { id: "db_5146", name: "Rampetzreit", region: "Rampetzreit",
     lat: 48.5931, lon: 13.9034, elevation: 654, dhv: 5146,
@@ -3375,27 +3375,27 @@ const SPOT_DB = [
 
   { id: "db_1386", name: "Schnifis", region: "Schnifis",
     lat: 47.2283, lon: 9.7395, elevation: 1310, dhv: 1386,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fab", hoehendiff: 704, gemeinde: "6822 Schnifis", bundesland: "Vorarlberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Startplatz befindet sich unterhalb des Gasthofes Hensler. Die Auffahrt mit dem Auto kostet Mautgebühren!", landeName: "Schnifis Landeplatz 1", landeLat: 47.2137, landeLon: 9.7346, landeHoehe: 699, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fab", hoehendiff: 704, gemeinde: "6822 Schnifis", bundesland: "Vorarlberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Startplatz befindet sich unterhalb des Gasthofes Hensler. Die Auffahrt mit dem Auto kostet Mautgebühren!", landeName: "Schnifis Landeplatz 1", landeLat: 47.2137, landeLon: 9.7346, landeHoehe: 699, landeExtra: [{ name: "Schnifis Landeplatz 2", lat: 47.210539, lon: 9.723167, hoehe: 606 }], ...DEF },
 
   { id: "db_1376", name: "Schoberstein", region: "Ternberg",
     lat: 47.905, lon: 14.3224, elevation: 1215, dhv: 1376,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fa", hoehendiff: 863, gemeinde: "4453 Ternberg", bundesland: "Oberösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Schoberstein Landeplatz 1", landeLat: 47.9048, landeLon: 14.3256, landeHoehe: 1215, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fa", hoehendiff: 863, gemeinde: "4453 Ternberg", bundesland: "Oberösterreich", gleitschirm: "1- und 2-sitzig", landeName: "Schoberstein Landeplatz 1", landeLat: 47.9048, landeLon: 14.3256, landeHoehe: 1215, landeExtra: [{ name: "Schoberstein Landeplatz 4", lat: 47.891946, lon: 14.306431, hoehe: 448 }, { name: "Herndleck Landeplatz 2", lat: 47.935722, lon: 14.350278, hoehe: 352 }], ...DEF },
 
   { id: "db_1361_NW", name: "Schöckel (NW)", region: "St. Radegund",
     lat: 47.1983, lon: 15.46, elevation: 1419, dhv: 1361,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "at", acc: "fab", hoehendiff: 748, gemeinde: "8061 St. Radegund", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schöckel Landeplatz 1", landeLat: 47.2136, landeLon: 15.4794, landeHoehe: 963, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "at", acc: "fab", hoehendiff: 748, gemeinde: "8061 St. Radegund", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schöckel Landeplatz 1", landeLat: 47.2136, landeLon: 15.4794, landeHoehe: 963, landeExtra: [{ name: "Schöckel Landeplatz 2", lat: 47.186389, lon: 15.484444, hoehe: 795 }, { name: "Schöckel Landeplatz 3", lat: 47.173333, lon: 15.492778, hoehe: 671 }], ...DEF },
 
   { id: "db_1361_SO", name: "Schöckel (SO)", region: "St. Radegund",
     lat: 47.2011, lon: 15.4756, elevation: 1398, dhv: 1361,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fab", hoehendiff: 748, gemeinde: "8061 St. Radegund", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "SO Startplatz einfach.", landeName: "Schöckel Landeplatz 1", landeLat: 47.2136, landeLon: 15.4794, landeHoehe: 963, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fab", hoehendiff: 748, gemeinde: "8061 St. Radegund", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "SO Startplatz einfach.", landeName: "Schöckel Landeplatz 1", landeLat: 47.2136, landeLon: 15.4794, landeHoehe: 963, landeExtra: [{ name: "Schöckel Landeplatz 2", lat: 47.186389, lon: 15.484444, hoehe: 795 }, { name: "Schöckel Landeplatz 3", lat: 47.173333, lon: 15.492778, hoehe: 671 }], ...DEF },
 
   { id: "db_1455_N", name: "Schönjoch (N)", region: "Fiss",
     lat: 47.0784, lon: 10.5985, elevation: 2471, dhv: 1455,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "at", acc: "fb", hoehendiff: 1595, gemeinde: "6533 Fiss", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Nordstartplatz am Speichersee in Richtung Landeck.", landeName: "Schönjoch Landeplatz 1", landeLat: 47.0604, landeLon: 10.6226, landeHoehe: 1508, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "at", acc: "fb", hoehendiff: 1595, gemeinde: "6533 Fiss", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Nordstartplatz am Speichersee in Richtung Landeck.", landeName: "Schönjoch Landeplatz 1", landeLat: 47.0604, landeLon: 10.6226, landeHoehe: 1508, landeExtra: [{ name: "Schönjoch Landeplatz 2", lat: 47.05962, lon: 10.654818, hoehe: 876 }], ...DEF },
 
   { id: "db_1455_S", name: "Schönjoch (S)", region: "Fiss",
     lat: 47.076, lon: 10.5943, elevation: 2471, dhv: 1455,
-    sectors: [[123.75, 236.25], [168.75, 191.25], [146.25, 236.25]], sectorLabel: "SO-SW · S · SSO-SW", country: "at", acc: "fb", hoehendiff: 1595, gemeinde: "6533 Fiss", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", landeName: "Schönjoch Landeplatz 1", landeLat: 47.0604, landeLon: 10.6226, landeHoehe: 1508, ...DEF },
+    sectors: [[123.75, 236.25], [168.75, 191.25], [146.25, 236.25]], sectorLabel: "SO-SW · S · SSO-SW", country: "at", acc: "fb", hoehendiff: 1595, gemeinde: "6533 Fiss", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", landeName: "Schönjoch Landeplatz 1", landeLat: 47.0604, landeLon: 10.6226, landeHoehe: 1508, landeExtra: [{ name: "Schönjoch Landeplatz 2", lat: 47.05962, lon: 10.654818, hoehe: 876 }], ...DEF },
 
   { id: "db_1497", name: "Schwarzenbach", region: "Schwarzenbach",
     lat: 47.6446, lon: 16.3347, elevation: 464, dhv: 1497,
@@ -3463,7 +3463,7 @@ const SPOT_DB = [
 
   { id: "db_5800", name: "Startplatz Hochödenbauer", region: "Scheifling",
     lat: 47.1687, lon: 14.3783, elevation: 1240, dhv: 5800,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "at", hoehendiff: 506, gemeinde: "8811 Scheifling", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Lindberg Landeplatz Gamlinger (L4)", landeLat: 47.1652, landeLon: 14.3618, landeHoehe: 759, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "at", hoehendiff: 506, gemeinde: "8811 Scheifling", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Lindberg Landeplatz Gamlinger (L4)", landeLat: 47.1652, landeLon: 14.3618, landeHoehe: 759, landeExtra: [{ name: "Lindberg Landeplatz", lat: 47.155802, lon: 14.391687, hoehe: 740 }, { name: "Lindberg Landeplatz Joslbauer Anger (L3)", lat: 47.154667, lon: 14.396333, hoehe: 734 }], ...DEF },
 
   { id: "db_2362", name: "Startplatz Übungshang Medraz", region: "Fulpmes",
     lat: 47.1478, lon: 11.3416, elevation: 963, dhv: 2362,
@@ -3471,19 +3471,19 @@ const SPOT_DB = [
 
   { id: "db_1316_N", name: "Stoderzinken (N)", region: "Gröbming",
     lat: 47.4594, lon: 13.8282, elevation: 2028, dhv: 1316,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "at", acc: "fa", hoehendiff: 1352, gemeinde: "8962 Gröbming", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Mit Matten befestigter Startplatz direkt am Gipfel Richtung Norden.", landeName: "Moosheim-Ennswiese Landeplatz 2", landeLat: 47.4288, landeLon: 13.8894, landeHoehe: 676, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "at", acc: "fa", hoehendiff: 1352, gemeinde: "8962 Gröbming", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Mit Matten befestigter Startplatz direkt am Gipfel Richtung Norden.", landeName: "Moosheim-Ennswiese Landeplatz 2", landeLat: 47.4288, landeLon: 13.8894, landeHoehe: 676, landeExtra: [{ name: "Moosheim Flugschule Landeplatz 1", lat: 47.424694, lon: 13.896728, hoehe: 688 }], ...DEF },
 
   { id: "db_1316_S", name: "Stoderzinken (S)", region: "Gröbming",
     lat: 47.4575, lon: 13.819, elevation: 1881, dhv: 1316,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fa", hoehendiff: 1352, gemeinde: "8962 Gröbming", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Weststartplatz in einer Skischneise des Skiliftes.", landeName: "Moosheim-Ennswiese Landeplatz 2", landeLat: 47.4288, landeLon: 13.8894, landeHoehe: 676, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "at", acc: "fa", hoehendiff: 1352, gemeinde: "8962 Gröbming", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Weststartplatz in einer Skischneise des Skiliftes.", landeName: "Moosheim-Ennswiese Landeplatz 2", landeLat: 47.4288, landeLon: 13.8894, landeHoehe: 676, landeExtra: [{ name: "Moosheim Flugschule Landeplatz 1", lat: 47.424694, lon: 13.896728, hoehe: 688 }], ...DEF },
 
   { id: "db_1316_SO", name: "Stoderzinken (SO)", region: "Gröbming",
     lat: 47.4588, lon: 13.8277, elevation: 2028, dhv: 1316,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fa", hoehendiff: 1352, gemeinde: "8962 Gröbming", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Große Startwiese vor dem Gipfel.", landeName: "Moosheim-Ennswiese Landeplatz 2", landeLat: 47.4288, landeLon: 13.8894, landeHoehe: 676, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "at", acc: "fa", hoehendiff: 1352, gemeinde: "8962 Gröbming", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Große Startwiese vor dem Gipfel.", landeName: "Moosheim-Ennswiese Landeplatz 2", landeLat: 47.4288, landeLon: 13.8894, landeHoehe: 676, landeExtra: [{ name: "Moosheim Flugschule Landeplatz 1", lat: 47.424694, lon: 13.896728, hoehe: 688 }], ...DEF },
 
   { id: "db_1316_W", name: "Stoderzinken (W)", region: "Gröbming",
     lat: 47.4587, lon: 13.8239, elevation: 1966, dhv: 1316,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fa", hoehendiff: 1352, gemeinde: "8962 Gröbming", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Weststartplatz in einer Skischneise des Skiliftes.", landeName: "Moosheim-Ennswiese Landeplatz 2", landeLat: 47.4288, landeLon: 13.8894, landeHoehe: 676, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fa", hoehendiff: 1352, gemeinde: "8962 Gröbming", bundesland: "Steiermark", gleitschirm: "1- und 2-sitzig", bemerkung: "Weststartplatz in einer Skischneise des Skiliftes.", landeName: "Moosheim-Ennswiese Landeplatz 2", landeLat: 47.4288, landeLon: 13.8894, landeHoehe: 676, landeExtra: [{ name: "Moosheim Flugschule Landeplatz 1", lat: 47.424694, lon: 13.896728, hoehe: 688 }], ...DEF },
 
   { id: "db_1523", name: "Stöfflerberg", region: "Kirchbach",
     lat: 46.6511, lon: 13.1934, elevation: 1131, dhv: 1523,
@@ -3531,19 +3531,19 @@ const SPOT_DB = [
 
   { id: "db_1311_N", name: "Unterberghorn (N)", region: "Kössen",
     lat: 47.6263, lon: 12.4359, elevation: 1642, dhv: 1311,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "at", acc: "fb", hoehendiff: 1040, gemeinde: "6345 Kössen", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz auf der Gräte im Gipfelbereich.", landeName: "Unterberghorn Landeplatz 2", landeLat: 47.6534, landeLon: 12.4228, landeHoehe: 612, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "at", acc: "fb", hoehendiff: 1040, gemeinde: "6345 Kössen", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz auf der Gräte im Gipfelbereich.", landeName: "Unterberghorn Landeplatz 2", landeLat: 47.6534, landeLon: 12.4228, landeHoehe: 612, landeExtra: [{ name: "Unterberghorn Landeplatz 1", lat: 47.6566, lon: 12.41998, hoehe: 602 }], ...DEF },
 
   { id: "db_1311_SW", name: "Unterberghorn (SW)", region: "Kössen",
     lat: 47.6312, lon: 12.4311, elevation: 1497, dhv: 1311,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "at", acc: "fb", hoehendiff: 1040, gemeinde: "6345 Kössen", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Kurzer, steiler Weststartplatz in Waldschneise neben der Bergstation der Gondelbahn.", landeName: "Unterberghorn Landeplatz 2", landeLat: 47.6534, landeLon: 12.4228, landeHoehe: 612, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "at", acc: "fb", hoehendiff: 1040, gemeinde: "6345 Kössen", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Kurzer, steiler Weststartplatz in Waldschneise neben der Bergstation der Gondelbahn.", landeName: "Unterberghorn Landeplatz 2", landeLat: 47.6534, landeLon: 12.4228, landeHoehe: 612, landeExtra: [{ name: "Unterberghorn Landeplatz 1", lat: 47.6566, lon: 12.41998, hoehe: 602 }], ...DEF },
 
   { id: "db_1322_NW", name: "Untersberg (NW)", region: "Fürstenbrunn",
     lat: 47.7221, lon: 13.0076, elevation: 1728, dhv: 1322,
-    sectors: [[303.75, 348.75]], sectorLabel: "NW-NNW", country: "at", acc: "fb", hoehendiff: 1306, gemeinde: "5082 Fürstenbrunn", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", landeName: "Untersberg Landeplatz 1", landeLat: 47.7521, landeLon: 12.9944, landeHoehe: 445, ...DEF },
+    sectors: [[303.75, 348.75]], sectorLabel: "NW-NNW", country: "at", acc: "fb", hoehendiff: 1306, gemeinde: "5082 Fürstenbrunn", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", landeName: "Untersberg Landeplatz 1", landeLat: 47.7521, landeLon: 12.9944, landeHoehe: 445, landeExtra: [{ name: "Untersberg Landeplatz 2", lat: 47.751732, lon: 12.996569, hoehe: 445 }], ...DEF },
 
   { id: "db_1322_W", name: "Untersberg (W)", region: "Fürstenbrunn",
     lat: 47.7221, lon: 13.0076, elevation: 1751, dhv: 1322,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fb", hoehendiff: 1306, gemeinde: "5082 Fürstenbrunn", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", landeName: "Untersberg Landeplatz 1", landeLat: 47.7521, landeLon: 12.9944, landeHoehe: 445, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fb", hoehendiff: 1306, gemeinde: "5082 Fürstenbrunn", bundesland: "Salzburg", gleitschirm: "1- und 2-sitzig", landeName: "Untersberg Landeplatz 1", landeLat: 47.7521, landeLon: 12.9944, landeHoehe: 445, landeExtra: [{ name: "Untersberg Landeplatz 2", lat: 47.751732, lon: 12.996569, hoehe: 445 }], ...DEF },
 
   { id: "db_2473", name: "Upsspitze", region: "Lermoos",
     lat: 47.431, lon: 10.8726, elevation: 2249, dhv: 2473,
@@ -3619,15 +3619,15 @@ const SPOT_DB = [
 
   { id: "db_1443_N", name: "Zwölferkopf (N)", region: "Pertisau",
     lat: 47.4275, lon: 11.6964, elevation: 1466, dhv: 1443,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "at", acc: "fb", hoehendiff: 521, gemeinde: "6213 Pertisau", bundesland: "Tirol", gleitschirm: "2-sitzig, Schulung 1-sitzig", bemerkung: "Nordstartplatz auf der östlichen Seite der Bergstation.", landeName: "Zwölferkopf Bergland Landeplatz", landeLat: 47.4356, landeLon: 11.7020, landeHoehe: 945, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "at", acc: "fb", hoehendiff: 521, gemeinde: "6213 Pertisau", bundesland: "Tirol", gleitschirm: "2-sitzig, Schulung 1-sitzig", bemerkung: "Nordstartplatz auf der östlichen Seite der Bergstation.", landeName: "Zwölferkopf Bergland Landeplatz", landeLat: 47.4356, landeLon: 11.7020, landeHoehe: 945, landeExtra: [{ name: "Zwölferkopf Wiesenhof Landeplatz", lat: 47.437508, lon: 11.70104, hoehe: 945 }], ...DEF },
 
   { id: "db_1443_SW", name: "Zwölferkopf (SW)", region: "Pertisau",
     lat: 47.4263, lon: 11.6984, elevation: 1458, dhv: 1443,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "at", acc: "fb", hoehendiff: 521, gemeinde: "6213 Pertisau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Nordweststartplatz auf der Westseite der Bergstation.", landeName: "Zwölferkopf Bergland Landeplatz", landeLat: 47.4356, landeLon: 11.7020, landeHoehe: 945, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "at", acc: "fb", hoehendiff: 521, gemeinde: "6213 Pertisau", bundesland: "Tirol", gleitschirm: "1- und 2-sitzig", bemerkung: "Nordweststartplatz auf der Westseite der Bergstation.", landeName: "Zwölferkopf Bergland Landeplatz", landeLat: 47.4356, landeLon: 11.7020, landeHoehe: 945, landeExtra: [{ name: "Zwölferkopf Wiesenhof Landeplatz", lat: 47.437508, lon: 11.70104, hoehe: 945 }], ...DEF },
 
   { id: "db_1443_W", name: "Zwölferkopf (W)", region: "Pertisau",
     lat: 47.4276, lon: 11.6945, elevation: 1450, dhv: 1443,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fb", hoehendiff: 521, gemeinde: "6213 Pertisau", bundesland: "Tirol", gleitschirm: "2-sitzig, Schulung 1-sitzig", bemerkung: "Nicht ganz einfacher Weststartplatz auf der ostseite der Bergstation gelegen.", landeName: "Zwölferkopf Bergland Landeplatz", landeLat: 47.4356, landeLon: 11.7020, landeHoehe: 945, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "at", acc: "fb", hoehendiff: 521, gemeinde: "6213 Pertisau", bundesland: "Tirol", gleitschirm: "2-sitzig, Schulung 1-sitzig", bemerkung: "Nicht ganz einfacher Weststartplatz auf der ostseite der Bergstation gelegen.", landeName: "Zwölferkopf Bergland Landeplatz", landeLat: 47.4356, landeLon: 11.7020, landeHoehe: 945, landeExtra: [{ name: "Zwölferkopf Wiesenhof Landeplatz", lat: 47.437508, lon: 11.70104, hoehe: 945 }], ...DEF },
 
   // --- Schweiz ---
   { id: "db_1619", name: "Abendberg", region: "Erlenbach",
@@ -3656,7 +3656,7 @@ const SPOT_DB = [
 
   { id: "db_5368", name: "Alp Grüm", region: "San Carlo",
     lat: 46.376, lon: 10.0329, elevation: 2185, dhv: 5368,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fa", hoehendiff: 1099, gemeinde: "7741 San Carlo", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Alp Grüm Landeplatz", landeLat: 46.4094, landeLon: 10.0573, landeHoehe: 1941, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fa", hoehendiff: 1099, gemeinde: "7741 San Carlo", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Alp Grüm Landeplatz", landeLat: 46.4094, landeLon: 10.0573, landeHoehe: 1941, landeExtra: [{ name: "Varuna Landeplatz", lat: 46.344267, lon: 10.061786, hoehe: 1086 }], ...DEF },
 
   { id: "db_5362", name: "Alp Grüm Sot", region: "Brusio",
     lat: 46.2575, lon: 10.1518, elevation: 1894, dhv: 5362,
@@ -3664,39 +3664,39 @@ const SPOT_DB = [
 
   { id: "db_2065", name: "Alp Languard", region: "Pontresina",
     lat: 46.4881, lon: 9.9222, elevation: 2410, dhv: 2065,
-    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", country: "ch", acc: "fb", hoehendiff: 563, gemeinde: "7504 Pontresina", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", bemerkung: "Einfacher Wiesenstartplatz oberhalb der Bergstation.", landeName: "Alp Languard Landeplatz 1", landeLat: 46.4902, landeLon: 9.9082, landeHoehe: 1847, ...DEF },
+    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", country: "ch", acc: "fb", hoehendiff: 563, gemeinde: "7504 Pontresina", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", bemerkung: "Einfacher Wiesenstartplatz oberhalb der Bergstation.", landeName: "Alp Languard Landeplatz 1", landeLat: 46.4902, landeLon: 9.9082, landeHoehe: 1847, landeExtra: [{ name: "Alp Languard Landeplatz 2 neu", lat: 46.470202, lon: 9.928465, hoehe: 1864 }], ...DEF },
 
   { id: "db_2109", name: "Alp Scheidegg", region: "Gibswil-Ried",
     lat: 47.3047, lon: 8.944, elevation: 1209, dhv: 2109,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fa", hoehendiff: 527, gemeinde: "8498 Gibswil-Ried", bundesland: "Zürich", gleitschirm: "1- und 2-sitzig", landeName: "Alp Scheidegg Landeplatz 2", landeLat: 47.2941, landeLon: 8.9273, landeHoehe: 779, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fa", hoehendiff: 527, gemeinde: "8498 Gibswil-Ried", bundesland: "Zürich", gleitschirm: "1- und 2-sitzig", landeName: "Alp Scheidegg Landeplatz 2", landeLat: 47.2941, landeLon: 8.9273, landeHoehe: 779, landeExtra: [{ name: "Alp Scheidegg Landeplatz 1", lat: 47.310052, lon: 8.913881, hoehe: 771 }, { name: "Alp Scheidegg Landeplatz 3", lat: 47.295494, lon: 8.919978, hoehe: 689 }, { name: "Alp Scheidegg Landeplatz 4", lat: 47.288817, lon: 8.915903, hoehe: 682 }], ...DEF },
 
   { id: "db_1621", name: "Alp Stätz", region: "Lenzerheide",
     lat: 46.7563, lon: 9.5164, elevation: 2382, dhv: 1621,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "ch", acc: "fb", hoehendiff: 892, gemeinde: "7078 Lenzerheide", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", bemerkung: "Bei geschlossener Bergbahn Aufstieg zu Fuß.", landeName: "Parpaner Rothorn Landeplatz 1", landeLat: 46.7441, landeLon: 9.5521, landeHoehe: 1490, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "ch", acc: "fb", hoehendiff: 892, gemeinde: "7078 Lenzerheide", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", bemerkung: "Bei geschlossener Bergbahn Aufstieg zu Fuß.", landeName: "Parpaner Rothorn Landeplatz 1", landeLat: 46.7441, landeLon: 9.5521, landeHoehe: 1490, landeExtra: [{ name: "Parpaner Rothorn Landeplatz 2", lat: 46.760389, lon: 9.562056, hoehe: 1498 }], ...DEF },
 
   { id: "db_1622", name: "Alpe del Caviano", region: "Mendrisio",
     lat: 45.8778, lon: 9.0079, elevation: 972, dhv: 1622,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 671, gemeinde: "6850 Mendrisio", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Alpe del Caviano Landeplatz 2", landeLat: 45.8665, landeLon: 9.0019, landeHoehe: 301, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 671, gemeinde: "6850 Mendrisio", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Alpe del Caviano Landeplatz 2", landeLat: 45.8665, landeLon: 9.0019, landeHoehe: 301, landeExtra: [{ name: "Alpe del Caviano Landeplatz 1", lat: 45.879552, lon: 8.981206, hoehe: 301 }], ...DEF },
 
   { id: "db_2089", name: "Altwisstock", region: "Schänis",
     lat: 47.2108, lon: 9.0684, elevation: 1055, dhv: 2089,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 625, gemeinde: "8723 Schänis", bundesland: "St. Gallen", gleitschirm: "1- und 2-sitzig", landeName: "Altwisstock Landeplatz", landeLat: 47.2032, landeLon: 9.0436, landeHoehe: 446, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 625, gemeinde: "8723 Schänis", bundesland: "St. Gallen", gleitschirm: "1- und 2-sitzig", landeName: "Altwisstock Landeplatz", landeLat: 47.2032, landeLon: 9.0436, landeHoehe: 446, landeExtra: [{ name: "Hüsliberg Landeplatz 1", lat: 47.18365, lon: 9.047561, hoehe: 430 }], ...DEF },
 
   { id: "db_5356", name: "Aminona", region: "Siders",
     lat: 46.3411, lon: 7.5362, elevation: 1809, dhv: 5356,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fa", hoehendiff: 1269, gemeinde: "3960 Siders", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Petit Mont Bonvin Landeplatz 1", landeLat: 46.3314, landeLon: 7.5273, landeHoehe: 1496, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fa", hoehendiff: 1269, gemeinde: "3960 Siders", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Petit Mont Bonvin Landeplatz 1", landeLat: 46.3314, landeLon: 7.5273, landeHoehe: 1496, landeExtra: [{ name: "Petit Mont Bonvin Landeplatz 2", lat: 46.299303, lon: 7.555628, hoehe: 540 }], ...DEF },
 
   { id: "db_1582_S", name: "Amisbühl (S)", region: "Interlaken",
     lat: 46.701, lon: 7.8196, elevation: 1316, dhv: 1582,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fa", hoehendiff: 1007, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Erster Startplatz am Amisbühl. Der herrliche Wiesenstartplatz ist Richtung Süden ausgerichtet und bietet Platz mehrere Fluggeräte.", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fa", hoehendiff: 1007, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Erster Startplatz am Amisbühl. Der herrliche Wiesenstartplatz ist Richtung Süden ausgerichtet und bietet Platz mehrere Fluggeräte.", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, landeExtra: [{ name: "Niederhorn Landeplatz 2", lat: 46.686117, lon: 7.858719, hoehe: 569 }], ...DEF },
 
   { id: "db_1582_SO", name: "Amisbühl (SO)", region: "Interlaken",
     lat: 46.7138, lon: 7.8241, elevation: 1572, dhv: 1582,
-    sectors: [[123.75, 191.25], [123.75, 146.25]], sectorLabel: "SO-S · SO", country: "ch", acc: "fa", hoehendiff: 1007, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Postbus bis Waldegg und zu Fuss ca. 35 Min. • ACHTUNG: Parkieren am Startplatz verboten! Parkplatz bei Skilift Hohwald Im Winter wegen Skibetrieb kein offizieller Startplatz!", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, ...DEF },
+    sectors: [[123.75, 191.25], [123.75, 146.25]], sectorLabel: "SO-S · SO", country: "ch", acc: "fa", hoehendiff: 1007, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Postbus bis Waldegg und zu Fuss ca. 35 Min. • ACHTUNG: Parkieren am Startplatz verboten! Parkplatz bei Skilift Hohwald Im Winter wegen Skibetrieb kein offizieller Startplatz!", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, landeExtra: [{ name: "Niederhorn Landeplatz 2", lat: 46.686117, lon: 7.858719, hoehe: 569 }], ...DEF },
 
   { id: "db_1400", name: "Arvialp", region: "Kerns",
     lat: 46.8921, lon: 8.3302, elevation: 1794, dhv: 1400,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fa", hoehendiff: 1321, gemeinde: "6064 Kerns", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Arvialp Landeplatz 1", landeLat: 46.8984, landeLon: 8.2714, landeHoehe: 561, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fa", hoehendiff: 1321, gemeinde: "6064 Kerns", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Arvialp Landeplatz 1", landeLat: 46.8984, landeLon: 8.2714, landeHoehe: 561, landeExtra: [{ name: "Linderenalp Landeplatz 1", lat: 46.886301, lon: 8.244982, hoehe: 473 }], ...DEF },
 
   { id: "db_5367", name: "Aurafreida", region: "San Carlo",
     lat: 46.3729, lon: 10.0924, elevation: 2135, dhv: 5367,
@@ -3712,7 +3712,7 @@ const SPOT_DB = [
 
   { id: "db_2060", name: "Bärensolspitz", region: "Näfels",
     lat: 47.1002, lon: 8.9964, elevation: 1812, dhv: 2060,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "f", hoehendiff: 1377, gemeinde: "8752 Näfels", bundesland: "Glarus", gleitschirm: "1- und 2-sitzig", bemerkung: "Zu Fuß vom Landeplatz in ca. 2,5 h zum Startplatz.", landeName: "Bärensolspitz Landeplatz 1", landeLat: 47.0846, landeLon: 8.9980, landeHoehe: 998, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "f", hoehendiff: 1377, gemeinde: "8752 Näfels", bundesland: "Glarus", gleitschirm: "1- und 2-sitzig", bemerkung: "Zu Fuß vom Landeplatz in ca. 2,5 h zum Startplatz.", landeName: "Bärensolspitz Landeplatz 1", landeLat: 47.0846, landeLon: 8.9980, landeHoehe: 998, landeExtra: [{ name: "Bärensolspitz Landeplatz 2", lat: 47.109782, lon: 9.067937, hoehe: 435 }], ...DEF },
 
   { id: "db_5208", name: "Bärgli", region: "St. Antönien",
     lat: 46.9845, lon: 9.8184, elevation: 2130, dhv: 5208,
@@ -3720,7 +3720,7 @@ const SPOT_DB = [
 
   { id: "db_2154", name: "Bassa di Nara", region: "Leontica",
     lat: 46.4751, lon: 8.8689, elevation: 2107, dhv: 2154,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 1516, gemeinde: "6716 Leontica", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Bassa di Nara Landeplatz 1", landeLat: 46.4684, landeLon: 8.9313, landeHoehe: 591, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 1516, gemeinde: "6716 Leontica", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Bassa di Nara Landeplatz 1", landeLat: 46.4684, landeLon: 8.9313, landeHoehe: 591, landeExtra: [{ name: "Bassa di Nara Landeplatz 2", lat: 46.498322, lon: 8.950683, hoehe: 753 }], ...DEF },
 
   { id: "db_5379", name: "Bedöll", region: "Capolago",
     lat: 45.9067, lon: 9.0044, elevation: 1148, dhv: 5379,
@@ -3728,15 +3728,15 @@ const SPOT_DB = [
 
   { id: "db_1580_NW", name: "Beichlen (NW)", region: "Marbach",
     lat: 46.895, lon: 7.9695, elevation: 1714, dhv: 1580,
-    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "ch", acc: "f", hoehendiff: 999, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Beichlen Landeplatz", landeLat: 46.9268, landeLon: 8.0140, landeHoehe: 752, ...DEF },
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "ch", acc: "f", hoehendiff: 999, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Beichlen Landeplatz", landeLat: 46.9268, landeLon: 8.0140, landeHoehe: 752, landeExtra: [{ name: "Marbachegg Landeplatz 1", lat: 46.85185, lon: 7.900022, hoehe: 874 }], ...DEF },
 
   { id: "db_1580_SO", name: "Beichlen (SO)", region: "Marbach",
     lat: 46.8972, lon: 7.973, elevation: 1751, dhv: 1580,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "f", hoehendiff: 999, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Beichlen Landeplatz", landeLat: 46.9268, landeLon: 8.0140, landeHoehe: 752, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "f", hoehendiff: 999, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Beichlen Landeplatz", landeLat: 46.9268, landeLon: 8.0140, landeHoehe: 752, landeExtra: [{ name: "Marbachegg Landeplatz 1", lat: 46.85185, lon: 7.900022, hoehe: 874 }], ...DEF },
 
   { id: "db_5703", name: "Belalp", region: "Naters",
     lat: 46.4029, lon: 7.9653, elevation: 3021, dhv: 5703,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "ab", hoehendiff: 2343, gemeinde: "3914 Naters", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Greicheralp Landeplatz 1", landeLat: 46.3343, landeLon: 8.0168, landeHoehe: 700, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "ab", hoehendiff: 2343, gemeinde: "3914 Naters", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Greicheralp Landeplatz 1", landeLat: 46.3343, landeLon: 8.0168, landeHoehe: 700, landeExtra: [{ name: "Ried Landeplatz", lat: 46.3132, lon: 8.009964, hoehe: 881 }, { name: "Greicheralp Landeplatz 2", lat: 46.325903, lon: 8.005619, hoehe: 678 }], ...DEF },
 
   { id: "db_1624", name: "Bellalui", region: "Crans-Montana",
     lat: 46.3443, lon: 7.4859, elevation: 2505, dhv: 1624,
@@ -3772,7 +3772,7 @@ const SPOT_DB = [
 
   { id: "db_1614", name: "Bölchen", region: "Eptingen",
     lat: 47.3658, lon: 7.8023, elevation: 989, dhv: 1614,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "ch", acc: "fa", hoehendiff: 456, gemeinde: "4458 Eptingen", bundesland: "Solothurn", landeName: "Bölchen Landeplatz 1", landeLat: 47.3895, landeLon: 7.8138, landeHoehe: 555, ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "ch", acc: "fa", hoehendiff: 456, gemeinde: "4458 Eptingen", bundesland: "Solothurn", landeName: "Bölchen Landeplatz 1", landeLat: 47.3895, landeLon: 7.8138, landeHoehe: 555, landeExtra: [{ name: "Bölchen Landeplatz 2", lat: 47.409686, lon: 7.799789, hoehe: 533 }], ...DEF },
 
   { id: "db_1397", name: "Bonistock", region: "Melchsee-Frutt",
     lat: 46.7781, lon: 8.2904, elevation: 2158, dhv: 1397,
@@ -3816,11 +3816,11 @@ const SPOT_DB = [
 
   { id: "db_1281_S", name: "Brunni (S)", region: "Engelberg",
     lat: 46.841, lon: 8.415, elevation: 1979, dhv: 1281,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 960, gemeinde: "6390 Engelberg", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startplatz oberhalb der Brunnihütte auf steilem Wiesenhang.", landeName: "Brunni Landeplatz 1", landeLat: 46.8173, landeLon: 8.4082, landeHoehe: 1019, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 960, gemeinde: "6390 Engelberg", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startplatz oberhalb der Brunnihütte auf steilem Wiesenhang.", landeName: "Brunni Landeplatz 1", landeLat: 46.8173, landeLon: 8.4082, landeHoehe: 1019, landeExtra: [{ name: "Brunni Landeplatz 2", lat: 46.810252, lon: 8.426417, hoehe: 1032 }], ...DEF },
 
   { id: "db_1281_SW", name: "Brunni (SW)", region: "Engelberg",
     lat: 46.8427, lon: 8.4101, elevation: 1857, dhv: 1281,
-    sectors: [[213.75, 281.25], [213.75, 236.25]], sectorLabel: "SW-W · SW", country: "ch", acc: "fb", hoehendiff: 960, gemeinde: "6390 Engelberg", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Kleiner Startplatz westlich der Bergstation.", landeName: "Brunni Landeplatz 1", landeLat: 46.8173, landeLon: 8.4082, landeHoehe: 1019, ...DEF },
+    sectors: [[213.75, 281.25], [213.75, 236.25]], sectorLabel: "SW-W · SW", country: "ch", acc: "fb", hoehendiff: 960, gemeinde: "6390 Engelberg", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Kleiner Startplatz westlich der Bergstation.", landeName: "Brunni Landeplatz 1", landeLat: 46.8173, landeLon: 8.4082, landeHoehe: 1019, landeExtra: [{ name: "Brunni Landeplatz 2", lat: 46.810252, lon: 8.426417, hoehe: 1032 }], ...DEF },
 
   { id: "db_1568_NO", name: "Brüsti (NO)", region: "Attighausen",
     lat: 46.8438, lon: 8.6062, elevation: 1540, dhv: 1568,
@@ -3836,11 +3836,11 @@ const SPOT_DB = [
 
   { id: "db_5751", name: "Bündner Rigi", region: "Ilanz",
     lat: 46.7478, lon: 9.1754, elevation: 1593, dhv: 5751,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fa", hoehendiff: 899, gemeinde: "7130 Ilanz", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Bündner Rigi Landeplatz", landeLat: 46.7756, landeLon: 9.1894, landeHoehe: 694, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fa", hoehendiff: 899, gemeinde: "7130 Ilanz", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Bündner Rigi Landeplatz", landeLat: 46.7756, landeLon: 9.1894, landeHoehe: 694, landeExtra: [{ name: "Falera Landeplatz", lat: 46.781144, lon: 9.221339, hoehe: 694 }], ...DEF },
 
   { id: "db_1674", name: "Buochser Horn", region: "Dallenwil",
     lat: 46.945, lon: 8.4287, elevation: 1793, dhv: 1674,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 1294, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig", landeName: "Musenalp Landeplatz", landeLat: 46.9287, landeLon: 8.3958, landeHoehe: 499, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 1294, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig", landeName: "Musenalp Landeplatz", landeLat: 46.9287, landeLon: 8.3958, landeHoehe: 499, landeExtra: [{ name: "Wirzweli Landeplatz 1", lat: 46.926909, lon: 8.383877, hoehe: 630 }, { name: "Wirzweli Landeplatz 3", lat: 46.920167, lon: 8.397964, hoehe: 500 }], ...DEF },
 
   { id: "db_1469", name: "Burst", region: "Unterwasser",
     lat: 47.2087, lon: 9.3021, elevation: 1235, dhv: 1469,
@@ -3860,7 +3860,7 @@ const SPOT_DB = [
 
   { id: "db_1491", name: "Cassons", region: "Flims",
     lat: 46.8789, lon: 9.2661, elevation: 2649, dhv: 1491,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1552, gemeinde: "7017 Flims", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Cassons Landeplatz 2", landeLat: 46.8387, landeLon: 9.2854, landeHoehe: 1113, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1552, gemeinde: "7017 Flims", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Cassons Landeplatz 2", landeLat: 46.8387, landeLon: 9.2854, landeHoehe: 1113, landeExtra: [{ name: "Cassons Landeplatz 1", lat: 46.835992, lon: 9.281381, hoehe: 1097 }], ...DEF },
 
   { id: "db_5363", name: "Cavaione", region: "Brusio",
     lat: 46.2506, lon: 10.1135, elevation: 1564, dhv: 5363,
@@ -3920,7 +3920,7 @@ const SPOT_DB = [
 
   { id: "db_1680", name: "Cimetta", region: "Locarno",
     lat: 46.1998, lon: 8.7879, elevation: 1616, dhv: 1680,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "ch", acc: "fb", hoehendiff: 1423, gemeinde: "6600 Locarno", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Cimetta Landeplatz 3", landeLat: 46.1543, landeLon: 8.7828, landeHoehe: 199, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "ch", acc: "fb", hoehendiff: 1423, gemeinde: "6600 Locarno", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Cimetta Landeplatz 3", landeLat: 46.1543, landeLon: 8.7828, landeHoehe: 199, landeExtra: [{ name: "Cimetta Landeplatz 1", lat: 46.231939, lon: 8.731044, hoehe: 199 }, { name: "Cimetta Landeplatz 2", lat: 46.153512, lon: 8.803375, hoehe: 193 }], ...DEF },
 
   { id: "db_1681_O", name: "Col de Sorebois (O)", region: "Zinal",
     lat: 46.1481, lon: 7.5869, elevation: 2820, dhv: 1681,
@@ -3936,7 +3936,7 @@ const SPOT_DB = [
 
   { id: "db_2068", name: "Corvatsch", region: "Silvaplana",
     lat: 46.4181, lon: 9.8216, elevation: 3289, dhv: 2068,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "ch", acc: "fb", hoehendiff: 1492, gemeinde: "7513 Silvaplana", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz auf Skipiste unterhalb der Bergstation (2. Sektion).", landeName: "Corvatsch Landeplatz 2", landeLat: 46.4339, landeLon: 9.7721, landeHoehe: 1797, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "ch", acc: "fb", hoehendiff: 1492, gemeinde: "7513 Silvaplana", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz auf Skipiste unterhalb der Bergstation (2. Sektion).", landeName: "Corvatsch Landeplatz 2", landeLat: 46.4339, landeLon: 9.7721, landeHoehe: 1797, landeExtra: [{ name: "Corvatsch Landeplatz 1", lat: 46.457317, lon: 9.79785, hoehe: 1797 }], ...DEF },
 
   { id: "db_1490_NO", name: "Crap Sogn Gion (NO)", region: "Flims",
     lat: 46.8347, lon: 9.217, elevation: 2208, dhv: 1490,
@@ -3948,11 +3948,11 @@ const SPOT_DB = [
 
   { id: "db_1684_S", name: "Croix de Coeur (S)", region: "Verbier",
     lat: 46.1216, lon: 7.233, elevation: 2194, dhv: 1684,
-    sectors: [[168.75, 191.25], [123.75, 236.25]], sectorLabel: "S · SO-SW", country: "ch", acc: "fa", hoehendiff: 685, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Ruinette Landeplatz 1", landeLat: 46.1076, landeLon: 7.2363, landeHoehe: 1694, ...DEF },
+    sectors: [[168.75, 191.25], [123.75, 236.25]], sectorLabel: "S · SO-SW", country: "ch", acc: "fa", hoehendiff: 685, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Ruinette Landeplatz 1", landeLat: 46.1076, landeLon: 7.2363, landeHoehe: 1694, landeExtra: [{ name: "Croix de Coeur Landeplatz", lat: 46.101572, lon: 7.219397, hoehe: 1509 }], ...DEF },
 
   { id: "db_1684_SO", name: "Croix de Coeur (SO)", region: "Verbier",
     lat: 46.1208, lon: 7.2286, elevation: 2165, dhv: 1684,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fa", hoehendiff: 685, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Ruinette Landeplatz 1", landeLat: 46.1076, landeLon: 7.2363, landeHoehe: 1694, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fa", hoehendiff: 685, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Ruinette Landeplatz 1", landeLat: 46.1076, landeLon: 7.2363, landeHoehe: 1694, landeExtra: [{ name: "Croix de Coeur Landeplatz", lat: 46.101572, lon: 7.219397, hoehe: 1509 }], ...DEF },
 
   { id: "db_1686", name: "Croix de L'Aiguille", region: "Verbier",
     lat: 46.1963, lon: 6.8607, elevation: 1825, dhv: 1686,
@@ -3988,15 +3988,15 @@ const SPOT_DB = [
 
   { id: "db_5506_NO", name: "Dossen (NO)", region: "Vitznau",
     lat: 47.0271, lon: 8.4986, elevation: 1681, dhv: 5506,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "f", hoehendiff: 1206, gemeinde: "6454 Vitznau", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "f", hoehendiff: 1206, gemeinde: "6454 Vitznau", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, landeExtra: [{ name: "Rigi-Staffelhöhe Landeplatz 1", lat: 47.032933, lon: 8.4418, hoehe: 475 }], ...DEF },
 
   { id: "db_5506_SW", name: "Dossen (SW)", region: "Vitznau",
     lat: 47.0254, lon: 8.4997, elevation: 1665, dhv: 5506,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "f", hoehendiff: 1206, gemeinde: "6454 Vitznau", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "f", hoehendiff: 1206, gemeinde: "6454 Vitznau", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, landeExtra: [{ name: "Rigi-Staffelhöhe Landeplatz 1", lat: 47.032933, lon: 8.4418, hoehe: 475 }], ...DEF },
 
   { id: "db_2072", name: "Dreibündenstein", region: "Chur",
     lat: 46.8048, lon: 9.4953, elevation: 2169, dhv: 2072,
-    sectors: [[168.75, 326.25]], sectorLabel: "S-NW", country: "ch", acc: "fb", hoehendiff: 1605, gemeinde: "7000 Chur", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Dreibündenstein Landeplatz", landeLat: 46.8551, landeLon: 9.5053, landeHoehe: 564, ...DEF },
+    sectors: [[168.75, 326.25]], sectorLabel: "S-NW", country: "ch", acc: "fb", hoehendiff: 1605, gemeinde: "7000 Chur", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Dreibündenstein Landeplatz", landeLat: 46.8551, landeLon: 9.5053, landeHoehe: 564, landeExtra: [{ name: "Calandasiten Landeplatz", lat: 46.867697, lon: 9.543067, hoehe: 657 }], ...DEF },
 
   { id: "db_2090", name: "Durschlegi", region: "Amden",
     lat: 47.1461, lon: 9.1192, elevation: 1118, dhv: 2090,
@@ -4004,11 +4004,11 @@ const SPOT_DB = [
 
   { id: "db_1246_N", name: "Ebenalp (N)", region: "Schwende",
     lat: 47.2849, lon: 9.4116, elevation: 1594, dhv: 1246,
-    sectors: [[303.75, 56.25], [303.75, 11.25]], sectorLabel: "NW-NO · NW-N", country: "ch", acc: "fb", hoehendiff: 736, gemeinde: "9057 Schwende", bundesland: "Appenzell Innerrhoden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Einfacher Startplatz rechts unterhalb der Bergstation. Schulen haben Vorrang. Der Landeplatz ist von hier nicht zu sehen, kommt aber nach wenigen Flugmetern Richtung Osten ins Blickfeld.", landeName: "Ebenalp Landeplatz 1", landeLat: 47.2837, landeLon: 9.4271, landeHoehe: 871, ...DEF },
+    sectors: [[303.75, 56.25], [303.75, 11.25]], sectorLabel: "NW-NO · NW-N", country: "ch", acc: "fb", hoehendiff: 736, gemeinde: "9057 Schwende", bundesland: "Appenzell Innerrhoden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Einfacher Startplatz rechts unterhalb der Bergstation. Schulen haben Vorrang. Der Landeplatz ist von hier nicht zu sehen, kommt aber nach wenigen Flugmetern Richtung Osten ins Blickfeld.", landeName: "Ebenalp Landeplatz 1", landeLat: 47.2837, landeLon: 9.4271, landeHoehe: 871, landeExtra: [{ name: "Ebenalp Landeplatz 2", lat: 47.287148, lon: 9.42893, hoehe: 867 }], ...DEF },
 
   { id: "db_1246_O", name: "Ebenalp (O)", region: "Schwende",
     lat: 47.2833, lon: 9.413, elevation: 1603, dhv: 1246,
-    sectors: [[33.75, 191.25]], sectorLabel: "NO-S", country: "ch", acc: "fb", hoehendiff: 736, gemeinde: "9057 Schwende", bundesland: "Appenzell Innerrhoden", gleitschirm: "1- und 2-sitzig", bemerkung: "Hauptstartplatz der Deltas, schwierig. Für Schirme nur sehr sicheren Startern zu empfehlen. Klippenstart. Erreichbar durch Aufstieg zum Restaurant und Abstieg nach Osten. Vorsicht: die Restaurant-Kabel sind in unmittelbarer Nähe.", landeName: "Ebenalp Landeplatz 1", landeLat: 47.2837, landeLon: 9.4271, landeHoehe: 871, ...DEF },
+    sectors: [[33.75, 191.25]], sectorLabel: "NO-S", country: "ch", acc: "fb", hoehendiff: 736, gemeinde: "9057 Schwende", bundesland: "Appenzell Innerrhoden", gleitschirm: "1- und 2-sitzig", bemerkung: "Hauptstartplatz der Deltas, schwierig. Für Schirme nur sehr sicheren Startern zu empfehlen. Klippenstart. Erreichbar durch Aufstieg zum Restaurant und Abstieg nach Osten. Vorsicht: die Restaurant-Kabel sind in unmittelbarer Nähe.", landeName: "Ebenalp Landeplatz 1", landeLat: 47.2837, landeLon: 9.4271, landeHoehe: 871, landeExtra: [{ name: "Ebenalp Landeplatz 2", lat: 47.287148, lon: 9.42893, hoehe: 867 }], ...DEF },
 
   { id: "db_1410", name: "Egelstock", region: "Seewen",
     lat: 47.0576, lon: 8.6451, elevation: 1297, dhv: 1410,
@@ -4044,11 +4044,11 @@ const SPOT_DB = [
 
   { id: "db_1599_NW", name: "Engstligenalp (NW)", region: "Adelboden",
     lat: 46.4488, lon: 7.5644, elevation: 1962, dhv: 1599,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 942, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Tschentenalp Landeplatz 1", landeLat: 46.4791, landeLon: 7.5591, landeHoehe: 1287, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 942, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Tschentenalp Landeplatz 1", landeLat: 46.4791, landeLon: 7.5591, landeHoehe: 1287, landeExtra: [{ name: "Tschentenalp Landeplatz 2", lat: 46.480125, lon: 7.560364, hoehe: 1284 }, { name: "Tschentenalp Landeplatz 3", lat: 46.489014, lon: 7.562428, hoehe: 1252 }], ...DEF },
 
   { id: "db_1599_W", name: "Engstligenalp (W)", region: "Adelboden",
     lat: 46.4476, lon: 7.5756, elevation: 2194, dhv: 1599,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 942, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Aufstieg von der Engstligenalp.", landeName: "Tschentenalp Landeplatz 1", landeLat: 46.4791, landeLon: 7.5591, landeHoehe: 1287, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 942, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Aufstieg von der Engstligenalp.", landeName: "Tschentenalp Landeplatz 1", landeLat: 46.4791, landeLon: 7.5591, landeHoehe: 1287, landeExtra: [{ name: "Tschentenalp Landeplatz 2", lat: 46.480125, lon: 7.560364, hoehe: 1284 }, { name: "Tschentenalp Landeplatz 3", lat: 46.489014, lon: 7.562428, hoehe: 1252 }], ...DEF },
 
   { id: "db_5376", name: "Evolene", region: "Evolene",
     lat: 46.1224, lon: 7.5158, elevation: 2419, dhv: 5376,
@@ -4064,11 +4064,11 @@ const SPOT_DB = [
 
   { id: "db_1292_SO", name: "Fanas (SO)", region: "Grüsch",
     lat: 47.0004, lon: 9.6841, elevation: 1793, dhv: 1292,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "f", hoehendiff: 1708, gemeinde: "7214 Grüsch", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Fanas Landeplatz 1", landeLat: 46.9786, landeLon: 9.6564, landeHoehe: 622, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "f", hoehendiff: 1708, gemeinde: "7214 Grüsch", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Fanas Landeplatz 1", landeLat: 46.9786, landeLon: 9.6564, landeHoehe: 622, landeExtra: [{ name: "Fanas Landeplatz 2", lat: 46.974981, lon: 9.65312, hoehe: 622 }, { name: "Stelserberg Landeplatz", lat: 46.965369, lon: 9.693943, hoehe: 586 }], ...DEF },
 
   { id: "db_1292_SW", name: "Fanas (SW)", region: "Grüsch",
     lat: 47.0118, lon: 9.6977, elevation: 2294, dhv: 1292,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "f", hoehendiff: 1708, gemeinde: "7214 Grüsch", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Fanas Landeplatz 1", landeLat: 46.9786, landeLon: 9.6564, landeHoehe: 622, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "f", hoehendiff: 1708, gemeinde: "7214 Grüsch", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Fanas Landeplatz 1", landeLat: 46.9786, landeLon: 9.6564, landeHoehe: 622, landeExtra: [{ name: "Fanas Landeplatz 2", lat: 46.974981, lon: 9.65312, hoehe: 622 }, { name: "Stelserberg Landeplatz", lat: 46.965369, lon: 9.693943, hoehe: 586 }], ...DEF },
 
   { id: "db_1691_N", name: "Farneren (N)", region: "Schüpfheim",
     lat: 46.935, lon: 8.0434, elevation: 1544, dhv: 1691,
@@ -4092,7 +4092,7 @@ const SPOT_DB = [
 
   { id: "db_1585", name: "First", region: "Grindelwald",
     lat: 46.6574, lon: 8.0551, elevation: 2123, dhv: 1585,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", diff: 1, acc: "fb", hoehendiff: 1173, gemeinde: "3818 Grindelwald", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Riesiger Wiesenstartplatz unterhalb der Bergstation der First-Bergbahn.", landeName: "First Landeplatz Bodmi", landeLat: 46.6288, landeLon: 8.0433, landeHoehe: 1129, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", diff: 1, acc: "fb", hoehendiff: 1173, gemeinde: "3818 Grindelwald", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Riesiger Wiesenstartplatz unterhalb der Bergstation der First-Bergbahn.", landeName: "First Landeplatz Bodmi", landeLat: 46.6288, landeLon: 8.0433, landeHoehe: 1129, landeExtra: [{ name: "First Landeplatz Grund", lat: 46.620292, lon: 8.029056, hoehe: 950 }], ...DEF },
 
   { id: "db_5209", name: "Fisetenpass", region: "Spiringen",
     lat: 46.8858, lon: 8.9349, elevation: 2051, dhv: 5209,
@@ -4100,7 +4100,7 @@ const SPOT_DB = [
 
   { id: "db_1692", name: "Flöschhorn", region: "Lenk",
     lat: 46.4633, lon: 7.406, elevation: 2069, dhv: 1692,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "ch", acc: "fa", hoehendiff: 1007, gemeinde: "3775 Lenk", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Flöschhorn Landeplatz", landeLat: 46.4646, landeLon: 7.4361, landeHoehe: 1062, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "ch", acc: "fa", hoehendiff: 1007, gemeinde: "3775 Lenk", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Flöschhorn Landeplatz", landeLat: 46.4646, landeLon: 7.4361, landeHoehe: 1062, landeExtra: [{ name: "Schatthorn Landeplatz", lat: 46.45485, lon: 7.442547, hoehe: 1064 }], ...DEF },
 
   { id: "db_5707", name: "Forstberg", region: "Hoch-Ybrig",
     lat: 47.0016, lon: 8.8224, elevation: 2168, dhv: 5707,
@@ -4132,7 +4132,7 @@ const SPOT_DB = [
 
   { id: "db_1696", name: "Galfera", region: "Fiesch",
     lat: 46.4046, lon: 8.0952, elevation: 2172, dhv: 1696,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1114, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Galfera Landeplatz 2", landeLat: 46.4092, landeLon: 8.1379, landeHoehe: 1058, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1114, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Galfera Landeplatz 2", landeLat: 46.4092, landeLon: 8.1379, landeHoehe: 1058, landeExtra: [{ name: "Galfera Landeplatz 1", lat: 46.420483, lon: 8.144911, hoehe: 1087 }], ...DEF },
 
   { id: "db_1700", name: "Galm", region: "Schwenden",
     lat: 46.5447, lon: 7.5189, elevation: 2006, dhv: 1700,
@@ -4164,11 +4164,11 @@ const SPOT_DB = [
 
   { id: "db_1483_N", name: "Gotschnagrat (N)", region: "Klosters",
     lat: 46.8587, lon: 9.8455, elevation: 2278, dhv: 1483,
-    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "ch", acc: "fb", hoehendiff: 1092, gemeinde: "7250 Klosters", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Gotschnagrat Landeplatz 2", landeLat: 46.8660, landeLon: 9.8888, landeHoehe: 1186, ...DEF },
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "ch", acc: "fb", hoehendiff: 1092, gemeinde: "7250 Klosters", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Gotschnagrat Landeplatz 2", landeLat: 46.8660, landeLon: 9.8888, landeHoehe: 1186, landeExtra: [{ name: "Gotschnagrat Landeplatz 1", lat: 46.864542, lon: 9.890817, hoehe: 1188 }], ...DEF },
 
   { id: "db_1483_SO", name: "Gotschnagrat (SO)", region: "Klosters",
     lat: 46.8563, lon: 9.8496, elevation: 2238, dhv: 1483,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 1092, gemeinde: "7250 Klosters", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Gotschnagrat Landeplatz 2", landeLat: 46.8660, landeLon: 9.8888, landeHoehe: 1186, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 1092, gemeinde: "7250 Klosters", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Gotschnagrat Landeplatz 2", landeLat: 46.8660, landeLon: 9.8888, landeHoehe: 1186, landeExtra: [{ name: "Gotschnagrat Landeplatz 1", lat: 46.864542, lon: 9.890817, hoehe: 1188 }], ...DEF },
 
   { id: "db_1703", name: "Gotterli", region: "Lauerz",
     lat: 47.0122, lon: 8.578, elevation: 1361, dhv: 1703,
@@ -4184,7 +4184,7 @@ const SPOT_DB = [
 
   { id: "db_1704", name: "Greicheralp", region: "Mörel",
     lat: 46.3771, lon: 8.0305, elevation: 1905, dhv: 1704,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1227, gemeinde: "3983 Mörel", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Greicheralp Landeplatz 1", landeLat: 46.3343, landeLon: 8.0168, landeHoehe: 700, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1227, gemeinde: "3983 Mörel", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Greicheralp Landeplatz 1", landeLat: 46.3343, landeLon: 8.0168, landeHoehe: 700, landeExtra: [{ name: "Greicheralp Landeplatz 2", lat: 46.325903, lon: 8.005619, hoehe: 678 }], ...DEF },
 
   { id: "db_1633", name: "Grenchenberg Bützen", region: "Bettlach",
     lat: 47.2226, lon: 7.3917, elevation: 1260, dhv: 1633,
@@ -4212,7 +4212,7 @@ const SPOT_DB = [
 
   { id: "db_2056", name: "Gurli", region: "Plaffeien",
     lat: 46.7135, lon: 7.2828, elevation: 1415, dhv: 2056,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fa", hoehendiff: 562, gemeinde: "1716 Plaffeien", bundesland: "Fribourg", gleitschirm: "1- und 2-sitzig", landeName: "Gurli Landeplatz 1", landeLat: 46.7257, landeLon: 7.2907, landeHoehe: 876, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fa", hoehendiff: 562, gemeinde: "1716 Plaffeien", bundesland: "Fribourg", gleitschirm: "1- und 2-sitzig", landeName: "Gurli Landeplatz 1", landeLat: 46.7257, landeLon: 7.2907, landeHoehe: 876, landeExtra: [{ name: "Gurli Landeplatz 2", lat: 46.740394, lon: 7.293664, hoehe: 853 }], ...DEF },
 
   { id: "db_1712", name: "Gurschenalp", region: "Andermatt",
     lat: 46.617, lon: 8.5969, elevation: 2278, dhv: 1712,
@@ -4228,7 +4228,7 @@ const SPOT_DB = [
 
   { id: "db_1578", name: "Hagleren", region: "Sörenberg",
     lat: 46.8362, lon: 8.0426, elevation: 1936, dhv: 1578,
-    sectors: [[168.75, 191.25], [258.75, 281.25]], sectorLabel: "S · W", country: "ch", acc: "f", hoehendiff: 753, gemeinde: "6174 Sörenberg", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Hagleren Landeplatz 2", landeLat: 46.8245, landeLon: 8.0341, landeHoehe: 1183, ...DEF },
+    sectors: [[168.75, 191.25], [258.75, 281.25]], sectorLabel: "S · W", country: "ch", acc: "f", hoehendiff: 753, gemeinde: "6174 Sörenberg", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Hagleren Landeplatz 2", landeLat: 46.8245, landeLon: 8.0341, landeHoehe: 1183, landeExtra: [{ name: "Hagleren Landeplatz 1", lat: 46.809369, lon: 8.058128, hoehe: 1244 }], ...DEF },
 
   { id: "db_1296", name: "Haldi", region: "Schattdorf",
     lat: 46.8614, lon: 8.6765, elevation: 1152, dhv: 1296,
@@ -4236,7 +4236,7 @@ const SPOT_DB = [
 
   { id: "db_1403", name: "Haldigrat", region: "Wolfenschießen",
     lat: 46.9024, lon: 8.4406, elevation: 1968, dhv: 1403,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "ch", acc: "fb", hoehendiff: 1466, gemeinde: "6386 Wolfenschießen", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz nach Norden und Süden wenige Meter oberhalb der Bergstation des Sesselliftes.", landeName: "Brändlen Landeplatz", landeLat: 46.9051, landeLon: 8.3980, landeHoehe: 514, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "ch", acc: "fb", hoehendiff: 1466, gemeinde: "6386 Wolfenschießen", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz nach Norden und Süden wenige Meter oberhalb der Bergstation des Sesselliftes.", landeName: "Brändlen Landeplatz", landeLat: 46.9051, landeLon: 8.3980, landeHoehe: 514, landeExtra: [{ name: "Wirzweli Landeplatz 2", lat: 46.918013, lon: 8.395379, hoehe: 502 }], ...DEF },
 
   { id: "db_2084", name: "Halsegg", region: "Sattel",
     lat: 47.0912, lon: 8.6071, elevation: 1332, dhv: 2084,
@@ -4256,7 +4256,7 @@ const SPOT_DB = [
 
   { id: "db_1697", name: "Heimat", region: "Fiesch",
     lat: 46.4146, lon: 8.1085, elevation: 2142, dhv: 1697,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fb", hoehendiff: 1084, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", bemerkung: "Drachenstartplatz 100 m oberhalb Gleitschirmstartplatz", landeName: "Galfera Landeplatz 2", landeLat: 46.4092, landeLon: 8.1379, landeHoehe: 1058, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fb", hoehendiff: 1084, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", bemerkung: "Drachenstartplatz 100 m oberhalb Gleitschirmstartplatz", landeName: "Galfera Landeplatz 2", landeLat: 46.4092, landeLon: 8.1379, landeHoehe: 1058, landeExtra: [{ name: "Galfera Landeplatz 1", lat: 46.420483, lon: 8.144911, hoehe: 1087 }], ...DEF },
 
   { id: "db_1404", name: "Herlisberg", region: "Beromünster",
     lat: 47.1982, lon: 8.2327, elevation: 714, dhv: 1404,
@@ -4340,7 +4340,7 @@ const SPOT_DB = [
 
   { id: "db_1474", name: "Hüsliberg", region: "Schänis",
     lat: 47.1897, lon: 9.0746, elevation: 1005, dhv: 1474,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fa", hoehendiff: 575, gemeinde: "8723 Schänis", bundesland: "St. Gallen", gleitschirm: "1- und 2-sitzig", landeName: "Hüsliberg Landeplatz 1", landeLat: 47.1837, landeLon: 9.0476, landeHoehe: 430, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fa", hoehendiff: 575, gemeinde: "8723 Schänis", bundesland: "St. Gallen", gleitschirm: "1- und 2-sitzig", landeName: "Hüsliberg Landeplatz 1", landeLat: 47.1837, landeLon: 9.0476, landeHoehe: 430, landeExtra: [{ name: "Hüsliberg Landeplatz 2", lat: 47.187311, lon: 9.047742, hoehe: 430 }], ...DEF },
 
   { id: "db_1395", name: "Hüttstett", region: "Lungern",
     lat: 46.7879, lon: 8.1945, elevation: 1662, dhv: 1395,
@@ -4356,19 +4356,19 @@ const SPOT_DB = [
 
   { id: "db_1481_N", name: "Jakobshorn (N)", region: "Davos",
     lat: 46.7811, lon: 9.8488, elevation: 2467, dhv: 1481,
-    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "ch", acc: "fb", hoehendiff: 993, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, ...DEF },
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "ch", acc: "fb", hoehendiff: 993, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, landeExtra: [{ name: "Jakobshorn Landeplatz 3", lat: 46.795608, lon: 9.827869, hoehe: 1533 }, { name: "Jakobshorn Landeplatz 4", lat: 46.787336, lon: 9.818331, hoehe: 1532 }], ...DEF },
 
   { id: "db_1481_SW", name: "Jakobshorn (SW)", region: "Davos",
     lat: 46.7662, lon: 9.8511, elevation: 2499, dhv: 1481,
-    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "ch", acc: "fb", hoehendiff: 993, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, ...DEF },
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "ch", acc: "fb", hoehendiff: 993, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, landeExtra: [{ name: "Jakobshorn Landeplatz 3", lat: 46.795608, lon: 9.827869, hoehe: 1533 }, { name: "Jakobshorn Landeplatz 4", lat: 46.787336, lon: 9.818331, hoehe: 1532 }], ...DEF },
 
   { id: "db_1481_W", name: "Jakobshorn (W)", region: "Davos",
     lat: 46.7728, lon: 9.8461, elevation: 2525, dhv: 1481,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fb", hoehendiff: 993, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fb", hoehendiff: 993, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, landeExtra: [{ name: "Jakobshorn Landeplatz 3", lat: 46.795608, lon: 9.827869, hoehe: 1533 }, { name: "Jakobshorn Landeplatz 4", lat: 46.787336, lon: 9.818331, hoehe: 1532 }], ...DEF },
 
   { id: "db_1766", name: "Jaman", region: "Villeneuve",
     lat: 46.4417, lon: 6.9762, elevation: 1751, dhv: 1766,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "ch", acc: "fb", hoehendiff: 1377, gemeinde: "1844 Villeneuve", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Rochers de Naye Landeplatz 2", landeLat: 46.3947, landeLon: 6.9185, landeHoehe: 375, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "ch", acc: "fb", hoehendiff: 1377, gemeinde: "1844 Villeneuve", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Rochers de Naye Landeplatz 2", landeLat: 46.3947, landeLon: 6.9185, landeHoehe: 375, landeExtra: [{ name: "Rochers de Naye Landeplatz 1", lat: 46.387264, lon: 6.923389, hoehe: 374 }], ...DEF },
 
   { id: "db_2104", name: "Jeizinen", region: "Gampel",
     lat: 46.3307, lon: 7.7299, elevation: 1637, dhv: 2104,
@@ -4384,7 +4384,7 @@ const SPOT_DB = [
 
   { id: "db_1475", name: "Kerenzerberg", region: "Mollis",
     lat: 47.1099, lon: 9.0846, elevation: 664, dhv: 1475,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fa", hoehendiff: 239, gemeinde: "8753 Mollis", bundesland: "Glarus", gleitschirm: "1- und 2-sitzig", landeName: "Kerenzerberg Landeplatz 2", landeLat: 47.1191, landeLon: 9.0852, landeHoehe: 425, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fa", hoehendiff: 239, gemeinde: "8753 Mollis", bundesland: "Glarus", gleitschirm: "1- und 2-sitzig", landeName: "Kerenzerberg Landeplatz 2", landeLat: 47.1191, landeLon: 9.0852, landeHoehe: 425, landeExtra: [{ name: "Kerenzerberg Landeplatz 1", lat: 47.112811, lon: 9.068061, hoehe: 428 }], ...DEF },
 
   { id: "db_5198", name: "Kistleralp", region: "Buttikon",
     lat: 47.1554, lon: 8.9589, elevation: 1075, dhv: 5198,
@@ -4404,7 +4404,7 @@ const SPOT_DB = [
 
   { id: "db_2083", name: "Klingenstock", region: "Stoos",
     lat: 46.9571, lon: 8.6765, elevation: 1918, dhv: 2083,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fb", hoehendiff: 1124, gemeinde: "6433 Stoos", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Klingenstock Landeplatz 1", landeLat: 46.9796, landeLon: 8.6660, landeHoehe: 1301, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fb", hoehendiff: 1124, gemeinde: "6433 Stoos", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Klingenstock Landeplatz 1", landeLat: 46.9796, landeLon: 8.6660, landeHoehe: 1301, landeExtra: [{ name: "Klingenstock Landeplatz 2", lat: 46.989272, lon: 8.636144, hoehe: 794 }], ...DEF },
 
   { id: "db_1248_N", name: "Kronberg (N)", region: "Jakobsbad",
     lat: 47.2915, lon: 9.3285, elevation: 1639, dhv: 1248,
@@ -4420,11 +4420,11 @@ const SPOT_DB = [
 
   { id: "db_1722", name: "Kühboden", region: "Fiesch",
     lat: 46.4113, lon: 8.1028, elevation: 2187, dhv: 1722,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 1129, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Galfera Landeplatz 2", landeLat: 46.4092, landeLon: 8.1379, landeHoehe: 1058, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 1129, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Galfera Landeplatz 2", landeLat: 46.4092, landeLon: 8.1379, landeHoehe: 1058, landeExtra: [{ name: "Galfera Landeplatz 1", lat: 46.420483, lon: 8.144911, hoehe: 1087 }], ...DEF },
 
   { id: "db_5310", name: "Kuonisbergli", region: "Adelboden",
     lat: 46.4731, lon: 7.5472, elevation: 1719, dhv: 5310,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 435, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Tschentenalp Landeplatz 1", landeLat: 46.4791, landeLon: 7.5591, landeHoehe: 1287, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 435, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Tschentenalp Landeplatz 1", landeLat: 46.4791, landeLon: 7.5591, landeHoehe: 1287, landeExtra: [{ name: "Tschentenalp Landeplatz 2", lat: 46.480125, lon: 7.560364, hoehe: 1284 }], ...DEF },
 
   { id: "db_5345", name: "La Barilette", region: "La Rippe",
     lat: 46.4295, lon: 6.1321, elevation: 1420, dhv: 5345,
@@ -4448,7 +4448,7 @@ const SPOT_DB = [
 
   { id: "db_5346", name: "La Dole", region: "Gingins",
     lat: 46.4274, lon: 6.1016, elevation: 1659, dhv: 5346,
-    sectors: [[78.75, 146.25], [303.75, 326.25]], sectorLabel: "O-SO · NW", country: "ch", acc: "fb", hoehendiff: 1114, gemeinde: "1276 Gingins", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "La Dole Landeplatz 2", landeLat: 46.4417, landeLon: 6.0938, landeHoehe: 1288, ...DEF },
+    sectors: [[78.75, 146.25], [303.75, 326.25]], sectorLabel: "O-SO · NW", country: "ch", acc: "fb", hoehendiff: 1114, gemeinde: "1276 Gingins", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "La Dole Landeplatz 2", landeLat: 46.4417, landeLon: 6.0938, landeHoehe: 1288, landeExtra: [{ name: "La Dole Landeplatz 1", lat: 46.439183, lon: 6.0823, hoehe: 1234 }, { name: "La Barilette Landeplatz", lat: 46.393308, lon: 6.149403, hoehe: 545 }], ...DEF },
 
   { id: "db_1724", name: "La Jorette", region: "Vionnaz",
     lat: 46.3046, lon: 6.8572, elevation: 1601, dhv: 1724,
@@ -4476,11 +4476,11 @@ const SPOT_DB = [
 
   { id: "db_1695_S", name: "La Tournelle (S)", region: "Verbier",
     lat: 46.1197, lon: 7.2099, elevation: 2360, dhv: 1695,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 851, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Croix de Coeur Landeplatz", landeLat: 46.1016, landeLon: 7.2194, landeHoehe: 1509, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 851, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Croix de Coeur Landeplatz", landeLat: 46.1016, landeLon: 7.2194, landeHoehe: 1509, landeExtra: [{ name: "Ruinette Landeplatz 1", lat: 46.107639, lon: 7.236253, hoehe: 1694 }], ...DEF },
 
   { id: "db_1695_SO", name: "La Tournelle (SO)", region: "Verbier",
     lat: 46.1217, lon: 7.2122, elevation: 2357, dhv: 1695,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fb", hoehendiff: 851, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Croix de Coeur Landeplatz", landeLat: 46.1016, landeLon: 7.2194, landeHoehe: 1509, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fb", hoehendiff: 851, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Croix de Coeur Landeplatz", landeLat: 46.1016, landeLon: 7.2194, landeHoehe: 1509, landeExtra: [{ name: "Ruinette Landeplatz 1", lat: 46.107639, lon: 7.236253, hoehe: 1694 }], ...DEF },
 
   { id: "db_5361", name: "La Truche", region: "Villars-sur-Ollon",
     lat: 46.3069, lon: 7.0313, elevation: 1415, dhv: 5361,
@@ -4516,7 +4516,7 @@ const SPOT_DB = [
 
   { id: "db_2367", name: "Laupersdörfer Stierenberg", region: "Laupersdorf",
     lat: 47.332, lon: 7.6449, elevation: 1051, dhv: 2367,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fa", hoehendiff: 564, gemeinde: "4712 Laupersdorf", bundesland: "Solothurn", gleitschirm: "1- und 2-sitzig", bemerkung: "Südoststartplatz am Waldrand des Laupersdörfer Stierenbergs.", landeName: "Obere Wengi Landeplatz", landeLat: 47.3057, landeLon: 7.6335, landeHoehe: 495, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fa", hoehendiff: 564, gemeinde: "4712 Laupersdorf", bundesland: "Solothurn", gleitschirm: "1- und 2-sitzig", bemerkung: "Südoststartplatz am Waldrand des Laupersdörfer Stierenbergs.", landeName: "Obere Wengi Landeplatz", landeLat: 47.3057, landeLon: 7.6335, landeHoehe: 495, landeExtra: [{ name: "Schwengimatt Landeplatz", lat: 47.309403, lon: 7.668619, hoehe: 487 }], ...DEF },
 
   { id: "db_1730", name: "Le Chamossaire", region: "Villars Sur Ollon",
     lat: 46.3257, lon: 7.0623, elevation: 2062, dhv: 1730,
@@ -4536,7 +4536,7 @@ const SPOT_DB = [
 
   { id: "db_1694", name: "Les Attelas", region: "Verbier",
     lat: 46.1003, lon: 7.2669, elevation: 2672, dhv: 1694,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 1842, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Ruinette Landeplatz 1", landeLat: 46.1076, landeLon: 7.2363, landeHoehe: 1694, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 1842, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Ruinette Landeplatz 1", landeLat: 46.1076, landeLon: 7.2363, landeHoehe: 1694, landeExtra: [{ name: "Croix de Coeur Landeplatz", lat: 46.101572, lon: 7.219397, hoehe: 1509 }, { name: "Ruinettes Landeplatz 2", lat: 46.059372, lon: 7.236608, hoehe: 933 }, { name: "Ruinettes Landeplatz 3", lat: 46.072072, lon: 7.226053, hoehe: 858 }, { name: "Ruinettes Landeplatz 4", lat: 46.077969, lon: 7.216631, hoehe: 830 }], ...DEF },
 
   { id: "db_5372_SO", name: "Les Crosets (SO)", region: "Champery",
     lat: 46.1908, lon: 6.8279, elevation: 2025, dhv: 5372,
@@ -4552,11 +4552,11 @@ const SPOT_DB = [
 
   { id: "db_1727_S", name: "Les Pleiades (S)", region: "Blonay",
     lat: 46.4788, lon: 6.9106, elevation: 1268, dhv: 1727,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fa", hoehendiff: 908, gemeinde: "1807 Blonay", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Les Pleiades Landeplatz 2", landeLat: 46.4674, landeLon: 6.8928, landeHoehe: 615, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fa", hoehendiff: 908, gemeinde: "1807 Blonay", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Les Pleiades Landeplatz 2", landeLat: 46.4674, landeLon: 6.8928, landeHoehe: 615, landeExtra: [{ name: "Les Pleiades Landeplatz 1", lat: 46.455447, lon: 6.885606, hoehe: 450 }], ...DEF },
 
   { id: "db_1727_W", name: "Les Pleiades (W)", region: "Blonay",
     lat: 46.4831, lon: 6.9072, elevation: 1358, dhv: 1727,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fa", hoehendiff: 908, gemeinde: "1807 Blonay", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Les Pleiades Landeplatz 2", landeLat: 46.4674, landeLon: 6.8928, landeHoehe: 615, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fa", hoehendiff: 908, gemeinde: "1807 Blonay", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Les Pleiades Landeplatz 2", landeLat: 46.4674, landeLon: 6.8928, landeHoehe: 615, landeExtra: [{ name: "Les Pleiades Landeplatz 1", lat: 46.455447, lon: 6.885606, hoehe: 450 }], ...DEF },
 
   { id: "db_1734", name: "Les Rodoments", region: "Rougemont",
     lat: 46.5057, lon: 7.2215, elevation: 1792, dhv: 1734,
@@ -4572,11 +4572,11 @@ const SPOT_DB = [
 
   { id: "db_1398", name: "Linderenalp", region: "Sarnen",
     lat: 46.8705, lon: 8.2971, elevation: 1541, dhv: 1398,
-    sectors: [[303.75, 11.25], [168.75, 191.25]], sectorLabel: "NW-N · S", country: "ch", acc: "fa", hoehendiff: 1068, gemeinde: "6060 Sarnen", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Linderenalp Landeplatz 2", landeLat: 46.8984, landeLon: 8.2714, landeHoehe: 561, ...DEF },
+    sectors: [[303.75, 11.25], [168.75, 191.25]], sectorLabel: "NW-N · S", country: "ch", acc: "fa", hoehendiff: 1068, gemeinde: "6060 Sarnen", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Linderenalp Landeplatz 2", landeLat: 46.8984, landeLon: 8.2714, landeHoehe: 561, landeExtra: [{ name: "Linderenalp Landeplatz 1", lat: 46.886301, lon: 8.244982, hoehe: 473 }], ...DEF },
 
   { id: "db_1583", name: "Luegibrüggli", region: "Interlaken",
     lat: 46.6912, lon: 7.816, elevation: 1064, dhv: 1583,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fa", hoehendiff: 499, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fa", hoehendiff: 499, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, landeExtra: [{ name: "Niederhorn Landeplatz 2", lat: 46.686117, lon: 7.858719, hoehe: 569 }], ...DEF },
 
   { id: "db_2655", name: "Lutersee", region: "Wolfenschießen",
     lat: 46.856, lon: 8.3441, elevation: 1382, dhv: 2655,
@@ -4596,11 +4596,11 @@ const SPOT_DB = [
 
   { id: "db_1579_NW", name: "Marbachegg (NW)", region: "Marbach",
     lat: 46.8347, lon: 7.9047, elevation: 1479, dhv: 1579,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 642, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Hauptstartplatz liegt nur wenige Minuten südwestlich der Bergstation. Für HG gibt es eine Rampe norwestlich der Bergstation. Der Startplatz ist recht steil, ziemlich kurz und fällt dann steil ab. Spielraum für einen Startabruch gibt es daher wenig.", landeName: "Marbachegg Landeplatz 3", landeLat: 46.8414, landeLon: 7.8851, landeHoehe: 929, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 642, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Hauptstartplatz liegt nur wenige Minuten südwestlich der Bergstation. Für HG gibt es eine Rampe norwestlich der Bergstation. Der Startplatz ist recht steil, ziemlich kurz und fällt dann steil ab. Spielraum für einen Startabruch gibt es daher wenig.", landeName: "Marbachegg Landeplatz 3", landeLat: 46.8414, landeLon: 7.8851, landeHoehe: 929, landeExtra: [{ name: "Marbachegg Landeplatz 2", lat: 46.849189, lon: 7.894681, hoehe: 892 }, { name: "Marbachegg Landeplatz 1", lat: 46.85185, lon: 7.900022, hoehe: 874 }, { name: "Marbachegg Landeplatz 4", lat: 46.8651, lon: 7.904631, hoehe: 837 }], ...DEF },
 
   { id: "db_1579_SO", name: "Marbachegg (SO)", region: "Marbach",
     lat: 46.8325, lon: 7.9029, elevation: 1461, dhv: 1579,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 642, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", bemerkung: "Südstartplatz für den Flug nach Bumbach (vor allem im Winter). Kein offizieller Landeplatz in Buchbach aber zahlreiche Außenlandemöglichkeiten. Postbusverbindung zurück nach Marbachegg.", landeName: "Marbachegg Landeplatz 3", landeLat: 46.8414, landeLon: 7.8851, landeHoehe: 929, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 642, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", bemerkung: "Südstartplatz für den Flug nach Bumbach (vor allem im Winter). Kein offizieller Landeplatz in Buchbach aber zahlreiche Außenlandemöglichkeiten. Postbusverbindung zurück nach Marbachegg.", landeName: "Marbachegg Landeplatz 3", landeLat: 46.8414, landeLon: 7.8851, landeHoehe: 929, landeExtra: [{ name: "Marbachegg Landeplatz 2", lat: 46.849189, lon: 7.894681, hoehe: 892 }, { name: "Marbachegg Landeplatz 1", lat: 46.85185, lon: 7.900022, hoehe: 874 }, { name: "Marbachegg Landeplatz 4", lat: 46.8651, lon: 7.904631, hoehe: 837 }], ...DEF },
 
   { id: "db_5349", name: "Marnex", region: "Les Diablerets",
     lat: 46.3679, lon: 7.1544, elevation: 1738, dhv: 5349,
@@ -4628,7 +4628,7 @@ const SPOT_DB = [
 
   { id: "db_1602", name: "Mentschelenalp", region: "Pohlern",
     lat: 46.7155, lon: 7.51, elevation: 1394, dhv: 1602,
-    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "ch", acc: "fa", hoehendiff: 716, gemeinde: "3638 Pohlern", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Mentschelenalp Landeplatz", landeLat: 46.7287, landeLon: 7.5190, landeHoehe: 730, ...DEF },
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "ch", acc: "fa", hoehendiff: 716, gemeinde: "3638 Pohlern", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Mentschelenalp Landeplatz", landeLat: 46.7287, landeLon: 7.5190, landeHoehe: 730, landeExtra: [{ name: "Stockhorn Landeplatz 2", lat: 46.745767, lon: 7.527881, hoehe: 678 }], ...DEF },
 
   { id: "db_1612", name: "Metsch", region: "Lenk",
     lat: 46.4435, lon: 7.4966, elevation: 2094, dhv: 1612,
@@ -4644,7 +4644,7 @@ const SPOT_DB = [
 
   { id: "db_2055", name: "Mont Moleson", region: "Moleson",
     lat: 46.5488, lon: 7.017, elevation: 1994, dhv: 2055,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "ch", acc: "fb", hoehendiff: 1252, gemeinde: "1663 Moleson", bundesland: "Fribourg", gleitschirm: "1- und 2-sitzig", landeName: "La Vudalla Landeplatz", landeLat: 46.5625, landeLon: 7.0365, landeHoehe: 1114, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "ch", acc: "fb", hoehendiff: 1252, gemeinde: "1663 Moleson", bundesland: "Fribourg", gleitschirm: "1- und 2-sitzig", landeName: "La Vudalla Landeplatz", landeLat: 46.5625, landeLon: 7.0365, landeHoehe: 1114, landeExtra: [{ name: "Mont Moleson Landeplatz", lat: 46.54555, lon: 7.092367, hoehe: 742 }], ...DEF },
 
   { id: "db_5192", name: "Mont Raimeux Nord", region: "Rebevellier",
     lat: 47.3076, lon: 7.4263, elevation: 1275, dhv: 5192,
@@ -4672,11 +4672,11 @@ const SPOT_DB = [
 
   { id: "db_1739", name: "Monte Lema", region: "Miglieglia",
     lat: 46.039, lon: 8.831, elevation: 1577, dhv: 1739,
-    sectors: [[78.75, 236.25]], sectorLabel: "O-SW", country: "ch", acc: "fb", hoehendiff: 1203, gemeinde: "6986 Miglieglia", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Monte Lema Landeplatz 1", landeLat: 46.0264, landeLon: 8.8601, landeHoehe: 713, ...DEF },
+    sectors: [[78.75, 236.25]], sectorLabel: "O-SW", country: "ch", acc: "fb", hoehendiff: 1203, gemeinde: "6986 Miglieglia", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Monte Lema Landeplatz 1", landeLat: 46.0264, landeLon: 8.8601, landeHoehe: 713, landeExtra: [{ name: "Monte Lema Landeplatz 2", lat: 45.999642, lon: 8.81625, hoehe: 374 }], ...DEF },
 
   { id: "db_1741", name: "Monte Tamaro", region: "Rivera",
     lat: 46.1165, lon: 8.8938, elevation: 1516, dhv: 1741,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 1070, gemeinde: "6802 Rivera", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Monte Tamaro Landeplatz 1", landeLat: 46.1262, landeLon: 8.9214, landeHoehe: 472, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 1070, gemeinde: "6802 Rivera", bundesland: "Tessin", gleitschirm: "1- und 2-sitzig", landeName: "Monte Tamaro Landeplatz 1", landeLat: 46.1262, landeLon: 8.9214, landeHoehe: 472, landeExtra: [{ name: "Monte Tamaro Landeplatz 2", lat: 46.112081, lon: 8.930972, hoehe: 446 }], ...DEF },
 
   { id: "db_2094", name: "Monti di Gana", region: "Riazzino",
     lat: 46.197, lon: 8.908, elevation: 1272, dhv: 2094,
@@ -4716,7 +4716,7 @@ const SPOT_DB = [
 
   { id: "db_1699", name: "Mutti", region: "Fiesch",
     lat: 46.438, lon: 8.1553, elevation: 1785, dhv: 1699,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 727, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Galfera Landeplatz 1", landeLat: 46.4205, landeLon: 8.1449, landeHoehe: 1087, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 727, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Galfera Landeplatz 1", landeLat: 46.4205, landeLon: 8.1449, landeHoehe: 1087, landeExtra: [{ name: "Steibenkreuz Landeplatz 1", lat: 46.461736, lon: 8.227981, hoehe: 1365 }, { name: "Steibenkreuz Landeplatz 2", lat: 46.436739, lon: 8.193547, hoehe: 1253 }, { name: "Galfera Landeplatz 2", lat: 46.409219, lon: 8.137942, hoehe: 1058 }], ...DEF },
 
   { id: "db_1745", name: "Nätschen", region: "Andermatt",
     lat: 46.6444, lon: 8.6075, elevation: 1869, dhv: 1745,
@@ -4724,19 +4724,19 @@ const SPOT_DB = [
 
   { id: "db_1284", name: "Niederbauen", region: "Emmetten",
     lat: 46.9468, lon: 8.5364, elevation: 1590, dhv: 1284,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 830, gemeinde: "6376 Emmetten", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Große Wiesenflanke die rasch steil abfällt.", landeName: "Niederbauen Landeplatz 2", landeLat: 46.9555, landeLon: 8.5203, landeHoehe: 760, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 830, gemeinde: "6376 Emmetten", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Große Wiesenflanke die rasch steil abfällt.", landeName: "Niederbauen Landeplatz 2", landeLat: 46.9555, landeLon: 8.5203, landeHoehe: 760, landeExtra: [{ name: "Niederbauen Landeplatz 1", lat: 46.957849, lon: 8.516378, hoehe: 788 }], ...DEF },
 
   { id: "db_1581_S", name: "Niederhorn (S)", region: "Interlaken",
     lat: 46.7115, lon: 7.7768, elevation: 1956, dhv: 1581,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 1391, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 1391, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, landeExtra: [{ name: "Niederhorn Landeplatz 2", lat: 46.686117, lon: 7.858719, hoehe: 569 }], ...DEF },
 
   { id: "db_1581_W", name: "Niederhorn (W)", region: "Interlaken",
     lat: 46.7101, lon: 7.7733, elevation: 1930, dhv: 1581,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 1391, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 1391, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 1", landeLat: 46.6810, landeLon: 7.8239, landeHoehe: 565, landeExtra: [{ name: "Niederhorn Landeplatz 2", lat: 46.686117, lon: 7.858719, hoehe: 569 }], ...DEF },
 
   { id: "db_1595", name: "Niesen", region: "Mülenen",
     lat: 46.6444, lon: 7.6492, elevation: 2279, dhv: 1595,
-    sectors: [[168.75, 191.25], [213.75, 236.25], [258.75, 281.25]], sectorLabel: "S · SW · W", country: "ch", acc: "fb", hoehendiff: 1639, gemeinde: "3711 Mülenen", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niesen Landeplatz 1", landeLat: 46.6532, landeLon: 7.6842, landeHoehe: 697, ...DEF },
+    sectors: [[168.75, 191.25], [213.75, 236.25], [258.75, 281.25]], sectorLabel: "S · SW · W", country: "ch", acc: "fb", hoehendiff: 1639, gemeinde: "3711 Mülenen", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niesen Landeplatz 1", landeLat: 46.6532, landeLon: 7.6842, landeHoehe: 697, landeExtra: [{ name: "Niesen Landeplatz 2", lat: 46.6844, lon: 7.671636, hoehe: 640 }], ...DEF },
 
   { id: "db_1747", name: "Ob Lucken", region: "Beggingen",
     lat: 47.763, lon: 8.5558, elevation: 888, dhv: 1747,
@@ -4780,15 +4780,15 @@ const SPOT_DB = [
 
   { id: "db_1485", name: "Parpaner Rothorn", region: "Lenzerheide",
     lat: 46.7423, lon: 9.6021, elevation: 2841, dhv: 1485,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 1351, gemeinde: "7078 Lenzerheide", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Parpaner Rothorn Landeplatz 2", landeLat: 46.7604, landeLon: 9.5621, landeHoehe: 1498, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 1351, gemeinde: "7078 Lenzerheide", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Parpaner Rothorn Landeplatz 2", landeLat: 46.7604, landeLon: 9.5621, landeHoehe: 1498, landeExtra: [{ name: "Parpaner Rothorn Landeplatz 1", lat: 46.744094, lon: 9.552056, hoehe: 1490 }], ...DEF },
 
   { id: "db_1482_N", name: "Parsenn (N)", region: "Davos",
     lat: 46.8378, lon: 9.7946, elevation: 2804, dhv: 1482,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fb", hoehendiff: 1272, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fb", hoehendiff: 1272, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, landeExtra: [{ name: "Jakobshorn Landeplatz 3", lat: 46.795608, lon: 9.827869, hoehe: 1533 }, { name: "Jakobshorn Landeplatz 4", lat: 46.787336, lon: 9.818331, hoehe: 1532 }], ...DEF },
 
   { id: "db_1482_SO", name: "Parsenn (SO)", region: "Davos",
     lat: 46.8316, lon: 9.8053, elevation: 2639, dhv: 1482,
-    sectors: [[123.75, 146.25], [78.75, 191.25]], sectorLabel: "SO · O-S", country: "ch", acc: "fb", hoehendiff: 1272, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, ...DEF },
+    sectors: [[123.75, 146.25], [78.75, 191.25]], sectorLabel: "SO · O-S", country: "ch", acc: "fb", hoehendiff: 1272, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, landeExtra: [{ name: "Jakobshorn Landeplatz 3", lat: 46.795608, lon: 9.827869, hoehe: 1533 }, { name: "Jakobshorn Landeplatz 4", lat: 46.787336, lon: 9.818331, hoehe: 1532 }], ...DEF },
 
   { id: "db_1743", name: "Parusciana", region: "Lumino",
     lat: 46.2418, lon: 9.0541, elevation: 1250, dhv: 1743,
@@ -4812,7 +4812,7 @@ const SPOT_DB = [
 
   { id: "db_1965", name: "Petit Mont Bonvin", region: "Aminona",
     lat: 46.3528, lon: 7.521, elevation: 2393, dhv: 1965,
-    sectors: [[168.75, 236.25], [168.75, 191.25]], sectorLabel: "S-SW · S", country: "ch", acc: "fb", hoehendiff: 1853, gemeinde: "3963 Aminona", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Petit Mont Bonvin Landeplatz 1", landeLat: 46.3314, landeLon: 7.5273, landeHoehe: 1496, ...DEF },
+    sectors: [[168.75, 236.25], [168.75, 191.25]], sectorLabel: "S-SW · S", country: "ch", acc: "fb", hoehendiff: 1853, gemeinde: "3963 Aminona", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Petit Mont Bonvin Landeplatz 1", landeLat: 46.3314, landeLon: 7.5273, landeHoehe: 1496, landeExtra: [{ name: "Petit Mont Bonvin Landeplatz 2", lat: 46.299303, lon: 7.555628, hoehe: 540 }], ...DEF },
 
   { id: "db_1755", name: "Pfaff", region: "Bisisthal",
     lat: 46.9234, lon: 8.8677, elevation: 2098, dhv: 1755,
@@ -4820,23 +4820,23 @@ const SPOT_DB = [
 
   { id: "db_2057", name: "Pfeiffe", region: "Plaffeien",
     lat: 46.7411, lon: 7.3718, elevation: 1663, dhv: 2057,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fa", hoehendiff: 810, gemeinde: "1716 Plaffeien", bundesland: "Fribourg", gleitschirm: "1- und 2-sitzig", bemerkung: "Für HG Rampe.", landeName: "Gurli Landeplatz 2", landeLat: 46.7404, landeLon: 7.2937, landeHoehe: 853, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fa", hoehendiff: 810, gemeinde: "1716 Plaffeien", bundesland: "Fribourg", gleitschirm: "1- und 2-sitzig", bemerkung: "Für HG Rampe.", landeName: "Gurli Landeplatz 2", landeLat: 46.7404, landeLon: 7.2937, landeHoehe: 853, landeExtra: [{ name: "Gurli Landeplatz 1", lat: 46.72569, lon: 7.290729, hoehe: 876 }], ...DEF },
 
   { id: "db_1587", name: "Pfingstegg", region: "Grindelwald",
     lat: 46.6161, lon: 8.0561, elevation: 1398, dhv: 1587,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "ch", acc: "fb", hoehendiff: 448, gemeinde: "3818 Grindelwald", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Steiler Wiesenstartplatz südlich der Bergstation.", landeName: "First Landeplatz Bodmi", landeLat: 46.6288, landeLon: 8.0433, landeHoehe: 1129, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "ch", acc: "fb", hoehendiff: 448, gemeinde: "3818 Grindelwald", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", bemerkung: "Steiler Wiesenstartplatz südlich der Bergstation.", landeName: "First Landeplatz Bodmi", landeLat: 46.6288, landeLon: 8.0433, landeHoehe: 1129, landeExtra: [{ name: "First Landeplatz Grund", lat: 46.620292, lon: 8.029056, hoehe: 950 }], ...DEF },
 
   { id: "db_5238", name: "Phyffe", region: "Platteien",
     lat: 46.7312, lon: 7.3294, elevation: 1406, dhv: 5238,
-    sectors: [[258.75, 56.25]], sectorLabel: "W-NO", country: "ch", acc: "fa", hoehendiff: 553, gemeinde: "1716 Platteien", bundesland: "Fribourg", gleitschirm: "1- und 2-sitzig", landeName: "Gurli Landeplatz 2", landeLat: 46.7404, landeLon: 7.2937, landeHoehe: 853, ...DEF },
+    sectors: [[258.75, 56.25]], sectorLabel: "W-NO", country: "ch", acc: "fa", hoehendiff: 553, gemeinde: "1716 Platteien", bundesland: "Fribourg", gleitschirm: "1- und 2-sitzig", landeName: "Gurli Landeplatz 2", landeLat: 46.7404, landeLon: 7.2937, landeHoehe: 853, landeExtra: [{ name: "Gurli Landeplatz 1", lat: 46.72569, lon: 7.290729, hoehe: 876 }], ...DEF },
 
   { id: "db_1293_SW", name: "Pilatus (SW)", region: "Alpnach",
     lat: 46.9794, lon: 8.2552, elevation: 2059, dhv: 1293,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fb", hoehendiff: 1605, gemeinde: "6052 Alpnach", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Pilatus Landeplatz 2", landeLat: 46.9508, landeLon: 8.2739, landeHoehe: 510, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fb", hoehendiff: 1605, gemeinde: "6052 Alpnach", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Pilatus Landeplatz 2", landeLat: 46.9508, landeLon: 8.2739, landeHoehe: 510, landeExtra: [{ name: "Pilatus Landeplatz 1", lat: 47.030782, lon: 8.278193, hoehe: 510 }, { name: "Pilatus Landeplatz 3", lat: 47.032803, lon: 8.301806, hoehe: 454 }], ...DEF },
 
   { id: "db_1293_W", name: "Pilatus (W)", region: "Alpnach",
     lat: 46.9822, lon: 8.2507, elevation: 1864, dhv: 1293,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 1605, gemeinde: "6052 Alpnach", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Pilatus Landeplatz 2", landeLat: 46.9508, landeLon: 8.2739, landeHoehe: 510, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 1605, gemeinde: "6052 Alpnach", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Pilatus Landeplatz 2", landeLat: 46.9508, landeLon: 8.2739, landeHoehe: 510, landeExtra: [{ name: "Pilatus Landeplatz 1", lat: 47.030782, lon: 8.278193, hoehe: 510 }, { name: "Pilatus Landeplatz 3", lat: 47.032803, lon: 8.301806, hoehe: 454 }], ...DEF },
 
   { id: "db_1566", name: "Piz Ault", region: "Disentis",
     lat: 46.727, lon: 8.7829, elevation: 2902, dhv: 1566,
@@ -4848,15 +4848,15 @@ const SPOT_DB = [
 
   { id: "db_2075_N", name: "Piz Martegnas (N)", region: "Savognin",
     lat: 46.5817, lon: 9.5318, elevation: 2583, dhv: 2075,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "ch", acc: "fb", hoehendiff: 1453, gemeinde: "7460 Savognin", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Piz Martegnas Landeplatz", landeLat: 46.5984, landeLon: 9.5949, landeHoehe: 1201, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "ch", acc: "fb", hoehendiff: 1453, gemeinde: "7460 Savognin", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Piz Martegnas Landeplatz", landeLat: 46.5984, landeLon: 9.5949, landeHoehe: 1201, landeExtra: [{ name: "Somtgant Landeplatz", lat: 46.591511, lon: 9.598142, hoehe: 1179 }], ...DEF },
 
   { id: "db_2075_NO", name: "Piz Martegnas (NO)", region: "Savognin",
     lat: 46.577, lon: 9.5304, elevation: 2654, dhv: 2075,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 1453, gemeinde: "7460 Savognin", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Somtgant Landeplatz", landeLat: 46.5915, landeLon: 9.5981, landeHoehe: 1179, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 1453, gemeinde: "7460 Savognin", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Somtgant Landeplatz", landeLat: 46.5915, landeLon: 9.5981, landeHoehe: 1179, landeExtra: [{ name: "Piz Martegnas Landeplatz", lat: 46.598419, lon: 9.594919, hoehe: 1201 }], ...DEF },
 
   { id: "db_2075_W", name: "Piz Martegnas (W)", region: "Savognin",
     lat: 46.5782, lon: 9.5302, elevation: 2638, dhv: 2075,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 1453, gemeinde: "7460 Savognin", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Somtgant Landeplatz", landeLat: 46.5915, landeLon: 9.5981, landeHoehe: 1179, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 1453, gemeinde: "7460 Savognin", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Somtgant Landeplatz", landeLat: 46.5915, landeLon: 9.5981, landeHoehe: 1179, landeExtra: [{ name: "Piz Martegnas Landeplatz", lat: 46.598419, lon: 9.594919, hoehe: 1201 }], ...DEF },
 
   { id: "db_1494", name: "Piz Mundaun", region: "Mundaun-Obersaxen",
     lat: 46.7423, lon: 9.1582, elevation: 2053, dhv: 1494,
@@ -4884,23 +4884,23 @@ const SPOT_DB = [
 
   { id: "db_1685_N", name: "Planachaux (N)", region: "Chambery",
     lat: 46.1758, lon: 6.8445, elevation: 1925, dhv: 1685,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fb", hoehendiff: 917, gemeinde: "1874 Chambery", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Planachaux Landeplatz 1", landeLat: 46.1731, landeLon: 6.8660, landeHoehe: 1068, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fb", hoehendiff: 917, gemeinde: "1874 Chambery", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Planachaux Landeplatz 1", landeLat: 46.1731, landeLon: 6.8660, landeHoehe: 1068, landeExtra: [{ name: "Croix de Coeur Landeplatz", lat: 46.101572, lon: 7.219397, hoehe: 1509 }, { name: "Planachaux Landeplatz 2", lat: 46.168858, lon: 6.865367, hoehe: 1017 }], ...DEF },
 
   { id: "db_1685_NO", name: "Planachaux (NO)", region: "Chambery",
     lat: 46.1774, lon: 6.8405, elevation: 1934, dhv: 1685,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 917, gemeinde: "1874 Chambery", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Planachaux Landeplatz 1", landeLat: 46.1731, landeLon: 6.8660, landeHoehe: 1068, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 917, gemeinde: "1874 Chambery", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Planachaux Landeplatz 1", landeLat: 46.1731, landeLon: 6.8660, landeHoehe: 1068, landeExtra: [{ name: "Croix de Coeur Landeplatz", lat: 46.101572, lon: 7.219397, hoehe: 1509 }, { name: "Planachaux Landeplatz 2", lat: 46.168858, lon: 6.865367, hoehe: 1017 }], ...DEF },
 
   { id: "db_1685_SW", name: "Planachaux (SW)", region: "Chambery",
     lat: 46.1767, lon: 6.8403, elevation: 1929, dhv: 1685,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 917, gemeinde: "1874 Chambery", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Planachaux Landeplatz 1", landeLat: 46.1731, landeLon: 6.8660, landeHoehe: 1068, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 917, gemeinde: "1874 Chambery", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Planachaux Landeplatz 1", landeLat: 46.1731, landeLon: 6.8660, landeHoehe: 1068, landeExtra: [{ name: "Croix de Coeur Landeplatz", lat: 46.101572, lon: 7.219397, hoehe: 1509 }, { name: "Planachaux Landeplatz 2", lat: 46.168858, lon: 6.865367, hoehe: 1017 }], ...DEF },
 
   { id: "db_1572_O", name: "Planplatten (O)", region: "Meiringen",
     lat: 46.736, lon: 8.2548, elevation: 2234, dhv: 1572,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 1650, gemeinde: "3860 Meiringen", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Planplatten Landeplatz 1", landeLat: 46.7492, landeLon: 8.2352, landeHoehe: 1694, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fb", hoehendiff: 1650, gemeinde: "3860 Meiringen", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Planplatten Landeplatz 1", landeLat: 46.7492, landeLon: 8.2352, landeHoehe: 1694, landeExtra: [{ name: "Planplatten Landeplatz 2", lat: 46.745194, lon: 8.218253, hoehe: 1424 }, { name: "Planplatten Landeplatz 3", lat: 46.704453, lon: 8.225589, hoehe: 629 }, { name: "Planplatten Landeplatz 4", lat: 46.722206, lon: 8.199542, hoehe: 600 }, { name: "Planplatten Landeplatz 5", lat: 46.732669, lon: 8.172927, hoehe: 589 }], ...DEF },
 
   { id: "db_1572_W", name: "Planplatten (W)", region: "Meiringen",
     lat: 46.7367, lon: 8.2548, elevation: 2239, dhv: 1572,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fb", hoehendiff: 1650, gemeinde: "3860 Meiringen", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Planplatten Landeplatz 1", landeLat: 46.7492, landeLon: 8.2352, landeHoehe: 1694, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fb", hoehendiff: 1650, gemeinde: "3860 Meiringen", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Planplatten Landeplatz 1", landeLat: 46.7492, landeLon: 8.2352, landeHoehe: 1694, landeExtra: [{ name: "Planplatten Landeplatz 2", lat: 46.745194, lon: 8.218253, hoehe: 1424 }, { name: "Planplatten Landeplatz 3", lat: 46.704453, lon: 8.225589, hoehe: 629 }, { name: "Planplatten Landeplatz 4", lat: 46.722206, lon: 8.199542, hoehe: 600 }, { name: "Planplatten Landeplatz 5", lat: 46.732669, lon: 8.172927, hoehe: 589 }], ...DEF },
 
   { id: "db_1567", name: "Plaun Tir", region: "Disentis",
     lat: 46.7063, lon: 8.7968, elevation: 2172, dhv: 1567,
@@ -4908,7 +4908,7 @@ const SPOT_DB = [
 
   { id: "db_5369", name: "Pointe de Bellevue", region: "Monthey",
     lat: 46.2491, lon: 6.9047, elevation: 1667, dhv: 5369,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fa", hoehendiff: 1272, gemeinde: "1870 Monthey", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Pointe de Bellevue Landeplatz 1", landeLat: 46.2623, landeLon: 6.9597, landeHoehe: 395, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fa", hoehendiff: 1272, gemeinde: "1870 Monthey", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Pointe de Bellevue Landeplatz 1", landeLat: 46.2623, landeLon: 6.9597, landeHoehe: 395, landeExtra: [{ name: "Pointe de Bellevue Landeplatz 2", lat: 46.245117, lon: 6.963983, hoehe: 402 }], ...DEF },
 
   { id: "db_1756", name: "Portes D'Onne", region: "Vionnaz",
     lat: 46.2843, lon: 6.8651, elevation: 1918, dhv: 1756,
@@ -4920,7 +4920,7 @@ const SPOT_DB = [
 
   { id: "db_1757", name: "Prodkamm", region: "Flums",
     lat: 47.0744, lon: 9.2684, elevation: 1920, dhv: 1757,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 1471, gemeinde: "8890 Flums", bundesland: "St. Gallen", gleitschirm: "1- und 2-sitzig", landeName: "Schrina Landeplatz", landeLat: 47.1235, landeLon: 9.3079, landeHoehe: 423, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 1471, gemeinde: "8890 Flums", bundesland: "St. Gallen", gleitschirm: "1- und 2-sitzig", landeName: "Schrina Landeplatz", landeLat: 47.1235, landeLon: 9.3079, landeHoehe: 423, landeExtra: [{ name: "Schönhalden Landeplatz", lat: 47.088709, lon: 9.352798, hoehe: 449 }], ...DEF },
 
   { id: "db_1758", name: "Ramenegg", region: "Morgarten",
     lat: 47.1019, lon: 8.6148, elevation: 1124, dhv: 1758,
@@ -4940,7 +4940,7 @@ const SPOT_DB = [
 
   { id: "db_1573", name: "Reuti", region: "Meiringen",
     lat: 46.7378, lon: 8.2056, elevation: 1160, dhv: 1573,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fab", hoehendiff: 571, gemeinde: "3860 Meiringen", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Planplatten Landeplatz 4", landeLat: 46.7222, landeLon: 8.1995, landeHoehe: 600, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fab", hoehendiff: 571, gemeinde: "3860 Meiringen", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Planplatten Landeplatz 4", landeLat: 46.7222, landeLon: 8.1995, landeHoehe: 600, landeExtra: [{ name: "Planplatten Landeplatz 5", lat: 46.732669, lon: 8.172927, hoehe: 589 }], ...DEF },
 
   { id: "db_5357", name: "Ried", region: "Ried",
     lat: 46.3278, lon: 8.0406, elevation: 1488, dhv: 5357,
@@ -4956,23 +4956,23 @@ const SPOT_DB = [
 
   { id: "db_5207_NO", name: "Rigi Kulm (NO)", region: "Goldau",
     lat: 47.0531, lon: 8.4913, elevation: 1652, dhv: 5207,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fab", hoehendiff: 1311, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fab", hoehendiff: 1311, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, landeExtra: [{ name: "Rigi-Scheidegg Landeplatz 2", lat: 47.037906, lon: 8.572189, hoehe: 482 }, { name: "Rigi Kulm Landeplatz", lat: 47.051672, lon: 8.543906, hoehe: 480 }, { name: "Rigi-Staffelhöhe Landeplatz 2", lat: 47.067061, lon: 8.435056, hoehe: 461 }], ...DEF },
 
   { id: "db_5207_O", name: "Rigi Kulm (O)", region: "Goldau",
     lat: 47.0557, lon: 8.4864, elevation: 1772, dhv: 5207,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fab", hoehendiff: 1311, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Staffelhöhe Landeplatz 2", landeLat: 47.0671, landeLon: 8.4351, landeHoehe: 461, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "ch", acc: "fab", hoehendiff: 1311, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Staffelhöhe Landeplatz 2", landeLat: 47.0671, landeLon: 8.4351, landeHoehe: 461, landeExtra: [{ name: "Rigi-Scheidegg Landeplatz 1", lat: 47.038506, lon: 8.536328, hoehe: 752 }, { name: "Rigi-Scheidegg Landeplatz 2", lat: 47.037906, lon: 8.572189, hoehe: 482 }, { name: "Rigi Kulm Landeplatz", lat: 47.051672, lon: 8.543906, hoehe: 480 }], ...DEF },
 
   { id: "db_5207_S", name: "Rigi Kulm (S)", region: "Goldau",
     lat: 47.0548, lon: 8.4862, elevation: 1750, dhv: 5207,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fab", hoehendiff: 1311, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Staffelhöhe Landeplatz 2", landeLat: 47.0671, landeLon: 8.4351, landeHoehe: 461, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fab", hoehendiff: 1311, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Staffelhöhe Landeplatz 2", landeLat: 47.0671, landeLon: 8.4351, landeHoehe: 461, landeExtra: [{ name: "Rigi-Scheidegg Landeplatz 1", lat: 47.038506, lon: 8.536328, hoehe: 752 }, { name: "Rigi-Scheidegg Landeplatz 2", lat: 47.037906, lon: 8.572189, hoehe: 482 }, { name: "Rigi Kulm Landeplatz", lat: 47.051672, lon: 8.543906, hoehe: 480 }], ...DEF },
 
   { id: "db_1411_NO", name: "Rigi-Scheidegg (NO)", region: "Goldau",
     lat: 47.0279, lon: 8.5199, elevation: 1652, dhv: 1411,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 1172, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 1172, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, landeExtra: [{ name: "Rigi-Scheidegg Landeplatz 2", lat: 47.037906, lon: 8.572189, hoehe: 482 }, { name: "Rigi Kulm Landeplatz", lat: 47.051672, lon: 8.543906, hoehe: 480 }], ...DEF },
 
   { id: "db_1411_SO", name: "Rigi-Scheidegg (SO)", region: "Goldau",
     lat: 47.0268, lon: 8.5206, elevation: 1652, dhv: 1411,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fb", hoehendiff: 1172, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "ch", acc: "fb", hoehendiff: 1172, gemeinde: "6410 Goldau", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Scheidegg Landeplatz 1", landeLat: 47.0385, landeLon: 8.5363, landeHoehe: 752, landeExtra: [{ name: "Rigi-Scheidegg Landeplatz 2", lat: 47.037906, lon: 8.572189, hoehe: 482 }, { name: "Rigi Kulm Landeplatz", lat: 47.051672, lon: 8.543906, hoehe: 480 }], ...DEF },
 
   { id: "db_1761", name: "Rigi-Seebodenalp", region: "Küssnacht",
     lat: 47.0634, lon: 8.4585, elevation: 1032, dhv: 1761,
@@ -4980,7 +4980,7 @@ const SPOT_DB = [
 
   { id: "db_1689", name: "Rigi-Staffelhöhe", region: "Weggis",
     lat: 47.0475, lon: 8.4607, elevation: 1567, dhv: 1689,
-    sectors: [[123.75, 191.25], [303.75, 326.25]], sectorLabel: "SO-S · NW", country: "ch", acc: "fb", hoehendiff: 1106, gemeinde: "6353 Weggis", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Staffelhöhe Landeplatz 1", landeLat: 47.0329, landeLon: 8.4418, landeHoehe: 475, ...DEF },
+    sectors: [[123.75, 191.25], [303.75, 326.25]], sectorLabel: "SO-S · NW", country: "ch", acc: "fb", hoehendiff: 1106, gemeinde: "6353 Weggis", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Rigi-Staffelhöhe Landeplatz 1", landeLat: 47.0329, landeLon: 8.4418, landeHoehe: 475, landeExtra: [{ name: "Rigi-Staffelhöhe Landeplatz 2", lat: 47.067061, lon: 8.435056, hoehe: 461 }], ...DEF },
 
   { id: "db_1609_NO", name: "Rinderberg (NO)", region: "Gstaad",
     lat: 46.5099, lon: 7.3617, elevation: 1909, dhv: 1609,
@@ -5000,15 +5000,15 @@ const SPOT_DB = [
 
   { id: "db_5359", name: "Roc Orsay", region: "Villars-sur-Ollon",
     lat: 46.3215, lon: 7.0683, elevation: 1881, dhv: 5359,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fab", hoehendiff: 1460, gemeinde: "1884 Villars-sur-Ollon", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Roc Orsay Landeplatz 1", landeLat: 46.3065, landeLon: 7.0623, landeHoehe: 1366, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fab", hoehendiff: 1460, gemeinde: "1884 Villars-sur-Ollon", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Roc Orsay Landeplatz 1", landeLat: 46.3065, landeLon: 7.0623, landeHoehe: 1366, landeExtra: [{ name: "Roc Orsay Landeplatz 2", lat: 46.276889, lon: 6.994078, hoehe: 421 }], ...DEF },
 
   { id: "db_1764_O", name: "Rochers de Naye (O)", region: "Villeneuve",
     lat: 46.432, lon: 6.9766, elevation: 2023, dhv: 1764,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "ch", acc: "fb", hoehendiff: 1649, gemeinde: "1844 Villeneuve", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Rochers de Naye Landeplatz 2", landeLat: 46.3947, landeLon: 6.9185, landeHoehe: 375, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "ch", acc: "fb", hoehendiff: 1649, gemeinde: "1844 Villeneuve", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Rochers de Naye Landeplatz 2", landeLat: 46.3947, landeLon: 6.9185, landeHoehe: 375, landeExtra: [{ name: "Rochers de Naye Landeplatz 1", lat: 46.387264, lon: 6.923389, hoehe: 374 }], ...DEF },
 
   { id: "db_1764_S", name: "Rochers de Naye (S)", region: "Villeneuve",
     lat: 46.4316, lon: 6.9779, elevation: 1977, dhv: 1764,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "ch", acc: "fb", hoehendiff: 1649, gemeinde: "1844 Villeneuve", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Rochers de Naye Landeplatz 2", landeLat: 46.3947, landeLon: 6.9185, landeHoehe: 375, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "ch", acc: "fb", hoehendiff: 1649, gemeinde: "1844 Villeneuve", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Rochers de Naye Landeplatz 2", landeLat: 46.3947, landeLon: 6.9185, landeHoehe: 375, landeExtra: [{ name: "Rochers de Naye Landeplatz 1", lat: 46.387264, lon: 6.923389, hoehe: 374 }], ...DEF },
 
   { id: "db_2101", name: "Rophaien", region: "Flüelen",
     lat: 46.9281, lon: 8.6466, elevation: 2063, dhv: 2101,
@@ -5020,19 +5020,19 @@ const SPOT_DB = [
 
   { id: "db_1767", name: "Rotenfluespitz", region: "Marbach",
     lat: 46.8778, lon: 7.9424, elevation: 1519, dhv: 1767,
-    sectors: [[258.75, 281.25], [348.75, 11.25]], sectorLabel: "W · N", country: "ch", acc: "fa", hoehendiff: 645, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Marbachegg Landeplatz 1", landeLat: 46.8518, landeLon: 7.9000, landeHoehe: 874, ...DEF },
+    sectors: [[258.75, 281.25], [348.75, 11.25]], sectorLabel: "W · N", country: "ch", acc: "fa", hoehendiff: 645, gemeinde: "6196 Marbach", bundesland: "Luzern", gleitschirm: "1- und 2-sitzig", landeName: "Marbachegg Landeplatz 1", landeLat: 46.8518, landeLon: 7.9000, landeHoehe: 874, landeExtra: [{ name: "Marbachegg Landeplatz 3", lat: 46.841356, lon: 7.885122, hoehe: 929 }, { name: "Marbachegg Landeplatz 2", lat: 46.849189, lon: 7.894681, hoehe: 892 }], ...DEF },
 
   { id: "db_1413_N", name: "Rotenfluh (N)", region: "Rickenbach",
     lat: 47.0216, lon: 8.7044, elevation: 1550, dhv: 1413,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "ch", acc: "fb", hoehendiff: 1107, gemeinde: "6432 Rickenbach", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", bemerkung: "Schwieriger, sehr selten benutzter Startplatz mit seitlichen Rotoren an der Geländekante unterhalb des Startplatzes. Betreuung: Gleitschirm Club Rigi-Mythen www.gcrm.ch", landeName: "Rotenfluh Landeplatz 1", landeLat: 47.0121, landeLon: 8.6701, landeHoehe: 582, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "ch", acc: "fb", hoehendiff: 1107, gemeinde: "6432 Rickenbach", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", bemerkung: "Schwieriger, sehr selten benutzter Startplatz mit seitlichen Rotoren an der Geländekante unterhalb des Startplatzes. Betreuung: Gleitschirm Club Rigi-Mythen www.gcrm.ch", landeName: "Rotenfluh Landeplatz 1", landeLat: 47.0121, landeLon: 8.6701, landeHoehe: 582, landeExtra: [{ name: "Rotenfluh Landeplatz 2", lat: 47.039192, lon: 8.606028, hoehe: 450 }], ...DEF },
 
   { id: "db_1413_S", name: "Rotenfluh (S)", region: "Rickenbach",
     lat: 47.0182, lon: 8.7017, elevation: 1551, dhv: 1413,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1107, gemeinde: "6432 Rickenbach", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", bemerkung: "Schulungsstartplatz: Bei Westwind und / oder starker Thermik ist mit seitlichen Rotoren im bodennahen Flug zu rechnen. Betreuung: Gleitschirm Club Rigi-Mythen www.gcrm.ch", landeName: "Rotenfluh Landeplatz 1", landeLat: 47.0121, landeLon: 8.6701, landeHoehe: 582, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1107, gemeinde: "6432 Rickenbach", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", bemerkung: "Schulungsstartplatz: Bei Westwind und / oder starker Thermik ist mit seitlichen Rotoren im bodennahen Flug zu rechnen. Betreuung: Gleitschirm Club Rigi-Mythen www.gcrm.ch", landeName: "Rotenfluh Landeplatz 1", landeLat: 47.0121, landeLon: 8.6701, landeHoehe: 582, landeExtra: [{ name: "Rotenfluh Landeplatz 2", lat: 47.039192, lon: 8.606028, hoehe: 450 }], ...DEF },
 
   { id: "db_1413_W", name: "Rotenfluh (W)", region: "Rickenbach",
     lat: 47.0189, lon: 8.7017, elevation: 1557, dhv: 1413,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 1107, gemeinde: "6432 Rickenbach", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", bemerkung: "Schulungsstartplatz: Bei Westwind und / oder starker Thermik ist mit seitlichen Rotoren im bodennahen Flug zu rechnen. Betreuung: Gleitschirm Club Rigi-Mythen www.gcrm.ch", landeName: "Rotenfluh Landeplatz 1", landeLat: 47.0121, landeLon: 8.6701, landeHoehe: 582, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fb", hoehendiff: 1107, gemeinde: "6432 Rickenbach", bundesland: "Schwyz", gleitschirm: "1- und 2-sitzig", bemerkung: "Schulungsstartplatz: Bei Westwind und / oder starker Thermik ist mit seitlichen Rotoren im bodennahen Flug zu rechnen. Betreuung: Gleitschirm Club Rigi-Mythen www.gcrm.ch", landeName: "Rotenfluh Landeplatz 1", landeLat: 47.0121, landeLon: 8.6701, landeHoehe: 582, landeExtra: [{ name: "Rotenfluh Landeplatz 2", lat: 47.039192, lon: 8.606028, hoehe: 450 }], ...DEF },
 
   { id: "db_2368", name: "Röti", region: "Welschenrohr",
     lat: 47.2579, lon: 7.5278, elevation: 1393, dhv: 2368,
@@ -5040,15 +5040,15 @@ const SPOT_DB = [
 
   { id: "db_1399", name: "Ruedlen", region: "Kerns",
     lat: 46.8984, lon: 8.3173, elevation: 1277, dhv: 1399,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 716, gemeinde: "6064 Kerns", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Ruedlen Landeplatz 1", landeLat: 46.9078, landeLon: 8.2867, landeHoehe: 562, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 716, gemeinde: "6064 Kerns", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Ruedlen Landeplatz 1", landeLat: 46.9078, landeLon: 8.2867, landeHoehe: 562, landeExtra: [{ name: "Arvialp Landeplatz 1", lat: 46.898428, lon: 8.271353, hoehe: 561 }, { name: "Ruedlen Landeplatz 2", lat: 46.898428, lon: 8.271353, hoehe: 561 }], ...DEF },
 
   { id: "db_1768", name: "Ruelen", region: "Sarnen",
     lat: 46.8984, lon: 8.3174, elevation: 1269, dhv: 1768,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fa", hoehendiff: 796, gemeinde: "6060 Sarnen", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Linderenalp Landeplatz 2", landeLat: 46.8984, landeLon: 8.2714, landeHoehe: 561, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "ch", acc: "fa", hoehendiff: 796, gemeinde: "6060 Sarnen", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Linderenalp Landeplatz 2", landeLat: 46.8984, landeLon: 8.2714, landeHoehe: 561, landeExtra: [{ name: "Linderenalp Landeplatz 1", lat: 46.886301, lon: 8.244982, hoehe: 473 }], ...DEF },
 
   { id: "db_1693", name: "Ruinettes", region: "Verbier",
     lat: 46.09, lon: 7.2515, elevation: 2167, dhv: 1693,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 1337, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Ruinette Landeplatz 1", landeLat: 46.1076, landeLon: 7.2363, landeHoehe: 1694, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 1337, gemeinde: "1936 Verbier", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Ruinette Landeplatz 1", landeLat: 46.1076, landeLon: 7.2363, landeHoehe: 1694, landeExtra: [{ name: "Croix de Coeur Landeplatz", lat: 46.101572, lon: 7.219397, hoehe: 1509 }, { name: "Ruinettes Landeplatz 2", lat: 46.059372, lon: 7.236608, hoehe: 933 }, { name: "Ruinettes Landeplatz 3", lat: 46.072072, lon: 7.226053, hoehe: 858 }, { name: "Ruinettes Landeplatz 4", lat: 46.077969, lon: 7.216631, hoehe: 830 }], ...DEF },
 
   { id: "db_1569", name: "Ruogig", region: "Bürglen",
     lat: 46.906, lon: 8.6905, elevation: 1859, dhv: 1569,
@@ -5064,7 +5064,7 @@ const SPOT_DB = [
 
   { id: "db_5364", name: "Sassiglion", region: "Poschiavo",
     lat: 46.3186, lon: 10.0948, elevation: 2069, dhv: 5364,
-    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", country: "ch", acc: "fa", hoehendiff: 1095, gemeinde: "7745 Poschiavo", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Sassiglion Landeplatz 1", landeLat: 46.3023, landeLon: 10.0764, landeHoehe: 974, ...DEF },
+    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", country: "ch", acc: "fa", hoehendiff: 1095, gemeinde: "7745 Poschiavo", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Sassiglion Landeplatz 1", landeLat: 46.3023, landeLon: 10.0764, landeHoehe: 974, landeExtra: [{ name: "Sassiglion Landeplatz 2", lat: 46.317553, lon: 10.063875, hoehe: 1047 }], ...DEF },
 
   { id: "db_5504", name: "Sattelhöpfli", region: "Euthal",
     lat: 47.1076, lon: 8.8118, elevation: 1298, dhv: 5504,
@@ -5072,11 +5072,11 @@ const SPOT_DB = [
 
   { id: "db_1486_O", name: "Scalottas (O)", region: "Lenzerheide",
     lat: 46.7213, lon: 9.5102, elevation: 2317, dhv: 1486,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "ch", acc: "fb", hoehendiff: 1664, gemeinde: "7078 Lenzerheide", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Parpaner Rothorn Landeplatz 1", landeLat: 46.7441, landeLon: 9.5521, landeHoehe: 1490, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "ch", acc: "fb", hoehendiff: 1664, gemeinde: "7078 Lenzerheide", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Parpaner Rothorn Landeplatz 1", landeLat: 46.7441, landeLon: 9.5521, landeHoehe: 1490, landeExtra: [{ name: "Parpaner Rothorn Landeplatz 2", lat: 46.760389, lon: 9.562056, hoehe: 1498 }, { name: "Scalottas Landeplatz", lat: 46.719217, lon: 9.439536, hoehe: 653 }], ...DEF },
 
   { id: "db_1486_S", name: "Scalottas (S)", region: "Lenzerheide",
     lat: 46.7198, lon: 9.5106, elevation: 2295, dhv: 1486,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 1664, gemeinde: "7078 Lenzerheide", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Parpaner Rothorn Landeplatz 1", landeLat: 46.7441, landeLon: 9.5521, landeHoehe: 1490, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 1664, gemeinde: "7078 Lenzerheide", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Parpaner Rothorn Landeplatz 1", landeLat: 46.7441, landeLon: 9.5521, landeHoehe: 1490, landeExtra: [{ name: "Parpaner Rothorn Landeplatz 2", lat: 46.760389, lon: 9.562056, hoehe: 1498 }, { name: "Scalottas Landeplatz", lat: 46.719217, lon: 9.439536, hoehe: 653 }], ...DEF },
 
   { id: "db_2476_NO", name: "Schartihöreli (NO)", region: "Isenthal",
     lat: 46.8963, lon: 8.568, elevation: 1583, dhv: 2476,
@@ -5088,11 +5088,11 @@ const SPOT_DB = [
 
   { id: "db_1611", name: "Schatthorn", region: "Lenk",
     lat: 46.4717, lon: 7.4811, elevation: 2030, dhv: 1611,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fa", hoehendiff: 966, gemeinde: "3775 Lenk", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Schatthorn Landeplatz", landeLat: 46.4549, landeLon: 7.4425, landeHoehe: 1064, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fa", hoehendiff: 966, gemeinde: "3775 Lenk", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Schatthorn Landeplatz", landeLat: 46.4549, landeLon: 7.4425, landeHoehe: 1064, landeExtra: [{ name: "Flöschhorn Landeplatz", lat: 46.464581, lon: 7.436061, hoehe: 1062 }], ...DEF },
 
   { id: "db_1484", name: "Schatzalp", region: "Davos",
     lat: 46.8052, lon: 9.8171, elevation: 1973, dhv: 1484,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 441, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 441, gemeinde: "7260 Davos", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Jakobshorn Landeplatz 2", landeLat: 46.7894, landeLon: 9.8216, landeHoehe: 1534, landeExtra: [{ name: "Jakobshorn Landeplatz 4", lat: 46.787336, lon: 9.818331, hoehe: 1532 }], ...DEF },
 
   { id: "db_1591", name: "Schiltgrat", region: "Stechelberg",
     lat: 46.557, lon: 7.8724, elevation: 2105, dhv: 1591,
@@ -5116,7 +5116,7 @@ const SPOT_DB = [
 
   { id: "db_1394", name: "Schönbüel", region: "Lungern",
     lat: 46.7873, lon: 8.0989, elevation: 2011, dhv: 1394,
-    sectors: [[168.75, 191.25], [33.75, 56.25]], sectorLabel: "S · NO", country: "ch", acc: "fb", hoehendiff: 1317, gemeinde: "6078 Lungern", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Schönbüel Landeplatz 2", landeLat: 46.7841, landeLon: 8.1494, landeHoehe: 694, ...DEF },
+    sectors: [[168.75, 191.25], [33.75, 56.25]], sectorLabel: "S · NO", country: "ch", acc: "fb", hoehendiff: 1317, gemeinde: "6078 Lungern", bundesland: "Obwalden", gleitschirm: "1- und 2-sitzig", landeName: "Schönbüel Landeplatz 2", landeLat: 46.7841, landeLon: 8.1494, landeHoehe: 694, landeExtra: [{ name: "Schönbüel Landeplatz 1", lat: 46.786456, lon: 8.150654, hoehe: 694 }], ...DEF },
 
   { id: "db_1291", name: "Schönhalden", region: "Flums",
     lat: 47.0605, lon: 9.3346, elevation: 1509, dhv: 1291,
@@ -5132,7 +5132,7 @@ const SPOT_DB = [
 
   { id: "db_1752", name: "Schwengimatt", region: "Laupersdorf",
     lat: 47.291, lon: 7.6774, elevation: 1057, dhv: 1752,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fa", hoehendiff: 570, gemeinde: "4712 Laupersdorf", bundesland: "Solothurn", gleitschirm: "1- und 2-sitzig", bemerkung: "Nordstartplatz am Waldrand über dem Balsthal.", landeName: "Schwengimatt Landeplatz", landeLat: 47.3094, landeLon: 7.6686, landeHoehe: 487, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fa", hoehendiff: 570, gemeinde: "4712 Laupersdorf", bundesland: "Solothurn", gleitschirm: "1- und 2-sitzig", bemerkung: "Nordstartplatz am Waldrand über dem Balsthal.", landeName: "Schwengimatt Landeplatz", landeLat: 47.3094, landeLon: 7.6686, landeHoehe: 487, landeExtra: [{ name: "Obere Wengi Landeplatz", lat: 47.305681, lon: 7.633469, hoehe: 495 }], ...DEF },
 
   { id: "db_1962", name: "Schwyberg", region: "Schwarzsee",
     lat: 46.677, lon: 7.2611, elevation: 1613, dhv: 1962,
@@ -5140,11 +5140,11 @@ const SPOT_DB = [
 
   { id: "db_1584_NW", name: "Schynige Platte (NW)", region: "Interlaken",
     lat: 46.6582, lon: 7.9029, elevation: 1750, dhv: 1584,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 1185, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 2", landeLat: 46.6861, landeLon: 7.8587, landeHoehe: 569, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "ch", acc: "fb", hoehendiff: 1185, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 2", landeLat: 46.6861, landeLon: 7.8587, landeHoehe: 569, landeExtra: [{ name: "Niederhorn Landeplatz 1", lat: 46.680956, lon: 7.823861, hoehe: 565 }], ...DEF },
 
   { id: "db_1584_W", name: "Schynige Platte (W)", region: "Interlaken",
     lat: 46.6626, lon: 7.9011, elevation: 1574, dhv: 1584,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "ch", acc: "fb", hoehendiff: 1185, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 2", landeLat: 46.6861, landeLon: 7.8587, landeHoehe: 569, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "ch", acc: "fb", hoehendiff: 1185, gemeinde: "3800 Interlaken", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Niederhorn Landeplatz 2", landeLat: 46.6861, landeLon: 7.8587, landeHoehe: 569, landeExtra: [{ name: "Niederhorn Landeplatz 1", lat: 46.680956, lon: 7.823861, hoehe: 565 }], ...DEF },
 
   { id: "db_1772", name: "Seetalhorn", region: "Grächen",
     lat: 46.176, lon: 7.8588, elevation: 2861, dhv: 1772,
@@ -5152,11 +5152,11 @@ const SPOT_DB = [
 
   { id: "db_1966_N", name: "Seetalhorn (N)", region: "Grächen",
     lat: 46.1777, lon: 7.8597, elevation: 2839, dhv: 1966,
-    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "ch", acc: "fb", hoehendiff: 1712, gemeinde: "3925 Grächen", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Seetalhorn Landeplatz 1", landeLat: 46.1982, landeLon: 7.8383, landeHoehe: 1591, ...DEF },
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "ch", acc: "fb", hoehendiff: 1712, gemeinde: "3925 Grächen", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Seetalhorn Landeplatz 1", landeLat: 46.1982, landeLon: 7.8383, landeHoehe: 1591, landeExtra: [{ name: "Seetalhorn Landeplatz 2", lat: 46.18093, lon: 7.809541, hoehe: 1149 }], ...DEF },
 
   { id: "db_1966_W", name: "Seetalhorn (W)", region: "Grächen",
     lat: 46.176, lon: 7.8586, elevation: 2861, dhv: 1966,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fb", hoehendiff: 1712, gemeinde: "3925 Grächen", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Seetalhorn Landeplatz 1", landeLat: 46.1982, landeLon: 7.8383, landeHoehe: 1591, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "ch", acc: "fb", hoehendiff: 1712, gemeinde: "3925 Grächen", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Seetalhorn Landeplatz 1", landeLat: 46.1982, landeLon: 7.8383, landeHoehe: 1591, landeExtra: [{ name: "Seetalhorn Landeplatz 2", lat: 46.18093, lon: 7.809541, hoehe: 1149 }], ...DEF },
 
   { id: "db_2100", name: "Sittlisalp", region: "Unterschächen",
     lat: 46.8547, lon: 8.757, elevation: 1813, dhv: 2100,
@@ -5172,11 +5172,11 @@ const SPOT_DB = [
 
   { id: "db_2076", name: "Somtgant", region: "Savognin",
     lat: 46.5875, lon: 9.5471, elevation: 2258, dhv: 2076,
-    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", country: "ch", acc: "fb", hoehendiff: 1079, gemeinde: "7460 Savognin", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Piz Martegnas Landeplatz", landeLat: 46.5984, landeLon: 9.5949, landeHoehe: 1201, ...DEF },
+    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", country: "ch", acc: "fb", hoehendiff: 1079, gemeinde: "7460 Savognin", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Piz Martegnas Landeplatz", landeLat: 46.5984, landeLon: 9.5949, landeHoehe: 1201, landeExtra: [{ name: "Somtgant Landeplatz", lat: 46.591511, lon: 9.598142, hoehe: 1179 }], ...DEF },
 
   { id: "db_1765", name: "Sonchaux", region: "Villeneuve",
     lat: 46.4179, lon: 6.9511, elevation: 1394, dhv: 1765,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 1020, gemeinde: "1844 Villeneuve", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Rochers de Naye Landeplatz 2", landeLat: 46.3947, landeLon: 6.9185, landeHoehe: 375, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fa", hoehendiff: 1020, gemeinde: "1844 Villeneuve", bundesland: "Waadt", gleitschirm: "1- und 2-sitzig", landeName: "Rochers de Naye Landeplatz 2", landeLat: 46.3947, landeLon: 6.9185, landeHoehe: 375, landeExtra: [{ name: "Rochers de Naye Landeplatz 1", lat: 46.387264, lon: 6.923389, hoehe: 374 }], ...DEF },
 
   { id: "db_1773", name: "Spierberg", region: "Flühli",
     lat: 46.886, lon: 7.9921, elevation: 1512, dhv: 1773,
@@ -5200,11 +5200,11 @@ const SPOT_DB = [
 
   { id: "db_1401_N", name: "Stanserhorn (N)", region: "Stans",
     lat: 46.9298, lon: 8.3412, elevation: 1818, dhv: 1401,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fb", hoehendiff: 1347, gemeinde: "6370 Stans", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig", bemerkung: "Bitte erkundigen, ob z. Zt. hier gelandet werden darf. Achtung! Das Fluggebiet befindet sich in der CTR Buochs! Nur mit Flugfunk befliegbar. Unbedingt Infotafeln bei der Bergbahn beachten.", landeName: "Stanserhorn Landeplatz 2", landeLat: 46.9491, landeLon: 8.3275, landeHoehe: 508, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "ch", acc: "fb", hoehendiff: 1347, gemeinde: "6370 Stans", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig", bemerkung: "Bitte erkundigen, ob z. Zt. hier gelandet werden darf. Achtung! Das Fluggebiet befindet sich in der CTR Buochs! Nur mit Flugfunk befliegbar. Unbedingt Infotafeln bei der Bergbahn beachten.", landeName: "Stanserhorn Landeplatz 2", landeLat: 46.9491, landeLon: 8.3275, landeHoehe: 508, landeExtra: [{ name: "Stanserhorn Landeplatz 1", lat: 46.958456, lon: 8.355092, hoehe: 471 }], ...DEF },
 
   { id: "db_1401_S", name: "Stanserhorn (S)", region: "Stans",
     lat: 46.931, lon: 8.3439, elevation: 1818, dhv: 1401,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 1347, gemeinde: "6370 Stans", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig", bemerkung: "Achtung! Das Fluggebiet befindet sich in der CTR Buochs! Nur mit Flugfunk befliegbar. Unbedingt Infotafeln bei der Bergbahn beachten.", landeName: "Stanserhorn Landeplatz 2", landeLat: 46.9491, landeLon: 8.3275, landeHoehe: 508, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 1347, gemeinde: "6370 Stans", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig", bemerkung: "Achtung! Das Fluggebiet befindet sich in der CTR Buochs! Nur mit Flugfunk befliegbar. Unbedingt Infotafeln bei der Bergbahn beachten.", landeName: "Stanserhorn Landeplatz 2", landeLat: 46.9491, landeLon: 8.3275, landeHoehe: 508, landeExtra: [{ name: "Stanserhorn Landeplatz 1", lat: 46.958456, lon: 8.355092, hoehe: 471 }], ...DEF },
 
   { id: "db_1407", name: "Startplatz Mostelegg", region: "Seewen",
     lat: 47.0555, lon: 8.659, elevation: 1266, dhv: 1407,
@@ -5212,7 +5212,7 @@ const SPOT_DB = [
 
   { id: "db_1698", name: "Steibenkreuz", region: "Fiesch",
     lat: 46.448, lon: 8.1623, elevation: 2389, dhv: 1698,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fb", hoehendiff: 1331, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Steibenkreuz Landeplatz 2", landeLat: 46.4367, landeLon: 8.1935, landeHoehe: 1253, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fb", hoehendiff: 1331, gemeinde: "3984 Fiesch", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Steibenkreuz Landeplatz 2", landeLat: 46.4367, landeLon: 8.1935, landeHoehe: 1253, landeExtra: [{ name: "Steibenkreuz Landeplatz 1", lat: 46.461736, lon: 8.227981, hoehe: 1365 }, { name: "Galfera Landeplatz 1", lat: 46.420483, lon: 8.144911, hoehe: 1087 }, { name: "Galfera Landeplatz 2", lat: 46.409219, lon: 8.137942, hoehe: 1058 }], ...DEF },
 
   { id: "db_1492", name: "Stein", region: "Obersaxen",
     lat: 46.7258, lon: 9.1263, elevation: 2167, dhv: 1492,
@@ -5232,7 +5232,7 @@ const SPOT_DB = [
 
   { id: "db_1600", name: "Stockhorn", region: "Erlenbach",
     lat: 46.6933, lon: 7.5376, elevation: 2105, dhv: 1600,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1427, gemeinde: "3762 Erlenbach", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Stockhorn Landeplatz 1", landeLat: 46.6582, landeLon: 7.5285, landeHoehe: 696, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "ch", acc: "fb", hoehendiff: 1427, gemeinde: "3762 Erlenbach", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Stockhorn Landeplatz 1", landeLat: 46.6582, landeLon: 7.5285, landeHoehe: 696, landeExtra: [{ name: "Stockhorn Landeplatz 2", lat: 46.745767, lon: 7.527881, hoehe: 678 }], ...DEF },
 
   { id: "db_1467", name: "Studnerberg", region: "Grabs",
     lat: 47.1658, lon: 9.4246, elevation: 1076, dhv: 1467,
@@ -5272,11 +5272,11 @@ const SPOT_DB = [
 
   { id: "db_1598_S", name: "Tschentenalp (S)", region: "Adelboden",
     lat: 46.4971, lon: 7.5416, elevation: 2024, dhv: 1598,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 772, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Tschentenalp Landeplatz 3", landeLat: 46.4890, landeLon: 7.5624, landeHoehe: 1252, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "ch", acc: "fb", hoehendiff: 772, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Tschentenalp Landeplatz 3", landeLat: 46.4890, landeLon: 7.5624, landeHoehe: 1252, landeExtra: [{ name: "Tschentenalp Landeplatz 1", lat: 46.479072, lon: 7.559144, hoehe: 1287 }, { name: "Tschentenalp Landeplatz 2", lat: 46.480125, lon: 7.560364, hoehe: 1284 }], ...DEF },
 
   { id: "db_1598_SO", name: "Tschentenalp (SO)", region: "Adelboden",
     lat: 46.4992, lon: 7.5475, elevation: 1920, dhv: 1598,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 772, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Tschentenalp Landeplatz 3", landeLat: 46.4890, landeLon: 7.5624, landeHoehe: 1252, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fb", hoehendiff: 772, gemeinde: "3715 Adelboden", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "Tschentenalp Landeplatz 3", landeLat: 46.4890, landeLon: 7.5624, landeHoehe: 1252, landeExtra: [{ name: "Tschentenalp Landeplatz 1", lat: 46.479072, lon: 7.559144, hoehe: 1287 }, { name: "Tschentenalp Landeplatz 2", lat: 46.480125, lon: 7.560364, hoehe: 1284 }], ...DEF },
 
   { id: "db_5265", name: "Tschuggen", region: "Lauterbrunnen",
     lat: 46.6064, lon: 7.945, elevation: 2245, dhv: 5265,
@@ -5284,7 +5284,7 @@ const SPOT_DB = [
 
   { id: "db_1783", name: "Uetliberg", region: "Zürich",
     lat: 47.3225, lon: 8.5007, elevation: 735, dhv: 1783,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 316, gemeinde: "8041 Zürich", bundesland: "Zürich", gleitschirm: "1- und 2-sitzig", landeName: "Uetliberg Landeplatz 1", landeLat: 47.3255, landeLon: 8.5062, landeHoehe: 568, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 316, gemeinde: "8041 Zürich", bundesland: "Zürich", gleitschirm: "1- und 2-sitzig", landeName: "Uetliberg Landeplatz 1", landeLat: 47.3255, landeLon: 8.5062, landeHoehe: 568, landeExtra: [{ name: "Uetliberg Landeplatz 2", lat: 47.353219, lon: 8.519386, hoehe: 419 }], ...DEF },
 
   { id: "db_2086", name: "Ufem Tritt", region: "Einsideln",
     lat: 47.1017, lon: 8.7418, elevation: 1309, dhv: 2086,
@@ -5308,15 +5308,15 @@ const SPOT_DB = [
 
   { id: "db_1777_N", name: "Vercorin (N)", region: "Vercorin",
     lat: 46.229, lon: 7.5299, elevation: 2329, dhv: 1777,
-    sectors: [[213.75, 101.25], [348.75, 56.25], [303.75, 11.25]], sectorLabel: "SW-O · N-NO · NW-N", country: "ch", acc: "fb", hoehendiff: 1818, gemeinde: "3967 Vercorin", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Vercorin Landeplatz 1", landeLat: 46.2550, landeLon: 7.5340, landeHoehe: 1308, ...DEF },
+    sectors: [[213.75, 101.25], [348.75, 56.25], [303.75, 11.25]], sectorLabel: "SW-O · N-NO · NW-N", country: "ch", acc: "fb", hoehendiff: 1818, gemeinde: "3967 Vercorin", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Vercorin Landeplatz 1", landeLat: 46.2550, landeLon: 7.5340, landeHoehe: 1308, landeExtra: [{ name: "Vercorin Landeplatz", lat: 46.271675, lon: 7.506886, hoehe: 511 }], ...DEF },
 
   { id: "db_1777_W", name: "Vercorin (W)", region: "Vercorin",
     lat: 46.2294, lon: 7.5279, elevation: 2322, dhv: 1777,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "ch", acc: "fb", hoehendiff: 1818, gemeinde: "3967 Vercorin", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Vercorin Landeplatz 1", landeLat: 46.2550, landeLon: 7.5340, landeHoehe: 1308, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "ch", acc: "fb", hoehendiff: 1818, gemeinde: "3967 Vercorin", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Vercorin Landeplatz 1", landeLat: 46.2550, landeLon: 7.5340, landeHoehe: 1308, landeExtra: [{ name: "Vercorin Landeplatz", lat: 46.271675, lon: 7.506886, hoehe: 511 }], ...DEF },
 
   { id: "db_2105", name: "Veysonnaz", region: "Veysonnaz",
     lat: 46.1875, lon: 7.346, elevation: 1619, dhv: 2105,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 615, gemeinde: "1993 Veysonnaz", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Veysonnaz Landeplatz 1", landeLat: 46.1926, landeLon: 7.3365, landeHoehe: 1318, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "ch", acc: "fb", hoehendiff: 615, gemeinde: "1993 Veysonnaz", bundesland: "Wallis", gleitschirm: "1- und 2-sitzig", landeName: "Veysonnaz Landeplatz 1", landeLat: 46.1926, landeLon: 7.3365, landeHoehe: 1318, landeExtra: [{ name: "Veysonnaz Landeplatz 2", lat: 46.187436, lon: 7.315711, hoehe: 1004 }], ...DEF },
 
   { id: "db_1778", name: "Vilan", region: "Malans",
     lat: 47.0117, lon: 9.5904, elevation: 1794, dhv: 1778,
@@ -5340,7 +5340,7 @@ const SPOT_DB = [
 
   { id: "db_1586", name: "Waldspitz", region: "Grindelwald",
     lat: 46.6525, lon: 8.0419, elevation: 1990, dhv: 1586,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fa", hoehendiff: 1040, gemeinde: "3818 Grindelwald", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "First Landeplatz Bodmi", landeLat: 46.6288, landeLon: 8.0433, landeHoehe: 1129, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fa", hoehendiff: 1040, gemeinde: "3818 Grindelwald", bundesland: "Bern", gleitschirm: "1- und 2-sitzig", landeName: "First Landeplatz Bodmi", landeLat: 46.6288, landeLon: 8.0433, landeHoehe: 1129, landeExtra: [{ name: "First Landeplatz Grund", lat: 46.620292, lon: 8.029056, hoehe: 950 }], ...DEF },
 
   { id: "db_1780", name: "Walenmatt", region: "Cremines",
     lat: 47.2846, lon: 7.4858, elevation: 1229, dhv: 1780,
@@ -5380,11 +5380,11 @@ const SPOT_DB = [
 
   { id: "db_2071_NO", name: "Weisshorn (NO)", region: "Arosa",
     lat: 46.7895, lon: 9.6387, elevation: 2649, dhv: 2071,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 1034, gemeinde: "7050 Arosa", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", bemerkung: "Winterstartplatz", landeName: "Weisshorn Landeplatz 1", landeLat: 46.7904, landeLon: 9.6729, landeHoehe: 1915, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fb", hoehendiff: 1034, gemeinde: "7050 Arosa", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", bemerkung: "Winterstartplatz", landeName: "Weisshorn Landeplatz 1", landeLat: 46.7904, landeLon: 9.6729, landeHoehe: 1915, landeExtra: [{ name: "Weisshorn Landeplatz 2", lat: 46.775003, lon: 9.686592, hoehe: 1615 }], ...DEF },
 
   { id: "db_2071_SW", name: "Weisshorn (SW)", region: "Arosa",
     lat: 46.789, lon: 9.6378, elevation: 2637, dhv: 2071,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fb", hoehendiff: 1034, gemeinde: "7050 Arosa", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Weisshorn Landeplatz 1", landeLat: 46.7904, landeLon: 9.6729, landeHoehe: 1915, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "ch", acc: "fb", hoehendiff: 1034, gemeinde: "7050 Arosa", bundesland: "Graubünden", gleitschirm: "1- und 2-sitzig", landeName: "Weisshorn Landeplatz 1", landeLat: 46.7904, landeLon: 9.6729, landeHoehe: 1915, landeExtra: [{ name: "Weisshorn Landeplatz 2", lat: 46.775003, lon: 9.686592, hoehe: 1615 }], ...DEF },
 
   { id: "db_1782", name: "Weisshorn Winter", region: "Arosa",
     lat: 46.7891, lon: 9.6392, elevation: 2618, dhv: 1782,
@@ -5400,19 +5400,19 @@ const SPOT_DB = [
 
   { id: "db_1287_N", name: "Wirzweli (N)", region: "Dallenwil",
     lat: 46.9017, lon: 8.3617, elevation: 1567, dhv: 1287,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "ch", acc: "fab", hoehendiff: 1099, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Startplatz befindet sich direkt neben der Bergstation. Er wird vor allem im Winter und Frühjahr als Nordstartplatz genutzt.", landeName: "Wirzweli Landeplatz 2", landeLat: 46.9180, landeLon: 8.3954, landeHoehe: 502, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "ch", acc: "fab", hoehendiff: 1099, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Startplatz befindet sich direkt neben der Bergstation. Er wird vor allem im Winter und Frühjahr als Nordstartplatz genutzt.", landeName: "Wirzweli Landeplatz 2", landeLat: 46.9180, landeLon: 8.3954, landeHoehe: 502, landeExtra: [{ name: "Wirzweli Landeplatz 1", lat: 46.926909, lon: 8.383877, hoehe: 630 }, { name: "Wirzweli Landeplatz 3", lat: 46.920167, lon: 8.397964, hoehe: 500 }], ...DEF },
 
   { id: "db_1287_NO", name: "Wirzweli (NO)", region: "Dallenwil",
     lat: 46.914, lon: 8.3669, elevation: 1228, dhv: 1287,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fab", hoehendiff: 1099, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schulungsstartplatz in breiter Waldschneise.", landeName: "Wirzweli Landeplatz 1", landeLat: 46.9269, landeLon: 8.3839, landeHoehe: 630, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "ch", acc: "fab", hoehendiff: 1099, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schulungsstartplatz in breiter Waldschneise.", landeName: "Wirzweli Landeplatz 1", landeLat: 46.9269, landeLon: 8.3839, landeHoehe: 630, landeExtra: [{ name: "Wirzweli Landeplatz 2", lat: 46.918013, lon: 8.395379, hoehe: 502 }, { name: "Wirzweli Landeplatz 3", lat: 46.920167, lon: 8.397964, hoehe: 500 }], ...DEF },
 
   { id: "db_1287_SO", name: "Wirzweli (SO)", region: "Dallenwil",
     lat: 46.9024, lon: 8.3654, elevation: 1599, dhv: 1287,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fab", hoehendiff: 1099, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startplatz unterhalb des Gipfelkreuzes des Gummen.", landeName: "Wirzweli Landeplatz 2", landeLat: 46.9180, landeLon: 8.3954, landeHoehe: 502, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "ch", acc: "fab", hoehendiff: 1099, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startplatz unterhalb des Gipfelkreuzes des Gummen.", landeName: "Wirzweli Landeplatz 2", landeLat: 46.9180, landeLon: 8.3954, landeHoehe: 502, landeExtra: [{ name: "Wirzweli Landeplatz 1", lat: 46.926909, lon: 8.383877, hoehe: 630 }, { name: "Wirzweli Landeplatz 3", lat: 46.920167, lon: 8.397964, hoehe: 500 }], ...DEF },
 
   { id: "db_1287_W", name: "Wirzweli (W)", region: "Dallenwil",
     lat: 46.9092, lon: 8.3753, elevation: 1474, dhv: 1287,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "ch", acc: "fab", hoehendiff: 1099, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schulungsstartplatz in breiter Waldschneise.", landeName: "Wirzweli Landeplatz 2", landeLat: 46.9180, landeLon: 8.3954, landeHoehe: 502, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "ch", acc: "fab", hoehendiff: 1099, gemeinde: "6383 Dallenwil", bundesland: "Nidwalden", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schulungsstartplatz in breiter Waldschneise.", landeName: "Wirzweli Landeplatz 2", landeLat: 46.9180, landeLon: 8.3954, landeHoehe: 502, landeExtra: [{ name: "Wirzweli Landeplatz 1", lat: 46.926909, lon: 8.383877, hoehe: 630 }, { name: "Wirzweli Landeplatz 3", lat: 46.920167, lon: 8.397964, hoehe: 500 }], ...DEF },
 
   { id: "db_1603_N", name: "Wispile (N)", region: "Gstaad",
     lat: 46.4401, lon: 7.2929, elevation: 1895, dhv: 1603,
@@ -5549,7 +5549,7 @@ const SPOT_DB = [
 
   { id: "db_2140", name: "Auron", region: "St. Etienne de Tinee",
     lat: 44.2363, lon: 6.9045, elevation: 2231, dhv: 2140,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "fr", acc: "fb", hoehendiff: 1101, gemeinde: "06660 St. Etienne de Tinee", bundesland: "Alpes-Maritimes", gleitschirm: "1- und 2-sitzig", landeName: "Auron Landeplatz 2", landeLat: 44.2287, landeLon: 6.9269, landeHoehe: 1630, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "fr", acc: "fb", hoehendiff: 1101, gemeinde: "06660 St. Etienne de Tinee", bundesland: "Alpes-Maritimes", gleitschirm: "1- und 2-sitzig", landeName: "Auron Landeplatz 2", landeLat: 44.2287, landeLon: 6.9269, landeHoehe: 1630, landeExtra: [{ name: "Auron Landeplatz 1", lat: 44.253247, lon: 6.931122, hoehe: 1130 }], ...DEF },
 
   { id: "db_1876", name: "Aussois", region: "Aussois",
     lat: 45.2622, lon: 6.7379, elevation: 2576, dhv: 1876,
@@ -5569,19 +5569,19 @@ const SPOT_DB = [
 
   { id: "db_3098_NO", name: "Ballon D'Alsace (NO)", region: "Saint-Maurice-sur-Moselle",
     lat: 47.8243, lon: 6.8447, elevation: 1230, dhv: 3098,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 627, gemeinde: "88560 Saint-Maurice-sur-Moselle", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", landeName: "Ballon D&#039;Alsace Landeplatz 1", landeLat: 47.8435, landeLon: 6.8594, landeHoehe: 616, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 627, gemeinde: "88560 Saint-Maurice-sur-Moselle", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", landeName: "Ballon D&#039;Alsace Landeplatz 1", landeLat: 47.8435, landeLon: 6.8594, landeHoehe: 616, landeExtra: [{ name: "Ballon D'Alsace Landeplatz 2", lat: 47.836917, lon: 6.815286, hoehe: 608 }], ...DEF },
 
   { id: "db_3098_NW", name: "Ballon D'Alsace (NW)", region: "Saint-Maurice-sur-Moselle",
     lat: 47.8251, lon: 6.8413, elevation: 1232, dhv: 3098,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 627, gemeinde: "88560 Saint-Maurice-sur-Moselle", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", landeName: "Ballon D&#039;Alsace Landeplatz 2", landeLat: 47.8369, landeLon: 6.8153, landeHoehe: 608, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 627, gemeinde: "88560 Saint-Maurice-sur-Moselle", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", landeName: "Ballon D&#039;Alsace Landeplatz 2", landeLat: 47.8369, landeLon: 6.8153, landeHoehe: 608, landeExtra: [{ name: "Ballon D'Alsace Landeplatz 1", lat: 47.843469, lon: 6.859419, hoehe: 616 }], ...DEF },
 
   { id: "db_3098_SO", name: "Ballon D'Alsace (SO)", region: "Saint-Maurice-sur-Moselle",
     lat: 47.8227, lon: 6.846, elevation: 1235, dhv: 3098,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 627, gemeinde: "88560 Saint-Maurice-sur-Moselle", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", landeName: "Ballon D&#039;Alsace Landeplatz 1", landeLat: 47.8435, landeLon: 6.8594, landeHoehe: 616, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 627, gemeinde: "88560 Saint-Maurice-sur-Moselle", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", landeName: "Ballon D&#039;Alsace Landeplatz 1", landeLat: 47.8435, landeLon: 6.8594, landeHoehe: 616, landeExtra: [{ name: "Ballon D'Alsace Landeplatz 2", lat: 47.836917, lon: 6.815286, hoehe: 608 }], ...DEF },
 
   { id: "db_1892", name: "Ban Rouge", region: "Notro Dame de Bellecombes",
     lat: 45.8032, lon: 6.5826, elevation: 1958, dhv: 1892,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 602, gemeinde: "73590 Notro Dame de Bellecombes", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Ban Rouge Landeplatz", landeLat: 45.8073, landeLon: 6.5558, landeHoehe: 1356, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 602, gemeinde: "73590 Notro Dame de Bellecombes", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Ban Rouge Landeplatz", landeLat: 45.8073, landeLon: 6.5558, landeHoehe: 1356, landeExtra: [{ name: "Rochebrune Landeplatz 1", lat: 45.83645, lon: 6.581508, hoehe: 1028 }], ...DEF },
 
   { id: "db_3037", name: "Banc des Deux Amants", region: "Pitres",
     lat: 49.3191, lon: 1.2462, elevation: 107, dhv: 3037,
@@ -5593,7 +5593,7 @@ const SPOT_DB = [
 
   { id: "db_2142", name: "Bargemon", region: "Bargemon",
     lat: 43.6388, lon: 6.5616, elevation: 1015, dhv: 2142,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 659, gemeinde: "83830 Bargemon", bundesland: "Var", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz liegt am Rande eines militärischen Übungsgeländes. Befahrung mit PKW ist lt. Auskunft des lokalen Tourismusbüros nicht erlaubt und nach eigener Besichtigung mit normalem PKW nicht möglich (bestenfalls mit \"echtem\" Geländewagen. Fußmarsch vom Parkplatz beim Landeplatz 1 zum Startplatz mit Gepäck ca. 20-25min (ca. 100 Meter Differenz). Gittertor am Anfang ist immer offen.", landeName: "Bargemon Landeplatz 1", landeLat: 43.6410, landeLon: 6.5680, landeHoehe: 921, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 659, gemeinde: "83830 Bargemon", bundesland: "Var", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz liegt am Rande eines militärischen Übungsgeländes. Befahrung mit PKW ist lt. Auskunft des lokalen Tourismusbüros nicht erlaubt und nach eigener Besichtigung mit normalem PKW nicht möglich (bestenfalls mit \"echtem\" Geländewagen. Fußmarsch vom Parkplatz beim Landeplatz 1 zum Startplatz mit Gepäck ca. 20-25min (ca. 100 Meter Differenz). Gittertor am Anfang ist immer offen.", landeName: "Bargemon Landeplatz 1", landeLat: 43.6410, landeLon: 6.5680, landeHoehe: 921, landeExtra: [{ name: "Bargemon Landeplatz 2", lat: 43.618294, lon: 6.559775, hoehe: 356 }], ...DEF },
 
   { id: "db_3228", name: "Barjac", region: "Barjac",
     lat: 44.5021, lon: 3.4186, elevation: 972, dhv: 3228,
@@ -5601,7 +5601,7 @@ const SPOT_DB = [
 
   { id: "db_3032", name: "Barneville-sur-Seine", region: "Barneville-sur-Seine",
     lat: 49.3881, lon: 0.8487, elevation: 127, dhv: 3032,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 118, gemeinde: "27310 Barneville-sur-Seine", bundesland: "l Eure", gleitschirm: "1- und 2-sitzig", landeName: "Barneville-sur-Seine Landeplatz 2", landeLat: 49.3917, landeLon: 0.8521, landeHoehe: 9, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 118, gemeinde: "27310 Barneville-sur-Seine", bundesland: "l Eure", gleitschirm: "1- und 2-sitzig", landeName: "Barneville-sur-Seine Landeplatz 2", landeLat: 49.3917, landeLon: 0.8521, landeHoehe: 9, landeExtra: [{ name: "Barneville-sur-Seine Landeplatz 1", lat: 49.392306, lon: 0.861097, hoehe: 22 }], ...DEF },
 
   { id: "db_5088", name: "Basse des Feignes", region: "La Bresse",
     lat: 48.0035, lon: 6.8431, elevation: 1011, dhv: 5088,
@@ -5621,7 +5621,7 @@ const SPOT_DB = [
 
   { id: "db_4893", name: "Baulme la Roche", region: "Baulme la Roche",
     lat: 47.3489, lon: 4.8017, elevation: 567, dhv: 4893,
-    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", country: "fr", acc: "fa", hoehendiff: 143, gemeinde: "21410 Baulme la Roche", bundesland: "Cote d Or", gleitschirm: "1- und 2-sitzig", landeName: "Baulme la Roche Landeplatz 1", landeLat: 47.3486, landeLon: 4.7966, landeHoehe: 429, ...DEF },
+    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", country: "fr", acc: "fa", hoehendiff: 143, gemeinde: "21410 Baulme la Roche", bundesland: "Cote d Or", gleitschirm: "1- und 2-sitzig", landeName: "Baulme la Roche Landeplatz 1", landeLat: 47.3486, landeLon: 4.7966, landeHoehe: 429, landeExtra: [{ name: "Baulme la Roche Landeplatz 3", lat: 47.353097, lon: 4.802397, hoehe: 569 }, { name: "Baulme la Roche Landeplatz 2", lat: 47.346328, lon: 4.790117, hoehe: 426 }], ...DEF },
 
   { id: "db_3107", name: "Baume les Dames", region: "Baume-les Dames",
     lat: 47.3489, lon: 6.3808, elevation: 465, dhv: 3107,
@@ -5645,11 +5645,11 @@ const SPOT_DB = [
 
   { id: "db_4962", name: "Belesta", region: "Belesta",
     lat: 42.9, lon: 1.9639, elevation: 908, dhv: 4962,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 386, gemeinde: "09300 Belesta", bundesland: "l Ariege", gleitschirm: "1- und 2-sitzig", landeName: "Belesta Landeplatz 1", landeLat: 42.9106, landeLon: 1.9603, landeHoehe: 551, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 386, gemeinde: "09300 Belesta", bundesland: "l Ariege", gleitschirm: "1- und 2-sitzig", landeName: "Belesta Landeplatz 1", landeLat: 42.9106, landeLon: 1.9603, landeHoehe: 551, landeExtra: [{ name: "Belesta Landeplatz 2", lat: 42.910075, lon: 1.952517, hoehe: 522 }], ...DEF },
 
   { id: "db_5063", name: "Belfahy", region: "Plancher-les-Mines",
     lat: 47.7751, lon: 6.7378, elevation: 811, dhv: 5063,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 303, gemeinde: "70290 Plancher-les-Mines", bundesland: "Haute Saone", gleitschirm: "1- und 2-sitzig", landeName: "Planche des Belles Filles Landeplatz 2", landeLat: 47.7689, landeLon: 6.7435, landeHoehe: 508, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 303, gemeinde: "70290 Plancher-les-Mines", bundesland: "Haute Saone", gleitschirm: "1- und 2-sitzig", landeName: "Planche des Belles Filles Landeplatz 2", landeLat: 47.7689, landeLon: 6.7435, landeHoehe: 508, landeExtra: [{ name: "Planche des Belles Filles Landeplatz 1", lat: 47.776261, lon: 6.761178, hoehe: 574 }], ...DEF },
 
   { id: "db_5055", name: "Belmont", region: "Belmont",
     lat: 48.4192, lon: 7.2389, elevation: 927, dhv: 5055,
@@ -5673,11 +5673,11 @@ const SPOT_DB = [
 
   { id: "db_1272_NW", name: "Bergies (NW)", region: "Sederon",
     lat: 44.2039, lon: 5.5106, elevation: 1332, dhv: 1272,
-    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "fr", acc: "fa", hoehendiff: 534, gemeinde: "26560 Sederon", bundesland: "la Drome", gleitschirm: "1- und 2-sitzig", landeName: "Bergies Landeplatz 2", landeLat: 44.2201, landeLon: 5.5212, landeHoehe: 800, ...DEF },
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "fr", acc: "fa", hoehendiff: 534, gemeinde: "26560 Sederon", bundesland: "la Drome", gleitschirm: "1- und 2-sitzig", landeName: "Bergies Landeplatz 2", landeLat: 44.2201, landeLon: 5.5212, landeHoehe: 800, landeExtra: [{ name: "Bergies Landeplatz 1", lat: 44.196881, lon: 5.537222, hoehe: 819 }], ...DEF },
 
   { id: "db_1272_SO", name: "Bergies (SO)", region: "Sederon",
     lat: 44.2031, lon: 5.5103, elevation: 1334, dhv: 1272,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 534, gemeinde: "26560 Sederon", bundesland: "la Drome", gleitschirm: "1- und 2-sitzig", landeName: "Bergies Landeplatz 2", landeLat: 44.2201, landeLon: 5.5212, landeHoehe: 800, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 534, gemeinde: "26560 Sederon", bundesland: "la Drome", gleitschirm: "1- und 2-sitzig", landeName: "Bergies Landeplatz 2", landeLat: 44.2201, landeLon: 5.5212, landeHoehe: 800, landeExtra: [{ name: "Bergies Landeplatz 1", lat: 44.196881, lon: 5.537222, hoehe: 819 }], ...DEF },
 
   { id: "db_3052", name: "Berjou", region: "Berjou",
     lat: 48.8552, lon: -0.4858, elevation: 224, dhv: 3052,
@@ -5725,7 +5725,7 @@ const SPOT_DB = [
 
   { id: "db_2316", name: "Bouc Blanc", region: "Bozel",
     lat: 45.4107, lon: 6.6146, elevation: 2195, dhv: 2316,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fb", hoehendiff: 1352, gemeinde: "73350 Bozel", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Bouc Blanc Landeplatz", landeLat: 45.4322, landeLon: 6.6195, landeHoehe: 1263, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fb", hoehendiff: 1352, gemeinde: "73350 Bozel", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Bouc Blanc Landeplatz", landeLat: 45.4322, landeLon: 6.6195, landeHoehe: 1263, landeExtra: [{ name: "Bozel Landeplatz", lat: 45.442339, lon: 6.654717, hoehe: 843 }], ...DEF },
 
   { id: "db_2315", name: "Bozel", region: "Bozel",
     lat: 45.4559, lon: 6.6571, elevation: 1461, dhv: 2315,
@@ -5769,11 +5769,11 @@ const SPOT_DB = [
 
   { id: "db_1273_NW", name: "Buc (NW)", region: "Mévouillon",
     lat: 44.2072, lon: 5.4775, elevation: 1427, dhv: 1273,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "f", hoehendiff: 583, gemeinde: "26560 Mévouillon", bundesland: "la Drome", gleitschirm: "1- und 2-sitzig", landeName: "Buc Landeplatz 1", landeLat: 44.2246, landeLon: 5.4681, landeHoehe: 949, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "f", hoehendiff: 583, gemeinde: "26560 Mévouillon", bundesland: "la Drome", gleitschirm: "1- und 2-sitzig", landeName: "Buc Landeplatz 1", landeLat: 44.2246, landeLon: 5.4681, landeHoehe: 949, landeExtra: [{ name: "Buc Landeplatz 2", lat: 44.231619, lon: 5.488547, hoehe: 844 }], ...DEF },
 
   { id: "db_1273_SW", name: "Buc (SW)", region: "Mévouillon",
     lat: 44.2255, lon: 5.4723, elevation: 1023, dhv: 1273,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "f", hoehendiff: 583, gemeinde: "26560 Mévouillon", bundesland: "la Drome", gleitschirm: "1- und 2-sitzig", landeName: "Buc Landeplatz 1", landeLat: 44.2246, landeLon: 5.4681, landeHoehe: 949, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "f", hoehendiff: 583, gemeinde: "26560 Mévouillon", bundesland: "la Drome", gleitschirm: "1- und 2-sitzig", landeName: "Buc Landeplatz 1", landeLat: 44.2246, landeLon: 5.4681, landeHoehe: 949, landeExtra: [{ name: "Buc Landeplatz 2", lat: 44.231619, lon: 5.488547, hoehe: 844 }], ...DEF },
 
   { id: "db_2211", name: "Butte de L'Aigle", region: "Aurel",
     lat: 44.7026, lon: 5.3187, elevation: 930, dhv: 2211,
@@ -5801,11 +5801,11 @@ const SPOT_DB = [
 
   { id: "db_3100_N", name: "Camps de Cesar (N)", region: "Vaivre-et-Montoille",
     lat: 47.6268, lon: 6.0893, elevation: 354, dhv: 3100,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 113, gemeinde: "70000 Vaivre-et-Montoille", bundesland: "Haute Saone", gleitschirm: "1- und 2-sitzig", landeName: "Camps de Cesar Landeplatz 1", landeLat: 47.6319, landeLon: 6.0897, landeHoehe: 251, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 113, gemeinde: "70000 Vaivre-et-Montoille", bundesland: "Haute Saone", gleitschirm: "1- und 2-sitzig", landeName: "Camps de Cesar Landeplatz 1", landeLat: 47.6319, landeLon: 6.0897, landeHoehe: 251, landeExtra: [{ name: "Camps de Cesar Landeplatz 2", lat: 47.620036, lon: 6.088361, hoehe: 294 }], ...DEF },
 
   { id: "db_3100_SW", name: "Camps de Cesar (SW)", region: "Vaivre-et-Montoille",
     lat: 47.6222, lon: 6.0897, elevation: 364, dhv: 3100,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 113, gemeinde: "70000 Vaivre-et-Montoille", bundesland: "Haute Saone", gleitschirm: "1- und 2-sitzig", landeName: "Camps de Cesar Landeplatz 2", landeLat: 47.6200, landeLon: 6.0884, landeHoehe: 294, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 113, gemeinde: "70000 Vaivre-et-Montoille", bundesland: "Haute Saone", gleitschirm: "1- und 2-sitzig", landeName: "Camps de Cesar Landeplatz 2", landeLat: 47.6200, landeLon: 6.0884, landeHoehe: 294, landeExtra: [{ name: "Camps de Cesar Landeplatz 1", lat: 47.631944, lon: 6.089742, hoehe: 251 }], ...DEF },
 
   { id: "db_3330", name: "Caoubere", region: "Bareges",
     lat: 42.9019, lon: 0.1134, elevation: 1822, dhv: 3330,
@@ -5813,7 +5813,7 @@ const SPOT_DB = [
 
   { id: "db_3342", name: "Cap de Pales", region: "Germ",
     lat: 42.7724, lon: 0.4548, elevation: 2186, dhv: 3342,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fab", hoehendiff: 345, gemeinde: "65240 Germ", bundesland: "Haute-Pyrenees", gleitschirm: "1- und 2-sitzig", landeName: "Cap de Pales Landeplatz", landeLat: 42.7798, landeLon: 0.4431, landeHoehe: 1841, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fab", hoehendiff: 345, gemeinde: "65240 Germ", bundesland: "Haute-Pyrenees", gleitschirm: "1- und 2-sitzig", landeName: "Cap de Pales Landeplatz", landeLat: 42.7798, landeLon: 0.4431, landeHoehe: 1841, landeExtra: [{ name: "Val Louron Landeplatz 1", lat: 42.803486, lon: 0.404728, hoehe: 943 }, { name: "Val Louron Landeplatz 2", lat: 42.802233, lon: 0.405606, hoehe: 941 }], ...DEF },
 
   { id: "db_4579", name: "Capu di Manganu", region: "Calacuccia",
     lat: 42.3524, lon: 8.9636, elevation: 1629, dhv: 4579,
@@ -5861,15 +5861,15 @@ const SPOT_DB = [
 
   { id: "db_5008_NO", name: "Cerbere (NO)", region: "Cerbere",
     lat: 42.4513, lon: 3.1497, elevation: 296, dhv: 5008,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 446, gemeinde: "66290 Cerbere", bundesland: "Pyrenees-Orientales", gleitschirm: "1- und 2-sitzig", landeName: "Cerbere Landeplatz 2", landeLat: 42.4600, landeLon: 3.1568, landeHoehe: 5, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 446, gemeinde: "66290 Cerbere", bundesland: "Pyrenees-Orientales", gleitschirm: "1- und 2-sitzig", landeName: "Cerbere Landeplatz 2", landeLat: 42.4600, landeLon: 3.1568, landeHoehe: 5, landeExtra: [{ name: "Cerbere Landeplatz 1", lat: 42.455683, lon: 3.162903, hoehe: 32 }], ...DEF },
 
   { id: "db_5008_O", name: "Cerbere (O)", region: "Cerbere",
     lat: 42.4531, lon: 3.1357, elevation: 451, dhv: 5008,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "fr", acc: "fa", hoehendiff: 446, gemeinde: "66290 Cerbere", bundesland: "Pyrenees-Orientales", gleitschirm: "1- und 2-sitzig", landeName: "Cerbere Landeplatz 2", landeLat: 42.4600, landeLon: 3.1568, landeHoehe: 5, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "fr", acc: "fa", hoehendiff: 446, gemeinde: "66290 Cerbere", bundesland: "Pyrenees-Orientales", gleitschirm: "1- und 2-sitzig", landeName: "Cerbere Landeplatz 2", landeLat: 42.4600, landeLon: 3.1568, landeHoehe: 5, landeExtra: [{ name: "Cerbere Landeplatz 1", lat: 42.455683, lon: 3.162903, hoehe: 32 }], ...DEF },
 
   { id: "db_3348", name: "Ceret", region: "Ceret",
     lat: 42.4591, lon: 2.7675, elevation: 819, dhv: 3348,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 638, gemeinde: "66400 Ceret", bundesland: "Pyrenees-Orientales", gleitschirm: "1- und 2-sitzig", landeName: "Ceret Landeplatz 1", landeLat: 42.4812, landeLon: 2.7759, landeHoehe: 181, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 638, gemeinde: "66400 Ceret", bundesland: "Pyrenees-Orientales", gleitschirm: "1- und 2-sitzig", landeName: "Ceret Landeplatz 1", landeLat: 42.4812, landeLon: 2.7759, landeHoehe: 181, landeExtra: [{ name: "Ceret Landeplatz 2", lat: 42.481081, lon: 2.776811, hoehe: 185 }], ...DEF },
 
   { id: "db_3350", name: "Cervione", region: "Cervione",
     lat: 42.3292, lon: 9.4745, elevation: 743, dhv: 3350,
@@ -5889,11 +5889,11 @@ const SPOT_DB = [
 
   { id: "db_1338_N", name: "Chabre (N)", region: "Laragne",
     lat: 44.3031, lon: 5.7766, elevation: 1264, dhv: 1338,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 778, gemeinde: "05300 Laragne", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Chabre Landeplatz 2", landeLat: 44.2899, landeLon: 5.7678, landeHoehe: 988, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 778, gemeinde: "05300 Laragne", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Chabre Landeplatz 2", landeLat: 44.2899, landeLon: 5.7678, landeHoehe: 988, landeExtra: [{ name: "Chabre Landeplatz 1", lat: 44.279333, lon: 5.775694, hoehe: 734 }, { name: "Chabre Landeplatz 6", lat: 44.262633, lon: 5.741239, hoehe: 653 }, { name: "Chabre Landeplatz 3", lat: 44.319222, lon: 5.794139, hoehe: 570 }, { name: "Chabre Landeplatz 4", lat: 44.311978, lon: 5.834994, hoehe: 569 }, { name: "Chabre Landeplatz 5", lat: 44.24135, lon: 5.844019, hoehe: 536 }], ...DEF },
 
   { id: "db_1338_S", name: "Chabre (S)", region: "Laragne",
     lat: 44.2983, lon: 5.7658, elevation: 1314, dhv: 1338,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 778, gemeinde: "05300 Laragne", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Chabre Landeplatz 2", landeLat: 44.2899, landeLon: 5.7678, landeHoehe: 988, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 778, gemeinde: "05300 Laragne", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Chabre Landeplatz 2", landeLat: 44.2899, landeLon: 5.7678, landeHoehe: 988, landeExtra: [{ name: "Chabre Landeplatz 1", lat: 44.279333, lon: 5.775694, hoehe: 734 }, { name: "Chabre Landeplatz 6", lat: 44.262633, lon: 5.741239, hoehe: 653 }, { name: "Chabre Landeplatz 3", lat: 44.319222, lon: 5.794139, hoehe: 570 }, { name: "Chabre Landeplatz 4", lat: 44.311978, lon: 5.834994, hoehe: 569 }, { name: "Chabre Landeplatz 5", lat: 44.24135, lon: 5.844019, hoehe: 536 }], ...DEF },
 
   { id: "db_1846", name: "Chalais", region: "Voreppe",
     lat: 45.2932, lon: 5.661, elevation: 1033, dhv: 1846,
@@ -5913,7 +5913,7 @@ const SPOT_DB = [
 
   { id: "db_2158", name: "Champfromier", region: "Champfromier",
     lat: 46.2148, lon: 5.8144, elevation: 1187, dhv: 2158,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 536, gemeinde: "01410 Champfromier", bundesland: "l Ain", gleitschirm: "1- und 2-sitzig", landeName: "Champfromier Landeplatz 2", landeLat: 46.2065, landeLon: 5.8132, landeHoehe: 738, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 536, gemeinde: "01410 Champfromier", bundesland: "l Ain", gleitschirm: "1- und 2-sitzig", landeName: "Champfromier Landeplatz 2", landeLat: 46.2065, landeLon: 5.8132, landeHoehe: 738, landeExtra: [{ name: "Champfromier Landeplatz 1", lat: 46.192939, lon: 5.814758, hoehe: 651 }], ...DEF },
 
   { id: "db_3085", name: "Champis", region: "La Bresse",
     lat: 48.033, lon: 6.9465, elevation: 1173, dhv: 3085,
@@ -5945,11 +5945,11 @@ const SPOT_DB = [
 
   { id: "db_3196_N", name: "Chassaure (N)", region: "Lavoute-sur-Loire",
     lat: 45.1124, lon: 3.9169, elevation: 873, dhv: 3196,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "fr", acc: "fa", hoehendiff: 365, gemeinde: "43800 Lavoute-sur-Loire", bundesland: "La Haute-Loire", gleitschirm: "1- und 2-sitzig", landeName: "Chassaure Landeplatz 1", landeLat: 45.1207, landeLon: 3.9159, landeHoehe: 555, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "fr", acc: "fa", hoehendiff: 365, gemeinde: "43800 Lavoute-sur-Loire", bundesland: "La Haute-Loire", gleitschirm: "1- und 2-sitzig", landeName: "Chassaure Landeplatz 1", landeLat: 45.1207, landeLon: 3.9159, landeHoehe: 555, landeExtra: [{ name: "Chassaure Landeplatz 2", lat: 45.110114, lon: 3.939958, hoehe: 622 }], ...DEF },
 
   { id: "db_3196_NO", name: "Chassaure (NO)", region: "Lavoute-sur-Loire",
     lat: 45.1034, lon: 3.9301, elevation: 920, dhv: 3196,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "fr", acc: "fa", hoehendiff: 365, gemeinde: "43800 Lavoute-sur-Loire", bundesland: "La Haute-Loire", gleitschirm: "1- und 2-sitzig", landeName: "Chassaure Landeplatz 2", landeLat: 45.1101, landeLon: 3.9400, landeHoehe: 622, ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "fr", acc: "fa", hoehendiff: 365, gemeinde: "43800 Lavoute-sur-Loire", bundesland: "La Haute-Loire", gleitschirm: "1- und 2-sitzig", landeName: "Chassaure Landeplatz 2", landeLat: 45.1101, landeLon: 3.9400, landeHoehe: 622, landeExtra: [{ name: "Chassaure Landeplatz 1", lat: 45.120719, lon: 3.915914, hoehe: 555 }], ...DEF },
 
   { id: "db_1803", name: "Chastelard", region: "Banon",
     lat: 44.0513, lon: 5.6835, elevation: 902, dhv: 1803,
@@ -6045,15 +6045,15 @@ const SPOT_DB = [
 
   { id: "db_1264_NW", name: "Col de Forclaz (NW)", region: "Doussard",
     lat: 45.8084, lon: 6.2443, elevation: 1153, dhv: 1264,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 823, gemeinde: "74210 Doussard", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Col de Forclaz Landeplatz GS 3", landeLat: 45.7819, landeLon: 6.2218, landeHoehe: 465, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 823, gemeinde: "74210 Doussard", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Col de Forclaz Landeplatz GS 3", landeLat: 45.7819, landeLon: 6.2218, landeHoehe: 465, landeExtra: [{ name: "Col de Forclaz Landeplatz GS 1", lat: 45.848652, lon: 6.213648, hoehe: 550 }, { name: "Col de Forclaz Landeplatz GS 4", lat: 45.84774, lon: 6.210816, hoehe: 550 }], ...DEF },
 
   { id: "db_1264_SW", name: "Col de Forclaz (SW)", region: "Doussard",
     lat: 45.8116, lon: 6.2445, elevation: 1189, dhv: 1264,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 823, gemeinde: "74210 Doussard", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Col de Forclaz Landeplatz GS 3", landeLat: 45.7819, landeLon: 6.2218, landeHoehe: 465, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 823, gemeinde: "74210 Doussard", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Col de Forclaz Landeplatz GS 3", landeLat: 45.7819, landeLon: 6.2218, landeHoehe: 465, landeExtra: [{ name: "Col de Forclaz Landeplatz GS 1", lat: 45.848652, lon: 6.213648, hoehe: 550 }, { name: "Col de Forclaz Landeplatz GS 4", lat: 45.84774, lon: 6.210816, hoehe: 550 }], ...DEF },
 
   { id: "db_1264_W", name: "Col de Forclaz (W)", region: "Doussard",
     lat: 45.8141, lon: 6.247, elevation: 1288, dhv: 1264,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "fr", acc: "fa", hoehendiff: 823, gemeinde: "74210 Doussard", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Col de Forclaz Landeplatz GS 3", landeLat: 45.7819, landeLon: 6.2218, landeHoehe: 465, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "fr", acc: "fa", hoehendiff: 823, gemeinde: "74210 Doussard", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Col de Forclaz Landeplatz GS 3", landeLat: 45.7819, landeLon: 6.2218, landeHoehe: 465, landeExtra: [{ name: "Col de Forclaz Landeplatz GS 1", lat: 45.848652, lon: 6.213648, hoehe: 550 }, { name: "Col de Forclaz Landeplatz GS 4", lat: 45.84774, lon: 6.210816, hoehe: 550 }], ...DEF },
 
   { id: "db_3334", name: "Col de la Core", region: "Bethmale",
     lat: 42.8616, lon: 1.1084, elevation: 1452, dhv: 3334,
@@ -6065,7 +6065,7 @@ const SPOT_DB = [
 
   { id: "db_2318", name: "Col de la Loze", region: "Bozel",
     lat: 45.4081, lon: 6.6027, elevation: 2294, dhv: 2318,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fb", hoehendiff: 1031, gemeinde: "73350 Bozel", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Bouc Blanc Landeplatz", landeLat: 45.4322, landeLon: 6.6195, landeHoehe: 1263, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fb", hoehendiff: 1031, gemeinde: "73350 Bozel", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Bouc Blanc Landeplatz", landeLat: 45.4322, landeLon: 6.6195, landeHoehe: 1263, landeExtra: [{ name: "Bozel Landeplatz", lat: 45.442339, lon: 6.654717, hoehe: 843 }], ...DEF },
 
   { id: "db_2199", name: "Col de Meyrand", region: "Valgorge",
     lat: 44.6068, lon: 4.0761, elevation: 1376, dhv: 2199,
@@ -6113,11 +6113,11 @@ const SPOT_DB = [
 
   { id: "db_2144", name: "Col du Lachens Süd", region: "La Roque Esclapon",
     lat: 43.7445, lon: 6.657, elevation: 1616, dhv: 2144,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 684, gemeinde: "83840 La Roque Esclapon", bundesland: "Var", gleitschirm: "1- und 2-sitzig", landeName: "Col du Lachens Süd Landeplatz 1", landeLat: 43.7354, landeLon: 6.6599, landeHoehe: 1187, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 684, gemeinde: "83840 La Roque Esclapon", bundesland: "Var", gleitschirm: "1- und 2-sitzig", landeName: "Col du Lachens Süd Landeplatz 1", landeLat: 43.7354, landeLon: 6.6599, landeHoehe: 1187, landeExtra: [{ name: "Col du Lachens Süd Landeplatz 4", lat: 43.726169, lon: 6.635928, hoehe: 1031 }, { name: "Col du Lachens Süd Landeplatz 2", lat: 43.721531, lon: 6.626356, hoehe: 948 }, { name: "Col du Lachens Süd Landeplatz 3", lat: 43.719039, lon: 6.621478, hoehe: 932 }], ...DEF },
 
   { id: "db_2145", name: "Col du Lachens West", region: "La Roque Esclapon",
     lat: 43.7391, lon: 6.641, elevation: 1427, dhv: 2145,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 495, gemeinde: "83840 La Roque Esclapon", bundesland: "Var", gleitschirm: "1- und 2-sitzig", landeName: "Col du Lachens Süd Landeplatz 4", landeLat: 43.7262, landeLon: 6.6359, landeHoehe: 1031, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 495, gemeinde: "83840 La Roque Esclapon", bundesland: "Var", gleitschirm: "1- und 2-sitzig", landeName: "Col du Lachens Süd Landeplatz 4", landeLat: 43.7262, landeLon: 6.6359, landeHoehe: 1031, landeExtra: [{ name: "Col du Lachens Süd Landeplatz 1", lat: 43.735436, lon: 6.659931, hoehe: 1187 }, { name: "Col du Lachens Süd Landeplatz 2", lat: 43.721531, lon: 6.626356, hoehe: 948 }, { name: "Col du Lachens Süd Landeplatz 3", lat: 43.719039, lon: 6.621478, hoehe: 932 }], ...DEF },
 
   { id: "db_5027", name: "Col du Noyer", region: "Le Noyer",
     lat: 44.6913, lon: 5.986, elevation: 1655, dhv: 5027,
@@ -6133,7 +6133,7 @@ const SPOT_DB = [
 
   { id: "db_1856", name: "Col du Serpaton", region: "Gresse en Vercors",
     lat: 44.91, lon: 5.5905, elevation: 1578, dhv: 1856,
-    sectors: [[78.75, 146.25], [258.75, 281.25]], sectorLabel: "O-SO · W", country: "fr", acc: "fa", hoehendiff: 603, gemeinde: "38650 Gresse en Vercors", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "Col du Serpaton Landeplatz 2", landeLat: 44.9075, landeLon: 5.5683, landeHoehe: 1173, ...DEF },
+    sectors: [[78.75, 146.25], [258.75, 281.25]], sectorLabel: "O-SO · W", country: "fr", acc: "fa", hoehendiff: 603, gemeinde: "38650 Gresse en Vercors", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "Col du Serpaton Landeplatz 2", landeLat: 44.9075, landeLon: 5.5683, landeHoehe: 1173, landeExtra: [{ name: "Col du Serpaton Landeplatz 1", lat: 44.918408, lon: 5.614142, hoehe: 975 }], ...DEF },
 
   { id: "db_1865", name: "Col du Trallu", region: "Peyrus",
     lat: 44.8901, lon: 5.1413, elevation: 994, dhv: 1865,
@@ -6241,11 +6241,11 @@ const SPOT_DB = [
 
   { id: "db_4916_O", name: "Cret de L'Oeillon (O)", region: "Doizieux",
     lat: 45.3937, lon: 4.613, elevation: 1321, dhv: 4916,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fa", hoehendiff: 909, gemeinde: "42740 Doizieux", bundesland: "la Loire", gleitschirm: "1- und 2-sitzig", landeName: "Cret de L&#039;Oeillon Landeplatz 1", landeLat: 45.3830, landeLon: 4.6109, landeHoehe: 1146, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fa", hoehendiff: 909, gemeinde: "42740 Doizieux", bundesland: "la Loire", gleitschirm: "1- und 2-sitzig", landeName: "Cret de L&#039;Oeillon Landeplatz 1", landeLat: 45.3830, landeLon: 4.6109, landeHoehe: 1146, landeExtra: [{ name: "Cret de L'Oeillon Landeplatz 2", lat: 45.419506, lon: 4.673594, hoehe: 464 }], ...DEF },
 
   { id: "db_4916_S", name: "Cret de L'Oeillon (S)", region: "Doizieux",
     lat: 45.3887, lon: 4.6044, elevation: 1373, dhv: 4916,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 909, gemeinde: "42740 Doizieux", bundesland: "la Loire", gleitschirm: "1- und 2-sitzig", landeName: "Cret de L&#039;Oeillon Landeplatz 1", landeLat: 45.3830, landeLon: 4.6109, landeHoehe: 1146, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 909, gemeinde: "42740 Doizieux", bundesland: "la Loire", gleitschirm: "1- und 2-sitzig", landeName: "Cret de L&#039;Oeillon Landeplatz 1", landeLat: 45.3830, landeLon: 4.6109, landeHoehe: 1146, landeExtra: [{ name: "Cret de L'Oeillon Landeplatz 2", lat: 45.419506, lon: 4.673594, hoehe: 464 }], ...DEF },
 
   { id: "db_2204", name: "Crete de Charmy", region: "Confort",
     lat: 46.1609, lon: 5.8358, elevation: 976, dhv: 2204,
@@ -6301,7 +6301,7 @@ const SPOT_DB = [
 
   { id: "db_1861", name: "Dent de Crolles", region: "Saint Hilaire",
     lat: 45.3087, lon: 5.8549, elevation: 2032, dhv: 1861,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "f", hoehendiff: 1578, gemeinde: "38660 Saint Hilaire", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "St. Hilaire Landeplatz 1", landeLat: 45.3021, landeLon: 5.9062, landeHoehe: 236, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "f", hoehendiff: 1578, gemeinde: "38660 Saint Hilaire", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "St. Hilaire Landeplatz 1", landeLat: 45.3021, landeLon: 5.9062, landeHoehe: 236, landeExtra: [{ name: "Dent de Crolles Landeplatz", lat: 45.265767, lon: 5.842025, hoehe: 454 }], ...DEF },
 
   { id: "db_1858_NW", name: "Dent Percee (NW)", region: "Lans en Versors",
     lat: 45.1043, lon: 5.6189, elevation: 1779, dhv: 1858,
@@ -6333,15 +6333,15 @@ const SPOT_DB = [
 
   { id: "db_5017_NW", name: "Dormillouse (NW)", region: "Montclar",
     lat: 44.4081, lon: 6.3856, elevation: 2459, dhv: 5017,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 591, gemeinde: "04140 Montclar", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Saint-Vincent-Les-Forts (St. Vincent) Landeplatz 1", landeLat: 44.4582, landeLon: 6.3654, landeHoehe: 785, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 591, gemeinde: "04140 Montclar", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Saint-Vincent-Les-Forts (St. Vincent) Landeplatz 1", landeLat: 44.4582, landeLon: 6.3654, landeHoehe: 785, landeExtra: [{ name: "Col Bas Landeplatz", lat: 44.372356, lon: 6.357228, hoehe: 1290 }], ...DEF },
 
   { id: "db_5017_W", name: "Dormillouse (W)", region: "Montclar",
     lat: 44.4032, lon: 6.3703, elevation: 1868, dhv: 5017,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 591, gemeinde: "04140 Montclar", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Saint-Vincent-Les-Forts (St. Vincent) Landeplatz 1", landeLat: 44.4582, landeLon: 6.3654, landeHoehe: 785, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 591, gemeinde: "04140 Montclar", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Saint-Vincent-Les-Forts (St. Vincent) Landeplatz 1", landeLat: 44.4582, landeLon: 6.3654, landeHoehe: 785, landeExtra: [{ name: "Col Bas Landeplatz", lat: 44.372356, lon: 6.357228, hoehe: 1290 }], ...DEF },
 
   { id: "db_3238", name: "Douelle", region: "Douelle",
     lat: 44.4637, lon: 1.3722, elevation: 285, dhv: 3238,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 176, gemeinde: "46140 Douelle", bundesland: "Lot", gleitschirm: "1- und 2-sitzig", landeName: "Douelle Landeplatz 1", landeLat: 44.4683, landeLon: 1.3709, landeHoehe: 110, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 176, gemeinde: "46140 Douelle", bundesland: "Lot", gleitschirm: "1- und 2-sitzig", landeName: "Douelle Landeplatz 1", landeLat: 44.4683, landeLon: 1.3709, landeHoehe: 110, landeExtra: [{ name: "Douelle Landeplatz 3", lat: 44.469856, lon: 1.369128, hoehe: 117 }, { name: "Douelle Landeplatz 2", lat: 44.469253, lon: 1.373428, hoehe: 109 }], ...DEF },
 
   { id: "db_5009_N", name: "Dourgne (N)", region: "Dourgne",
     lat: 43.4794, lon: 2.1638, elevation: 547, dhv: 5009,
@@ -6385,7 +6385,7 @@ const SPOT_DB = [
 
   { id: "db_1825", name: "Entrevernes", region: "Lathuile",
     lat: 45.7889, lon: 6.1938, elevation: 824, dhv: 1825,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "fr", acc: "fa", hoehendiff: 354, gemeinde: "74210 Lathuile", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Entrevernes Landeplatz", landeLat: 45.7940, landeLon: 6.2049, landeHoehe: 470, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "fr", acc: "fa", hoehendiff: 354, gemeinde: "74210 Lathuile", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Entrevernes Landeplatz", landeLat: 45.7940, landeLon: 6.2049, landeHoehe: 470, landeExtra: [{ name: "Col de Forclaz Landeplatz GS 3", lat: 45.781931, lon: 6.221833, hoehe: 465 }], ...DEF },
 
   { id: "db_2417", name: "Etretat 1", region: "Etretat",
     lat: 49.7114, lon: 0.2056, elevation: 53, dhv: 2417,
@@ -6409,7 +6409,7 @@ const SPOT_DB = [
 
   { id: "db_3349", name: "Fontfrede", region: "Ceret",
     lat: 42.4502, lon: 2.7643, elevation: 1008, dhv: 3349,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "fr", acc: "fa", hoehendiff: 558, gemeinde: "66400 Ceret", bundesland: "Pyrenees-Orientales", gleitschirm: "1- und 2-sitzig", landeName: "Fontfrede Landeplatz", landeLat: 42.4562, landeLon: 2.7906, landeHoehe: 450, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "fr", acc: "fa", hoehendiff: 558, gemeinde: "66400 Ceret", bundesland: "Pyrenees-Orientales", gleitschirm: "1- und 2-sitzig", landeName: "Fontfrede Landeplatz", landeLat: 42.4562, landeLon: 2.7906, landeHoehe: 450, landeExtra: [{ name: "Ceret Landeplatz 1", lat: 42.481247, lon: 2.775936, hoehe: 181 }], ...DEF },
 
   { id: "db_5005", name: "Forca Real", region: "Montner",
     lat: 42.7266, lon: 2.7015, elevation: 448, dhv: 5005,
@@ -6509,7 +6509,7 @@ const SPOT_DB = [
 
   { id: "db_3019", name: "Grand Terne", region: "Joigny-sur-Meuse",
     lat: 49.8416, lon: 4.7633, elevation: 236, dhv: 3019,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fa", hoehendiff: 97, gemeinde: "08700 Joigny-sur-Meuse", bundesland: "Ardennes", gleitschirm: "1- und 2-sitzig", landeName: "Grand Terne Landeplatz", landeLat: 49.8367, landeLon: 4.7674, landeHoehe: 139, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fa", hoehendiff: 97, gemeinde: "08700 Joigny-sur-Meuse", bundesland: "Ardennes", gleitschirm: "1- und 2-sitzig", landeName: "Grand Terne Landeplatz", landeLat: 49.8367, landeLon: 4.7674, landeHoehe: 139, landeExtra: [{ name: "Grand Terne Landeplatz 2", lat: 49.834141, lon: 4.760985, hoehe: 139 }], ...DEF },
 
   { id: "db_3188", name: "Grand Togny", region: "Vanosc",
     lat: 45.2484, lon: 4.5363, elevation: 1130, dhv: 3188,
@@ -6641,11 +6641,11 @@ const SPOT_DB = [
 
   { id: "db_1798_O", name: "L'Andran (O)", region: "Digne les Bains",
     lat: 44.1157, lon: 6.2137, elevation: 1195, dhv: 1798,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fa", hoehendiff: 570, gemeinde: "04000 Digne les Bains", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "L&#039;Andran Landeplatz 1", landeLat: 44.1147, landeLon: 6.2333, landeHoehe: 625, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fa", hoehendiff: 570, gemeinde: "04000 Digne les Bains", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "L&#039;Andran Landeplatz 1", landeLat: 44.1147, landeLon: 6.2333, landeHoehe: 625, landeExtra: [{ name: "L'Andran Landeplatz 2", lat: 44.099442, lon: 6.220358, hoehe: 812 }], ...DEF },
 
   { id: "db_1798_SW", name: "L'Andran (SW)", region: "Digne les Bains",
     lat: 44.1138, lon: 6.2148, elevation: 1177, dhv: 1798,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 570, gemeinde: "04000 Digne les Bains", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "L&#039;Andran Landeplatz 1", landeLat: 44.1147, landeLon: 6.2333, landeHoehe: 625, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 570, gemeinde: "04000 Digne les Bains", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "L&#039;Andran Landeplatz 1", landeLat: 44.1147, landeLon: 6.2333, landeHoehe: 625, landeExtra: [{ name: "L'Andran Landeplatz 2", lat: 44.099442, lon: 6.220358, hoehe: 812 }], ...DEF },
 
   { id: "db_3152", name: "L'Angleton", region: "Le Poizat",
     lat: 46.1423, lon: 5.7056, elevation: 1145, dhv: 3152,
@@ -6669,11 +6669,11 @@ const SPOT_DB = [
 
   { id: "db_4975_NW", name: "L'Etang (NW)", region: "Saint-Beat",
     lat: 42.9023, lon: 0.7672, elevation: 1793, dhv: 4975,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fab", hoehendiff: 1278, gemeinde: "31440 Saint-Beat", bundesland: "Haute-Garonne", gleitschirm: "1- und 2-sitzig", landeName: "L&#039;Etang Landeplatz 2", landeLat: 42.9237, landeLon: 0.7182, landeHoehe: 805, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fab", hoehendiff: 1278, gemeinde: "31440 Saint-Beat", bundesland: "Haute-Garonne", gleitschirm: "1- und 2-sitzig", landeName: "L&#039;Etang Landeplatz 2", landeLat: 42.9237, landeLon: 0.7182, landeHoehe: 805, landeExtra: [{ name: "L'Etang Landeplatz 1", lat: 42.908369, lon: 0.698703, hoehe: 515 }], ...DEF },
 
   { id: "db_4975_W", name: "L'Etang (W)", region: "Saint-Beat",
     lat: 42.8983, lon: 0.7551, elevation: 1705, dhv: 4975,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fab", hoehendiff: 1278, gemeinde: "31440 Saint-Beat", bundesland: "Haute-Garonne", gleitschirm: "1- und 2-sitzig", landeName: "L&#039;Etang Landeplatz 2", landeLat: 42.9237, landeLon: 0.7182, landeHoehe: 805, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fab", hoehendiff: 1278, gemeinde: "31440 Saint-Beat", bundesland: "Haute-Garonne", gleitschirm: "1- und 2-sitzig", landeName: "L&#039;Etang Landeplatz 2", landeLat: 42.9237, landeLon: 0.7182, landeHoehe: 805, landeExtra: [{ name: "L'Etang Landeplatz 1", lat: 42.908369, lon: 0.698703, hoehe: 515 }], ...DEF },
 
   { id: "db_3028", name: "L'Otan", region: "Octeville-sur-Mer",
     lat: 49.5474, lon: 0.0861, elevation: 94, dhv: 3028,
@@ -6697,7 +6697,7 @@ const SPOT_DB = [
 
   { id: "db_1878", name: "La Cachette", region: "Bourg St. Maurice",
     lat: 45.584, lon: 6.804, elevation: 2129, dhv: 1878,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fab", hoehendiff: 1372, gemeinde: "73700 Bourg St. Maurice", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Vallandry Landeplatz 1", landeLat: 45.5917, landeLon: 6.7515, landeHoehe: 757, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fab", hoehendiff: 1372, gemeinde: "73700 Bourg St. Maurice", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Vallandry Landeplatz 1", landeLat: 45.5917, landeLon: 6.7515, landeHoehe: 757, landeExtra: [{ name: "Vallandry Landeplatz 2", lat: 45.617553, lon: 6.773453, hoehe: 806 }], ...DEF },
 
   { id: "db_5041", name: "La Cadiere D'Azur", region: "La Cardiere D&#039;Azur",
     lat: 43.1971, lon: 5.7366, elevation: 219, dhv: 5041,
@@ -6705,7 +6705,7 @@ const SPOT_DB = [
 
   { id: "db_1850", name: "La Chapelle", region: "Allevard",
     lat: 45.3852, lon: 6.0387, elevation: 996, dhv: 1850,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 491, gemeinde: "38580 Allevard", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "Malatrait Landeplatz 2", landeLat: 45.3766, landeLon: 6.0553, landeHoehe: 505, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 491, gemeinde: "38580 Allevard", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "Malatrait Landeplatz 2", landeLat: 45.3766, landeLon: 6.0553, landeHoehe: 505, landeExtra: [{ name: "Malatrait Landeplatz 1", lat: 45.385858, lon: 6.067844, hoehe: 496 }], ...DEF },
 
   { id: "db_1832", name: "La Chapelle des Hermones", region: "Ocier",
     lat: 46.3069, lon: 6.5181, elevation: 1303, dhv: 1832,
@@ -6797,15 +6797,15 @@ const SPOT_DB = [
 
   { id: "db_2170", name: "La Liouffe", region: "Ancy",
     lat: 45.8384, lon: 4.495, elevation: 702, dhv: 2170,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 210, gemeinde: "69490 Ancy", bundesland: "Rhone", gleitschirm: "1- und 2-sitzig", landeName: "La Liouffe Landeplatz 1", landeLat: 45.8431, landeLon: 4.4949, landeHoehe: 564, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 210, gemeinde: "69490 Ancy", bundesland: "Rhone", gleitschirm: "1- und 2-sitzig", landeName: "La Liouffe Landeplatz 1", landeLat: 45.8431, landeLon: 4.4949, landeHoehe: 564, landeExtra: [{ name: "La Liouffe Landeplatz 2", lat: 45.835417, lon: 4.508286, hoehe: 492 }], ...DEF },
 
   { id: "db_1336_S", name: "La Longeagne (S)", region: "Aspres",
     lat: 44.5408, lon: 5.7129, elevation: 1517, dhv: 1336,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fa", hoehendiff: 712, gemeinde: "05140 Aspres", bundesland: "Hautes-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "La Longeagne Landeplatz 1", landeLat: 44.5244, landeLon: 5.7069, landeHoehe: 827, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fa", hoehendiff: 712, gemeinde: "05140 Aspres", bundesland: "Hautes-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "La Longeagne Landeplatz 1", landeLat: 44.5244, landeLon: 5.7069, landeHoehe: 827, landeExtra: [{ name: "La Longeagne Landeplatz 2", lat: 44.520392, lon: 5.738597, hoehe: 817 }], ...DEF },
 
   { id: "db_1336_SW", name: "La Longeagne (SW)", region: "Aspres",
     lat: 44.5505, lon: 5.7019, elevation: 1529, dhv: 1336,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 712, gemeinde: "05140 Aspres", bundesland: "Hautes-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "La Longeagne Landeplatz 1", landeLat: 44.5244, landeLon: 5.7069, landeHoehe: 827, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 712, gemeinde: "05140 Aspres", bundesland: "Hautes-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "La Longeagne Landeplatz 1", landeLat: 44.5244, landeLon: 5.7069, landeHoehe: 827, landeExtra: [{ name: "La Longeagne Landeplatz 2", lat: 44.520392, lon: 5.738597, hoehe: 817 }], ...DEF },
 
   { id: "db_3284", name: "La Marche", region: "Saint-Antonin",
     lat: 44.145, lon: 1.7799, elevation: 316, dhv: 3284,
@@ -6829,7 +6829,7 @@ const SPOT_DB = [
 
   { id: "db_3191", name: "La Paille", region: "Satillieu",
     lat: 45.1439, lon: 4.6251, elevation: 773, dhv: 3191,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 307, gemeinde: "07290 Satillieu", bundesland: "l Ardeche", gleitschirm: "1- und 2-sitzig", landeName: "La Paille Landeplatz 1", landeLat: 45.1535, landeLon: 4.6226, landeHoehe: 466, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 307, gemeinde: "07290 Satillieu", bundesland: "l Ardeche", gleitschirm: "1- und 2-sitzig", landeName: "La Paille Landeplatz 1", landeLat: 45.1535, landeLon: 4.6226, landeHoehe: 466, landeExtra: [{ name: "La Paille Landeplatz 2", lat: 45.145833, lon: 4.610867, hoehe: 512 }], ...DEF },
 
   { id: "db_3215", name: "La Palombiere", region: "Saint-Cyprien",
     lat: 44.8598, lon: 1.0203, elevation: 198, dhv: 3215,
@@ -6869,27 +6869,27 @@ const SPOT_DB = [
 
   { id: "db_1848_S", name: "La Scia (S)", region: "St. Pierre",
     lat: 45.3451, lon: 5.8482, elevation: 1684, dhv: 1848,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fab", hoehendiff: 812, gemeinde: "38380 St. Pierre", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "La Scia Landeplatz 1", landeLat: 45.3336, landeLon: 5.8425, landeHoehe: 965, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fab", hoehendiff: 812, gemeinde: "38380 St. Pierre", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "La Scia Landeplatz 1", landeLat: 45.3336, landeLon: 5.8425, landeHoehe: 965, landeExtra: [{ name: "La Scia Landeplatz 2", lat: 45.325292, lon: 5.806017, hoehe: 872 }], ...DEF },
 
   { id: "db_1848_W", name: "La Scia (W)", region: "St. Pierre",
     lat: 45.3454, lon: 5.8459, elevation: 1650, dhv: 1848,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fab", hoehendiff: 812, gemeinde: "38380 St. Pierre", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "La Scia Landeplatz 1", landeLat: 45.3336, landeLon: 5.8425, landeHoehe: 965, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fab", hoehendiff: 812, gemeinde: "38380 St. Pierre", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "La Scia Landeplatz 1", landeLat: 45.3336, landeLon: 5.8425, landeHoehe: 965, landeExtra: [{ name: "La Scia Landeplatz 2", lat: 45.325292, lon: 5.806017, hoehe: 872 }], ...DEF },
 
   { id: "db_3301_S", name: "La Seranne (S)", region: "Les Prats",
     lat: 43.8678, lon: 3.6391, elevation: 878, dhv: 3301,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 754, gemeinde: "34190 Les Prats", bundesland: "l Herault", gleitschirm: "1- und 2-sitzig", landeName: "La Seranne Landeplatz 1", landeLat: 43.8502, landeLon: 3.6502, landeHoehe: 171, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 754, gemeinde: "34190 Les Prats", bundesland: "l Herault", gleitschirm: "1- und 2-sitzig", landeName: "La Seranne Landeplatz 1", landeLat: 43.8502, landeLon: 3.6502, landeHoehe: 171, landeExtra: [{ name: "La Seranne Landeplatz 2", lat: 43.895744, lon: 3.6996, hoehe: 166 }], ...DEF },
 
   { id: "db_3301_SO", name: "La Seranne (SO)", region: "Les Prats",
     lat: 43.8691, lon: 3.6406, elevation: 896, dhv: 3301,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 754, gemeinde: "34190 Les Prats", bundesland: "l Herault", gleitschirm: "1- und 2-sitzig", landeName: "La Seranne Landeplatz 1", landeLat: 43.8502, landeLon: 3.6502, landeHoehe: 171, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 754, gemeinde: "34190 Les Prats", bundesland: "l Herault", gleitschirm: "1- und 2-sitzig", landeName: "La Seranne Landeplatz 1", landeLat: 43.8502, landeLon: 3.6502, landeHoehe: 171, landeExtra: [{ name: "La Seranne Landeplatz 2", lat: 43.895744, lon: 3.6996, hoehe: 166 }], ...DEF },
 
   { id: "db_3301_SW", name: "La Seranne (SW)", region: "Les Prats",
     lat: 43.8679, lon: 3.6367, elevation: 896, dhv: 3301,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 754, gemeinde: "34190 Les Prats", bundesland: "l Herault", gleitschirm: "1- und 2-sitzig", landeName: "La Seranne Landeplatz 1", landeLat: 43.8502, landeLon: 3.6502, landeHoehe: 171, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 754, gemeinde: "34190 Les Prats", bundesland: "l Herault", gleitschirm: "1- und 2-sitzig", landeName: "La Seranne Landeplatz 1", landeLat: 43.8502, landeLon: 3.6502, landeHoehe: 171, landeExtra: [{ name: "La Seranne Landeplatz 2", lat: 43.895744, lon: 3.6996, hoehe: 166 }], ...DEF },
 
   { id: "db_3301_W", name: "La Seranne (W)", region: "Les Prats",
     lat: 43.8706, lon: 3.6404, elevation: 920, dhv: 3301,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 754, gemeinde: "34190 Les Prats", bundesland: "l Herault", gleitschirm: "1- und 2-sitzig", landeName: "La Seranne Landeplatz 1", landeLat: 43.8502, landeLon: 3.6502, landeHoehe: 171, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 754, gemeinde: "34190 Les Prats", bundesland: "l Herault", gleitschirm: "1- und 2-sitzig", landeName: "La Seranne Landeplatz 1", landeLat: 43.8502, landeLon: 3.6502, landeHoehe: 171, landeExtra: [{ name: "La Seranne Landeplatz 2", lat: 43.895744, lon: 3.6996, hoehe: 166 }], ...DEF },
 
   { id: "db_2172", name: "La Sevoliere", region: "La Rosiere",
     lat: 45.6401, lon: 6.8519, elevation: 2096, dhv: 2172,
@@ -6949,7 +6949,7 @@ const SPOT_DB = [
 
   { id: "db_2544", name: "Laifour", region: "Laifour",
     lat: 49.9171, lon: 4.7046, elevation: 336, dhv: 2544,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 199, gemeinde: "08800 Laifour", bundesland: "Ardennes", gleitschirm: "1- und 2-sitzig", landeName: "Laifour Landeplatz 1", landeLat: 49.9147, landeLon: 4.7014, landeHoehe: 144, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 199, gemeinde: "08800 Laifour", bundesland: "Ardennes", gleitschirm: "1- und 2-sitzig", landeName: "Laifour Landeplatz 1", landeLat: 49.9147, landeLon: 4.7014, landeHoehe: 144, landeExtra: [{ name: "Laifour Landeplatz 2", lat: 49.913019, lon: 4.7004, hoehe: 137 }], ...DEF },
 
   { id: "db_3089", name: "Lambert", region: "Saulxures-sur-Moselotte",
     lat: 47.9643, lon: 6.8039, elevation: 915, dhv: 3089,
@@ -6977,7 +6977,7 @@ const SPOT_DB = [
 
   { id: "db_1790", name: "Lavina", region: "Sospel",
     lat: 43.8669, lon: 7.4135, elevation: 1092, dhv: 1790,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 752, gemeinde: "6380 Sospel", bundesland: "Alpes-Maritimes", gleitschirm: "1- und 2-sitzig", landeName: "Lavina Landeplatz", landeLat: 43.8820, landeLon: 7.4283, landeHoehe: 425, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 752, gemeinde: "6380 Sospel", bundesland: "Alpes-Maritimes", gleitschirm: "1- und 2-sitzig", landeName: "Lavina Landeplatz", landeLat: 43.8820, landeLon: 7.4283, landeHoehe: 425, landeExtra: [{ name: "Sospel Landeplatz", lat: 43.878092, lon: 7.455858, hoehe: 340 }], ...DEF },
 
   { id: "db_3163", name: "Le Bien", region: "Job",
     lat: 45.6236, lon: 3.7605, elevation: 976, dhv: 3163,
@@ -6989,15 +6989,15 @@ const SPOT_DB = [
 
   { id: "db_1265", name: "Le Brèvent", region: "Chamonix",
     lat: 45.9366, lon: 6.8512, elevation: 2045, dhv: 1265,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "fr", acc: "fb", hoehendiff: 997, gemeinde: "74400 Chamonix", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Brèvent Landeplatz 2", landeLat: 45.9278, landeLon: 6.8682, landeHoehe: 1050, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "fr", acc: "fb", hoehendiff: 997, gemeinde: "74400 Chamonix", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Brèvent Landeplatz 2", landeLat: 45.9278, landeLon: 6.8682, landeHoehe: 1050, landeExtra: [{ name: "Le Brèvent Landeplatz 1", lat: 45.929662, lon: 6.876497, hoehe: 1050 }, { name: "Le Brèvent Landeplatz 3", lat: 45.931661, lon: 6.881031, hoehe: 1048 }], ...DEF },
 
   { id: "db_1805_SO", name: "Le Chalvet (SO)", region: "Saint Andre les Alpes",
     lat: 43.9766, lon: 6.4914, elevation: 1515, dhv: 1805,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 675, gemeinde: "04170 Saint Andre les Alpes", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Le Chalvet Landeplatz 2", landeLat: 43.9619, landeLon: 6.4762, landeHoehe: 893, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 675, gemeinde: "04170 Saint Andre les Alpes", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Le Chalvet Landeplatz 2", landeLat: 43.9619, landeLon: 6.4762, landeHoehe: 893, landeExtra: [{ name: "Le Chalvet Landeplatz 1", lat: 43.958539, lon: 6.510436, hoehe: 893 }], ...DEF },
 
   { id: "db_1805_W", name: "Le Chalvet (W)", region: "Saint Andre les Alpes",
     lat: 43.9784, lon: 6.4798, elevation: 1568, dhv: 1805,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 675, gemeinde: "04170 Saint Andre les Alpes", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Le Chalvet Landeplatz 2", landeLat: 43.9619, landeLon: 6.4762, landeHoehe: 893, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 675, gemeinde: "04170 Saint Andre les Alpes", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Le Chalvet Landeplatz 2", landeLat: 43.9619, landeLon: 6.4762, landeHoehe: 893, landeExtra: [{ name: "Le Chalvet Landeplatz 1", lat: 43.958539, lon: 6.510436, hoehe: 893 }], ...DEF },
 
   { id: "db_2203", name: "Le Chanay", region: "Tenay",
     lat: 45.9437, lon: 5.5124, elevation: 947, dhv: 2203,
@@ -7061,7 +7061,7 @@ const SPOT_DB = [
 
   { id: "db_1890", name: "Le Grande Sure", region: "Alpe d&#039;Huez",
     lat: 45.0996, lon: 6.0602, elevation: 2090, dhv: 1890,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "fr", acc: "fb", hoehendiff: 226, gemeinde: "38750 Alpe d'Huez", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "Le Grande Sure Landeplatz", landeLat: 45.0968, landeLon: 6.0684, landeHoehe: 1864, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "fr", acc: "fb", hoehendiff: 226, gemeinde: "38750 Alpe d'Huez", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "Le Grande Sure Landeplatz", landeLat: 45.0968, landeLon: 6.0684, landeHoehe: 1864, landeExtra: [{ name: "Pic Blanc Landeplatz", lat: 45.069347, lon: 6.034019, hoehe: 714 }], ...DEF },
 
   { id: "db_1835", name: "Le Hucel", region: "Lugrin",
     lat: 46.3991, lon: 6.7043, elevation: 944, dhv: 1835,
@@ -7125,11 +7125,11 @@ const SPOT_DB = [
 
   { id: "db_1276_NW", name: "Le Revard (NW)", region: "Mery",
     lat: 45.6725, lon: 5.9732, elevation: 1417, dhv: 1276,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 1101, gemeinde: "73420 Mery", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Revard Landeplatz 3", landeLat: 45.7015, landeLon: 5.9700, landeHoehe: 739, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 1101, gemeinde: "73420 Mery", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Revard Landeplatz 3", landeLat: 45.7015, landeLon: 5.9700, landeHoehe: 739, landeExtra: [{ name: "Le Revard Landeplatz 2", lat: 45.691392, lon: 5.936394, hoehe: 415 }, { name: "Le Sire Landeplatz 1", lat: 45.6175, lon: 5.928381, hoehe: 279 }], ...DEF },
 
   { id: "db_1276_SW", name: "Le Revard (SW)", region: "Mery",
     lat: 45.6832, lon: 5.9756, elevation: 1516, dhv: 1276,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 1101, gemeinde: "73420 Mery", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Revard Landeplatz 3", landeLat: 45.7015, landeLon: 5.9700, landeHoehe: 739, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 1101, gemeinde: "73420 Mery", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Revard Landeplatz 3", landeLat: 45.7015, landeLon: 5.9700, landeHoehe: 739, landeExtra: [{ name: "Le Revard Landeplatz 2", lat: 45.691392, lon: 5.936394, hoehe: 415 }, { name: "Le Sire Landeplatz 1", lat: 45.6175, lon: 5.928381, hoehe: 279 }], ...DEF },
 
   { id: "db_3214", name: "Le Roc", region: "Souillac",
     lat: 44.8735, lon: 1.4506, elevation: 266, dhv: 3214,
@@ -7157,7 +7157,7 @@ const SPOT_DB = [
 
   { id: "db_1874", name: "Le Sire", region: "Les Deserts",
     lat: 45.6314, lon: 5.9651, elevation: 1485, dhv: 1874,
-    sectors: [[168.75, 236.25], [303.75, 326.25]], sectorLabel: "S-SW · NW", country: "fr", acc: "fa", hoehendiff: 1206, gemeinde: "73230 Les Deserts", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Sire Landeplatz 2", landeLat: 45.6492, landeLon: 5.9408, landeHoehe: 406, ...DEF },
+    sectors: [[168.75, 236.25], [303.75, 326.25]], sectorLabel: "S-SW · NW", country: "fr", acc: "fa", hoehendiff: 1206, gemeinde: "73230 Les Deserts", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Sire Landeplatz 2", landeLat: 45.6492, landeLon: 5.9408, landeHoehe: 406, landeExtra: [{ name: "Le Sire Landeplatz 1", lat: 45.6175, lon: 5.928381, hoehe: 279 }], ...DEF },
 
   { id: "db_3318", name: "Le Soc", region: "Aucun",
     lat: 42.9902, lon: 0.1964, elevation: 1369, dhv: 3318,
@@ -7169,11 +7169,11 @@ const SPOT_DB = [
 
   { id: "db_1222_SO", name: "Le Treh (SO)", region: "Fellering",
     lat: 47.9263, lon: 7.0149, elevation: 1245, dhv: 1222,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 801, gemeinde: "68470 Fellering", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz für Drachen und Gleitschirme am Treh.", landeName: "Le Treh Landeplatz 1", landeLat: 47.9012, landeLon: 6.9827, landeHoehe: 444, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 801, gemeinde: "68470 Fellering", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", bemerkung: "Wiesenstartplatz für Drachen und Gleitschirme am Treh.", landeName: "Le Treh Landeplatz 1", landeLat: 47.9012, landeLon: 6.9827, landeHoehe: 444, landeExtra: [{ name: "Le Treh Landeplatz 2", lat: 47.917967, lon: 6.96589, hoehe: 470 }], ...DEF },
 
   { id: "db_1222_SW", name: "Le Treh (SW)", region: "Fellering",
     lat: 47.9256, lon: 7.0115, elevation: 1227, dhv: 1222,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 801, gemeinde: "68470 Fellering", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", bemerkung: "Riesiger Wiesenstartplatz für Drachen und Gleitschirme am Treh.", landeName: "Le Treh Landeplatz 1", landeLat: 47.9012, landeLon: 6.9827, landeHoehe: 444, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 801, gemeinde: "68470 Fellering", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", bemerkung: "Riesiger Wiesenstartplatz für Drachen und Gleitschirme am Treh.", landeName: "Le Treh Landeplatz 1", landeLat: 47.9012, landeLon: 6.9827, landeHoehe: 444, landeExtra: [{ name: "Le Treh Landeplatz 2", lat: 47.917967, lon: 6.96589, hoehe: 470 }], ...DEF },
 
   { id: "db_2407", name: "Le Treport", region: "Treport",
     lat: 50.0594, lon: 1.3662, elevation: 66, dhv: 2407,
@@ -7209,7 +7209,7 @@ const SPOT_DB = [
 
   { id: "db_1811", name: "Les Carroz", region: "Les Carroz",
     lat: 46.0308, lon: 6.6704, elevation: 1805, dhv: 1811,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fb", hoehendiff: 846, gemeinde: "74300 Les Carroz", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Les Carroz Landeplatz 1", landeLat: 46.0218, landeLon: 6.6405, landeHoehe: 1141, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fb", hoehendiff: 846, gemeinde: "74300 Les Carroz", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Les Carroz Landeplatz 1", landeLat: 46.0218, landeLon: 6.6405, landeHoehe: 1141, landeExtra: [{ name: "Les Carroz Landeplatz 2", lat: 46.039075, lon: 6.630508, hoehe: 959 }], ...DEF },
 
   { id: "db_5065", name: "Les Chapelles", region: "Bourg St. Maurice",
     lat: 45.5949, lon: 6.7347, elevation: 1295, dhv: 5065,
@@ -7245,7 +7245,7 @@ const SPOT_DB = [
 
   { id: "db_1813", name: "Les Grand Montets", region: "Chamonix",
     lat: 45.9478, lon: 6.96, elevation: 3236, dhv: 1813,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fb", hoehendiff: 2186, gemeinde: "74400 Chamonix", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Brèvent Landeplatz 1", landeLat: 45.9297, landeLon: 6.8765, landeHoehe: 1050, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fb", hoehendiff: 2186, gemeinde: "74400 Chamonix", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Brèvent Landeplatz 1", landeLat: 45.9297, landeLon: 6.8765, landeHoehe: 1050, landeExtra: [{ name: "Le Brèvent Landeplatz 2", lat: 45.927849, lon: 6.868193, hoehe: 1050 }], ...DEF },
 
   { id: "db_3117", name: "Les Grands Pres", region: "Beure",
     lat: 47.195, lon: 5.9914, elevation: 464, dhv: 3117,
@@ -7257,7 +7257,7 @@ const SPOT_DB = [
 
   { id: "db_5084", name: "Les Houches", region: "Passy",
     lat: 45.8855, lon: 6.7527, elevation: 1842, dhv: 5084,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fab", hoehendiff: 1241, gemeinde: "74190 Passy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Prarion Landeplatz", landeLat: 45.8982, landeLon: 6.7774, landeHoehe: 1017, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fab", hoehendiff: 1241, gemeinde: "74190 Passy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Prarion Landeplatz", landeLat: 45.8982, landeLon: 6.7774, landeHoehe: 1017, landeExtra: [{ name: "Plaine-Joux Landeplatz 2", lat: 45.915765, lon: 6.706316, hoehe: 601 }], ...DEF },
 
   { id: "db_3173", name: "Les Lanchettes", region: "Bourg-Saint-Maurice",
     lat: 45.5704, lon: 6.8435, elevation: 2489, dhv: 3173,
@@ -7321,11 +7321,11 @@ const SPOT_DB = [
 
   { id: "db_1849_NW", name: "Malatrait (NW)", region: "Allevard",
     lat: 45.3937, lon: 6.1067, elevation: 1398, dhv: 1849,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 902, gemeinde: "38580 Allevard", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", bemerkung: "weitere Startplätze am Berg auf 1700 m und 2100 m", landeName: "Malatrait Landeplatz 1", landeLat: 45.3859, landeLon: 6.0678, landeHoehe: 496, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 902, gemeinde: "38580 Allevard", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", bemerkung: "weitere Startplätze am Berg auf 1700 m und 2100 m", landeName: "Malatrait Landeplatz 1", landeLat: 45.3859, landeLon: 6.0678, landeHoehe: 496, landeExtra: [{ name: "Malatrait Landeplatz 2", lat: 45.376611, lon: 6.055306, hoehe: 505 }], ...DEF },
 
   { id: "db_1849_S", name: "Malatrait (S)", region: "Allevard",
     lat: 45.3912, lon: 6.1066, elevation: 1366, dhv: 1849,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 902, gemeinde: "38580 Allevard", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", bemerkung: "weitere Startplätze am Berg auf 1700 m und 2100 m", landeName: "Malatrait Landeplatz 1", landeLat: 45.3859, landeLon: 6.0678, landeHoehe: 496, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 902, gemeinde: "38580 Allevard", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", bemerkung: "weitere Startplätze am Berg auf 1700 m und 2100 m", landeName: "Malatrait Landeplatz 1", landeLat: 45.3859, landeLon: 6.0678, landeHoehe: 496, landeExtra: [{ name: "Malatrait Landeplatz 2", lat: 45.376611, lon: 6.055306, hoehe: 505 }], ...DEF },
 
   { id: "db_4952", name: "Malay-le-Grand", region: "Malay-le-Grand",
     lat: 48.165, lon: 3.3499, elevation: 132, dhv: 4952,
@@ -7341,7 +7341,7 @@ const SPOT_DB = [
 
   { id: "db_3142", name: "Mancey", region: "Mancey",
     lat: 46.5814, lon: 4.8181, elevation: 477, dhv: 3142,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 193, gemeinde: "71240 Mancey", bundesland: "Saone et Loire", gleitschirm: "1- und 2-sitzig", landeName: "Mancey Landeplatz 2", landeLat: 46.5810, landeLon: 4.8110, landeHoehe: 355, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 193, gemeinde: "71240 Mancey", bundesland: "Saone et Loire", gleitschirm: "1- und 2-sitzig", landeName: "Mancey Landeplatz 2", landeLat: 46.5810, landeLon: 4.8110, landeHoehe: 355, landeExtra: [{ name: "Mancey Landeplatz 1", lat: 46.586122, lon: 4.807914, hoehe: 284 }], ...DEF },
 
   { id: "db_3203_NW", name: "Mandailles (NW)", region: "Mandailles",
     lat: 45.0511, lon: 2.664, elevation: 1541, dhv: 3203,
@@ -7373,7 +7373,7 @@ const SPOT_DB = [
 
   { id: "db_3125", name: "Meix Musy", region: "Villers-le-Lac",
     lat: 47.0334, lon: 6.6718, elevation: 1280, dhv: 3125,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 530, gemeinde: "25130 Villers-le-Lac", bundesland: "Doubs", gleitschirm: "1- und 2-sitzig", landeName: "Meix Musy Landeplatz 1", landeLat: 47.0377, landeLon: 6.6684, landeHoehe: 1146, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 530, gemeinde: "25130 Villers-le-Lac", bundesland: "Doubs", gleitschirm: "1- und 2-sitzig", landeName: "Meix Musy Landeplatz 1", landeLat: 47.0377, landeLon: 6.6684, landeHoehe: 1146, landeExtra: [{ name: "Maix Musy Landeplatz 2", lat: 47.054217, lon: 6.671736, hoehe: 750 }], ...DEF },
 
   { id: "db_3127_O", name: "Meloisey (O)", region: "Meloisey",
     lat: 47.0385, lon: 4.7229, elevation: 552, dhv: 3127,
@@ -7385,7 +7385,7 @@ const SPOT_DB = [
 
   { id: "db_3227", name: "Mende Nord", region: "Mende",
     lat: 44.5078, lon: 3.478, elevation: 1046, dhv: 3227,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "fr", acc: "fa", hoehendiff: 342, gemeinde: "48000 Mende", bundesland: "La Lozere", gleitschirm: "1- und 2-sitzig", landeName: "Mende West Landeplatz", landeLat: 44.5164, landeLon: 3.4757, landeHoehe: 704, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "fr", acc: "fa", hoehendiff: 342, gemeinde: "48000 Mende", bundesland: "La Lozere", gleitschirm: "1- und 2-sitzig", landeName: "Mende West Landeplatz", landeLat: 44.5164, landeLon: 3.4757, landeHoehe: 704, landeExtra: [{ name: "Mende Nord Landeplatz", lat: 44.518494, lon: 3.466519, hoehe: 762 }], ...DEF },
 
   { id: "db_3226", name: "Mende Ost", region: "Mende",
     lat: 44.5191, lon: 3.4562, elevation: 1052, dhv: 3226,
@@ -7405,7 +7405,7 @@ const SPOT_DB = [
 
   { id: "db_3133", name: "Mesvres", region: "Broye",
     lat: 46.8531, lon: 4.2816, elevation: 594, dhv: 3133,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 306, gemeinde: "71190 Broye", bundesland: "Saone et Loire", gleitschirm: "1- und 2-sitzig", landeName: "Mesvres Landeplatz 2", landeLat: 46.8643, landeLon: 4.2865, landeHoehe: 288, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 306, gemeinde: "71190 Broye", bundesland: "Saone et Loire", gleitschirm: "1- und 2-sitzig", landeName: "Mesvres Landeplatz 2", landeLat: 46.8643, landeLon: 4.2865, landeHoehe: 288, landeExtra: [{ name: "Mesvres Landeplatz 1", lat: 46.861319, lon: 4.295589, hoehe: 289 }], ...DEF },
 
   { id: "db_5048", name: "Metabief", region: "Metabief",
     lat: 46.7606, lon: 6.3571, elevation: 1225, dhv: 5048,
@@ -7417,11 +7417,11 @@ const SPOT_DB = [
 
   { id: "db_1262_SW", name: "Mieussy (SW)", region: "Mieussy",
     lat: 46.1418, lon: 6.546, elevation: 1632, dhv: 1262,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 1032, gemeinde: "74440 Mieussy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Mieussy Landeplatz 2", landeLat: 46.1279, landeLon: 6.5352, landeHoehe: 652, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 1032, gemeinde: "74440 Mieussy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Mieussy Landeplatz 2", landeLat: 46.1279, landeLon: 6.5352, landeHoehe: 652, landeExtra: [{ name: "Mieussy Landeplatz 1", lat: 46.130839, lon: 6.525342, hoehe: 620 }], ...DEF },
 
   { id: "db_1262_W", name: "Mieussy (W)", region: "Mieussy",
     lat: 46.1452, lon: 6.5477, elevation: 1652, dhv: 1262,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 1032, gemeinde: "74440 Mieussy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", bemerkung: "per Auto nur für Fahrzeuge des örtlichen Vereins (Les Choucas) zugänglich. Zu Fuss 20 min. ab Parkplatz Roche Palud", landeName: "Mieussy Landeplatz 2", landeLat: 46.1279, landeLon: 6.5352, landeHoehe: 652, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 1032, gemeinde: "74440 Mieussy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", bemerkung: "per Auto nur für Fahrzeuge des örtlichen Vereins (Les Choucas) zugänglich. Zu Fuss 20 min. ab Parkplatz Roche Palud", landeName: "Mieussy Landeplatz 2", landeLat: 46.1279, landeLon: 6.5352, landeHoehe: 652, landeExtra: [{ name: "Mieussy Landeplatz 1", lat: 46.130839, lon: 6.525342, hoehe: 620 }], ...DEF },
 
   { id: "db_2190", name: "Mijoux", region: "Mijoux",
     lat: 46.3663, lon: 6.0107, elevation: 1323, dhv: 2190,
@@ -7429,15 +7429,15 @@ const SPOT_DB = [
 
   { id: "db_3290_NW", name: "Millau (NW)", region: "Millau",
     lat: 44.1109, lon: 3.1023, elevation: 824, dhv: 3290,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 465, gemeinde: "12100 Millau", bundesland: "l Aveyron", gleitschirm: "1- und 2-sitzig", landeName: "Millau Landeplatz 1", landeLat: 44.1145, landeLon: 3.0876, landeHoehe: 362, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 465, gemeinde: "12100 Millau", bundesland: "l Aveyron", gleitschirm: "1- und 2-sitzig", landeName: "Millau Landeplatz 1", landeLat: 44.1145, landeLon: 3.0876, landeHoehe: 362, landeExtra: [{ name: "Millau Landeplatz 2", lat: 44.110689, lon: 3.085928, hoehe: 359 }, { name: "Millau Landeplatz 3", lat: 44.108283, lon: 3.086531, hoehe: 359 }], ...DEF },
 
   { id: "db_3290_S", name: "Millau (S)", region: "Millau",
     lat: 44.11, lon: 3.1032, elevation: 818, dhv: 3290,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 465, gemeinde: "12100 Millau", bundesland: "l Aveyron", gleitschirm: "1- und 2-sitzig", landeName: "Millau Landeplatz 1", landeLat: 44.1145, landeLon: 3.0876, landeHoehe: 362, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 465, gemeinde: "12100 Millau", bundesland: "l Aveyron", gleitschirm: "1- und 2-sitzig", landeName: "Millau Landeplatz 1", landeLat: 44.1145, landeLon: 3.0876, landeHoehe: 362, landeExtra: [{ name: "Millau Landeplatz 2", lat: 44.110689, lon: 3.085928, hoehe: 359 }, { name: "Millau Landeplatz 3", lat: 44.108283, lon: 3.086531, hoehe: 359 }], ...DEF },
 
   { id: "db_3290_W", name: "Millau (W)", region: "Millau",
     lat: 44.1103, lon: 3.1011, elevation: 807, dhv: 3290,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "fr", acc: "fa", hoehendiff: 465, gemeinde: "12100 Millau", bundesland: "l Aveyron", gleitschirm: "1- und 2-sitzig", landeName: "Millau Landeplatz 1", landeLat: 44.1145, landeLon: 3.0876, landeHoehe: 362, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "fr", acc: "fa", hoehendiff: 465, gemeinde: "12100 Millau", bundesland: "l Aveyron", gleitschirm: "1- und 2-sitzig", landeName: "Millau Landeplatz 1", landeLat: 44.1145, landeLon: 3.0876, landeHoehe: 362, landeExtra: [{ name: "Millau Landeplatz 2", lat: 44.110689, lon: 3.085928, hoehe: 359 }, { name: "Millau Landeplatz 3", lat: 44.108283, lon: 3.086531, hoehe: 359 }], ...DEF },
 
   { id: "db_2139", name: "Millefonts", region: "Valdeblore",
     lat: 44.0963, lon: 7.1919, elevation: 2074, dhv: 2139,
@@ -7477,11 +7477,11 @@ const SPOT_DB = [
 
   { id: "db_3287_S", name: "Mont Bouquet Süd (S)", region: "Seynes",
     lat: 44.1216, lon: 4.2758, elevation: 479, dhv: 3287,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 257, gemeinde: "30580 Seynes", bundesland: "du Gard", gleitschirm: "1- und 2-sitzig", landeName: "Mont Bouquet Süd Landeplatz", landeLat: 44.1148, landeLon: 4.2703, landeHoehe: 240, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 257, gemeinde: "30580 Seynes", bundesland: "du Gard", gleitschirm: "1- und 2-sitzig", landeName: "Mont Bouquet Süd Landeplatz", landeLat: 44.1148, landeLon: 4.2703, landeHoehe: 240, landeExtra: [{ name: "Mont Bouquet Landeplatz", lat: 44.120819, lon: 4.290889, hoehe: 282 }], ...DEF },
 
   { id: "db_3287_SO", name: "Mont Bouquet Süd (SO)", region: "Seynes",
     lat: 44.122, lon: 4.2786, elevation: 497, dhv: 3287,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 257, gemeinde: "30580 Seynes", bundesland: "du Gard", gleitschirm: "1- und 2-sitzig", landeName: "Mont Bouquet Landeplatz", landeLat: 44.1208, landeLon: 4.2909, landeHoehe: 282, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "fr", acc: "fa", hoehendiff: 257, gemeinde: "30580 Seynes", bundesland: "du Gard", gleitschirm: "1- und 2-sitzig", landeName: "Mont Bouquet Landeplatz", landeLat: 44.1208, landeLon: 4.2909, landeHoehe: 282, landeExtra: [{ name: "Mont Bouquet Süd Landeplatz", lat: 44.114769, lon: 4.270297, hoehe: 240 }], ...DEF },
 
   { id: "db_5046", name: "Mont Chateleu", region: "Les Gras",
     lat: 46.9897, lon: 6.5732, elevation: 1273, dhv: 5046,
@@ -7517,7 +7517,7 @@ const SPOT_DB = [
 
   { id: "db_3136", name: "Mont D'Or", region: "Jougne",
     lat: 46.7333, lon: 6.3567, elevation: 1447, dhv: 3136,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fab", hoehendiff: 605, gemeinde: "25370 Jougne", bundesland: "Doubs", gleitschirm: "1- und 2-sitzig", landeName: "Mont D&#039;Or Landeplatz 1", landeLat: 46.7416, landeLon: 6.3768, landeHoehe: 842, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fab", hoehendiff: 605, gemeinde: "25370 Jougne", bundesland: "Doubs", gleitschirm: "1- und 2-sitzig", landeName: "Mont D&#039;Or Landeplatz 1", landeLat: 46.7416, landeLon: 6.3768, landeHoehe: 842, landeExtra: [{ name: "Mont D'Or Landeplatz 2", lat: 46.735872, lon: 6.386894, hoehe: 871 }], ...DEF },
 
   { id: "db_3138_NW", name: "Mont Dardon (NW)", region: "Issy-L&#039;Eveque",
     lat: 46.6774, lon: 4.0362, elevation: 485, dhv: 3138,
@@ -7537,7 +7537,7 @@ const SPOT_DB = [
 
   { id: "db_1801", name: "Mont Denier", region: "Moustiers St. Marie",
     lat: 43.854, lon: 6.2672, elevation: 1397, dhv: 1801,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "fr", acc: "fa", hoehendiff: 458, gemeinde: "04360 Moustiers St. Marie", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Mont Denier Landeplatz 1", landeLat: 43.8534, landeLon: 6.2479, landeHoehe: 974, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "fr", acc: "fa", hoehendiff: 458, gemeinde: "04360 Moustiers St. Marie", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Mont Denier Landeplatz 1", landeLat: 43.8534, landeLon: 6.2479, landeHoehe: 974, landeExtra: [{ name: "Mont Denier Landeplatz 2", lat: 43.843325, lon: 6.2533, hoehe: 939 }], ...DEF },
 
   { id: "db_2000", name: "Mont Donon", region: "Grandfontaine",
     lat: 48.5121, lon: 7.1633, elevation: 970, dhv: 2000,
@@ -7573,7 +7573,7 @@ const SPOT_DB = [
 
   { id: "db_1794", name: "Mont Guillaume", region: "Embrun",
     lat: 44.5685, lon: 6.4324, elevation: 1586, dhv: 1794,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 801, gemeinde: "05200 Embrun", bundesland: "Hautes-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Mont Guillaume Landeplatz 1", landeLat: 44.5458, landeLon: 6.4590, landeHoehe: 785, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 801, gemeinde: "05200 Embrun", bundesland: "Hautes-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Mont Guillaume Landeplatz 1", landeLat: 44.5458, landeLon: 6.4590, landeHoehe: 785, landeExtra: [{ name: "Mont Guillaume Landeplatz 2", lat: 44.557747, lon: 6.489319, hoehe: 799 }], ...DEF },
 
   { id: "db_2320", name: "Mont Jovet", region: "Bozel",
     lat: 45.4857, lon: 6.6393, elevation: 2277, dhv: 2320,
@@ -7581,11 +7581,11 @@ const SPOT_DB = [
 
   { id: "db_1828_NO", name: "Mont Lachat (NO)", region: "Les Grand-Bornand",
     lat: 45.9605, lon: 6.476, elevation: 2012, dhv: 1828,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "fr", acc: "fab", hoehendiff: 1095, gemeinde: "74450 Les Grand-Bornand", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Mont Lachat Landeplatz 1", landeLat: 45.9356, landeLon: 6.4613, landeHoehe: 1000, ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "fr", acc: "fab", hoehendiff: 1095, gemeinde: "74450 Les Grand-Bornand", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Mont Lachat Landeplatz 1", landeLat: 45.9356, landeLon: 6.4613, landeHoehe: 1000, landeExtra: [{ name: "Mont Lachat Landeplatz 2", lat: 45.940806, lon: 6.431842, hoehe: 925 }], ...DEF },
 
   { id: "db_1828_SW", name: "Mont Lachat (SW)", region: "Les Grand-Bornand",
     lat: 45.9582, lon: 6.4768, elevation: 2020, dhv: 1828,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fab", hoehendiff: 1095, gemeinde: "74450 Les Grand-Bornand", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Mont Lachat Landeplatz 1", landeLat: 45.9356, landeLon: 6.4613, landeHoehe: 1000, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fab", hoehendiff: 1095, gemeinde: "74450 Les Grand-Bornand", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Mont Lachat Landeplatz 1", landeLat: 45.9356, landeLon: 6.4613, landeHoehe: 1000, landeExtra: [{ name: "Mont Lachat Landeplatz 2", lat: 45.940806, lon: 6.431842, hoehe: 925 }], ...DEF },
 
   { id: "db_3211", name: "Mont Mercou", region: "Creysse",
     lat: 44.9116, lon: 1.5824, elevation: 306, dhv: 3211,
@@ -7605,7 +7605,7 @@ const SPOT_DB = [
 
   { id: "db_1838", name: "Mont Paccard", region: "Saint Gervais",
     lat: 45.8954, lon: 6.7279, elevation: 1259, dhv: 1838,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 658, gemeinde: "74170 Saint Gervais", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Mont Paccard Landeplatz", landeLat: 45.8842, landeLon: 6.7127, landeHoehe: 814, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 658, gemeinde: "74170 Saint Gervais", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Mont Paccard Landeplatz", landeLat: 45.8842, landeLon: 6.7127, landeHoehe: 814, landeExtra: [{ name: "Plaine-Joux Landeplatz 2", lat: 45.915765, lon: 6.706316, hoehe: 601 }], ...DEF },
 
   { id: "db_3140", name: "Mont Pejus", region: "Burnand",
     lat: 46.5957, lon: 4.6391, elevation: 345, dhv: 3140,
@@ -7613,19 +7613,19 @@ const SPOT_DB = [
 
   { id: "db_3129_N", name: "Mont Poupet (N)", region: "Saint-Thiebaud",
     lat: 46.9716, lon: 5.8775, elevation: 789, dhv: 3129,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 299, gemeinde: "39110 Saint-Thiebaud", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Mont Poupet Landeplatz 2", landeLat: 46.9706, landeLon: 5.8683, landeHoehe: 602, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 299, gemeinde: "39110 Saint-Thiebaud", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Mont Poupet Landeplatz 2", landeLat: 46.9706, landeLon: 5.8683, landeHoehe: 602, landeExtra: [{ name: "Mont Poupet Landeplatz 1", lat: 46.962342, lon: 5.867894, hoehe: 513 }], ...DEF },
 
   { id: "db_3129_NW", name: "Mont Poupet (NW)", region: "Saint-Thiebaud",
     lat: 46.9703, lon: 5.8742, elevation: 779, dhv: 3129,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 299, gemeinde: "39110 Saint-Thiebaud", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Mont Poupet Landeplatz 2", landeLat: 46.9706, landeLon: 5.8683, landeHoehe: 602, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 299, gemeinde: "39110 Saint-Thiebaud", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Mont Poupet Landeplatz 2", landeLat: 46.9706, landeLon: 5.8683, landeHoehe: 602, landeExtra: [{ name: "Mont Poupet Landeplatz 1", lat: 46.962342, lon: 5.867894, hoehe: 513 }], ...DEF },
 
   { id: "db_3129_S", name: "Mont Poupet (S)", region: "Saint-Thiebaud",
     lat: 46.9692, lon: 5.8762, elevation: 812, dhv: 3129,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 299, gemeinde: "39110 Saint-Thiebaud", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Mont Poupet Landeplatz 2", landeLat: 46.9706, landeLon: 5.8683, landeHoehe: 602, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 299, gemeinde: "39110 Saint-Thiebaud", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Mont Poupet Landeplatz 2", landeLat: 46.9706, landeLon: 5.8683, landeHoehe: 602, landeExtra: [{ name: "Mont Poupet Landeplatz 1", lat: 46.962342, lon: 5.867894, hoehe: 513 }], ...DEF },
 
   { id: "db_3129_SO", name: "Mont Poupet (SO)", region: "Saint-Thiebaud",
     lat: 46.9693, lon: 5.8747, elevation: 799, dhv: 3129,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 299, gemeinde: "39110 Saint-Thiebaud", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Mont Poupet Landeplatz 2", landeLat: 46.9706, landeLon: 5.8683, landeHoehe: 602, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 299, gemeinde: "39110 Saint-Thiebaud", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Mont Poupet Landeplatz 2", landeLat: 46.9706, landeLon: 5.8683, landeHoehe: 602, landeExtra: [{ name: "Mont Poupet Landeplatz 1", lat: 46.962342, lon: 5.867894, hoehe: 513 }], ...DEF },
 
   { id: "db_5033", name: "Mont Pugget", region: "Marseille",
     lat: 43.2221, lon: 5.4587, elevation: 560, dhv: 5033,
@@ -7637,15 +7637,15 @@ const SPOT_DB = [
 
   { id: "db_2187", name: "Mont Semiol", region: "Chatelneuf",
     lat: 45.6334, lon: 3.9688, elevation: 1007, dhv: 2187,
-    sectors: [[168.75, 236.25], [348.75, 11.25]], sectorLabel: "S-SW · N", country: "fr", acc: "fa", hoehendiff: 162, gemeinde: "42940 Chatelneuf", bundesland: "la Loire", gleitschirm: "1- und 2-sitzig", landeName: "Mont Semiol Landeplatz 1", landeLat: 45.6274, landeLon: 3.9713, landeHoehe: 845, ...DEF },
+    sectors: [[168.75, 236.25], [348.75, 11.25]], sectorLabel: "S-SW · N", country: "fr", acc: "fa", hoehendiff: 162, gemeinde: "42940 Chatelneuf", bundesland: "la Loire", gleitschirm: "1- und 2-sitzig", landeName: "Mont Semiol Landeplatz 1", landeLat: 45.6274, landeLon: 3.9713, landeHoehe: 845, landeExtra: [{ name: "Mont Semiol Landeplatz 2", lat: 45.637742, lon: 3.979269, hoehe: 857 }], ...DEF },
 
   { id: "db_1817_N", name: "Mont Ventoux (N)", region: "Ventoux",
     lat: 44.1749, lon: 5.2787, elevation: 1849, dhv: 1817,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 1529, gemeinde: "84340 Ventoux", bundesland: "Vaucluse", gleitschirm: "1- und 2-sitzig", landeName: "Mont Ventoux Landeplatz 1", landeLat: 44.1819, landeLon: 5.2589, landeHoehe: 1396, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 1529, gemeinde: "84340 Ventoux", bundesland: "Vaucluse", gleitschirm: "1- und 2-sitzig", landeName: "Mont Ventoux Landeplatz 1", landeLat: 44.1819, landeLon: 5.2589, landeHoehe: 1396, landeExtra: [{ name: "Mont Ventoux Landeplatz 3", lat: 44.179839, lon: 5.376378, hoehe: 512 }, { name: "Mont Ventoux Landeplatz 2", lat: 44.124906, lon: 5.185997, hoehe: 320 }], ...DEF },
 
   { id: "db_1817_S", name: "Mont Ventoux (S)", region: "Ventoux",
     lat: 44.1739, lon: 5.2649, elevation: 1813, dhv: 1817,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 1529, gemeinde: "84340 Ventoux", bundesland: "Vaucluse", gleitschirm: "1- und 2-sitzig", landeName: "Mont Ventoux Landeplatz 1", landeLat: 44.1819, landeLon: 5.2589, landeHoehe: 1396, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 1529, gemeinde: "84340 Ventoux", bundesland: "Vaucluse", gleitschirm: "1- und 2-sitzig", landeName: "Mont Ventoux Landeplatz 1", landeLat: 44.1819, landeLon: 5.2589, landeHoehe: 1396, landeExtra: [{ name: "Mont Ventoux Landeplatz 3", lat: 44.179839, lon: 5.376378, hoehe: 512 }, { name: "Mont Ventoux Landeplatz 2", lat: 44.124906, lon: 5.185997, hoehe: 320 }], ...DEF },
 
   { id: "db_5045", name: "Mont Vouillot", region: "Morteau",
     lat: 47.0728, lon: 6.604, elevation: 1096, dhv: 5045,
@@ -7661,7 +7661,7 @@ const SPOT_DB = [
 
   { id: "db_4985", name: "Montagne de la Plate", region: "Chambon-sur-Lac",
     lat: 45.5335, lon: 2.8679, elevation: 1510, dhv: 4985,
-    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "fr", acc: "f", hoehendiff: 597, gemeinde: "63790 Chambon-sur-Lac", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Montagne de la Plate Landeplatz 1", landeLat: 45.5463, landeLon: 2.8747, landeHoehe: 1132, ...DEF },
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "fr", acc: "f", hoehendiff: 597, gemeinde: "63790 Chambon-sur-Lac", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Montagne de la Plate Landeplatz 1", landeLat: 45.5463, landeLon: 2.8747, landeHoehe: 1132, landeExtra: [{ name: "Montagne de la Plate Landeplatz 2", lat: 45.559856, lon: 2.892825, hoehe: 913 }], ...DEF },
 
   { id: "db_2189", name: "Montagne de Parves", region: "Parves",
     lat: 45.7392, lon: 5.7281, elevation: 527, dhv: 2189,
@@ -7685,7 +7685,7 @@ const SPOT_DB = [
 
   { id: "db_3148", name: "Montcusel", region: "Dortan",
     lat: 46.3392, lon: 5.659, elevation: 647, dhv: 3148,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 330, gemeinde: "01590 Dortan", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Montcusel Landeplatz 1", landeLat: 46.3305, landeLon: 5.6472, landeHoehe: 317, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 330, gemeinde: "01590 Dortan", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Montcusel Landeplatz 1", landeLat: 46.3305, landeLon: 5.6472, landeHoehe: 317, landeExtra: [{ name: "Montcusel Landeplatz 2", lat: 46.328761, lon: 5.673644, hoehe: 318 }], ...DEF },
 
   { id: "db_1791", name: "Monte Grosso", region: "Sospel",
     lat: 43.9124, lon: 7.4648, elevation: 1197, dhv: 1791,
@@ -7713,11 +7713,11 @@ const SPOT_DB = [
 
   { id: "db_1808_S", name: "Morzine (S)", region: "Morzine",
     lat: 46.1904, lon: 6.7281, elevation: 1550, dhv: 1808,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 554, gemeinde: "74110 Morzine", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Morzine Landeplatz 2", landeLat: 46.1792, landeLon: 6.7167, landeHoehe: 1047, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 554, gemeinde: "74110 Morzine", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Morzine Landeplatz 2", landeLat: 46.1792, landeLon: 6.7167, landeHoehe: 1047, landeExtra: [{ name: "Morzine Landeplatz 1", lat: 46.178433, lon: 6.703961, hoehe: 996 }], ...DEF },
 
   { id: "db_1808_SW", name: "Morzine (SW)", region: "Morzine",
     lat: 46.1917, lon: 6.7217, elevation: 1532, dhv: 1808,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 554, gemeinde: "74110 Morzine", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Morzine Landeplatz 2", landeLat: 46.1792, landeLon: 6.7167, landeHoehe: 1047, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 554, gemeinde: "74110 Morzine", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Morzine Landeplatz 2", landeLat: 46.1792, landeLon: 6.7167, landeHoehe: 1047, landeExtra: [{ name: "Morzine Landeplatz 1", lat: 46.178433, lon: 6.703961, hoehe: 996 }], ...DEF },
 
   { id: "db_2376", name: "Moutiers des Fees", region: "La Bresse",
     lat: 48.0191, lon: 6.8751, elevation: 1019, dhv: 2376,
@@ -7849,7 +7849,7 @@ const SPOT_DB = [
 
   { id: "db_2178", name: "Pelvoux", region: "Pelvoux",
     lat: 44.8576, lon: 6.4587, elevation: 2233, dhv: 2178,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "fr", acc: "fb", hoehendiff: 990, gemeinde: "05340 Pelvoux", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Pelvoux Landeplatz 1", landeLat: 44.8660, landeLon: 6.4844, landeHoehe: 1246, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "fr", acc: "fb", hoehendiff: 990, gemeinde: "05340 Pelvoux", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Pelvoux Landeplatz 1", landeLat: 44.8660, landeLon: 6.4844, landeHoehe: 1246, landeExtra: [{ name: "Pelvoux Landeplatz 2", lat: 44.866264, lon: 6.4895, hoehe: 1243 }], ...DEF },
 
   { id: "db_3240", name: "Penne D'Agenais", region: "Penne D&#039;Agenais",
     lat: 44.3904, lon: 0.8234, elevation: 208, dhv: 3240,
@@ -7881,7 +7881,7 @@ const SPOT_DB = [
 
   { id: "db_1957", name: "Pic Blanc", region: "Alpe d&#039;Huez",
     lat: 45.1247, lon: 6.1278, elevation: 3265, dhv: 1957,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fb", hoehendiff: 2551, gemeinde: "38750 Alpe d'Huez", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Le Grande Sure Landeplatz", landeLat: 45.0968, landeLon: 6.0684, landeHoehe: 1864, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fb", hoehendiff: 2551, gemeinde: "38750 Alpe d'Huez", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Le Grande Sure Landeplatz", landeLat: 45.0968, landeLon: 6.0684, landeHoehe: 1864, landeExtra: [{ name: "Pic Blanc Landeplatz", lat: 45.069347, lon: 6.034019, hoehe: 714 }], ...DEF },
 
   { id: "db_3285", name: "Pic D'Andan", region: "Millau",
     lat: 44.1358, lon: 3.0628, elevation: 818, dhv: 3285,
@@ -7925,7 +7925,7 @@ const SPOT_DB = [
 
   { id: "db_3178", name: "Pic St. Piere", region: "Saint-Diery",
     lat: 45.5347, lon: 2.989, elevation: 976, dhv: 3178,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "f", hoehendiff: 338, gemeinde: "63320 Saint-Diery", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Pic St. Piere Landeplatz 1", landeLat: 45.5308, landeLon: 3.0025, landeHoehe: 672, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "f", hoehendiff: 338, gemeinde: "63320 Saint-Diery", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Pic St. Piere Landeplatz 1", landeLat: 45.5308, landeLon: 3.0025, landeHoehe: 672, landeExtra: [{ name: "Pic St. Piere Landeplatz 2", lat: 45.537658, lon: 3.013394, hoehe: 638 }], ...DEF },
 
   { id: "db_3312", name: "Picon", region: "Roquefort-sur-Garonne",
     lat: 43.1596, lon: 0.9903, elevation: 493, dhv: 3312,
@@ -7961,7 +7961,7 @@ const SPOT_DB = [
 
   { id: "db_1261", name: "Plaine-Joux", region: "Passy",
     lat: 45.9496, lon: 6.7395, elevation: 1357, dhv: 1261,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 756, gemeinde: "74190 Passy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Plaine-Joux Landeplatz GS", landeLat: 45.9288, landeLon: 6.7245, landeHoehe: 623, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 756, gemeinde: "74190 Passy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Plaine-Joux Landeplatz GS", landeLat: 45.9288, landeLon: 6.7245, landeHoehe: 623, landeExtra: [{ name: "Plaine-Joux Landeplatz 2", lat: 45.915765, lon: 6.706316, hoehe: 601 }], ...DEF },
 
   { id: "db_3154", name: "Plan De L'Aiguille", region: "Chamonix",
     lat: 45.9023, lon: 6.8838, elevation: 2270, dhv: 3154,
@@ -7969,11 +7969,11 @@ const SPOT_DB = [
 
   { id: "db_1879", name: "Plan de l'Ours", region: "Bourg St. Maurice",
     lat: 45.5526, lon: 6.7716, elevation: 1821, dhv: 1879,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fab", hoehendiff: 1064, gemeinde: "73700 Bourg St. Maurice", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Vallandry Landeplatz 1", landeLat: 45.5917, landeLon: 6.7515, landeHoehe: 757, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fab", hoehendiff: 1064, gemeinde: "73700 Bourg St. Maurice", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Vallandry Landeplatz 1", landeLat: 45.5917, landeLon: 6.7515, landeHoehe: 757, landeExtra: [{ name: "Vallandry Landeplatz 2", lat: 45.617553, lon: 6.773453, hoehe: 806 }], ...DEF },
 
   { id: "db_5062", name: "Planche des Belles Filles", region: "Plancher-les-Mines",
     lat: 47.7674, lon: 6.7739, elevation: 1136, dhv: 5062,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "fr", acc: "fab", hoehendiff: 628, gemeinde: "70290 Plancher-les-Mines", bundesland: "Haute Saone", gleitschirm: "1- und 2-sitzig", bemerkung: "Skilift", landeName: "Planche des Belles Filles Landeplatz 1", landeLat: 47.7763, landeLon: 6.7612, landeHoehe: 574, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "fr", acc: "fab", hoehendiff: 628, gemeinde: "70290 Plancher-les-Mines", bundesland: "Haute Saone", gleitschirm: "1- und 2-sitzig", bemerkung: "Skilift", landeName: "Planche des Belles Filles Landeplatz 1", landeLat: 47.7763, landeLon: 6.7612, landeHoehe: 574, landeExtra: [{ name: "Planche des Belles Filles Landeplatz 2", lat: 47.768889, lon: 6.7435, hoehe: 508 }], ...DEF },
 
   { id: "db_1824", name: "Planfait", region: "Talloires",
     lat: 45.8532, lon: 6.223, elevation: 950, dhv: 1824,
@@ -7985,7 +7985,7 @@ const SPOT_DB = [
 
   { id: "db_5487", name: "Plateau de Cavillore", region: "Gourdon",
     lat: 43.7291, lon: 6.975, elevation: 1024, dhv: 5487,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fa", hoehendiff: 159, gemeinde: "06620 Gourdon", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Plateau de Cavillore Landeplatz", landeLat: 43.7276, landeLon: 6.9701, landeHoehe: 865, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "fr", acc: "fa", hoehendiff: 159, gemeinde: "06620 Gourdon", bundesland: "Provence", gleitschirm: "1- und 2-sitzig", landeName: "Plateau de Cavillore Landeplatz", landeLat: 43.7276, landeLon: 6.9701, landeHoehe: 865, landeExtra: [{ name: "Kennedy Landeplatz", lat: 43.700008, lon: 7.005747, hoehe: 137 }], ...DEF },
 
   { id: "db_3087", name: "Plateau de Chauffourt", region: "Chauffourt",
     lat: 47.9772, lon: 5.4228, elevation: 466, dhv: 3087,
@@ -8005,11 +8005,11 @@ const SPOT_DB = [
 
   { id: "db_3199_N", name: "Plomb du Cantal (N)", region: "Lioran",
     lat: 45.064, lon: 2.7619, elevation: 1783, dhv: 3199,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "fr", acc: "fb", hoehendiff: 826, gemeinde: "15300 Lioran", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Plomb du Cantal Landeplatz 1", landeLat: 45.0819, landeLon: 2.7489, landeHoehe: 1242, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "fr", acc: "fb", hoehendiff: 826, gemeinde: "15300 Lioran", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Plomb du Cantal Landeplatz 1", landeLat: 45.0819, landeLon: 2.7489, landeHoehe: 1242, landeExtra: [{ name: "Plomb du Cantal Landeplatz 2", lat: 45.050117, lon: 2.712692, hoehe: 971 }], ...DEF },
 
   { id: "db_3199_W", name: "Plomb du Cantal (W)", region: "Lioran",
     lat: 45.0626, lon: 2.7604, elevation: 1797, dhv: 3199,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fb", hoehendiff: 826, gemeinde: "15300 Lioran", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Plomb du Cantal Landeplatz 1", landeLat: 45.0819, landeLon: 2.7489, landeHoehe: 1242, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fb", hoehendiff: 826, gemeinde: "15300 Lioran", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Plomb du Cantal Landeplatz 1", landeLat: 45.0819, landeLon: 2.7489, landeHoehe: 1242, landeExtra: [{ name: "Plomb du Cantal Landeplatz 2", lat: 45.050117, lon: 2.712692, hoehe: 971 }], ...DEF },
 
   { id: "db_4902", name: "Plouezec", region: "Plouezec",
     lat: 48.7616, lon: -2.9859, elevation: 57, dhv: 4902,
@@ -8077,7 +8077,7 @@ const SPOT_DB = [
 
   { id: "db_1875", name: "Pragondran", region: "Pragondran",
     lat: 45.6269, lon: 5.9463, elevation: 902, dhv: 1875,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 623, gemeinde: "73230 Pragondran", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Sire Landeplatz 1", landeLat: 45.6175, landeLon: 5.9284, landeHoehe: 279, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 623, gemeinde: "73230 Pragondran", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Le Sire Landeplatz 1", landeLat: 45.6175, landeLon: 5.9284, landeHoehe: 279, landeExtra: [{ name: "Pragondran Landeplatz", lat: 45.609781, lon: 5.931564, hoehe: 304 }], ...DEF },
 
   { id: "db_5070", name: "Pralognan", region: "Pralognan-la-Vanoise",
     lat: 45.387, lon: 6.7337, elevation: 1980, dhv: 5070,
@@ -8085,7 +8085,7 @@ const SPOT_DB = [
 
   { id: "db_1823", name: "Prarion", region: "Passy",
     lat: 45.8961, lon: 6.7499, elevation: 1934, dhv: 1823,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fab", hoehendiff: 1333, gemeinde: "74190 Passy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Prarion Landeplatz", landeLat: 45.8982, landeLon: 6.7774, landeHoehe: 1017, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fab", hoehendiff: 1333, gemeinde: "74190 Passy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Prarion Landeplatz", landeLat: 45.8982, landeLon: 6.7774, landeHoehe: 1017, landeExtra: [{ name: "Plaine-Joux Landeplatz 2", lat: 45.915765, lon: 6.706316, hoehe: 601 }], ...DEF },
 
   { id: "db_3325", name: "Prat d'Albis", region: "Ganac",
     lat: 42.9219, lon: 1.5815, elevation: 1182, dhv: 3325,
@@ -8113,7 +8113,7 @@ const SPOT_DB = [
 
   { id: "db_4968", name: "Puy Brunet", region: "Saint-Jacques-des-Blats",
     lat: 45.0571, lon: 2.7456, elevation: 1681, dhv: 4968,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fab", hoehendiff: 752, gemeinde: "15800 Saint-Jacques-des-Blats", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Puy Brunet Startplatz 2", landeLat: 45.0557, landeLon: 2.7498, landeHoehe: 1727, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fab", hoehendiff: 752, gemeinde: "15800 Saint-Jacques-des-Blats", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Puy Brunet Startplatz 2", landeLat: 45.0557, landeLon: 2.7498, landeHoehe: 1727, landeExtra: [{ name: "Puy Brunet Landeplatz 1", lat: 45.053475, lon: 2.715064, hoehe: 975 }, { name: "Plomb du Cantal Landeplatz 2", lat: 45.050117, lon: 2.712692, hoehe: 971 }], ...DEF },
 
   { id: "db_4972_SO", name: "Puy de Bort (SO)", region: "Bort-les-Orgues",
     lat: 45.3956, lon: 2.4622, elevation: 797, dhv: 4972,
@@ -8133,15 +8133,15 @@ const SPOT_DB = [
 
   { id: "db_4981", name: "Puy de Dome", region: "Saint-Genes-Champanelle",
     lat: 45.7721, lon: 2.9655, elevation: 1425, dhv: 4981,
-    sectors: [[348.75, 11.25], [78.75, 101.25], [168.75, 191.25], [258.75, 281.25]], sectorLabel: "N · O · S · W", country: "fr", acc: "fa", hoehendiff: 526, gemeinde: "63122 Saint-Genes-Champanelle", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Puy de Dome Landeplatz 1", landeLat: 45.7735, landeLon: 2.9861, landeHoehe: 899, ...DEF },
+    sectors: [[348.75, 11.25], [78.75, 101.25], [168.75, 191.25], [258.75, 281.25]], sectorLabel: "N · O · S · W", country: "fr", acc: "fa", hoehendiff: 526, gemeinde: "63122 Saint-Genes-Champanelle", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Puy de Dome Landeplatz 1", landeLat: 45.7735, landeLon: 2.9861, landeHoehe: 899, landeExtra: [{ name: "Puy de Dome Landeplatz 3", lat: 45.764258, lon: 2.947228, hoehe: 1013 }, { name: "Puy de Dome Landeplatz 2", lat: 45.748003, lon: 2.972739, hoehe: 939 }], ...DEF },
 
   { id: "db_3172", name: "Puy de L'Angle", region: "Le Mont-Dore",
     lat: 45.5727, lon: 2.8395, elevation: 1715, dhv: 3172,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 456, gemeinde: "63240 Le Mont-Dore", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Le Mareuilh Landeplatz", landeLat: 45.5633, landeLon: 2.8305, landeHoehe: 1438, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 456, gemeinde: "63240 Le Mont-Dore", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Le Mareuilh Landeplatz", landeLat: 45.5633, landeLon: 2.8305, landeHoehe: 1438, landeExtra: [{ name: "Puy de L'Angle Landeplatz", lat: 45.575192, lon: 2.819008, hoehe: 1259 }], ...DEF },
 
   { id: "db_4983", name: "Puy de L'Ouire", region: "Rochefort-Montagne",
     lat: 45.6285, lon: 2.8313, elevation: 1482, dhv: 4983,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "fr", acc: "f", hoehendiff: 474, gemeinde: "63210 Rochefort-Montagne", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Puy de L&#039;Ouire Landeplatz 1", landeLat: 45.6220, landeLon: 2.8276, landeHoehe: 1362, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "fr", acc: "f", hoehendiff: 474, gemeinde: "63210 Rochefort-Montagne", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Puy de L&#039;Ouire Landeplatz 1", landeLat: 45.6220, landeLon: 2.8276, landeHoehe: 1362, landeExtra: [{ name: "Puy de L'Ouire Landeplatz 2", lat: 45.639881, lon: 2.811942, hoehe: 1008 }], ...DEF },
 
   { id: "db_4971", name: "Puy de la Monediere", region: "Veix",
     lat: 45.4862, lon: 1.8393, elevation: 896, dhv: 4971,
@@ -8177,7 +8177,7 @@ const SPOT_DB = [
 
   { id: "db_3157", name: "Puy de St. Romain", region: "Mirefleurs",
     lat: 45.6799, lon: 3.2424, elevation: 752, dhv: 3157,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 417, gemeinde: "63730 Mirefleurs", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Puy de St. Romain Landeplatz 2", landeLat: 45.6759, landeLon: 3.2476, landeHoehe: 621, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 417, gemeinde: "63730 Mirefleurs", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Puy de St. Romain Landeplatz 2", landeLat: 45.6759, landeLon: 3.2476, landeHoehe: 621, landeExtra: [{ name: "Puy de St. Romain Landeplatz 1", lat: 45.683581, lon: 3.210494, hoehe: 335 }], ...DEF },
 
   { id: "db_3201", name: "Puy du Tour", region: "Le Chambon",
     lat: 45.0815, lon: 1.9211, elevation: 377, dhv: 3201,
@@ -8189,11 +8189,11 @@ const SPOT_DB = [
 
   { id: "db_3193_NO", name: "Puy Mary (NO)", region: "Le Cluax",
     lat: 45.1242, lon: 2.6736, elevation: 1671, dhv: 3193,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 641, gemeinde: "15400 Le Cluax", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Puy Mary Landeplatz 3", landeLat: 45.1110, landeLon: 2.6863, landeHoehe: 1421, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 641, gemeinde: "15400 Le Cluax", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Puy Mary Landeplatz 3", landeLat: 45.1110, landeLon: 2.6863, landeHoehe: 1421, landeExtra: [{ name: "Puy Mary Landeplatz 1", lat: 45.137836, lon: 2.694722, hoehe: 1056 }, { name: "Puy Mary Landeplatz 2", lat: 45.131936, lon: 2.650153, hoehe: 1030 }], ...DEF },
 
   { id: "db_3193_W", name: "Puy Mary (W)", region: "Le Cluax",
     lat: 45.1217, lon: 2.6714, elevation: 1663, dhv: 3193,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 641, gemeinde: "15400 Le Cluax", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Puy Mary Landeplatz 3", landeLat: 45.1110, landeLon: 2.6863, landeHoehe: 1421, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 641, gemeinde: "15400 Le Cluax", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Puy Mary Landeplatz 3", landeLat: 45.1110, landeLon: 2.6863, landeHoehe: 1421, landeExtra: [{ name: "Puy Mary Landeplatz 1", lat: 45.137836, lon: 2.694722, hoehe: 1056 }, { name: "Puy Mary Landeplatz 2", lat: 45.131936, lon: 2.650153, hoehe: 1030 }], ...DEF },
 
   { id: "db_1956", name: "Puy-Aillaud", region: "Vallouise",
     lat: 44.8503, lon: 6.4782, elevation: 1662, dhv: 1956,
@@ -8209,11 +8209,11 @@ const SPOT_DB = [
 
   { id: "db_3197_S", name: "Redondet (S)", region: "Mandailles-Saint-Julien",
     lat: 45.1043, lon: 2.6613, elevation: 1526, dhv: 3197,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 567, gemeinde: "15590 Mandailles-Saint-Julien", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Redondet Landeplatz 2", landeLat: 45.0941, landeLon: 2.6867, landeHoehe: 1326, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 567, gemeinde: "15590 Mandailles-Saint-Julien", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Redondet Landeplatz 2", landeLat: 45.0941, landeLon: 2.6867, landeHoehe: 1326, landeExtra: [{ name: "Redondet Landeplatz 1", lat: 45.083183, lon: 2.677394, hoehe: 1013 }], ...DEF },
 
   { id: "db_3197_SO", name: "Redondet (SO)", region: "Mandailles-Saint-Julien",
     lat: 45.1069, lon: 2.6717, elevation: 1580, dhv: 3197,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 567, gemeinde: "15590 Mandailles-Saint-Julien", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Redondet Landeplatz 2", landeLat: 45.0941, landeLon: 2.6867, landeHoehe: 1326, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 567, gemeinde: "15590 Mandailles-Saint-Julien", bundesland: "Cantal", gleitschirm: "1- und 2-sitzig", landeName: "Redondet Landeplatz 2", landeLat: 45.0941, landeLon: 2.6867, landeHoehe: 1326, landeExtra: [{ name: "Redondet Landeplatz 1", lat: 45.083183, lon: 2.677394, hoehe: 1013 }], ...DEF },
 
   { id: "db_3057", name: "Reinhartsmunster", region: "Reinhartsmunster",
     lat: 48.6774, lon: 7.3121, elevation: 515, dhv: 3057,
@@ -8265,7 +8265,7 @@ const SPOT_DB = [
 
   { id: "db_1886", name: "Roche de Mio", region: "Macot la Plagne",
     lat: 45.4933, lon: 6.7343, elevation: 2696, dhv: 1886,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fb", hoehendiff: 1994, gemeinde: "73210 Macot la Plagne", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Roche de Mio Landeplatz", landeLat: 45.5535, landeLon: 6.6656, landeHoehe: 702, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fb", hoehendiff: 1994, gemeinde: "73210 Macot la Plagne", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Roche de Mio Landeplatz", landeLat: 45.5535, landeLon: 6.6656, landeHoehe: 702, landeExtra: [{ name: "Vallandry Landeplatz 1", lat: 45.591653, lon: 6.751453, hoehe: 757 }], ...DEF },
 
   { id: "db_3106", name: "Roche les Clerval", region: "Roche-les-Clerval",
     lat: 47.3576, lon: 6.481, elevation: 558, dhv: 3106,
@@ -8273,7 +8273,7 @@ const SPOT_DB = [
 
   { id: "db_1806", name: "Rochebrune", region: "Megeve",
     lat: 45.8332, lon: 6.6128, elevation: 1731, dhv: 1806,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "fr", acc: "fab", hoehendiff: 703, gemeinde: "74120 Megeve", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Rochebrune Landeplatz 1", landeLat: 45.8364, landeLon: 6.5815, landeHoehe: 1028, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "fr", acc: "fab", hoehendiff: 703, gemeinde: "74120 Megeve", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Rochebrune Landeplatz 1", landeLat: 45.8364, landeLon: 6.5815, landeHoehe: 1028, landeExtra: [{ name: "Rochebrune Landeplatz 2", lat: 45.861453, lon: 6.620653, hoehe: 1099 }], ...DEF },
 
   { id: "db_3192", name: "Rocher de Laqueuille", region: "Dienne",
     lat: 45.1484, lon: 2.7939, elevation: 1273, dhv: 3192,
@@ -8289,11 +8289,11 @@ const SPOT_DB = [
 
   { id: "db_3074_S", name: "Roocourt la Cote le Denot (S)", region: "Bologne",
     lat: 48.214, lon: 5.1526, elevation: 340, dhv: 3074,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 76, gemeinde: "52310 Bologne", bundesland: "Haute-Marne", gleitschirm: "1- und 2-sitzig", landeName: "Roocourt la Cote le Denot Landeplatz 1", landeLat: 48.2116, landeLon: 5.1511, landeHoehe: 274, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 76, gemeinde: "52310 Bologne", bundesland: "Haute-Marne", gleitschirm: "1- und 2-sitzig", landeName: "Roocourt la Cote le Denot Landeplatz 1", landeLat: 48.2116, landeLon: 5.1511, landeHoehe: 274, landeExtra: [{ name: "Roocourt la Cote le Denot Landeplatz 2", lat: 48.217639, lon: 5.145783, hoehe: 264 }], ...DEF },
 
   { id: "db_3074_SW", name: "Roocourt la Cote le Denot (SW)", region: "Bologne",
     lat: 48.2191, lon: 5.1496, elevation: 337, dhv: 3074,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 76, gemeinde: "52310 Bologne", bundesland: "Haute-Marne", gleitschirm: "1- und 2-sitzig", landeName: "Roocourt la Cote le Denot Landeplatz 2", landeLat: 48.2176, landeLon: 5.1458, landeHoehe: 264, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 76, gemeinde: "52310 Bologne", bundesland: "Haute-Marne", gleitschirm: "1- und 2-sitzig", landeName: "Roocourt la Cote le Denot Landeplatz 2", landeLat: 48.2176, landeLon: 5.1458, landeHoehe: 264, landeExtra: [{ name: "Roocourt la Cote le Denot Landeplatz 1", lat: 48.211592, lon: 5.151078, hoehe: 274 }], ...DEF },
 
   { id: "db_3068", name: "Rosnoen", region: "Rosenoen",
     lat: 48.2629, lon: -4.2141, elevation: 127, dhv: 3068,
@@ -8301,7 +8301,7 @@ const SPOT_DB = [
 
   { id: "db_2380", name: "Rothenbachkopf/Batteriekopf", region: "Wildenstein",
     lat: 48.0044, lon: 6.9802, elevation: 1206, dhv: 2380,
-    sectors: [[78.75, 101.25], [258.75, 281.25]], sectorLabel: "O · W", country: "fr", diff: 1, acc: "fa", hoehendiff: 659, gemeinde: "68820 Wildenstein", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", bemerkung: "Herrliche Wiesenstartplätze auf dem Grat des Rothenbachkopfes. Die Hochfläche entlang des Grates dient gleichzeitig als offizielle Landemöglichkeit.", landeName: "Rothenbachkopf/Batteriekopf Landeplatz 2", landeLat: 48.0058, landeLon: 7.0235, landeHoehe: 557, ...DEF },
+    sectors: [[78.75, 101.25], [258.75, 281.25]], sectorLabel: "O · W", country: "fr", diff: 1, acc: "fa", hoehendiff: 659, gemeinde: "68820 Wildenstein", bundesland: "Haut-Rhin", gleitschirm: "1- und 2-sitzig", bemerkung: "Herrliche Wiesenstartplätze auf dem Grat des Rothenbachkopfes. Die Hochfläche entlang des Grates dient gleichzeitig als offizielle Landemöglichkeit.", landeName: "Rothenbachkopf/Batteriekopf Landeplatz 2", landeLat: 48.0058, landeLon: 7.0235, landeHoehe: 557, landeExtra: [{ name: "Rothenbachkopf/Batteriekopf Landeplatz 1", lat: 47.962769, lon: 6.960225, hoehe: 547 }], ...DEF },
 
   { id: "db_2294", name: "Saint Amand", region: "Suzette",
     lat: 44.1863, lon: 5.0684, elevation: 657, dhv: 2294,
@@ -8309,19 +8309,19 @@ const SPOT_DB = [
 
   { id: "db_3249", name: "Saint Antonin Noble Val", region: "Saint-Antoinin-Noble-Val",
     lat: 44.1593, lon: 1.768, elevation: 300, dhv: 3249,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 165, gemeinde: "82140 Saint-Antoinin-Noble-Val", bundesland: "Tarn et Garonne", gleitschirm: "1- und 2-sitzig", landeName: "Saint Antonin Noble Val Landeplatz", landeLat: 44.1562, landeLon: 1.7622, landeHoehe: 183, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 165, gemeinde: "82140 Saint-Antoinin-Noble-Val", bundesland: "Tarn et Garonne", gleitschirm: "1- und 2-sitzig", landeName: "Saint Antonin Noble Val Landeplatz", landeLat: 44.1562, landeLon: 1.7622, landeHoehe: 183, landeExtra: [{ name: "Merigot Landeplatz", lat: 44.150942, lon: 1.773869, hoehe: 135 }], ...DEF },
 
   { id: "db_3303", name: "Saint Come", region: "Saint Come",
     lat: 43.835, lon: 4.1976, elevation: 173, dhv: 3303,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 102, gemeinde: "30870 Saint Come", bundesland: "du Gard", gleitschirm: "1- und 2-sitzig", landeName: "Saint Come Landeplatz 1", landeLat: 43.8332, landeLon: 4.2002, landeHoehe: 109, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 102, gemeinde: "30870 Saint Come", bundesland: "du Gard", gleitschirm: "1- und 2-sitzig", landeName: "Saint Come Landeplatz 1", landeLat: 43.8332, landeLon: 4.2002, landeHoehe: 109, landeExtra: [{ name: "Saint Come Landeplatz 2", lat: 43.828317, lon: 4.199539, hoehe: 71 }], ...DEF },
 
   { id: "db_3344", name: "Saint Florent", region: "Saint Florent",
     lat: 42.6697, lon: 9.2944, elevation: 113, dhv: 3344,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 112, gemeinde: "20217 Saint Florent", bundesland: "La Corse", gleitschirm: "1- und 2-sitzig", landeName: "Saint Florent Landeplatz 1", landeLat: 42.6748, landeLon: 9.2971, landeHoehe: 1, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 112, gemeinde: "20217 Saint Florent", bundesland: "La Corse", gleitschirm: "1- und 2-sitzig", landeName: "Saint Florent Landeplatz 1", landeLat: 42.6748, landeLon: 9.2971, landeHoehe: 1, landeExtra: [{ name: "Saint Florent Landeplatz 2", lat: 42.67375, lon: 9.289297, hoehe: 3 }], ...DEF },
 
   { id: "db_2295", name: "Saint Hippolyte le Graveyron", region: "Saint Hippolyte le Graveyron",
     lat: 44.1324, lon: 5.0765, elevation: 389, dhv: 2295,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 213, gemeinde: "84330 Saint Hippolyte le Graveyron", bundesland: "Vaucluse", gleitschirm: "1- und 2-sitzig", landeName: "Saint Hippolyte le Graveyron Landeplatz 1", landeLat: 44.1284, landeLon: 5.0747, landeHoehe: 230, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", acc: "fa", hoehendiff: 213, gemeinde: "84330 Saint Hippolyte le Graveyron", bundesland: "Vaucluse", gleitschirm: "1- und 2-sitzig", landeName: "Saint Hippolyte le Graveyron Landeplatz 1", landeLat: 44.1284, landeLon: 5.0747, landeHoehe: 230, landeExtra: [{ name: "Saint Hippolyte le Graveyron Landeplatz 2", lat: 44.122581, lon: 5.082014, hoehe: 176 }], ...DEF },
 
   { id: "db_3120_NW", name: "Saint Michel Chef (NW)", region: "Saint-Michel-Chef",
     lat: 47.1884, lon: -2.1602, elevation: 15, dhv: 3120,
@@ -8405,11 +8405,11 @@ const SPOT_DB = [
 
   { id: "db_1819_SW", name: "Sainte Victoire (SW)", region: "Puyloubier",
     lat: 43.5323, lon: 5.5733, elevation: 714, dhv: 1819,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 370, gemeinde: "13114 Puyloubier", bundesland: "Bouches-du-Rhone", gleitschirm: "1- und 2-sitzig", landeName: "Sainte Victoire Landeplatz 1", landeLat: 43.5262, landeLon: 5.5631, landeHoehe: 344, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 370, gemeinde: "13114 Puyloubier", bundesland: "Bouches-du-Rhone", gleitschirm: "1- und 2-sitzig", landeName: "Sainte Victoire Landeplatz 1", landeLat: 43.5262, landeLon: 5.5631, landeHoehe: 344, landeExtra: [{ name: "Sainte Victoire Landeplatz 2", lat: 43.5192, lon: 5.590414, hoehe: 437 }], ...DEF },
 
   { id: "db_1819_W", name: "Sainte Victoire (W)", region: "Puyloubier",
     lat: 43.5316, lon: 5.5667, elevation: 500, dhv: 1819,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 370, gemeinde: "13114 Puyloubier", bundesland: "Bouches-du-Rhone", gleitschirm: "1- und 2-sitzig", landeName: "Sainte Victoire Landeplatz 1", landeLat: 43.5262, landeLon: 5.5631, landeHoehe: 344, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 370, gemeinde: "13114 Puyloubier", bundesland: "Bouches-du-Rhone", gleitschirm: "1- und 2-sitzig", landeName: "Sainte Victoire Landeplatz 1", landeLat: 43.5262, landeLon: 5.5631, landeHoehe: 344, landeExtra: [{ name: "Sainte Victoire Landeplatz 2", lat: 43.5192, lon: 5.590414, hoehe: 437 }], ...DEF },
 
   { id: "db_5061", name: "Sainte-Marie-en-Chanois", region: "Amage",
     lat: 47.8378, lon: 6.528, elevation: 456, dhv: 5061,
@@ -8417,19 +8417,19 @@ const SPOT_DB = [
 
   { id: "db_1769_N", name: "Saleve (N)", region: "Veyrier",
     lat: 46.1487, lon: 6.1891, elevation: 1183, dhv: 1769,
-    sectors: [[303.75, 11.25], [348.75, 11.25]], sectorLabel: "NW-N · N", country: "fr", acc: "fab", hoehendiff: 865, gemeinde: "1255 Veyrier", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Saleve Landeplatz 2", landeLat: 46.1338, landeLon: 6.1608, landeHoehe: 676, ...DEF },
+    sectors: [[303.75, 11.25], [348.75, 11.25]], sectorLabel: "NW-N · N", country: "fr", acc: "fab", hoehendiff: 865, gemeinde: "1255 Veyrier", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Saleve Landeplatz 2", landeLat: 46.1338, landeLon: 6.1608, landeHoehe: 676, landeExtra: [{ name: "Saleve Landeplatz 1", lat: 46.172492, lon: 6.208919, hoehe: 403 }], ...DEF },
 
   { id: "db_1769_SW", name: "Saleve (SW)", region: "Veyrier",
     lat: 46.1301, lon: 6.1726, elevation: 1268, dhv: 1769,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fab", hoehendiff: 865, gemeinde: "1255 Veyrier", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Saleve Landeplatz 2", landeLat: 46.1338, landeLon: 6.1608, landeHoehe: 676, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fab", hoehendiff: 865, gemeinde: "1255 Veyrier", bundesland: "Rhône-Alpes", gleitschirm: "1- und 2-sitzig", landeName: "Saleve Landeplatz 2", landeLat: 46.1338, landeLon: 6.1608, landeHoehe: 676, landeExtra: [{ name: "Saleve Landeplatz 1", lat: 46.172492, lon: 6.208919, hoehe: 403 }], ...DEF },
 
   { id: "db_1833_N", name: "Sambuy (N)", region: "Seythenex",
     lat: 45.6985, lon: 6.2721, elevation: 1818, dhv: 1833,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "f", hoehendiff: 1336, gemeinde: "74210 Seythenex", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Sambuy Landeplatz 2", landeLat: 45.7235, landeLon: 6.2990, landeHoehe: 737, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "f", hoehendiff: 1336, gemeinde: "74210 Seythenex", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Sambuy Landeplatz 2", landeLat: 45.7235, landeLon: 6.2990, landeHoehe: 737, landeExtra: [{ name: "Sambuy Landeplatz 1", lat: 45.726125, lon: 6.296094, hoehe: 730 }], ...DEF },
 
   { id: "db_1833_W", name: "Sambuy (W)", region: "Seythenex",
     lat: 45.6953, lon: 6.2643, elevation: 2066, dhv: 1833,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "f", hoehendiff: 1336, gemeinde: "74210 Seythenex", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Sambuy Landeplatz 2", landeLat: 45.7235, landeLon: 6.2990, landeHoehe: 737, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "f", hoehendiff: 1336, gemeinde: "74210 Seythenex", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Sambuy Landeplatz 2", landeLat: 45.7235, landeLon: 6.2990, landeHoehe: 737, landeExtra: [{ name: "Sambuy Landeplatz 1", lat: 45.726125, lon: 6.296094, hoehe: 730 }], ...DEF },
 
   { id: "db_3352", name: "San Bastiano 1", region: "Calcatoggio",
     lat: 42.0248, lon: 8.7315, elevation: 439, dhv: 3352,
@@ -8437,7 +8437,7 @@ const SPOT_DB = [
 
   { id: "db_5037", name: "San Bastiano 2", region: "Calcatoggio",
     lat: 42.0212, lon: 8.7549, elevation: 653, dhv: 5037,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 652, gemeinde: "20111 Calcatoggio", bundesland: "La Corse", gleitschirm: "1- und 2-sitzig", landeName: "San Bastiano 2 Landeplatz 2", landeLat: 42.0473, landeLon: 8.7502, landeHoehe: 3, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 652, gemeinde: "20111 Calcatoggio", bundesland: "La Corse", gleitschirm: "1- und 2-sitzig", landeName: "San Bastiano 2 Landeplatz 2", landeLat: 42.0473, landeLon: 8.7502, landeHoehe: 3, landeExtra: [{ name: "San Bastiano 2 Landeplatz 1", lat: 42.047211, lon: 8.747042, hoehe: 1 }], ...DEF },
 
   { id: "db_4886", name: "Sancerre", region: "Sancerre",
     lat: 47.3298, lon: 2.8284, elevation: 232, dhv: 4886,
@@ -8461,11 +8461,11 @@ const SPOT_DB = [
 
   { id: "db_3017_N", name: "Saussemare (N)", region: "Saint-Aubin-sur-Mer",
     lat: 49.8926, lon: 0.8633, elevation: 10, dhv: 3017,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 8, gemeinde: "76740 Saint-Aubin-sur-Mer", bundesland: "Seine-Maritime", gleitschirm: "1- und 2-sitzig", landeName: "Saussemare Landeplatz 1", landeLat: 49.8931, landeLon: 0.8634, landeHoehe: 2, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "fr", acc: "fa", hoehendiff: 8, gemeinde: "76740 Saint-Aubin-sur-Mer", bundesland: "Seine-Maritime", gleitschirm: "1- und 2-sitzig", landeName: "Saussemare Landeplatz 1", landeLat: 49.8931, landeLon: 0.8634, landeHoehe: 2, landeExtra: [{ name: "Saussemare Landeplatz 2", lat: 49.894803, lon: 0.875469, hoehe: 3 }], ...DEF },
 
   { id: "db_3017_NW", name: "Saussemare (NW)", region: "Saint-Aubin-sur-Mer",
     lat: 49.8947, lon: 0.8765, elevation: 7, dhv: 3017,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 8, gemeinde: "76740 Saint-Aubin-sur-Mer", bundesland: "Seine-Maritime", gleitschirm: "1- und 2-sitzig", landeName: "Saussemare Landeplatz 2", landeLat: 49.8948, landeLon: 0.8755, landeHoehe: 3, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 8, gemeinde: "76740 Saint-Aubin-sur-Mer", bundesland: "Seine-Maritime", gleitschirm: "1- und 2-sitzig", landeName: "Saussemare Landeplatz 2", landeLat: 49.8948, landeLon: 0.8755, landeHoehe: 3, landeExtra: [{ name: "Saussemare Landeplatz 1", lat: 49.893092, lon: 0.863356, hoehe: 2 }], ...DEF },
 
   { id: "db_3235", name: "Saut de la Mounine", region: "Ambeyrac",
     lat: 44.4855, lon: 1.9197, elevation: 307, dhv: 3235,
@@ -8489,7 +8489,7 @@ const SPOT_DB = [
 
   { id: "db_1809", name: "Semnoz", region: "Gruffy",
     lat: 45.7972, lon: 6.1048, elevation: 1685, dhv: 1809,
-    sectors: [[258.75, 326.25], [258.75, 281.25]], sectorLabel: "W-NW · W", country: "fr", acc: "fa", hoehendiff: 1125, gemeinde: "74540 Gruffy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Semnoz Landeplatz 2", landeLat: 45.7941, landeLon: 6.0548, landeHoehe: 560, ...DEF },
+    sectors: [[258.75, 326.25], [258.75, 281.25]], sectorLabel: "W-NW · W", country: "fr", acc: "fa", hoehendiff: 1125, gemeinde: "74540 Gruffy", bundesland: "Haute-Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Semnoz Landeplatz 2", landeLat: 45.7941, landeLon: 6.0548, landeHoehe: 560, landeExtra: [{ name: "Semnoz Landeplatz 1", lat: 45.812275, lon: 6.053166, hoehe: 560 }], ...DEF },
 
   { id: "db_3021", name: "Seneville sur Fecamp", region: "Seneville sur Fecamp",
     lat: 49.7795, lon: 0.4137, elevation: 93, dhv: 3021,
@@ -8497,7 +8497,7 @@ const SPOT_DB = [
 
   { id: "db_3146", name: "Septmoncel", region: "Septmoncel",
     lat: 46.371, lon: 5.8986, elevation: 1027, dhv: 3146,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 506, gemeinde: "39310 Septmoncel", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Septmoncel Landeplatz 2", landeLat: 46.3691, landeLon: 5.9038, landeHoehe: 1027, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 506, gemeinde: "39310 Septmoncel", bundesland: "Jura", gleitschirm: "1- und 2-sitzig", landeName: "Septmoncel Landeplatz 2", landeLat: 46.3691, landeLon: 5.9038, landeHoehe: 1027, landeExtra: [{ name: "Septmoncel Landeplatz 1", lat: 46.372442, lon: 5.876903, hoehe: 521 }], ...DEF },
 
   { id: "db_2196_NO", name: "Serre de Barre (NO)", region: "Gravieres",
     lat: 44.402, lon: 4.0757, elevation: 829, dhv: 2196,
@@ -8581,15 +8581,15 @@ const SPOT_DB = [
 
   { id: "db_1279_O", name: "St. Hilaire (O)", region: "Lumbin",
     lat: 45.314, lon: 5.8723, elevation: 1313, dhv: 1279,
-    sectors: [[78.75, 101.25], [78.75, 146.25]], sectorLabel: "O · O-SO", country: "fr", diff: 2, acc: "fa", hoehendiff: 1082, gemeinde: "38660 Lumbin", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "St. Hilaire Landeplatz 3", landeLat: 45.3112, landeLon: 5.8893, landeHoehe: 957, ...DEF },
+    sectors: [[78.75, 101.25], [78.75, 146.25]], sectorLabel: "O · O-SO", country: "fr", diff: 2, acc: "fa", hoehendiff: 1082, gemeinde: "38660 Lumbin", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "St. Hilaire Landeplatz 3", landeLat: 45.3112, landeLon: 5.8893, landeHoehe: 957, landeExtra: [{ name: "St. Hilaire Landeplatz 4", lat: 45.301758, lon: 5.879488, hoehe: 1030 }, { name: "St. Hilaire Landeplatz 1", lat: 45.302078, lon: 5.906222, hoehe: 236 }, { name: "St. Hilaire Landeplatz 2", lat: 45.300464, lon: 5.909942, hoehe: 231 }], ...DEF },
 
   { id: "db_1279_S", name: "St. Hilaire (S)", region: "Lumbin",
     lat: 45.3083, lon: 5.8833, elevation: 912, dhv: 1279,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", diff: 2, acc: "fa", hoehendiff: 1082, gemeinde: "38660 Lumbin", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "St. Hilaire Landeplatz 3", landeLat: 45.3112, landeLon: 5.8893, landeHoehe: 957, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", diff: 2, acc: "fa", hoehendiff: 1082, gemeinde: "38660 Lumbin", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "St. Hilaire Landeplatz 3", landeLat: 45.3112, landeLon: 5.8893, landeHoehe: 957, landeExtra: [{ name: "St. Hilaire Landeplatz 4", lat: 45.301758, lon: 5.879488, hoehe: 1030 }, { name: "St. Hilaire Landeplatz 1", lat: 45.302078, lon: 5.906222, hoehe: 236 }, { name: "St. Hilaire Landeplatz 2", lat: 45.300464, lon: 5.909942, hoehe: 231 }], ...DEF },
 
   { id: "db_1279_SO", name: "St. Hilaire (SO)", region: "Lumbin",
     lat: 45.3105, lon: 5.8903, elevation: 945, dhv: 1279,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", diff: 2, acc: "fa", hoehendiff: 1082, gemeinde: "38660 Lumbin", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "St. Hilaire Landeplatz 3", landeLat: 45.3112, landeLon: 5.8893, landeHoehe: 957, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "fr", diff: 2, acc: "fa", hoehendiff: 1082, gemeinde: "38660 Lumbin", bundesland: "l Isere", gleitschirm: "1- und 2-sitzig", landeName: "St. Hilaire Landeplatz 3", landeLat: 45.3112, landeLon: 5.8893, landeHoehe: 957, landeExtra: [{ name: "St. Hilaire Landeplatz 4", lat: 45.301758, lon: 5.879488, hoehe: 1030 }, { name: "St. Hilaire Landeplatz 1", lat: 45.302078, lon: 5.906222, hoehe: 236 }, { name: "St. Hilaire Landeplatz 2", lat: 45.300464, lon: 5.909942, hoehe: 231 }], ...DEF },
 
   { id: "db_3051", name: "St. Marc D'Ouilly", region: "Cossesseville",
     lat: 48.8826, lon: -0.445, elevation: 175, dhv: 3051,
@@ -8629,7 +8629,7 @@ const SPOT_DB = [
 
   { id: "db_2198", name: "St. Sebastien", region: "St. Paul le Jeune",
     lat: 44.3137, lon: 4.1451, elevation: 418, dhv: 2198,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "fr", acc: "fa", hoehendiff: 178, gemeinde: "07460 St. Paul le Jeune", bundesland: "l Ardeche", gleitschirm: "1- und 2-sitzig", landeName: "St. Sebastien Landeplatz 2", landeLat: 44.3162, landeLon: 4.1572, landeHoehe: 240, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "fr", acc: "fa", hoehendiff: 178, gemeinde: "07460 St. Paul le Jeune", bundesland: "l Ardeche", gleitschirm: "1- und 2-sitzig", landeName: "St. Sebastien Landeplatz 2", landeLat: 44.3162, landeLon: 4.1572, landeHoehe: 240, landeExtra: [{ name: "St. Sebastien Landeplatz 1", lat: 44.314356, lon: 4.160008, hoehe: 244 }], ...DEF },
 
   { id: "db_5073", name: "St.-Jean-de-Maurienne", region: "St.-Jean-de-Maurienne",
     lat: 45.2876, lon: 6.32, elevation: 1272, dhv: 5073,
@@ -8657,7 +8657,7 @@ const SPOT_DB = [
 
   { id: "db_4942", name: "Suin", region: "Suin",
     lat: 46.4339, lon: 4.4755, elevation: 582, dhv: 4942,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 264, gemeinde: "71220 Suin", bundesland: "Saone et Loire", gleitschirm: "1- und 2-sitzig", landeName: "Suin Landeplatz 2", landeLat: 46.4288, landeLon: 4.4895, landeHoehe: 397, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 264, gemeinde: "71220 Suin", bundesland: "Saone et Loire", gleitschirm: "1- und 2-sitzig", landeName: "Suin Landeplatz 2", landeLat: 46.4288, landeLon: 4.4895, landeHoehe: 397, landeExtra: [{ name: "Suin Landeplatz 1", lat: 46.436856, lon: 4.491211, hoehe: 318 }], ...DEF },
 
   { id: "db_3343", name: "Superbagneres", region: "Bagneres de Luchon",
     lat: 42.7682, lon: 0.58, elevation: 1760, dhv: 3343,
@@ -8713,7 +8713,7 @@ const SPOT_DB = [
 
   { id: "db_5629", name: "Tolla", region: "Tolla",
     lat: 41.9974, lon: 8.967, elevation: 1419, dhv: 5629,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 1181, gemeinde: "20117 Tolla", bundesland: "La Corse", gleitschirm: "1- und 2-sitzig", landeName: "Tolla Landeplatz 1", landeLat: 41.9731, landeLon: 8.9732, landeHoehe: 573, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "fr", acc: "fa", hoehendiff: 1181, gemeinde: "20117 Tolla", bundesland: "La Corse", gleitschirm: "1- und 2-sitzig", landeName: "Tolla Landeplatz 1", landeLat: 41.9731, landeLon: 8.9732, landeHoehe: 573, landeExtra: [{ name: "Vero Landeplatz", lat: 42.045419, lon: 8.922842, hoehe: 238 }], ...DEF },
 
   { id: "db_2168", name: "Torcieu", region: "Torcieu",
     lat: 45.911, lon: 5.3973, elevation: 559, dhv: 2168,
@@ -8745,7 +8745,7 @@ const SPOT_DB = [
 
   { id: "db_3180", name: "Trossagne", region: "Ourciere",
     lat: 45.5189, lon: 2.9836, elevation: 1103, dhv: 3180,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 330, gemeinde: "63610 Ourciere", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Trossagne Landeplatz 2", landeLat: 45.5279, landeLon: 2.9767, landeHoehe: 773, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "fr", acc: "fa", hoehendiff: 330, gemeinde: "63610 Ourciere", bundesland: "Puy de Dome", gleitschirm: "1- und 2-sitzig", landeName: "Trossagne Landeplatz 2", landeLat: 45.5279, landeLon: 2.9767, landeHoehe: 773, landeExtra: [{ name: "Trossagne Landeplatz 1", lat: 45.522289, lon: 2.969547, hoehe: 786 }, { name: "Pic St. Piere Landeplatz 1", lat: 45.530831, lon: 3.002522, hoehe: 672 }], ...DEF },
 
   { id: "db_3063", name: "Tuchenn Kador", region: "Botmeur",
     lat: 48.3741, lon: -3.9519, elevation: 370, dhv: 3063,
@@ -8753,7 +8753,7 @@ const SPOT_DB = [
 
   { id: "db_3088", name: "Tumulus", region: "Vecoux",
     lat: 47.9661, lon: 6.6511, elevation: 780, dhv: 3088,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 381, gemeinde: "88200 Vecoux", bundesland: "Vosges", gleitschirm: "1- und 2-sitzig", landeName: "Tumulus Landeplatz", landeLat: 47.9731, landeLon: 6.6323, landeHoehe: 399, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 381, gemeinde: "88200 Vecoux", bundesland: "Vosges", gleitschirm: "1- und 2-sitzig", landeName: "Tumulus Landeplatz", landeLat: 47.9731, landeLon: 6.6323, landeHoehe: 399, landeExtra: [{ name: "Benevise Landeplatz", lat: 47.913994, lon: 6.677411, hoehe: 442 }], ...DEF },
 
   { id: "db_3134", name: "Uchon", region: "Uchon",
     lat: 46.8069, lon: 4.2534, elevation: 636, dhv: 3134,
@@ -8761,23 +8761,23 @@ const SPOT_DB = [
 
   { id: "db_3338_NO", name: "Val Louron (NO)", region: "Genos",
     lat: 42.7768, lon: 0.3784, elevation: 1997, dhv: 3338,
-    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", country: "fr", acc: "fa", hoehendiff: 1056, gemeinde: "65240 Genos", bundesland: "Haute-Pyrenees", gleitschirm: "1- und 2-sitzig", landeName: "Val Louron Landeplatz 1", landeLat: 42.8035, landeLon: 0.4047, landeHoehe: 943, ...DEF },
+    sectors: [[33.75, 101.25], [33.75, 56.25]], sectorLabel: "NO-O · NO", country: "fr", acc: "fa", hoehendiff: 1056, gemeinde: "65240 Genos", bundesland: "Haute-Pyrenees", gleitschirm: "1- und 2-sitzig", landeName: "Val Louron Landeplatz 1", landeLat: 42.8035, landeLon: 0.4047, landeHoehe: 943, landeExtra: [{ name: "Val Louron Landeplatz 2", lat: 42.802233, lon: 0.405606, hoehe: 941 }], ...DEF },
 
   { id: "db_3338_O", name: "Val Louron (O)", region: "Genos",
     lat: 42.8078, lon: 0.3775, elevation: 1657, dhv: 3338,
-    sectors: [[78.75, 101.25], [33.75, 146.25]], sectorLabel: "O · NO-SO", country: "fr", acc: "fa", hoehendiff: 1056, gemeinde: "65240 Genos", bundesland: "Haute-Pyrenees", gleitschirm: "1- und 2-sitzig", landeName: "Val Louron Landeplatz 1", landeLat: 42.8035, landeLon: 0.4047, landeHoehe: 943, ...DEF },
+    sectors: [[78.75, 101.25], [33.75, 146.25]], sectorLabel: "O · NO-SO", country: "fr", acc: "fa", hoehendiff: 1056, gemeinde: "65240 Genos", bundesland: "Haute-Pyrenees", gleitschirm: "1- und 2-sitzig", landeName: "Val Louron Landeplatz 1", landeLat: 42.8035, landeLon: 0.4047, landeHoehe: 943, landeExtra: [{ name: "Val Louron Landeplatz 2", lat: 42.802233, lon: 0.405606, hoehe: 941 }], ...DEF },
 
   { id: "db_3338_W", name: "Val Louron (W)", region: "Genos",
     lat: 42.8055, lon: 0.4297, elevation: 1441, dhv: 3338,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 1056, gemeinde: "65240 Genos", bundesland: "Haute-Pyrenees", gleitschirm: "1- und 2-sitzig", landeName: "Val Louron Landeplatz 1", landeLat: 42.8035, landeLon: 0.4047, landeHoehe: 943, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 1056, gemeinde: "65240 Genos", bundesland: "Haute-Pyrenees", gleitschirm: "1- und 2-sitzig", landeName: "Val Louron Landeplatz 1", landeLat: 42.8035, landeLon: 0.4047, landeHoehe: 943, landeExtra: [{ name: "Val Louron Landeplatz 2", lat: 42.802233, lon: 0.405606, hoehe: 941 }], ...DEF },
 
   { id: "db_1870_SW", name: "Val Pelouse (SW)", region: "Arvillard",
     lat: 45.4193, lon: 6.1688, elevation: 1715, dhv: 1870,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 1510, gemeinde: "73110 Arvillard", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Val Pelouse Landeplatz 1", landeLat: 45.4393, landeLon: 6.1397, landeHoehe: 716, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "fr", acc: "fa", hoehendiff: 1510, gemeinde: "73110 Arvillard", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Val Pelouse Landeplatz 1", landeLat: 45.4393, landeLon: 6.1397, landeHoehe: 716, landeExtra: [{ name: "Val Pelouse Landeplatz 2", lat: 45.450803, lon: 6.106142, hoehe: 353 }], ...DEF },
 
   { id: "db_1870_W", name: "Val Pelouse (W)", region: "Arvillard",
     lat: 45.4209, lon: 6.174, elevation: 1863, dhv: 1870,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 1510, gemeinde: "73110 Arvillard", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Val Pelouse Landeplatz 1", landeLat: 45.4393, landeLon: 6.1397, landeHoehe: 716, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 1510, gemeinde: "73110 Arvillard", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Val Pelouse Landeplatz 1", landeLat: 45.4393, landeLon: 6.1397, landeHoehe: 716, landeExtra: [{ name: "Val Pelouse Landeplatz 2", lat: 45.450803, lon: 6.106142, hoehe: 353 }], ...DEF },
 
   { id: "db_3219", name: "Valgorge", region: "Valgorge",
     lat: 44.6101, lon: 4.1017, elevation: 1402, dhv: 3219,
@@ -8785,7 +8785,7 @@ const SPOT_DB = [
 
   { id: "db_1877", name: "Vallandry", region: "Bourg St. Maurice",
     lat: 45.5603, lon: 6.7653, elevation: 1590, dhv: 1877,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 833, gemeinde: "73700 Bourg St. Maurice", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Vallandry Landeplatz 1", landeLat: 45.5917, landeLon: 6.7515, landeHoehe: 757, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "fr", acc: "fa", hoehendiff: 833, gemeinde: "73700 Bourg St. Maurice", bundesland: "Savoie", gleitschirm: "1- und 2-sitzig", landeName: "Vallandry Landeplatz 1", landeLat: 45.5917, landeLon: 6.7515, landeHoehe: 757, landeExtra: [{ name: "Vallandry Landeplatz 2", lat: 45.617553, lon: 6.773453, hoehe: 806 }], ...DEF },
 
   { id: "db_3217", name: "Vallon de la Saume", region: "Noyer",
     lat: 44.7015, lon: 5.9932, elevation: 1767, dhv: 3217,
@@ -8817,11 +8817,11 @@ const SPOT_DB = [
 
   { id: "db_3113_O", name: "Velars (O)", region: "Velars-sur-Ouche",
     lat: 47.3016, lon: 4.9005, elevation: 540, dhv: 3113,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fa", hoehendiff: 241, gemeinde: "21370 Velars-sur-Ouche", bundesland: "Cote d Or", gleitschirm: "1- und 2-sitzig", landeName: "Velars Landeplatz 1", landeLat: 47.3093, landeLon: 4.9006, landeHoehe: 392, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "fr", acc: "fa", hoehendiff: 241, gemeinde: "21370 Velars-sur-Ouche", bundesland: "Cote d Or", gleitschirm: "1- und 2-sitzig", landeName: "Velars Landeplatz 1", landeLat: 47.3093, landeLon: 4.9006, landeHoehe: 392, landeExtra: [{ name: "Velars Landeplatz 2", lat: 47.30735, lon: 4.912206, hoehe: 299 }], ...DEF },
 
   { id: "db_3113_W", name: "Velars (W)", region: "Velars-sur-Ouche",
     lat: 47.3022, lon: 4.9, elevation: 540, dhv: 3113,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 241, gemeinde: "21370 Velars-sur-Ouche", bundesland: "Cote d Or", gleitschirm: "1- und 2-sitzig", landeName: "Velars Landeplatz 1", landeLat: 47.3093, landeLon: 4.9006, landeHoehe: 392, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "fr", acc: "fa", hoehendiff: 241, gemeinde: "21370 Velars-sur-Ouche", bundesland: "Cote d Or", gleitschirm: "1- und 2-sitzig", landeName: "Velars Landeplatz 1", landeLat: 47.3093, landeLon: 4.9006, landeHoehe: 392, landeExtra: [{ name: "Velars Landeplatz 2", lat: 47.30735, lon: 4.912206, hoehe: 299 }], ...DEF },
 
   { id: "db_4889", name: "Venoize", region: "Sancerre",
     lat: 47.3218, lon: 2.7986, elevation: 342, dhv: 4889,
@@ -8869,11 +8869,11 @@ const SPOT_DB = [
 
   { id: "db_3003_NW", name: "Wimereux (NW)", region: "Wimereux",
     lat: 50.7515, lon: 1.5979, elevation: 37, dhv: 3003,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 32, gemeinde: "62930 Wimereux", bundesland: "Pas-des-Calais", gleitschirm: "1- und 2-sitzig", landeName: "Wimereux Landeplatz 2", landeLat: 50.7496, landeLon: 1.5949, landeHoehe: 7, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "fr", acc: "fa", hoehendiff: 32, gemeinde: "62930 Wimereux", bundesland: "Pas-des-Calais", gleitschirm: "1- und 2-sitzig", landeName: "Wimereux Landeplatz 2", landeLat: 50.7496, landeLon: 1.5949, landeHoehe: 7, landeExtra: [{ name: "Wimereux Landeplatz 1", lat: 50.754408, lon: 1.600117, hoehe: 5 }], ...DEF },
 
   { id: "db_3003_SW", name: "Wimereux (SW)", region: "Wimereux",
     lat: 50.7501, lon: 1.5959, elevation: 25, dhv: 3003,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 32, gemeinde: "62930 Wimereux", bundesland: "Pas-des-Calais", gleitschirm: "1- und 2-sitzig", landeName: "Wimereux Landeplatz 2", landeLat: 50.7496, landeLon: 1.5949, landeHoehe: 7, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "fr", acc: "fa", hoehendiff: 32, gemeinde: "62930 Wimereux", bundesland: "Pas-des-Calais", gleitschirm: "1- und 2-sitzig", landeName: "Wimereux Landeplatz 2", landeLat: 50.7496, landeLon: 1.5949, landeHoehe: 7, landeExtra: [{ name: "Wimereux Landeplatz 1", lat: 50.754408, lon: 1.600117, hoehe: 5 }], ...DEF },
 
   // --- Italien ---
   { id: "db_3851", name: "Agira", region: "Agira",
@@ -8894,7 +8894,7 @@ const SPOT_DB = [
 
   { id: "db_1969", name: "Alpe Bil", region: "Macugnagna",
     lat: 45.9757, lon: 7.9676, elevation: 1686, dhv: 1969,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 462, gemeinde: "28876 Macugnagna", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Alpe Bil Landeplatz 2", landeLat: 45.9727, landeLon: 7.9542, landeHoehe: 1363, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 462, gemeinde: "28876 Macugnagna", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Alpe Bil Landeplatz 2", landeLat: 45.9727, landeLon: 7.9542, landeHoehe: 1363, landeExtra: [{ name: "Alpe Bil Landeplatz 1", lat: 45.961972, lon: 7.98045, hoehe: 1224 }], ...DEF },
 
   { id: "db_1932", name: "Alpe Cavalotti", region: "Unchio",
     lat: 45.9862, lon: 8.52, elevation: 1179, dhv: 1932,
@@ -8930,7 +8930,7 @@ const SPOT_DB = [
 
   { id: "db_3700", name: "Alpe Quaggione", region: "Verbania",
     lat: 45.9137, lon: 8.382, elevation: 1313, dhv: 3700,
-    sectors: [[33.75, 191.25]], sectorLabel: "NO-S", country: "it", acc: "fa", hoehendiff: 1120, gemeinde: "28924 Verbania", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Alpe Quaggione Landeplatz 2", landeLat: 45.9453, landeLon: 8.4256, landeHoehe: 210, ...DEF },
+    sectors: [[33.75, 191.25]], sectorLabel: "NO-S", country: "it", acc: "fa", hoehendiff: 1120, gemeinde: "28924 Verbania", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Alpe Quaggione Landeplatz 2", landeLat: 45.9453, landeLon: 8.4256, landeHoehe: 210, landeExtra: [{ name: "Alpe Quaggione Landeplatz 1", lat: 45.944061, lon: 8.482392, hoehe: 193 }], ...DEF },
 
   { id: "db_3703", name: "Alpo di Storo", region: "Bondone",
     lat: 45.8099, lon: 10.5739, elevation: 1491, dhv: 3703,
@@ -8938,7 +8938,7 @@ const SPOT_DB = [
 
   { id: "db_1550", name: "Antenna Castalunga", region: "Bassano del Grappa",
     lat: 45.8117, lon: 11.7451, elevation: 741, dhv: 1550,
-    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "it", acc: "fa", hoehendiff: 581, gemeinde: "36061 Bassano del Grappa", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "mäßig steile Wiese, relativ klein, häufig genutzt, auch von Flugschulen. Wird vom shuttle des airpark bassano angefahren.", landeName: "Bassano Landeplatz 1", landeLat: 45.8081, landeLon: 11.7701, landeHoehe: 184, ...DEF },
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "it", acc: "fa", hoehendiff: 581, gemeinde: "36061 Bassano del Grappa", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "mäßig steile Wiese, relativ klein, häufig genutzt, auch von Flugschulen. Wird vom shuttle des airpark bassano angefahren.", landeName: "Bassano Landeplatz 1", landeLat: 45.8081, landeLon: 11.7701, landeHoehe: 184, landeExtra: [{ name: "Bassano Landeplatz 2", lat: 45.806669, lon: 11.785306, hoehe: 160 }], ...DEF },
 
   { id: "db_3801", name: "Argentiera", region: "La Lacuna",
     lat: 40.7584, lon: 8.1613, elevation: 21, dhv: 3801,
@@ -8962,11 +8962,11 @@ const SPOT_DB = [
 
   { id: "db_1917_S", name: "Aviano (S)", region: "Aviano",
     lat: 46.0873, lon: 12.53, elevation: 1087, dhv: 1917,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 955, gemeinde: "33081 Aviano", bundesland: "Friaul", gleitschirm: "1- und 2-sitzig", landeName: "Aviano Landeplatz 1", landeLat: 46.0575, landeLon: 12.5515, landeHoehe: 153, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 955, gemeinde: "33081 Aviano", bundesland: "Friaul", gleitschirm: "1- und 2-sitzig", landeName: "Aviano Landeplatz 1", landeLat: 46.0575, landeLon: 12.5515, landeHoehe: 153, landeExtra: [{ name: "Aviano Landeplatz 2", lat: 46.060189, lon: 12.559336, hoehe: 132 }], ...DEF },
 
   { id: "db_1917_SO", name: "Aviano (SO)", region: "Aviano",
     lat: 46.0811, lon: 12.5408, elevation: 779, dhv: 1917,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 955, gemeinde: "33081 Aviano", bundesland: "Friaul", gleitschirm: "1- und 2-sitzig", landeName: "Aviano Landeplatz 2", landeLat: 46.0602, landeLon: 12.5593, landeHoehe: 132, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 955, gemeinde: "33081 Aviano", bundesland: "Friaul", gleitschirm: "1- und 2-sitzig", landeName: "Aviano Landeplatz 2", landeLat: 46.0602, landeLon: 12.5593, landeHoehe: 132, landeExtra: [{ name: "Aviano Landeplatz 1", lat: 46.057492, lon: 12.551458, hoehe: 153 }], ...DEF },
 
   { id: "db_3871", name: "Avola", region: "Avola",
     lat: 36.9515, lon: 15.1507, elevation: 264, dhv: 3871,
@@ -8986,15 +8986,15 @@ const SPOT_DB = [
 
   { id: "db_1551_S", name: "Bassano (S)", region: "Borso del Grappa",
     lat: 45.8615, lon: 11.8039, elevation: 1558, dhv: 1551,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "it", acc: "fa", hoehendiff: 1398, gemeinde: "31030 Borso del Grappa", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Bassano Landeplatz 2", landeLat: 45.8067, landeLon: 11.7853, landeHoehe: 160, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "it", acc: "fa", hoehendiff: 1398, gemeinde: "31030 Borso del Grappa", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Bassano Landeplatz 2", landeLat: 45.8067, landeLon: 11.7853, landeHoehe: 160, landeExtra: [{ name: "Bassano Landeplatz 1", lat: 45.808122, lon: 11.770053, hoehe: 184 }], ...DEF },
 
   { id: "db_1551_SO", name: "Bassano (SO)", region: "Borso del Grappa",
     lat: 45.8244, lon: 11.7712, elevation: 858, dhv: 1551,
-    sectors: [[123.75, 146.25], [123.75, 191.25]], sectorLabel: "SO · SO-S", country: "it", acc: "fa", hoehendiff: 1398, gemeinde: "31030 Borso del Grappa", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Bassano Landeplatz 1", landeLat: 45.8081, landeLon: 11.7701, landeHoehe: 184, ...DEF },
+    sectors: [[123.75, 146.25], [123.75, 191.25]], sectorLabel: "SO · SO-S", country: "it", acc: "fa", hoehendiff: 1398, gemeinde: "31030 Borso del Grappa", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Bassano Landeplatz 1", landeLat: 45.8081, landeLon: 11.7701, landeHoehe: 184, landeExtra: [{ name: "Bassano Landeplatz 2", lat: 45.806669, lon: 11.785306, hoehe: 160 }], ...DEF },
 
   { id: "db_1551_W", name: "Bassano (W)", region: "Borso del Grappa",
     lat: 45.8283, lon: 11.768, elevation: 980, dhv: 1551,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1398, gemeinde: "31030 Borso del Grappa", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schulung ab mindestens 15 Höhenflügen Flugerfahrung", landeName: "Bassano Landeplatz 1", landeLat: 45.8081, landeLon: 11.7701, landeHoehe: 184, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1398, gemeinde: "31030 Borso del Grappa", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schulung ab mindestens 15 Höhenflügen Flugerfahrung", landeName: "Bassano Landeplatz 1", landeLat: 45.8081, landeLon: 11.7701, landeHoehe: 184, landeExtra: [{ name: "Bassano Landeplatz 2", lat: 45.806669, lon: 11.785306, hoehe: 160 }], ...DEF },
 
   { id: "db_5331", name: "Baunei", region: "Baunei",
     lat: 40.0344, lon: 9.665, elevation: 650, dhv: 5331,
@@ -9006,11 +9006,11 @@ const SPOT_DB = [
 
   { id: "db_1242_SW", name: "Belvedere (SW)", region: "Canazei",
     lat: 46.4742, lon: 11.8019, elevation: 2348, dhv: 1242,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fab", hoehendiff: 914, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Belvedere Landeplatz", landeLat: 46.4698, landeLon: 11.7773, landeHoehe: 1470, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fab", hoehendiff: 914, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Belvedere Landeplatz", landeLat: 46.4698, landeLon: 11.7773, landeHoehe: 1470, landeExtra: [{ name: "Col Rodella Landeplatz 1", lat: 46.478315, lon: 11.756144, hoehe: 1434 }], ...DEF },
 
   { id: "db_1242_W", name: "Belvedere (W)", region: "Canazei",
     lat: 46.4828, lon: 11.7946, elevation: 2076, dhv: 1242,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fab", hoehendiff: 914, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Belvedere Landeplatz", landeLat: 46.4698, landeLon: 11.7773, landeHoehe: 1470, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fab", hoehendiff: 914, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Belvedere Landeplatz", landeLat: 46.4698, landeLon: 11.7773, landeHoehe: 1470, landeExtra: [{ name: "Col Rodella Landeplatz 1", lat: 46.478315, lon: 11.756144, hoehe: 1434 }], ...DEF },
 
   { id: "db_2032", name: "Bergeggi", region: "Bergeggi",
     lat: 44.2515, lon: 8.4402, elevation: 275, dhv: 2032,
@@ -9066,11 +9066,11 @@ const SPOT_DB = [
 
   { id: "db_3809_NW", name: "Bosa (NW)", region: "Bosa",
     lat: 40.2814, lon: 8.4862, elevation: 93, dhv: 3809,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 156, gemeinde: "08013 Bosa", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Bosa Landeplatz 1", landeLat: 40.2875, landeLon: 8.4810, landeHoehe: 1, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 156, gemeinde: "08013 Bosa", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Bosa Landeplatz 1", landeLat: 40.2875, landeLon: 8.4810, landeHoehe: 1, landeExtra: [{ name: "Bosa Landeplatz 2", lat: 40.291714, lon: 8.485903, hoehe: 2 }], ...DEF },
 
   { id: "db_3809_W", name: "Bosa (W)", region: "Bosa",
     lat: 40.281, lon: 8.4885, elevation: 157, dhv: 3809,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fa", hoehendiff: 156, gemeinde: "08013 Bosa", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Bosa Landeplatz 1", landeLat: 40.2875, landeLon: 8.4810, landeHoehe: 1, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fa", hoehendiff: 156, gemeinde: "08013 Bosa", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Bosa Landeplatz 1", landeLat: 40.2875, landeLon: 8.4810, landeHoehe: 1, landeExtra: [{ name: "Bosa Landeplatz 2", lat: 40.291714, lon: 8.485903, hoehe: 2 }], ...DEF },
 
   { id: "db_3717", name: "Boves", region: "Boves",
     lat: 44.2988, lon: 7.5532, elevation: 1058, dhv: 3717,
@@ -9082,11 +9082,11 @@ const SPOT_DB = [
 
   { id: "db_5424", name: "Bric Rond", region: "Malzat",
     lat: 44.8692, lon: 7.0699, elevation: 2466, dhv: 5424,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fab", hoehendiff: 989, gemeinde: "10060 Malzat", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Bric Rond Landeplatz 1", landeLat: 44.8806, landeLon: 7.0421, landeHoehe: 1477, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fab", hoehendiff: 989, gemeinde: "10060 Malzat", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Bric Rond Landeplatz 1", landeLat: 44.8806, landeLon: 7.0421, landeHoehe: 1477, landeExtra: [{ name: "Bric Rond Landeplatz 2", lat: 44.882489, lon: 7.041267, hoehe: 1486 }], ...DEF },
 
   { id: "db_3816", name: "Buggerru", region: "Buggerru",
     lat: 39.4109, lon: 8.4254, elevation: 498, dhv: 3816,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 497, gemeinde: "09010 Buggerru", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Buggerru Landeplatz 1", landeLat: 39.4208, landeLon: 8.4118, landeHoehe: 3, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 497, gemeinde: "09010 Buggerru", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Buggerru Landeplatz 1", landeLat: 39.4208, landeLon: 8.4118, landeHoehe: 3, landeExtra: [{ name: "Buggerru Landeplatz 2", lat: 39.402936, lon: 8.400761, hoehe: 1 }], ...DEF },
 
   { id: "db_5488", name: "Bulga", region: "Bosa",
     lat: 40.3012, lon: 8.5095, elevation: 141, dhv: 5488,
@@ -9110,7 +9110,7 @@ const SPOT_DB = [
 
   { id: "db_5335", name: "Cala Gonone", region: "Cala Gonone",
     lat: 40.2754, lon: 9.5944, elevation: 568, dhv: 5335,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 563, gemeinde: "08022 Cala Gonone", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Cala Gonone Landeplatz 1", landeLat: 40.2820, landeLon: 9.6164, landeHoehe: 165, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 563, gemeinde: "08022 Cala Gonone", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Cala Gonone Landeplatz 1", landeLat: 40.2820, landeLon: 9.6164, landeHoehe: 165, landeExtra: [{ name: "Cala Gonone Landeplatz 2", lat: 40.283244, lon: 9.636667, hoehe: 5 }], ...DEF },
 
   { id: "db_3766", name: "Calascio", region: "Volpe",
     lat: 42.3254, lon: 13.7092, elevation: 1323, dhv: 3766,
@@ -9154,7 +9154,7 @@ const SPOT_DB = [
 
   { id: "db_2323", name: "Campogrosso", region: "Recoaro Terme Vicence",
     lat: 45.7295, lon: 11.1785, elevation: 1457, dhv: 2323,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 927, gemeinde: "36076 Recoaro Terme Vicence", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Campogrosso Landeplatz 1", landeLat: 45.7164, landeLon: 11.1982, landeHoehe: 784, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 927, gemeinde: "36076 Recoaro Terme Vicence", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Campogrosso Landeplatz 1", landeLat: 45.7164, landeLon: 11.1982, landeHoehe: 784, landeExtra: [{ name: "Campogrosso Landeplatz 2", lat: 45.701422, lon: 11.205122, hoehe: 530 }], ...DEF },
 
   { id: "db_3813", name: "Campotenese", region: "Campotenese",
     lat: 39.8479, lon: 16.0902, elevation: 1300, dhv: 3813,
@@ -9266,15 +9266,15 @@ const SPOT_DB = [
 
   { id: "db_1239_N", name: "Col Rodella (N)", region: "Canazei",
     lat: 46.4973, lon: 11.7524, elevation: 2380, dhv: 1239,
-    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "it", diff: 1, acc: "fab", hoehendiff: 949, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Col Rodella Landeplatz 1", landeLat: 46.4783, landeLon: 11.7561, landeHoehe: 1434, ...DEF },
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "it", diff: 1, acc: "fab", hoehendiff: 949, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Col Rodella Landeplatz 1", landeLat: 46.4783, landeLon: 11.7561, landeHoehe: 1434, landeExtra: [{ name: "Col Rodella Landeplatz 2", lat: 46.475345, lon: 11.74844, hoehe: 1442 }], ...DEF },
 
   { id: "db_1239_SO", name: "Col Rodella (SO)", region: "Canazei",
     lat: 46.497, lon: 11.7534, elevation: 2371, dhv: 1239,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", diff: 1, acc: "fab", hoehendiff: 949, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Col Rodella Landeplatz 1", landeLat: 46.4783, landeLon: 11.7561, landeHoehe: 1434, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", diff: 1, acc: "fab", hoehendiff: 949, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Col Rodella Landeplatz 1", landeLat: 46.4783, landeLon: 11.7561, landeHoehe: 1434, landeExtra: [{ name: "Col Rodella Landeplatz 2", lat: 46.475345, lon: 11.74844, hoehe: 1442 }], ...DEF },
 
   { id: "db_1239_SW", name: "Col Rodella (SW)", region: "Canazei",
     lat: 46.4949, lon: 11.7501, elevation: 2383, dhv: 1239,
-    sectors: [[213.75, 236.25], [168.75, 281.25]], sectorLabel: "SW · S-W", country: "it", diff: 1, acc: "fab", hoehendiff: 949, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Col Rodella Landeplatz 1", landeLat: 46.4783, landeLon: 11.7561, landeHoehe: 1434, ...DEF },
+    sectors: [[213.75, 236.25], [168.75, 281.25]], sectorLabel: "SW · S-W", country: "it", diff: 1, acc: "fab", hoehendiff: 949, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Col Rodella Landeplatz 1", landeLat: 46.4783, landeLon: 11.7561, landeHoehe: 1434, landeExtra: [{ name: "Col Rodella Landeplatz 2", lat: 46.475345, lon: 11.74844, hoehe: 1442 }], ...DEF },
 
   { id: "db_2387", name: "Col Visentin", region: "Revine Lago",
     lat: 46.0537, lon: 12.2821, elevation: 1706, dhv: 2387,
@@ -9290,7 +9290,7 @@ const SPOT_DB = [
 
   { id: "db_3702", name: "Colle Campeggia", region: "Villaggio del Sole",
     lat: 45.8368, lon: 11.7483, elevation: 1080, dhv: 3702,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "it", acc: "fa", hoehendiff: 920, gemeinde: "36020 Villaggio del Sole", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", bemerkung: "sehr große, schwach geneigte Wiese mit Windsack", landeName: "Bassano Landeplatz 1", landeLat: 45.8081, landeLon: 11.7701, landeHoehe: 184, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "it", acc: "fa", hoehendiff: 920, gemeinde: "36020 Villaggio del Sole", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", bemerkung: "sehr große, schwach geneigte Wiese mit Windsack", landeName: "Bassano Landeplatz 1", landeLat: 45.8081, landeLon: 11.7701, landeHoehe: 184, landeExtra: [{ name: "Bassano Landeplatz 2", lat: 45.806669, lon: 11.785306, hoehe: 160 }], ...DEF },
 
   { id: "db_3770", name: "Colle Delle Vacches", region: "Fonte D&#039;Amore",
     lat: 42.1192, lon: 13.925, elevation: 1095, dhv: 3770,
@@ -9302,7 +9302,7 @@ const SPOT_DB = [
 
   { id: "db_3708", name: "Colli di S. Fermo", region: "Grone",
     lat: 45.7431, lon: 9.9369, elevation: 1229, dhv: 3708,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 911, gemeinde: "24060 Grone", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz liegt in einem Modellsegelflug-Gelände und kann nur dann ohne Einschränkungen genutzt werden, wenn keine Modellflieger da sind. Checkt dies bitte ab und haltet den Luftraum um den Startplatz frei, sollten Modellflieger ankommen; es ist vorrangig deren Gelände.", landeName: "Colli di S. Fermo Landeplatz 1", landeLat: 45.7564, landeLon: 9.9155, landeHoehe: 340, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 911, gemeinde: "24060 Grone", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz liegt in einem Modellsegelflug-Gelände und kann nur dann ohne Einschränkungen genutzt werden, wenn keine Modellflieger da sind. Checkt dies bitte ab und haltet den Luftraum um den Startplatz frei, sollten Modellflieger ankommen; es ist vorrangig deren Gelände.", landeName: "Colli di S. Fermo Landeplatz 1", landeLat: 45.7564, landeLon: 9.9155, landeHoehe: 340, landeExtra: [{ name: "Colli di S. Fermo Landeplatz 2", lat: 45.738306, lon: 9.909011, hoehe: 318 }], ...DEF },
 
   { id: "db_2324", name: "Colonei", region: "Caprino Varonese",
     lat: 45.6516, lon: 10.8144, elevation: 1364, dhv: 2324,
@@ -9314,7 +9314,7 @@ const SPOT_DB = [
 
   { id: "db_2015", name: "Confinale", region: "S. Antonio",
     lat: 46.4596, lon: 10.4575, elevation: 2203, dhv: 2015,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 794, gemeinde: "23030 S. Antonio", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Confinale Landeplatz 1", landeLat: 46.4555, landeLon: 10.4327, landeHoehe: 1409, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 794, gemeinde: "23030 S. Antonio", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Confinale Landeplatz 1", landeLat: 46.4555, landeLon: 10.4327, landeHoehe: 1409, landeExtra: [{ name: "Confinale Landeplatz 2", lat: 46.409561, lon: 10.506892, hoehe: 1750 }, { name: "Reit Landeplatz", lat: 46.465939, lon: 10.392517, hoehe: 1267 }], ...DEF },
 
   { id: "db_2130", name: "Corno Nero", region: "Cavalese",
     lat: 46.3343, lon: 11.4553, elevation: 2399, dhv: 2130,
@@ -9350,7 +9350,7 @@ const SPOT_DB = [
 
   { id: "db_2126", name: "Dantercepies", region: "Selva di Val Gardena",
     lat: 46.5538, lon: 11.7991, elevation: 2265, dhv: 2126,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fb", hoehendiff: 658, gemeinde: "39048 Selva di Val Gardena", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Ciampinoi Landeplatz", landeLat: 46.5477, landeLon: 11.7659, landeHoehe: 1607, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fb", hoehendiff: 658, gemeinde: "39048 Selva di Val Gardena", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Ciampinoi Landeplatz", landeLat: 46.5477, landeLon: 11.7659, landeHoehe: 1607, landeExtra: [{ name: "Dantercepies Landeplatz", lat: 46.556953, lon: 11.764833, hoehe: 1609 }], ...DEF },
 
   { id: "db_3728", name: "Diecimo", region: "Diecimo",
     lat: 43.9821, lon: 10.5, elevation: 736, dhv: 3728,
@@ -9362,7 +9362,7 @@ const SPOT_DB = [
 
   { id: "db_1908", name: "Dosso del Sabion", region: "Pinzolo",
     lat: 46.1668, lon: 10.8065, elevation: 2071, dhv: 1908,
-    sectors: [[168.75, 191.25], [258.75, 281.25]], sectorLabel: "S · W", country: "it", acc: "fb", hoehendiff: 1321, gemeinde: "38036 Pinzolo", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Dosso del Sabion Landeplatz GS", landeLat: 46.1640, landeLon: 10.7635, landeHoehe: 790, ...DEF },
+    sectors: [[168.75, 191.25], [258.75, 281.25]], sectorLabel: "S · W", country: "it", acc: "fb", hoehendiff: 1321, gemeinde: "38036 Pinzolo", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Dosso del Sabion Landeplatz GS", landeLat: 46.1640, landeLon: 10.7635, landeHoehe: 790, landeExtra: [{ name: "Dosso del Sabion Landeplatz HG", lat: 46.150133, lon: 10.765608, hoehe: 750 }], ...DEF },
 
   { id: "db_2133", name: "Duca D'Aosta", region: "Cortina D&#039;Ampezzo",
     lat: 46.536, lon: 12.0866, elevation: 2032, dhv: 2133,
@@ -9374,11 +9374,11 @@ const SPOT_DB = [
 
   { id: "db_3858_O", name: "Enna (O)", region: "Enna",
     lat: 37.5675, lon: 14.2895, elevation: 964, dhv: 3858,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "it", acc: "fa", hoehendiff: 289, gemeinde: "94100 Enna", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Enna Landeplatz 1", landeLat: 37.5549, landeLon: 14.2916, landeHoehe: 675, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "it", acc: "fa", hoehendiff: 289, gemeinde: "94100 Enna", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Enna Landeplatz 1", landeLat: 37.5549, landeLon: 14.2916, landeHoehe: 675, landeExtra: [{ name: "Enna Landeplatz 2", lat: 37.551647, lon: 14.274775, hoehe: 762 }], ...DEF },
 
   { id: "db_3858_SW", name: "Enna (SW)", region: "Enna",
     lat: 37.5583, lon: 14.2759, elevation: 958, dhv: 3858,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 289, gemeinde: "94100 Enna", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Enna Landeplatz 2", landeLat: 37.5516, landeLon: 14.2748, landeHoehe: 762, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 289, gemeinde: "94100 Enna", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Enna Landeplatz 2", landeLat: 37.5516, landeLon: 14.2748, landeHoehe: 762, landeExtra: [{ name: "Enna Landeplatz 1", lat: 37.554931, lon: 14.291569, hoehe: 675 }], ...DEF },
 
   { id: "db_5315", name: "Erice", region: "Erice",
     lat: 38.0338, lon: 12.5765, elevation: 617, dhv: 5315,
@@ -9422,7 +9422,7 @@ const SPOT_DB = [
 
   { id: "db_3753", name: "Forca di Presta", region: "Castelluccio",
     lat: 42.7852, lon: 13.2517, elevation: 1613, dhv: 3753,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "it", diff: 2, acc: "fa", hoehendiff: 82, gemeinde: "06046 Castelluccio", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Forca di Presta Landeplatz", landeLat: 42.7934, landeLon: 13.2556, landeHoehe: 1531, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "it", diff: 2, acc: "fa", hoehendiff: 82, gemeinde: "06046 Castelluccio", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Forca di Presta Landeplatz", landeLat: 42.7934, landeLon: 13.2556, landeHoehe: 1531, landeExtra: [{ name: "Vettoretto Landeplatz", lat: 42.801242, lon: 13.242506, hoehe: 1408 }], ...DEF },
 
   { id: "db_5311", name: "Fraginesi", region: "Trapani",
     lat: 38.0126, lon: 12.8251, elevation: 453, dhv: 5311,
@@ -9454,7 +9454,7 @@ const SPOT_DB = [
 
   { id: "db_1233", name: "Gais", region: "Gais",
     lat: 46.8496, lon: 11.9741, elevation: 1620, dhv: 1233,
-    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "it", acc: "fa", hoehendiff: 794, gemeinde: "39030 Gais", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Gais Landeplatz 3", landeLat: 46.8473, landeLon: 11.9588, landeHoehe: 851, ...DEF },
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "it", acc: "fa", hoehendiff: 794, gemeinde: "39030 Gais", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Gais Landeplatz 3", landeLat: 46.8473, landeLon: 11.9588, landeHoehe: 851, landeExtra: [{ name: "Gais Landeplatz", lat: 46.838947, lon: 11.949842, hoehe: 851 }, { name: "Pfalzen Landeplatz 2", lat: 46.810494, lon: 11.927364, hoehe: 826 }], ...DEF },
 
   { id: "db_3843", name: "Galladoro", region: "Letojanni Messina",
     lat: 37.8964, lon: 15.308, elevation: 456, dhv: 3843,
@@ -9490,7 +9490,7 @@ const SPOT_DB = [
 
   { id: "db_4576", name: "Gesturi", region: "Gesturi",
     lat: 39.7357, lon: 8.9994, elevation: 570, dhv: 4576,
-    sectors: [[123.75, 146.25], [123.75, 191.25]], sectorLabel: "SO · SO-S", country: "it", acc: "fa", hoehendiff: 300, gemeinde: "09020 Gesturi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Gesturi Landeplatz 1", landeLat: 39.7312, landeLon: 9.0149, landeHoehe: 300, ...DEF },
+    sectors: [[123.75, 146.25], [123.75, 191.25]], sectorLabel: "SO · SO-S", country: "it", acc: "fa", hoehendiff: 300, gemeinde: "09020 Gesturi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Gesturi Landeplatz 1", landeLat: 39.7312, landeLon: 9.0149, landeHoehe: 300, landeExtra: [{ name: "Gesturi Landeplatz 3", lat: 39.727497, lon: 8.977578, hoehe: 412 }, { name: "Gesturi Landeplatz 2", lat: 39.722911, lon: 8.972703, hoehe: 270 }], ...DEF },
 
   { id: "db_5476", name: "Gewingesalm", region: "Ridnaun",
     lat: 46.9093, lon: 11.2684, elevation: 2055, dhv: 5476,
@@ -9522,7 +9522,7 @@ const SPOT_DB = [
 
   { id: "db_5441", name: "Gole", region: "Sale Marasino",
     lat: 45.6899, lon: 10.1341, elevation: 1025, dhv: 5441,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 828, gemeinde: "25027 Sale Marasino", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Guglielmo Landeplatz 2", landeLat: 45.7103, landeLon: 10.1303, landeHoehe: 564, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 828, gemeinde: "25027 Sale Marasino", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Guglielmo Landeplatz 2", landeLat: 45.7103, landeLon: 10.1303, landeHoehe: 564, landeExtra: [{ name: "Monte Guglielmo Landeplatz 1", lat: 45.711969, lon: 10.110839, hoehe: 197 }], ...DEF },
 
   { id: "db_3815", name: "Gonnesfaradiga", region: "Gonnesfaradiga",
     lat: 39.4838, lon: 8.681, elevation: 617, dhv: 3815,
@@ -9606,27 +9606,27 @@ const SPOT_DB = [
 
   { id: "db_1559", name: "Kanzel", region: "Sulden",
     lat: 46.5228, lon: 10.607, elevation: 2329, dhv: 1559,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fb", hoehendiff: 450, gemeinde: "39029 Sulden", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kanzel Landeplatz 2", landeLat: 46.5166, landeLon: 10.5938, landeHoehe: 1897, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fb", hoehendiff: 450, gemeinde: "39029 Sulden", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kanzel Landeplatz 2", landeLat: 46.5166, landeLon: 10.5938, landeHoehe: 1897, landeExtra: [{ name: "Kanzel Landeplatz 1", lat: 46.523759, lon: 10.589795, hoehe: 1879 }], ...DEF },
 
   { id: "db_1235_N", name: "Kronplatz (N)", region: "Bruneck",
     lat: 46.7395, lon: 11.9596, elevation: 2265, dhv: 1235,
-    sectors: [[348.75, 11.25], [348.75, 56.25]], sectorLabel: "N · N-NO", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, ...DEF },
+    sectors: [[348.75, 11.25], [348.75, 56.25]], sectorLabel: "N · N-NO", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, landeExtra: [{ name: "Kronplatz Landeplatz 3", lat: 46.706031, lon: 11.930925, hoehe: 1261 }, { name: "Kronplatz Landeplatz 1", lat: 46.773481, lon: 11.939442, hoehe: 943 }], ...DEF },
 
   { id: "db_1235_O", name: "Kronplatz (O)", region: "Bruneck",
     lat: 46.7388, lon: 11.9666, elevation: 2249, dhv: 1235,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, landeExtra: [{ name: "Kronplatz Landeplatz 3", lat: 46.706031, lon: 11.930925, hoehe: 1261 }, { name: "Kronplatz Landeplatz 1", lat: 46.773481, lon: 11.939442, hoehe: 943 }], ...DEF },
 
   { id: "db_1235_SO", name: "Kronplatz (SO)", region: "Bruneck",
     lat: 46.7381, lon: 11.9591, elevation: 2261, dhv: 1235,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, landeExtra: [{ name: "Kronplatz Landeplatz 3", lat: 46.706031, lon: 11.930925, hoehe: 1261 }, { name: "Kronplatz Landeplatz 1", lat: 46.773481, lon: 11.939442, hoehe: 943 }], ...DEF },
 
   { id: "db_1235_SW", name: "Kronplatz (SW)", region: "Bruneck",
     lat: 46.7389, lon: 11.9569, elevation: 2263, dhv: 1235,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, landeExtra: [{ name: "Kronplatz Landeplatz 3", lat: 46.706031, lon: 11.930925, hoehe: 1261 }, { name: "Kronplatz Landeplatz 1", lat: 46.773481, lon: 11.939442, hoehe: 943 }], ...DEF },
 
   { id: "db_1235_W", name: "Kronplatz (W)", region: "Bruneck",
     lat: 46.7374, lon: 11.9548, elevation: 2249, dhv: 1235,
-    sectors: [[258.75, 326.25], [258.75, 281.25]], sectorLabel: "W-NW · W", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, ...DEF },
+    sectors: [[258.75, 326.25], [258.75, 281.25]], sectorLabel: "W-NW · W", country: "it", acc: "fb", hoehendiff: 1322, gemeinde: "39031 Bruneck", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kronplatz Landeplatz 2", landeLat: 46.7711, landeLon: 11.9415, landeHoehe: 950, landeExtra: [{ name: "Kronplatz Landeplatz 3", lat: 46.706031, lon: 11.930925, hoehe: 1261 }, { name: "Kronplatz Landeplatz 1", lat: 46.773481, lon: 11.939442, hoehe: 943 }], ...DEF },
 
   { id: "db_5457", name: "Kurtatsch", region: "Kurtatsch",
     lat: 46.3295, lon: 11.21, elevation: 1157, dhv: 5457,
@@ -9646,7 +9646,7 @@ const SPOT_DB = [
 
   { id: "db_1240", name: "La Lokomotiva", region: "Canazei",
     lat: 46.5078, lon: 11.7718, elevation: 2312, dhv: 1240,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "it", diff: 1, acc: "fa", hoehendiff: 878, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Col Rodella Landeplatz 1", landeLat: 46.4783, landeLon: 11.7561, landeHoehe: 1434, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "it", diff: 1, acc: "fa", hoehendiff: 878, gemeinde: "38032 Canazei", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Col Rodella Landeplatz 1", landeLat: 46.4783, landeLon: 11.7561, landeHoehe: 1434, landeExtra: [{ name: "Belvedere Landeplatz", lat: 46.469773, lon: 11.777322, hoehe: 1470 }, { name: "Col Rodella Landeplatz 2", lat: 46.475345, lon: 11.74844, hoehe: 1442 }], ...DEF },
 
   { id: "db_1903", name: "La Magdeleine", region: "Antey-Saint-Andre",
     lat: 45.8175, lon: 7.6125, elevation: 1858, dhv: 1903,
@@ -9682,7 +9682,7 @@ const SPOT_DB = [
 
   { id: "db_5511", name: "Langenstein", region: "Sulden",
     lat: 46.519, lon: 10.5771, elevation: 2313, dhv: 5511,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "it", acc: "fb", hoehendiff: 434, gemeinde: "39029 Sulden", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kanzel Landeplatz 1", landeLat: 46.5238, landeLon: 10.5898, landeHoehe: 1879, ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "it", acc: "fb", hoehendiff: 434, gemeinde: "39029 Sulden", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Kanzel Landeplatz 1", landeLat: 46.5238, landeLon: 10.5898, landeHoehe: 1879, landeExtra: [{ name: "Kanzel Landeplatz 2", lat: 46.516578, lon: 10.59385, hoehe: 1897 }], ...DEF },
 
   { id: "db_3692", name: "Lavinaspitz", region: "Kaltern",
     lat: 46.3889, lon: 11.2104, elevation: 1646, dhv: 3692,
@@ -9714,7 +9714,7 @@ const SPOT_DB = [
 
   { id: "db_2134", name: "Malga Losch", region: "Voltago Agordino",
     lat: 46.2601, lon: 11.9617, elevation: 1708, dhv: 2134,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "it", acc: "fb", hoehendiff: 1120, gemeinde: "32032 Voltago Agordino", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Malga Losch Landeplatz 1", landeLat: 46.2524, landeLon: 11.9851, landeHoehe: 1062, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "it", acc: "fb", hoehendiff: 1120, gemeinde: "32032 Voltago Agordino", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Malga Losch Landeplatz 1", landeLat: 46.2524, landeLon: 11.9851, landeHoehe: 1062, landeExtra: [{ name: "Malga Losch Landeplatz 2", lat: 46.281683, lon: 12.030344, hoehe: 588 }], ...DEF },
 
   { id: "db_5437", name: "Malga Rialto", region: "Pozza",
     lat: 45.6515, lon: 11.2369, elevation: 1077, dhv: 5437,
@@ -9734,7 +9734,7 @@ const SPOT_DB = [
 
   { id: "db_5449", name: "Margone", region: "Sarche",
     lat: 46.0742, lon: 10.9694, elevation: 947, dhv: 5449,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 700, gemeinde: "38072 Sarche", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Margone Landeplatz 2", landeLat: 46.0686, landeLon: 10.9654, landeHoehe: 936, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 700, gemeinde: "38072 Sarche", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Margone Landeplatz 2", landeLat: 46.0686, landeLon: 10.9654, landeHoehe: 936, landeExtra: [{ name: "Margone Landeplatz 1", lat: 46.047653, lon: 10.962089, hoehe: 247 }], ...DEF },
 
   { id: "db_3806", name: "Marsicovetere", region: "Masicovetere",
     lat: 40.377, lon: 15.8333, elevation: 1162, dhv: 3806,
@@ -9742,7 +9742,7 @@ const SPOT_DB = [
 
   { id: "db_3735", name: "Massanera", region: "Regello",
     lat: 43.7015, lon: 11.556, elevation: 1055, dhv: 3735,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fa", hoehendiff: 729, gemeinde: "50066 Regello", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Massanera Landeplatz 2", landeLat: 43.7018, landeLon: 11.5303, landeHoehe: 544, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fa", hoehendiff: 729, gemeinde: "50066 Regello", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Massanera Landeplatz 2", landeLat: 43.7018, landeLon: 11.5303, landeHoehe: 544, landeExtra: [{ name: "Massanera Landeplatz 1", lat: 43.673686, lon: 11.524647, hoehe: 326 }], ...DEF },
 
   { id: "db_5299", name: "Mellini 1", region: "Mellini",
     lat: 37.172, lon: 15.1403, elevation: 270, dhv: 5299,
@@ -9758,7 +9758,7 @@ const SPOT_DB = [
 
   { id: "db_2472", name: "Meran 2000", region: "Meran",
     lat: 46.6769, lon: 11.2541, elevation: 1876, dhv: 2472,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fb", hoehendiff: 1579, gemeinde: "39012 Meran", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Meran 2000 Landeplatz 2", landeLat: 46.6702, landeLon: 11.2074, landeHoehe: 620, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fb", hoehendiff: 1579, gemeinde: "39012 Meran", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Meran 2000 Landeplatz 2", landeLat: 46.6702, landeLon: 11.2074, landeHoehe: 620, landeExtra: [{ name: "Meran 2000 Landeplatz 1", lat: 46.662353, lon: 11.155581, hoehe: 297 }], ...DEF },
 
   { id: "db_5390", name: "Miranda", region: "Miranda",
     lat: 41.6387, lon: 14.2678, elevation: 1160, dhv: 5390,
@@ -9778,15 +9778,15 @@ const SPOT_DB = [
 
   { id: "db_1896", name: "Molveno", region: "Molveno",
     lat: 46.1543, lon: 10.9556, elevation: 1485, dhv: 1896,
-    sectors: [[123.75, 236.25], [168.75, 191.25]], sectorLabel: "SO-SW · S", country: "it", acc: "fb", hoehendiff: 655, gemeinde: "38018 Molveno", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Molveno Landeplatz 2", landeLat: 46.1422, landeLon: 10.9573, landeHoehe: 851, ...DEF },
+    sectors: [[123.75, 236.25], [168.75, 191.25]], sectorLabel: "SO-SW · S", country: "it", acc: "fb", hoehendiff: 655, gemeinde: "38018 Molveno", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Molveno Landeplatz 2", landeLat: 46.1422, landeLon: 10.9573, landeHoehe: 851, landeExtra: [{ name: "Molveno Landeplatz 1", lat: 46.139589, lon: 10.965631, hoehe: 830 }], ...DEF },
 
   { id: "db_2260_N", name: "Mombarcaro (N)", region: "Mombarcaro",
     lat: 44.4692, lon: 8.0843, elevation: 868, dhv: 2260,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "it", acc: "fa", hoehendiff: 520, gemeinde: "12070 Mombarcaro", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Mombarcaro Landeplatz 1", landeLat: 44.4719, landeLon: 8.1147, landeHoehe: 348, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "it", acc: "fa", hoehendiff: 520, gemeinde: "12070 Mombarcaro", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Mombarcaro Landeplatz 1", landeLat: 44.4719, landeLon: 8.1147, landeHoehe: 348, landeExtra: [{ name: "Mombarcaro Landeplatz 2", lat: 44.462767, lon: 8.117778, hoehe: 351 }], ...DEF },
 
   { id: "db_2260_SO", name: "Mombarcaro (SO)", region: "Mombarcaro",
     lat: 44.4658, lon: 8.0916, elevation: 842, dhv: 2260,
-    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "it", acc: "fa", hoehendiff: 520, gemeinde: "12070 Mombarcaro", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Mombarcaro Landeplatz 1", landeLat: 44.4719, landeLon: 8.1147, landeHoehe: 348, ...DEF },
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "it", acc: "fa", hoehendiff: 520, gemeinde: "12070 Mombarcaro", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Mombarcaro Landeplatz 1", landeLat: 44.4719, landeLon: 8.1147, landeHoehe: 348, landeExtra: [{ name: "Mombarcaro Landeplatz 2", lat: 44.462767, lon: 8.117778, hoehe: 351 }], ...DEF },
 
   { id: "db_5451", name: "Moncucco", region: "Domodossola",
     lat: 46.0915, lon: 8.2268, elevation: 1815, dhv: 5451,
@@ -9794,7 +9794,7 @@ const SPOT_DB = [
 
   { id: "db_1979", name: "Mont San Giorgio", region: "Piossasco",
     lat: 44.9969, lon: 7.448, elevation: 809, dhv: 1979,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 531, gemeinde: "10045 Piossasco", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Mont San Giorgio Landeplatz GS", landeLat: 44.9800, landeLon: 7.4478, landeHoehe: 298, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 531, gemeinde: "10045 Piossasco", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Mont San Giorgio Landeplatz GS", landeLat: 44.9800, landeLon: 7.4478, landeHoehe: 298, landeExtra: [{ name: "Mont San Giorgio Landeplatz HG", lat: 44.974586, lon: 7.447058, hoehe: 278 }], ...DEF },
 
   { id: "db_3842", name: "Montagna Grande", region: "Contrada Castello",
     lat: 37.8998, lon: 12.7702, elevation: 656, dhv: 3842,
@@ -9826,7 +9826,7 @@ const SPOT_DB = [
 
   { id: "db_1342", name: "Monte Avena", region: "Feltre",
     lat: 46.0297, lon: 11.8264, elevation: 1394, dhv: 1342,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 1093, gemeinde: "32032 Feltre", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Toplandemöglichkeit.", landeName: "Monte Avena Landeplatz 1", landeLat: 46.0040, landeLon: 11.8244, landeHoehe: 312, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 1093, gemeinde: "32032 Feltre", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Toplandemöglichkeit.", landeName: "Monte Avena Landeplatz 1", landeLat: 46.0040, landeLon: 11.8244, landeHoehe: 312, landeExtra: [{ name: "Monte Avena Landeplatz 2", lat: 46.009482, lon: 11.861629, hoehe: 301 }], ...DEF },
 
   { id: "db_1895", name: "Monte Baldo", region: "Malcesine",
     lat: 45.7775, lon: 10.8628, elevation: 1742, dhv: 1895,
@@ -9838,11 +9838,11 @@ const SPOT_DB = [
 
   { id: "db_3719_NW", name: "Monte Battaglia (NW)", region: "San Ruffillo",
     lat: 44.2219, lon: 11.5825, elevation: 658, dhv: 3719,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 170, gemeinde: "48010 San Ruffillo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Battaglia Landeplatz 1", landeLat: 44.2188, landeLon: 11.5864, landeHoehe: 488, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 170, gemeinde: "48010 San Ruffillo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Battaglia Landeplatz 1", landeLat: 44.2188, landeLon: 11.5864, landeHoehe: 488, landeExtra: [{ name: "Monte Battaglia Landeplatz 2", lat: 44.221411, lon: 11.576733, hoehe: 541 }], ...DEF },
 
   { id: "db_3719_SO", name: "Monte Battaglia (SO)", region: "San Ruffillo",
     lat: 44.2227, lon: 11.5844, elevation: 643, dhv: 3719,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 170, gemeinde: "48010 San Ruffillo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Battaglia Landeplatz 1", landeLat: 44.2188, landeLon: 11.5864, landeHoehe: 488, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 170, gemeinde: "48010 San Ruffillo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Battaglia Landeplatz 1", landeLat: 44.2188, landeLon: 11.5864, landeHoehe: 488, landeExtra: [{ name: "Monte Battaglia Landeplatz 2", lat: 44.221411, lon: 11.576733, hoehe: 541 }], ...DEF },
 
   { id: "db_2135", name: "Monte Belpo", region: "Costermano",
     lat: 45.6164, lon: 10.7614, elevation: 864, dhv: 2135,
@@ -9850,11 +9850,11 @@ const SPOT_DB = [
 
   { id: "db_2023_SO", name: "Monte Berlinghera (SO)", region: "Gera Lario",
     lat: 46.1908, lon: 9.3905, elevation: 1080, dhv: 2023,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 1681, gemeinde: "22010 Gera Lario", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Berlinghera Landeplatz 2", landeLat: 46.1702, landeLon: 9.3805, landeHoehe: 201, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 1681, gemeinde: "22010 Gera Lario", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Berlinghera Landeplatz 2", landeLat: 46.1702, landeLon: 9.3805, landeHoehe: 201, landeExtra: [{ name: "Monte Berlinghera Landeplatz", lat: 46.168786, lon: 9.373075, hoehe: 200 }], ...DEF },
 
   { id: "db_2023_SW", name: "Monte Berlinghera (SW)", region: "Gera Lario",
     lat: 46.2103, lon: 9.3888, elevation: 1881, dhv: 2023,
-    sectors: [[213.75, 281.25], [213.75, 236.25]], sectorLabel: "SW-W · SW", country: "it", acc: "fa", hoehendiff: 1681, gemeinde: "22010 Gera Lario", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Berlinghera Landeplatz 2", landeLat: 46.1702, landeLon: 9.3805, landeHoehe: 201, ...DEF },
+    sectors: [[213.75, 281.25], [213.75, 236.25]], sectorLabel: "SW-W · SW", country: "it", acc: "fa", hoehendiff: 1681, gemeinde: "22010 Gera Lario", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Berlinghera Landeplatz 2", landeLat: 46.1702, landeLon: 9.3805, landeHoehe: 201, landeExtra: [{ name: "Monte Berlinghera Landeplatz", lat: 46.168786, lon: 9.373075, hoehe: 200 }], ...DEF },
 
   { id: "db_2003", name: "Monte Blum", region: "Rovetta",
     lat: 45.9108, lon: 9.9803, elevation: 1296, dhv: 2003,
@@ -9866,15 +9866,15 @@ const SPOT_DB = [
 
   { id: "db_1986_NO", name: "Monte Bondone (NO)", region: "Lasino",
     lat: 46.0411, lon: 11.0264, elevation: 1535, dhv: 1986,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "it", acc: "fa", hoehendiff: 1266, gemeinde: "38076 Lasino", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Bondone Landeplatz 2", landeLat: 46.0395, landeLon: 11.0048, landeHoehe: 939, ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "it", acc: "fa", hoehendiff: 1266, gemeinde: "38076 Lasino", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Bondone Landeplatz 2", landeLat: 46.0395, landeLon: 11.0048, landeHoehe: 939, landeExtra: [{ name: "Monte Bondone Landeplatz 3", lat: 46.069697, lon: 11.052403, hoehe: 628 }], ...DEF },
 
   { id: "db_1986_SW", name: "Monte Bondone (SW)", region: "Lasino",
     lat: 45.9972, lon: 11.0252, elevation: 1739, dhv: 1986,
-    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", country: "it", acc: "fa", hoehendiff: 1266, gemeinde: "38076 Lasino", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Bondone Landeplatz 2", landeLat: 46.0395, landeLon: 11.0048, landeHoehe: 939, ...DEF },
+    sectors: [[213.75, 236.25], [213.75, 281.25]], sectorLabel: "SW · SW-W", country: "it", acc: "fa", hoehendiff: 1266, gemeinde: "38076 Lasino", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Bondone Landeplatz 2", landeLat: 46.0395, landeLon: 11.0048, landeHoehe: 939, landeExtra: [{ name: "Monte Bondone Landeplatz 3", lat: 46.069697, lon: 11.052403, hoehe: 628 }], ...DEF },
 
   { id: "db_1986_W", name: "Monte Bondone (W)", region: "Lasino",
     lat: 46.0426, lon: 11.0132, elevation: 1313, dhv: 1986,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1266, gemeinde: "38076 Lasino", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Bondone Landeplatz 2", landeLat: 46.0395, landeLon: 11.0048, landeHoehe: 939, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1266, gemeinde: "38076 Lasino", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Bondone Landeplatz 2", landeLat: 46.0395, landeLon: 11.0048, landeHoehe: 939, landeExtra: [{ name: "Monte Bondone Landeplatz 3", lat: 46.069697, lon: 11.052403, hoehe: 628 }], ...DEF },
 
   { id: "db_3709", name: "Monte Bronzone", region: "Sarnico",
     lat: 45.6928, lon: 9.9953, elevation: 939, dhv: 3709,
@@ -9882,11 +9882,11 @@ const SPOT_DB = [
 
   { id: "db_5414_N", name: "Monte Caio (N)", region: "Schia",
     lat: 44.4649, lon: 10.1619, elevation: 1452, dhv: 5414,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "it", acc: "fab", hoehendiff: 878, gemeinde: "43028 Schia", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Caio Landeplatz 1", landeLat: 44.4383, landeLon: 10.1815, landeHoehe: 591, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "it", acc: "fab", hoehendiff: 878, gemeinde: "43028 Schia", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Caio Landeplatz 1", landeLat: 44.4383, landeLon: 10.1815, landeHoehe: 591, landeExtra: [{ name: "Monte Caio Landeplatz 2", lat: 44.506225, lon: 10.18685, hoehe: 865 }, { name: "Monte Caio Landeplatz 3", lat: 44.509136, lon: 10.209278, hoehe: 591 }], ...DEF },
 
   { id: "db_5414_S", name: "Monte Caio (S)", region: "Schia",
     lat: 44.4641, lon: 10.1604, elevation: 1469, dhv: 5414,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fab", hoehendiff: 878, gemeinde: "43028 Schia", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Caio Landeplatz 1", landeLat: 44.4383, landeLon: 10.1815, landeHoehe: 591, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fab", hoehendiff: 878, gemeinde: "43028 Schia", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Caio Landeplatz 1", landeLat: 44.4383, landeLon: 10.1815, landeHoehe: 591, landeExtra: [{ name: "Monte Caio Landeplatz 2", lat: 44.506225, lon: 10.18685, hoehe: 865 }, { name: "Monte Caio Landeplatz 3", lat: 44.509136, lon: 10.209278, hoehe: 591 }], ...DEF },
 
   { id: "db_3733", name: "Monte Capanne", region: "San Giuliano Terme",
     lat: 43.7784, lon: 10.4404, elevation: 334, dhv: 3733,
@@ -9894,7 +9894,7 @@ const SPOT_DB = [
 
   { id: "db_4573", name: "Monte Capanne", region: "Marcianna",
     lat: 42.7725, lon: 10.1693, elevation: 951, dhv: 4573,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "it", acc: "fb", hoehendiff: 948, gemeinde: "57033 Marcianna", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Capanne Landeplatz 1", landeLat: 42.7990, landeLon: 10.1909, landeHoehe: 43, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "it", acc: "fb", hoehendiff: 948, gemeinde: "57033 Marcianna", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Capanne Landeplatz 1", landeLat: 42.7990, landeLon: 10.1909, landeHoehe: 43, landeExtra: [{ name: "Monte Capanne Landeplatz 2", lat: 42.805772, lon: 10.199622, hoehe: 3 }], ...DEF },
 
   { id: "db_3764", name: "Monte Cappucciata", region: "Villa Santa Lucia",
     lat: 42.3447, lon: 13.7849, elevation: 1503, dhv: 3764,
@@ -9950,11 +9950,11 @@ const SPOT_DB = [
 
   { id: "db_1899", name: "Monte Cornizzolo", region: "Cesana Brianza",
     lat: 45.8332, lon: 9.3021, elevation: 1035, dhv: 1899,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "it", acc: "f", hoehendiff: 806, gemeinde: "23861 Cesana Brianza", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", bemerkung: "Am Start gibt es für Drachen eine ideal geneigte Rampe. Die unterhalb auslegenden Schirmpiloten durch lautes Rufen auf den eigenen Start aufmerksam machen.", landeName: "Monte Cornizzolo Landeplatz 2", landeLat: 45.8173, landeLon: 9.3190, landeHoehe: 229, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "it", acc: "f", hoehendiff: 806, gemeinde: "23861 Cesana Brianza", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", bemerkung: "Am Start gibt es für Drachen eine ideal geneigte Rampe. Die unterhalb auslegenden Schirmpiloten durch lautes Rufen auf den eigenen Start aufmerksam machen.", landeName: "Monte Cornizzolo Landeplatz 2", landeLat: 45.8173, landeLon: 9.3190, landeHoehe: 229, landeExtra: [{ name: "Monte Cornizzolo Landeplatz 1", lat: 45.811897, lon: 9.294961, hoehe: 259 }], ...DEF },
 
   { id: "db_3705", name: "Monte Corno", region: "Chiuppano",
     lat: 45.8, lon: 11.5444, elevation: 1189, dhv: 3705,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 957, gemeinde: "36010 Chiuppano", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Corno Landeplatz", landeLat: 45.7653, landeLon: 11.4774, landeHoehe: 232, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 957, gemeinde: "36010 Chiuppano", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Corno Landeplatz", landeLat: 45.7653, landeLon: 11.4774, landeHoehe: 232, landeExtra: [{ name: "Ceresana Landeplatz", lat: 45.773394, lon: 11.437719, hoehe: 272 }], ...DEF },
 
   { id: "db_3763", name: "Monte Cosce", region: "Rocchette",
     lat: 42.4062, lon: 12.6327, elevation: 1093, dhv: 3763,
@@ -9978,11 +9978,11 @@ const SPOT_DB = [
 
   { id: "db_3740_NO", name: "Monte Cucco (NO)", region: "Sigillo",
     lat: 43.3565, lon: 12.7714, elevation: 1120, dhv: 3740,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 706, gemeinde: "06028 Sigillo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Cucco Landeplatz 2", landeLat: 43.3578, landeLon: 12.7494, landeHoehe: 1188, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 706, gemeinde: "06028 Sigillo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Cucco Landeplatz 2", landeLat: 43.3578, landeLon: 12.7494, landeHoehe: 1188, landeExtra: [{ name: "Monte Cucco Landeplatz 3", lat: 43.348903, lon: 12.821189, hoehe: 1188 }, { name: "Monte Cucco Landeplatz 1", lat: 43.344703, lon: 12.725225, hoehe: 482 }], ...DEF },
 
   { id: "db_3740_SW", name: "Monte Cucco (SW)", region: "Sigillo",
     lat: 43.3571, lon: 12.7498, elevation: 1188, dhv: 3740,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 706, gemeinde: "06028 Sigillo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Cucco Landeplatz 2", landeLat: 43.3578, landeLon: 12.7494, landeHoehe: 1188, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 706, gemeinde: "06028 Sigillo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Cucco Landeplatz 2", landeLat: 43.3578, landeLon: 12.7494, landeHoehe: 1188, landeExtra: [{ name: "Monte Cucco Landeplatz 3", lat: 43.348903, lon: 12.821189, hoehe: 1188 }, { name: "Monte Cucco Landeplatz 1", lat: 43.344703, lon: 12.725225, hoehe: 482 }], ...DEF },
 
   { id: "db_4572", name: "Monte di Capaccio Vecchio", region: "Capaccio",
     lat: 40.4493, lon: 15.0495, elevation: 207, dhv: 4572,
@@ -9990,7 +9990,7 @@ const SPOT_DB = [
 
   { id: "db_2021", name: "Monte Farno", region: "Gandino",
     lat: 45.8319, lon: 9.9075, elevation: 1286, dhv: 2021,
-    sectors: [[123.75, 236.25], [78.75, 281.25], [168.75, 191.25]], sectorLabel: "SO-SW · O-W · S", country: "it", acc: "fa", hoehendiff: 785, gemeinde: "24024 Gandino", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Farno Landeplatz 3", landeLat: 45.8168, landeLon: 9.9105, landeHoehe: 607, ...DEF },
+    sectors: [[123.75, 236.25], [78.75, 281.25], [168.75, 191.25]], sectorLabel: "SO-SW · O-W · S", country: "it", acc: "fa", hoehendiff: 785, gemeinde: "24024 Gandino", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Farno Landeplatz 3", landeLat: 45.8168, landeLon: 9.9105, landeHoehe: 607, landeExtra: [{ name: "Monte Farno Landeplatz 1", lat: 45.811875, lon: 9.891714, hoehe: 510 }, { name: "Monte Farno Landeplatz 2", lat: 45.812394, lon: 9.875633, hoehe: 501 }], ...DEF },
 
   { id: "db_5430", name: "Monte Freidur", region: "Roletto",
     lat: 44.9731, lon: 7.3031, elevation: 1452, dhv: 5430,
@@ -10018,7 +10018,7 @@ const SPOT_DB = [
 
   { id: "db_5394", name: "Monte Gennaro", region: "Marcellina",
     lat: 42.035, lon: 12.8251, elevation: 757, dhv: 5394,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 511, gemeinde: "00010 Marcellina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Gennaro Landeplatz 1", landeLat: 42.0218, landeLon: 12.7997, landeHoehe: 248, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 511, gemeinde: "00010 Marcellina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Gennaro Landeplatz 1", landeLat: 42.0218, landeLon: 12.7997, landeHoehe: 248, landeExtra: [{ name: "Monte Gennaro Landeplatz 2", lat: 42.035261, lon: 12.784994, hoehe: 246 }], ...DEF },
 
   { id: "db_5412", name: "Monte Gianni", region: "Popolano",
     lat: 44.0806, lon: 11.6335, elevation: 581, dhv: 5412,
@@ -10034,15 +10034,15 @@ const SPOT_DB = [
 
   { id: "db_2423", name: "Monte Guardia", region: "Lipari",
     lat: 38.4549, lon: 14.9438, elevation: 344, dhv: 2423,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 319, gemeinde: "98055 Lipari", bundesland: "Sizilien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Guardia Landeplatz", landeLat: 38.4503, landeLon: 14.9420, landeHoehe: 35, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 319, gemeinde: "98055 Lipari", bundesland: "Sizilien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Guardia Landeplatz", landeLat: 38.4503, landeLon: 14.9420, landeHoehe: 35, landeExtra: [{ name: "Monte San Angelo Landeplatz", lat: 38.474936, lon: 14.9508, hoehe: 25 }], ...DEF },
 
   { id: "db_2007", name: "Monte Guglielmo", region: "Sale Marasino",
     lat: 45.7251, lon: 10.1463, elevation: 1132, dhv: 2007,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "it", acc: "fa", hoehendiff: 935, gemeinde: "25057 Sale Marasino", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Guglielmo Landeplatz 2", landeLat: 45.7103, landeLon: 10.1303, landeHoehe: 564, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "it", acc: "fa", hoehendiff: 935, gemeinde: "25057 Sale Marasino", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Monte Guglielmo Landeplatz 2", landeLat: 45.7103, landeLon: 10.1303, landeHoehe: 564, landeExtra: [{ name: "Monte Guglielmo Landeplatz 1", lat: 45.711969, lon: 10.110839, hoehe: 197 }], ...DEF },
 
   { id: "db_3835", name: "Monte Icini", region: "Castellamare del Golfo",
     lat: 38.0012, lon: 12.8592, elevation: 1061, dhv: 3835,
-    sectors: [[168.75, 281.25], [33.75, 56.25]], sectorLabel: "S-W · NO", country: "it", acc: "fa", hoehendiff: 1059, gemeinde: "91014 Castellamare del Golfo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Icini Landeplatz 2", landeLat: 37.9705, landeLon: 12.8502, landeHoehe: 188, ...DEF },
+    sectors: [[168.75, 281.25], [33.75, 56.25]], sectorLabel: "S-W · NO", country: "it", acc: "fa", hoehendiff: 1059, gemeinde: "91014 Castellamare del Golfo", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Icini Landeplatz 2", landeLat: 37.9705, landeLon: 12.8502, landeHoehe: 188, landeExtra: [{ name: "Monte Icini Landeplatz 1", lat: 38.024242, lon: 12.901558, hoehe: 2 }], ...DEF },
 
   { id: "db_5313", name: "Monte Lascari", region: "Cocuzzola",
     lat: 38.0207, lon: 13.9606, elevation: 276, dhv: 5313,
@@ -10050,7 +10050,7 @@ const SPOT_DB = [
 
   { id: "db_5418", name: "Monte Lesima", region: "Lama",
     lat: 44.6848, lon: 9.2546, elevation: 1635, dhv: 5418,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 1109, gemeinde: "27050 Lama", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Lesima Landeplatz 1", landeLat: 44.6956, landeLon: 9.2634, landeHoehe: 1187, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 1109, gemeinde: "27050 Lama", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Lesima Landeplatz 1", landeLat: 44.6956, landeLon: 9.2634, landeHoehe: 1187, landeExtra: [{ name: "Monte Lesima Landeplatz 2", lat: 44.701611, lon: 9.293236, hoehe: 526 }], ...DEF },
 
   { id: "db_2009", name: "Monte Linzone", region: "Palazago",
     lat: 45.7766, lon: 9.5318, elevation: 1372, dhv: 2009,
@@ -10058,7 +10058,7 @@ const SPOT_DB = [
 
   { id: "db_2258", name: "Monte Liretta", region: "Villar san Constanzo",
     lat: 44.499, lon: 7.382, elevation: 1071, dhv: 2258,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 472, gemeinde: "12020 Villar san Constanzo", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Monte Liretta Landeplatz GS", landeLat: 44.4863, landeLon: 7.3938, landeHoehe: 599, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 472, gemeinde: "12020 Villar san Constanzo", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Monte Liretta Landeplatz GS", landeLat: 44.4863, landeLon: 7.3938, landeHoehe: 599, landeExtra: [{ name: "Monte Liretta Landeplatz HG", lat: 44.479831, lon: 7.388517, hoehe: 601 }], ...DEF },
 
   { id: "db_3868", name: "Monte Lungo", region: "Femmina Morta",
     lat: 37.0881, lon: 14.1828, elevation: 52, dhv: 3868,
@@ -10098,15 +10098,15 @@ const SPOT_DB = [
 
   { id: "db_2261_NO", name: "Monte Malanotte (NO)", region: "Frabosa",
     lat: 44.2592, lon: 7.7945, elevation: 1715, dhv: 2261,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "it", acc: "fa", hoehendiff: 1250, gemeinde: "12083 Frabosa", bundesland: "Piemont", landeName: "Monte Malanotte Landeplatz 1 HG", landeLat: 44.3006, landeLon: 7.7443, landeHoehe: 634, ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "it", acc: "fa", hoehendiff: 1250, gemeinde: "12083 Frabosa", bundesland: "Piemont", landeName: "Monte Malanotte Landeplatz 1 HG", landeLat: 44.3006, landeLon: 7.7443, landeHoehe: 634, landeExtra: [{ name: "Monte Malanotte Landeplatz 2 HG", lat: 44.339872, lon: 7.777186, hoehe: 490 }, { name: "Monte Malanotte Landeplatz 3 HG", lat: 44.367169, lon: 7.801994, hoehe: 465 }], ...DEF },
 
   { id: "db_2261_W", name: "Monte Malanotte (W)", region: "Frabosa",
     lat: 44.2596, lon: 7.7938, elevation: 1712, dhv: 2261,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fa", hoehendiff: 1250, gemeinde: "12083 Frabosa", bundesland: "Piemont", landeName: "Monte Malanotte Landeplatz 1 HG", landeLat: 44.3006, landeLon: 7.7443, landeHoehe: 634, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fa", hoehendiff: 1250, gemeinde: "12083 Frabosa", bundesland: "Piemont", landeName: "Monte Malanotte Landeplatz 1 HG", landeLat: 44.3006, landeLon: 7.7443, landeHoehe: 634, landeExtra: [{ name: "Monte Malanotte Landeplatz 2 HG", lat: 44.339872, lon: 7.777186, hoehe: 490 }, { name: "Monte Malanotte Landeplatz 3 HG", lat: 44.367169, lon: 7.801994, hoehe: 465 }], ...DEF },
 
   { id: "db_1970", name: "Monte Moro", region: "Macugnagna",
     lat: 45.9966, lon: 7.9778, elevation: 2797, dhv: 1970,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fb", hoehendiff: 1573, gemeinde: "28876 Macugnagna", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Alpe Bil Landeplatz 2", landeLat: 45.9727, landeLon: 7.9542, landeHoehe: 1363, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fb", hoehendiff: 1573, gemeinde: "28876 Macugnagna", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Alpe Bil Landeplatz 2", landeLat: 45.9727, landeLon: 7.9542, landeHoehe: 1363, landeExtra: [{ name: "Alpe Bil Landeplatz 1", lat: 45.961972, lon: 7.98045, hoehe: 1224 }], ...DEF },
 
   { id: "db_3738", name: "Monte Murano", region: "Serra san Quirico",
     lat: 43.4386, lon: 13.0009, elevation: 804, dhv: 3738,
@@ -10114,11 +10114,11 @@ const SPOT_DB = [
 
   { id: "db_2391_O", name: "Monte Nerone (O)", region: "Apecchio Pesaro",
     lat: 43.5552, lon: 12.5235, elevation: 1372, dhv: 2391,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 1086, gemeinde: "61042 Apecchio Pesaro", bundesland: "Umbrien", gleitschirm: "1- und 2-sitzig", bemerkung: "Herrlicher Wiesenstartplatz vor dem Gipfelplateau des Monte Nerone.", landeName: "Monte Nerone Landeplatz 2", landeLat: 43.5452, landeLon: 12.4876, landeHoehe: 768, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 1086, gemeinde: "61042 Apecchio Pesaro", bundesland: "Umbrien", gleitschirm: "1- und 2-sitzig", bemerkung: "Herrlicher Wiesenstartplatz vor dem Gipfelplateau des Monte Nerone.", landeName: "Monte Nerone Landeplatz 2", landeLat: 43.5452, landeLon: 12.4876, landeHoehe: 768, landeExtra: [{ name: "Monte Nerone Landeplatz 1", lat: 43.585111, lon: 12.519864, hoehe: 331 }], ...DEF },
 
   { id: "db_2391_W", name: "Monte Nerone (W)", region: "Apecchio Pesaro",
     lat: 43.5538, lon: 12.5055, elevation: 1417, dhv: 2391,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1086, gemeinde: "61042 Apecchio Pesaro", bundesland: "Umbrien", gleitschirm: "1- und 2-sitzig", bemerkung: "Weitere Startmöglichkeiten nach Westen und Norden entlang des Grates westlich des Gipfelplateaus des Monte Nerone.", landeName: "Monte Nerone Landeplatz 2", landeLat: 43.5452, landeLon: 12.4876, landeHoehe: 768, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1086, gemeinde: "61042 Apecchio Pesaro", bundesland: "Umbrien", gleitschirm: "1- und 2-sitzig", bemerkung: "Weitere Startmöglichkeiten nach Westen und Norden entlang des Grates westlich des Gipfelplateaus des Monte Nerone.", landeName: "Monte Nerone Landeplatz 2", landeLat: 43.5452, landeLon: 12.4876, landeHoehe: 768, landeExtra: [{ name: "Monte Nerone Landeplatz 1", lat: 43.585111, lon: 12.519864, hoehe: 331 }], ...DEF },
 
   { id: "db_1557", name: "Monte Novegno", region: "Schio",
     lat: 45.763, lon: 11.3089, elevation: 1517, dhv: 1557,
@@ -10142,7 +10142,7 @@ const SPOT_DB = [
 
   { id: "db_1555", name: "Monte Panarotta", region: "Levico Terme",
     lat: 46.0418, lon: 11.3171, elevation: 1481, dhv: 1555,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 1044, gemeinde: "38056 Levico Terme", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Monte Panarotta Landeplatz 2", landeLat: 46.0120, landeLon: 11.3431, landeHoehe: 437, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 1044, gemeinde: "38056 Levico Terme", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Monte Panarotta Landeplatz 2", landeLat: 46.0120, landeLon: 11.3431, landeHoehe: 437, landeExtra: [{ name: "Monte Panarotta Landeplatz 3", lat: 45.999633, lon: 11.286133, hoehe: 450 }, { name: "Monte Panarotta Landeplatz 1", lat: 46.002831, lon: 11.310339, hoehe: 441 }], ...DEF },
 
   { id: "db_5342", name: "Monte Parratiello", region: "Muro Lucano",
     lat: 40.7261, lon: 15.4717, elevation: 909, dhv: 5342,
@@ -10162,7 +10162,7 @@ const SPOT_DB = [
 
   { id: "db_5631", name: "Monte Pic", region: "St. Ulrich",
     lat: 46.5803, lon: 11.7247, elevation: 2364, dhv: 5631,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "it", acc: "f", hoehendiff: 1119, gemeinde: "39046 St. Ulrich", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Monte Seura Landeplatz", landeLat: 46.5571, landeLon: 11.7244, landeHoehe: 1403, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "it", acc: "f", hoehendiff: 1119, gemeinde: "39046 St. Ulrich", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Monte Seura Landeplatz", landeLat: 46.5571, landeLon: 11.7244, landeHoehe: 1403, landeExtra: [{ name: "Seceda Landeplatz 2", lat: 46.568542, lon: 11.682103, hoehe: 1245 }], ...DEF },
 
   { id: "db_2416", name: "Monte Piccaro", region: "Ceriale",
     lat: 44.1058, lon: 8.2309, elevation: 253, dhv: 2416,
@@ -10182,11 +10182,11 @@ const SPOT_DB = [
 
   { id: "db_2386_S", name: "Monte Pizzoc (S)", region: "Fregona",
     lat: 46.043, lon: 12.3384, elevation: 1537, dhv: 2386,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "it", acc: "fa", hoehendiff: 1401, gemeinde: "31010 Fregona", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", bemerkung: "Breiter Wiesenstartplatz unterhalb des Monte Pizzoc.", landeName: "Monte Pizzoc Landeplatz 1", landeLat: 46.0000, landeLon: 12.3547, landeHoehe: 213, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "it", acc: "fa", hoehendiff: 1401, gemeinde: "31010 Fregona", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", bemerkung: "Breiter Wiesenstartplatz unterhalb des Monte Pizzoc.", landeName: "Monte Pizzoc Landeplatz 1", landeLat: 46.0000, landeLon: 12.3547, landeHoehe: 213, landeExtra: [{ name: "Monte Pizzoc Landeplatz 2", lat: 45.981253, lon: 12.348386, hoehe: 144 }], ...DEF },
 
   { id: "db_2386_SW", name: "Monte Pizzoc (SW)", region: "Fregona",
     lat: 46.0387, lon: 12.3502, elevation: 1545, dhv: 2386,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 1401, gemeinde: "31010 Fregona", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Pizzoc Landeplatz 1", landeLat: 46.0000, landeLon: 12.3547, landeHoehe: 213, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 1401, gemeinde: "31010 Fregona", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Pizzoc Landeplatz 1", landeLat: 46.0000, landeLon: 12.3547, landeHoehe: 213, landeExtra: [{ name: "Monte Pizzoc Landeplatz 2", lat: 45.981253, lon: 12.348386, hoehe: 144 }], ...DEF },
 
   { id: "db_2001_S", name: "Monte Pizzocolo (S)", region: "Gardone",
     lat: 45.6653, lon: 10.5611, elevation: 1152, dhv: 2001,
@@ -10250,19 +10250,19 @@ const SPOT_DB = [
 
   { id: "db_3864", name: "Monte Scala", region: "Cotomino",
     lat: 37.2515, lon: 14.4233, elevation: 776, dhv: 3864,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 447, gemeinde: "95041 Cotomino", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Scala Landeplatz 1", landeLat: 37.2383, landeLon: 14.4040, landeHoehe: 329, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 447, gemeinde: "95041 Cotomino", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Scala Landeplatz 1", landeLat: 37.2383, landeLon: 14.4040, landeHoehe: 329, landeExtra: [{ name: "Monte Scala Landeplatz 2", lat: 37.242872, lon: 14.456578, hoehe: 353 }], ...DEF },
 
   { id: "db_3859_N", name: "Monte Scalpello (N)", region: "Catenanuova",
     lat: 37.5504, lon: 14.6525, elevation: 495, dhv: 3859,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "it", acc: "fa", hoehendiff: 322, gemeinde: "94010 Catenanuova", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Scalpello Landeplatz 2", landeLat: 37.5446, landeLon: 14.6572, landeHoehe: 378, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "it", acc: "fa", hoehendiff: 322, gemeinde: "94010 Catenanuova", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Scalpello Landeplatz 2", landeLat: 37.5446, landeLon: 14.6572, landeHoehe: 378, landeExtra: [{ name: "Monte Scalpello Landeplatz 1", lat: 37.554011, lon: 14.638569, hoehe: 259 }], ...DEF },
 
   { id: "db_3859_NW", name: "Monte Scalpello (NW)", region: "Catenanuova",
     lat: 37.5482, lon: 14.652, elevation: 581, dhv: 3859,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 322, gemeinde: "94010 Catenanuova", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Scalpello Landeplatz 2", landeLat: 37.5446, landeLon: 14.6572, landeHoehe: 378, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 322, gemeinde: "94010 Catenanuova", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Scalpello Landeplatz 2", landeLat: 37.5446, landeLon: 14.6572, landeHoehe: 378, landeExtra: [{ name: "Monte Scalpello Landeplatz 1", lat: 37.554011, lon: 14.638569, hoehe: 259 }], ...DEF },
 
   { id: "db_3859_SO", name: "Monte Scalpello (SO)", region: "Catenanuova",
     lat: 37.5488, lon: 14.6548, elevation: 579, dhv: 3859,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 322, gemeinde: "94010 Catenanuova", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Scalpello Landeplatz 2", landeLat: 37.5446, landeLon: 14.6572, landeHoehe: 378, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 322, gemeinde: "94010 Catenanuova", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Scalpello Landeplatz 2", landeLat: 37.5446, landeLon: 14.6572, landeHoehe: 378, landeExtra: [{ name: "Monte Scalpello Landeplatz 1", lat: 37.554011, lon: 14.638569, hoehe: 259 }], ...DEF },
 
   { id: "db_2004", name: "Monte Scanapa", region: "Castione della Presolana",
     lat: 45.9199, lon: 10.0884, elevation: 1619, dhv: 2004,
@@ -10294,19 +10294,19 @@ const SPOT_DB = [
 
   { id: "db_3742_N", name: "Monte Subasio (N)", region: "Assisi",
     lat: 43.0707, lon: 12.6692, elevation: 1203, dhv: 3742,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "it", acc: "fa", hoehendiff: 1061, gemeinde: "06081 Assisi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Subasio Landeplatz 2", landeLat: 43.0886, landeLon: 12.6564, landeHoehe: 505, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "it", acc: "fa", hoehendiff: 1061, gemeinde: "06081 Assisi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Subasio Landeplatz 2", landeLat: 43.0886, landeLon: 12.6564, landeHoehe: 505, landeExtra: [{ name: "Monte Subasio Landeplatz 1", lat: 43.048034, lon: 12.624863, hoehe: 215 }, { name: "Monte Subasio Landeplatz 3", lat: 43.013033, lon: 12.642542, hoehe: 194 }], ...DEF },
 
   { id: "db_3742_O", name: "Monte Subasio (O)", region: "Assisi",
     lat: 43.0642, lon: 12.6747, elevation: 1253, dhv: 3742,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 1061, gemeinde: "06081 Assisi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Subasio Landeplatz 2", landeLat: 43.0886, landeLon: 12.6564, landeHoehe: 505, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 1061, gemeinde: "06081 Assisi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Subasio Landeplatz 2", landeLat: 43.0886, landeLon: 12.6564, landeHoehe: 505, landeExtra: [{ name: "Monte Subasio Landeplatz 1", lat: 43.048034, lon: 12.624863, hoehe: 215 }, { name: "Monte Subasio Landeplatz 3", lat: 43.013033, lon: 12.642542, hoehe: 194 }], ...DEF },
 
   { id: "db_3742_S", name: "Monte Subasio (S)", region: "Assisi",
     lat: 43.0459, lon: 12.6769, elevation: 1243, dhv: 3742,
-    sectors: [[168.75, 236.25], [168.75, 191.25]], sectorLabel: "S-SW · S", country: "it", acc: "fa", hoehendiff: 1061, gemeinde: "06081 Assisi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Subasio Landeplatz 1", landeLat: 43.0480, landeLon: 12.6249, landeHoehe: 215, ...DEF },
+    sectors: [[168.75, 236.25], [168.75, 191.25]], sectorLabel: "S-SW · S", country: "it", acc: "fa", hoehendiff: 1061, gemeinde: "06081 Assisi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Subasio Landeplatz 1", landeLat: 43.0480, landeLon: 12.6249, landeHoehe: 215, landeExtra: [{ name: "Monte Subasio Landeplatz 2", lat: 43.088647, lon: 12.656442, hoehe: 505 }, { name: "Monte Subasio Landeplatz 3", lat: 43.013033, lon: 12.642542, hoehe: 194 }], ...DEF },
 
   { id: "db_3742_W", name: "Monte Subasio (W)", region: "Assisi",
     lat: 43.0566, lon: 12.6678, elevation: 1255, dhv: 3742,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1061, gemeinde: "06081 Assisi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Subasio Landeplatz 1", landeLat: 43.0480, landeLon: 12.6249, landeHoehe: 215, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1061, gemeinde: "06081 Assisi", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Subasio Landeplatz 1", landeLat: 43.0480, landeLon: 12.6249, landeHoehe: 215, landeExtra: [{ name: "Monte Subasio Landeplatz 2", lat: 43.088647, lon: 12.656442, hoehe: 505 }, { name: "Monte Subasio Landeplatz 3", lat: 43.013033, lon: 12.642542, hoehe: 194 }], ...DEF },
 
   { id: "db_1556", name: "Monte Summano", region: "Schio",
     lat: 45.7564, lon: 11.3902, elevation: 1132, dhv: 1556,
@@ -10350,7 +10350,7 @@ const SPOT_DB = [
 
   { id: "db_3845", name: "Monte Veneretta", region: "Taormina",
     lat: 37.8694, lon: 15.2676, elevation: 785, dhv: 3845,
-    sectors: [[78.75, 236.25]], sectorLabel: "O-SW", country: "it", acc: "fa", hoehendiff: 784, gemeinde: "98039 Taormina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Veneretta Landeplatz 2", landeLat: 37.8446, landeLon: 15.2825, landeHoehe: 6, ...DEF },
+    sectors: [[78.75, 236.25]], sectorLabel: "O-SW", country: "it", acc: "fa", hoehendiff: 784, gemeinde: "98039 Taormina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Monte Veneretta Landeplatz 2", landeLat: 37.8446, landeLon: 15.2825, landeHoehe: 6, landeExtra: [{ name: "Monte Veneretta Landeplatz 1", lat: 37.8795, lon: 15.307211, hoehe: 1 }], ...DEF },
 
   { id: "db_5337", name: "Monte Volturino", region: "Marsicovetere",
     lat: 40.4043, lon: 15.8175, elevation: 1587, dhv: 5337,
@@ -10366,7 +10366,7 @@ const SPOT_DB = [
 
   { id: "db_5439", name: "Montefalcone", region: "Valdagno",
     lat: 45.6648, lon: 11.2102, elevation: 1537, dhv: 5439,
-    sectors: [[33.75, 56.25], [213.75, 236.25]], sectorLabel: "NO · SW", country: "it", acc: "fb", hoehendiff: 1241, gemeinde: "36078 Valdagno", bundesland: "Umbrien", gleitschirm: "1- und 2-sitzig", landeName: "Campogrosso Landeplatz 2", landeLat: 45.7014, landeLon: 11.2051, landeHoehe: 530, ...DEF },
+    sectors: [[33.75, 56.25], [213.75, 236.25]], sectorLabel: "NO · SW", country: "it", acc: "fb", hoehendiff: 1241, gemeinde: "36078 Valdagno", bundesland: "Umbrien", gleitschirm: "1- und 2-sitzig", landeName: "Campogrosso Landeplatz 2", landeLat: 45.7014, landeLon: 11.2051, landeHoehe: 530, landeExtra: [{ name: "Montefalcone Landeplatz", lat: 45.661753, lon: 11.289594, hoehe: 296 }], ...DEF },
 
   { id: "db_3776_NO", name: "Montefalcone (NO)", region: "Montefalcone nel Sannio",
     lat: 41.8512, lon: 14.6688, elevation: 912, dhv: 3776,
@@ -10394,11 +10394,11 @@ const SPOT_DB = [
 
   { id: "db_2262_O", name: "Montemoro (O)", region: "Frabosa",
     lat: 44.2686, lon: 7.7928, elevation: 1655, dhv: 2262,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 1190, gemeinde: "12083 Frabosa", bundesland: "Piemont", landeName: "Monte Malanotte Landeplatz 1 HG", landeLat: 44.3006, landeLon: 7.7443, landeHoehe: 634, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 1190, gemeinde: "12083 Frabosa", bundesland: "Piemont", landeName: "Monte Malanotte Landeplatz 1 HG", landeLat: 44.3006, landeLon: 7.7443, landeHoehe: 634, landeExtra: [{ name: "Monte Malanotte Landeplatz 2 HG", lat: 44.339872, lon: 7.777186, hoehe: 490 }, { name: "Monte Malanotte Landeplatz 3 HG", lat: 44.367169, lon: 7.801994, hoehe: 465 }], ...DEF },
 
   { id: "db_2262_W", name: "Montemoro (W)", region: "Frabosa",
     lat: 44.2693, lon: 7.7926, elevation: 1631, dhv: 2262,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1190, gemeinde: "12083 Frabosa", bundesland: "Piemont", landeName: "Monte Malanotte Landeplatz 1 HG", landeLat: 44.3006, landeLon: 7.7443, landeHoehe: 634, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "it", acc: "fa", hoehendiff: 1190, gemeinde: "12083 Frabosa", bundesland: "Piemont", landeName: "Monte Malanotte Landeplatz 1 HG", landeLat: 44.3006, landeLon: 7.7443, landeHoehe: 634, landeExtra: [{ name: "Monte Malanotte Landeplatz 2 HG", lat: 44.339872, lon: 7.777186, hoehe: 490 }, { name: "Monte Malanotte Landeplatz 3 HG", lat: 44.367169, lon: 7.801994, hoehe: 465 }], ...DEF },
 
   { id: "db_2047", name: "Monterosso", region: "Monterosso al Mare",
     lat: 44.1527, lon: 9.6696, elevation: 508, dhv: 2047,
@@ -10414,11 +10414,11 @@ const SPOT_DB = [
 
   { id: "db_3736", name: "Montrago", region: "Pian di Sco",
     lat: 43.6539, lon: 11.6038, elevation: 1254, dhv: 3736,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 956, gemeinde: "52026 Pian di Sco", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Montrago Landeplatz 1", landeLat: 43.6483, landeLon: 11.5841, landeHoehe: 765, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 956, gemeinde: "52026 Pian di Sco", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Montrago Landeplatz 1", landeLat: 43.6483, landeLon: 11.5841, landeHoehe: 765, landeExtra: [{ name: "Montrago Landeplatz 2", lat: 43.636322, lon: 11.553778, hoehe: 298 }], ...DEF },
 
   { id: "db_3701", name: "Mottarone", region: "Omegna",
     lat: 45.8803, lon: 8.4482, elevation: 1406, dhv: 3701,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 976, gemeinde: "28887 Omegna", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Mottarone Landeplatz", landeLat: 45.8425, landeLon: 8.4172, landeHoehe: 430, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 976, gemeinde: "28887 Omegna", bundesland: "Lombardei", gleitschirm: "1- und 2-sitzig", landeName: "Mottarone Landeplatz", landeLat: 45.8425, landeLon: 8.4172, landeHoehe: 430, landeExtra: [{ name: "Alpe Quaggione Landeplatz 1", lat: 45.944061, lon: 8.482392, hoehe: 193 }], ...DEF },
 
   { id: "db_2017", name: "Mottolino", region: "Livigno",
     lat: 46.5284, lon: 10.1609, elevation: 2363, dhv: 2017,
@@ -10498,15 +10498,15 @@ const SPOT_DB = [
 
   { id: "db_1786_O", name: "Ospedaletti (O)", region: "Ospedaletti",
     lat: 43.8338, lon: 7.7159, elevation: 891, dhv: 1786,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "it", acc: "fa", hoehendiff: 889, gemeinde: "18014 Ospedaletti", bundesland: "Ligurien", gleitschirm: "1- und 2-sitzig", landeName: "Ospedaletti Landeplatz 1", landeLat: 43.8004, landeLon: 7.7094, landeHoehe: 10, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "it", acc: "fa", hoehendiff: 889, gemeinde: "18014 Ospedaletti", bundesland: "Ligurien", gleitschirm: "1- und 2-sitzig", landeName: "Ospedaletti Landeplatz 1", landeLat: 43.8004, landeLon: 7.7094, landeHoehe: 10, landeExtra: [{ name: "Ospedaletti Landeplatz 2", lat: 43.802397, lon: 7.748433, hoehe: 2 }], ...DEF },
 
   { id: "db_1786_SO", name: "Ospedaletti (SO)", region: "Ospedaletti",
     lat: 43.8078, lon: 7.6891, elevation: 529, dhv: 1786,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 889, gemeinde: "18014 Ospedaletti", bundesland: "Ligurien", gleitschirm: "1- und 2-sitzig", landeName: "Ospedaletti Landeplatz 1", landeLat: 43.8004, landeLon: 7.7094, landeHoehe: 10, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 889, gemeinde: "18014 Ospedaletti", bundesland: "Ligurien", gleitschirm: "1- und 2-sitzig", landeName: "Ospedaletti Landeplatz 1", landeLat: 43.8004, landeLon: 7.7094, landeHoehe: 10, landeExtra: [{ name: "Ospedaletti Landeplatz 2", lat: 43.802397, lon: 7.748433, hoehe: 2 }], ...DEF },
 
   { id: "db_1786_SW", name: "Ospedaletti (SW)", region: "Ospedaletti",
     lat: 43.8285, lon: 7.7142, elevation: 759, dhv: 1786,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 889, gemeinde: "18014 Ospedaletti", bundesland: "Ligurien", gleitschirm: "1- und 2-sitzig", landeName: "Ospedaletti Landeplatz 1", landeLat: 43.8004, landeLon: 7.7094, landeHoehe: 10, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 889, gemeinde: "18014 Ospedaletti", bundesland: "Ligurien", gleitschirm: "1- und 2-sitzig", landeName: "Ospedaletti Landeplatz 1", landeLat: 43.8004, landeLon: 7.7094, landeHoehe: 10, landeExtra: [{ name: "Ospedaletti Landeplatz 2", lat: 43.802397, lon: 7.748433, hoehe: 2 }], ...DEF },
 
   { id: "db_5416", name: "Paesana", region: "Paesana",
     lat: 44.6577, lon: 7.26, elevation: 1380, dhv: 5416,
@@ -10522,7 +10522,7 @@ const SPOT_DB = [
 
   { id: "db_5385", name: "Panni", region: "Panni",
     lat: 41.2275, lon: 15.2682, elevation: 767, dhv: 5385,
-    sectors: [[213.75, 236.25], [33.75, 56.25]], sectorLabel: "SW · NO", country: "it", acc: "fa", hoehendiff: 258, gemeinde: "71020 Panni", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Panni Landeplatz 1", landeLat: 41.2224, landeLon: 15.2664, landeHoehe: 630, ...DEF },
+    sectors: [[213.75, 236.25], [33.75, 56.25]], sectorLabel: "SW · NO", country: "it", acc: "fa", hoehendiff: 258, gemeinde: "71020 Panni", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Panni Landeplatz 1", landeLat: 41.2224, landeLon: 15.2664, landeHoehe: 630, landeExtra: [{ name: "Panni Landeplatz 2", lat: 41.232911, lon: 15.279439, hoehe: 509 }], ...DEF },
 
   { id: "db_5399", name: "Pantani", region: "San Pellegrino",
     lat: 42.7409, lon: 13.1775, elevation: 1696, dhv: 5399,
@@ -10558,7 +10558,7 @@ const SPOT_DB = [
 
   { id: "db_1234", name: "Pfalzen", region: "Pfalzen",
     lat: 46.8309, lon: 11.8726, elevation: 1621, dhv: 1234,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "it", acc: "fa", hoehendiff: 795, gemeinde: "39030 Pfalzen", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schöner Wiesenstart.", landeName: "Pfalzen Landeplatz 1", landeLat: 46.8082, landeLon: 11.8797, landeHoehe: 995, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "it", acc: "fa", hoehendiff: 795, gemeinde: "39030 Pfalzen", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schöner Wiesenstart.", landeName: "Pfalzen Landeplatz 1", landeLat: 46.8082, landeLon: 11.8797, landeHoehe: 995, landeExtra: [{ name: "Pfalzen Landeplatz 2", lat: 46.810494, lon: 11.927364, hoehe: 826 }], ...DEF },
 
   { id: "db_5448", name: "Pian Bello", region: "Cannero Riviera",
     lat: 46.0434, lon: 8.6564, elevation: 1254, dhv: 5448,
@@ -10574,11 +10574,11 @@ const SPOT_DB = [
 
   { id: "db_3838_NO", name: "Piana degli Albanesi (NO)", region: "San Cipirello",
     lat: 37.969, lon: 13.2572, elevation: 1153, dhv: 3838,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 699, gemeinde: "90040 San Cipirello", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Piana degli Albanesi Landeplatz 3", landeLat: 37.9759, landeLon: 13.2589, landeHoehe: 851, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 699, gemeinde: "90040 San Cipirello", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Piana degli Albanesi Landeplatz 3", landeLat: 37.9759, landeLon: 13.2589, landeHoehe: 851, landeExtra: [{ name: "Piana degli Albanesi Landeplatz 1", lat: 37.957892, lon: 13.217964, hoehe: 486 }, { name: "Piana degli Albanesi Landeplatz 2", lat: 37.947719, lon: 13.285078, hoehe: 454 }], ...DEF },
 
   { id: "db_3838_SW", name: "Piana degli Albanesi (SW)", region: "San Cipirello",
     lat: 37.9696, lon: 13.2506, elevation: 1088, dhv: 3838,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 699, gemeinde: "90040 San Cipirello", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Piana degli Albanesi Landeplatz 3", landeLat: 37.9759, landeLon: 13.2589, landeHoehe: 851, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 699, gemeinde: "90040 San Cipirello", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Piana degli Albanesi Landeplatz 3", landeLat: 37.9759, landeLon: 13.2589, landeHoehe: 851, landeExtra: [{ name: "Piana degli Albanesi Landeplatz 1", lat: 37.957892, lon: 13.217964, hoehe: 486 }, { name: "Piana degli Albanesi Landeplatz 2", lat: 37.947719, lon: 13.285078, hoehe: 454 }], ...DEF },
 
   { id: "db_2267", name: "Piana di Vigezzo", region: "Santa Maria Maggiore",
     lat: 46.1733, lon: 8.496, elevation: 2011, dhv: 2267,
@@ -10638,11 +10638,11 @@ const SPOT_DB = [
 
   { id: "db_3820_N", name: "Pizzo Calabro (N)", region: "Vibo Marina",
     lat: 38.7335, lon: 16.1794, elevation: 351, dhv: 3820,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "it", acc: "fa", hoehendiff: 351, gemeinde: "89900 Vibo Marina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Pizzo Calabro Landeplatz 1", landeLat: 38.7482, landeLon: 16.1832, landeHoehe: 6, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "it", acc: "fa", hoehendiff: 351, gemeinde: "89900 Vibo Marina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Pizzo Calabro Landeplatz 1", landeLat: 38.7482, landeLon: 16.1832, landeHoehe: 6, landeExtra: [{ name: "Pizzo Calabro Landeplatz 2", lat: 38.728775, lon: 16.152097, hoehe: 6 }], ...DEF },
 
   { id: "db_3820_NW", name: "Pizzo Calabro (NW)", region: "Vibo Marina",
     lat: 38.7208, lon: 16.1599, elevation: 357, dhv: 3820,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 351, gemeinde: "89900 Vibo Marina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Pizzo Calabro Landeplatz 2", landeLat: 38.7288, landeLon: 16.1521, landeHoehe: 6, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 351, gemeinde: "89900 Vibo Marina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Pizzo Calabro Landeplatz 2", landeLat: 38.7288, landeLon: 16.1521, landeHoehe: 6, landeExtra: [{ name: "Pizzo Calabro Landeplatz 1", lat: 38.748236, lon: 16.183175, hoehe: 6 }], ...DEF },
 
   { id: "db_3746", name: "Pizzo di Meta", region: "Brilli",
     lat: 43.0175, lon: 13.2393, elevation: 1534, dhv: 3746,
@@ -10694,19 +10694,19 @@ const SPOT_DB = [
 
   { id: "db_3737", name: "Portonovo", region: "Poggio",
     lat: 43.5651, lon: 13.5774, elevation: 114, dhv: 3737,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 101, gemeinde: "60129 Poggio", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Portonovo Landeplatz 2", landeLat: 43.5646, landeLon: 13.5774, landeHoehe: 114, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 101, gemeinde: "60129 Poggio", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Portonovo Landeplatz 2", landeLat: 43.5646, landeLon: 13.5774, landeHoehe: 114, landeExtra: [{ name: "Portonovo Landeplatz 1", lat: 43.567433, lon: 13.577942, hoehe: 13 }], ...DEF },
 
   { id: "db_1928", name: "Porzus", region: "Attimis",
     lat: 46.184, lon: 13.3326, elevation: 676, dhv: 1928,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "it", acc: "fa", hoehendiff: 493, gemeinde: "33040 Attimis", bundesland: "Friaul", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz in Waldschneise oberhalb von Porzus.", landeName: "Porzus Landeplatz 2", landeLat: 46.1661, landeLon: 13.3287, landeHoehe: 183, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "it", acc: "fa", hoehendiff: 493, gemeinde: "33040 Attimis", bundesland: "Friaul", gleitschirm: "1- und 2-sitzig", bemerkung: "Startplatz in Waldschneise oberhalb von Porzus.", landeName: "Porzus Landeplatz 2", landeLat: 46.1661, landeLon: 13.3287, landeHoehe: 183, landeExtra: [{ name: "Porzus Landeplatz 1", lat: 46.190133, lon: 13.307456, hoehe: 199 }], ...DEF },
 
   { id: "db_5673_SO", name: "Possagno (SO)", region: "Possagno",
     lat: 45.8834, lon: 11.8502, elevation: 1414, dhv: 5673,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 1225, gemeinde: "31054 Possagno", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Possagno Landeplatz 1", landeLat: 45.8501, landeLon: 11.8813, landeHoehe: 248, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 1225, gemeinde: "31054 Possagno", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Possagno Landeplatz 1", landeLat: 45.8501, landeLon: 11.8813, landeHoehe: 248, landeExtra: [{ name: "Possagno Landeplatz 2", lat: 45.838628, lon: 11.850856, hoehe: 353 }], ...DEF },
 
   { id: "db_5673_SW", name: "Possagno (SW)", region: "Possagno",
     lat: 45.8817, lon: 11.8412, elevation: 1473, dhv: 5673,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 1225, gemeinde: "31054 Possagno", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Possagno Landeplatz 1", landeLat: 45.8501, landeLon: 11.8813, landeHoehe: 248, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fa", hoehendiff: 1225, gemeinde: "31054 Possagno", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Possagno Landeplatz 1", landeLat: 45.8501, landeLon: 11.8813, landeHoehe: 248, landeExtra: [{ name: "Possagno Landeplatz 2", lat: 45.838628, lon: 11.850856, hoehe: 353 }], ...DEF },
 
   { id: "db_3812", name: "Praia a Mare", region: "Praia a Mare",
     lat: 39.8918, lon: 15.8047, elevation: 564, dhv: 3812,
@@ -10714,11 +10714,11 @@ const SPOT_DB = [
 
   { id: "db_3745_NW", name: "Prati di Ragnolo (NW)", region: "Brilli",
     lat: 43.0156, lon: 13.2146, elevation: 1497, dhv: 3745,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 972, gemeinde: "62028 Brilli", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Prati di Ragnolo Landeplatz 2", landeLat: 43.0430, landeLon: 13.1681, landeHoehe: 658, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "it", acc: "fa", hoehendiff: 972, gemeinde: "62028 Brilli", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Prati di Ragnolo Landeplatz 2", landeLat: 43.0430, landeLon: 13.1681, landeHoehe: 658, landeExtra: [{ name: "Prati di Ragnolo Landeplatz 1", lat: 43.021369, lon: 13.282383, hoehe: 525 }], ...DEF },
 
   { id: "db_3745_O", name: "Prati di Ragnolo (O)", region: "Brilli",
     lat: 43.0278, lon: 13.2173, elevation: 1408, dhv: 3745,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 972, gemeinde: "62028 Brilli", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Prati di Ragnolo Landeplatz 2", landeLat: 43.0430, landeLon: 13.1681, landeHoehe: 658, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "it", acc: "fa", hoehendiff: 972, gemeinde: "62028 Brilli", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Prati di Ragnolo Landeplatz 2", landeLat: 43.0430, landeLon: 13.1681, landeHoehe: 658, landeExtra: [{ name: "Prati di Ragnolo Landeplatz 1", lat: 43.021369, lon: 13.282383, hoehe: 525 }], ...DEF },
 
   { id: "db_2008", name: "Pratino", region: "Palazago",
     lat: 45.7684, lon: 9.5493, elevation: 1041, dhv: 2008,
@@ -10822,7 +10822,7 @@ const SPOT_DB = [
 
   { id: "db_5462", name: "Rittner Horn", region: "Collalbo",
     lat: 46.5952, lon: 11.4519, elevation: 2051, dhv: 5462,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fb", hoehendiff: 757, gemeinde: "39054 Collalbo", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Rittner Horn Landeplatz 1", landeLat: 46.5796, landeLon: 11.4559, landeHoehe: 1549, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fb", hoehendiff: 757, gemeinde: "39054 Collalbo", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Rittner Horn Landeplatz 1", landeLat: 46.5796, landeLon: 11.4559, landeHoehe: 1549, landeExtra: [{ name: "Rittner Horn Landeplatz 2", lat: 46.567525, lon: 11.4505, hoehe: 1476 }, { name: "Rittner Horn Landeplatz 3", lat: 46.545111, lon: 11.447806, hoehe: 1294 }], ...DEF },
 
   { id: "db_5435", name: "Rivotti", region: "Migliere",
     lat: 45.3807, lon: 7.2724, elevation: 1658, dhv: 5435,
@@ -10830,7 +10830,7 @@ const SPOT_DB = [
 
   { id: "db_3791", name: "Roccasecca", region: "Priverno",
     lat: 41.4597, lon: 13.2295, elevation: 642, dhv: 3791,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 602, gemeinde: "04015 Priverno", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz ist sehr uneben. Am besten kurz hinter der Startrampe starten.", landeName: "Roccasecca Landeplatz 1", landeLat: 41.4434, landeLon: 13.2162, landeHoehe: 49, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 602, gemeinde: "04015 Priverno", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", bemerkung: "Der Startplatz ist sehr uneben. Am besten kurz hinter der Startrampe starten.", landeName: "Roccasecca Landeplatz 1", landeLat: 41.4434, landeLon: 13.2162, landeHoehe: 49, landeExtra: [{ name: "Roccasecca Landeplatz 2", lat: 41.49975, lon: 13.1877, hoehe: 40 }], ...DEF },
 
   { id: "db_3775", name: "Roccaspinalveti", region: "Fraine",
     lat: 41.902, lon: 14.4536, elevation: 1307, dhv: 3775,
@@ -10842,7 +10842,7 @@ const SPOT_DB = [
 
   { id: "db_1971", name: "Roffelstaffel", region: "Macugnagna",
     lat: 45.9731, lon: 7.9234, elevation: 1944, dhv: 1971,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 720, gemeinde: "28876 Macugnagna", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Alpe Bil Landeplatz 2", landeLat: 45.9727, landeLon: 7.9542, landeHoehe: 1363, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 720, gemeinde: "28876 Macugnagna", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Alpe Bil Landeplatz 2", landeLat: 45.9727, landeLon: 7.9542, landeHoehe: 1363, landeExtra: [{ name: "Alpe Bil Landeplatz 1", lat: 45.961972, lon: 7.98045, hoehe: 1224 }], ...DEF },
 
   { id: "db_3756", name: "Roiano", region: "Battaglia",
     lat: 42.6953, lon: 13.6226, elevation: 1082, dhv: 3756,
@@ -10862,7 +10862,7 @@ const SPOT_DB = [
 
   { id: "db_3694", name: "Roncegno", region: "Roncegno",
     lat: 46.08, lon: 11.3959, elevation: 1682, dhv: 3694,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 1263, gemeinde: "38050 Roncegno", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Roncegno Landeplatz 2", landeLat: 46.0390, landeLon: 11.3989, landeHoehe: 425, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "it", acc: "fa", hoehendiff: 1263, gemeinde: "38050 Roncegno", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Roncegno Landeplatz 2", landeLat: 46.0390, landeLon: 11.3989, landeHoehe: 425, landeExtra: [{ name: "Roncegno Landeplatz 1", lat: 46.038547, lon: 11.402769, hoehe: 419 }], ...DEF },
 
   { id: "db_4443", name: "Rosbella", region: "Boves",
     lat: 44.2989, lon: 7.5517, elevation: 1060, dhv: 4443,
@@ -11006,15 +11006,15 @@ const SPOT_DB = [
 
   { id: "db_3734", name: "Secchieta", region: "San Donato Fronzano",
     lat: 43.7205, lon: 11.5657, elevation: 1304, dhv: 3734,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 1034, gemeinde: "50066 San Donato Fronzano", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Secchieta Landeplatz 1", landeLat: 43.7073, landeLon: 11.5181, landeHoehe: 414, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 1034, gemeinde: "50066 San Donato Fronzano", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Secchieta Landeplatz 1", landeLat: 43.7073, landeLon: 11.5181, landeHoehe: 414, landeExtra: [{ name: "Secchieta Landeplatz 3", lat: 43.731025, lon: 11.490378, hoehe: 274 }, { name: "Secchieta Landeplatz 2", lat: 43.730056, lon: 11.492858, hoehe: 270 }], ...DEF },
 
   { id: "db_1548_S", name: "Seceda (S)", region: "St. Ulrich",
     lat: 46.5969, lon: 11.7245, elevation: 2441, dhv: 1548,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fb", hoehendiff: 1196, gemeinde: "39046 St. Ulrich", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Seceda Landeplatz 1", landeLat: 46.5770, landeLon: 11.6779, landeHoehe: 1281, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fb", hoehendiff: 1196, gemeinde: "39046 St. Ulrich", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Seceda Landeplatz 1", landeLat: 46.5770, landeLon: 11.6779, landeHoehe: 1281, landeExtra: [{ name: "Seceda Landeplatz 2", lat: 46.568542, lon: 11.682103, hoehe: 1245 }], ...DEF },
 
   { id: "db_1548_SW", name: "Seceda (SW)", region: "St. Ulrich",
     lat: 46.5938, lon: 11.7225, elevation: 2364, dhv: 1548,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fb", hoehendiff: 1196, gemeinde: "39046 St. Ulrich", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Seceda Landeplatz 1", landeLat: 46.5770, landeLon: 11.6779, landeHoehe: 1281, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "it", acc: "fb", hoehendiff: 1196, gemeinde: "39046 St. Ulrich", bundesland: "Südtirol", gleitschirm: "1- und 2-sitzig", landeName: "Seceda Landeplatz 1", landeLat: 46.5770, landeLon: 11.6779, landeHoehe: 1281, landeExtra: [{ name: "Seceda Landeplatz 2", lat: 46.568542, lon: 11.682103, hoehe: 1245 }], ...DEF },
 
   { id: "db_1241", name: "Sellapass", region: "Canazei",
     lat: 46.5096, lon: 11.7681, elevation: 2259, dhv: 1241,
@@ -11150,7 +11150,7 @@ const SPOT_DB = [
 
   { id: "db_5344", name: "Torre Moscia", region: "Selva di Fasano",
     lat: 40.8262, lon: 17.2994, elevation: 405, dhv: 5344,
-    sectors: [[168.75, 191.25], [168.75, 236.25]], sectorLabel: "S · S-SW", country: "it", acc: "f", hoehendiff: 134, gemeinde: "72015 Selva di Fasano", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Torre Moscia Landeplatz 1", landeLat: 40.8272, landeLon: 17.3069, landeHoehe: 407, ...DEF },
+    sectors: [[168.75, 191.25], [168.75, 236.25]], sectorLabel: "S · S-SW", country: "it", acc: "f", hoehendiff: 134, gemeinde: "72015 Selva di Fasano", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Torre Moscia Landeplatz 1", landeLat: 40.8272, landeLon: 17.3069, landeHoehe: 407, landeExtra: [{ name: "Torre Moscia Landeplatz 2", lat: 40.818347, lon: 17.306017, hoehe: 271 }], ...DEF },
 
   { id: "db_1920", name: "Trava", region: "Trava",
     lat: 46.4463, lon: 12.9011, elevation: 1072, dhv: 1920,
@@ -11162,7 +11162,7 @@ const SPOT_DB = [
 
   { id: "db_5432", name: "Tuccetti", region: "Bertassi",
     lat: 45.0763, lon: 7.3475, elevation: 978, dhv: 5432,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 628, gemeinde: "10051 Bertassi", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Tuccetti Landeplatz 1", landeLat: 45.0615, landeLon: 7.3586, landeHoehe: 544, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "it", acc: "fa", hoehendiff: 628, gemeinde: "10051 Bertassi", bundesland: "Piemont", gleitschirm: "1- und 2-sitzig", landeName: "Tuccetti Landeplatz 1", landeLat: 45.0615, landeLon: 7.3586, landeHoehe: 544, landeExtra: [{ name: "Tuccetti Landeplatz 2", lat: 45.088331, lon: 7.372983, hoehe: 350 }], ...DEF },
 
   { id: "db_3784", name: "Tuscola", region: "Grottaferrata",
     lat: 41.7981, lon: 12.7068, elevation: 617, dhv: 3784,
@@ -11178,11 +11178,11 @@ const SPOT_DB = [
 
   { id: "db_5440_S", name: "Vallene (S)", region: "Vallene",
     lat: 45.6617, lon: 10.9781, elevation: 1302, dhv: 5440,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 449, gemeinde: "37020 Vallene", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Vallene Landeplatz 1", landeLat: 45.6592, landeLon: 10.9688, landeHoehe: 1112, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "it", acc: "fa", hoehendiff: 449, gemeinde: "37020 Vallene", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Vallene Landeplatz 1", landeLat: 45.6592, landeLon: 10.9688, landeHoehe: 1112, landeExtra: [{ name: "Vallene Landeplatz 2", lat: 45.650858, lon: 10.942053, hoehe: 952 }], ...DEF },
 
   { id: "db_5440_SW", name: "Vallene (SW)", region: "Vallene",
     lat: 45.6689, lon: 10.9722, elevation: 1401, dhv: 5440,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 449, gemeinde: "37020 Vallene", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Vallene Landeplatz 1", landeLat: 45.6592, landeLon: 10.9688, landeHoehe: 1112, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "it", acc: "fa", hoehendiff: 449, gemeinde: "37020 Vallene", bundesland: "Venetien", gleitschirm: "1- und 2-sitzig", landeName: "Vallene Landeplatz 1", landeLat: 45.6592, landeLon: 10.9688, landeHoehe: 1112, landeExtra: [{ name: "Vallene Landeplatz 2", lat: 45.650858, lon: 10.942053, hoehe: 952 }], ...DEF },
 
   { id: "db_1922", name: "Valsecca", region: "Ravascletto",
     lat: 46.5478, lon: 12.9298, elevation: 1906, dhv: 1922,
@@ -11202,7 +11202,7 @@ const SPOT_DB = [
 
   { id: "db_3749", name: "Veletta", region: "Castelluccio",
     lat: 42.8273, lon: 13.1951, elevation: 1599, dhv: 3749,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 295, gemeinde: "06046 Castelluccio", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Veletta Landeplatz 2", landeLat: 42.8367, landeLon: 13.1993, landeHoehe: 1361, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "it", acc: "fa", hoehendiff: 295, gemeinde: "06046 Castelluccio", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Veletta Landeplatz 2", landeLat: 42.8367, landeLon: 13.1993, landeHoehe: 1361, landeExtra: [{ name: "Veletta Landeplatz 1", lat: 42.820239, lon: 13.214281, hoehe: 1304 }], ...DEF },
 
   { id: "db_5400", name: "Vetosole", region: "San Pellegrino",
     lat: 42.7742, lon: 13.17, elevation: 1667, dhv: 5400,
@@ -11214,7 +11214,7 @@ const SPOT_DB = [
 
   { id: "db_3821", name: "Vibo Marina", region: "Vibo Marina",
     lat: 38.7064, lon: 16.1387, elevation: 425, dhv: 3821,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fa", hoehendiff: 436, gemeinde: "89900 Vibo Marina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Vibo Marina Landeplatz 1", landeLat: 38.7059, landeLon: 16.1394, landeHoehe: 437, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "it", acc: "fa", hoehendiff: 436, gemeinde: "89900 Vibo Marina", bundesland: "Italien", gleitschirm: "1- und 2-sitzig", landeName: "Vibo Marina Landeplatz 1", landeLat: 38.7059, landeLon: 16.1394, landeHoehe: 437, landeExtra: [{ name: "Vibo Marina Landeplatz 2", lat: 38.712078, lon: 16.103164, hoehe: 1 }], ...DEF },
 
   { id: "db_5809", name: "Vibo Valentina", region: "Vibo Valentia",
     lat: 38.6792, lon: 15.9562, elevation: 443, dhv: 5809,
