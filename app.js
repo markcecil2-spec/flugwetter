@@ -369,7 +369,7 @@ function wxSweep() {
 wxSweep();
 
 async function fetchForecast(spot) {
-  const key = wxKey("f7v", spot.lat, spot.lon);
+  const key = wxKey("f7v2", spot.lat, spot.lon); // "f7v2": neues Stundenfeld (temperature_2m) -> alte Caches ("f7v") ignorieren
   const cached = wxGet(key); if (cached) return cached;
   // KEIN &elevation: der Parameter macht Open-Meteo instabil (12 m Höhendifferenz drehte die
   // Windrichtung um 90°+) und wich vom Bulk-Abruf ab -> Liste und Detail widersprachen sich.
@@ -566,8 +566,6 @@ function iconCardsHtml(spot, thStart, driveSec) {
     cards.push({ img: "icons/ic-thermik.png", label: "Thermik", sub });
   }
   cards.push({ img: null, ic: "🚌", label: "ÖPNV", sub: NA });
-  if (spot.livewetter) cards.push({ img: null, ic: "📡", label: "Live-Wetter", sub: `<span class="dv-dot gut"></span>Station live ansehen`, href: spot.livewetter });
-  if (spot.webcam) cards.push({ img: null, ic: "📷", label: "Webcam", sub: `<span class="dv-dot gut"></span>Live-Bild ansehen`, href: spot.webcam });
   return `<div class="dv-cards">${cards.map(c => { const tag = c.href ? "a" : "div";
     const attrs = c.href ? ` href="${c.href}" target="_blank" rel="noopener"` : "";
     return `<${tag} class="dv-card"${attrs}>
@@ -592,6 +590,19 @@ function startplatzTableHtml(spot, diffL) {
   ];
   return `<div class="dv-table">${rows.map(([label, val]) => `
     <div class="dv-row"><span class="dv-row-label">${label}</span><span class="dv-row-val">${val != null ? val : NA}</span></div>`).join("")}</div>`;
+}
+// "Live"-Tab: Live-Wetterstation + Live-Cam, jeweils nur falls fürs Gelände hinterlegt.
+function liveCardsHtml(spot) {
+  const cards = [];
+  if (spot.livewetter) cards.push({ ic: "📡", label: "Live-Wetter", sub: "Station live ansehen", href: spot.livewetter });
+  if (spot.webcam) cards.push({ ic: "📷", label: "Live-Cam", sub: "Live-Bild ansehen", href: spot.webcam });
+  if (!cards.length) return `<p class="empty">Für dieses Gelände sind noch keine Live-Daten hinterlegt.</p>`;
+  return `<div class="dv-cards">${cards.map(c => `
+    <a class="dv-card" href="${c.href}" target="_blank" rel="noopener">
+      <div class="dv-card-ic">${c.ic}</div>
+      <div class="dv-card-label">${c.label}</div>
+      <div class="dv-card-sub"><span class="dv-dot gut"></span>${c.sub}</div>
+    </a>`).join("")}</div>`;
 }
 // Start-/Landeplatz-Karte mit Illustration (kein echtes Foto) + optionalem Navigations-Button
 function placeCardHtml(icon, name, region, elevation, img, navHref, navLabel) {
@@ -710,10 +721,12 @@ function renderCard(spot, days, opts = {}) {
     : `
       <div class="dtabs" role="tablist">
         <button type="button" class="dtab on" data-tab="wetter" role="tab">Wetter</button>
+        <button type="button" class="dtab" data-tab="live" role="tab">Live</button>
         <button type="button" class="dtab" data-tab="details" role="tab">Details</button>
       </div>
       <div class="dtab-panels">
         <div class="dtab-panel" id="dtab-wetter">${statusCard}${ftHint}${nowBar}${liveHtml}<div class="days">${daysHtml}</div></div>
+        <div class="dtab-panel" id="dtab-live" hidden>${liveCardsHtml(spot)}</div>
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
           const thStart = thermikStartHour(days[dayIdx], ts.win);
