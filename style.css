@@ -439,6 +439,12 @@ header { position: relative; overflow: hidden; }
 .firstrun .fr-gps:active { transform: scale(.98); }
 .firstrun .fr-or { color: var(--muted); font-size: 13px; margin-top: 14px; }
 .fly-head { font-size: 12.5px; color: var(--muted); margin: 6px 2px 8px; }
+.fav-only-btn {
+  display: inline-flex; align-items: center; gap: 5px; margin: 0 0 10px 2px; background: rgba(148,163,184,.14);
+  border: 1px solid var(--line); color: var(--text); font-size: 12.5px; font-weight: 600; padding: 7px 12px;
+  border-radius: 999px; cursor: pointer; font-family: inherit;
+}
+.fav-only-btn.on { background: var(--sky); color: #05221d; border-color: var(--sky); }
 .fr-list { display: flex; flex-direction: column; gap: 6px; }
 .fr {
   display: flex; align-items: center; gap: 8px; padding: 10px 10px; border-radius: 12px;

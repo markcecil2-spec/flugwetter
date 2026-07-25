@@ -925,6 +925,7 @@ async function renderSearch(candidates, origin, headline) {
     rows.sort((a, b) =>
       rank[a.ts.status] - rank[b.ts.status] ||
       ((a.drive ?? a.spot.sortKey ?? Infinity) - (b.drive ?? b.spot.sortKey ?? Infinity)));
+    lastHeadline = headline; lastTruncated = truncated;
     renderFlyResults(rows, headline, truncated);
     lastRows = rows;
     updateMapMarkers(rows);
@@ -969,6 +970,8 @@ const MINI_MAP_STYLES = { street: MAP_STYLE, sat: SATELLITE_STYLE, terrain: TERR
 let miniMapStyleMode = "street";
 let mapStyleMode = "street";
 let lastRows = [];
+let lastHeadline = "", lastTruncated = false;
+let favOnlyFilter = false; // "Nur Favoriten"-Filter in der Ergebnisliste
 let mapInstance = null;
 let mapMarkers = [];
 let mapLibrePromise = null;
@@ -1019,8 +1022,9 @@ async function ensureMiniMap(spot) {
   const points = [[spot.lon, spot.lat], ...landePlaetze.map(l => [l.lon, l.lat])];
   miniMapInstance = new maplibregl.Map({
     container: "miniMap", style: MINI_MAP_STYLES[miniMapStyleMode],
-    center: [spot.lon, spot.lat], zoom: 12, attributionControl: true, interactive: true,
+    center: [spot.lon, spot.lat], zoom: 12, attributionControl: false, interactive: true,
   });
+  miniMapInstance.addControl(new maplibregl.AttributionControl({ compact: true }));
   miniMapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   const startEl = document.createElement("div");
   startEl.className = "mini-marker mini-start"; startEl.innerHTML = `<img src="icons/marker-start.png" alt="Startplatz">`; startEl.title = spot.name;
@@ -1046,8 +1050,9 @@ async function ensureMap() {
   mapInstance = new maplibregl.Map({
     container: "mapEl",
     style: MINI_MAP_STYLES[mapStyleMode],
-    center, zoom, attributionControl: true,
+    center, zoom, attributionControl: false,
   });
+  mapInstance.addControl(new maplibregl.AttributionControl({ compact: true }));
   mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   mapInstance.on("zoom", updateMapLabelVisibility);
   const bounds = rowsBounds(lastRows);
@@ -1415,11 +1420,17 @@ function updateGreeting() {
 }
 
 function renderFlyResults(rows, headline, truncated) {
-  const flyable = rows.filter(r => r.ts.status !== "nein").length;
-  updateHero(flyable);
+  const flyableAll = rows.filter(r => r.ts.status !== "nein").length;
+  updateHero(flyableAll);
+  const favCount = rows.filter(r => isFav(r.spot.id)).length;
+  const displayRows = favOnlyFilter ? rows.filter(r => isFav(r.spot.id)) : rows;
+  const flyable = favOnlyFilter ? displayRows.filter(r => r.ts.status !== "nein").length : flyableAll;
   const scope = truncated ? `<b>${flyable}</b> fliegbar (nächste ${rows.length} Plätze)` : `<b>${flyable}</b> von ${rows.length} fliegbar`;
-  const head = `<div class="fly-head">${headline} · ${scope}<span class="fly-lg">Liga: ${curLevel().name}</span></div>`;
-  const list = rows.map(r => {
+  const favBtn = favCount
+    ? `<button type="button" class="fav-only-btn${favOnlyFilter ? " on" : ""}" id="favOnlyBtn">⭐ Nur Favoriten${favOnlyFilter ? "" : ` (${favCount})`}</button>`
+    : "";
+  const head = `<div class="fly-head">${headline} · ${scope}<span class="fly-lg">Liga: ${curLevel().name}</span></div>${favBtn}`;
+  const list = displayRows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);
     const timeSlot = ts.status === "nein"
@@ -1446,7 +1457,8 @@ function renderFlyResults(rows, headline, truncated) {
         </div>
       </div>`;
   }).join("");
-  document.getElementById("flyResults").innerHTML = head + `<div class="sc-list">${list}</div>`;
+  const listHtml = displayRows.length ? `<div class="sc-list">${list}</div>` : `<p class="empty">Keine Favoriten in dieser Suche.</p>`;
+  document.getElementById("flyResults").innerHTML = head + listHtml;
 }
 
 // ---------------- Detail-Fenster: 7-Tage-Vorhersage ----------------
@@ -1657,11 +1669,20 @@ document.body.addEventListener("click", e => {
     return;
   }
 
+  // "Nur Favoriten"-Filter in der Ergebnisliste
+  if (e.target.closest("#favOnlyBtn")) {
+    favOnlyFilter = !favOnlyFilter;
+    renderFlyResults(lastRows, lastHeadline, lastTruncated);
+    return;
+  }
+
   const favBtn = e.target.closest("[data-fav]");
   if (favBtn) {
     toggleFav(favBtn.dataset.fav);
     if (!document.getElementById("page-favorites").hidden) renderFavorites();
     if (!document.getElementById("page-add").hidden) renderDbSearch(document.getElementById("dbSearch").value);
+    // Bei aktivem "Nur Favoriten"-Filter muss die Karte bei Entfernen aus der Liste verschwinden -> neu rendern.
+    if (favOnlyFilter && favBtn.closest("#flyResults")) { renderFlyResults(lastRows, lastHeadline, lastTruncated); return; }
     // Fly-Ergebnisse-Stern sofort umschalten
     const s = favBtn.classList.toggle("on"); favBtn.textContent = favBtn.classList.contains("on") ? "★" : "☆";
     return;
