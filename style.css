@@ -57,8 +57,9 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
   padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .card.loading { color: var(--muted); }
-.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.spot-name { font-weight: 700; font-size: 17px; }
+.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.card-head > div:first-child { min-width: 0; flex: 1 1 auto; }
+.spot-name { font-weight: 700; font-size: 17px; overflow-wrap: break-word; }
 .spot-region { color: var(--muted); font-size: 12.5px; margin-top: 1px; }
 .warn { color: var(--amber); font-size: 11px; font-weight: 600; }
 .badge {
@@ -176,7 +177,7 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .hint { font-style: italic; opacity: .85; }
 
 /* Karten-Kopf rechts: Badge + Löschen */
-.head-right { display: flex; align-items: center; gap: 8px; }
+.head-right { display: flex; align-items: center; gap: 6px; flex: none; }
 .mine { font-size: 10px; font-weight: 600; color: var(--sky); background: rgba(14,165,233,.12); padding: 1px 7px; border-radius: 999px; vertical-align: middle; }
 .del { background: none; border: none; cursor: pointer; font-size: 16px; opacity: .55; padding: 4px; border-radius: 8px; }
 .del:hover { opacity: 1; background: rgba(239,68,68,.12); }
@@ -529,7 +530,6 @@ header { position: relative; overflow: hidden; }
 .db-results { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
 .db-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 11px; cursor: pointer; }
 .db-row:hover { border-color: var(--sky); }
-.head-right { display: flex; align-items: center; gap: 4px; }
 
 /* „oder PLZ" */
 .or-divider { display: flex; align-items: center; gap: 10px; margin: 14px 2px 10px; color: var(--muted); font-size: 12px; }
@@ -555,29 +555,6 @@ header { position: relative; overflow: hidden; }
 
 /* Land-Umschalter (Region-Filter) */
 .country-toggle { display: flex; gap: 8px; justify-content: center; margin: 0 0 10px; }
-
-/* "Details & Wochenübersicht" (Favoriten) -> öffnet das Detailfenster */
-.days-toggle {
-  width: 100%; margin-top: 8px; background: rgba(148,163,184,.12); border: 1px solid var(--line);
-  color: var(--text); font-size: 13px; font-weight: 700; padding: 10px; border-radius: 10px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-}
-.days-toggle:hover { background: rgba(148,163,184,.2); }
-
-/* Favoriten: "Heute auf einen Blick" (immer sichtbar) */
-.fav-today { margin: 4px 0 12px; }
-.fav-today-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-.fav-status-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
-.fav-status-dot.gut { background: var(--green); }
-.fav-status-dot.grenz { background: var(--amber); }
-.fav-status-dot.nein { background: var(--muted); }
-.fav-status-txt { font-weight: 700; font-size: 13.5px; }
-.fav-status-txt.gut { color: var(--green); }
-.fav-status-txt.grenz { color: var(--amber); }
-.fav-status-txt.nein { color: var(--muted); }
-.fav-best { margin-left: auto; text-align: right; font-size: 12px; }
-.fav-best .fb-label { display: block; color: var(--muted); font-size: 10.5px; }
-.fav-best b { font-size: 13px; }
 
 /* Favoriten: Übersichtskarte + Tipp für morgen */
 .fav-summary { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; }

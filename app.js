@@ -749,19 +749,10 @@ function renderCard(spot, days, opts = {}) {
   const ftHint = rt.type ? `<div class="ft-hint">Flugart nur grobe Schätzung – kein Thermik-Forecast</div>` : "";
   const statusCard = statusCardHtml(days[dayIdx], rt, ts, dayW);
 
-  // Kompakt (Favoriten): nur Status auf einen Blick; "Details & Wochenübersicht" öffnet das volle
-  // Detailfenster (Wetter/Details-Tabs) – Wind-Box/Stunden/Aktionen stehen da schon, keine Dopplung.
-  const favToday = opts.collapsible ? `
-    <div class="fav-today">
-      <div class="fav-today-top">
-        <span class="fav-status-dot ${ts.status}"></span>
-        <span class="fav-status-txt ${ts.status}">${ts.status === "nein" ? "Heute nicht fliegbar" : ts.status === "grenz" ? "Heute grenzwertig fliegbar" : "Heute fliegbar"}</span>
-        ${ts.status !== "nein" ? `<span class="fav-best"><span class="fb-label">Beste Zeit</span><b>${winTimeShort(ts.win)}</b></span>` : ""}
-      </div>
-    </div>` : "";
+  // Kompakt (Favoriten): nur Name/Region + Ampel-Badge in der Kopfzeile - der Rest der Karte
+  // ist leer, die ganze Kachel oeffnet per Klick das volle Detailfenster (s. data-spot-Handler).
   const body = opts.collapsible
-    ? `${favToday}${diffHtml}
-      <button class="days-toggle" type="button" data-open-detail="${spot.id}">Details &amp; Wochenübersicht</button>`
+    ? ``
     // Detailfenster: Wetter-Tab unverändert; Details-Tab neu nach Mockup (Zustiegs-/Flugart-Karten,
     // Startplatz-Datentabelle, Start-/Landeplatz-Karten mit Bild+Navigation, Aktionen).
     : `
@@ -961,7 +952,7 @@ async function renderSearch(candidates, origin, headline) {
     lastHeadline = headline; lastTruncated = truncated;
     renderFlyResults(rows, headline, truncated);
     lastRows = rows;
-    updateMapMarkers(rows);
+    updateMapMarkers(displayRowsFor(rows));
   } catch (e) {
     out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
   }
@@ -1258,7 +1249,8 @@ document.getElementById("accSeg").addEventListener("click", e => {
   applyAccUI();
   // Zustieg ist reine Anzeige-Filterung auf den schon geholten Ergebnissen -> kein neuer Abruf noetig
   // (verhindert auch, dass ein enger Filter plaetze zeigt, die "Egal" nie hatte, s. renderSearch).
-  if (lastRows.length) renderFlyResults(lastRows, lastHeadline, lastTruncated);
+  // Karte muss denselben Filter zeigen wie die Liste, sonst weichen Liste/Karte voneinander ab.
+  if (lastRows.length) { renderFlyResults(lastRows, lastHeadline, lastTruncated); updateMapMarkers(displayRowsFor(lastRows), { flyTo: false }); }
 });
 // Filter-Bereich auf-/zuklappen
 document.getElementById("filterToggle").addEventListener("click", () => {
@@ -1459,12 +1451,18 @@ function updateGreeting() {
   }
 }
 
+// "Nur Favoriten" + Zustieg sind reine Anzeige-Filter auf den schon geholten Ergebnissen -
+// von Liste UND Karte gemeinsam genutzt, damit beide Ansichten immer dieselben Plaetze zeigen.
+function displayRowsFor(rows) {
+  let displayRows = favOnlyFilter ? rows.filter(r => isFav(r.spot.id)) : rows;
+  if (accFilter !== "all") displayRows = displayRows.filter(r => accMatch(r.spot, accFilter));
+  return displayRows;
+}
 function renderFlyResults(rows, headline, truncated) {
   const flyableAll = rows.filter(r => r.ts.status !== "nein").length;
   updateHero(flyableAll);
   const favCount = rows.filter(r => isFav(r.spot.id)).length;
-  let displayRows = favOnlyFilter ? rows.filter(r => isFav(r.spot.id)) : rows;
-  if (accFilter !== "all") displayRows = displayRows.filter(r => accMatch(r.spot, accFilter));
+  const displayRows = displayRowsFor(rows);
   const flyable = (favOnlyFilter || accFilter !== "all") ? displayRows.filter(r => r.ts.status !== "nein").length : flyableAll;
   const scope = truncated ? `<b>${flyable}</b> fliegbar (nächste ${rows.length} Plätze)` : `<b>${flyable}</b> von ${rows.length} fliegbar`;
   const favBtn = favCount
@@ -1690,13 +1688,6 @@ document.body.addEventListener("click", e => {
     return;
   }
 
-  // "Details & Wochenübersicht" (Favoriten) -> öffnet das volle Detailfenster (Wetter/Details-Tabs)
-  const dtog = e.target.closest(".days-toggle");
-  if (dtog) {
-    const id = dtog.dataset.openDetail;
-    if (id) openDetail(id);
-    return;
-  }
 
   // Tap auf eine Stunde -> Kompass des jeweiligen Tages färbt sich ein, Info-Leiste darunter zeigt Details
   const hcell = e.target.closest(".h[data-info]");
@@ -1723,6 +1714,7 @@ document.body.addEventListener("click", e => {
   if (e.target.closest("#favOnlyBtn")) {
     favOnlyFilter = !favOnlyFilter;
     renderFlyResults(lastRows, lastHeadline, lastTruncated);
+    updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
     return;
   }
 
