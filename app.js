@@ -225,7 +225,7 @@ function neinText(r) {
 // Klartext-Grund pro Stunde (für das Uhrzeit-Detail)
 function hourReason(rating, reason) {
   if (rating === "gut") return "passt ✓";
-  const grenz = { "schwach": "grenzwertig – wenig Wind", "böig": "grenzwertig – böig", "recht stark": "grenzwertig – recht stark", "nullwind": "kaum Wind – Richtung egal (Nullwind-Start)",
+  const grenz = { "schwach": "wenig Wind", "böig": "grenzwertig – böig", "recht stark": "grenzwertig – recht stark", "nullwind": "kaum Wind – Richtung egal (Nullwind-Start)",
     "randrichtung": "grenzwertig – Richtung knapp daneben", "sehr stark": "grenzwertig – sehr stark", "sehr böig": "grenzwertig – sehr böig" };
   const nein = { "Richtung": "falsche Windrichtung", "Regen": "Regen", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts", "schwach": "zu wenig Wind" };
   return rating === "grenz" ? (grenz[reason] || "grenzwertig") : (nein[reason] || reason);
@@ -237,14 +237,28 @@ function dominantReason(hours, rating) {
   return top ? top[0] : "";
 }
 
-// Status für einen Tag (idx 0=heute, 1=morgen): {status, win?, reason?, reasonLabel}
+// Status für einen Tag (idx 0=heute, 1=morgen): {status, win?, reason?, reasonLabel, past?}
+// Für "heute" wird ein bereits abgelaufenes Fenster übersprungen, wenn es noch ein aktuelles/
+// kommendes gibt - sonst wäre z.B. um 14 Uhr noch "6-9 Uhr" als Empfehlung zu sehen (past:true
+// markiert diesen Fall, damit die Anzeige das als Vergangenheit statt als aktuellen Tipp zeigt).
 function dayStatus(days, idx = 0) {
   const day = days[idx];
   if (!day) return { status: "nein", reason: "—", reasonLabel: "—" };
+  const now = new Date();
+  const isPast = w => idx === 0 && (w.to.getTime() + 3600000) <= now.getTime();
   const green = day.windows.filter(w => w.color === "gut");
   const yellow = day.windows.filter(w => w.color === "grenz");
-  if (green.length) return { status: "gut", win: green[0], reasonLabel: "Wind passt" };
-  if (yellow.length) return { status: "grenz", win: yellow[0], reasonLabel: grenzLabel(dominantReason(day.dayHours, "grenz")) };
+  const greenNow = green.filter(w => !isPast(w));
+  const yellowNow = yellow.filter(w => !isPast(w));
+  if (greenNow.length) return { status: "gut", win: greenNow[0], reasonLabel: "Wind passt" };
+  if (yellowNow.length) return { status: "grenz", win: yellowNow[0], reasonLabel: grenzLabel(dominantReason(day.dayHours, "grenz")) };
+  if (green.length || yellow.length) {
+    // Alle heutigen Fenster schon vorbei - letztes Fenster als Vergangenheit kennzeichnen statt
+    // eine abgelaufene Uhrzeit unkommentiert als aktuellen Tipp zu zeigen.
+    const lastGreen = green[green.length - 1], lastYellow = yellow[yellow.length - 1];
+    const win = lastGreen || lastYellow;
+    return { status: lastGreen ? "gut" : "grenz", win, past: true, reasonLabel: "War heute früh fliegbar" };
+  }
   const r = dominantReason(day.dayHours, "nein") || "—";
   return { status: "nein", reason: r, reasonLabel: neinLabel(r), reasonText: neinText(r) };
 }
@@ -516,7 +530,7 @@ function statusCardHtml(day, rt, ts, dayW) {
   const statusWord = ts.status === "nein" ? "Nicht fliegbar" : rt.stars >= 5 ? "Sehr gut" : rt.stars >= 4 ? "Gut" : "Grenzwertig";
   const icon = day && day.wx && day.wx.code != null ? weatherEmoji(day.wx.code) : "🪂";
   const typeRow = rt.type ? `<div class="sc-type-row"><span>${rt.type.label}</span>${barSegments(rt.stars, cls)}</div>` : "";
-  const best = ts.status !== "nein" ? `<div class="sc-best"><span class="sc-best-label">Beste Zeit</span><b>${winTimeFull(ts.win)}</b></div>` : "";
+  const best = ts.status !== "nein" ? `<div class="sc-best"><span class="sc-best-label">${ts.past ? "War fliegbar" : "Beste Zeit"}</span><b>${winTimeFull(ts.win)}</b></div>` : "";
   return `<div class="status-card ${cls}">
     <div class="sc-icon">${icon}</div>
     <div class="sc-mid">
@@ -535,8 +549,9 @@ function favoritesSummaryHtml(results) {
   if (!results.length) return "";
   const n = results.length;
   const statuses = results.map(r => dayStatus(r.days, 0));
-  const flyable = statuses.filter(s => s.status !== "nein").length;
-  const goodWins = statuses.filter(s => s.status === "gut").map(s => s.win);
+  // "past" (alle Fenster heute schon vorbei) zählt hier nicht mehr als aktuell fliegbar.
+  const flyable = statuses.filter(s => s.status !== "nein" && !s.past).length;
+  const goodWins = statuses.filter(s => s.status === "gut" && !s.past).map(s => s.win);
   let bestZeit = "";
   if (goodWins.length) {
     const from = new Date(Math.min(...goodWins.map(w => w.from.getTime())));
@@ -563,7 +578,7 @@ function favoritesSummaryHtml(results) {
 // "Tipp für morgen": vergleicht die gemeinsame beste Zeit heute vs. morgen über alle Favoriten
 function favoritesTipHtml(results) {
   if (!results.length) return "";
-  const todayWins = results.map(r => dayStatus(r.days, 0)).filter(s => s.status === "gut").map(s => s.win);
+  const todayWins = results.map(r => dayStatus(r.days, 0)).filter(s => s.status === "gut" && !s.past).map(s => s.win);
   const tmrWins = results.map(r => dayStatus(r.days, 1)).filter(s => s.status === "gut").map(s => s.win);
   if (!tmrWins.length) return "";
   const from = new Date(Math.min(...tmrWins.map(w => w.from.getTime())));
@@ -627,7 +642,7 @@ function startplatzTableHtml(spot, diffL) {
     ["Ort", ort || null],
     ["Startrichtung", spot.sectorLabel || null],
     ["Höhe Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : null],
-    ["Höhe Landeplatz", spot.landeHoehe != null ? spot.landeHoehe + " m ü. NN" + (spot.landeExtra?.length ? ` (+${spot.landeExtra.length} weitere, siehe Live-Tab)` : "") : null],
+    ["Höhe Landeplatz", spot.landeHoehe != null ? spot.landeHoehe + " m ü. NN" : null],
     ["Höhendifferenz", spot.hoehendiff ? spot.hoehendiff + " m" : null],
     ["Windbereich", `${spot.windMin}–${spot.windMax} km/h`],
     ["Böen", `max. ${spot.gustMax} km/h`],
@@ -747,7 +762,9 @@ function renderCard(spot, days, opts = {}) {
   }
   const badge = ts.status === "nein"
     ? `<span class="badge red">${statusDot("nein")} ${dayW}: ${ts.reasonText}</span>`
-    : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} ${dayW} ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
+    : ts.past
+      ? `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} ${dayW}: war fliegbar (${windowLabel(ts.win)})</span>`
+      : `<span class="badge ${ts.status === "gut" ? "green" : "amber"}">${statusDot(ts.status)} ${dayW} ${windowLabel(ts.win).replace(/^🟢 |^🟡 /, "")}</span>`;
 
   const daysHtml = days.slice(0, 7).map((day, i) => dayCardHtml(spot, days, i)).join("");
 
@@ -767,6 +784,7 @@ function renderCard(spot, days, opts = {}) {
     actList.push({ icon: "🛬", label: "Landeplatz", href: mapsUrl({ lat: spot.landeLat, lon: spot.landeLon }) });
   }
   if (spot.dhv) actList.push({ icon: "📋", label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
+  if (spot.vereinUrl) actList.push({ icon: "🌐", label: "Verein", href: spot.vereinUrl });
   // Landeplatz hat im Details-Tab schon einen eigenen Navigations-Button an der Karte -> hier redundant
   const actionsBadges = `<div class="dv-actions">${actList.filter(a => a.label !== "Landeplatz").map(a => `<a class="dv-act" href="${a.href}" target="_blank" rel="noopener"><span class="dv-act-ic">${a.icon}</span><span>${a.label}</span></a>`).join("")}</div>`;
 
@@ -1489,7 +1507,9 @@ function renderFlyResults(rows, headline, truncated) {
     const fav = isFav(s.id);
     const timeSlot = ts.status === "nein"
       ? `<span class="sc-nore">${ts.reasonText}</span>`
-      : `<span class="sc-time ${ts.status}">${winTimeShort(ts.win)}</span>`;
+      : ts.past
+        ? `<span class="sc-time ${ts.status}">War früh fliegbar</span>`
+        : `<span class="sc-time ${ts.status}">${winTimeShort(ts.win)}</span>`;
     const windSlot = ts.status === "nein" ? "" : `<div class="sc-wind">${ts.status === "gut" && ts.type ? ts.type.label : ts.reasonLabel}</div>`;
     const scene = spotScene(s, ts.status);
     return `
