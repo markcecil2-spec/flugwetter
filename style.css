@@ -57,13 +57,13 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
   padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
 }
 .card.loading { color: var(--muted); }
-.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .card-head > div:first-child { min-width: 0; flex: 1 1 auto; }
 .spot-name { font-weight: 700; font-size: 17px; overflow-wrap: break-word; }
 .spot-region { color: var(--muted); font-size: 12.5px; margin-top: 1px; }
 .warn { color: var(--amber); font-size: 11px; font-weight: 600; }
 .badge {
-  font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px; white-space: nowrap;
+  font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 999px;
 }
 .badge.green { background: var(--green-bg); color: var(--green); }
 .badge.red { background: rgba(148,163,184,.18); color: var(--muted); }
@@ -176,8 +176,11 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .chip.green { background: var(--green); color: #fff; }
 .hint { font-style: italic; opacity: .85; }
 
-/* Karten-Kopf rechts: Badge + Löschen */
-.head-right { display: flex; align-items: center; gap: 6px; flex: none; }
+/* Karten-Kopf rechts: Badge + Löschen. Badge-Text darf umbrechen (rechtsbuendig,
+   mehrzeilig), Stern/Papierkorb bleiben dabei fix am rechten Rand. */
+.head-right { display: flex; align-items: center; gap: 6px; flex: 0 1 auto; min-width: 0; max-width: 70%; }
+.head-right .badge { flex: 1 1 auto; min-width: 0; text-align: right; white-space: normal; }
+.head-right .star, .head-right .del { flex: none; }
 .mine { font-size: 10px; font-weight: 600; color: var(--sky); background: rgba(14,165,233,.12); padding: 1px 7px; border-radius: 999px; vertical-align: middle; }
 .del { background: none; border: none; cursor: pointer; font-size: 16px; opacity: .55; padding: 4px; border-radius: 8px; }
 .del:hover { opacity: 1; background: rgba(239,68,68,.12); }
