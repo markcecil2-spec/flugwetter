@@ -929,14 +929,14 @@ const REGIONS = {
 // Gemeinsame Auswertung + Anzeige für eine Kandidatenliste.
 // candidates: mit .dist (Anzeige-km oder null) und .sortKey (Zahl). origin: {lat,lon} oder null (für Fahrzeit).
 async function renderSearch(candidates, origin, headline) {
+  // Zustiegs-Filter wird NICHT mehr vor dem Kappen angewendet (sonst holt ein enger Filter
+  // andere/weiter entfernte Plaetze als "Egal", weil er ueber den ganzen Umkreis statt nur die
+  // ohnehin schon gezeigten naechsten 50 filtert). Er wirkt jetzt rein auf der Anzeige, s. renderFlyResults.
   const out = document.getElementById("flyResults");
-  if (accFilter !== "all") candidates = candidates.filter(s => accMatch(s, accFilter));
   const truncated = candidates.length > MAX_CANDIDATES;
   candidates = candidates.slice(0, MAX_CANDIDATES);
   if (!candidates.length) {
-    out.innerHTML = accFilter !== "all"
-      ? `<p class="empty">Kein Startplatz „${accLabel(accFilter)}" im gewählten Bereich. Filter „Zustieg" ändern oder Umkreis vergrößern.</p>`
-      : `<p class="empty">Kein Startplatz gefunden. (Die Datenbank wächst noch.)</p>`;
+    out.innerHTML = `<p class="empty">Kein Startplatz gefunden. (Die Datenbank wächst noch.)</p>`;
     return;
   }
   out.innerHTML = `<p class="loading-line">🔎 Prüfe ${candidates.length} Plätze …</p>`;
@@ -1250,7 +1250,9 @@ document.getElementById("accSeg").addEventListener("click", e => {
   accFilter = b.dataset.acc;
   localStorage.setItem("flugwetter_acc", accFilter);
   applyAccUI();
-  if (rerunSearch) rerunSearch();
+  // Zustieg ist reine Anzeige-Filterung auf den schon geholten Ergebnissen -> kein neuer Abruf noetig
+  // (verhindert auch, dass ein enger Filter plaetze zeigt, die "Egal" nie hatte, s. renderSearch).
+  if (lastRows.length) renderFlyResults(lastRows, lastHeadline, lastTruncated);
 });
 // Filter-Bereich auf-/zuklappen
 document.getElementById("filterToggle").addEventListener("click", () => {
@@ -1455,13 +1457,21 @@ function renderFlyResults(rows, headline, truncated) {
   const flyableAll = rows.filter(r => r.ts.status !== "nein").length;
   updateHero(flyableAll);
   const favCount = rows.filter(r => isFav(r.spot.id)).length;
-  const displayRows = favOnlyFilter ? rows.filter(r => isFav(r.spot.id)) : rows;
-  const flyable = favOnlyFilter ? displayRows.filter(r => r.ts.status !== "nein").length : flyableAll;
+  let displayRows = favOnlyFilter ? rows.filter(r => isFav(r.spot.id)) : rows;
+  if (accFilter !== "all") displayRows = displayRows.filter(r => accMatch(r.spot, accFilter));
+  const flyable = (favOnlyFilter || accFilter !== "all") ? displayRows.filter(r => r.ts.status !== "nein").length : flyableAll;
   const scope = truncated ? `<b>${flyable}</b> fliegbar (nächste ${rows.length} Plätze)` : `<b>${flyable}</b> von ${rows.length} fliegbar`;
   const favBtn = favCount
     ? `<button type="button" class="fav-only-btn${favOnlyFilter ? " on" : ""}" id="favOnlyBtn">⭐ Nur Favoriten${favOnlyFilter ? "" : ` (${favCount})`}</button>`
     : "";
   const head = `<div class="fly-head">${headline} · ${scope}<span class="fly-lg">Liga: ${curLevel().name}</span></div>${favBtn}`;
+  if (!displayRows.length) {
+    const msg = accFilter !== "all"
+      ? `Kein Startplatz „${accLabel(accFilter)}" unter den nächsten ${rows.length} Plätzen. Filter „Zustieg" ändern oder Umkreis vergrößern.`
+      : "Keine Favoriten in dieser Suche.";
+    document.getElementById("flyResults").innerHTML = head + `<p class="empty">${msg}</p>`;
+    return;
+  }
   const list = displayRows.map(r => {
     const s = r.spot, ts = r.ts;
     const fav = isFav(s.id);

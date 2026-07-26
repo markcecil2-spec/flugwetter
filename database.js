@@ -14,7 +14,7 @@ const SPOT_DB = [
 
   { id: "db_573", name: "Adelberg", region: "Annweiler",
     lat: 49.2165, lon: 7.9602, elevation: 540, dhv: 573,
-    sectors: [[56.25, 168.75]], sectorLabel: "ONO-SSO", country: "de", acc: "f", hoehendiff: 280, gemeinde: "76855 Annweiler", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Der Startplatz liegt in einer Waldschneise am Adelberg.", landeName: "Adelberg Landeplatz", landeLat: 49.2151, landeLon: 7.9684, landeHoehe: 260, ...DEF },
+    sectors: [[56.25, 168.75]], sectorLabel: "ONO-SSO", country: "de", acc: "f", hoehendiff: 280, gemeinde: "76855 Annweiler", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Der Startplatz liegt in einer Waldschneise am Adelberg.", landeName: "Adelberg Landeplatz", landeLat: 49.2151, landeLon: 7.9684, landeHoehe: 260, livewetter: "https://holfuy.com/de/data/1883", ...DEF },
 
   { id: "db_188", name: "Adolzfurt", region: "Bretzfeld",
     lat: 49.1606, lon: 9.4713, elevation: 365, dhv: 188,
@@ -22,7 +22,7 @@ const SPOT_DB = [
 
   { id: "db_257", name: "Adorf / Wirmighausen", region: "Diemelsee",
     lat: 51.3508, lon: 8.8305, elevation: 465, dhv: 257,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 50, gemeinde: "34519 Diemelsee", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Frei angeströmter Startplatz", landeName: "Adorf / Wirmighausen  Landeplatz", landeLat: 51.3521, landeLon: 8.8284, landeHoehe: 415, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 50, gemeinde: "34519 Diemelsee", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Frei angeströmter Startplatz", landeName: "Adorf / Wirmighausen  Landeplatz", landeLat: 51.3521, landeLon: 8.8284, landeHoehe: 415, livewetter: "https://holfuy.com/de/data/895", webcam: "https://holfuy.com/de/data/895", ...DEF },
 
   { id: "db_723", name: "Aitern", region: "Aitern",
     lat: 47.8114, lon: 7.8982, elevation: 894, dhv: 723,
@@ -42,11 +42,11 @@ const SPOT_DB = [
 
   { id: "db_876", name: "Altenbeuthen - Stausee", region: "Altenbeuthen",
     lat: 50.5935, lon: 11.594, elevation: 538, dhv: 876,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 234, gemeinde: "07338 Altenbeuthen", bundesland: "Thüringen", gleitschirm: "1-sitzig mit unbeschränktem LFS", bemerkung: "Klippenstartgelände für B-Scheinpiloten", landeName: "Altenbeuthen - Stausee Landeplatz", landeLat: 50.6032, landeLon: 11.6027, landeHoehe: 304, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 234, gemeinde: "07338 Altenbeuthen", bundesland: "Thüringen", gleitschirm: "1-sitzig mit unbeschränktem LFS", bemerkung: "Klippenstartgelände für B-Scheinpiloten", landeName: "Altenbeuthen - Stausee Landeplatz", landeLat: 50.6032, landeLon: 11.6027, landeHoehe: 304, livewetter: "https://holfuy.com/de/data/417", webcam: "https://holfuy.com/de/data/417", ...DEF },
 
   { id: "db_655", name: "Alter Steinbruch", region: "Lindenfels",
     lat: 49.6952, lon: 8.776, elevation: 520, dhv: 655,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", diff: 1, acc: "f", hoehendiff: 255, gemeinde: "64678 Lindenfels", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "schriftl. Einweisung. B 47 darf nur mit mind. 50m Höhe überflogen werden. Flugbetrieb endet um 19:00 Uhr. Starts bei Windstille + Rückenwind verboten. Start nur mit ausreichend Gegenwind durchführen. Aufgrund der anspruchsvollen Start- Landeverhältnisse benötigen alle Piloten für Starts am Alten Steinbruch eine umfangreiche Einweisung durch den Geländehalter. A-Schein Piloten dürfen das Gelände nutzen, wenn sie dem Geländehalter ausreichende Flugerfahrung nachweisen. Doppelsitzerflüge dürfen nur von sehr erfahrenen Piloten bei guten Witterungsbedingungen durchgeführt werden.", landeName: "Alter Steinbruch Landeplatz", landeLat: 49.6880, landeLon: 8.7684, landeHoehe: 440, landeExtra: [{ name: "Alter Steinbruch Landeplatz Schlierbach", lat: 49.685983, lon: 8.76745, hoehe: 265 }], ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", diff: 1, acc: "f", hoehendiff: 255, gemeinde: "64678 Lindenfels", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "schriftl. Einweisung. B 47 darf nur mit mind. 50m Höhe überflogen werden. Flugbetrieb endet um 19:00 Uhr. Starts bei Windstille + Rückenwind verboten. Start nur mit ausreichend Gegenwind durchführen. Aufgrund der anspruchsvollen Start- Landeverhältnisse benötigen alle Piloten für Starts am Alten Steinbruch eine umfangreiche Einweisung durch den Geländehalter. A-Schein Piloten dürfen das Gelände nutzen, wenn sie dem Geländehalter ausreichende Flugerfahrung nachweisen. Doppelsitzerflüge dürfen nur von sehr erfahrenen Piloten bei guten Witterungsbedingungen durchgeführt werden.", landeName: "Alter Steinbruch Landeplatz", landeLat: 49.6880, landeLon: 8.7684, landeHoehe: 440, landeExtra: [{ name: "Alter Steinbruch Landeplatz Schlierbach", lat: 49.685983, lon: 8.76745, hoehe: 265 }], livewetter: "https://holfuy.com/de/data/638", webcam: "https://holfuy.com/de/data/638", ...DEF },
 
   { id: "db_314", name: "Altglashütten / Kapellenhof", region: "Feldberg",
     lat: 47.8489, lon: 8.1036, elevation: 1150, dhv: 314,
@@ -58,11 +58,11 @@ const SPOT_DB = [
 
   { id: "db_671_W", name: "Althof (alte HG-Rampe) (W)", region: "Bad Herrenalb",
     lat: 48.8221, lon: 8.4031, elevation: 690, dhv: 671,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 225, gemeinde: "76332 Bad Herrenalb", bundesland: "Baden-Württemberg", bemerkung: "Flugbetrieb nur in Abstimmung mit Verein. Transport der Drachen nur mit Clubfahrzeug der Althofdrachen. Piloten-Treffpunkt ist die Landewiese. Bitte unbedingt das Startverbot am Naturstartplatz vom 01.02. - 30.04. beachten. Der Start mit Gleitschirmen ist gemäß der Geländezulassung verboten.", landeName: "Althof Landeplatz", landeLat: 48.8291, landeLon: 8.3947, landeHoehe: 465, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 225, gemeinde: "76332 Bad Herrenalb", bundesland: "Baden-Württemberg", bemerkung: "Flugbetrieb nur in Abstimmung mit Verein. Transport der Drachen nur mit Clubfahrzeug der Althofdrachen. Piloten-Treffpunkt ist die Landewiese. Bitte unbedingt das Startverbot am Naturstartplatz vom 01.02. - 30.04. beachten. Der Start mit Gleitschirmen ist gemäß der Geländezulassung verboten.", landeName: "Althof Landeplatz", landeLat: 48.8291, landeLon: 8.3947, landeHoehe: 465, livewetter: "https://holfuy.com/de/data/1546", ...DEF },
 
   { id: "db_636", name: "Am Geisberg", region: "Lindenfels",
     lat: 49.6912, lon: 8.77, elevation: 362, dhv: 636,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 107, gemeinde: "64678 Lindenfels", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Für Hängegleiter bedingt geeignet. Schriftliche Einweisung notwendig. Flugbetrieb endet um 19:00 Uhr.", landeName: "Am Geisberg Landeplatz", landeLat: 49.6878, landeLon: 8.7682, landeHoehe: 255, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 107, gemeinde: "64678 Lindenfels", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Für Hängegleiter bedingt geeignet. Schriftliche Einweisung notwendig. Flugbetrieb endet um 19:00 Uhr.", landeName: "Am Geisberg Landeplatz", landeLat: 49.6878, landeLon: 8.7682, landeHoehe: 255, livewetter: "https://holfuy.com/de/data/595", webcam: "https://holfuy.com/de/data/595", ...DEF },
 
   { id: "db_957", name: "Am Göbbelsberge", region: "Albertshausen",
     lat: 51.1208, lon: 9.0539, elevation: 355, dhv: 957,
@@ -94,7 +94,7 @@ const SPOT_DB = [
 
   { id: "db_618_NW", name: "Am Rammelsberg Nordwest-Startplatz (NW)", region: "Goslar",
     lat: 51.8897, lon: 10.4309, elevation: 610, dhv: 618,
-    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "de", acc: "fa", hoehendiff: 260, gemeinde: "38644 Goslar", bundesland: "Niedersachsen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Am Rammelsberg Landeplatz", landeLat: 51.8967, landeLon: 10.4297, landeHoehe: 350, ...DEF },
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "de", acc: "fa", hoehendiff: 260, gemeinde: "38644 Goslar", bundesland: "Niedersachsen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Am Rammelsberg Landeplatz", landeLat: 51.8967, landeLon: 10.4297, landeHoehe: 350, livewetter: "https://holfuy.com/de/data/466", webcam: "https://holfuy.com/de/data/466", ...DEF },
 
   { id: "db_618_SW", name: "Am Rammelsberg Nordwest-Startplatz (SW)", region: "Goslar",
     lat: 51.8885, lon: 10.4281, elevation: 610, dhv: 618,
@@ -134,7 +134,7 @@ const SPOT_DB = [
 
   { id: "db_1045", name: "Ascheloh-Hermannsweg", region: "Halle",
     lat: 52.0508, lon: 8.4098, elevation: 290, dhv: 1045,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 90, gemeinde: "33790 Halle", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Auflagen: Starts erst nach Einweisung der Piloten in die Gelände Verhältnisse vor Ort. Keine Starts bei turbulenten Bedingungen in der Waldschneise.", landeName: "Ascheloh-Hermannsweg Landeplatz", landeLat: 52.0471, landeLon: 8.4049, landeHoehe: 200, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 90, gemeinde: "33790 Halle", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Auflagen: Starts erst nach Einweisung der Piloten in die Gelände Verhältnisse vor Ort. Keine Starts bei turbulenten Bedingungen in der Waldschneise.", landeName: "Ascheloh-Hermannsweg Landeplatz", landeLat: 52.0471, landeLon: 8.4049, landeHoehe: 200, livewetter: "https://holfuy.com/de/data/1506", ...DEF },
 
   { id: "db_536", name: "Auen-Eckweiler", region: "Sobernheim",
     lat: 49.8392, lon: 7.6049, elevation: 380, dhv: 536,
@@ -146,7 +146,7 @@ const SPOT_DB = [
 
   { id: "db_5816", name: "Auergang", region: "Schmallenberg",
     lat: 51.1486, lon: 8.1855, elevation: 695, dhv: 5816,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "f", hoehendiff: 257, gemeinde: "57392 Schmallenberg", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Auergang LP", landeLat: 51.1577, landeLon: 8.1938, landeHoehe: 438, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "f", hoehendiff: 257, gemeinde: "57392 Schmallenberg", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Auergang LP", landeLat: 51.1577, landeLon: 8.1938, landeHoehe: 438, livewetter: "https://www.openwindmap.org/pioupiou-1313", ...DEF },
 
   { id: "db_438", name: "Auf dem Bichel / Auf der Höhe", region: "Nesselwang",
     lat: 47.621, lon: 10.5197, elevation: 921, dhv: 438,
@@ -158,7 +158,7 @@ const SPOT_DB = [
 
   { id: "db_605", name: "Auf dem unteren Mergesfeld", region: "St. Katharinen",
     lat: 49.8719, lon: 7.7872, elevation: 246, dhv: 605,
-    sectors: [[191.25, 213.75]], sectorLabel: "SSW", country: "de", acc: "fa", hoehendiff: 50, gemeinde: "55595 St. Katharinen", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Auf dem unteren Mergesfeld Landeplatz", landeLat: 49.8708, landeLon: 7.7815, landeHoehe: 196, ...DEF },
+    sectors: [[191.25, 213.75]], sectorLabel: "SSW", country: "de", acc: "fa", hoehendiff: 50, gemeinde: "55595 St. Katharinen", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Auf dem unteren Mergesfeld Landeplatz", landeLat: 49.8708, landeLon: 7.7815, landeHoehe: 196, livewetter: "https://holfuy.com/de/data/447", webcam: "https://holfuy.com/de/data/447", ...DEF },
 
   { id: "db_1092", name: "Auf dem Wakenfelde", region: "Willingen",
     lat: 51.2892, lon: 8.6247, elevation: 650, dhv: 1092,
@@ -174,7 +174,7 @@ const SPOT_DB = [
 
   { id: "db_1050", name: "Bad Salzig", region: "Boppard",
     lat: 50.1939, lon: 7.6152, elevation: 385, dhv: 1050,
-    sectors: [[348.75, 101.25]], sectorLabel: "N-O", country: "de", acc: "fa", hoehendiff: 170, gemeinde: "56154 Boppard", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", landeName: "Bad Salzig Landeplatz", landeLat: 50.1951, landeLon: 7.6248, landeHoehe: 215, ...DEF },
+    sectors: [[348.75, 101.25]], sectorLabel: "N-O", country: "de", acc: "fa", hoehendiff: 170, gemeinde: "56154 Boppard", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", landeName: "Bad Salzig Landeplatz", landeLat: 50.1951, landeLon: 7.6248, landeHoehe: 215, livewetter: "https://holfuy.com/de/data/260", ...DEF },
 
   { id: "db_285", name: "Balgheim", region: "Balgheim",
     lat: 48.0661, lon: 8.782, elevation: 750, dhv: 285,
@@ -186,7 +186,7 @@ const SPOT_DB = [
 
   { id: "db_617", name: "Bannholz - Kleingartach", region: "Kleingartach",
     lat: 49.0989, lon: 8.9876, elevation: 285, dhv: 617,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 67, gemeinde: "75031 Kleingartach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Wald links des Startplatzes. Auf Leewirkung achten.", landeName: "Bannholz Landeplatz", landeLat: 49.0992, landeLon: 8.9832, landeHoehe: 218, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 67, gemeinde: "75031 Kleingartach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Wald links des Startplatzes. Auf Leewirkung achten.", landeName: "Bannholz Landeplatz", landeLat: 49.0992, landeLon: 8.9832, landeHoehe: 218, livewetter: "https://holfuy.com/de/data/713", webcam: "https://holfuy.com/de/data/713", ...DEF },
 
   { id: "db_5721", name: "Bärngschwendt 600 Skiabfahrt Unternberg", region: "Ruhpolding",
     lat: 47.7275, lon: 12.6267, elevation: 1310, dhv: 5721,
@@ -194,11 +194,11 @@ const SPOT_DB = [
 
   { id: "db_561", name: "Bastenberg", region: "Höxter-Ottbergen",
     lat: 51.7028, lon: 9.3238, elevation: 198, dhv: 561,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 100, gemeinde: "37671 Höxter-Ottbergen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Bastenberg Landeplatz", landeLat: 51.7053, landeLon: 9.3159, landeHoehe: 98, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 100, gemeinde: "37671 Höxter-Ottbergen", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Bastenberg Landeplatz", landeLat: 51.7053, landeLon: 9.3159, landeHoehe: 98, livewetter: "https://holfuy.com/de/data/1025", ...DEF },
 
   { id: "db_1049", name: "Bausenberg", region: "Niederzissen",
     lat: 50.4648, lon: 7.2224, elevation: 317, dhv: 1049,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "de", acc: "f", hoehendiff: 317, gemeinde: "56651 Niederzissen", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "TOPLANDEN ist verboten und nicht möglich. Falls nach dem Start keine Höhe gewonnen wird, muss unverzüglich der LP angeflogen werden. Flüge nur bei Wind aus südlichen Richtungen (Keine Flüge bei südwestlichen Windrichtungen.)", ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "de", acc: "f", hoehendiff: 317, gemeinde: "56651 Niederzissen", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "TOPLANDEN ist verboten und nicht möglich. Falls nach dem Start keine Höhe gewonnen wird, muss unverzüglich der LP angeflogen werden. Flüge nur bei Wind aus südlichen Richtungen (Keine Flüge bei südwestlichen Windrichtungen.)", livewetter: "https://holfuy.com/de/data/264", ...DEF },
 
   { id: "db_2403", name: "Beedenkirchen", region: "Lautertal",
     lat: 49.7292, lon: 8.7311, elevation: 366, dhv: 2403,
@@ -206,7 +206,7 @@ const SPOT_DB = [
 
   { id: "db_1090", name: "Bergehalde Ensdorf", region: "Ensdorf",
     lat: 49.317, lon: 6.7854, elevation: 320, dhv: 1090,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 120, gemeinde: "66806 Ensdorf", bundesland: "Saarland", gleitschirm: "1-sitzig mit unbeschränktem LFS", landeName: "Bergehalde Ensdorf Landeplatz", landeLat: 49.3142, landeLon: 6.7867, landeHoehe: 200, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 120, gemeinde: "66806 Ensdorf", bundesland: "Saarland", gleitschirm: "1-sitzig mit unbeschränktem LFS", landeName: "Bergehalde Ensdorf Landeplatz", landeLat: 49.3142, landeLon: 6.7867, landeHoehe: 200, livewetter: "https://holfuy.com/de/data/380", ...DEF },
 
   { id: "db_326", name: "Berghalde Übungshang", region: "Penzberg",
     lat: 47.7567, lon: 11.3865, elevation: 600, dhv: 326,
@@ -246,15 +246,15 @@ const SPOT_DB = [
 
   { id: "db_1122", name: "Blankenhain Übungshang", region: "Rottdorf",
     lat: 50.8463, lon: 11.3475, elevation: 446, dhv: 1122,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", gemeinde: "99444 Rottdorf", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", gemeinde: "99444 Rottdorf", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", livewetter: "https://holfuy.com/de/data/1120", ...DEF },
 
   { id: "db_1067", name: "Blättersberg", region: "Weyher",
     lat: 49.266, lon: 8.0701, elevation: 550, dhv: 1067,
-    sectors: [[101.25, 213.75]], sectorLabel: "OSO-SSW", country: "de", diff: 2, acc: "f", hoehendiff: 305, gemeinde: "76835 Weyher", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Steiler Schneisenstartplatz Richtung Süden oberhalb von Weyher in der Pfalz.", landeName: "Blättersberg LP Fischer (Ausweich-LP)", landeLat: 49.2638, landeLon: 8.0805, landeHoehe: 245, landeExtra: [{ name: "Blättersberg LP Hasental", lat: 49.257743, lon: 8.074371, hoehe: 245 }], ...DEF },
+    sectors: [[101.25, 213.75]], sectorLabel: "OSO-SSW", country: "de", diff: 2, acc: "f", hoehendiff: 305, gemeinde: "76835 Weyher", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Steiler Schneisenstartplatz Richtung Süden oberhalb von Weyher in der Pfalz.", landeName: "Blättersberg LP Fischer (Ausweich-LP)", landeLat: 49.2638, landeLon: 8.0805, landeHoehe: 245, landeExtra: [{ name: "Blättersberg LP Hasental", lat: 49.257743, lon: 8.074371, hoehe: 245 }], livewetter: "https://holfuy.com/de/data/1392", ...DEF },
 
   { id: "db_352_N", name: "Blomberg (N)", region: "Wackersberg",
     lat: 47.7345, lon: 11.5072, elevation: 1215, dhv: 352,
-    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "de", diff: 1, acc: "fb", hoehendiff: 515, gemeinde: "83646 Wackersberg", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Blomberg Landeplatz", landeLat: 47.7501, landeLon: 11.5053, landeHoehe: 700, ...DEF },
+    sectors: [[303.75, 56.25]], sectorLabel: "NW-NO", country: "de", diff: 1, acc: "fb", hoehendiff: 515, gemeinde: "83646 Wackersberg", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Blomberg Landeplatz", landeLat: 47.7501, landeLon: 11.5053, landeHoehe: 700, livewetter: "https://holfuy.com/de/data/1810", ...DEF },
 
   { id: "db_352_O", name: "Blomberg (O)", region: "Wackersberg",
     lat: 47.7309, lon: 11.5127, elevation: 1194, dhv: 352,
@@ -262,7 +262,7 @@ const SPOT_DB = [
 
   { id: "db_370", name: "Böhming", region: "Kipfenberg",
     lat: 48.9446, lon: 11.3501, elevation: 478, dhv: 370,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 1, acc: "fa", hoehendiff: 96, gemeinde: "85110 Kipfenberg", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Böhming Landeplatz", landeLat: 48.9456, landeLon: 11.3589, landeHoehe: 382, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 1, acc: "fa", hoehendiff: 96, gemeinde: "85110 Kipfenberg", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Böhming Landeplatz", landeLat: 48.9456, landeLon: 11.3589, landeHoehe: 382, livewetter: "https://holfuy.com/de/data/407", webcam: "https://holfuy.com/de/data/407", ...DEF },
 
   { id: "db_101", name: "Bohnstein", region: "Hesselbach",
     lat: 50.8837, lon: 8.3507, elevation: 450, dhv: 101,
@@ -270,11 +270,11 @@ const SPOT_DB = [
 
   { id: "db_759", name: "Boos / Staudernheim", region: "Staudernheim",
     lat: 49.7864, lon: 7.7148, elevation: 211, dhv: 759,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 76, gemeinde: "55568 Staudernheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Kein Flugbetrieb vom 1.4 - bis zum 30.6. (Brutzeit)", landeName: "Boos / Staudernheim Landeplatz", landeLat: 49.7858, landeLon: 7.7201, landeHoehe: 135, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 76, gemeinde: "55568 Staudernheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Kein Flugbetrieb vom 1.4 - bis zum 30.6. (Brutzeit)", landeName: "Boos / Staudernheim Landeplatz", landeLat: 49.7858, landeLon: 7.7201, landeHoehe: 135, livewetter: "https://holfuy.com/de/data/1118", ...DEF },
 
   { id: "db_66", name: "Börry am Hellberg", region: "Börry",
     lat: 52.0467, lon: 9.4582, elevation: 200, dhv: 66,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "f", hoehendiff: 100, gemeinde: "31860 Börry", bundesland: "Niedersachsen", gleitschirm: "1- und 2-sitzig", landeName: "Börry am Hellberg Landeplatz", landeLat: 52.0405, landeLon: 9.4557, landeHoehe: 100, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "f", hoehendiff: 100, gemeinde: "31860 Börry", bundesland: "Niedersachsen", gleitschirm: "1- und 2-sitzig", landeName: "Börry am Hellberg Landeplatz", landeLat: 52.0405, landeLon: 9.4557, landeHoehe: 100, livewetter: "https://holfuy.com/de/data/403", webcam: "https://holfuy.com/de/data/403", ...DEF },
 
   { id: "db_1106", name: "Brandleiten Übungshang", region: "Penzberg",
     lat: 47.7935, lon: 11.3894, elevation: 640, dhv: 1106,
@@ -282,7 +282,7 @@ const SPOT_DB = [
 
   { id: "db_612_N", name: "Brauneck (N)", region: "Lenggries",
     lat: 47.6641, lon: 11.5245, elevation: 1555, dhv: 612,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampe für Drachen direkt am Gipfel. Infotafel beachten.", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, landeExtra: [{ name: "Brauneck Landeplatz für HG", lat: 47.679229, lon: 11.557274, hoehe: 700 }], webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampe für Drachen direkt am Gipfel. Infotafel beachten.", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, landeExtra: [{ name: "Brauneck Landeplatz für HG", lat: 47.679229, lon: 11.557274, hoehe: 700 }], webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", livewetter: "https://holfuy.com/de/data/1516", ...DEF },
 
   { id: "db_612_O", name: "Brauneck (O)", region: "Lenggries",
     lat: 47.6673, lon: 11.5385, elevation: 1550, dhv: 612,
@@ -290,7 +290,7 @@ const SPOT_DB = [
 
   { id: "db_612_S", name: "Brauneck (S)", region: "Lenggries",
     lat: 47.6635, lon: 11.5237, elevation: 1545, dhv: 612,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampe für Drachen; Naturstart für Gleitschirme. Achtung: Bahnseil muss überflogen werden.", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, landeExtra: [{ name: "Brauneck Landeplatz für HG", lat: 47.679229, lon: 11.557274, hoehe: 700 }], webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fb", hoehendiff: 855, gemeinde: "83661 Lenggries", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Rampe für Drachen; Naturstart für Gleitschirme. Achtung: Bahnseil muss überflogen werden.", landeName: "Brauneck Landeplatz für GS", landeLat: 47.6737, landeLon: 11.5569, landeHoehe: 716, landeExtra: [{ name: "Brauneck Landeplatz für HG", lat: 47.679229, lon: 11.557274, hoehe: 700 }], webcam: "https://www.brauneck-bergbahn.de/en/webcams.html", livewetter: "https://holfuy.com/de/data/1343", ...DEF },
 
   { id: "db_175", name: "Braunenberg", region: "Oberalfingen / Aalen",
     lat: 48.8599, lon: 10.1346, elevation: 661, dhv: 175,
@@ -298,7 +298,7 @@ const SPOT_DB = [
 
   { id: "db_952_NO", name: "Breitenberg (NO)", region: "Pfronten-Ried",
     lat: 47.5469, lon: 10.559, elevation: 1688, dhv: 952,
-    sectors: [[348.75, 146.25], [348.75, 101.25], [33.75, 56.25]], sectorLabel: "N-SO · N-O · NO", country: "de", acc: "fb", hoehendiff: 890, gemeinde: "87459 Pfronten-Ried", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startplatz Kesselmoos auf Almwiese.", landeName: "Breitenberg Landeplatz", landeLat: 47.5625, landeLon: 10.5724, landeHoehe: 862, ...DEF },
+    sectors: [[348.75, 146.25], [348.75, 101.25], [33.75, 56.25]], sectorLabel: "N-SO · N-O · NO", country: "de", acc: "fb", hoehendiff: 890, gemeinde: "87459 Pfronten-Ried", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startplatz Kesselmoos auf Almwiese.", landeName: "Breitenberg Landeplatz", landeLat: 47.5625, landeLon: 10.5724, landeHoehe: 862, livewetter: "https://holfuy.com/de/data/676", webcam: "https://holfuy.com/de/data/676", ...DEF },
 
   { id: "db_952_O", name: "Breitenberg (O)", region: "Pfronten-Ried",
     lat: 47.5477, lon: 10.5566, elevation: 1752, dhv: 952,
@@ -334,11 +334,11 @@ const SPOT_DB = [
 
   { id: "db_82", name: "Brunsberg", region: "Godelheim",
     lat: 51.7474, lon: 9.3499, elevation: 290, dhv: 82,
-    sectors: [[78.75, 123.75]], sectorLabel: "O-OSO", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "37671 Godelheim", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Brunsberg Landeplatz", landeLat: 51.7439, landeLon: 9.3611, landeHoehe: 90, ...DEF },
+    sectors: [[78.75, 123.75]], sectorLabel: "O-OSO", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "37671 Godelheim", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Brunsberg Landeplatz", landeLat: 51.7439, landeLon: 9.3611, landeHoehe: 90, livewetter: "https://holfuy.com/de/data/268", ...DEF },
 
   { id: "db_466", name: "Buchberg", region: "Schnaittenbach",
     lat: 49.5147, lon: 12.0298, elevation: 620, dhv: 466,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 170, gemeinde: "92253 Schnaittenbach", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Buchberg Landeplatz", landeLat: 49.5165, landeLon: 12.0400, landeHoehe: 450, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 170, gemeinde: "92253 Schnaittenbach", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Buchberg Landeplatz", landeLat: 49.5165, landeLon: 12.0400, landeHoehe: 450, livewetter: "https://www.openwindmap.org/pioupiou-2131", ...DEF },
 
   { id: "db_984", name: "Buchberg Übungshang", region: "Gmund",
     lat: 47.7334, lon: 11.7439, elevation: 750, dhv: 984,
@@ -350,7 +350,7 @@ const SPOT_DB = [
 
   { id: "db_408_N", name: "Buchenberg (N)", region: "Buching",
     lat: 47.6067, lon: 10.8111, elevation: 1134, dhv: 408,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 350, gemeinde: "87642 Buching", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Buchenberg Landeplatz GS", landeLat: 47.6126, landeLon: 10.7991, landeHoehe: 791, landeExtra: [{ name: "Buchenberg Landeplatz HG", lat: 47.61205, lon: 10.795279, hoehe: 787 }], ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 350, gemeinde: "87642 Buching", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Buchenberg Landeplatz GS", landeLat: 47.6126, landeLon: 10.7991, landeHoehe: 791, landeExtra: [{ name: "Buchenberg Landeplatz HG", lat: 47.61205, lon: 10.795279, hoehe: 787 }], livewetter: "https://holfuy.com/de/data/511", webcam: "https://holfuy.com/de/data/511", ...DEF },
 
   { id: "db_408_NW", name: "Buchenberg (NW)", region: "Buching",
     lat: 47.6065, lon: 10.8104, elevation: 1137, dhv: 408,
@@ -378,11 +378,11 @@ const SPOT_DB = [
 
   { id: "db_796_NW", name: "Burgen Hauptstartplatz (NW)", region: "Burgen",
     lat: 49.8764, lon: 7.0172, elevation: 450, dhv: 796,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 270, gemeinde: "54472 Burgen", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Burgen Landeplatz", landeLat: 49.8822, landeLon: 7.0130, landeHoehe: 180, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 270, gemeinde: "54472 Burgen", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Burgen Landeplatz", landeLat: 49.8822, landeLon: 7.0130, landeHoehe: 180, livewetter: "https://holfuy.com/de/data/1407", ...DEF },
 
   { id: "db_796_SO", name: "Burgen Hauptstartplatz (SO)", region: "Burgen",
     lat: 49.8874, lon: 7.0113, elevation: 244, dhv: 796,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 270, gemeinde: "54472 Burgen", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Burgen Landeplatz", landeLat: 49.8822, landeLon: 7.0130, landeHoehe: 180, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 270, gemeinde: "54472 Burgen", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Burgen Landeplatz", landeLat: 49.8822, landeLon: 7.0130, landeHoehe: 180, livewetter: "https://holfuy.com/de/data/503", webcam: "https://holfuy.com/de/data/503", ...DEF },
 
   { id: "db_133", name: "Bürgstadt / Wannenberg", region: "Bürgstadt",
     lat: 49.7212, lon: 9.2885, elevation: 385, dhv: 133,
@@ -390,7 +390,7 @@ const SPOT_DB = [
 
   { id: "db_943", name: "Calmont", region: "Bremm",
     lat: 50.1068, lon: 7.1149, elevation: 355, dhv: 943,
-    sectors: [[146.25, 213.75]], sectorLabel: "SSO-SSW", country: "de", acc: "fa", hoehendiff: 263, gemeinde: "56814 Bremm", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", bemerkung: "Toplanden am Startplatz ist verboten! Der Startplatz ist sehr steil und schmal. Sicheres Rückwärtsstarten ist Voraussetzung, um hier zu fliegen. Außerdem unbedingt frühzeitig Richtung Landeplatz abfliegen. Dieser ist relativ weit weg.", landeName: "Calmont Landeplatz", landeLat: 50.1026, landeLon: 7.1371, landeHoehe: 92, ...DEF },
+    sectors: [[146.25, 213.75]], sectorLabel: "SSO-SSW", country: "de", acc: "fa", hoehendiff: 263, gemeinde: "56814 Bremm", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", bemerkung: "Toplanden am Startplatz ist verboten! Der Startplatz ist sehr steil und schmal. Sicheres Rückwärtsstarten ist Voraussetzung, um hier zu fliegen. Außerdem unbedingt frühzeitig Richtung Landeplatz abfliegen. Dieser ist relativ weit weg.", landeName: "Calmont Landeplatz", landeLat: 50.1026, landeLon: 7.1371, landeHoehe: 92, livewetter: "https://holfuy.com/de/data/1847", ...DEF },
 
   { id: "db_5701", name: "Criesbach", region: "Ingelfingen",
     lat: 49.31, lon: 9.6289, elevation: 350, dhv: 5701,
@@ -426,15 +426,15 @@ const SPOT_DB = [
 
   { id: "db_1196", name: "Dieberg", region: "Furth im Wald",
     lat: 49.3287, lon: 12.8674, elevation: 620, dhv: 1196,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 190, gemeinde: "93437 Furth im Wald", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Startplatz liegt in einer Waldschneise. Nur bei exaktem Vorwind starten.", landeName: "Dieberg Landeplatz", landeLat: 49.3260, landeLon: 12.8602, landeHoehe: 430, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 190, gemeinde: "93437 Furth im Wald", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Startplatz liegt in einer Waldschneise. Nur bei exaktem Vorwind starten.", landeName: "Dieberg Landeplatz", landeLat: 49.3260, landeLon: 12.8602, landeHoehe: 430, livewetter: "https://holfuy.com/de/data/1345", ...DEF },
 
   { id: "db_80", name: "Dielmissen - Ith", region: "Dielmissen",
     lat: 51.9812, lon: 9.6262, elevation: 285, dhv: 80,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 113, gemeinde: "37633 Dielmissen", bundesland: "Niedersachsen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Dielmissen - Ith Landeplatz", landeLat: 51.9760, landeLon: 9.6157, landeHoehe: 172, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 113, gemeinde: "37633 Dielmissen", bundesland: "Niedersachsen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Dielmissen - Ith Landeplatz", landeLat: 51.9760, landeLon: 9.6157, landeHoehe: 172, livewetter: "https://holfuy.com/de/data/464", webcam: "https://holfuy.com/de/data/464", ...DEF },
 
   { id: "db_693", name: "Donnersberg", region: "Dannenfels",
     lat: 49.6344, lon: 7.9312, elevation: 559, dhv: 693,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "de", diff: 2, acc: "f", hoehendiff: 242, gemeinde: "67814 Dannenfels", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Donnersberg oberer GS Startplatz. Unterhalb des GS-Startplatzes befindet sich eine ca. 3 m hohe Geländestufe. Die Nutzung ist ausschließlich erfahrenen Piloten mit der erforderlichen Flugpraxis und Geländekenntnis vorbehalten. Insgesamt handelt es sich um einen anspruchsvollen Schneisenstart.", landeName: "Donnersberg GS-LP", landeLat: 49.6375, landeLon: 7.9368, landeHoehe: 380, landeExtra: [{ name: "Donnersberg HG-LP", lat: 49.641272, lon: 7.945608, hoehe: 317 }], ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "de", diff: 2, acc: "f", hoehendiff: 242, gemeinde: "67814 Dannenfels", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Donnersberg oberer GS Startplatz. Unterhalb des GS-Startplatzes befindet sich eine ca. 3 m hohe Geländestufe. Die Nutzung ist ausschließlich erfahrenen Piloten mit der erforderlichen Flugpraxis und Geländekenntnis vorbehalten. Insgesamt handelt es sich um einen anspruchsvollen Schneisenstart.", landeName: "Donnersberg GS-LP", landeLat: 49.6375, landeLon: 7.9368, landeHoehe: 380, landeExtra: [{ name: "Donnersberg HG-LP", lat: 49.641272, lon: 7.945608, hoehe: 317 }], livewetter: "https://holfuy.com/de/data/344", ...DEF },
 
   { id: "db_258", name: "Drehkopf", region: "Feldberg",
     lat: 47.8602, lon: 8.093, elevation: 1135, dhv: 258,
@@ -446,11 +446,11 @@ const SPOT_DB = [
 
   { id: "db_284", name: "Dreifaltigkeitsberg", region: "Spaichingen",
     lat: 48.0839, lon: 8.7601, elevation: 965, dhv: 284,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 225, gemeinde: "78549 Spaichingen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit unbeschränktem LFS", bemerkung: "Erfahrene Piloten mit beschränktem Schein können nach einer Unterweisung durch berechtigte Personen eine Startfreigabe erhalten.", landeName: "Dreifaltigkeitsberg Landeplatz", landeLat: 48.0822, landeLon: 8.7512, landeHoehe: 740, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 225, gemeinde: "78549 Spaichingen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit unbeschränktem LFS", bemerkung: "Erfahrene Piloten mit beschränktem Schein können nach einer Unterweisung durch berechtigte Personen eine Startfreigabe erhalten.", landeName: "Dreifaltigkeitsberg Landeplatz", landeLat: 48.0822, landeLon: 8.7512, landeHoehe: 740, livewetter: "https://holfuy.com/de/data/516", ...DEF },
 
   { id: "db_170", name: "Duchroth Nord", region: "Duchroth",
     lat: 49.7755, lon: 7.7224, elevation: 290, dhv: 170,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 160, gemeinde: "55585 Duchroth", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Duchroth Nord Landeplatz", landeLat: 49.7793, landeLon: 7.7183, landeHoehe: 130, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 160, gemeinde: "55585 Duchroth", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Duchroth Nord Landeplatz", landeLat: 49.7793, landeLon: 7.7183, landeHoehe: 130, livewetter: "https://holfuy.com/de/data/401", ...DEF },
 
   { id: "db_180", name: "Eberfirst", region: "Eberstadt",
     lat: 49.1879, lon: 9.3229, elevation: 300, dhv: 180,
@@ -474,7 +474,7 @@ const SPOT_DB = [
 
   { id: "db_304", name: "Ehrsberg", region: "Häg-Ehrsberg",
     lat: 47.7508, lon: 7.9079, elevation: 850, dhv: 304,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 310, gemeinde: "79685 Häg-Ehrsberg", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Ehrsberg Landeplatz", landeLat: 47.7557, landeLon: 7.8886, landeHoehe: 540, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 310, gemeinde: "79685 Häg-Ehrsberg", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Ehrsberg Landeplatz", landeLat: 47.7557, landeLon: 7.8886, landeHoehe: 540, livewetter: "https://www.openwindmap.org/pioupiou-1681", ...DEF },
 
   { id: "db_283", name: "Eichberg/Stutz", region: "Blumberg",
     lat: 47.8482, lon: 8.5143, elevation: 912, dhv: 283,
@@ -486,11 +486,11 @@ const SPOT_DB = [
 
   { id: "db_182_W", name: "Einkorn (W)", region: "Michelbach",
     lat: 49.0901, lon: 9.7756, elevation: 451, dhv: 182,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 140, gemeinde: "74544 Michelbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Einkorn Landeplatz", landeLat: 49.0867, landeLon: 9.7663, landeHoehe: 311, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 140, gemeinde: "74544 Michelbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Einkorn Landeplatz", landeLat: 49.0867, landeLon: 9.7663, landeHoehe: 311, livewetter: "https://holfuy.com/de/data/737", webcam: "https://holfuy.com/de/data/737", ...DEF },
 
   { id: "db_59", name: "Eisenberg Westhang", region: "Battenberg",
     lat: 51.0158, lon: 8.6199, elevation: 450, dhv: 59,
-    sectors: [[258.75, 303.75]], sectorLabel: "W-WNW", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "35088 Battenberg", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Eisenberg Westhang Landeplatz", landeLat: 51.0177, landeLon: 8.6088, landeHoehe: 300, ...DEF },
+    sectors: [[258.75, 303.75]], sectorLabel: "W-WNW", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "35088 Battenberg", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Eisenberg Westhang Landeplatz", landeLat: 51.0177, landeLon: 8.6088, landeHoehe: 300, livewetter: "https://holfuy.com/de/data/468", webcam: "https://holfuy.com/de/data/468", ...DEF },
 
   { id: "db_2622", name: "Elpe Übungshang (Unterhang)", region: "Olsberg",
     lat: 51.2713, lon: 8.4386, elevation: 560, dhv: 2622,
@@ -526,11 +526,11 @@ const SPOT_DB = [
 
   { id: "db_728", name: "Erden", region: "Erden",
     lat: 49.9849, lon: 7.018, elevation: 290, dhv: 728,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 185, gemeinde: "54492 Erden", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit unbeschränktem LFS", bemerkung: "Einweisung erforderlich!", landeName: "Erden Landeplatz", landeLat: 49.9794, landeLon: 7.0286, landeHoehe: 105, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 185, gemeinde: "54492 Erden", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit unbeschränktem LFS", bemerkung: "Einweisung erforderlich!", landeName: "Erden Landeplatz", landeLat: 49.9794, landeLon: 7.0286, landeHoehe: 105, livewetter: "https://holfuy.com/de/data/1249", ...DEF },
 
   { id: "db_134", name: "Erlau Ost-SP", region: "Fränkisch Crumbach",
     lat: 49.7428, lon: 8.822, elevation: 383, dhv: 134,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 2, acc: "f", hoehendiff: 172, gemeinde: "64407 Fränkisch Crumbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Erlau Holunderhof (Ausweich-LP)", landeLat: 49.7422, landeLon: 8.8253, landeHoehe: 291, landeExtra: [{ name: "Erlau LP Pfeifer", lat: 49.739722, lon: 8.831667, hoehe: 223 }, { name: "Erlau LP Schaffnit", lat: 49.742222, lon: 8.833611, hoehe: 211 }], ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", diff: 2, acc: "f", hoehendiff: 172, gemeinde: "64407 Fränkisch Crumbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Erlau Holunderhof (Ausweich-LP)", landeLat: 49.7422, landeLon: 8.8253, landeHoehe: 291, landeExtra: [{ name: "Erlau LP Pfeifer", lat: 49.739722, lon: 8.831667, hoehe: 223 }, { name: "Erlau LP Schaffnit", lat: 49.742222, lon: 8.833611, hoehe: 211 }], livewetter: "https://holfuy.com/de/data/523", webcam: "https://holfuy.com/de/data/523", ...DEF },
 
   { id: "db_5826", name: "Erlau SW-Startplatz GS", region: "Fränkisch Crumbach",
     lat: 49.7447, lon: 8.8342, elevation: 260, dhv: 5826,
@@ -538,11 +538,11 @@ const SPOT_DB = [
 
   { id: "db_2450", name: "Eschbach", region: "Usingen/Eschbach",
     lat: 50.354, lon: 8.5237, elevation: 380, dhv: 2450,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 57, gemeinde: "61250 Usingen/Eschbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Eschbach Toplandeplatz", landeLat: 50.3544, landeLon: 8.5235, landeHoehe: 380, landeExtra: [{ name: "Eschbach Obere Landewiese (I)", lat: 50.353394, lon: 8.524336, hoehe: 325 }, { name: "Eschbach Untere Landewiese (II)", lat: 50.351786, lon: 8.527717, hoehe: 323 }], ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 57, gemeinde: "61250 Usingen/Eschbach", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Eschbach Toplandeplatz", landeLat: 50.3544, landeLon: 8.5235, landeHoehe: 380, landeExtra: [{ name: "Eschbach Obere Landewiese (I)", lat: 50.353394, lon: 8.524336, hoehe: 325 }, { name: "Eschbach Untere Landewiese (II)", lat: 50.351786, lon: 8.527717, hoehe: 323 }], livewetter: "https://holfuy.com/de/data/300", ...DEF },
 
   { id: "db_590", name: "Eschlkam", region: "Eschlkam",
     lat: 49.2924, lon: 12.9286, elevation: 509, dhv: 590,
-    sectors: [[348.75, 11.25], [33.75, 56.25]], sectorLabel: "N · NO", country: "de", acc: "f", hoehendiff: 100, gemeinde: "93458 Eschlkam", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Eschlkam Landeplatz", landeLat: 49.2935, landeLon: 12.9294, landeHoehe: 409, ...DEF },
+    sectors: [[348.75, 11.25], [33.75, 56.25]], sectorLabel: "N · NO", country: "de", acc: "f", hoehendiff: 100, gemeinde: "93458 Eschlkam", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Eschlkam Landeplatz", landeLat: 49.2935, landeLon: 12.9294, landeHoehe: 409, livewetter: "https://holfuy.com/de/data/479", webcam: "https://holfuy.com/de/data/479", ...DEF },
 
   { id: "db_5727", name: "Ettenberg", region: "Marktschellenberg",
     lat: 47.6794, lon: 13.0297, elevation: 860, dhv: 5727,
@@ -574,15 +574,15 @@ const SPOT_DB = [
 
   { id: "db_675", name: "Finkenberg", region: "Rossbach / Wied",
     lat: 50.5826, lon: 7.4113, elevation: 320, dhv: 675,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "53547 Rossbach / Wied", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", landeName: "Finkenberg Landeplatz", landeLat: 50.5779, landeLon: 7.4120, landeHoehe: 120, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "53547 Rossbach / Wied", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", landeName: "Finkenberg Landeplatz", landeLat: 50.5779, landeLon: 7.4120, landeHoehe: 120, livewetter: "https://holfuy.com/de/data/1502", ...DEF },
 
   { id: "db_527", name: "Finkenhof", region: "Obrigheim / Neckar",
     lat: 49.3347, lon: 9.0922, elevation: 300, dhv: 527,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "f", hoehendiff: 190, gemeinde: "74847 Obrigheim / Neckar", bundesland: "Baden-Württemberg", landeName: "Finkenhof Landeplatz", landeLat: 49.3327, landeLon: 9.1014, landeHoehe: 110, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "f", hoehendiff: 190, gemeinde: "74847 Obrigheim / Neckar", bundesland: "Baden-Württemberg", landeName: "Finkenhof Landeplatz", landeLat: 49.3327, landeLon: 9.1014, landeHoehe: 110, livewetter: "https://holfuy.com/de/data/1060", ...DEF },
 
   { id: "db_3260", name: "Finkennest Übungshang", region: "Stiefenhofen",
     lat: 47.5831, lon: 10.017, elevation: 825, dhv: 3260,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", gemeinde: "88167 Stiefenhofen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", gemeinde: "88167 Stiefenhofen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", livewetter: "https://holfuy.com/de/data/804", webcam: "https://holfuy.com/de/data/804", ...DEF },
 
   { id: "db_761", name: "Fischbek Übungshang", region: "Neugraben-Fischbek",
     lat: 53.4641, lon: 9.8451, elevation: 66, dhv: 761,
@@ -602,7 +602,7 @@ const SPOT_DB = [
 
   { id: "db_584_N", name: "Frauenberg (N)", region: "Sondershausen",
     lat: 51.3774, lon: 10.8344, elevation: 407, dhv: 584,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fa", hoehendiff: 177, gemeinde: "99706 Sondershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Frauenberg Landeplatz Nord", landeLat: 51.3806, landeLon: 10.8344, landeHoehe: 259, landeExtra: [{ name: "Frauenberg Landeplatz Süd", lat: 51.370219, lon: 10.839911, hoehe: 230 }], ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fa", hoehendiff: 177, gemeinde: "99706 Sondershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Frauenberg Landeplatz Nord", landeLat: 51.3806, landeLon: 10.8344, landeHoehe: 259, landeExtra: [{ name: "Frauenberg Landeplatz Süd", lat: 51.370219, lon: 10.839911, hoehe: 230 }], livewetter: "https://holfuy.com/de/data/509", webcam: "https://holfuy.com/de/data/509", ...DEF },
 
   { id: "db_584_O", name: "Frauenberg (O)", region: "Sondershausen",
     lat: 51.3769, lon: 10.8339, elevation: 388, dhv: 584,
@@ -618,7 +618,7 @@ const SPOT_DB = [
 
   { id: "db_308_S", name: "Fröhnd Ittenschwander Horn (S)", region: "Fröhnd",
     lat: 47.7709, lon: 7.9097, elevation: 1000, dhv: 308,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 500, gemeinde: "79677 Fröhnd", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Vieh am Startplatz nicht stören. Am Südstart Vorbereitung auf dem Weg am Holzbock, Wiese nur zum Start betreten. Hanglandung beim Wanderparkplatz (unterhalb Fahrweg zwischen Parkplatz und Holzer Kreuz) notfalls möglich und bei starkem Höhenverlust nach den Start sinnvoll. Weiter unten, besonders beim Ortsteil Künaberg, viele Stromleitungen. In Richtung Schönau eine große Überlandleitung. Beste Zeit: Südstart am frühen Nachmittag, Nordweststart im Hochsommer nach 18.00 Uhr. Bei NW-Start vom Schneckenkopf auf dem Landeplatz Schönau landen.", landeName: "Fröhnd Schönau Landeplatz", landeLat: 47.7864, landeLon: 7.8997, landeHoehe: 510, landeExtra: [{ name: "Fröhnd Kastel Hauptlandeplatz", lat: 47.763694, lon: 7.885111, hoehe: 500 }], ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 500, gemeinde: "79677 Fröhnd", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Vieh am Startplatz nicht stören. Am Südstart Vorbereitung auf dem Weg am Holzbock, Wiese nur zum Start betreten. Hanglandung beim Wanderparkplatz (unterhalb Fahrweg zwischen Parkplatz und Holzer Kreuz) notfalls möglich und bei starkem Höhenverlust nach den Start sinnvoll. Weiter unten, besonders beim Ortsteil Künaberg, viele Stromleitungen. In Richtung Schönau eine große Überlandleitung. Beste Zeit: Südstart am frühen Nachmittag, Nordweststart im Hochsommer nach 18.00 Uhr. Bei NW-Start vom Schneckenkopf auf dem Landeplatz Schönau landen.", landeName: "Fröhnd Schönau Landeplatz", landeLat: 47.7864, landeLon: 7.8997, landeHoehe: 510, landeExtra: [{ name: "Fröhnd Kastel Hauptlandeplatz", lat: 47.763694, lon: 7.885111, hoehe: 500 }], livewetter: "https://www.openwindmap.org/pioupiou-985", ...DEF },
 
   { id: "db_333", name: "Froschsee", region: "Ruhpolding",
     lat: 47.7572, lon: 12.6937, elevation: 890, dhv: 333,
@@ -626,15 +626,15 @@ const SPOT_DB = [
 
   { id: "db_542", name: "Fürmannalm / Irlberg Anger", region: "Anger",
     lat: 47.7931, lon: 12.8404, elevation: 860, dhv: 542,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "fa", hoehendiff: 260, gemeinde: "83454 Anger", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Flugbetrieb muss mit Modellfliegern abgestimmt werden", landeName: "Fürmannalm / Irlberg Anger Landeplatz", landeLat: 47.7999, landeLon: 12.8419, landeHoehe: 600, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "fa", hoehendiff: 260, gemeinde: "83454 Anger", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Flugbetrieb muss mit Modellfliegern abgestimmt werden", landeName: "Fürmannalm / Irlberg Anger Landeplatz", landeLat: 47.7999, landeLon: 12.8419, landeHoehe: 600, livewetter: "https://www.openwindmap.org/pioupiou-1656", ...DEF },
 
   { id: "db_286", name: "Fürstenberg", region: "Hüfingen",
     lat: 47.8893, lon: 8.5627, elevation: 900, dhv: 286,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "fa", hoehendiff: 155, gemeinde: "78183 Hüfingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Fürstenberg Landeplatz Süd", landeLat: 47.8847, landeLon: 8.5604, landeHoehe: 745, landeExtra: [{ name: "Fürstenberg Landeplatz Süd Drachen", lat: 47.88244, lon: 8.563482, hoehe: 750 }], ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "fa", hoehendiff: 155, gemeinde: "78183 Hüfingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Fürstenberg Landeplatz Süd", landeLat: 47.8847, landeLon: 8.5604, landeHoehe: 745, landeExtra: [{ name: "Fürstenberg Landeplatz Süd Drachen", lat: 47.88244, lon: 8.563482, hoehe: 750 }], livewetter: "https://holfuy.com/de/data/342", ...DEF },
 
   { id: "db_809", name: "Fürstenberg Nordost", region: "Hüfingen",
     lat: 47.8911, lon: 8.5654, elevation: 856, dhv: 809,
-    sectors: [[303.75, 56.25], [348.75, 11.25]], sectorLabel: "NW-NO · N", country: "de", acc: "fa", hoehendiff: 126, gemeinde: "78183 Hüfingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startverbot bei hohem Gras, Schneisenstart!", landeName: "Fürstenberg Nord Landeplatz", landeLat: 47.8963, landeLon: 8.5651, landeHoehe: 730, ...DEF },
+    sectors: [[303.75, 56.25], [348.75, 11.25]], sectorLabel: "NW-NO · N", country: "de", acc: "fa", hoehendiff: 126, gemeinde: "78183 Hüfingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Startverbot bei hohem Gras, Schneisenstart!", landeName: "Fürstenberg Nord Landeplatz", landeLat: 47.8963, landeLon: 8.5651, landeHoehe: 730, livewetter: "https://holfuy.com/de/data/753", ...DEF },
 
   { id: "db_1186", name: "Gadern-Höhenweg", region: "Wald-Michelbach",
     lat: 49.5821, lon: 8.8047, elevation: 490, dhv: 1186,
@@ -642,11 +642,11 @@ const SPOT_DB = [
 
   { id: "db_240", name: "Galgenberg", region: "Munzingen",
     lat: 47.971, lon: 7.6788, elevation: 280, dhv: 240,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "fa", hoehendiff: 80, gemeinde: "79112 Munzingen", bundesland: "Baden-Württemberg", landeName: "Galgenberg Landeplatz", landeLat: 47.9722, landeLon: 7.6729, landeHoehe: 200, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "fa", hoehendiff: 80, gemeinde: "79112 Munzingen", bundesland: "Baden-Württemberg", landeName: "Galgenberg Landeplatz", landeLat: 47.9722, landeLon: 7.6729, landeHoehe: 200, livewetter: "https://www.openwindmap.org/pioupiou-1701", ...DEF },
 
   { id: "db_797", name: "Galgenberg", region: "Losheim",
     lat: 49.5005, lon: 6.7401, elevation: 395, dhv: 797,
-    sectors: [[348.75, 11.25], [168.75, 191.25]], sectorLabel: "N · S", country: "de", acc: "fa", hoehendiff: 85, gemeinde: "66679 Losheim", bundesland: "Saarland", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Galgenberg Landeplatz", landeLat: 49.5039, landeLon: 6.7376, landeHoehe: 310, ...DEF },
+    sectors: [[348.75, 11.25], [168.75, 191.25]], sectorLabel: "N · S", country: "de", acc: "fa", hoehendiff: 85, gemeinde: "66679 Losheim", bundesland: "Saarland", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Galgenberg Landeplatz", landeLat: 49.5039, landeLon: 6.7376, landeHoehe: 310, livewetter: "https://holfuy.com/de/data/381", ...DEF },
 
   { id: "db_695", name: "Gangelsberg", region: "Duchroth",
     lat: 49.7924, lon: 7.7406, elevation: 300, dhv: 695,
@@ -666,23 +666,23 @@ const SPOT_DB = [
 
   { id: "db_1002", name: "Geba - Seeba Süd", region: "Seeba",
     lat: 50.5782, lon: 10.2947, elevation: 535, dhv: 1002,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 130, gemeinde: "98617 Seeba", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", landeName: "Geba - Seeba Süd Landeplatz", landeLat: 50.5732, landeLon: 10.2966, landeHoehe: 405, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 130, gemeinde: "98617 Seeba", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", landeName: "Geba - Seeba Süd Landeplatz", landeLat: 50.5732, landeLon: 10.2966, landeHoehe: 405, livewetter: "https://holfuy.com/de/data/393", ...DEF },
 
   { id: "db_832", name: "Geba Südwest", region: "Helmershausen",
     lat: 50.5692, lon: 10.255, elevation: 560, dhv: 832,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "98617 Helmershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Geba Südwest Landeplatz 2", landeLat: 50.5713, landeLon: 10.2437, landeHoehe: 410, landeExtra: [{ name: "Geba Südwest Landeplatz 1", lat: 50.565603, lon: 10.242734, hoehe: 410 }], ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "98617 Helmershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Geba Südwest Landeplatz 2", landeLat: 50.5713, landeLon: 10.2437, landeHoehe: 410, landeExtra: [{ name: "Geba Südwest Landeplatz 1", lat: 50.565603, lon: 10.242734, hoehe: 410 }], livewetter: "https://holfuy.com/de/data/829", ...DEF },
 
   { id: "db_186", name: "Geddelsbacher Hang", region: "Geddelsbach",
     lat: 49.1518, lon: 9.4954, elevation: 397, dhv: 186,
-    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "fa", hoehendiff: 152, gemeinde: "74626 Geddelsbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Geddelsbacher Hang Landeplatz 2", landeLat: 49.1464, landeLon: 9.4928, landeHoehe: 252, landeExtra: [{ name: "Geddelsbacher Hang Landeplatz 1", lat: 49.146085, lon: 9.490505, hoehe: 245 }], ...DEF },
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "fa", hoehendiff: 152, gemeinde: "74626 Geddelsbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Geddelsbacher Hang Landeplatz 2", landeLat: 49.1464, landeLon: 9.4928, landeHoehe: 252, landeExtra: [{ name: "Geddelsbacher Hang Landeplatz 1", lat: 49.146085, lon: 9.490505, hoehe: 245 }], livewetter: "https://holfuy.com/de/data/799", webcam: "https://holfuy.com/de/data/799", ...DEF },
 
   { id: "db_800", name: "Gedeonseck", region: "Boppard",
     lat: 50.2437, lon: 7.5728, elevation: 280, dhv: 800,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", diff: 2, acc: "fab", hoehendiff: 200, gemeinde: "56154 Boppard", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Klippenstartähnliches Gelände ohne Startabbruchmöglichkeit! Deshalb darf das Gelände nur von erfahrenen Piloten beflogen werden. Einweisung erforderlich. Am Rhein gibt es nur auf der anderen Seite eine Landemöglichkeit.", landeName: "Gedeonseck Landeplatz", landeLat: 50.2417, landeLon: 7.5817, landeHoehe: 80, landeExtra: [{ name: "Gedeonseck Landeplatz 2", lat: 50.237708, lon: 7.575309, hoehe: 80 }], ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", diff: 2, acc: "fab", hoehendiff: 200, gemeinde: "56154 Boppard", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Klippenstartähnliches Gelände ohne Startabbruchmöglichkeit! Deshalb darf das Gelände nur von erfahrenen Piloten beflogen werden. Einweisung erforderlich. Am Rhein gibt es nur auf der anderen Seite eine Landemöglichkeit.", landeName: "Gedeonseck Landeplatz", landeLat: 50.2417, landeLon: 7.5817, landeHoehe: 80, landeExtra: [{ name: "Gedeonseck Landeplatz 2", lat: 50.237708, lon: 7.575309, hoehe: 80 }], livewetter: "https://holfuy.com/de/data/457", webcam: "https://holfuy.com/de/data/457", ...DEF },
 
   { id: "db_388_SW", name: "Gehwinde (SW)", region: "Schöllang",
     lat: 47.4705, lon: 10.3024, elevation: 1460, dhv: 388,
-    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "fa", hoehendiff: 640, gemeinde: "87561 Schöllang", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Hinang Landeplatz", landeLat: 47.4723, landeLon: 10.2943, landeHoehe: 820, ...DEF },
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "fa", hoehendiff: 640, gemeinde: "87561 Schöllang", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Hinang Landeplatz", landeLat: 47.4723, landeLon: 10.2943, landeHoehe: 820, livewetter: "https://holfuy.com/de/data/1679", ...DEF },
 
   { id: "db_388_W", name: "Gehwinde (W)", region: "Schöllang",
     lat: 47.4706, lon: 10.3326, elevation: 1460, dhv: 388,
@@ -718,7 +718,7 @@ const SPOT_DB = [
 
   { id: "db_719", name: "Graach", region: "Graach",
     lat: 49.9443, lon: 7.0591, elevation: 320, dhv: 719,
-    sectors: [[236.25, 258.75]], sectorLabel: "WSW", country: "de", diff: 1, acc: "f", hoehendiff: 210, gemeinde: "54470 Graach", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Graach Landeplatz", landeLat: 49.9397, landeLon: 7.0544, landeHoehe: 110, ...DEF },
+    sectors: [[236.25, 258.75]], sectorLabel: "WSW", country: "de", diff: 1, acc: "f", hoehendiff: 210, gemeinde: "54470 Graach", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Graach Landeplatz", landeLat: 49.9397, landeLon: 7.0544, landeHoehe: 110, livewetter: "https://holfuy.com/de/data/1420", ...DEF },
 
   { id: "db_553", name: "Gräfenthal", region: "Gräfenthal",
     lat: 50.5225, lon: 11.3322, elevation: 620, dhv: 553,
@@ -726,7 +726,7 @@ const SPOT_DB = [
 
   { id: "db_1055", name: "Großer Kopf / Römerturm", region: "Arzbach",
     lat: 50.3699, lon: 7.7565, elevation: 430, dhv: 1055,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 145, gemeinde: "56337 Arzbach", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Großer Kopf / Römerturm Landeplatz", landeLat: 50.3705, landeLon: 7.7477, landeHoehe: 285, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 145, gemeinde: "56337 Arzbach", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Großer Kopf / Römerturm Landeplatz", landeLat: 50.3705, landeLon: 7.7477, landeHoehe: 285, livewetter: "https://holfuy.com/de/data/802", webcam: "https://holfuy.com/de/data/802", ...DEF },
 
   { id: "db_132", name: "Großheubach / Busigberg", region: "Großheubach",
     lat: 49.734, lon: 9.2072, elevation: 296, dhv: 132,
@@ -746,15 +746,15 @@ const SPOT_DB = [
 
   { id: "db_400", name: "Grüner Weg", region: "Fischen",
     lat: 47.4562, lon: 10.2585, elevation: 870, dhv: 400,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 60, gemeinde: "87538 Fischen", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Grüner Weg Landeplatz", landeLat: 47.4577, landeLon: 10.2577, landeHoehe: 810, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 60, gemeinde: "87538 Fischen", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Grüner Weg Landeplatz", landeLat: 47.4577, landeLon: 10.2577, landeHoehe: 810, livewetter: "https://holfuy.com/de/data/1029", webcam: "https://holfuy.com/de/data/1029", ...DEF },
 
   { id: "db_387", name: "Grünten", region: "Rettenberg",
     lat: 47.5656, lon: 10.3088, elevation: 1200, dhv: 387,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 470, gemeinde: "87549 Rettenberg", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Grünten Landeplatz", landeLat: 47.5658, landeLon: 10.2931, landeHoehe: 730, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 470, gemeinde: "87549 Rettenberg", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Grünten Landeplatz", landeLat: 47.5658, landeLon: 10.2931, landeHoehe: 730, livewetter: "https://holfuy.com/de/data/1671", ...DEF },
 
   { id: "db_289", name: "Gschasi", region: "Elzach-Prechtal",
     lat: 48.1862, lon: 8.1287, elevation: 990, dhv: 289,
-    sectors: [[213.75, 303.75]], sectorLabel: "SW-WNW", country: "de", acc: "fa", hoehendiff: 510, gemeinde: "79215 Elzach-Prechtal", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Gschasi Landeplatz", landeLat: 48.1948, landeLon: 8.1101, landeHoehe: 480, ...DEF },
+    sectors: [[213.75, 303.75]], sectorLabel: "SW-WNW", country: "de", acc: "fa", hoehendiff: 510, gemeinde: "79215 Elzach-Prechtal", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Gschasi Landeplatz", landeLat: 48.1948, landeLon: 8.1101, landeHoehe: 480, livewetter: "https://www.openwindmap.org/pioupiou-1733", ...DEF },
 
   { id: "db_5677", name: "Guckinsdorf", region: "Oppenau",
     lat: 48.4687, lon: 8.15, elevation: 370, dhv: 5677,
@@ -778,11 +778,11 @@ const SPOT_DB = [
 
   { id: "db_966", name: "Hahnberg", region: "Bad Wildungen",
     lat: 51.1039, lon: 9.0623, elevation: 510, dhv: 966,
-    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "f", hoehendiff: 195, gemeinde: "34537 Bad Wildungen", bundesland: "Hessen", gleitschirm: "1-sitzig / Schulung", landeName: "Hahnberg Landeplatz 2", landeLat: 51.1079, landeLon: 9.0623, landeHoehe: 340, landeExtra: [{ name: "Hahnberg Landeplatz 1", lat: 51.111794, lon: 9.066768, hoehe: 340 }], ...DEF },
+    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "f", hoehendiff: 195, gemeinde: "34537 Bad Wildungen", bundesland: "Hessen", gleitschirm: "1-sitzig / Schulung", landeName: "Hahnberg Landeplatz 2", landeLat: 51.1079, landeLon: 9.0623, landeHoehe: 340, landeExtra: [{ name: "Hahnberg Landeplatz 1", lat: 51.111794, lon: 9.066768, hoehe: 340 }], livewetter: "https://www.openwindmap.org/pioupiou-2010", ...DEF },
 
   { id: "db_502", name: "Hainberg", region: "Stadtsteinach",
     lat: 50.1626, lon: 11.5258, elevation: 524, dhv: 502,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 165, gemeinde: "95346 Stadtsteinach", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Hainberg Landeplatz", landeLat: 50.1572, landeLon: 11.5202, landeHoehe: 359, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 165, gemeinde: "95346 Stadtsteinach", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Hainberg Landeplatz", landeLat: 50.1572, landeLon: 11.5202, landeHoehe: 359, livewetter: "https://holfuy.com/de/data/1376", ...DEF },
 
   { id: "db_5739", name: "Hainberg", region: "Meschede-Niederberge",
     lat: 51.3457, lon: 8.154, elevation: 405, dhv: 5739,
@@ -794,7 +794,7 @@ const SPOT_DB = [
 
   { id: "db_5737", name: "Halde Hoheward", region: "Herten",
     lat: 51.5683, lon: 7.1612, elevation: 151, dhv: 5737,
-    sectors: [[258.75, 11.25], [168.75, 281.25]], sectorLabel: "W-N · S-W", country: "de", acc: "f", hoehendiff: 40, gemeinde: "45699 Herten", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Halde Hoheward Landeplatz", landeLat: 51.5708, landeLon: 7.1567, landeHoehe: 111, ...DEF },
+    sectors: [[258.75, 11.25], [168.75, 281.25]], sectorLabel: "W-N · S-W", country: "de", acc: "f", hoehendiff: 40, gemeinde: "45699 Herten", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Halde Hoheward Landeplatz", landeLat: 51.5708, landeLon: 7.1567, landeHoehe: 111, livewetter: "https://holfuy.com/de/data/1615", webcam: "https://holfuy.com/de/data/1615", ...DEF },
 
   { id: "db_5473_NO", name: "Halde Menteroda NW-Start (NO)", region: "Menteroda",
     lat: 51.3231, lon: 10.5727, elevation: 460, dhv: 5473,
@@ -826,7 +826,7 @@ const SPOT_DB = [
 
   { id: "db_2502", name: "Hauchenberg", region: "Weitnau",
     lat: 47.6205, lon: 10.157, elevation: 1240, dhv: 2502,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 400, gemeinde: "87480 Weitnau", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hauchenberg Landeplatz 2", landeLat: 47.6333, landeLon: 10.1555, landeHoehe: 840, landeExtra: [{ name: "Hauchenberg Landeplatz", lat: 47.63428, lon: 10.157375, hoehe: 840 }], ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 400, gemeinde: "87480 Weitnau", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hauchenberg Landeplatz 2", landeLat: 47.6333, landeLon: 10.1555, landeHoehe: 840, landeExtra: [{ name: "Hauchenberg Landeplatz", lat: 47.63428, lon: 10.157375, hoehe: 840 }], livewetter: "https://holfuy.com/de/data/1170", ...DEF },
 
   { id: "db_316", name: "Hausberg", region: "Garmisch-Partenkirchen",
     lat: 47.465, lon: 11.0962, elevation: 1250, dhv: 316,
@@ -834,7 +834,7 @@ const SPOT_DB = [
 
   { id: "db_509", name: "Hausstein", region: "Lallmig",
     lat: 48.871, lon: 13.0733, elevation: 880, dhv: 509,
-    sectors: [[101.25, 123.75]], sectorLabel: "OSO", country: "de", acc: "f", hoehendiff: 350, gemeinde: "94551 Lallmig", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Hausstein Landeplatz Böhaming für GS", landeLat: 48.8611, landeLon: 13.0814, landeHoehe: 530, landeExtra: [{ name: "Hausstein Landeplatz Schaufling für HG", lat: 48.843889, lon: 13.071389, hoehe: 530 }], ...DEF },
+    sectors: [[101.25, 123.75]], sectorLabel: "OSO", country: "de", acc: "f", hoehendiff: 350, gemeinde: "94551 Lallmig", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Hausstein Landeplatz Böhaming für GS", landeLat: 48.8611, landeLon: 13.0814, landeHoehe: 530, landeExtra: [{ name: "Hausstein Landeplatz Schaufling für HG", lat: 48.843889, lon: 13.071389, hoehe: 530 }], livewetter: "https://holfuy.com/de/data/537", webcam: "https://holfuy.com/de/data/537", ...DEF },
 
   { id: "db_486_O", name: "Heckenkopf - Rauschen / Faulbach (O)", region: "Hasloch",
     lat: 49.7823, lon: 9.4661, elevation: 305, dhv: 486,
@@ -862,7 +862,7 @@ const SPOT_DB = [
 
   { id: "db_998", name: "Heinsheim", region: "Bad Rappenau",
     lat: 49.2531, lon: 9.1492, elevation: 213, dhv: 998,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fa", hoehendiff: 54, gemeinde: "74906 Bad Rappenau", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Heinsheim Landeplatz", landeLat: 49.2519, landeLon: 9.1524, landeHoehe: 159, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fa", hoehendiff: 54, gemeinde: "74906 Bad Rappenau", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Heinsheim Landeplatz", landeLat: 49.2519, landeLon: 9.1524, landeHoehe: 159, livewetter: "https://holfuy.com/de/data/594", ...DEF },
 
   { id: "db_5768", name: "Heisterberg", region: "Kirchhundem",
     lat: 51.0947, lon: 8.1733, elevation: 600, dhv: 5768,
@@ -878,7 +878,7 @@ const SPOT_DB = [
 
   { id: "db_700", name: "Herzerberg", region: "Pfeffelbach",
     lat: 49.5495, lon: 7.3082, elevation: 586, dhv: 700,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "fa", hoehendiff: 250, gemeinde: "66871 Pfeffelbach", bundesland: "Rheinland-Pfalz", landeName: "Herzerberg Landeplatz", landeLat: 49.5443, landeLon: 7.3208, landeHoehe: 336, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "fa", hoehendiff: 250, gemeinde: "66871 Pfeffelbach", bundesland: "Rheinland-Pfalz", landeName: "Herzerberg Landeplatz", landeLat: 49.5443, landeLon: 7.3208, landeHoehe: 336, livewetter: "https://holfuy.com/de/data/649", webcam: "https://holfuy.com/de/data/649", ...DEF },
 
   { id: "db_439_N", name: "Hesselberg Nordhang (N)", region: "91726 Gerolfingen",
     lat: 49.0671, lon: 10.5358, elevation: 689, dhv: 439,
@@ -886,11 +886,11 @@ const SPOT_DB = [
 
   { id: "db_439_S", name: "Hesselberg Nordhang (S)", region: "91726 Gerolfingen",
     lat: 49.0666, lon: 10.5317, elevation: 689, dhv: 439,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "91725 91726 Gerolfingen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Hesselberg Südhang Landeplatz", landeLat: 49.0581, landeLon: 10.5288, landeHoehe: 489, landeExtra: [{ name: "Hesselberg Nordhang Landeplatz", lat: 49.0753, lon: 10.533915, hoehe: 489 }], ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 200, gemeinde: "91725 91726 Gerolfingen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Hesselberg Südhang Landeplatz", landeLat: 49.0581, landeLon: 10.5288, landeHoehe: 489, landeExtra: [{ name: "Hesselberg Nordhang Landeplatz", lat: 49.0753, lon: 10.533915, hoehe: 489 }], livewetter: "https://www.openwindmap.org/pioupiou-1615", webcam: "https://holfuy.com/de/data/588", ...DEF },
 
   { id: "db_610", name: "Heubach Übungshang", region: "Kalbach-Heubach",
     lat: 50.3829, lon: 9.6942, elevation: 590, dhv: 610,
-    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "de", acc: "f", gemeinde: "36148 Kalbach-Heubach", bundesland: "Hessen", gleitschirm: "1-sitzig / Schulung", ...DEF },
+    sectors: [[33.75, 101.25]], sectorLabel: "NO-O", country: "de", acc: "f", gemeinde: "36148 Kalbach-Heubach", bundesland: "Hessen", gleitschirm: "1-sitzig / Schulung", livewetter: "https://holfuy.com/de/data/1327", ...DEF },
 
   { id: "db_329", name: "Heuberg", region: "Nußdorf",
     lat: 47.7259, lon: 12.1839, elevation: 1338, dhv: 329,
@@ -902,15 +902,15 @@ const SPOT_DB = [
 
   { id: "db_581", name: "Heue / Bergalingen", region: "Rickenbach",
     lat: 47.6196, lon: 7.9391, elevation: 850, dhv: 581,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 450, gemeinde: "79736 Rickenbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Heue / Bergalingen Toplandeplatz", landeLat: 47.6206, landeLon: 7.9422, landeHoehe: 865, landeExtra: [{ name: "Heue / Bergalingen Ausweich-Landeplatz", lat: 47.619917, lon: 7.912361, hoehe: 420 }, { name: "Landeplatz am Meierhof in Wehr", lat: 47.628889, lon: 7.913333, hoehe: 420 }, { name: "Heue / Bergalingen Landeplatz", lat: 47.644444, lon: 7.906667, hoehe: 400 }], ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 450, gemeinde: "79736 Rickenbach", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Heue / Bergalingen Toplandeplatz", landeLat: 47.6206, landeLon: 7.9422, landeHoehe: 865, landeExtra: [{ name: "Heue / Bergalingen Ausweich-Landeplatz", lat: 47.619917, lon: 7.912361, hoehe: 420 }, { name: "Landeplatz am Meierhof in Wehr", lat: 47.628889, lon: 7.913333, hoehe: 420 }, { name: "Heue / Bergalingen Landeplatz", lat: 47.644444, lon: 7.906667, hoehe: 400 }], livewetter: "https://holfuy.com/de/data/779", webcam: "https://holfuy.com/de/data/779", ...DEF },
 
   { id: "db_5590", name: "HG-Übungsgelände Auf Hostert", region: "Betteldorf",
     lat: 50.2456, lon: 6.745, elevation: 557, dhv: 5590,
-    sectors: [[213.75, 281.25], [303.75, 326.25], [33.75, 56.25]], sectorLabel: "SW-W · NW · NO", country: "de", acc: "fa", hoehendiff: 27, gemeinde: "54570 Betteldorf", bundesland: "Rheinland-Pfalz", bemerkung: "Fußstartübungen und Gleitflüge mit HG", landeName: "Auf Hostert Landefläche", landeLat: 50.2455, landeLon: 6.7449, landeHoehe: 530, ...DEF },
+    sectors: [[213.75, 281.25], [303.75, 326.25], [33.75, 56.25]], sectorLabel: "SW-W · NW · NO", country: "de", acc: "fa", hoehendiff: 27, gemeinde: "54570 Betteldorf", bundesland: "Rheinland-Pfalz", bemerkung: "Fußstartübungen und Gleitflüge mit HG", landeName: "Auf Hostert Landefläche", landeLat: 50.2455, landeLon: 6.7449, landeHoehe: 530, livewetter: "https://holfuy.com/de/data/488", webcam: "https://holfuy.com/de/data/488", ...DEF },
 
   { id: "db_702", name: "Hintereck", region: "Gütenbach",
     lat: 48.0492, lon: 8.1244, elevation: 990, dhv: 702,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fa", hoehendiff: 550, gemeinde: "78148 Gütenbach", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Aufgrund des Vogelschutzes kein Flugbetrieb vor dem 1.7. eines jeden Jahres.", landeName: "Hintereck Landeplatz Kraftwerk", landeLat: 48.0508, landeLon: 8.1047, landeHoehe: 480, landeExtra: [{ name: "Hintereck Landeplatz Stratz", lat: 48.063056, lon: 8.100278, hoehe: 440 }], ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fa", hoehendiff: 550, gemeinde: "78148 Gütenbach", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Aufgrund des Vogelschutzes kein Flugbetrieb vor dem 1.7. eines jeden Jahres.", landeName: "Hintereck Landeplatz Kraftwerk", landeLat: 48.0508, landeLon: 8.1047, landeHoehe: 480, landeExtra: [{ name: "Hintereck Landeplatz Stratz", lat: 48.063056, lon: 8.100278, hoehe: 440 }], livewetter: "https://holfuy.com/de/data/754", ...DEF },
 
   { id: "db_366", name: "Hinterholzhausen", region: "Langenpreising",
     lat: 48.4191, lon: 12.0085, elevation: 506, dhv: 366,
@@ -930,7 +930,7 @@ const SPOT_DB = [
 
   { id: "db_301_S", name: "Hochblauen Nord (S)", region: "Badenweiler",
     lat: 47.7766, lon: 7.7, elevation: 1152, dhv: 301,
-    sectors: [[191.25, 213.75]], sectorLabel: "SSW", country: "de", diff: 2, acc: "fa", hoehendiff: 718, gemeinde: "79410 Badenweiler", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hochblauen Landeplatz Marzell (Behelfslandeplatz)", landeLat: 47.7696, landeLon: 7.7240, landeHoehe: 694, landeExtra: [{ name: "Hochblauen Landeplatz Lipberg", lat: 47.790244, lon: 7.657878, hoehe: 448 }], ...DEF },
+    sectors: [[191.25, 213.75]], sectorLabel: "SSW", country: "de", diff: 2, acc: "fa", hoehendiff: 718, gemeinde: "79410 Badenweiler", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Hochblauen Landeplatz Marzell (Behelfslandeplatz)", landeLat: 47.7696, landeLon: 7.7240, landeHoehe: 694, landeExtra: [{ name: "Hochblauen Landeplatz Lipberg", lat: 47.790244, lon: 7.657878, hoehe: 448 }], livewetter: "https://www.openwindmap.org/pioupiou-2188", ...DEF },
 
   { id: "db_346_N", name: "Hochfelln Nordstart (N)", region: "Bergen",
     lat: 47.7628, lon: 12.5602, elevation: 1665, dhv: 346,
@@ -938,7 +938,7 @@ const SPOT_DB = [
 
   { id: "db_346_O", name: "Hochfelln Nordstart (O)", region: "Bergen",
     lat: 47.7617, lon: 12.5596, elevation: 1665, dhv: 346,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fb", hoehendiff: 1115, gemeinde: "83346 Bergen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Flacher Wiesenstart, oft zeitlich beschränkt. Für Anfänger nicht geeignet, da besonders weiter Weg zu allen Landeplätzen. Streckenflugstartplatz.", landeName: "Hochfelln Bergen Landeplatz", landeLat: 47.8002, landeLon: 12.5931, landeHoehe: 550, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fb", hoehendiff: 1115, gemeinde: "83346 Bergen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Flacher Wiesenstart, oft zeitlich beschränkt. Für Anfänger nicht geeignet, da besonders weiter Weg zu allen Landeplätzen. Streckenflugstartplatz.", landeName: "Hochfelln Bergen Landeplatz", landeLat: 47.8002, landeLon: 12.5931, landeHoehe: 550, livewetter: "https://holfuy.com/de/data/604", ...DEF },
 
   { id: "db_1160", name: "Hochfelln Oststart", region: "Bergen",
     lat: 47.7617, lon: 12.5596, elevation: 1665, dhv: 1160,
@@ -946,7 +946,7 @@ const SPOT_DB = [
 
   { id: "db_310", name: "Hochfirst", region: "Titisee-Neustadt",
     lat: 47.9014, lon: 8.1835, elevation: 1185, dhv: 310,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 365, gemeinde: "79822 Titisee-Neustadt", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schneise", landeName: "Hochfirst Landeplatz 1 (Titisee)", landeLat: 47.8986, landeLon: 8.1579, landeHoehe: 820, landeExtra: [{ name: "Hochfirst Landeplatz 2 (Sonnenmatte)", lat: 47.918962, lon: 8.177433, hoehe: 820 }, { name: "Hochfirst Landeplatz 3 (OKAL)", lat: 47.920361, lon: 8.184583, hoehe: 820 }], ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 365, gemeinde: "79822 Titisee-Neustadt", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schneise", landeName: "Hochfirst Landeplatz 1 (Titisee)", landeLat: 47.8986, landeLon: 8.1579, landeHoehe: 820, landeExtra: [{ name: "Hochfirst Landeplatz 2 (Sonnenmatte)", lat: 47.918962, lon: 8.177433, hoehe: 820 }, { name: "Hochfirst Landeplatz 3 (OKAL)", lat: 47.920361, lon: 8.184583, hoehe: 820 }], livewetter: "https://holfuy.com/de/data/788", ...DEF },
 
   { id: "db_382", name: "Hochgrat", region: "Oberstaufen",
     lat: 47.4942, lon: 10.0729, elevation: 1820, dhv: 382,
@@ -958,15 +958,15 @@ const SPOT_DB = [
 
   { id: "db_1939", name: "Hochzellberg", region: "Bodenmais",
     lat: 49.0755, lon: 13.1302, elevation: 1140, dhv: 1939,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 430, gemeinde: "94249 Bodenmais", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Hochzellberg Landeplatz", landeLat: 49.0728, landeLon: 13.0989, landeHoehe: 710, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 430, gemeinde: "94249 Bodenmais", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Hochzellberg Landeplatz", landeLat: 49.0728, landeLon: 13.0989, landeHoehe: 710, livewetter: "https://holfuy.com/de/data/450", webcam: "https://holfuy.com/de/data/450", ...DEF },
 
   { id: "db_1129", name: "Hockenberg", region: "Hardheim",
     lat: 49.6068, lon: 9.4882, elevation: 380, dhv: 1129,
-    sectors: [[258.75, 101.25]], sectorLabel: "W-O", country: "de", acc: "fa", hoehendiff: 110, gemeinde: "74736 Hardheim", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Bei Südwind ist absolutes Startverbot!", landeName: "Hockenberg Landeplatz", landeLat: 49.6100, landeLon: 9.4866, landeHoehe: 270, ...DEF },
+    sectors: [[258.75, 101.25]], sectorLabel: "W-O", country: "de", acc: "fa", hoehendiff: 110, gemeinde: "74736 Hardheim", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", bemerkung: "Bei Südwind ist absolutes Startverbot!", landeName: "Hockenberg Landeplatz", landeLat: 49.6100, landeLon: 9.4866, landeHoehe: 270, livewetter: "https://www.openwindmap.org/pioupiou-1699", ...DEF },
 
   { id: "db_691", name: "Hockeroda", region: "Hockeroda",
     lat: 50.5987, lon: 11.4525, elevation: 542, dhv: 691,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "fa", hoehendiff: 330, gemeinde: "07338 Hockeroda", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Hockeroda Landeplatz", landeLat: 50.6064, landeLon: 11.4427, landeHoehe: 212, ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "fa", hoehendiff: 330, gemeinde: "07338 Hockeroda", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Hockeroda Landeplatz", landeLat: 50.6064, landeLon: 11.4427, landeHoehe: 212, livewetter: "https://holfuy.com/de/data/418", webcam: "https://holfuy.com/de/data/418", ...DEF },
 
   { id: "db_802", name: "Hoferer Höhe", region: "Bad Birnbach",
     lat: 48.4636, lon: 13.0775, elevation: 450, dhv: 802,
@@ -974,7 +974,7 @@ const SPOT_DB = [
 
   { id: "db_1079", name: "Hohe Hardt", region: "Morsbach",
     lat: 50.8608, lon: 7.7233, elevation: 335, dhv: 1079,
-    sectors: [[348.75, 33.75]], sectorLabel: "N-NNO", country: "de", acc: "f", hoehendiff: 125, gemeinde: "51579 Morsbach", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hohe Hardt Landeplatz", landeLat: 50.8630, landeLon: 7.7240, landeHoehe: 210, ...DEF },
+    sectors: [[348.75, 33.75]], sectorLabel: "N-NNO", country: "de", acc: "f", hoehendiff: 125, gemeinde: "51579 Morsbach", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hohe Hardt Landeplatz", landeLat: 50.8630, landeLon: 7.7240, landeHoehe: 210, livewetter: "https://holfuy.com/de/data/1716", ...DEF },
 
   { id: "db_71", name: "Hohe Nordosthang", region: "Hehlen",
     lat: 51.9552, lon: 9.4578, elevation: 235, dhv: 71,
@@ -990,7 +990,7 @@ const SPOT_DB = [
 
   { id: "db_2648", name: "Hohenberg NW", region: "Queichhambach",
     lat: 49.2026, lon: 8.0045, elevation: 547, dhv: 2648,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 339, gemeinde: "76855 Queichhambach", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hohenberg NW Landeplatz", landeLat: 49.2071, landeLon: 7.9894, landeHoehe: 208, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 339, gemeinde: "76855 Queichhambach", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hohenberg NW Landeplatz", landeLat: 49.2071, landeLon: 7.9894, landeHoehe: 208, livewetter: "https://holfuy.com/de/data/711", ...DEF },
 
   { id: "db_834", name: "Hohenkarpfen", region: "Hausen",
     lat: 48.0429, lon: 8.718, elevation: 857, dhv: 834,
@@ -1006,7 +1006,7 @@ const SPOT_DB = [
 
   { id: "db_2467", name: "Hohenöllen", region: "Hohenöllen",
     lat: 49.6247, lon: 7.6214, elevation: 290, dhv: 2467,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "67744 Hohenöllen", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Hohenöllen Landeplatz", landeLat: 49.6225, landeLon: 7.6197, landeHoehe: 180, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "67744 Hohenöllen", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Hohenöllen Landeplatz", landeLat: 49.6225, landeLon: 7.6197, landeHoehe: 180, livewetter: "https://www.openwindmap.org/pioupiou-1665", ...DEF },
 
   { id: "db_4570", name: "Hohensolms Skilifthang", region: "Hohenahr",
     lat: 50.6558, lon: 8.5169, elevation: 414, dhv: 4570,
@@ -1018,7 +1018,7 @@ const SPOT_DB = [
 
   { id: "db_469_N", name: "Hoher Bogen (N)", region: "Neukirchen b. Hl. Blut",
     lat: 49.235, lon: 12.9419, elevation: 1033, dhv: 469,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 459, gemeinde: "93453 Neukirchen b. Hl. Blut", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "459 m Höhendifferenz", landeName: "Hoher Bogen Landeplatz Hobo", landeLat: 49.2433, landeLon: 12.9758, landeHoehe: 574, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 459, gemeinde: "93453 Neukirchen b. Hl. Blut", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "459 m Höhendifferenz", landeName: "Hoher Bogen Landeplatz Hobo", landeLat: 49.2433, landeLon: 12.9758, landeHoehe: 574, livewetter: "https://holfuy.com/de/data/1751", ...DEF },
 
   { id: "db_469_NO", name: "Hoher Bogen (NO)", region: "Neukirchen b. Hl. Blut",
     lat: 49.2363, lon: 12.9426, elevation: 990, dhv: 469,
@@ -1038,7 +1038,7 @@ const SPOT_DB = [
 
   { id: "db_976", name: "Höllenberg", region: "Spirkelbach",
     lat: 49.1883, lon: 7.888, elevation: 450, dhv: 976,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 140, gemeinde: "76848 Spirkelbach", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Höllenberg Landeplatz", landeLat: 49.1860, landeLon: 7.8776, landeHoehe: 310, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 140, gemeinde: "76848 Spirkelbach", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Höllenberg Landeplatz", landeLat: 49.1860, landeLon: 7.8776, landeHoehe: 310, livewetter: "https://www.openwindmap.org/pioupiou-2043", ...DEF },
 
   { id: "db_5790", name: "Holzau", region: "Rechenberg-Bienenmühle",
     lat: 50.7294, lon: 13.5758, elevation: 718, dhv: 5790,
@@ -1070,7 +1070,7 @@ const SPOT_DB = [
 
   { id: "db_909_O", name: "Hönningen (O)", region: "Hönningen/Ahr",
     lat: 50.4704, lon: 6.9417, elevation: 350, dhv: 909,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 185, gemeinde: "53506 Hönningen/Ahr", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hönningen Landeplatz", landeLat: 50.4736, landeLon: 6.9484, landeHoehe: 195, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 185, gemeinde: "53506 Hönningen/Ahr", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hönningen Landeplatz", landeLat: 50.4736, landeLon: 6.9484, landeHoehe: 195, livewetter: "https://holfuy.com/de/data/1790", ...DEF },
 
   { id: "db_909_S", name: "Hönningen (S)", region: "Hönningen/Ahr",
     lat: 50.4787, lon: 6.9479, elevation: 380, dhv: 909,
@@ -1086,7 +1086,7 @@ const SPOT_DB = [
 
   { id: "db_5478", name: "Hörnle", region: "Brackenheim",
     lat: 49.1007, lon: 9.0724, elevation: 319, dhv: 5478,
-    sectors: [[146.25, 168.75]], sectorLabel: "SSO", country: "de", acc: "f", hoehendiff: 101, gemeinde: "74336 Brackenheim", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Toplandungen am Startplatz dürfen nur bei turbulenzfreien Bedingungen von erfahrenen Piloten durchgeführt werden. Es muss sichergestellt werden, dass die Landungen nur auf der zugelassenen Fläche stattfinden und keine Personen gefährdet werden.", landeName: "Hörnle Landeplatz", landeLat: 49.0966, landeLon: 9.0731, landeHoehe: 218, ...DEF },
+    sectors: [[146.25, 168.75]], sectorLabel: "SSO", country: "de", acc: "f", hoehendiff: 101, gemeinde: "74336 Brackenheim", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Toplandungen am Startplatz dürfen nur bei turbulenzfreien Bedingungen von erfahrenen Piloten durchgeführt werden. Es muss sichergestellt werden, dass die Landungen nur auf der zugelassenen Fläche stattfinden und keine Personen gefährdet werden.", landeName: "Hörnle Landeplatz", landeLat: 49.0966, landeLon: 9.0731, landeHoehe: 218, livewetter: "https://holfuy.com/de/data/1631", ...DEF },
 
   { id: "db_1147", name: "Hörnle / Jagsthausen", region: "Jagsthausen",
     lat: 49.3137, lon: 9.437, elevation: 290, dhv: 1147,
@@ -1106,7 +1106,7 @@ const SPOT_DB = [
 
   { id: "db_997", name: "Hubertushütte Geisingen", region: "Stadt Geisingen",
     lat: 47.9439, lon: 8.6328, elevation: 886, dhv: 997,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 186, gemeinde: "78187 Stadt Geisingen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "kein Start bei Nordeinfluss wegen Gefahren durch Turbulenzen", landeName: "Hubertushütte Geisingen Landeplatz", landeLat: 47.9362, landeLon: 8.6348, landeHoehe: 700, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "f", hoehendiff: 186, gemeinde: "78187 Stadt Geisingen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "kein Start bei Nordeinfluss wegen Gefahren durch Turbulenzen", landeName: "Hubertushütte Geisingen Landeplatz", landeLat: 47.9362, landeLon: 8.6348, landeHoehe: 700, livewetter: "https://holfuy.com/de/data/1160", ...DEF },
 
   { id: "db_867", name: "Humberg", region: "Odernheim",
     lat: 49.7685, lon: 7.7112, elevation: 275, dhv: 867,
@@ -1114,7 +1114,7 @@ const SPOT_DB = [
 
   { id: "db_4584", name: "Hündle", region: "Oberstaufen",
     lat: 47.5446, lon: 10.0528, elevation: 1035, dhv: 4584,
-    sectors: [[281.25, 348.75]], sectorLabel: "WNW-NNW", country: "de", acc: "fab", hoehendiff: 305, gemeinde: "87534 Oberstaufen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hündle Landeplatz 1", landeLat: 47.5521, landeLon: 10.0533, landeHoehe: 730, landeExtra: [{ name: "Hündle Landeplatz 2", lat: 47.552953, lon: 10.054242, hoehe: 730 }], ...DEF },
+    sectors: [[281.25, 348.75]], sectorLabel: "WNW-NNW", country: "de", acc: "fab", hoehendiff: 305, gemeinde: "87534 Oberstaufen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hündle Landeplatz 1", landeLat: 47.5521, landeLon: 10.0533, landeHoehe: 730, landeExtra: [{ name: "Hündle Landeplatz 2", lat: 47.552953, lon: 10.054242, hoehe: 730 }], livewetter: "https://www.openwindmap.org/pioupiou-1737", ...DEF },
 
   { id: "db_1083", name: "Hundsbach", region: "Hundsbach",
     lat: 50.0188, lon: 9.8714, elevation: 282, dhv: 1083,
@@ -1138,7 +1138,7 @@ const SPOT_DB = [
 
   { id: "db_265", name: "Imberger Horn", region: "Hindelang",
     lat: 47.4891, lon: 10.3634, elevation: 1350, dhv: 265,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 550, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Imberger Horn Landeplatz 2", landeLat: 47.5002, landeLon: 10.3676, landeHoehe: 800, landeExtra: [{ name: "Imberger Horn Landeplatz 1", lat: 47.501127, lon: 10.364045, hoehe: 800 }], ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 550, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Imberger Horn Landeplatz 2", landeLat: 47.5002, landeLon: 10.3676, landeHoehe: 800, landeExtra: [{ name: "Imberger Horn Landeplatz 1", lat: 47.501127, lon: 10.364045, hoehe: 800 }], livewetter: "https://holfuy.com/de/data/1694", ...DEF },
 
   { id: "db_176", name: "Ipf", region: "Bopfingen",
     lat: 48.8705, lon: 10.3571, elevation: 688, dhv: 176,
@@ -1150,7 +1150,7 @@ const SPOT_DB = [
 
   { id: "db_264", name: "Iseler", region: "Hindelang",
     lat: 47.5024, lon: 10.4122, elevation: 1442, dhv: 264,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 642, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Iseler Landeplatz", landeLat: 47.5000, landeLon: 10.3678, landeHoehe: 800, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 642, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Iseler Landeplatz", landeLat: 47.5000, landeLon: 10.3678, landeHoehe: 800, livewetter: "https://holfuy.com/de/data/1322", ...DEF },
 
   { id: "db_471", name: "Jachenhausen", region: "Riedenburg",
     lat: 48.9874, lon: 11.6996, elevation: 538, dhv: 471,
@@ -1158,7 +1158,7 @@ const SPOT_DB = [
 
   { id: "db_574", name: "Jägerberg", region: "Jena",
     lat: 50.9698, lon: 11.6197, elevation: 298, dhv: 574,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 161, gemeinde: "07743 Jena", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Jägerberg Landeplatz 2 für GS", landeLat: 50.9672, landeLon: 11.6203, landeHoehe: 140, landeExtra: [{ name: "Jägerberg Hauptlandeplatz GS/HG", lat: 50.966819, lon: 11.629028, hoehe: 137 }], ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 161, gemeinde: "07743 Jena", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig", landeName: "Jägerberg Landeplatz 2 für GS", landeLat: 50.9672, landeLon: 11.6203, landeHoehe: 140, landeExtra: [{ name: "Jägerberg Hauptlandeplatz GS/HG", lat: 50.966819, lon: 11.629028, hoehe: 137 }], livewetter: "https://holfuy.com/de/data/1122", ...DEF },
 
   { id: "db_690", name: "Jägerkamp/Nagelspitz", region: "Schliersee",
     lat: 47.6792, lon: 11.904, elevation: 1490, dhv: 690,
@@ -1170,7 +1170,7 @@ const SPOT_DB = [
 
   { id: "db_521_O", name: "Jenner (O)", region: "Schönau am Königssee",
     lat: 47.5798, lon: 13.0252, elevation: 1695, dhv: 521,
-    sectors: [[78.75, 146.25], [78.75, 101.25]], sectorLabel: "O-SO · O", country: "de", acc: "fb", hoehendiff: 1170, gemeinde: "83471 Schönau am Königssee", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Die Startfläche ist durch die Baustraße sehr geschrumpft. Es können max. 2 Schirme ausgelegt werden (Stand Sept. 2019)", landeName: "Jenner Hauptlandeplatz GS - Brandnerfeld", landeLat: 47.5920, landeLon: 12.9966, landeHoehe: 635, landeExtra: [{ name: "Jenner Bodnerfeld - Drachenlandeplatz", lat: 47.609369, lon: 12.975742, hoehe: 620 }], ...DEF },
+    sectors: [[78.75, 146.25], [78.75, 101.25]], sectorLabel: "O-SO · O", country: "de", acc: "fb", hoehendiff: 1170, gemeinde: "83471 Schönau am Königssee", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Die Startfläche ist durch die Baustraße sehr geschrumpft. Es können max. 2 Schirme ausgelegt werden (Stand Sept. 2019)", landeName: "Jenner Hauptlandeplatz GS - Brandnerfeld", landeLat: 47.5920, landeLon: 12.9966, landeHoehe: 635, landeExtra: [{ name: "Jenner Bodnerfeld - Drachenlandeplatz", lat: 47.609369, lon: 12.975742, hoehe: 620 }], livewetter: "https://holfuy.com/de/data/1754", ...DEF },
 
   { id: "db_521_W", name: "Jenner (W)", region: "Schönau am Königssee",
     lat: 47.5765, lon: 13.0345, elevation: 1770, dhv: 521,
@@ -1182,7 +1182,7 @@ const SPOT_DB = [
 
   { id: "db_657_S", name: "Jenzig (S)", region: "Jena",
     lat: 50.9388, lon: 11.6331, elevation: 385, dhv: 657,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 180, gemeinde: "07703 Jena", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Jenzig Landeplatz Süd", landeLat: 50.9337, landeLon: 11.6387, landeHoehe: 205, landeExtra: [{ name: "Jenzig Landeplatz Nordwest", lat: 50.94645, lon: 11.625724, hoehe: 205 }, { name: "Jenzig Landeplatz Süd für HG", lat: 50.931522, lon: 11.636152, hoehe: 205 }], ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 180, gemeinde: "07703 Jena", bundesland: "Thüringen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Jenzig Landeplatz Süd", landeLat: 50.9337, landeLon: 11.6387, landeHoehe: 205, landeExtra: [{ name: "Jenzig Landeplatz Nordwest", lat: 50.94645, lon: 11.625724, hoehe: 205 }, { name: "Jenzig Landeplatz Süd für HG", lat: 50.931522, lon: 11.636152, hoehe: 205 }], livewetter: "https://holfuy.com/de/data/1121", ...DEF },
 
   { id: "db_1130", name: "Kahle Pön", region: "Referinghausen",
     lat: 51.2618, lon: 8.6721, elevation: 740, dhv: 1130,
@@ -1194,11 +1194,11 @@ const SPOT_DB = [
 
   { id: "db_1023_N", name: "Kandahar-Express - Kreuzjoch (N)", region: "Garmisch-Partenkirchen",
     lat: 47.4528, lon: 11.0799, elevation: 1690, dhv: 1023,
-    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "fb", hoehendiff: 930, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hexenkessel Landeplatz (LP Osterfelder)", landeLat: 47.4743, landeLon: 11.0599, landeHoehe: 760, ...DEF },
+    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", acc: "fb", hoehendiff: 930, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hexenkessel Landeplatz (LP Osterfelder)", landeLat: 47.4743, landeLon: 11.0599, landeHoehe: 760, livewetter: "https://www.openwindmap.org/pioupiou-1304", ...DEF },
 
   { id: "db_1023_NO", name: "Kandahar-Express - Kreuzjoch (NO)", region: "Garmisch-Partenkirchen",
     lat: 47.4525, lon: 11.0683, elevation: 1640, dhv: 1023,
-    sectors: [[56.25, 78.75]], sectorLabel: "ONO", country: "de", acc: "fb", hoehendiff: 930, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hexenkessel Landeplatz (LP Osterfelder)", landeLat: 47.4743, landeLon: 11.0599, landeHoehe: 760, ...DEF },
+    sectors: [[56.25, 78.75]], sectorLabel: "ONO", country: "de", acc: "fb", hoehendiff: 930, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Hexenkessel Landeplatz (LP Osterfelder)", landeLat: 47.4743, landeLon: 11.0599, landeHoehe: 760, livewetter: "https://holfuy.com/de/data/773", ...DEF },
 
   { id: "db_739", name: "Kapf/Paradies", region: "Oberstaufen",
     lat: 47.5484, lon: 10.0014, elevation: 997, dhv: 739,
@@ -1206,7 +1206,7 @@ const SPOT_DB = [
 
   { id: "db_4", name: "Kaulsdorf", region: "Kaulsdorf",
     lat: 50.6316, lon: 11.4155, elevation: 395, dhv: 4,
-    sectors: [[168.75, 213.75]], sectorLabel: "S-SSW", country: "de", acc: "f", hoehendiff: 175, gemeinde: "07338 Kaulsdorf", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", landeName: "Kaulsdorf Landeplatz", landeLat: 50.6292, landeLon: 11.4208, landeHoehe: 220, ...DEF },
+    sectors: [[168.75, 213.75]], sectorLabel: "S-SSW", country: "de", acc: "f", hoehendiff: 175, gemeinde: "07338 Kaulsdorf", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", landeName: "Kaulsdorf Landeplatz", landeLat: 50.6292, landeLon: 11.4208, landeHoehe: 220, livewetter: "https://holfuy.com/de/data/956", webcam: "https://holfuy.com/de/data/956", ...DEF },
 
   { id: "db_1100", name: "Kausen Übungshang", region: "Verbandsgemeinde Gebhardshain",
     lat: 50.7383, lon: 7.8692, elevation: 420, dhv: 1100,
@@ -1222,7 +1222,7 @@ const SPOT_DB = [
 
   { id: "db_5771", name: "Kleff", region: "Plettenberg",
     lat: 51.2149, lon: 7.9322, elevation: 505, dhv: 5771,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 288, gemeinde: "58840 Plettenberg", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig", landeName: "Pasel Landeplatz", landeLat: 51.2209, landeLon: 7.9247, landeHoehe: 217, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 288, gemeinde: "58840 Plettenberg", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig", landeName: "Pasel Landeplatz", landeLat: 51.2209, landeLon: 7.9247, landeHoehe: 217, livewetter: "https://www.openwindmap.org/pioupiou-2192", ...DEF },
 
   { id: "db_615", name: "Kleinheppacher Kopf", region: "Korb",
     lat: 48.8332, lon: 9.3781, elevation: 400, dhv: 615,
@@ -1238,11 +1238,11 @@ const SPOT_DB = [
 
   { id: "db_149", name: "Klüsserath", region: "Klüsserath",
     lat: 49.8477, lon: 6.8712, elevation: 300, dhv: 149,
-    sectors: [[168.75, 236.25], [168.75, 191.25]], sectorLabel: "S-SW · S", country: "de", acc: "fa", hoehendiff: 185, gemeinde: "54340 Klüsserath", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", bemerkung: "Vor dem Erstflug Einweisung in das Gelände. Startplatz mit Toplandemöglichkeit.", landeName: "Klüsserath Landeplatz", landeLat: 49.8425, landeLon: 6.8554, landeHoehe: 115, ...DEF },
+    sectors: [[168.75, 236.25], [168.75, 191.25]], sectorLabel: "S-SW · S", country: "de", acc: "fa", hoehendiff: 185, gemeinde: "54340 Klüsserath", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", bemerkung: "Vor dem Erstflug Einweisung in das Gelände. Startplatz mit Toplandemöglichkeit.", landeName: "Klüsserath Landeplatz", landeLat: 49.8425, landeLon: 6.8554, landeHoehe: 115, livewetter: "https://holfuy.com/de/data/242", webcam: "https://holfuy.com/de/data/242", ...DEF },
 
   { id: "db_5", name: "Knobelsdorf", region: "Knobelsdorf",
     lat: 50.6069, lon: 11.3712, elevation: 482, dhv: 5,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 270, gemeinde: "07318 Knobelsdorf", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", bemerkung: "am 10.09. Erweiterung für HG- und GS-Ausbildung; Für Ausbildungsflüge ist der LP \"Auf der Ostch\" zu benutzen!", landeName: "Knobelsdorf Landeplatz", landeLat: 50.6091, landeLon: 11.3916, landeHoehe: 212, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 270, gemeinde: "07318 Knobelsdorf", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", bemerkung: "am 10.09. Erweiterung für HG- und GS-Ausbildung; Für Ausbildungsflüge ist der LP \"Auf der Ostch\" zu benutzen!", landeName: "Knobelsdorf Landeplatz", landeLat: 50.6091, landeLon: 11.3916, landeHoehe: 212, livewetter: "https://holfuy.com/de/data/419", webcam: "https://holfuy.com/de/data/419", ...DEF },
 
   { id: "db_468", name: "Kohlberg Übungshang", region: "Kohlberg",
     lat: 49.5939, lon: 12.0317, elevation: 480, dhv: 468,
@@ -1250,11 +1250,11 @@ const SPOT_DB = [
 
   { id: "db_280", name: "Kohleckle Berghaupten", region: "Berghaupten",
     lat: 48.4136, lon: 7.9664, elevation: 422, dhv: 280,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", diff: 1, acc: "f", hoehendiff: 257, gemeinde: "77791 Berghaupten", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Startplatz liegt in Waldschneise. Info: http://www.ortenauer-dgf.de/index.html", landeName: "Kohleckle Landeplatz", landeLat: 48.4150, landeLon: 7.9836, landeHoehe: 165, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", diff: 1, acc: "f", hoehendiff: 257, gemeinde: "77791 Berghaupten", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Startplatz liegt in Waldschneise. Info: http://www.ortenauer-dgf.de/index.html", landeName: "Kohleckle Landeplatz", landeLat: 48.4150, landeLon: 7.9836, landeHoehe: 165, livewetter: "https://holfuy.com/de/data/1675", ...DEF },
 
   { id: "db_5674", name: "Kolbingen", region: "Kolbingen",
     lat: 48.0442, lon: 8.8944, elevation: 785, dhv: 5674,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 136, gemeinde: "78600 Kolbingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Bei Windbedingungen, die nicht genau auf/aus den/der Startplatz/Talrichtung einwirken, besteht hohe Leegefahr. Es handelt sich um ein Soaring-Gelände: Der Landeanflug muss rechtzeitig und mit ausreichender Resthöhe geplant werden.", landeName: "Kolbingen Landeplatz", landeLat: 48.0383, landeLon: 8.8919, landeHoehe: 649, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 136, gemeinde: "78600 Kolbingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Bei Windbedingungen, die nicht genau auf/aus den/der Startplatz/Talrichtung einwirken, besteht hohe Leegefahr. Es handelt sich um ein Soaring-Gelände: Der Landeanflug muss rechtzeitig und mit ausreichender Resthöhe geplant werden.", landeName: "Kolbingen Landeplatz", landeLat: 48.0383, landeLon: 8.8919, landeHoehe: 649, livewetter: "https://www.openwindmap.org/pioupiou-1432", ...DEF },
 
   { id: "db_1056", name: "Königsheide", region: "Warmensteinach",
     lat: 49.9981, lon: 11.7702, elevation: 745, dhv: 1056,
@@ -1262,7 +1262,7 @@ const SPOT_DB = [
 
   { id: "db_1084", name: "Königstuhl", region: "Heidelberg",
     lat: 49.4039, lon: 8.7268, elevation: 540, dhv: 1084,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fab", hoehendiff: 400, gemeinde: "69117 Heidelberg", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Flacher Startplatz neben der Bergstation. Gastflüge sind gebührenfrei, müssen aber in einem Online-Flugregistrierungssystem angemeldet werden. Zugang zum Flugregistrierungssystem erhält man nur nach umfangreicher Einweisung inklusive Baumrettungskurs.", landeName: "Königstuhl Landeplatz", landeLat: 49.4203, landeLon: 8.7378, landeHoehe: 140, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fab", hoehendiff: 400, gemeinde: "69117 Heidelberg", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Flacher Startplatz neben der Bergstation. Gastflüge sind gebührenfrei, müssen aber in einem Online-Flugregistrierungssystem angemeldet werden. Zugang zum Flugregistrierungssystem erhält man nur nach umfangreicher Einweisung inklusive Baumrettungskurs.", landeName: "Königstuhl Landeplatz", landeLat: 49.4203, landeLon: 8.7378, landeHoehe: 140, livewetter: "https://holfuy.com/de/data/1503", ...DEF },
 
   { id: "db_72", name: "Königszinne", region: "Bodenwerder",
     lat: 51.978, lon: 9.5259, elevation: 255, dhv: 72,
@@ -1298,7 +1298,7 @@ const SPOT_DB = [
 
   { id: "db_1209", name: "Krunkelbachhütte / Spießhorn", region: "Bernau",
     lat: 47.8269, lon: 8.0338, elevation: 1315, dhv: 1209,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 395, gemeinde: "79872 Bernau", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Anspruchsvolle Windverhältnisse durch die Geländetopograghie. Kein Start bei starkem W-Wind: Lee! Schon etliche Unfälle und Baumlandungen! Keine Schulung.", landeName: "Goldbach Landeplatz", landeLat: 47.8132, landeLon: 8.0254, landeHoehe: 920, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 395, gemeinde: "79872 Bernau", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Anspruchsvolle Windverhältnisse durch die Geländetopograghie. Kein Start bei starkem W-Wind: Lee! Schon etliche Unfälle und Baumlandungen! Keine Schulung.", landeName: "Goldbach Landeplatz", landeLat: 47.8132, landeLon: 8.0254, landeHoehe: 920, livewetter: "https://holfuy.com/de/data/1063", ...DEF },
 
   { id: "db_5749", name: "Kuhhelle", region: "Lennestadt-Meggen",
     lat: 51.1272, lon: 8.0919, elevation: 580, dhv: 5749,
@@ -1306,7 +1306,7 @@ const SPOT_DB = [
 
   { id: "db_795", name: "Küppchen - Lasserg", region: "Münstermaifeld-Lasserg",
     lat: 50.2168, lon: 7.3845, elevation: 260, dhv: 795,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "fa", hoehendiff: 186, gemeinde: "56294 Münstermaifeld-Lasserg", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "1. Die Informationstafel am Startplatz ist unbedingt zu beachten. Während der Brutzeit des Wanderfalken darf der Bereich an der Ruine Bischofstein rechts vom Start darf nicht überflogen werden. 2. Mit dem Kfz darf nicht bis an den Startplatz gefahren werden. Parkmöglichkeit am Gasthaus Bischofstein (3 min Fußweg). 3. Bitte langsam durch Lasserg fahren. 4. Es besteht die Toplandemöglichkeit auf der Startwiese.", landeName: "Küppchen - Lasserg Landeplatz", landeLat: 50.2135, landeLon: 7.3881, landeHoehe: 74, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "fa", hoehendiff: 186, gemeinde: "56294 Münstermaifeld-Lasserg", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "1. Die Informationstafel am Startplatz ist unbedingt zu beachten. Während der Brutzeit des Wanderfalken darf der Bereich an der Ruine Bischofstein rechts vom Start darf nicht überflogen werden. 2. Mit dem Kfz darf nicht bis an den Startplatz gefahren werden. Parkmöglichkeit am Gasthaus Bischofstein (3 min Fußweg). 3. Bitte langsam durch Lasserg fahren. 4. Es besteht die Toplandemöglichkeit auf der Startwiese.", landeName: "Küppchen - Lasserg Landeplatz", landeLat: 50.2135, landeLon: 7.3881, landeHoehe: 74, livewetter: "https://holfuy.com/de/data/262", ...DEF },
 
   { id: "db_841", name: "Laasan / Kunitz Übungshang", region: "Golmsdorf",
     lat: 50.9503, lon: 11.6668, elevation: 320, dhv: 841,
@@ -1314,7 +1314,7 @@ const SPOT_DB = [
 
   { id: "db_616", name: "Laber", region: "Oberammergau",
     lat: 47.5863, lon: 11.1036, elevation: 1682, dhv: 616,
-    sectors: [[348.75, 11.25], [168.75, 191.25]], sectorLabel: "N · S", country: "de", diff: 1, acc: "fb", hoehendiff: 802, gemeinde: "82487 Oberammergau", bundesland: "Bayern", gleitschirm: "2-sitzig, Schulung 1-sitzig", landeName: "Laber Landeplatz 3", landeLat: 47.6003, landeLon: 11.0782, landeHoehe: 880, landeExtra: [{ name: "Laber Landeplatz Drachen", lat: 47.606102, lon: 11.071829, hoehe: 880 }], ...DEF },
+    sectors: [[348.75, 11.25], [168.75, 191.25]], sectorLabel: "N · S", country: "de", diff: 1, acc: "fb", hoehendiff: 802, gemeinde: "82487 Oberammergau", bundesland: "Bayern", gleitschirm: "2-sitzig, Schulung 1-sitzig", landeName: "Laber Landeplatz 3", landeLat: 47.6003, landeLon: 11.0782, landeHoehe: 880, landeExtra: [{ name: "Laber Landeplatz Drachen", lat: 47.606102, lon: 11.071829, hoehe: 880 }], livewetter: "https://holfuy.com/de/data/1670", ...DEF },
 
   { id: "db_98", name: "Langer Berg", region: "Odernheim",
     lat: 49.7638, lon: 7.7137, elevation: 309, dhv: 98,
@@ -1322,15 +1322,15 @@ const SPOT_DB = [
 
   { id: "db_1157", name: "Laucha Westhang", region: "Laucha",
     lat: 51.2473, lon: 11.6868, elevation: 230, dhv: 1157,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 30, gemeinde: "06636 Laucha", bundesland: "Sachsen-Anhalt", gleitschirm: "1- und 2-sitzig", landeName: "Laucha Westhang Landeplatz", landeLat: 51.2461, landeLon: 11.6809, landeHoehe: 200, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 30, gemeinde: "06636 Laucha", bundesland: "Sachsen-Anhalt", gleitschirm: "1- und 2-sitzig", landeName: "Laucha Westhang Landeplatz", landeLat: 51.2461, landeLon: 11.6809, landeHoehe: 200, livewetter: "https://holfuy.com/de/data/1714", ...DEF },
 
   { id: "db_281", name: "Lauf", region: "Lauf",
     lat: 48.6251, lon: 8.1626, elevation: 790, dhv: 281,
-    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 496, gemeinde: "77886 Lauf", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Lauf Sodkopf Landeplatz GS", landeLat: 48.6381, landeLon: 8.1464, landeHoehe: 294, landeExtra: [{ name: "In der Au Landeplatz", lat: 48.642203, lon: 8.145504, hoehe: 304 }], ...DEF },
+    sectors: [[258.75, 326.25]], sectorLabel: "W-NW", country: "de", acc: "f", hoehendiff: 496, gemeinde: "77886 Lauf", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Lauf Sodkopf Landeplatz GS", landeLat: 48.6381, landeLon: 8.1464, landeHoehe: 294, landeExtra: [{ name: "In der Au Landeplatz", lat: 48.642203, lon: 8.145504, hoehe: 304 }], livewetter: "https://holfuy.com/de/data/1917", ...DEF },
 
   { id: "db_920", name: "Lautersheim", region: "Göllheim",
     lat: 49.584, lon: 8.1069, elevation: 330, dhv: 920,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 30, gemeinde: "67306 Göllheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Lautersheim Landeplatz", landeLat: 49.5831, landeLon: 8.1066, landeHoehe: 300, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 30, gemeinde: "67306 Göllheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Lautersheim Landeplatz", landeLat: 49.5831, landeLon: 8.1066, landeHoehe: 300, livewetter: "https://holfuy.com/de/data/1702", ...DEF },
 
   { id: "db_5747", name: "Lehens", region: "Ilsfeld",
     lat: 49.0636, lon: 9.3084, elevation: 349, dhv: 5747,
@@ -1358,7 +1358,7 @@ const SPOT_DB = [
 
   { id: "db_191_W", name: "Loffenau Weststart Teufelsmühle (W)", region: "Loffenau",
     lat: 48.7567, lon: 8.4072, elevation: 890, dhv: 191,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 501, gemeinde: "76597 Loffenau", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Loffenau Landewiese", landeLat: 48.7727, landeLon: 8.3981, landeHoehe: 389, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 501, gemeinde: "76597 Loffenau", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Loffenau Landewiese", landeLat: 48.7727, landeLon: 8.3981, landeHoehe: 389, livewetter: "https://holfuy.com/de/data/1363", ...DEF },
 
   { id: "db_5469", name: "Lombach", region: "Loßburg",
     lat: 48.4283, lon: 8.4608, elevation: 660, dhv: 5469,
@@ -1370,11 +1370,11 @@ const SPOT_DB = [
 
   { id: "db_85_S", name: "Maring-Noviand (S)", region: "Maring-Noviand",
     lat: 49.9459, lon: 7.0036, elevation: 275, dhv: 85,
-    sectors: [[146.25, 236.25]], sectorLabel: "SSO-SW", country: "de", acc: "f", hoehendiff: 155, gemeinde: "54484 Maring-Noviand", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Maring-Noviand Landeplatz Südwest", landeLat: 49.9412, landeLon: 7.0027, landeHoehe: 142, landeExtra: [{ name: "Maring-Noviand Landeplatz Südost", lat: 49.938056, lon: 6.9935, hoehe: 135 }], ...DEF },
+    sectors: [[146.25, 236.25]], sectorLabel: "SSO-SW", country: "de", acc: "f", hoehendiff: 155, gemeinde: "54484 Maring-Noviand", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Maring-Noviand Landeplatz Südwest", landeLat: 49.9412, landeLon: 7.0027, landeHoehe: 142, landeExtra: [{ name: "Maring-Noviand Landeplatz Südost", lat: 49.938056, lon: 6.9935, hoehe: 135 }], livewetter: "https://holfuy.com/de/data/746", webcam: "https://holfuy.com/de/data/746", ...DEF },
 
   { id: "db_85_SO", name: "Maring-Noviand (SO)", region: "Maring-Noviand",
     lat: 49.9439, lon: 6.9903, elevation: 290, dhv: 85,
-    sectors: [[146.25, 168.75]], sectorLabel: "SSO", country: "de", acc: "f", hoehendiff: 155, gemeinde: "54484 Maring-Noviand", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Maring-Noviand Landeplatz Südost", landeLat: 49.9381, landeLon: 6.9935, landeHoehe: 135, landeExtra: [{ name: "Maring-Noviand Landeplatz Südwest", lat: 49.94125, lon: 7.002668, hoehe: 142 }], ...DEF },
+    sectors: [[146.25, 168.75]], sectorLabel: "SSO", country: "de", acc: "f", hoehendiff: 155, gemeinde: "54484 Maring-Noviand", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Maring-Noviand Landeplatz Südost", landeLat: 49.9381, landeLon: 6.9935, landeHoehe: 135, landeExtra: [{ name: "Maring-Noviand Landeplatz Südwest", lat: 49.94125, lon: 7.002668, hoehe: 142 }], livewetter: "https://holfuy.com/de/data/237", ...DEF },
 
   { id: "db_5728", name: "Marktschellenberg", region: "Marktschellenberg",
     lat: 47.6733, lon: 13.0331, elevation: 560, dhv: 5728,
@@ -1398,7 +1398,7 @@ const SPOT_DB = [
 
   { id: "db_602_S", name: "Meerfelder Maar (S)", region: "Meerfeld",
     lat: 50.1061, lon: 6.756, elevation: 520, dhv: 602,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 170, gemeinde: "54531 Meerfeld", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Durch den hochgewachsenen Baumbestand des Gegenhanges des Maarberges können im Tal-Landebereich starke Turbulenzen entstehen.", landeName: "Meerfelder Maar Landeplatz", landeLat: 50.0954, landeLon: 6.7592, landeHoehe: 350, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 170, gemeinde: "54531 Meerfeld", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Durch den hochgewachsenen Baumbestand des Gegenhanges des Maarberges können im Tal-Landebereich starke Turbulenzen entstehen.", landeName: "Meerfelder Maar Landeplatz", landeLat: 50.0954, landeLon: 6.7592, landeHoehe: 350, livewetter: "https://holfuy.com/de/data/363", ...DEF },
 
   { id: "db_83", name: "Mehring", region: "Saarburg-Trier",
     lat: 49.7813, lon: 6.8376, elevation: 400, dhv: 83,
@@ -1410,7 +1410,7 @@ const SPOT_DB = [
 
   { id: "db_267", name: "Melibokus", region: "Alsbach",
     lat: 49.7253, lon: 8.6357, elevation: 500, dhv: 267,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 400, gemeinde: "64665 Alsbach", bundesland: "Hessen", landeName: "Melibokus Landeplatz", landeLat: 49.7352, landeLon: 8.6140, landeHoehe: 100, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 400, gemeinde: "64665 Alsbach", bundesland: "Hessen", landeName: "Melibokus Landeplatz", landeLat: 49.7352, landeLon: 8.6140, landeHoehe: 100, livewetter: "https://holfuy.com/de/data/1018", webcam: "https://holfuy.com/de/data/1018", ...DEF },
 
   { id: "db_79", name: "Mellbeck", region: "Sprockhövel",
     lat: 51.3117, lon: 7.1864, elevation: 315, dhv: 79,
@@ -1430,7 +1430,7 @@ const SPOT_DB = [
 
   { id: "db_167", name: "Messelberg", region: "Donzdorf",
     lat: 48.6795, lon: 9.8389, elevation: 700, dhv: 167,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 212, gemeinde: "73072 Donzdorf", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wenn der Wind nicht exakt aus Westen ansteht, besteht generell am Startplatz die Gefahr von heftigen Turbulenzen (Schneisenstart). Bei Nord-Einschlag (Windrichtung NW) finden sich in der Regel Turbulenzen auch im gesamten Bereich des Messelberg-Hangs (Sektor 1b und II). Besonders für Gleitschirme ist hier die Gefahr von Klappern sehr gross.", landeName: "Messelberg Landeplatz 1 Pfaffenhalde", landeLat: 48.6823, landeLon: 9.8302, landeHoehe: 520, landeExtra: [{ name: "Messelberg Landeplatz 2 Galgenläuchle", lat: 48.683369, lon: 9.824406, hoehe: 488 }], ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 212, gemeinde: "73072 Donzdorf", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wenn der Wind nicht exakt aus Westen ansteht, besteht generell am Startplatz die Gefahr von heftigen Turbulenzen (Schneisenstart). Bei Nord-Einschlag (Windrichtung NW) finden sich in der Regel Turbulenzen auch im gesamten Bereich des Messelberg-Hangs (Sektor 1b und II). Besonders für Gleitschirme ist hier die Gefahr von Klappern sehr gross.", landeName: "Messelberg Landeplatz 1 Pfaffenhalde", landeLat: 48.6823, landeLon: 9.8302, landeHoehe: 520, landeExtra: [{ name: "Messelberg Landeplatz 2 Galgenläuchle", lat: 48.683369, lon: 9.824406, hoehe: 488 }], livewetter: "https://holfuy.com/de/data/1882", ...DEF },
 
   { id: "db_1007", name: "Michelsberg", region: "Münnerstadt",
     lat: 50.2516, lon: 10.1606, elevation: 380, dhv: 1007,
@@ -1438,11 +1438,11 @@ const SPOT_DB = [
 
   { id: "db_386_N", name: "Mittag (N)", region: "Immenstadt",
     lat: 47.5376, lon: 10.2187, elevation: 1381, dhv: 386,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Startplatz für Drachen und Gleitschirme liegt ca. 70 m unterhalb der Terrasse der Bergstation. Bei Nordwind nicht über den Grat versetzen lassen. Leesituation bei Westeinschlag! Überflugverbot Wintergatter vom 01.11.-15.05.", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, landeExtra: [{ name: "Mittag Landeplatz Schwarzkreuzwiese/am kleinen Alpsee", lat: 47.564722, lon: 10.206944, hoehe: 720 }], ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Der Startplatz für Drachen und Gleitschirme liegt ca. 70 m unterhalb der Terrasse der Bergstation. Bei Nordwind nicht über den Grat versetzen lassen. Leesituation bei Westeinschlag! Überflugverbot Wintergatter vom 01.11.-15.05.", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, landeExtra: [{ name: "Mittag Landeplatz Schwarzkreuzwiese/am kleinen Alpsee", lat: 47.564722, lon: 10.206944, hoehe: 720 }], livewetter: "https://www.openwindmap.org/pioupiou-2385", ...DEF },
 
   { id: "db_386_S", name: "Mittag (S)", region: "Immenstadt",
     lat: 47.5358, lon: 10.2157, elevation: 1443, dhv: 386,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Großer Startplatz oberhalb der Bergstation Richtung Süden/Gipfel (dem Wanderweg folgen). Rechtzeitig und mit ausreichend Höhe über den Grat in Richtung Landeplatz fliegen. Föhn beachten! Leesituation bei SW- und Westwind!", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, landeExtra: [{ name: "Mittag Landeplatz Schwarzkreuzwiese/am kleinen Alpsee", lat: 47.564722, lon: 10.206944, hoehe: 720 }], ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fb", hoehendiff: 723, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Großer Startplatz oberhalb der Bergstation Richtung Süden/Gipfel (dem Wanderweg folgen). Rechtzeitig und mit ausreichend Höhe über den Grat in Richtung Landeplatz fliegen. Föhn beachten! Leesituation bei SW- und Westwind!", landeName: "Mittag Landeplatz Tanne Ettensberg (Hauptlandeplatz)", landeLat: 47.5482, landeLon: 10.2468, landeHoehe: 770, landeExtra: [{ name: "Mittag Landeplatz Schwarzkreuzwiese/am kleinen Alpsee", lat: 47.564722, lon: 10.206944, hoehe: 720 }], livewetter: "https://www.openwindmap.org/pioupiou-2067", ...DEF },
 
   { id: "db_386_W", name: "Mittag (W)", region: "Immenstadt",
     lat: 47.5377, lon: 10.2165, elevation: 1391, dhv: 386,
@@ -1454,11 +1454,11 @@ const SPOT_DB = [
 
   { id: "db_5714", name: "Moarbichl Hochgern", region: "Unterwössen",
     lat: 47.7497, lon: 12.5064, elevation: 1597, dhv: 5714,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 1597, gemeinde: "83246 Unterwössen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Höhendifferenz: 1035 m Landeplatz Balsberg, Fluggelände Balsberg (§ 25 LuftVG), Gemeinde Unterwössen Landeplatz Wessner Hof, Fluggelände Hochplatte (§ 6 LuftVG), Gemeinde Marquartstein", ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 1597, gemeinde: "83246 Unterwössen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Höhendifferenz: 1035 m Landeplatz Balsberg, Fluggelände Balsberg (§ 25 LuftVG), Gemeinde Unterwössen Landeplatz Wessner Hof, Fluggelände Hochplatte (§ 6 LuftVG), Gemeinde Marquartstein", livewetter: "https://www.openwindmap.org/pioupiou-1396", ...DEF },
 
   { id: "db_1167", name: "Moltkefelsen", region: "Dannenfels",
     lat: 49.6206, lon: 7.9414, elevation: 540, dhv: 1167,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", diff: 1, acc: "f", hoehendiff: 180, gemeinde: "67814 Dannenfels", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Moltkefelsen Landeplatz", landeLat: 49.6201, landeLon: 7.9510, landeHoehe: 360, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", diff: 1, acc: "f", hoehendiff: 180, gemeinde: "67814 Dannenfels", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Moltkefelsen Landeplatz", landeLat: 49.6201, landeLon: 7.9510, landeHoehe: 360, livewetter: "https://holfuy.com/de/data/1404", ...DEF },
 
   { id: "db_137", name: "Momart Übungshang", region: "Bad König",
     lat: 49.7265, lon: 9.0387, elevation: 362, dhv: 137,
@@ -1478,7 +1478,7 @@ const SPOT_DB = [
 
   { id: "db_4651", name: "Mühlenberg NW-Startplatz", region: "Weinstadt",
     lat: 48.8001, lon: 9.4036, elevation: 373, dhv: 4651,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 131, gemeinde: "71384 Weinstadt", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit Einweisung", landeName: "Beutelsbach 3-Riesen Landeplatz", landeLat: 48.7991, landeLon: 9.3961, landeHoehe: 242, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 131, gemeinde: "71384 Weinstadt", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit Einweisung", landeName: "Beutelsbach 3-Riesen Landeplatz", landeLat: 48.7991, landeLon: 9.3961, landeHoehe: 242, livewetter: "https://www.openwindmap.org/pioupiou-2117", ...DEF },
 
   { id: "db_1004", name: "Mühlenfeld Landeplatz (Birkenbeul)", region: "Birkenbeul",
     lat: 50.7442, lon: 7.6098, elevation: 282, dhv: 1004,
@@ -1490,7 +1490,7 @@ const SPOT_DB = [
 
   { id: "db_1085", name: "Nassauer Berg", region: "Nassau",
     lat: 50.3058, lon: 7.8037, elevation: 268, dhv: 1085,
-    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 170, gemeinde: "56377 Nassau", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "B-Schein erforderlich, Der Startplatz ist sehr steil. Es sollte rückwärts gestartet werden. Bei Seitenwind Lee Rotoren im Bereich des Startplatzes. Bei stärkerem Westwind sollte nicht geflogen werden weil sich das ganze Gebiet im Lee des Burgbergs befindet. Auch wenn der Wind am Startplatz zu stimmen scheint.", landeName: "Nassauer Berg Landeplatz", landeLat: 50.3085, landeLon: 7.8039, landeHoehe: 98, ...DEF },
+    sectors: [[303.75, 11.25]], sectorLabel: "NW-N", country: "de", acc: "f", hoehendiff: 170, gemeinde: "56377 Nassau", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "B-Schein erforderlich, Der Startplatz ist sehr steil. Es sollte rückwärts gestartet werden. Bei Seitenwind Lee Rotoren im Bereich des Startplatzes. Bei stärkerem Westwind sollte nicht geflogen werden weil sich das ganze Gebiet im Lee des Burgbergs befindet. Auch wenn der Wind am Startplatz zu stimmen scheint.", landeName: "Nassauer Berg Landeplatz", landeLat: 50.3085, landeLon: 7.8039, landeHoehe: 98, livewetter: "https://holfuy.com/de/data/948", ...DEF },
 
   { id: "db_5722", name: "Naunheim", region: "Wetzlar-Naunheim",
     lat: 50.5922, lon: 8.5272, elevation: 215, dhv: 5722,
@@ -1498,11 +1498,11 @@ const SPOT_DB = [
 
   { id: "db_395_NW", name: "Nebelhorn Gipfel Terassen-SP 1 (südl. Gipfelstation) (NW)", region: "Oberstdorf",
     lat: 47.4115, lon: 10.349, elevation: 1910, dhv: 395,
-    sectors: [[236.25, 11.25]], sectorLabel: "WSW-N", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "1. Alle Piloten benötigen eine Einweisung durch den ODV. Diese kann persönlich oder online erfolgen. 2. Landungen auf geeigneten Flächen am Zeigersattel sind zulässig, wenn eine Gefährdung Dritter ausgeschlossen ist und der Pilot die Toplandetechnik beherrscht. 3. Starts dürfen nur erfolgen, wenn keine Gefahr für Dritte besteht. Auf Wanderer und übrige Nutzer ist Rücksicht zu nehmen. Der Höfatsweg ist mit ausreichendem Sicherheitsabstand zu überfliegen. Nebelhorn Zeigersattel Startplatz Nord: N 47°24'33.95\" O 10°20'54.56\" 1. Start nur bei Wind aus Richtungen von 300°-350° bis 25km/h. Auf den Talwind ist zu achten. 2. Um die Leebereiche des gegenüberliegenden Gundkopfes zu meiden, ist gleich nach dem Start in Richtung Westen abzufliegen.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, landeExtra: [{ name: "Nebelhorn Oybele (LP 1)", lat: 47.401667, lon: 10.287778, hoehe: 830 }], ...DEF },
+    sectors: [[236.25, 11.25]], sectorLabel: "WSW-N", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "1. Alle Piloten benötigen eine Einweisung durch den ODV. Diese kann persönlich oder online erfolgen. 2. Landungen auf geeigneten Flächen am Zeigersattel sind zulässig, wenn eine Gefährdung Dritter ausgeschlossen ist und der Pilot die Toplandetechnik beherrscht. 3. Starts dürfen nur erfolgen, wenn keine Gefahr für Dritte besteht. Auf Wanderer und übrige Nutzer ist Rücksicht zu nehmen. Der Höfatsweg ist mit ausreichendem Sicherheitsabstand zu überfliegen. Nebelhorn Zeigersattel Startplatz Nord: N 47°24'33.95\" O 10°20'54.56\" 1. Start nur bei Wind aus Richtungen von 300°-350° bis 25km/h. Auf den Talwind ist zu achten. 2. Um die Leebereiche des gegenüberliegenden Gundkopfes zu meiden, ist gleich nach dem Start in Richtung Westen abzufliegen.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, landeExtra: [{ name: "Nebelhorn Oybele (LP 1)", lat: 47.401667, lon: 10.287778, hoehe: 830 }], livewetter: "https://holfuy.com/de/data/906", ...DEF },
 
   { id: "db_395_S", name: "Nebelhorn Gipfel Terassen-SP 1 (südl. Gipfelstation) (S)", region: "Oberstdorf",
     lat: 47.4212, lon: 10.3422, elevation: 2170, dhv: 395,
-    sectors: [[123.75, 213.75], [191.25, 213.75]], sectorLabel: "SO-SSW · SSW", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "1. Alle Piloten benötigen fortgeschrittene Kenntnisse in Vorwärts- und Rückwärtsaufziehen und Flugtechnik sowie fundierter Einschätzung der Wind- und Wettersituation. Mindestqualifikation ist der Besitz des unbeschränkten Luftfahrerscheins. 2. Jeder Pilot benötigt eine Einweisung auf die besondere Startplatzsituation. Diese kann persönlich oder auch online erfolgen. Tandempiloten müssen persönlich eingewiesen werden. 3. Starts und Vorbereitungen auf präparierten Pisten sind während des Ski-Betriebs untersagt. Der Pistentrieb darf nicht beeinträchtigt werden. Ein Start ist nur zulässig, wenn keine Gefahr für Dritte besteht und der Luftraum frei ist. Der Startbereich ist entsprechend zu kennzeichnen. Es ist sicherzustellen, dass Wanderer auf dem Wanderweg sowie Skifahrer auf der Piste während des Ski-Betriebs durch abfliegende Piloten nicht gefährdet werden. Es ist stets ein ausreichender Sicherheitsabstand zu Personen, Gebäuden und den Seilen der Bergbahn einzuhalten. Außerhalb der Betriebszeiten der Seilbahn gibt es gesonderte Regelungen. Infos dazu beim Geländehalter. 4. Ein Start ist nur bei Vorwind zulässig. Die Abflugrichtung muss von der Seilbahn wegführen.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, landeExtra: [{ name: "Nebelhorn Oybele (LP 1)", lat: 47.401667, lon: 10.287778, hoehe: 830 }], ...DEF },
+    sectors: [[123.75, 213.75], [191.25, 213.75]], sectorLabel: "SO-SSW · SSW", country: "de", diff: 1, acc: "fb", hoehendiff: 1340, gemeinde: "87561 Oberstdorf", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "1. Alle Piloten benötigen fortgeschrittene Kenntnisse in Vorwärts- und Rückwärtsaufziehen und Flugtechnik sowie fundierter Einschätzung der Wind- und Wettersituation. Mindestqualifikation ist der Besitz des unbeschränkten Luftfahrerscheins. 2. Jeder Pilot benötigt eine Einweisung auf die besondere Startplatzsituation. Diese kann persönlich oder auch online erfolgen. Tandempiloten müssen persönlich eingewiesen werden. 3. Starts und Vorbereitungen auf präparierten Pisten sind während des Ski-Betriebs untersagt. Der Pistentrieb darf nicht beeinträchtigt werden. Ein Start ist nur zulässig, wenn keine Gefahr für Dritte besteht und der Luftraum frei ist. Der Startbereich ist entsprechend zu kennzeichnen. Es ist sicherzustellen, dass Wanderer auf dem Wanderweg sowie Skifahrer auf der Piste während des Ski-Betriebs durch abfliegende Piloten nicht gefährdet werden. Es ist stets ein ausreichender Sicherheitsabstand zu Personen, Gebäuden und den Seilen der Bergbahn einzuhalten. Außerhalb der Betriebszeiten der Seilbahn gibt es gesonderte Regelungen. Infos dazu beim Geländehalter. 4. Ein Start ist nur bei Vorwind zulässig. Die Abflugrichtung muss von der Seilbahn wegführen.", landeName: "Nebelhorn Seealpe (LP 2)", landeLat: 47.4083, landeLon: 10.3150, landeHoehe: 1288, landeExtra: [{ name: "Nebelhorn Oybele (LP 1)", lat: 47.401667, lon: 10.287778, hoehe: 830 }], livewetter: "https://holfuy.com/de/data/1102", ...DEF },
 
   { id: "db_395_SW", name: "Nebelhorn Gipfel Terassen-SP 1 (südl. Gipfelstation) (SW)", region: "Oberstdorf",
     lat: 47.4207, lon: 10.3424, elevation: 2150, dhv: 395,
@@ -1546,11 +1546,11 @@ const SPOT_DB = [
 
   { id: "db_87", name: "Neumagen-Dhron", region: "NeumagenDhron",
     lat: 49.8774, lon: 6.8877, elevation: 385, dhv: 87,
-    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", acc: "fa", hoehendiff: 280, gemeinde: "54347 NeumagenDhron", bundesland: "Rheinland-Pfalz", landeName: "Neumagen-Dhron Landeplatz", landeLat: 49.8684, landeLon: 6.8969, landeHoehe: 105, ...DEF },
+    sectors: [[33.75, 146.25]], sectorLabel: "NO-SO", country: "de", acc: "fa", hoehendiff: 280, gemeinde: "54347 NeumagenDhron", bundesland: "Rheinland-Pfalz", landeName: "Neumagen-Dhron Landeplatz", landeLat: 49.8684, landeLon: 6.8969, landeHoehe: 105, livewetter: "https://holfuy.com/de/data/339", webcam: "https://holfuy.com/de/data/339", ...DEF },
 
   { id: "db_1009", name: "Neuwied-Rodenbach", region: "Neuwied-Rodenbach",
     lat: 50.4606, lon: 7.4384, elevation: 170, dhv: 1009,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "fa", hoehendiff: 40, gemeinde: "56567 Neuwied-Rodenbach", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Neuwied-Rodenbach Landeplatz", landeLat: 50.4608, landeLon: 7.4407, landeHoehe: 130, ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "fa", hoehendiff: 40, gemeinde: "56567 Neuwied-Rodenbach", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Neuwied-Rodenbach Landeplatz", landeLat: 50.4608, landeLon: 7.4407, landeHoehe: 130, livewetter: "https://holfuy.com/de/data/1814", ...DEF },
 
   { id: "db_147", name: "Nieder-Liebersbach Übungshang", region: "Birkenau",
     lat: 49.5956, lon: 8.7106, elevation: 245, dhv: 147,
@@ -1594,7 +1594,7 @@ const SPOT_DB = [
 
   { id: "db_551", name: "Nordwesthang Sassenroth", region: "Stadtverwaltung Herdorf",
     lat: 50.7698, lon: 7.9291, elevation: 370, dhv: 551,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 155, gemeinde: "57562 Stadtverwaltung Herdorf", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Nordwesthang Sassenroth Landeplatz", landeLat: 50.7717, landeLon: 7.9219, landeHoehe: 215, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 155, gemeinde: "57562 Stadtverwaltung Herdorf", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Nordwesthang Sassenroth Landeplatz", landeLat: 50.7717, landeLon: 7.9219, landeHoehe: 215, livewetter: "https://holfuy.com/de/data/534", ...DEF },
 
   { id: "db_5766", name: "Ober-Ostern", region: "Reichelsheim",
     lat: 49.6821, lon: 8.8432, elevation: 352, dhv: 5766,
@@ -1614,11 +1614,11 @@ const SPOT_DB = [
 
   { id: "db_746", name: "Obere Tonhalde", region: "Münsingen-Buttenhausen",
     lat: 48.3603, lon: 9.4841, elevation: 800, dhv: 746,
-    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "72525 Münsingen-Buttenhausen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Obere Tonhalde Landeplatz Sportplatz Buttenhausen", landeLat: 48.3583, landeLon: 9.4811, landeHoehe: 650, ...DEF },
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "fa", hoehendiff: 150, gemeinde: "72525 Münsingen-Buttenhausen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Obere Tonhalde Landeplatz Sportplatz Buttenhausen", landeLat: 48.3583, landeLon: 9.4811, landeHoehe: 650, livewetter: "https://holfuy.com/de/data/1490", ...DEF },
 
   { id: "db_446_S", name: "Obereichstätt (S)", region: "Dollnstein",
     lat: 48.8967, lon: 11.1351, elevation: 520, dhv: 446,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "f", hoehendiff: 150, gemeinde: "91795 Dollnstein", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Obereichstätt Landeplatz", landeLat: 48.8903, landeLon: 11.1337, landeHoehe: 370, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "f", hoehendiff: 150, gemeinde: "91795 Dollnstein", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Obereichstätt Landeplatz", landeLat: 48.8903, landeLon: 11.1337, landeHoehe: 370, livewetter: "https://holfuy.com/de/data/1937", ...DEF },
 
   { id: "db_446_SW", name: "Obereichstätt (SW)", region: "Dollnstein",
     lat: 48.8929, lon: 11.1406, elevation: 520, dhv: 446,
@@ -1626,7 +1626,7 @@ const SPOT_DB = [
 
   { id: "db_371", name: "Oberemmendorf", region: "Kipfenberg",
     lat: 48.9895, lon: 11.4436, elevation: 520, dhv: 371,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 160, gemeinde: "85110 Kipfenberg", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schneisenstart", landeName: "Oberemmendorf Landeplatz", landeLat: 48.9929, landeLon: 11.4367, landeHoehe: 360, ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "fa", hoehendiff: 160, gemeinde: "85110 Kipfenberg", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Schneisenstart", landeName: "Oberemmendorf Landeplatz", landeLat: 48.9929, landeLon: 11.4367, landeHoehe: 360, livewetter: "https://holfuy.com/de/data/400", webcam: "https://holfuy.com/de/data/400", ...DEF },
 
   { id: "db_497", name: "Oberer Gemeindeberg/Unterer Gemeindeberg", region: "Gschwend",
     lat: 48.925, lon: 9.7383, elevation: 568, dhv: 497,
@@ -1638,7 +1638,7 @@ const SPOT_DB = [
 
   { id: "db_443", name: "Obergrainet", region: "Obergrainet",
     lat: 48.8013, lon: 13.6717, elevation: 940, dhv: 443,
-    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", diff: 1, acc: "fa", hoehendiff: 320, gemeinde: "94143 Obergrainet", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", bemerkung: "Rampenstart nach Südwest für Drachenflieger, Start bei Wind aus Süd bis West möglich, Start anspruchsvoll, da Gelände sehr flach und Bäume seitlich.", landeName: "Obergrainet Landeplatz", landeLat: 48.7902, landeLon: 13.6514, landeHoehe: 620, ...DEF },
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", diff: 1, acc: "fa", hoehendiff: 320, gemeinde: "94143 Obergrainet", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", bemerkung: "Rampenstart nach Südwest für Drachenflieger, Start bei Wind aus Süd bis West möglich, Start anspruchsvoll, da Gelände sehr flach und Bäume seitlich.", landeName: "Obergrainet Landeplatz", landeLat: 48.7902, landeLon: 13.6514, landeHoehe: 620, livewetter: "https://holfuy.com/de/data/1541", ...DEF },
 
   { id: "db_1195", name: "Oberkochen", region: "Oberkochen",
     lat: 48.7808, lon: 10.0908, elevation: 688, dhv: 1195,
@@ -1658,7 +1658,7 @@ const SPOT_DB = [
 
   { id: "db_198", name: "Oberried", region: "Oberried",
     lat: 47.9203, lon: 7.9544, elevation: 880, dhv: 198,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fa", hoehendiff: 420, gemeinde: "79254 Oberried", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", landeName: "Oberried Landeplatz GS und HG", landeLat: 47.9375, landeLon: 7.9574, landeHoehe: 460, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fa", hoehendiff: 420, gemeinde: "79254 Oberried", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", landeName: "Oberried Landeplatz GS und HG", landeLat: 47.9375, landeLon: 7.9574, landeHoehe: 460, livewetter: "https://www.openwindmap.org/pioupiou-2014", ...DEF },
 
   { id: "db_1001", name: "Oberweiler", region: "Odernheim/Glan",
     lat: 49.7705, lon: 7.7192, elevation: 300, dhv: 1001,
@@ -1666,7 +1666,7 @@ const SPOT_DB = [
 
   { id: "db_701", name: "Ockfen/Bockstein", region: "Ockfen",
     lat: 49.6241, lon: 6.5951, elevation: 370, dhv: 701,
-    sectors: [[191.25, 236.25]], sectorLabel: "SSW-SW", country: "de", acc: "fa", hoehendiff: 175, gemeinde: "54441 Ockfen", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Bitte die Gästeregelung beachten, die Geländeinformationen im Infokasten am Landeplatz aufmerksam durchlesen und beachten sowie Fahrgemeinschaften zum Startplatz bilden, um die Zufahrtswege freizuhalten. Es dürfen maximal zwei Fahrzeuge am Startplatz stehen!", landeName: "Ockfen/Bockstein Landeplatz", landeLat: 49.6183, landeLon: 6.5966, landeHoehe: 195, ...DEF },
+    sectors: [[191.25, 236.25]], sectorLabel: "SSW-SW", country: "de", acc: "fa", hoehendiff: 175, gemeinde: "54441 Ockfen", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Bitte die Gästeregelung beachten, die Geländeinformationen im Infokasten am Landeplatz aufmerksam durchlesen und beachten sowie Fahrgemeinschaften zum Startplatz bilden, um die Zufahrtswege freizuhalten. Es dürfen maximal zwei Fahrzeuge am Startplatz stehen!", landeName: "Ockfen/Bockstein Landeplatz", landeLat: 49.6183, landeLon: 6.5966, landeHoehe: 195, livewetter: "https://holfuy.com/de/data/362", ...DEF },
 
   { id: "db_2603", name: "Ödberg", region: "Gmund am Tegernsee",
     lat: 47.7391, lon: 11.7758, elevation: 960, dhv: 2603,
@@ -1690,11 +1690,11 @@ const SPOT_DB = [
 
   { id: "db_277", name: "Orensberg", region: "Frankweiler",
     lat: 49.2405, lon: 8.0263, elevation: 547, dhv: 277,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 346, gemeinde: "76833 Frankweiler", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "kein Gastflugbetrieb", landeName: "Orensberg Landeplatz Dernbach/Weilacher", landeLat: 49.2377, landeLon: 8.0049, landeHoehe: 201, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 346, gemeinde: "76833 Frankweiler", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "kein Gastflugbetrieb", landeName: "Orensberg Landeplatz Dernbach/Weilacher", landeLat: 49.2377, landeLon: 8.0049, landeHoehe: 201, livewetter: "https://holfuy.com/de/data/795", ...DEF },
 
   { id: "db_452", name: "Osser", region: "Lam/Lohberg",
     lat: 49.204, lon: 13.0991, elevation: 1175, dhv: 452,
-    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "f", hoehendiff: 527, gemeinde: "93462 Lam/Lohberg", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Aufstieg zu Fuß; vom 1.3 bis 30.6. nur für Mitglieder des 1. GSV Bayerwald.", landeName: "Osser Himmelreich Landeplatz", landeLat: 49.2023, landeLon: 13.0641, landeHoehe: 648, ...DEF },
+    sectors: [[168.75, 281.25]], sectorLabel: "S-W", country: "de", acc: "f", hoehendiff: 527, gemeinde: "93462 Lam/Lohberg", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Aufstieg zu Fuß; vom 1.3 bis 30.6. nur für Mitglieder des 1. GSV Bayerwald.", landeName: "Osser Himmelreich Landeplatz", landeLat: 49.2023, landeLon: 13.0641, landeHoehe: 648, livewetter: "https://www.openwindmap.org/pioupiou-1673", ...DEF },
 
   { id: "db_672", name: "Ostalb - Skipiste Langert", region: "Aalen",
     lat: 48.8148, lon: 10.0782, elevation: 664, dhv: 672,
@@ -1706,11 +1706,11 @@ const SPOT_DB = [
 
   { id: "db_321_N", name: "Osterfelder Ost-Startplatz (Hauptstartplatz) (N)", region: "Garmisch-Partenkirchen",
     lat: 47.4393, lon: 11.0519, elevation: 2010, dhv: 321,
-    sectors: [[348.75, 56.25], [303.75, 56.25]], sectorLabel: "N-NO · NW-NO", country: "de", acc: "fb", hoehendiff: 1308, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Osterfelder Landeplatz", landeLat: 47.4745, landeLon: 11.0603, landeHoehe: 730, ...DEF },
+    sectors: [[348.75, 56.25], [303.75, 56.25]], sectorLabel: "N-NO · NW-NO", country: "de", acc: "fb", hoehendiff: 1308, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Osterfelder Landeplatz", landeLat: 47.4745, landeLon: 11.0603, landeHoehe: 730, livewetter: "https://www.openwindmap.org/pioupiou-2077", ...DEF },
 
   { id: "db_321_SO", name: "Osterfelder Ost-Startplatz (Hauptstartplatz) (SO)", region: "Garmisch-Partenkirchen",
     lat: 47.4382, lon: 11.05, elevation: 2038, dhv: 321,
-    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "de", acc: "fb", hoehendiff: 1308, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Windrichtung von 30° - 170°, nicht bei Westwind oder Föhn auf Zugspitze > 35 km/h. Gefahren: bei Nordwind kleine Rotoren im Bereich des Abhebens, bei Westwind Leerotoren / Leethermik (Windsack auf Bergstation und Fähnchen auf Sprengbahn beachten und laufbereit bleiben!) Nach dem Start sobald als möglich links abbiegen - nicht ins Reintal einfliegen!", landeName: "Osterfelder Landeplatz", landeLat: 47.4745, landeLon: 11.0603, landeHoehe: 730, ...DEF },
+    sectors: [[78.75, 191.25]], sectorLabel: "O-S", country: "de", acc: "fb", hoehendiff: 1308, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Windrichtung von 30° - 170°, nicht bei Westwind oder Föhn auf Zugspitze > 35 km/h. Gefahren: bei Nordwind kleine Rotoren im Bereich des Abhebens, bei Westwind Leerotoren / Leethermik (Windsack auf Bergstation und Fähnchen auf Sprengbahn beachten und laufbereit bleiben!) Nach dem Start sobald als möglich links abbiegen - nicht ins Reintal einfliegen!", landeName: "Osterfelder Landeplatz", landeLat: 47.4745, landeLon: 11.0603, landeHoehe: 730, livewetter: "https://holfuy.com/de/data/771", ...DEF },
 
   { id: "db_74", name: "Pegestorf", region: "Pegestorf",
     lat: 51.9401, lon: 9.4913, elevation: 225, dhv: 74,
@@ -1746,7 +1746,7 @@ const SPOT_DB = [
 
   { id: "db_341_W", name: "Predigtstuhl (W)", region: "Bad Reichenhall",
     lat: 47.692, lon: 12.8826, elevation: 1688, dhv: 341,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 2, acc: "fb", hoehendiff: 1250, gemeinde: "83421 Bad Reichenhall", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Dieser Startplatz ist für Gleitschirmfliegerbesser besser geeignet. Der Weg führt entlang der Lifttrasse zum Hochschlegel (1688m) und ist zu Fuß in 15 Minuten von der Schlegelmulde aus zu erreichen. Von den Startplätzen aus besteht zu keinem der Landeplätze eine direkte Sichtverbindung. Vor dem Start sollte man sich gleich für eine Flugroute entscheiden, denn verliert man beim Hangkratzen am Hochschlegel zu viel Höhe, droht eine Notlandung am Saalachsee.", landeName: "Predigtstuhl Landeplatz Streitbichel", landeLat: 47.7191, landeLon: 12.8817, landeHoehe: 508, landeExtra: [{ name: "Predigtstuhl Landeplatz Weitwiese", lat: 47.721875, lon: 12.856363, hoehe: 470 }], ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 2, acc: "fb", hoehendiff: 1250, gemeinde: "83421 Bad Reichenhall", bundesland: "Bayern", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Dieser Startplatz ist für Gleitschirmfliegerbesser besser geeignet. Der Weg führt entlang der Lifttrasse zum Hochschlegel (1688m) und ist zu Fuß in 15 Minuten von der Schlegelmulde aus zu erreichen. Von den Startplätzen aus besteht zu keinem der Landeplätze eine direkte Sichtverbindung. Vor dem Start sollte man sich gleich für eine Flugroute entscheiden, denn verliert man beim Hangkratzen am Hochschlegel zu viel Höhe, droht eine Notlandung am Saalachsee.", landeName: "Predigtstuhl Landeplatz Streitbichel", landeLat: 47.7191, landeLon: 12.8817, landeHoehe: 508, landeExtra: [{ name: "Predigtstuhl Landeplatz Weitwiese", lat: 47.721875, lon: 12.856363, hoehe: 470 }], livewetter: "https://holfuy.com/de/data/1061", ...DEF },
 
   { id: "db_459", name: "Premberg", region: "Teublitz",
     lat: 49.2348, lon: 12.0732, elevation: 420, dhv: 459,
@@ -1754,7 +1754,7 @@ const SPOT_DB = [
 
   { id: "db_475", name: "Pröller", region: "St. Engelmar",
     lat: 49.0223, lon: 12.8215, elevation: 1018, dhv: 475,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 438, gemeinde: "94379 St. Engelmar", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Flacher Startplatz", landeName: "Pröller Landeplatz Unterfeld", landeLat: 49.0337, landeLon: 12.8405, landeHoehe: 580, landeExtra: [{ name: "Pröller Landeplatz Klimmer", lat: 49.032993, lon: 12.846601, hoehe: 580 }], ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 438, gemeinde: "94379 St. Engelmar", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Flacher Startplatz", landeName: "Pröller Landeplatz Unterfeld", landeLat: 49.0337, landeLon: 12.8405, landeHoehe: 580, landeExtra: [{ name: "Pröller Landeplatz Klimmer", lat: 49.032993, lon: 12.846601, hoehe: 580 }], livewetter: "https://holfuy.com/de/data/440", ...DEF },
 
   { id: "db_603", name: "Pröllerfeld / Tremmelhauserhöhe Übungshang", region: "Lappersdorf",
     lat: 49.0517, lon: 12.0529, elevation: 430, dhv: 603,
@@ -1770,7 +1770,7 @@ const SPOT_DB = [
 
   { id: "db_500", name: "Radspitze", region: "Seibelsdorf",
     lat: 50.2354, lon: 11.434, elevation: 668, dhv: 500,
-    sectors: [[191.25, 258.75]], sectorLabel: "SSW-WSW", country: "de", acc: "f", hoehendiff: 270, gemeinde: "96364 Seibelsdorf", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", bemerkung: "Schneisenstart: Gefahr von Rotoren und Leewirbeln bei seitlichen Windeinströmungen. Bei westlichen Windrichtungen (250°) ist die Wetterstation etwas im Lee und zeigt verfälschte Werte an. Am Start- und am unteren Parkplatz sind Geländetafeln mit allen wichtigen Informationen zum Fluggelände angebracht. Bitte vor dem Start unbedingt lesen.", landeName: "Radspitze Landeplatz GS", landeLat: 50.2276, landeLon: 11.4292, landeHoehe: 410, landeExtra: [{ name: "Radspitze Landeplatz HG", lat: 50.220169, lon: 11.430292, hoehe: 398 }], ...DEF },
+    sectors: [[191.25, 258.75]], sectorLabel: "SSW-WSW", country: "de", acc: "f", hoehendiff: 270, gemeinde: "96364 Seibelsdorf", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", bemerkung: "Schneisenstart: Gefahr von Rotoren und Leewirbeln bei seitlichen Windeinströmungen. Bei westlichen Windrichtungen (250°) ist die Wetterstation etwas im Lee und zeigt verfälschte Werte an. Am Start- und am unteren Parkplatz sind Geländetafeln mit allen wichtigen Informationen zum Fluggelände angebracht. Bitte vor dem Start unbedingt lesen.", landeName: "Radspitze Landeplatz GS", landeLat: 50.2276, landeLon: 11.4292, landeHoehe: 410, landeExtra: [{ name: "Radspitze Landeplatz HG", lat: 50.220169, lon: 11.430292, hoehe: 398 }], livewetter: "https://holfuy.com/de/data/1038", webcam: "https://holfuy.com/de/data/1038", ...DEF },
 
   { id: "db_340", name: "Rampoldplatte", region: "Brannenburg",
     lat: 47.7256, lon: 12.0417, elevation: 1450, dhv: 340,
@@ -1782,7 +1782,7 @@ const SPOT_DB = [
 
   { id: "db_2644", name: "Ratholz", region: "Immenstadt",
     lat: 47.573, lon: 10.1335, elevation: 983, dhv: 2644,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 256, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Ratholz Landeplatz", landeLat: 47.5656, landeLon: 10.1362, landeHoehe: 727, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "fa", hoehendiff: 256, gemeinde: "87509 Immenstadt", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Ratholz Landeplatz", landeLat: 47.5656, landeLon: 10.1362, landeHoehe: 727, livewetter: "https://holfuy.com/de/data/803", webcam: "https://holfuy.com/de/data/803", ...DEF },
 
   { id: "db_682_SO", name: "Rauenstein (SO)", region: "Rauenstein",
     lat: 50.4247, lon: 11.0427, elevation: 720, dhv: 682,
@@ -1802,7 +1802,7 @@ const SPOT_DB = [
 
   { id: "db_1128", name: "Rebberg", region: "Radolfzell",
     lat: 47.7678, lon: 8.9682, elevation: 490, dhv: 1128,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", gemeinde: "78315 Radolfzell", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", gemeinde: "78315 Radolfzell", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", livewetter: "https://www.openwindmap.org/pioupiou-1339", ...DEF },
 
   { id: "db_432", name: "Rehlehalde / Schöner Berg", region: "Friesenried",
     lat: 47.8659, lon: 10.5802, elevation: 788, dhv: 432,
@@ -1814,7 +1814,7 @@ const SPOT_DB = [
 
   { id: "db_854", name: "Reichenhausen", region: "Reichenhausen",
     lat: 50.5887, lon: 10.1268, elevation: 550, dhv: 854,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 40, gemeinde: "98634 Reichenhausen", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", landeName: "Reichenhausen Landeplatz", landeLat: 50.5864, landeLon: 10.1265, landeHoehe: 510, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", acc: "f", hoehendiff: 40, gemeinde: "98634 Reichenhausen", bundesland: "Thüringen", gleitschirm: "1-sitzig / Schulung", landeName: "Reichenhausen Landeplatz", landeLat: 50.5864, landeLon: 10.1265, landeHoehe: 510, livewetter: "https://holfuy.com/de/data/686", webcam: "https://holfuy.com/de/data/686", ...DEF },
 
   { id: "db_1150", name: "Reichental", region: "Gernsbach / Reichental",
     lat: 48.7274, lon: 8.4237, elevation: 860, dhv: 1150,
@@ -1834,7 +1834,7 @@ const SPOT_DB = [
 
   { id: "db_642", name: "Rivenich", region: "Rivenich",
     lat: 49.8694, lon: 6.8578, elevation: 280, dhv: 642,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 150, gemeinde: "54518 Rivenich", bundesland: "Rheinland-Pfalz", gleitschirm: "2-sitzig, Schulung 1-sitzig", landeName: "Rivenich Landeplatz", landeLat: 49.8667, landeLon: 6.8500, landeHoehe: 130, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "f", hoehendiff: 150, gemeinde: "54518 Rivenich", bundesland: "Rheinland-Pfalz", gleitschirm: "2-sitzig, Schulung 1-sitzig", landeName: "Rivenich Landeplatz", landeLat: 49.8667, landeLon: 6.8500, landeHoehe: 130, livewetter: "https://holfuy.com/de/data/502", webcam: "https://holfuy.com/de/data/502", ...DEF },
 
   { id: "db_440", name: "Röhrenhalde Übungshang", region: "Görisried",
     lat: 47.6858, lon: 10.4981, elevation: 900, dhv: 440,
@@ -1858,7 +1858,7 @@ const SPOT_DB = [
 
   { id: "db_974_SW", name: "Rossbühl (SW)", region: "Oppenau",
     lat: 48.487, lon: 8.2391, elevation: 930, dhv: 974,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "fa", hoehendiff: 430, gemeinde: "77724 Oppenau", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Großzügiger Startplatz mit Toplandemöglichkeit.", landeName: "Rossbühl/Sandkopf Landeplatz Nockenbauernhof", landeLat: 48.4797, landeLon: 8.2214, landeHoehe: 500, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "fa", hoehendiff: 430, gemeinde: "77724 Oppenau", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Großzügiger Startplatz mit Toplandemöglichkeit.", landeName: "Rossbühl/Sandkopf Landeplatz Nockenbauernhof", landeLat: 48.4797, landeLon: 8.2214, landeHoehe: 500, livewetter: "https://holfuy.com/de/data/1593", ...DEF },
 
   { id: "db_5468", name: "Rossnacken", region: "Lennestadt",
     lat: 51.1181, lon: 8.1856, elevation: 580, dhv: 5468,
@@ -1894,11 +1894,11 @@ const SPOT_DB = [
 
   { id: "db_626", name: "Sasbachwalden-Schloßberg", region: "Sasbachwalden",
     lat: 48.6096, lon: 8.1523, elevation: 798, dhv: 626,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fa", hoehendiff: 511, gemeinde: "77887 Sasbachwalden", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Sasbachwalden-Schloßberg Landeplatz", landeLat: 48.6148, landeLon: 8.1287, landeHoehe: 287, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fa", hoehendiff: 511, gemeinde: "77887 Sasbachwalden", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Sasbachwalden-Schloßberg Landeplatz", landeLat: 48.6148, landeLon: 8.1287, landeHoehe: 287, livewetter: "https://holfuy.com/de/data/1101", ...DEF },
 
   { id: "db_1046", name: "Schäfersfeld", region: "Oppenau",
     lat: 48.4357, lon: 8.152, elevation: 770, dhv: 1046,
-    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 465, gemeinde: "77728 Oppenau", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schäfersfeld Landeplatz Bruhansenhof", landeLat: 48.4512, landeLon: 8.1654, landeHoehe: 305, ...DEF },
+    sectors: [[78.75, 146.25]], sectorLabel: "O-SO", country: "de", acc: "fa", hoehendiff: 465, gemeinde: "77728 Oppenau", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schäfersfeld Landeplatz Bruhansenhof", landeLat: 48.4512, landeLon: 8.1654, landeHoehe: 305, livewetter: "https://holfuy.com/de/data/1594", ...DEF },
 
   { id: "db_27", name: "Schauhübel", region: "Geising",
     lat: 50.7481, lon: 13.807, elevation: 690, dhv: 27,
@@ -1906,7 +1906,7 @@ const SPOT_DB = [
 
   { id: "db_575", name: "Schauinsland", region: "Freiburg",
     lat: 47.9097, lon: 7.8896, elevation: 1180, dhv: 575,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fb", hoehendiff: 690, gemeinde: "79102 Freiburg", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "max. 30 Starts pro Tag; Einweisung erforderlich, da extrem lange Gleitstrecke zum Landeplatz", landeName: "Schauinsland Landeplatz Talstation", landeLat: 47.9334, landeLon: 7.8651, landeHoehe: 490, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", diff: 1, acc: "fb", hoehendiff: 690, gemeinde: "79102 Freiburg", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "max. 30 Starts pro Tag; Einweisung erforderlich, da extrem lange Gleitstrecke zum Landeplatz", landeName: "Schauinsland Landeplatz Talstation", landeLat: 47.9334, landeLon: 7.8651, landeHoehe: 490, livewetter: "https://holfuy.com/de/data/517", webcam: "https://holfuy.com/de/data/517", ...DEF },
 
   { id: "db_978", name: "Scheffau", region: "Scheffau",
     lat: 47.6744, lon: 13.0638, elevation: 720, dhv: 978,
@@ -1946,19 +1946,19 @@ const SPOT_DB = [
 
   { id: "db_157", name: "Schnaithalde", region: "Burladingen",
     lat: 48.2965, lon: 9.0576, elevation: 820, dhv: 157,
-    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "de", acc: "f", hoehendiff: 150, gemeinde: "72393 Burladingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Schnaithalde Landeplatz Kather", landeLat: 48.3005, landeLon: 9.0627, landeHoehe: 670, landeExtra: [{ name: "Schnaithalde Landeplatz Am Nikolausheim", lat: 48.300785, lon: 9.065668, hoehe: 670 }], ...DEF },
+    sectors: [[258.75, 11.25]], sectorLabel: "W-N", country: "de", acc: "f", hoehendiff: 150, gemeinde: "72393 Burladingen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Schnaithalde Landeplatz Kather", landeLat: 48.3005, landeLon: 9.0627, landeHoehe: 670, landeExtra: [{ name: "Schnaithalde Landeplatz Am Nikolausheim", lat: 48.300785, lon: 9.065668, hoehe: 670 }], livewetter: "https://holfuy.com/de/data/712", webcam: "https://holfuy.com/de/data/712", ...DEF },
 
   { id: "db_985", name: "Schoden", region: "Schoden",
     lat: 49.6418, lon: 6.5933, elevation: 279, dhv: 985,
-    sectors: [[236.25, 258.75]], sectorLabel: "WSW", country: "de", acc: "f", hoehendiff: 138, gemeinde: "54441 Schoden", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schoden Toplandeplatz", landeLat: 49.6419, landeLon: 6.5936, landeHoehe: 281, landeExtra: [{ name: "Schoden Notlandeplatz", lat: 49.638333, lon: 6.588333, hoehe: 171 }, { name: "Schoden Landeplatz", lat: 49.640478, lon: 6.585594, hoehe: 141 }], ...DEF },
+    sectors: [[236.25, 258.75]], sectorLabel: "WSW", country: "de", acc: "f", hoehendiff: 138, gemeinde: "54441 Schoden", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schoden Toplandeplatz", landeLat: 49.6419, landeLon: 6.5936, landeHoehe: 281, landeExtra: [{ name: "Schoden Notlandeplatz", lat: 49.638333, lon: 6.588333, hoehe: 171 }, { name: "Schoden Landeplatz", lat: 49.640478, lon: 6.585594, hoehe: 141 }], livewetter: "https://holfuy.com/de/data/745", ...DEF },
 
   { id: "db_853", name: "Schrattenbach", region: "Dietmannsried",
     lat: 47.8484, lon: 10.2977, elevation: 800, dhv: 853,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 100, gemeinde: "87463 Dietmannsried", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Waldschneise: Start anspruchsvoll.", landeName: "Schrattenbach Toplandeplatz", landeLat: 47.8485, landeLon: 10.2981, landeHoehe: 800, landeExtra: [{ name: "Schrattenbach Landeplatz", lat: 47.848093, lon: 10.295197, hoehe: 700 }], ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 100, gemeinde: "87463 Dietmannsried", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Waldschneise: Start anspruchsvoll.", landeName: "Schrattenbach Toplandeplatz", landeLat: 47.8485, landeLon: 10.2981, landeHoehe: 800, landeExtra: [{ name: "Schrattenbach Landeplatz", lat: 47.848093, lon: 10.295197, hoehe: 700 }], livewetter: "https://holfuy.com/de/data/1616", ...DEF },
 
   { id: "db_193", name: "Schreckhof", region: "Mosbach-Diedesheim",
     lat: 49.3605, lon: 9.1075, elevation: 255, dhv: 193,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 120, gemeinde: "74821 Mosbach-Diedesheim", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schreckhof Landeplatz", landeLat: 49.3551, landeLon: 9.1007, landeHoehe: 135, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "fa", hoehendiff: 120, gemeinde: "74821 Mosbach-Diedesheim", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schreckhof Landeplatz", landeLat: 49.3551, landeLon: 9.1007, landeHoehe: 135, livewetter: "https://holfuy.com/de/data/476", ...DEF },
 
   { id: "db_192", name: "Schreckhof (Westhang)", region: "Mosbach - Diedesheim",
     lat: 49.3625, lon: 9.1047, elevation: 270, dhv: 192,
@@ -1966,7 +1966,7 @@ const SPOT_DB = [
 
   { id: "db_144", name: "Schriesheim", region: "Schriesheim",
     lat: 49.4645, lon: 8.6788, elevation: 380, dhv: 144,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 270, gemeinde: "69198 Schriesheim", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Erst flacher, dann steil abfallenden, anspruchsvoller Startplatz in einer Waldschneise. Drachenfliegern steht eine Gitterrampe zur Verfügung.", landeName: "Schriesheim Landeplatz", landeLat: 49.4603, landeLon: 8.6681, landeHoehe: 110, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fa", hoehendiff: 270, gemeinde: "69198 Schriesheim", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Erst flacher, dann steil abfallenden, anspruchsvoller Startplatz in einer Waldschneise. Drachenfliegern steht eine Gitterrampe zur Verfügung.", landeName: "Schriesheim Landeplatz", landeLat: 49.4603, landeLon: 8.6681, landeHoehe: 110, livewetter: "https://holfuy.com/de/data/524", webcam: "https://holfuy.com/de/data/524", ...DEF },
 
   { id: "db_3555", name: "Schulungsgelände Gländfeld", region: "Bischofsmais",
     lat: 48.9031, lon: 13.0886, elevation: 685, dhv: 3555,
@@ -1986,7 +1986,7 @@ const SPOT_DB = [
 
   { id: "db_5663", name: "Schwanden Übungshang", region: "Stifenhofen",
     lat: 47.5876, lon: 10.0297, elevation: 930, dhv: 5663,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 33, gemeinde: "88167 Stifenhofen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schwanden Landeplatz", landeLat: 47.5885, landeLon: 10.0319, landeHoehe: 897, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 33, gemeinde: "88167 Stifenhofen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Schwanden Landeplatz", landeLat: 47.5885, landeLon: 10.0319, landeHoehe: 897, livewetter: "https://holfuy.com/de/data/708", webcam: "https://holfuy.com/de/data/708", ...DEF },
 
   { id: "db_1935", name: "Schwaney-Hoppenberg", region: "Altenbeken",
     lat: 51.7158, lon: 8.9017, elevation: 325, dhv: 1935,
@@ -2006,7 +2006,7 @@ const SPOT_DB = [
 
   { id: "db_2971", name: "Sehlem", region: "Sehlem",
     lat: 49.8945, lon: 6.827, elevation: 205, dhv: 2971,
-    sectors: [[258.75, 348.75]], sectorLabel: "W-NNW", country: "de", acc: "fa", hoehendiff: 30, gemeinde: "54518 Sehlem", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Sehlem Landeplatz", landeLat: 49.8962, landeLon: 6.8246, landeHoehe: 175, ...DEF },
+    sectors: [[258.75, 348.75]], sectorLabel: "W-NNW", country: "de", acc: "fa", hoehendiff: 30, gemeinde: "54518 Sehlem", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig / Schulung", landeName: "Sehlem Landeplatz", landeLat: 49.8962, landeLon: 6.8246, landeHoehe: 175, livewetter: "https://holfuy.com/de/data/238", ...DEF },
 
   { id: "db_5719", name: "Sengenberg", region: "Bestwig",
     lat: 51.3783, lon: 8.4154, elevation: 499, dhv: 5719,
@@ -2014,7 +2014,7 @@ const SPOT_DB = [
 
   { id: "db_86", name: "Serrig und Hamm", region: "Trier-Saarburg",
     lat: 49.569, lon: 6.6156, elevation: 320, dhv: 86,
-    sectors: [[236.25, 281.25]], sectorLabel: "WSW-W", country: "de", acc: "fa", hoehendiff: 190, gemeinde: "54439 Trier-Saarburg", bundesland: "Rheinland-Pfalz", landeName: "Serrig und Hamm Landeplatz", landeLat: 49.5668, landeLon: 6.6049, landeHoehe: 130, ...DEF },
+    sectors: [[236.25, 281.25]], sectorLabel: "WSW-W", country: "de", acc: "fa", hoehendiff: 190, gemeinde: "54439 Trier-Saarburg", bundesland: "Rheinland-Pfalz", landeName: "Serrig und Hamm Landeplatz", landeLat: 49.5668, landeLon: 6.6049, landeHoehe: 130, livewetter: "https://holfuy.com/de/data/340", webcam: "https://holfuy.com/de/data/340", ...DEF },
 
   { id: "db_5770", name: "Sieseler Alm -", region: "Plettenberg",
     lat: 51.2151, lon: 7.9021, elevation: 442, dhv: 5770,
@@ -2022,11 +2022,11 @@ const SPOT_DB = [
 
   { id: "db_142", name: "Sinnhöll", region: "Offenbach-Hundheim",
     lat: 49.6224, lon: 7.5416, elevation: 270, dhv: 142,
-    sectors: [[213.75, 258.75]], sectorLabel: "SW-WSW", country: "de", acc: "fa", hoehendiff: 90, gemeinde: "67749 Offenbach-Hundheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Sinnhöll Landeplatz", landeLat: 49.6212, landeLon: 7.5397, landeHoehe: 180, ...DEF },
+    sectors: [[213.75, 258.75]], sectorLabel: "SW-WSW", country: "de", acc: "fa", hoehendiff: 90, gemeinde: "67749 Offenbach-Hundheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Sinnhöll Landeplatz", landeLat: 49.6212, landeLon: 7.5397, landeHoehe: 180, livewetter: "https://holfuy.com/de/data/187", ...DEF },
 
   { id: "db_390", name: "Sinswang", region: "Stiefenhofen",
     lat: 47.5673, lon: 9.9967, elevation: 940, dhv: 390,
-    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 150, gemeinde: "88167 Stiefenhofen", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Sinswang Landeplatz", landeLat: 47.5653, landeLon: 10.0010, landeHoehe: 790, ...DEF },
+    sectors: [[123.75, 146.25]], sectorLabel: "SO", country: "de", acc: "f", hoehendiff: 150, gemeinde: "88167 Stiefenhofen", bundesland: "Bayern", gleitschirm: "1-sitzig / Schulung", landeName: "Sinswang Landeplatz", landeLat: 47.5653, landeLon: 10.0010, landeHoehe: 790, livewetter: "https://holfuy.com/de/data/946", ...DEF },
 
   { id: "db_889", name: "Skihang Hartenrod", region: "Hartenrod",
     lat: 50.7483, lon: 8.454, elevation: 495, dhv: 889,
@@ -2046,7 +2046,7 @@ const SPOT_DB = [
 
   { id: "db_473", name: "Sommerberg", region: "Haibach",
     lat: 49.0367, lon: 12.7471, elevation: 800, dhv: 473,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 350, gemeinde: "94353 Haibach", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Von Vereinsmitglied einweisen lassen, nicht durch Wiesen gehen, bitte Rücksicht nehmen! Keine Starts bei Seitenwind! Schneisenstart!", landeName: "Sommerberg Landeplatz", landeLat: 49.0382, landeLon: 12.7258, landeHoehe: 450, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 350, gemeinde: "94353 Haibach", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Von Vereinsmitglied einweisen lassen, nicht durch Wiesen gehen, bitte Rücksicht nehmen! Keine Starts bei Seitenwind! Schneisenstart!", landeName: "Sommerberg Landeplatz", landeLat: 49.0382, landeLon: 12.7258, landeHoehe: 450, livewetter: "https://holfuy.com/de/data/480", webcam: "https://holfuy.com/de/data/480", ...DEF },
 
   { id: "db_727", name: "Sommerberg", region: "Bad Wildbad",
     lat: 48.7404, lon: 8.5347, elevation: 730, dhv: 727,
@@ -2066,11 +2066,11 @@ const SPOT_DB = [
 
   { id: "db_2200", name: "Spielberg", region: "Hümpfershausen",
     lat: 50.6597, lon: 10.2238, elevation: 531, dhv: 2200,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 108, gemeinde: "98634 Hümpfershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Spielberg Haupt-Landeplatz", landeLat: 50.6637, landeLon: 10.2246, landeHoehe: 455, landeExtra: [{ name: "Spielberg Ausweich-Landeplatz", lat: 50.663975, lon: 10.230914, hoehe: 423 }], ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 108, gemeinde: "98634 Hümpfershausen", bundesland: "Thüringen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Spielberg Haupt-Landeplatz", landeLat: 50.6637, landeLon: 10.2246, landeHoehe: 455, landeExtra: [{ name: "Spielberg Ausweich-Landeplatz", lat: 50.663975, lon: 10.230914, hoehe: 423 }], livewetter: "https://holfuy.com/de/data/687", ...DEF },
 
   { id: "db_266_S", name: "Spieser (S)", region: "Hindelang",
     lat: 47.5272, lon: 10.3894, elevation: 1641, dhv: 266,
-    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "f", hoehendiff: 839, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Almwiesen oberhalb von Oberjoch.", landeName: "Hirschberg / Jochschrofen Landeplatz Busbahnhof", landeLat: 47.5042, landeLon: 10.3718, landeHoehe: 802, landeExtra: [{ name: "Hirschberg Landeplatz 1", lat: 47.5003, lon: 10.367489, hoehe: 802 }], ...DEF },
+    sectors: [[123.75, 236.25]], sectorLabel: "SO-SW", country: "de", acc: "f", hoehendiff: 839, gemeinde: "87541 Hindelang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", bemerkung: "Almwiesen oberhalb von Oberjoch.", landeName: "Hirschberg / Jochschrofen Landeplatz Busbahnhof", landeLat: 47.5042, landeLon: 10.3718, landeHoehe: 802, landeExtra: [{ name: "Hirschberg Landeplatz 1", lat: 47.5003, lon: 10.367489, hoehe: 802 }], livewetter: "https://holfuy.com/de/data/857", ...DEF },
 
   { id: "db_266_W", name: "Spieser (W)", region: "Hindelang",
     lat: 47.518, lon: 10.3768, elevation: 1470, dhv: 266,
@@ -2082,23 +2082,23 @@ const SPOT_DB = [
 
   { id: "db_971", name: "Sponsheimer Berg", region: "Laubenheim",
     lat: 49.9297, lon: 7.8911, elevation: 200, dhv: 971,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 60, gemeinde: "55452 Laubenheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Sponsheimer Berg Landeplatz", landeLat: 49.9308, landeLon: 7.8920, landeHoehe: 140, landeExtra: [{ name: "Sponsheimer Berg Toplandeplatz", lat: 49.929217, lon: 7.888446, hoehe: 200 }], ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 60, gemeinde: "55452 Laubenheim", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig", landeName: "Sponsheimer Berg Landeplatz", landeLat: 49.9308, landeLon: 7.8920, landeHoehe: 140, landeExtra: [{ name: "Sponsheimer Berg Toplandeplatz", lat: 49.929217, lon: 7.888446, hoehe: 200 }], livewetter: "https://holfuy.com/de/data/501", webcam: "https://holfuy.com/de/data/501", ...DEF },
 
   { id: "db_95", name: "Stachelhardt", region: "Bülgenauel / Hennef",
     lat: 50.7809, lon: 7.3767, elevation: 210, dhv: 95,
-    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", diff: 1, acc: "fa", hoehendiff: 120, gemeinde: "53773 Bülgenauel / Hennef", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Gleitschirmpiloten benötigen die B-Lizenz. Einweisung erforderlich", landeName: "Stachelhardt Landeplatz", landeLat: 50.7767, landeLon: 7.3731, landeHoehe: 90, ...DEF },
+    sectors: [[168.75, 191.25]], sectorLabel: "S", country: "de", diff: 1, acc: "fa", hoehendiff: 120, gemeinde: "53773 Bülgenauel / Hennef", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Gleitschirmpiloten benötigen die B-Lizenz. Einweisung erforderlich", landeName: "Stachelhardt Landeplatz", landeLat: 50.7767, landeLon: 7.3731, landeHoehe: 90, livewetter: "https://holfuy.com/de/data/221", ...DEF },
 
   { id: "db_1169_S", name: "Startplatz Kandel (Kandel-West und Rampe) (S)", region: "Waldkirch",
     lat: 48.0568, lon: 8.0131, elevation: 1150, dhv: 1169,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 840, gemeinde: "79183 Waldkirch", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Flugbetrieb nur mit Flugleiter (DFC-Mitglied). B-Schein erforderlich. Abstand zu Wanderfalkenhorst immer einhalten (Info auf homepage des DFC Südschwarzwald): http://www.dgfc-suedschwarzwald.de/", landeName: "Landeplatz Glottertal", landeLat: 48.0455, landeLon: 7.9718, landeHoehe: 380, landeExtra: [{ name: "Landeplatz Heimeck", lat: 48.093717, lon: 7.992215, hoehe: 370 }, { name: "Landeplatz Eichbühl", lat: 48.102756, lon: 7.991008, hoehe: 360 }], ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 840, gemeinde: "79183 Waldkirch", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Flugbetrieb nur mit Flugleiter (DFC-Mitglied). B-Schein erforderlich. Abstand zu Wanderfalkenhorst immer einhalten (Info auf homepage des DFC Südschwarzwald): http://www.dgfc-suedschwarzwald.de/", landeName: "Landeplatz Glottertal", landeLat: 48.0455, landeLon: 7.9718, landeHoehe: 380, landeExtra: [{ name: "Landeplatz Heimeck", lat: 48.093717, lon: 7.992215, hoehe: 370 }, { name: "Landeplatz Eichbühl", lat: 48.102756, lon: 7.991008, hoehe: 360 }], livewetter: "https://holfuy.com/de/data/423", ...DEF },
 
   { id: "db_1169_W", name: "Startplatz Kandel (Kandel-West und Rampe) (W)", region: "Waldkirch",
     lat: 48.0652, lon: 8.0152, elevation: 1200, dhv: 1169,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 840, gemeinde: "79183 Waldkirch", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wichtigster Startplatz am Kandel. Gleitschirmstarts neben der Rampe dürfen grundsätzlich nur von Vereinsmitglieder durchgeführt werden ! Gleitschirmfliegende Gastflieger benötigen den B-Schein und es gilt die Patenschaftsregelung, Flugbetrieb nur mit Flugleiter (DFC-Mitglied). Schutzzone Wanderfalkenhorst beachten!", landeName: "Landeplatz Heimeck", landeLat: 48.0937, landeLon: 7.9922, landeHoehe: 370, landeExtra: [{ name: "Landeplatz Glottertal", lat: 48.045521, lon: 7.971804, hoehe: 380 }, { name: "Landeplatz Eichbühl", lat: 48.102756, lon: 7.991008, hoehe: 360 }], ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 840, gemeinde: "79183 Waldkirch", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Wichtigster Startplatz am Kandel. Gleitschirmstarts neben der Rampe dürfen grundsätzlich nur von Vereinsmitglieder durchgeführt werden ! Gleitschirmfliegende Gastflieger benötigen den B-Schein und es gilt die Patenschaftsregelung, Flugbetrieb nur mit Flugleiter (DFC-Mitglied). Schutzzone Wanderfalkenhorst beachten!", landeName: "Landeplatz Heimeck", landeLat: 48.0937, landeLon: 7.9922, landeHoehe: 370, landeExtra: [{ name: "Landeplatz Glottertal", lat: 48.045521, lon: 7.971804, hoehe: 380 }, { name: "Landeplatz Eichbühl", lat: 48.102756, lon: 7.991008, hoehe: 360 }], livewetter: "https://holfuy.com/de/data/489", ...DEF },
 
   { id: "db_146_O", name: "Stauf (O)", region: "Eisenberg",
     lat: 49.5495, lon: 8.0275, elevation: 260, dhv: 146,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 70, gemeinde: "67304 Eisenberg", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Stauf Landeplatz Südost", landeLat: 49.5482, landeLon: 8.0302, landeHoehe: 190, landeExtra: [{ name: "Stauf Landeplatz West", lat: 49.549361, lon: 8.02225, hoehe: 190 }], ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "f", hoehendiff: 70, gemeinde: "67304 Eisenberg", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Stauf Landeplatz Südost", landeLat: 49.5482, landeLon: 8.0302, landeHoehe: 190, landeExtra: [{ name: "Stauf Landeplatz West", lat: 49.549361, lon: 8.02225, hoehe: 190 }], livewetter: "https://holfuy.com/de/data/325", webcam: "https://holfuy.com/de/data/325", ...DEF },
 
   { id: "db_146_SW", name: "Stauf (SW)", region: "Eisenberg",
     lat: 49.5495, lon: 8.0264, elevation: 260, dhv: 146,
@@ -2122,7 +2122,7 @@ const SPOT_DB = [
 
   { id: "db_823", name: "Stettelberg", region: "Bodman-Ludwigshafen",
     lat: 47.8135, lon: 9.0756, elevation: 590, dhv: 823,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", diff: 1, acc: "fa", hoehendiff: 170, gemeinde: "78351 Bodman-Ludwigshafen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Die Zufahrt zum Startplatz erfolgt von Bodmann-Ludwigshafen bzw. von Bonndorf kommend über die Kreisstraße K 6174. Auf Höhe des Weierhofs (nach bzw. vor dem Waldstück) nach Süden abbiegen. Der schmalen Straße ca. 800m folgen bis zum Waldrand. Dann links weitere 600m am Waldrand entlang. Hier biegt ein Waldweg (Schotter) nach rechts in den Wald ab. Gäste parken am einfachsten direkt dort. Weiter zu Fuß auf dem Waldweg ca. 500m nach Süden zum Startplatz.", landeName: "Stettelberg Landeplatz", landeLat: 47.8090, landeLon: 9.0718, landeHoehe: 420, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", diff: 1, acc: "fa", hoehendiff: 170, gemeinde: "78351 Bodman-Ludwigshafen", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Die Zufahrt zum Startplatz erfolgt von Bodmann-Ludwigshafen bzw. von Bonndorf kommend über die Kreisstraße K 6174. Auf Höhe des Weierhofs (nach bzw. vor dem Waldstück) nach Süden abbiegen. Der schmalen Straße ca. 800m folgen bis zum Waldrand. Dann links weitere 600m am Waldrand entlang. Hier biegt ein Waldweg (Schotter) nach rechts in den Wald ab. Gäste parken am einfachsten direkt dort. Weiter zu Fuß auf dem Waldweg ca. 500m nach Süden zum Startplatz.", landeName: "Stettelberg Landeplatz", landeLat: 47.8090, landeLon: 9.0718, landeHoehe: 420, livewetter: "https://holfuy.com/de/data/1262", ...DEF },
 
   { id: "db_398", name: "Steurer", region: "Balderschwang",
     lat: 47.4745, lon: 10.1082, elevation: 1480, dhv: 398,
@@ -2146,11 +2146,11 @@ const SPOT_DB = [
 
   { id: "db_2303", name: "Strüther Wald", region: "Hochstetten-Dhaun",
     lat: 49.7928, lon: 7.5123, elevation: 280, dhv: 2303,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 105, gemeinde: "55601 Hochstetten-Dhaun", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", landeName: "Strüther Wald Landeplatz", landeLat: 49.7949, landeLon: 7.5109, landeHoehe: 175, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "f", hoehendiff: 105, gemeinde: "55601 Hochstetten-Dhaun", bundesland: "Rheinland-Pfalz", gleitschirm: "1-sitzig mit Einweisung", landeName: "Strüther Wald Landeplatz", landeLat: 49.7949, landeLon: 7.5109, landeHoehe: 175, livewetter: "https://holfuy.com/de/data/306", ...DEF },
 
   { id: "db_595_NO", name: "Stüppel (NO)", region: "Bestwig",
     lat: 51.3143, lon: 8.4295, elevation: 716, dhv: 595,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "fa", hoehendiff: 290, gemeinde: "59909 Bestwig", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Toplanden verboten! Der Startplatz NO kann zu Fuss über den Bestwiger Wanderweg südlich der Parkmöglichkeit für PKW erreicht werden. Besonderheit: Strecke zum LP: 1,2 km deswegen unbedingt vor der Auffahrt besichtigen. Insbesondere die Lage der beiden Hochspannungsleitungen beachten.", landeName: "Stüppel Landeplatz", landeLat: 51.3225, landeLon: 8.4212, landeHoehe: 440, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "fa", hoehendiff: 290, gemeinde: "59909 Bestwig", bundesland: "Nordrhein-Westfalen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Toplanden verboten! Der Startplatz NO kann zu Fuss über den Bestwiger Wanderweg südlich der Parkmöglichkeit für PKW erreicht werden. Besonderheit: Strecke zum LP: 1,2 km deswegen unbedingt vor der Auffahrt besichtigen. Insbesondere die Lage der beiden Hochspannungsleitungen beachten.", landeName: "Stüppel Landeplatz", landeLat: 51.3225, landeLon: 8.4212, landeHoehe: 440, livewetter: "https://holfuy.com/de/data/443", webcam: "https://holfuy.com/de/data/443", ...DEF },
 
   { id: "db_595_NW", name: "Stüppel (NW)", region: "Bestwig",
     lat: 51.314, lon: 8.4291, elevation: 730, dhv: 595,
@@ -2158,7 +2158,7 @@ const SPOT_DB = [
 
   { id: "db_565_N", name: "Südhang Wasserkuppe (N)", region: "Gersfeld",
     lat: 50.5032, lon: 9.9391, elevation: 905, dhv: 565,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36136 Poppenhausen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Bei Nord und Nordostlagen geht es zur Abtsrodaer Kuppe. Über 300 m Höhendifferenz und gute thermische Möglichkeiten. Infotafel am Startplatz. Der Landeplatz befindet sich Richtung Dietges. Achtung: Keine Außenlandungen, da Kernzone des Biosphärenreservates Rhön. An Wochenenden ist teilweise ein Fahrdienst zw. Landeplatz und Wasserkuppe eingerichtet. Modellflugbetrieb beachten. Infos: www.rdg-ev.de", landeName: "Landewiese Schütz, In der Schlicht", landeLat: 50.5163, landeLon: 9.9409, landeHoehe: 600, landeExtra: [{ name: "Landewiese Münch, Am Heckenhöfchen", lat: 50.492381, lon: 9.909539, hoehe: 625 }, { name: "Landewiese Ochs, Tränkhof", lat: 50.502564, lon: 9.905548, hoehe: 570 }], ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "fa", hoehendiff: 344, gemeinde: "36136 Poppenhausen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Bei Nord und Nordostlagen geht es zur Abtsrodaer Kuppe. Über 300 m Höhendifferenz und gute thermische Möglichkeiten. Infotafel am Startplatz. Der Landeplatz befindet sich Richtung Dietges. Achtung: Keine Außenlandungen, da Kernzone des Biosphärenreservates Rhön. An Wochenenden ist teilweise ein Fahrdienst zw. Landeplatz und Wasserkuppe eingerichtet. Modellflugbetrieb beachten. Infos: www.rdg-ev.de", landeName: "Landewiese Schütz, In der Schlicht", landeLat: 50.5163, landeLon: 9.9409, landeHoehe: 600, landeExtra: [{ name: "Landewiese Münch, Am Heckenhöfchen", lat: 50.492381, lon: 9.909539, hoehe: 625 }, { name: "Landewiese Ochs, Tränkhof", lat: 50.502564, lon: 9.905548, hoehe: 570 }], livewetter: "https://holfuy.com/de/data/685", webcam: "https://holfuy.com/de/data/685", ...DEF },
 
   { id: "db_565_NW", name: "Südhang Wasserkuppe (NW)", region: "Gersfeld",
     lat: 50.4909, lon: 9.9205, elevation: 875, dhv: 565,
@@ -2198,7 +2198,7 @@ const SPOT_DB = [
 
   { id: "db_1101_NW", name: "Tegelberg (NW)", region: "Schwangau",
     lat: 47.5599, lon: 10.7799, elevation: 1707, dhv: 1101,
-    sectors: [[303.75, 326.25], [281.25, 11.25]], sectorLabel: "NW · WNW-N", country: "de", acc: "fb", hoehendiff: 900, gemeinde: "87645 Schwangau", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Tegelberg LP Talstation Tegelbergbahn", landeLat: 47.5709, landeLon: 10.7561, landeHoehe: 807, webcam: "https://tegelberg.panomax.com/", ...DEF },
+    sectors: [[303.75, 326.25], [281.25, 11.25]], sectorLabel: "NW · WNW-N", country: "de", acc: "fb", hoehendiff: 900, gemeinde: "87645 Schwangau", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Tegelberg LP Talstation Tegelbergbahn", landeLat: 47.5709, landeLon: 10.7561, landeHoehe: 807, webcam: "https://tegelberg.panomax.com/", livewetter: "https://holfuy.com/de/data/905", ...DEF },
 
   { id: "db_1101_SW", name: "Tegelberg (SW)", region: "Schwangau",
     lat: 47.5681, lon: 10.7803, elevation: 1308, dhv: 1101,
@@ -2206,7 +2206,7 @@ const SPOT_DB = [
 
   { id: "db_205", name: "Teufelsberg", region: "Sachsenheim-Hohenhaslach",
     lat: 49.003, lon: 9.0438, elevation: 380, dhv: 205,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "f", hoehendiff: 130, gemeinde: "74343 Sachsenheim-Hohenhaslach", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Teufelsberg Landeplatz", landeLat: 48.9976, landeLon: 9.0429, landeHoehe: 250, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "f", hoehendiff: 130, gemeinde: "74343 Sachsenheim-Hohenhaslach", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Teufelsberg Landeplatz", landeLat: 48.9976, landeLon: 9.0429, landeHoehe: 250, livewetter: "https://holfuy.com/de/data/655", webcam: "https://holfuy.com/de/data/655", ...DEF },
 
   { id: "db_560", name: "Teufelsberg", region: "Berlin-Grunewald",
     lat: 52.5022, lon: 13.247, elevation: 99, dhv: 560,
@@ -2270,7 +2270,7 @@ const SPOT_DB = [
 
   { id: "db_336_N", name: "Unternberg Nord (N)", region: "Ruhpolding",
     lat: 47.7283, lon: 12.6383, elevation: 1381, dhv: 336,
-    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", diff: 1, acc: "fb", hoehendiff: 681, gemeinde: "83324 Ruhpolding", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Unternberg Laubau Not-Landeplatz", landeLat: 47.7250, landeLon: 12.6567, landeHoehe: 700, landeExtra: [{ name: "Unternberg Bärngschwendt Landeplatz", lat: 47.744444, lon: 12.626111, hoehe: 714 }], ...DEF },
+    sectors: [[326.25, 348.75]], sectorLabel: "NNW", country: "de", diff: 1, acc: "fb", hoehendiff: 681, gemeinde: "83324 Ruhpolding", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Unternberg Laubau Not-Landeplatz", landeLat: 47.7250, landeLon: 12.6567, landeHoehe: 700, landeExtra: [{ name: "Unternberg Bärngschwendt Landeplatz", lat: 47.744444, lon: 12.626111, hoehe: 714 }], livewetter: "https://holfuy.com/de/data/424", webcam: "https://holfuy.com/de/data/424", ...DEF },
 
   { id: "db_336_S", name: "Unternberg Nord (S)", region: "Ruhpolding",
     lat: 47.7267, lon: 12.6353, elevation: 1369, dhv: 336,
@@ -2282,11 +2282,11 @@ const SPOT_DB = [
 
   { id: "db_392", name: "Urenschwang", region: "Schelklingen-Hütten",
     lat: 48.3678, lon: 9.6368, elevation: 720, dhv: 392,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 100, gemeinde: "89601 Schelklingen-Hütten", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", landeName: "Urenschwang Landeplatz", landeLat: 48.3693, landeLon: 9.6411, landeHoehe: 620, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "f", hoehendiff: 100, gemeinde: "89601 Schelklingen-Hütten", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", landeName: "Urenschwang Landeplatz", landeLat: 48.3693, landeLon: 9.6411, landeHoehe: 620, livewetter: "https://holfuy.com/de/data/1481", ...DEF },
 
   { id: "db_1223", name: "Urphar", region: "Urphar",
     lat: 49.7414, lon: 9.5646, elevation: 270, dhv: 1223,
-    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 130, gemeinde: "97877 Urphar", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Urphar Landeplatz Nordwest", landeLat: 49.7456, landeLon: 9.5686, landeHoehe: 270, landeExtra: [{ name: "Urphar Landeplatz Nordost", lat: 49.75751, lon: 9.550745, hoehe: 140 }], ...DEF },
+    sectors: [[303.75, 326.25]], sectorLabel: "NW", country: "de", acc: "f", hoehendiff: 130, gemeinde: "97877 Urphar", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "Urphar Landeplatz Nordwest", landeLat: 49.7456, landeLon: 9.5686, landeHoehe: 270, landeExtra: [{ name: "Urphar Landeplatz Nordost", lat: 49.75751, lon: 9.550745, hoehe: 140 }], livewetter: "https://www.openwindmap.org/pioupiou-1574", ...DEF },
 
   { id: "db_5560", name: "V-Tal", region: "Donzdorf",
     lat: 48.7005, lon: 9.8082, elevation: 479, dhv: 5560,
@@ -2298,7 +2298,7 @@ const SPOT_DB = [
 
   { id: "db_1218", name: "Veitsberg", region: "Ebensfeld",
     lat: 50.0633, lon: 11.0005, elevation: 458, dhv: 1218,
-    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 84, gemeinde: "96248 Ebensfeld", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Veitsberg Landeplatz", landeLat: 50.0606, landeLon: 10.9987, landeHoehe: 374, ...DEF },
+    sectors: [[213.75, 236.25]], sectorLabel: "SW", country: "de", acc: "f", hoehendiff: 84, gemeinde: "96248 Ebensfeld", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig", landeName: "Veitsberg Landeplatz", landeLat: 50.0606, landeLon: 10.9987, landeHoehe: 374, livewetter: "https://www.openwindmap.org/pioupiou-2069", ...DEF },
 
   { id: "db_1198_O", name: "Vogelsang Ost-Startplatz (O)", region: "Bayerischzell",
     lat: 47.6633, lon: 12.0346, elevation: 1558, dhv: 1198,
@@ -2306,7 +2306,7 @@ const SPOT_DB = [
 
   { id: "db_1198_W", name: "Vogelsang Ost-Startplatz (W)", region: "Bayerischzell",
     lat: 47.6653, lon: 12.0354, elevation: 1558, dhv: 1198,
-    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fab", hoehendiff: 768, gemeinde: "83735 Bayerischzell", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Kurzer, steiler Start nach Westen. Weiterer Startplatz nach Nordost am Gipfel.", landeName: "Landeplatz Bayrischzell", landeLat: 47.6708, landeLon: 12.0168, landeHoehe: 790, ...DEF },
+    sectors: [[258.75, 281.25]], sectorLabel: "W", country: "de", acc: "fab", hoehendiff: 768, gemeinde: "83735 Bayerischzell", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Kurzer, steiler Start nach Westen. Weiterer Startplatz nach Nordost am Gipfel.", landeName: "Landeplatz Bayrischzell", landeLat: 47.6708, landeLon: 12.0168, landeHoehe: 790, livewetter: "https://holfuy.com/de/data/672", webcam: "https://holfuy.com/de/data/672", ...DEF },
 
   { id: "db_973", name: "Vogtmaiers Kanzel", region: "Bad Peterstal-Griesbach",
     lat: 48.4569, lon: 8.2608, elevation: 900, dhv: 973,
@@ -2346,7 +2346,7 @@ const SPOT_DB = [
 
   { id: "db_749", name: "Waldstetten/Skihütte", region: "Waldstetten",
     lat: 48.7518, lon: 9.815, elevation: 523, dhv: 749,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "fa", hoehendiff: 100, gemeinde: "73550 Waldstetten", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Die Startrichtung ist NO. Weicht der Wind mehr als 45° ab, ist von einem Start abzusehen. Die Bäume rechts und links der Schneise erzeugen gefährliche Turbulenzen.", landeName: "Bergen Landeplatz", landeLat: 48.7543, landeLon: 9.8153, landeHoehe: 423, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", acc: "fa", hoehendiff: 100, gemeinde: "73550 Waldstetten", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", bemerkung: "Die Startrichtung ist NO. Weicht der Wind mehr als 45° ab, ist von einem Start abzusehen. Die Bäume rechts und links der Schneise erzeugen gefährliche Turbulenzen.", landeName: "Bergen Landeplatz", landeLat: 48.7543, landeLon: 9.8153, landeHoehe: 423, livewetter: "https://holfuy.com/de/data/1247", ...DEF },
 
   { id: "db_953_N", name: "Wallberg (N)", region: "Rottach-Egern",
     lat: 47.661, lon: 11.7906, elevation: 1604, dhv: 953,
@@ -2370,7 +2370,7 @@ const SPOT_DB = [
 
   { id: "db_320_S", name: "Wank Ost und Nordost-Startplatz (S)", region: "Garmisch-Partenkirchen",
     lat: 47.5068, lon: 11.1473, elevation: 1730, dhv: 320,
-    sectors: [[78.75, 258.75]], sectorLabel: "O-WSW", country: "de", acc: "fb", hoehendiff: 730, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Wank Landeplatz (Gschwandtner Bauer)", landeLat: 47.4943, landeLon: 11.1659, landeHoehe: 1050, webcam: "https://www.foto-webcam.eu/webcam/wank/", ...DEF },
+    sectors: [[78.75, 258.75]], sectorLabel: "O-WSW", country: "de", acc: "fb", hoehendiff: 730, gemeinde: "82467 Garmisch-Partenkirchen", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Wank Landeplatz (Gschwandtner Bauer)", landeLat: 47.4943, landeLon: 11.1659, landeHoehe: 1050, webcam: "https://www.foto-webcam.eu/webcam/wank/", livewetter: "https://holfuy.com/de/data/575", ...DEF },
 
   { id: "db_320_W", name: "Wank Ost und Nordost-Startplatz (W)", region: "Garmisch-Partenkirchen",
     lat: 47.5076, lon: 11.143, elevation: 1760, dhv: 320,
@@ -2378,11 +2378,11 @@ const SPOT_DB = [
 
   { id: "db_160", name: "Wanne", region: "Pfullingen",
     lat: 48.4461, lon: 9.2275, elevation: 695, dhv: 160,
-    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", diff: 2, acc: "fa", hoehendiff: 187, gemeinde: "72793 Pfullingen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Startregeln: Das Aufziehen und unnötiges/langes Groundhandeln direkt an der Kante ist verboten. Den Schirm mit mindestens 4 Schirmlängen Abstand zur Kante auslegen. Beim Start: sich im Bereich von 2 Schirmlängen bis zur Kante nicht unnötig lange aufhalten. Wenn der Schirm beim Betreten dieses Bereichs noch nicht über dem Piloten ist – Abbruch! (siehe Flugordnung des Vereins).", landeName: "Wanne Landeplatz", landeLat: 48.4433, landeLon: 9.2406, landeHoehe: 508, ...DEF },
+    sectors: [[33.75, 56.25]], sectorLabel: "NO", country: "de", diff: 2, acc: "fa", hoehendiff: 187, gemeinde: "72793 Pfullingen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Startregeln: Das Aufziehen und unnötiges/langes Groundhandeln direkt an der Kante ist verboten. Den Schirm mit mindestens 4 Schirmlängen Abstand zur Kante auslegen. Beim Start: sich im Bereich von 2 Schirmlängen bis zur Kante nicht unnötig lange aufhalten. Wenn der Schirm beim Betreten dieses Bereichs noch nicht über dem Piloten ist – Abbruch! (siehe Flugordnung des Vereins).", landeName: "Wanne Landeplatz", landeLat: 48.4433, landeLon: 9.2406, landeHoehe: 508, livewetter: "https://holfuy.com/de/data/957", ...DEF },
 
   { id: "db_3259", name: "Wehingen", region: "Wehingen",
     lat: 49.4555, lon: 6.5034, elevation: 399, dhv: 3259,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fa", hoehendiff: 75, gemeinde: "66693 Wehingen", bundesland: "Saarland", gleitschirm: "1- und 2-sitzig", bemerkung: "für Tandem geeignet, wenn mind. 10-15 km/h Gegenwind anstehen", landeName: "Wehingen Landeplatz", landeLat: 49.4543, landeLon: 6.5075, landeHoehe: 324, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fa", hoehendiff: 75, gemeinde: "66693 Wehingen", bundesland: "Saarland", gleitschirm: "1- und 2-sitzig", bemerkung: "für Tandem geeignet, wenn mind. 10-15 km/h Gegenwind anstehen", landeName: "Wehingen Landeplatz", landeLat: 49.4543, landeLon: 6.5075, landeHoehe: 324, livewetter: "https://holfuy.com/de/data/1276", ...DEF },
 
   { id: "db_290", name: "Weiherkopf", region: "Münstertal",
     lat: 47.8035, lon: 7.7784, elevation: 1143, dhv: 290,
@@ -2390,7 +2390,7 @@ const SPOT_DB = [
 
   { id: "db_396", name: "Weiherkopf / Hörnerbahn", region: "Bolsterlang",
     lat: 47.4652, lon: 10.2013, elevation: 1660, dhv: 396,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fb", hoehendiff: 820, gemeinde: "87538 Bolsterlang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Weiherkopf / Hörnerbahn Landeplatz (Talstation)", landeLat: 47.4617, landeLon: 10.2261, landeHoehe: 840, landeExtra: [{ name: "Weiherkopf / Hörnerbahn Haupt-LP (Minigolfplatz)", lat: 47.463713, lon: 10.237842, hoehe: 840 }], ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fb", hoehendiff: 820, gemeinde: "87538 Bolsterlang", bundesland: "Bayern", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Weiherkopf / Hörnerbahn Landeplatz (Talstation)", landeLat: 47.4617, landeLon: 10.2261, landeHoehe: 840, landeExtra: [{ name: "Weiherkopf / Hörnerbahn Haupt-LP (Minigolfplatz)", lat: 47.463713, lon: 10.237842, hoehe: 840 }], livewetter: "https://holfuy.com/de/data/1545", ...DEF },
 
   { id: "db_629", name: "Weiherkuppe", region: "Poppenhausen",
     lat: 50.5112, lon: 9.9138, elevation: 720, dhv: 629,
@@ -2402,7 +2402,7 @@ const SPOT_DB = [
 
   { id: "db_758", name: "Weiler", region: "Weiler",
     lat: 49.8054, lon: 7.567, elevation: 265, dhv: 758,
-    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "fa", hoehendiff: 80, gemeinde: "55627 Weiler", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Weiler Landeplatz", landeLat: 49.8043, landeLon: 7.5638, landeHoehe: 185, ...DEF },
+    sectors: [[213.75, 281.25]], sectorLabel: "SW-W", country: "de", acc: "fa", hoehendiff: 80, gemeinde: "55627 Weiler", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Weiler Landeplatz", landeLat: 49.8043, landeLon: 7.5638, landeHoehe: 185, livewetter: "https://holfuy.com/de/data/1426", ...DEF },
 
   { id: "db_5738", name: "Weingarten (Unternberg)", region: "Ruhpolding",
     lat: 47.7415, lon: 12.6387, elevation: 127, dhv: 5738,
@@ -2410,7 +2410,7 @@ const SPOT_DB = [
 
   { id: "db_1158", name: "Weingartshälden", region: "Widdern",
     lat: 49.3242, lon: 9.3996, elevation: 288, dhv: 1158,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "de", acc: "fa", hoehendiff: 110, gemeinde: "74259 Widdern", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "An der Jagst Landeplatz", landeLat: 49.3219, landeLon: 9.4028, landeHoehe: 178, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "de", acc: "fa", hoehendiff: 110, gemeinde: "74259 Widdern", bundesland: "Baden-Württemberg", gleitschirm: "1- und 2-sitzig", landeName: "An der Jagst Landeplatz", landeLat: 49.3219, landeLon: 9.4028, landeHoehe: 178, livewetter: "https://holfuy.com/de/data/1848", ...DEF },
 
   { id: "db_1124", name: "Weinkopf", region: "Borken",
     lat: 51.0247, lon: 9.2922, elevation: 298, dhv: 1124,
@@ -2434,7 +2434,7 @@ const SPOT_DB = [
 
   { id: "db_596", name: "Wenholthausen", region: "Eslohe",
     lat: 51.3028, lon: 8.1897, elevation: 571, dhv: 596,
-    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 291, gemeinde: "59889 Eslohe", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Startfläche wurde durch Sturmtief Kyrill erheblich erweitert.", landeName: "Wenholthausen Landeplatz", landeLat: 51.2927, landeLon: 8.1757, landeHoehe: 280, ...DEF },
+    sectors: [[168.75, 236.25]], sectorLabel: "S-SW", country: "de", acc: "fa", hoehendiff: 291, gemeinde: "59889 Eslohe", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit beschränktem LFS", bemerkung: "Startfläche wurde durch Sturmtief Kyrill erheblich erweitert.", landeName: "Wenholthausen Landeplatz", landeLat: 51.2927, landeLon: 8.1757, landeHoehe: 280, livewetter: "https://holfuy.com/de/data/254", webcam: "https://holfuy.com/de/data/254", ...DEF },
 
   { id: "db_3941", name: "Weyhers - Nordhang", region: "Weyhers",
     lat: 50.4739, lon: 9.7944, elevation: 420, dhv: 3941,
@@ -2458,7 +2458,7 @@ const SPOT_DB = [
 
   { id: "db_227", name: "Willingen-Ettelsberg", region: "Willingen",
     lat: 51.2822, lon: 8.6001, elevation: 798, dhv: 227,
-    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 164, gemeinde: "34508 Willingen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Willingen-Ettelsberg Landeplatz", landeLat: 51.2882, landeLon: 8.5996, landeHoehe: 634, ...DEF },
+    sectors: [[348.75, 11.25]], sectorLabel: "N", country: "de", acc: "fb", hoehendiff: 164, gemeinde: "34508 Willingen", bundesland: "Hessen", gleitschirm: "1- und 2-sitzig / Schulung", landeName: "Willingen-Ettelsberg Landeplatz", landeLat: 51.2882, landeLon: 8.5996, landeHoehe: 634, livewetter: "https://holfuy.com/de/data/1951", webcam: "https://holfuy.com/de/data/1951", ...DEF },
 
   { id: "db_704", name: "Wilnsdorf-Nord", region: "Wilnsdorf",
     lat: 50.8599, lon: 8.0972, elevation: 355, dhv: 704,
@@ -2490,7 +2490,7 @@ const SPOT_DB = [
 
   { id: "db_1059", name: "Wittekindsburg", region: "Porta Westfalica",
     lat: 52.2469, lon: 8.8839, elevation: 235, dhv: 1059,
-    sectors: [[191.25, 213.75]], sectorLabel: "SSW", country: "de", acc: "fa", hoehendiff: 190, gemeinde: "32457 Porta Westfalica", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Die Startrampe ist verschlossen und kann nur durch DCW-Mitglied geöffnet werden. HG-Bergstart bei stärkerem Wind schwierig, der rechte Flügel wird angehoben. Gute Starthilfe und -technik erforderlich. Nie mit hängender Fläche starten! GS-Start 1-sitzig mit Einweisung, gute Rückwärtsstartfähigkeiten erforderlich.", landeName: "Wittekindsburg Landeplatz", landeLat: 52.2410, landeLon: 8.8833, landeHoehe: 45, ...DEF },
+    sectors: [[191.25, 213.75]], sectorLabel: "SSW", country: "de", acc: "fa", hoehendiff: 190, gemeinde: "32457 Porta Westfalica", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit Einweisung", bemerkung: "Die Startrampe ist verschlossen und kann nur durch DCW-Mitglied geöffnet werden. HG-Bergstart bei stärkerem Wind schwierig, der rechte Flügel wird angehoben. Gute Starthilfe und -technik erforderlich. Nie mit hängender Fläche starten! GS-Start 1-sitzig mit Einweisung, gute Rückwärtsstartfähigkeiten erforderlich.", landeName: "Wittekindsburg Landeplatz", landeLat: 52.2410, landeLon: 8.8833, landeHoehe: 45, livewetter: "https://holfuy.com/de/data/1620", ...DEF },
 
   { id: "db_1003", name: "Wittelsbacher Turm", region: "Bad Kissingen",
     lat: 50.1631, lon: 10.0756, elevation: 385, dhv: 1003,
@@ -2498,11 +2498,11 @@ const SPOT_DB = [
 
   { id: "db_295", name: "Wittental", region: "Stegen",
     lat: 47.9903, lon: 7.9577, elevation: 471, dhv: 295,
-    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 103, gemeinde: "79252 Stegen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", landeName: "Wittental Landeplatz", landeLat: 47.9906, landeLon: 7.9530, landeHoehe: 368, ...DEF },
+    sectors: [[213.75, 326.25]], sectorLabel: "SW-NW", country: "de", acc: "fa", hoehendiff: 103, gemeinde: "79252 Stegen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig / Schulung", landeName: "Wittental Landeplatz", landeLat: 47.9906, landeLon: 7.9530, landeHoehe: 368, livewetter: "https://www.openwindmap.org/pioupiou-1635", ...DEF },
 
   { id: "db_116_SO", name: "Wixberg (SO)", region: "Iserlohn",
     lat: 51.3186, lon: 7.6667, elevation: 420, dhv: 116,
-    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "de", acc: "fa", hoehendiff: 285, gemeinde: "58644 Iserlohn", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Wixberg Landeplatz Roland", landeLat: 51.3252, landeLon: 7.6493, landeHoehe: 135, ...DEF },
+    sectors: [[123.75, 191.25]], sectorLabel: "SO-S", country: "de", acc: "fa", hoehendiff: 285, gemeinde: "58644 Iserlohn", bundesland: "Nordrhein-Westfalen", gleitschirm: "1-sitzig mit beschränktem LFS", landeName: "Wixberg Landeplatz Roland", landeLat: 51.3252, landeLon: 7.6493, landeHoehe: 135, livewetter: "https://www.openwindmap.org/pioupiou-2083", ...DEF },
 
   { id: "db_116_W", name: "Wixberg (W)", region: "Iserlohn",
     lat: 51.3267, lon: 7.6634, elevation: 420, dhv: 116,
@@ -2522,7 +2522,7 @@ const SPOT_DB = [
 
   { id: "db_97", name: "Zeltingen-Rachtig", region: "Zeltingen-Rachtig",
     lat: 49.9615, lon: 6.9931, elevation: 260, dhv: 97,
-    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fa", hoehendiff: 160, gemeinde: "54539 Zeltingen-Rachtig", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Frequentiertes Fluggelände an der Mosel.", landeName: "Zeltingen-Rachtig Landeplatz", landeLat: 49.9589, landeLon: 7.0015, landeHoehe: 100, ...DEF },
+    sectors: [[78.75, 101.25]], sectorLabel: "O", country: "de", acc: "fa", hoehendiff: 160, gemeinde: "54539 Zeltingen-Rachtig", bundesland: "Rheinland-Pfalz", gleitschirm: "1- und 2-sitzig / Schulung", bemerkung: "Frequentiertes Fluggelände an der Mosel.", landeName: "Zeltingen-Rachtig Landeplatz", landeLat: 49.9589, landeLon: 7.0015, landeHoehe: 100, livewetter: "https://holfuy.com/de/data/361", ...DEF },
 
   { id: "db_558", name: "Zopten", region: "Gräfenthal",
     lat: 50.5178, lon: 11.3294, elevation: 640, dhv: 558,
@@ -2530,7 +2530,7 @@ const SPOT_DB = [
 
   { id: "db_879", name: "Zundelberg", region: "Spaichingen",
     lat: 48.0546, lon: 8.7492, elevation: 930, dhv: 879,
-    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "f", hoehendiff: 235, gemeinde: "78543 Spaichingen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit Einweisung", landeName: "Zundelberg Landeplatz", landeLat: 48.0634, landeLon: 8.7493, landeHoehe: 695, ...DEF },
+    sectors: [[348.75, 56.25]], sectorLabel: "N-NO", country: "de", acc: "f", hoehendiff: 235, gemeinde: "78543 Spaichingen", bundesland: "Baden-Württemberg", gleitschirm: "1-sitzig mit Einweisung", landeName: "Zundelberg Landeplatz", landeLat: 48.0634, landeLon: 8.7493, landeHoehe: 695, livewetter: "https://www.openwindmap.org/pioupiou-1775", ...DEF },
 
   // --- Österreich ---
   { id: "db_1438", name: "Adamsberg", region: "Galtür",
