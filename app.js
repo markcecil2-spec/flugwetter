@@ -3,18 +3,9 @@
 const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden Stunden
 
-// Liga/Können: Toleranz-Profil, das ÜBER den Matcher gelegt wird (kein Datenfilter!).
-// Die App zeigt allen dieselben ehrlichen Werte – nur die Ampel-Schwelle wandert mit.
-// Standard = Anfänger (sicherste Stufe); man muss sich aktiv hochstufen.
-const LEVELS = {
-  anfaenger:       { name: "Anfänger",       hint: "ruhige, frontale Bedingungen", windMax: 18, gustMax: 24, dirTol: 8, buffer: true },
-  fortgeschritten: { name: "Fortgeschritten", hint: "auch mal böig oder schräg",    windMax: 26, gustMax: 32, dirTol: 15 },
-  profi:           { name: "Profi",          hint: "ich schätze selbst ein",        windMax: 35, gustMax: 42, dirTol: 22 },
-};
-const LEVEL_ORDER = ["anfaenger", "fortgeschritten", "profi"];
-const LEVEL_KEY = "flugwetter_level";
-let LEVEL = (LEVELS[localStorage.getItem(LEVEL_KEY)] ? localStorage.getItem(LEVEL_KEY) : "anfaenger");
-function curLevel() { return LEVELS[LEVEL] || LEVELS.anfaenger; }
+// Toleranz-Profil für die Ampel-Bewertung (früher wählbar per Liga/Können - jetzt fest auf die
+// sicherste/Anfänger-Stufe, Einordnung läuft stattdessen fein über den Farbverlauf, s. rateHour).
+const PROFILE = { windMax: 18, gustMax: 24, dirTol: 8, buffer: true };
 const DEFAULT_RADIUS = 100;    // km
 const MAX_CANDIDATES = 50;    // max. Plätze pro Suche (Performance bei großer DB)
 const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
@@ -23,6 +14,28 @@ const IC_CAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentC
 const IC_PIN = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>`;
 // Höhendifferenz-Schwelle, ab der "Thermik grundsätzlich möglich" als plausibel gilt (Standort-Eigenschaft)
 const THERMIK_HOEHENDIFF_MIN = 300; // m
+
+// Farb-Verlauf für Grenzwertig-Kacheln (s. rateHour "severity" + dayCardHtml): grün (0, knapp
+// grenzwertig) bis gelb (1, kurz vor "nein") statt eines harten Sprungs auf volles Gelb.
+const COLOR_GOOD = "#22c55e", COLOR_WARN = "#facc15";
+function clamp01(x) { return Math.max(0, Math.min(1, x)); }
+function lerpHex(hexA, hexB, t) {
+  t = clamp01(t);
+  const a = [1, 3, 5].map(i => parseInt(hexA.slice(i, i + 2), 16));
+  const b = [1, 3, 5].map(i => parseInt(hexB.slice(i, i + 2), 16));
+  return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(",")})`;
+}
+// Kleinster Abstand (Grad) von dir zum naechsten erlaubten Sektor - 0 wenn dir bereits drin liegt.
+function sectorAngleDist(dir, sectors) {
+  let best = 180;
+  for (const [f, t] of sectors) {
+    const span = (t - f + 360) % 360;
+    const rel = (dir - f + 360) % 360;
+    const d = rel <= span ? 0 : Math.min(rel - span, 360 - rel);
+    if (d < best) best = d;
+  }
+  return best;
+}
 
 function degToCompass(deg) {
   const d = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
@@ -74,7 +87,7 @@ function spotCompassSvg(spot, wd, opts = {}) {
   }).join("");
   const needleTip = polarPt(cx, cy, rOuter - 3, wd);
   const ratingColor = { gut: "var(--green-d)", grenz: "var(--amber)", nein: "var(--red)" }[opts.rating];
-  const fits = inSectors(wd, spot.sectors, curLevel().dirTol);
+  const fits = inSectors(wd, spot.sectors, PROFILE.dirTol);
   const needleColor = opts.neutral ? "var(--muted)" : (ratingColor || (fits ? "var(--green-d)" : "var(--red)"));
   const viewBox = opts.compact ? "10 10 80 80" : "0 0 100 100";
   return `<svg viewBox="${viewBox}" class="scp${opts.neutral ? " idle" : ""}${opts.compact ? " scp-sm" : ""}" aria-hidden="true">
@@ -92,31 +105,42 @@ function haversine(lat1, lon1, lat2, lon2) {
   return Math.round(2 * R * Math.asin(Math.sqrt(a)));
 }
 
-// Bewertung einer Stunde: 'gut' | 'grenz' | 'nein' + Grund (bei nein/grenz).
+// Bewertung einer Stunde: 'gut' | 'grenz' | 'nein' + Grund (bei nein/grenz) + severity (0..1, nur
+// bei 'grenz' - steuert den Farbverlauf grün->gelb in dayCardHtml statt eines harten Sprungs).
 function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
-  const L = curLevel();
-  // Liga bestimmt die Toleranz (Windobergrenze, Böen, Richtungs-Spielraum).
-  const windMax = L.windMax, gustMax = L.gustMax, dirTol = L.dirTol;
-  // Für Anfänger ein Puffer über den harten Grenzen: statt sofort "nein" gibt's dort erst
-  // "grenzwertig" (mehr zutrauen, aber trotzdem warnen) - Fortgeschritten/Profi unverändert hart.
-  const dirTolBuf = dirTol + (L.buffer ? 6 : 0);
-  const windMaxBuf = windMax * (L.buffer ? 1.15 : 1);
-  const gustMaxBuf = gustMax * (L.buffer ? 1.15 : 1);
+  const windMax = PROFILE.windMax, gustMax = PROFILE.gustMax, dirTol = PROFILE.dirTol;
+  // Puffer über den harten Grenzen: statt sofort "nein" gibt's dort erst "grenzwertig"
+  // (mehr zutrauen, aber trotzdem warnen).
+  const dirTolBuf = dirTol + (PROFILE.buffer ? 6 : 0);
+  const windMaxBuf = windMax * (PROFILE.buffer ? 1.15 : 1);
+  const gustMaxBuf = gustMax * (PROFILE.buffer ? 1.15 : 1);
   if (!isDay) return { rating: "nein", reason: "Nacht" };
   if (wc === 95 || wc === 96 || wc === 99) return { rating: "nein", reason: "Gewitter" };  // Gewitter (WMO) – unabhängig vom Regen
   if (rain > 0) return { rating: "nein", reason: "Regen" };
+  const dirDist = sectorAngleDist(wd, spot.sectors); // 0 = passt, sonst Grad bis zum naechsten erlaubten Sektor
   // Richtung nur prüfen, wenn genug Wind da ist. Bei Nullwind (< windMin) ist die Richtung
   // bedeutungslos (Nullwind-Start) -> nicht wegen „falscher Richtung" ablehnen.
-  if (ws >= spot.windMin && !inSectors(wd, spot.sectors, dirTolBuf)) return { rating: "nein", reason: "Richtung" };
+  if (ws >= spot.windMin && dirDist > dirTolBuf) return { rating: "nein", reason: "Richtung" };
   if (ws > windMaxBuf) return { rating: "nein", reason: "zu stark" };
   if (wg > gustMaxBuf) return { rating: "nein", reason: "Böen" };   // böig bleibt K.o. – auch bei Nullwind-Schnitt
-  // Nullwind/schwach: grenzwertig fliegbar. Passt die Richtung eigentlich NICHT, extra erklären.
-  if (ws < spot.windMin) return { rating: "grenz", reason: inSectors(wd, spot.sectors, dirTol) ? "schwach" : "nullwind" };
-  if (ws >= spot.windMin && !inSectors(wd, spot.sectors, dirTol)) return { rating: "grenz", reason: "randrichtung" };
-  if (ws > windMax) return { rating: "grenz", reason: "sehr stark" };
-  if (wg > gustMax) return { rating: "grenz", reason: "sehr böig" };
-  if (wg >= gustMax * 0.85) return { rating: "grenz", reason: "böig" };
-  if (ws >= windMax * 0.85) return { rating: "grenz", reason: "recht stark" };
+  // Nullwind/schwach: grenzwertig fliegbar (kein K.o.) - je näher an windMin (genug Wind zum
+  // Aufziehen), desto grüner, je näher an 0, desto gelber.
+  if (ws < spot.windMin) {
+    const severity = spot.windMin > 0 ? clamp01((spot.windMin - ws) / spot.windMin) : 0;
+    return { rating: "grenz", reason: dirDist <= dirTol ? "schwach" : "nullwind", severity };
+  }
+  // Richtung knapp daneben: Verlauf über den Puffer-Bereich dirTol..dirTolBuf.
+  if (dirDist > dirTol) {
+    return { rating: "grenz", reason: "randrichtung", severity: clamp01((dirDist - dirTol) / (dirTolBuf - dirTol)) };
+  }
+  // Zu stark / böig: durchgehender Verlauf ab der 85%-Schwelle bis zur harten Nein-Grenze -
+  // Text wechselt an windMax/gustMax von "recht stark"/"böig" zu "sehr stark"/"sehr böig".
+  if (ws > windMax * 0.85) {
+    return { rating: "grenz", reason: ws > windMax ? "sehr stark" : "recht stark", severity: clamp01((ws - windMax * 0.85) / (windMaxBuf - windMax * 0.85)) };
+  }
+  if (wg > gustMax * 0.85) {
+    return { rating: "grenz", reason: wg > gustMax ? "sehr böig" : "böig", severity: clamp01((wg - gustMax * 0.85) / (gustMaxBuf - gustMax * 0.85)) };
+  }
   return { rating: "gut", reason: "" };
 }
 
@@ -173,9 +197,9 @@ function analyse(spot, data) {
     const rad = h.shortwave_radiation ? h.shortwave_radiation[i] : null;
     const cape = h.cape ? h.cape[i] : null;
     const temp = h.temperature_2m ? h.temperature_2m[i] : null;
-    const { rating, reason } = rateHour(spot, ws, wd, wg, rain, isDay, wc);
+    const { rating, reason, severity } = rateHour(spot, ws, wd, wg, rain, isDay, wc);
     if (!days[key]) days[key] = { key, date: t, wx: dl, hours: [] };
-    days[key].hours.push({ t, ws, wd, wg, rain, rating, reason, isDay, cl, rad, cape, wc, temp });
+    days[key].hours.push({ t, ws, wd, wg, rain, rating, reason, severity, isDay, cl, rad, cape, wc, temp });
   }
   return Object.values(days).map(day => {
     const dayHours = day.hours.filter(x => x.isDay);
@@ -661,12 +685,15 @@ function dayCardHtml(spot, days, i) {
   const rv = dayVerdict(days, i);
   const hoursHtml = day.dayHours.map(x => {
     const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
+    // Grenzwertig: statt hartem Sprung auf volles Gelb ein weicher Verlauf über die ganze
+    // Bandbreite (wenig Wind, Böen, Windgeschwindigkeit, Richtung) - severity aus rateHour.
+    const style = x.rating === "grenz" && x.severity != null ? ` style="background:${lerpHex(COLOR_GOOD, COLOR_WARN, x.severity)}"` : "";
     const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`;
     const rtxt = hourReason(x.rating, x.reason);
     const hourLabel = `${wd} ${x.t.getHours()} Uhr`;
     const hwx = x.wc != null ? `<span class="h-wx">${weatherEmoji(x.wc)}</span>` : "";
     const htemp = x.temp != null ? `<span class="h-temp">${Math.round(x.temp)}°</span>` : "";
-    return `<span class="${cls}" title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}"><span class="h-num">${x.t.getHours()}</span>${hwx}${htemp}</span>`;
+    return `<span class="${cls}"${style} title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}"><span class="h-num">${x.t.getHours()}</span>${hwx}${htemp}</span>`;
   }).join("");
   const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "";
   const rating = `<div class="drating ${rv.cls}"><span class="dstars">${starStr(rv.stars)}</span><span class="dverdict">${rv.text}</span>${winTxt ? `<span class="dwin"> · ${winTxt}</span>` : ""}</div>`;
@@ -1195,31 +1222,12 @@ document.getElementById("dayToggle").addEventListener("click", e => {
   if (rerunSearch) rerunSearch();
 });
 
-// Liga/Können-Umschalter: ändert nur das Urteil (Ampel), nicht die Daten.
-function applyLevelUI() {
-  document.querySelectorAll("#levelSeg .lseg").forEach(x => x.classList.toggle("on", x.dataset.level === LEVEL));
-  const sub = document.getElementById("levelSub"); if (sub) sub.textContent = curLevel().hint;
-  const idx = LEVEL_ORDER.indexOf(LEVEL);
-  const seg = document.getElementById("levelSeg"); if (seg) seg.style.setProperty("--lvl", idx);
-  updateFilterSummary();
-}
-// Zusammenfassung am Filter-Knopf: aktive Liga (wenn nicht Anfänger) + Zustieg (wenn nicht Egal)
+// Zusammenfassung am Filter-Knopf: aktiver Zustieg-Filter (wenn nicht Egal)
 function updateFilterSummary() {
   const sum = document.getElementById("filterSummary");
   if (!sum) return;
-  const parts = [];
-  if (LEVEL !== "anfaenger") parts.push(curLevel().name);
-  if (accFilter !== "all") parts.push(accShort(accFilter));
-  sum.textContent = parts.length ? "· " + parts.join(" · ") : "";
+  sum.textContent = accFilter !== "all" ? "· " + accShort(accFilter) : "";
 }
-document.getElementById("levelSeg").addEventListener("click", e => {
-  const b = e.target.closest("[data-level]"); if (!b || !LEVELS[b.dataset.level]) return;
-  LEVEL = b.dataset.level;
-  localStorage.setItem(LEVEL_KEY, LEVEL);
-  applyLevelUI();
-  if (rerunSearch) rerunSearch();
-  if (!document.getElementById("page-favorites").hidden) renderFavorites();
-});
 
 // Zustieg-Filter (DHV-Erschließung): acc-Code f=zu Fuß, a=Auto, b=Bergbahn.
 let accFilter = localStorage.getItem("flugwetter_acc") || "all";
@@ -1468,7 +1476,7 @@ function renderFlyResults(rows, headline, truncated) {
   const favBtn = favCount
     ? `<button type="button" class="fav-only-btn${favOnlyFilter ? " on" : ""}" id="favOnlyBtn">⭐ Nur Favoriten${favOnlyFilter ? "" : ` (${favCount})`}</button>`
     : "";
-  const head = `<div class="fly-head">${headline} · ${scope}<span class="fly-lg">Liga: ${curLevel().name}</span></div>${favBtn}`;
+  const head = `<div class="fly-head">${headline} · ${scope}</div>${favBtn}`;
   if (!displayRows.length) {
     const msg = accFilter !== "all"
       ? `Kein Startplatz „${accLabel(accFilter)}" unter den nächsten ${rows.length} Plätzen. Filter „Zustieg" ändern oder Umkreis vergrößern.`
@@ -1844,7 +1852,6 @@ document.getElementById("hintClose").addEventListener("click", () => {
   if (r && document.querySelector(`#radiusPills .rpill[data-km="${r}"]`)) {
     document.querySelectorAll("#radiusPills .rpill").forEach(x => x.classList.toggle("on", x.dataset.km === r));
   }
-  applyLevelUI();
   applyAccUI();
   route();
 })();
