@@ -649,6 +649,7 @@ function liveCardsHtml(spot) {
         <button type="button" class="mini-style-btn" data-ministyle="terrain">Gelände</button>
       </div>
       <div class="mini-map-legend"><img src="icons/marker-start.png" alt=""><span>Startplatz</span><img src="icons/marker-lande.png" alt=""><span>Landeplatz</span></div>
+      <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
     </div>
     ${satHtml}`;
 }
@@ -770,14 +771,14 @@ function renderCard(spot, days, opts = {}) {
         <button type="button" class="dtab" data-tab="details" role="tab">Details</button>
       </div>
       <div class="dtab-panels">
-        <div class="dtab-panel" id="dtab-wetter">${statusCard}${ftHint}${liveHtml}<div class="days">${daysHtml}</div>
+        <div class="dtab-panel" id="dtab-wetter">${statusCard}${ftHint}<div class="days">${daysHtml}</div>
           <div class="hist-section">
             <h3 class="dv-h3">📅 Wetter-Verlauf</h3>
             <input type="date" class="hist-date" data-hist="${spot.id}" max="${histMaxDate()}">
             <div class="hist-body"></div>
           </div>
         </div>
-        <div class="dtab-panel" id="dtab-live" hidden>${nowBar}${liveCardsHtml(spot)}</div>
+        <div class="dtab-panel" id="dtab-live" hidden>${liveHtml}${nowBar}${liveCardsHtml(spot)}</div>
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
           const thStart = thermikStartHour(days[dayIdx], ts.win);
@@ -999,6 +1000,13 @@ const SATELLITE_STYLE = {
   layers: [{ id: "esri", type: "raster", source: "esri" }],
 };
 const MINI_MAP_STYLES = { street: MAP_STYLE, sat: SATELLITE_STYLE, terrain: TERRAIN_STYLE };
+// Statischer Attributions-Text statt MapLibres eigenem Attributions-Button (der ist aus seinem
+// Container ausgebrochen und ueberlagerte andere Tabs/Inhalte).
+function attribTextFor(mode) {
+  return mode === "sat" ? "Kartendaten: © Esri, Maxar, Earthstar Geographics"
+    : mode === "terrain" ? "Kartendaten: © OpenStreetMap-Mitwirkende, SRTM · © OpenTopoMap"
+    : "Kartendaten: © OpenStreetMap-Mitwirkende";
+}
 let miniMapStyleMode = "street";
 let mapStyleMode = "street";
 let lastRows = [];
@@ -1056,7 +1064,6 @@ async function ensureMiniMap(spot) {
     container: "miniMap", style: MINI_MAP_STYLES[miniMapStyleMode],
     center: [spot.lon, spot.lat], zoom: 12, attributionControl: false, interactive: true,
   });
-  miniMapInstance.addControl(new maplibregl.AttributionControl({ compact: true }));
   miniMapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   const startEl = document.createElement("div");
   startEl.className = "mini-marker mini-start"; startEl.innerHTML = `<img src="icons/marker-start.png" alt="Startplatz">`; startEl.title = spot.name;
@@ -1084,7 +1091,6 @@ async function ensureMap() {
     style: MINI_MAP_STYLES[mapStyleMode],
     center, zoom, attributionControl: false,
   });
-  mapInstance.addControl(new maplibregl.AttributionControl({ compact: true }));
   mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   mapInstance.on("zoom", updateMapLabelVisibility);
   const bounds = rowsBounds(lastRows);
@@ -1675,9 +1681,11 @@ document.body.addEventListener("click", e => {
     if (styleBtn.closest("#mapView")) {
       mapStyleMode = mode;
       if (mapInstance) mapInstance.setStyle(MINI_MAP_STYLES[mode]);
+      const at = document.getElementById("mapAttrib"); if (at) at.textContent = attribTextFor(mode);
     } else {
       miniMapStyleMode = mode;
       if (miniMapInstance) miniMapInstance.setStyle(MINI_MAP_STYLES[mode]);
+      const at = document.getElementById("miniMapAttrib"); if (at) at.textContent = attribTextFor(mode);
     }
     return;
   }

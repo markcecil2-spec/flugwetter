@@ -394,6 +394,9 @@ header { position: relative; overflow: hidden; }
 .ml-dot.gut { background: var(--green); }
 .ml-dot.grenz { background: var(--amber); }
 .ml-dot.nein { background: var(--red); }
+.map-attrib { position: absolute; z-index: 4; font-size: 9.5px; color: rgba(232,237,243,.55); pointer-events: none; white-space: nowrap; }
+.map-view .map-attrib { right: 62px; bottom: 6px; }
+.mini-map-wrap .map-attrib { right: 8px; bottom: 6px; }
 .map-marker { cursor: pointer; line-height: 1; }
 .map-marker img { width: 30px; height: 30px; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
 .map-marker-label { display: none; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
