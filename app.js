@@ -5,7 +5,9 @@ const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden S
 
 // Toleranz-Profil für die Ampel-Bewertung (früher wählbar per Liga/Können - jetzt fest auf die
 // sicherste/Anfänger-Stufe, Einordnung läuft stattdessen fein über den Farbverlauf, s. rateHour).
-const PROFILE = { windMax: 18, gustMax: 24, dirTol: 8, buffer: true };
+const PROFILE = { windMax: 18, gustMax: 24, dirTol: 16, buffer: true };
+// Böendifferenz (Böen - Mittelwind, km/h): ab wann Turbulenz-Warnung (grenz) bzw. K.o. (nein).
+const GUSTDIFF_WARN = 10, GUSTDIFF_BAD = 20;
 const DEFAULT_RADIUS = 100;    // km
 const MAX_CANDIDATES = 50;    // max. Plätze pro Suche (Performance bei großer DB)
 const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
@@ -16,8 +18,9 @@ const IC_PIN = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentC
 const THERMIK_HOEHENDIFF_MIN = 300; // m
 
 // Farb-Verlauf für Grenzwertig-Kacheln (s. rateHour "severity" + dayCardHtml): grün (0, knapp
-// grenzwertig) bis gelb (1, kurz vor "nein") statt eines harten Sprungs auf volles Gelb.
-const COLOR_GOOD = "#22c55e", COLOR_WARN = "#facc15";
+// grenzwertig) bis gelb (1, kurz vor "nein") statt eines harten Sprungs auf volles Gelb. Für den
+// Windsprung-K.o. (nein) geht der Verlauf weiter gelb->rot statt neutralem Grau (s. dayCardHtml).
+const COLOR_GOOD = "#22c55e", COLOR_WARN = "#facc15", COLOR_BAD = "#ef4444";
 function clamp01(x) { return Math.max(0, Math.min(1, x)); }
 function lerpHex(hexA, hexB, t) {
   t = clamp01(t);
@@ -123,6 +126,13 @@ function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
   if (ws >= spot.windMin && dirDist > dirTolBuf) return { rating: "nein", reason: "Richtung" };
   if (ws > windMaxBuf) return { rating: "nein", reason: "zu stark" };
   if (wg > gustMaxBuf) return { rating: "nein", reason: "Böen" };   // böig bleibt K.o. – auch bei Nullwind-Schnitt
+  // Böendifferenz (Böen - Mittelwind): starke Schwankung = Turbulenz-Signal, unabhängig davon ob
+  // Wind/Böen für sich genommen unauffällig aussehen (Mark: "fast immer ein Warnsignal"). Ab
+  // GUSTDIFF_BAD harter K.o. (auch das faerbt die Kachel weich Richtung Rot statt neutralem Grau).
+  const gustDiff = wg - ws;
+  if (gustDiff > GUSTDIFF_BAD) {
+    return { rating: "nein", reason: "windsprung", severity: clamp01((gustDiff - GUSTDIFF_BAD) / GUSTDIFF_BAD) };
+  }
   // Nullwind/schwach: grenzwertig fliegbar (kein K.o.) - je näher an windMin (genug Wind zum
   // Aufziehen), desto grüner, je näher an 0, desto gelber.
   if (ws < spot.windMin) {
@@ -132,6 +142,9 @@ function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
   // Richtung knapp daneben: Verlauf über den Puffer-Bereich dirTol..dirTolBuf.
   if (dirDist > dirTol) {
     return { rating: "grenz", reason: "randrichtung", severity: clamp01((dirDist - dirTol) / (dirTolBuf - dirTol)) };
+  }
+  if (gustDiff > GUSTDIFF_WARN) {
+    return { rating: "grenz", reason: "windsprung", severity: clamp01((gustDiff - GUSTDIFF_WARN) / (GUSTDIFF_BAD - GUSTDIFF_WARN)) };
   }
   // Zu stark / böig: durchgehender Verlauf ab der 85%-Schwelle bis zur harten Nein-Grenze -
   // Text wechselt an windMax/gustMax von "recht stark"/"böig" zu "sehr stark"/"sehr böig".
@@ -211,23 +224,23 @@ function analyse(spot, data) {
 // Kurz-Label für den Grund (Anzeige rechts neben dem Ergebnis)
 function grenzLabel(r) {
   const m = { "böig": "Böig", "schwach": "Wenig Wind", "nullwind": "Nullwind", "recht stark": "Recht stark",
-    "randrichtung": "Richtung knapp", "sehr stark": "Sehr stark", "sehr böig": "Sehr böig" };
+    "randrichtung": "Richtung knapp", "sehr stark": "Sehr stark", "sehr böig": "Sehr böig", "windsprung": "Böig (Windsprung)" };
   return m[r] || "Grenzwertig";
 }
 function neinLabel(r) {
-  const m = { "Regen": "Regen", "Richtung": "Windrichtung", "zu stark": "Zu viel Wind", "Böen": "Böig", "Nacht": "Nachts" };
+  const m = { "Regen": "Regen", "Richtung": "Windrichtung", "zu stark": "Zu viel Wind", "Böen": "Böig", "Nacht": "Nachts", "windsprung": "Windsprung" };
   return m[r] || r;
 }
 function neinText(r) {
-  const m = { "Regen": "Regen", "Richtung": "Falsche Windrichtung", "zu stark": "Zu viel Wind", "Böen": "Zu böig", "Nacht": "Nachts" };
+  const m = { "Regen": "Regen", "Richtung": "Falsche Windrichtung", "zu stark": "Zu viel Wind", "Böen": "Zu böig", "Nacht": "Nachts", "windsprung": "Starker Windsprung" };
   return m[r] || r;
 }
 // Klartext-Grund pro Stunde (für das Uhrzeit-Detail)
 function hourReason(rating, reason) {
   if (rating === "gut") return "passt ✓";
   const grenz = { "schwach": "wenig Wind", "böig": "grenzwertig – böig", "recht stark": "grenzwertig – recht stark", "nullwind": "kaum Wind – Richtung egal (Nullwind-Start)",
-    "randrichtung": "grenzwertig – Richtung knapp daneben", "sehr stark": "grenzwertig – sehr stark", "sehr böig": "grenzwertig – sehr böig" };
-  const nein = { "Richtung": "falsche Windrichtung", "Regen": "Regen", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts", "schwach": "zu wenig Wind" };
+    "randrichtung": "grenzwertig – Richtung knapp daneben", "sehr stark": "grenzwertig – sehr stark", "sehr böig": "grenzwertig – sehr böig", "windsprung": "grenzwertig – großer Windsprung (Böen weit über Mittelwind)" };
+  const nein = { "Richtung": "falsche Windrichtung", "Regen": "Regen", "zu stark": "zu viel Wind", "Böen": "zu böig", "Nacht": "nachts", "schwach": "zu wenig Wind", "windsprung": "starker Windsprung (Böen weit über Mittelwind)" };
   return rating === "grenz" ? (grenz[reason] || "grenzwertig") : (nein[reason] || reason);
 }
 function dominantReason(hours, rating) {
@@ -702,7 +715,10 @@ function dayCardHtml(spot, days, i) {
     const cls = x.rating === "gut" ? "h gut" : x.rating === "grenz" ? "h grenz" : "h";
     // Grenzwertig: statt hartem Sprung auf volles Gelb ein weicher Verlauf über die ganze
     // Bandbreite (wenig Wind, Böen, Windgeschwindigkeit, Richtung) - severity aus rateHour.
-    const style = x.rating === "grenz" && x.severity != null ? ` style="background:${lerpHex(COLOR_GOOD, COLOR_WARN, x.severity)}"` : "";
+    // Windsprung-K.o. (nein) faerbt zusätzlich weich gelb->rot statt neutralem Grau.
+    const style = x.rating === "grenz" && x.severity != null ? ` style="background:${lerpHex(COLOR_GOOD, COLOR_WARN, x.severity)}"`
+      : x.rating === "nein" && x.reason === "windsprung" && x.severity != null ? ` style="background:${lerpHex(COLOR_WARN, COLOR_BAD, x.severity)}"`
+      : "";
     const info = `${wd} ${x.t.getHours()} Uhr · ${Math.round(x.ws)} km/h aus ${degToCompass(x.wd)} · Böen ${Math.round(x.wg)}`;
     const rtxt = hourReason(x.rating, x.reason);
     const hourLabel = `${wd} ${x.t.getHours()} Uhr`;
