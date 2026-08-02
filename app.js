@@ -350,6 +350,16 @@ function diffWarn(spot) {
   const text = d === 2 ? "Sehr anspruchsvoll – nur für Erfahrene" : "Anspruchsvolles Gelände";
   return { d, text };
 }
+// Kurzfassung der DHV-Bemerkung fürs Detailfenster: bricht an einem Satz- oder Wortende ab,
+// nie mitten im Wort. Der Originaltext (Sicherheits-/Rechtshinweis von DHV) wird dabei nie
+// inhaltlich verändert oder gekürzt gespeichert – nur die Anzeige ist kompakt, "mehr" zeigt alles.
+function remarkPreview(text, maxLen = 140) {
+  const slice = text.slice(0, maxLen);
+  const sentEnd = Math.max(slice.lastIndexOf(". "), slice.lastIndexOf("! "), slice.lastIndexOf("? "));
+  if (sentEnd > maxLen * 0.4) return slice.slice(0, sentEnd + 1);
+  const wordEnd = slice.lastIndexOf(" ");
+  return (wordEnd > 0 ? slice.slice(0, wordEnd) : slice) + "…";
+}
 // Ergänzende Original-DHV-Angaben (Bundesland/Gemeinde, Höhendifferenz, Gleitschirm-Ausstattung,
 // offizielle Bemerkung). Nur Felder, die wir noch nicht in anderer Form zeigen (Höhe/Windrichtung
 // stehen schon oben) – bewusst kompakt, kein komplettes DHV-Datenblatt.
@@ -359,7 +369,13 @@ function dhvExtra(spot, opts = {}) {
   const line1 = [orte, hd].filter(Boolean).join(" · ");
   const line2 = (!opts.skipGleitschirm && spot.gleitschirm) ? `<div class="dhv-line"><span class="sa-label">Gleitschirm:</span> ${spot.gleitschirm}</div>` : "";
   const lande = (!opts.skipLande && spot.landeName) ? `<div class="dhv-line">🛬 <span class="sa-label">Landeplatz:</span> ${spot.landeName}${spot.landeHoehe != null ? " · " + spot.landeHoehe + " m" : ""}</div>` : "";
-  const remark = spot.bemerkung ? `<div class="dhv-remark">„${spot.bemerkung}"</div>` : "";
+  const remark = spot.bemerkung ? (() => {
+    const full = spot.bemerkung;
+    const truncated = full.length > 140;
+    if (!truncated) return `<div class="dhv-remark"><span class="sa-label">Bemerkung:</span> „${full}"</div>`;
+    const preview = remarkPreview(full);
+    return `<div class="dhv-remark"><span class="sa-label">Bemerkung:</span> „<span class="dhv-remark-short">${preview}</span><span class="dhv-remark-full" hidden>${full}</span>"<button type="button" class="dhv-remark-toggle" data-remark-toggle="1">mehr</button></div>`;
+  })() : "";
   if (!line1 && !line2 && !lande && !remark) return "";
   return `<div class="dhv-extra">${line1 ? `<div class="dhv-line">${line1}</div>` : ""}${line2}${lande}${remark}</div>`;
 }
@@ -909,6 +925,17 @@ async function reverseGeocode(lat, lon) {
     return a.city || a.town || a.village || a.municipality || j.name || null;
   } catch { return null; }
 }
+// Freitext-Ortssuche (Nominatim FORWARD) - Fallback im Suchfeld, wenn kein eigener Startplatz passt
+// (z.B. Ort, See, Berg). Nur bei Enter/Blur aufgerufen, nie beim Tippen (s. handleSearchInput).
+async function forwardGeocode(query) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=jsonv2&limit=1&accept-language=de`);
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (!j.length) return null;
+    return { lat: parseFloat(j[0].lat), lon: parseFloat(j[0].lon) };
+  } catch { return null; }
+}
 
 // Umkreis-Auswahl (Pills)
 let lastOrigin = null;
@@ -997,6 +1024,8 @@ async function renderSearch(candidates, origin, headline) {
   // andere/weiter entfernte Plaetze als "Egal", weil er ueber den ganzen Umkreis statt nur die
   // ohnehin schon gezeigten naechsten 50 filtert). Er wirkt jetzt rein auf der Anzeige, s. renderFlyResults.
   const out = document.getElementById("flyResults");
+  const mapFirstRun = document.getElementById("mapFirstRun");
+  if (mapFirstRun) mapFirstRun.hidden = true;
   const truncated = candidates.length > MAX_CANDIDATES;
   candidates = candidates.slice(0, MAX_CANDIDATES);
   if (!candidates.length) {
@@ -1031,7 +1060,8 @@ async function renderSearch(candidates, origin, headline) {
 }
 
 // ---------------- Kartenansicht (MapLibre GL JS + OpenFreeMap, beides kostenlos/ohne Key) ----------------
-// MapLibre wird erst beim ersten "Karte"-Klick nachgeladen (kein Ballast fürs Erststart-Ladegewicht).
+// MapLibre wird erst beim ersten Erreichen der Kartenansicht nachgeladen (Karte ist Standardansicht,
+// s. route()) - kein Ballast fürs Erststart-Ladegewicht, falls jemand doch zuerst die Liste nutzt.
 // "bright" statt Geländekarte: klar/farbig statt überladen (Höhenlinien+Schummerung machten die Marker unlesbar).
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/bright";
 // Zusatz-Stile nur fuer die kleine Start/Landeplatz-Karte im Live-Tab (dort will man Gelaende/Satellit sehen).
@@ -1077,6 +1107,12 @@ let lastHeadline = "", lastTruncated = false;
 let favOnlyFilter = false; // "Nur Favoriten"-Filter in der Ergebnisliste
 let mapInstance = null;
 let mapMarkers = [];
+// Letzter manueller Kartenausschnitt (Center+Zoom) - damit das Schliessen der Detailkarte oder ein
+// Ansicht-Wechsel den Ausschnitt NICHT zuruecksetzen (s. restoreMapView, closeDetail, switchToMapView).
+let lastMapView = null;
+function restoreMapView() {
+  if (mapInstance && lastMapView) mapInstance.jumpTo({ center: lastMapView.center, zoom: lastMapView.zoom });
+}
 let mapLibrePromise = null;
 function loadMapLibre() {
   if (window.maplibregl) return Promise.resolve();
@@ -1216,6 +1252,7 @@ async function ensureMap() {
   });
   mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   mapInstance.on("zoom", updateMapLabelVisibility);
+  mapInstance.on("moveend", () => { lastMapView = { center: mapInstance.getCenter(), zoom: mapInstance.getZoom() }; });
   // Umkreis-Kreis übersteht einen Kartenstil-Wechsel (setStyle wirft eigene Layer/Quellen weg) nicht,
   // deshalb nach jedem Stilwechsel neu anlegen + mit dem aktuellen Standort neu befüllen. "idle" statt
   // "style.load" (Letzteres feuert in dieser MapLibre-Version nicht zuverlässig) - addRadiusCircleLayer
@@ -1255,7 +1292,10 @@ function updateMapMarkers(rows, opts = {}) {
     el.className = "map-marker";
     el.title = r.spot.name;
     el.innerHTML = `<img src="${START_ICON_BY_STATUS[r.ts.status] || START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label">${r.spot.name}</span>`;
-    el.addEventListener("click", () => openDetail(r.spot.id));
+    // stopPropagation: sonst bubbelt der Klick zum generischen Karten-Click-Handler durch (der
+    // Klicks auf leere Kartenflächen als neue Ortssuche interpretiert) und startet ungewollt eine
+    // zweite Suche samt Zoom-Animation im Hintergrund, während das Detailfenster schon offen ist.
+    el.addEventListener("click", e => { e.stopPropagation(); openDetail(r.spot.id); });
     const marker = new maplibregl.Marker({ element: el }).setLngLat([r.spot.lon, r.spot.lat]).addTo(mapInstance);
     mapMarkers.push(marker);
 
@@ -1266,7 +1306,7 @@ function updateMapMarkers(rows, opts = {}) {
       const lEl = document.createElement("div");
       lEl.className = "map-lande-marker"; lEl.title = l.name;
       lEl.innerHTML = `<img src="icons/marker-lande-black.png" alt="">`;
-      lEl.addEventListener("click", () => openDetail(r.spot.id));
+      lEl.addEventListener("click", e => { e.stopPropagation(); openDetail(r.spot.id); });
       const lMarker = new maplibregl.Marker({ element: lEl }).setLngLat([l.lon, l.lat]).addTo(mapInstance);
       mapMarkers.push(lMarker);
     });
@@ -1291,16 +1331,20 @@ function updateMapMarkers(rows, opts = {}) {
   else if (lastOrigin) mapInstance.flyTo({ center: [lastOrigin.lon, lastOrigin.lat], zoom: 8, duration: 600 });
   updateMapLabelVisibility();
 }
+// Aktiv auf Kartenansicht wechseln - vom Toggle-Button UND vom Freitext-Ortssuche-Fallback genutzt.
+async function switchToMapView() {
+  document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x.dataset.view === "map"));
+  document.getElementById("flyResults").hidden = true;
+  document.getElementById("mapView").hidden = false;
+  try { await ensureMap(); mapInstance.resize(); restoreMapView(); }
+  catch (e) { document.getElementById("mapEl").innerHTML = `<p class="empty">${e.message}</p>`; }
+}
 document.getElementById("viewToggle").addEventListener("click", async e => {
   const b = e.target.closest(".vpill"); if (!b) return;
+  if (b.dataset.view === "map") { await switchToMapView(); return; }
   document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x === b));
-  const isMap = b.dataset.view === "map";
-  document.getElementById("flyResults").hidden = isMap;
-  document.getElementById("mapView").hidden = !isMap;
-  if (isMap) {
-    try { await ensureMap(); mapInstance.resize(); }
-    catch (e) { document.getElementById("mapEl").innerHTML = `<p class="empty">${e.message}</p>`; }
-  }
+  document.getElementById("flyResults").hidden = false;
+  document.getElementById("mapView").hidden = true;
 });
 // Fadenkreuz auf der Karte: immer den AKTUELLEN Standort neu ermitteln und dort suchen
 // (nicht nur zur letzten, ggf. veralteten Suche zurückspringen).
@@ -1365,11 +1409,14 @@ document.getElementById("dayToggle").addEventListener("click", e => {
   if (rerunSearch) rerunSearch();
 });
 
-// Zusammenfassung am Filter-Knopf: aktiver Zustieg-Filter (wenn nicht Egal)
+// Zusammenfassung am Filter-Knopf: aktive Zustieg-/Höhendifferenz-Filter (wenn nicht Egal)
 function updateFilterSummary() {
   const sum = document.getElementById("filterSummary");
   if (!sum) return;
-  sum.textContent = accFilter !== "all" ? "· " + accShort(accFilter) : "";
+  const parts = [];
+  if (accFilter !== "all") parts.push(accShort(accFilter));
+  if (minHoehendiff > 0) parts.push(`⛰️ ab ${minHoehendiff} m`);
+  sum.textContent = parts.length ? "· " + parts.join(" · ") : "";
 }
 
 // Zustieg-Filter (DHV-Erschließung): acc-Code f=zu Fuß, a=Auto, b=Bergbahn.
@@ -1393,6 +1440,31 @@ function applyAccUI() {
   document.querySelectorAll("#accSeg .apill").forEach(x => x.classList.toggle("on", x.dataset.acc === accFilter));
   updateFilterSummary();
 }
+
+// Mindest-Höhendifferenz-Filter (Schieberegler): blendet kleine Übungshänge aus.
+let minHoehendiff = parseInt(localStorage.getItem("flugwetter_minhd"), 10) || 0;
+function hdMatch(spot, min) {
+  if (min <= 0) return true;
+  if (spot.id.startsWith("user_")) return true; // eigene Plätze bleiben immer sichtbar (Marks Entscheidung)
+  if (spot.hoehendiff == null) return false;     // unbekannt -> nur bei "Egal" (analog Zustieg-Filter)
+  return spot.hoehendiff >= min;
+}
+function applyHdUI() {
+  const slider = document.getElementById("hdSlider"), val = document.getElementById("hdVal");
+  slider.value = minHoehendiff;
+  val.textContent = minHoehendiff > 0 ? `ab ${minHoehendiff} m` : "Egal";
+  updateFilterSummary();
+}
+const hdSlider = document.getElementById("hdSlider");
+hdSlider.addEventListener("input", () => {
+  document.getElementById("hdVal").textContent = `ab ${hdSlider.value} m`; // nur Live-Label beim Ziehen
+});
+hdSlider.addEventListener("change", () => {
+  minHoehendiff = parseInt(hdSlider.value, 10) || 0;
+  localStorage.setItem("flugwetter_minhd", String(minHoehendiff));
+  applyHdUI();
+  if (lastRows.length) { renderFlyResults(lastRows, lastHeadline, lastTruncated); updateMapMarkers(displayRowsFor(lastRows), { flyTo: false }); }
+});
 document.getElementById("accSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-acc]"); if (!b) return;
   accFilter = b.dataset.acc;
@@ -1477,6 +1549,24 @@ function renderFirstRun() {
   const b = document.getElementById("frGps");
   if (b) b.addEventListener("click", startGpsSearch);
 }
+// Gleicher Einstiegs-Hinweis als Overlay über der Kartenansicht (jetzt Standardansicht) - für neue
+// Nutzer ohne Standort/Region. Eigene Button-ID (frGpsMap), da renderFirstRun() gleichzeitig die
+// (nur versteckte, aber weiterhin im DOM vorhandene) Liste mit derselben Struktur befüllt.
+function renderFirstRunMap() {
+  const out = document.getElementById("mapFirstRun");
+  if (!out) return;
+  out.hidden = false;
+  out.innerHTML = `
+    <div class="firstrun">
+      <div class="fr-ico">🪂</div>
+      <div class="fr-title">Wo kannst du heute fliegen?</div>
+      <div class="fr-sub">Ein Tipp – und du siehst die fliegbaren Startplätze in deiner Nähe.</div>
+      <button type="button" class="fr-gps" id="frGpsMap">📍 Meinen Standort verwenden</button>
+      <div class="fr-or">oder oben eine <b>Region</b> wählen</div>
+    </div>`;
+  const b = document.getElementById("frGpsMap");
+  if (b) b.addEventListener("click", startGpsSearch);
+}
 
 // Standort per GPS (Button + Auto-Start)
 function startGpsSearch() {
@@ -1512,20 +1602,37 @@ async function plzSearch() {
   catch { clearSearchResults(`PLZ ${plz} nicht gefunden.`); }
 }
 
-// Startplatz-Namenssuche (wenn Text statt PLZ eingegeben wird)
-async function runNameSearch(q) {
+// Startplatz-Namenssuche (wenn Text statt PLZ eingegeben wird). opts.allowGeocode: wenn kein
+// eigener Startplatz passt, zusätzlich einen allgemeinen Ort/See/Berg per Nominatim versuchen
+// (nur bei Enter/Blur gesetzt, nie beim Tippen - s. handleSearchInput weiter unten).
+async function runNameSearch(q, opts = {}) {
   const ql = q.trim().toLowerCase();
   if (ql.length < 2) return;
   const matches = allKnownSpots()
     .filter(s => (s.name + " " + (s.region || "")).toLowerCase().includes(ql))
     .map(s => { const d = lastOrigin ? haversine(lastOrigin.lat, lastOrigin.lon, s.lat, s.lon) : null; return { ...s, dist: d, sortKey: d ?? 0 }; })
     .slice(0, 40);
-  if (!matches.length) { clearSearchResults(`Kein Startplatz „${q}“ gefunden.`); return; }
-  rerunSearch = () => runNameSearch(q);
-  await renderSearch(matches, lastOrigin, `Suche „${q}“`);
+  if (matches.length) {
+    rerunSearch = () => runNameSearch(q, opts);
+    await renderSearch(matches, lastOrigin, `Suche „${q}“`);
+    return;
+  }
+  if (opts.allowGeocode) { await tryForwardGeocode(q); return; }
+  clearSearchResults(`Kein Startplatz „${q}“ gefunden.`);
+}
+// Fallback fuer die Namenssuche: kein eigener Startplatz gefunden -> allgemeinen Ort/See/Berg
+// per Nominatim suchen, Karte dorthin oeffnen und wie eine Umkreissuche von dort aus behandeln.
+async function tryForwardGeocode(q) {
+  document.getElementById("flyResults").innerHTML = `<p class="loading-line">🔎 Suche Ort „${q}“ …</p>`;
+  const hit = await forwardGeocode(q);
+  if (!hit) { clearSearchResults(`Kein Startplatz und kein Ort „${q}“ gefunden.`); return; }
+  await switchToMapView();
+  await runFlySearch(hit.lat, hit.lon, q);
 }
 
-// Kombiniertes Suchfeld: 5 Ziffern → PLZ, sonst Startplatzname (entprellt)
+// Kombiniertes Suchfeld: 5 Ziffern → PLZ, sonst Startplatzname (entprellt). Der Orts-Fallback
+// (Nominatim) laeuft NIE im Tipp-Debounce, nur bei Enter/Verlassen des Feldes - sonst wuerde
+// jeder Tastenanschlag ohne DB-Treffer einen Netz-Request ausloesen (Nominatim: max. 1/Sek.).
 let nameSearchTimer;
 function handleSearchInput(v) {
   clearTimeout(nameSearchTimer);
@@ -1538,7 +1645,11 @@ document.getElementById("plzInput").addEventListener("keydown", e => {
   if (e.key !== "Enter") return;
   const v = e.target.value.trim();
   clearTimeout(nameSearchTimer);
-  if (/^\d{5}$/.test(v)) plzSearch(); else if (v.length >= 2) runNameSearch(v);
+  if (/^\d{5}$/.test(v)) plzSearch(); else if (v.length >= 2) runNameSearch(v, { allowGeocode: true });
+});
+document.getElementById("plzInput").addEventListener("blur", () => {
+  const v = document.getElementById("plzInput").value.trim();
+  if (v.length >= 2 && !/^\d{5}$/.test(v) && !/^\d+$/.test(v)) runNameSearch(v, { allowGeocode: true });
 });
 
 function mapsUrl(s) {
@@ -1614,6 +1725,7 @@ function updateGreeting() {
 function displayRowsFor(rows) {
   let displayRows = favOnlyFilter ? rows.filter(r => isFav(r.spot.id)) : rows;
   if (accFilter !== "all") displayRows = displayRows.filter(r => accMatch(r.spot, accFilter));
+  if (minHoehendiff > 0) displayRows = displayRows.filter(r => hdMatch(r.spot, minHoehendiff));
   return displayRows;
 }
 function renderFlyResults(rows, headline, truncated) {
@@ -1628,8 +1740,11 @@ function renderFlyResults(rows, headline, truncated) {
     : "";
   const head = `<div class="fly-head">${headline} · ${scope}</div>${favBtn}`;
   if (!displayRows.length) {
-    const msg = accFilter !== "all"
-      ? `Kein Startplatz „${accLabel(accFilter)}" unter den nächsten ${rows.length} Plätzen. Filter „Zustieg" ändern oder Umkreis vergrößern.`
+    const reasons = [];
+    if (accFilter !== "all") reasons.push(`„${accLabel(accFilter)}"`);
+    if (minHoehendiff > 0) reasons.push(`Höhendifferenz ≥ ${minHoehendiff} m`);
+    const msg = reasons.length
+      ? `Kein Startplatz mit ${reasons.join(" und ")} unter den nächsten ${rows.length} Plätzen. Filter anpassen oder Umkreis vergrößern.`
       : "Keine Favoriten in dieser Suche.";
     document.getElementById("flyResults").innerHTML = head + `<p class="empty">${msg}</p>`;
     return;
@@ -1695,6 +1810,7 @@ function closeDetail(fromPopstate = false) {
   document.getElementById("detailModal").hidden = true;
   document.getElementById("detailBody").innerHTML = "";
   removeMiniMap();
+  restoreMapView();
   currentDetailSpot = null;
   if (detailHistoryPushed) {
     detailHistoryPushed = false;
@@ -1768,6 +1884,13 @@ function route() {
   if (id === "add") renderDbSearch();
   if (id === "home") {
     updateGreeting();
+    // Karte ist die Standardansicht - Marker/Overlay muessen auch ohne Klick auf "Karte" bereitstehen.
+    if (!document.getElementById("mapView").hidden) {
+      ensureMap().then(() => {
+        mapInstance.resize();
+        updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
+      }).catch(e => { document.getElementById("mapEl").innerHTML = `<p class="empty">${e.message}</p>`; });
+    }
     // Nordstern: beim Öffnen sofort die Antwort zeigen.
     const out = document.getElementById("flyResults");
     if (localStorage.getItem("flugwetter_geo_ok") === "1" && !lastOrigin) {
@@ -1780,6 +1903,7 @@ function route() {
         runRegionSearch(lr);
       } else {
         renderFirstRun();                                // erster Start: klarer Einstieg
+        renderFirstRunMap();                              // ...und dasselbe als Overlay auf der Karte
       }
     }
   }
@@ -1827,6 +1951,18 @@ document.body.addEventListener("click", e => {
     wrap.querySelectorAll(".dtab").forEach(t => t.classList.toggle("on", t === tab));
     wrap.querySelectorAll(".dtab-panel").forEach(p => { p.hidden = p.id !== "dtab-" + tab.dataset.tab; });
     if (tab.dataset.tab === "live" && currentDetailSpot) ensureMiniMap(currentDetailSpot);
+    return;
+  }
+
+  // DHV-Bemerkung im Details-Tab: Kurzfassung <-> Volltext umschalten
+  const remarkBtn = e.target.closest("[data-remark-toggle]");
+  if (remarkBtn) {
+    const box = remarkBtn.closest(".dhv-remark");
+    const short = box.querySelector(".dhv-remark-short");
+    const full = box.querySelector(".dhv-remark-full");
+    const showFull = full.hidden;
+    full.hidden = !showFull; short.hidden = showFull;
+    remarkBtn.textContent = showFull ? "weniger" : "mehr";
     return;
   }
 
@@ -2005,6 +2141,7 @@ document.getElementById("hintClose").addEventListener("click", () => {
     document.querySelectorAll("#radiusPills .rpill").forEach(x => x.classList.toggle("on", x.dataset.km === r));
   }
   applyAccUI();
+  applyHdUI();
   route();
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});

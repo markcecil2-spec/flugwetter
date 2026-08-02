@@ -105,11 +105,15 @@
               <button type="button" class="apill" data-acc="bahn">🚠 Bergbahn</button>
             </div>
           </div>
+          <div class="hd-box">
+            <div class="hd-head">Mind. Höhendifferenz <span id="hdVal" class="hd-val">Egal</span></div>
+            <input type="range" id="hdSlider" class="hd-slider" min="0" max="500" step="25" value="0" aria-label="Minimale Höhendifferenz in Metern">
+          </div>
         </div>
 
         <div class="view-toggle" id="viewToggle" role="group" aria-label="Ansicht">
-          <button type="button" class="vpill on" data-view="list">☰ Liste</button>
-          <button type="button" class="vpill" data-view="map">🗺️ Karte</button>
+          <button type="button" class="vpill on" data-view="map">🗺️ Karte</button>
+          <button type="button" class="vpill" data-view="list">☰ Liste</button>
         </div>
 
         <div id="hintBanner" class="hint-banner">
@@ -122,9 +126,10 @@
 
       <div class="home-body">
         <div id="eveningHint" class="evening-hint" hidden></div>
-        <div id="flyResults" class="fly-results"></div>
-        <div id="mapView" class="map-view" hidden>
+        <div id="flyResults" class="fly-results" hidden></div>
+        <div id="mapView" class="map-view">
           <div id="mapEl" class="map-el"></div>
+          <div id="mapFirstRun" class="map-firstrun" hidden></div>
           <div class="mini-style-toggle" role="group" aria-label="Kartenstil">
             <button type="button" class="mini-style-btn on" data-ministyle="street">Karte</button>
             <button type="button" class="mini-style-btn" data-ministyle="sat">Satellit</button>
@@ -272,7 +277,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 82 · August 2026</p>
+      <p class="build">GoFlyToday · Version 83 · August 2026</p>
     </section>
   </main>
 
