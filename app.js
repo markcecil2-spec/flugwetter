@@ -1195,8 +1195,9 @@ document.getElementById("viewToggle").addEventListener("click", async e => {
     catch (e) { document.getElementById("mapEl").innerHTML = `<p class="empty">${e.message}</p>`; }
   }
 });
+// Fadenkreuz auf der Karte: immer den AKTUELLEN Standort neu ermitteln und dort suchen
+// (nicht nur zur letzten, ggf. veralteten Suche zurückspringen).
 document.getElementById("mapLocateBtn").addEventListener("click", () => {
-  if (lastOrigin && mapInstance) { mapInstance.flyTo({ center: [lastOrigin.lon, lastOrigin.lat], zoom: 9, duration: 600 }); return; }
   startGpsSearch();
 });
 
@@ -1385,6 +1386,14 @@ function startGpsSearch() {
 }
 document.getElementById("gpsBtn").addEventListener("click", startGpsSearch);
 
+// Leert Liste UND Karte bei einer Suche ohne Treffer - sonst bleiben in der (ggf. gerade
+// unsichtbaren) Kartenansicht alte Marker einer früheren Suche stehen, ohne Hinweis auf 0 Treffer.
+function clearSearchResults(message) {
+  document.getElementById("flyResults").innerHTML = `<p class="empty">${message}</p>`;
+  lastRows = []; lastHeadline = ""; lastTruncated = false;
+  updateMapMarkers([], { flyTo: false });
+}
+
 // PLZ-Suche
 async function plzSearch() {
   const inp = document.getElementById("plzInput"), out = document.getElementById("flyResults");
@@ -1392,7 +1401,7 @@ async function plzSearch() {
   if (!/^\d{5}$/.test(plz)) return;
   out.innerHTML = `<p class="loading-line">🔎 Suche PLZ ${plz} …</p>`;
   try { const o = await geocodePlz(plz); await runFlySearch(o.lat, o.lon, o.label); }
-  catch { out.innerHTML = `<p class="empty">PLZ ${plz} nicht gefunden.</p>`; }
+  catch { clearSearchResults(`PLZ ${plz} nicht gefunden.`); }
 }
 
 // Startplatz-Namenssuche (wenn Text statt PLZ eingegeben wird)
@@ -1403,8 +1412,7 @@ async function runNameSearch(q) {
     .filter(s => (s.name + " " + (s.region || "")).toLowerCase().includes(ql))
     .map(s => { const d = lastOrigin ? haversine(lastOrigin.lat, lastOrigin.lon, s.lat, s.lon) : null; return { ...s, dist: d, sortKey: d ?? 0 }; })
     .slice(0, 40);
-  const out = document.getElementById("flyResults");
-  if (!matches.length) { out.innerHTML = `<p class="empty">Kein Startplatz „${q}“ gefunden.</p>`; return; }
+  if (!matches.length) { clearSearchResults(`Kein Startplatz „${q}“ gefunden.`); return; }
   rerunSearch = () => runNameSearch(q);
   await renderSearch(matches, lastOrigin, `Suche „${q}“`);
 }
