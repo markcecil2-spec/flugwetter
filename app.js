@@ -5,11 +5,12 @@ const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden S
 
 // Toleranz-Profil für die Ampel-Bewertung (früher wählbar per Liga/Können - jetzt fest auf die
 // sicherste/Anfänger-Stufe, Einordnung läuft stattdessen fein über den Farbverlauf, s. rateHour).
-const PROFILE = { windMax: 18, gustMax: 24, dirTol: 16, buffer: true };
+const PROFILE = { windMax: 18, gustMax: 26, dirTol: 16, buffer: true };
 // Böendifferenz (Böen - Mittelwind, km/h): ab wann Turbulenz-Warnung (grenz) bzw. K.o. (nein).
-const GUSTDIFF_WARN = 10, GUSTDIFF_BAD = 20;
+const GUSTDIFF_WARN = 20, GUSTDIFF_BAD = 30;
 const DEFAULT_RADIUS = 100;    // km
 const MAX_CANDIDATES = 50;    // max. Plätze pro Suche (Performance bei großer DB)
+const EXTRA_MARKERS_MAX = 300; // max. zusätzliche (ungefärbte) Kartenpunkte jenseits der Top-Treffer
 const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
 // Monochrome Meta-Icons (Fahrzeit / Entfernung)
 const IC_CAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14M5 13v4m14-4v4M7 17h.01M17 17h.01"/></svg>`;
@@ -1232,6 +1233,27 @@ function updateMapMarkers(rows, opts = {}) {
       mapMarkers.push(lMarker);
     });
   });
+  // Alle weiteren Plätze im Umkreis (jenseits der geladenen/gefärbten Top-Treffer) als schlichte,
+  // ungefärbte Punkte - zeigt beim Rauszoomen, dass da noch mehr ist. Wetter wird erst beim
+  // Antippen live nachgeladen (openDetail holt sich das ohnehin frisch, unabhängig von rows).
+  if (lastOrigin) {
+    const shown = new Set(rows.map(r => r.spot.id));
+    const radius = getRadius();
+    allKnownSpots()
+      .map(s => ({ s, d: haversine(lastOrigin.lat, lastOrigin.lon, s.lat, s.lon) }))
+      .filter(x => !shown.has(x.s.id) && x.d <= radius)
+      .sort((a, b) => a.d - b.d)
+      .slice(0, EXTRA_MARKERS_MAX)   // Deckel gegen hunderte DOM-Marker (Handy-Performance bei dichten Regionen)
+      .forEach(({ s }) => {
+      const el = document.createElement("div");
+      el.className = "map-marker map-marker-extra";
+      el.title = s.name;
+      el.innerHTML = `<img src="icons/marker-start.png" alt="">`;
+      el.addEventListener("click", () => openDetail(s.id));
+      const marker = new maplibregl.Marker({ element: el }).setLngLat([s.lon, s.lat]).addTo(mapInstance);
+      mapMarkers.push(marker);
+    });
+  }
   if (opts.flyTo === false) return;
   const bounds = rowsBounds(rows);
   if (bounds) mapInstance.fitBounds(bounds, { padding: 50, duration: 600, maxZoom: 13 });
