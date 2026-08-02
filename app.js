@@ -10,7 +10,6 @@ const PROFILE = { windMax: 18, gustMax: 26, dirTol: 16, buffer: true };
 const GUSTDIFF_WARN = 20, GUSTDIFF_BAD = 30;
 const DEFAULT_RADIUS = 100;    // km
 const MAX_CANDIDATES = 50;    // max. Plätze pro Suche (Performance bei großer DB)
-const EXTRA_MARKERS_MAX = 300; // max. zusätzliche (ungefärbte) Kartenpunkte jenseits der Top-Treffer
 const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
 // Monochrome Meta-Icons (Fahrzeit / Entfernung)
 const IC_CAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14M5 13v4m14-4v4M7 17h.01M17 17h.01"/></svg>`;
@@ -1158,15 +1157,51 @@ function circlePolygon(lat, lon, radiusKm, steps = 64) {
 const RADIUS_CIRCLE_SRC = "radius-circle";
 function addRadiusCircleLayer() {
   if (!mapInstance || mapInstance.getSource(RADIUS_CIRCLE_SRC)) return;
-  mapInstance.addSource(RADIUS_CIRCLE_SRC, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-  mapInstance.addLayer({ id: "radius-circle-fill", type: "fill", source: RADIUS_CIRCLE_SRC, paint: { "fill-color": "#06b6a4", "fill-opacity": 0.08 } });
-  mapInstance.addLayer({ id: "radius-circle-line", type: "line", source: RADIUS_CIRCLE_SRC, paint: { "line-color": "#06b6a4", "line-width": 2, "line-dasharray": [2, 2] } });
+  // try/catch statt isStyleLoaded()-Vorabcheck: das Hinzufuegen einer Quelle kann den Style kurz
+  // wieder als "nicht fertig geladen" markieren (auch fuer spaetere addSource-Aufrufe im selben
+  // "idle"-Tick) - ein missglückter Versuch wird beim naechsten "idle"-Event einfach wiederholt.
+  try {
+    mapInstance.addSource(RADIUS_CIRCLE_SRC, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    mapInstance.addLayer({ id: "radius-circle-fill", type: "fill", source: RADIUS_CIRCLE_SRC, paint: { "fill-color": "#06b6a4", "fill-opacity": 0.08 } });
+    mapInstance.addLayer({ id: "radius-circle-line", type: "line", source: RADIUS_CIRCLE_SRC, paint: { "line-color": "#06b6a4", "line-width": 2, "line-dasharray": [2, 2] } });
+  } catch {}
 }
 function updateRadiusCircle(lat, lon, radiusKm) {
   if (!mapInstance) return;
   addRadiusCircleLayer();
   const src = mapInstance.getSource(RADIUS_CIRCLE_SRC);
   if (src) src.setData({ type: "FeatureCollection", features: [circlePolygon(lat, lon, radiusKm)] });
+}
+// Alle weiteren Plätze im Umkreis (jenseits der gefärbten Top-Treffer) als GPU-gerenderte Punkt-
+// Ebene statt einzelner DOM-Marker - so sind auch 1000+ Punkte in dichten Regionen kein Problem
+// und es gibt keinen Deckel, der in den Alpen/der Schweiz den Kreisrand "leer" aussehen lässt.
+const EXTRA_POINTS_SRC = "extra-points";
+let lastExtraFeatures = [];
+function addExtraPointsLayer() {
+  if (!mapInstance || mapInstance.getSource(EXTRA_POINTS_SRC)) return;
+  try {
+    mapInstance.addSource(EXTRA_POINTS_SRC, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    mapInstance.addLayer({
+      id: "extra-points-layer", type: "circle", source: EXTRA_POINTS_SRC,
+      paint: {
+        "circle-radius": 4, "circle-color": "#9fb0c2", "circle-opacity": 0.75,
+        "circle-stroke-width": 1, "circle-stroke-color": "rgba(13,17,23,.6)",
+      },
+    });
+    mapInstance.on("mouseenter", "extra-points-layer", () => { mapInstance.getCanvas().style.cursor = "pointer"; });
+    mapInstance.on("mouseleave", "extra-points-layer", () => { mapInstance.getCanvas().style.cursor = ""; });
+    mapInstance.on("click", "extra-points-layer", e => {
+      const id = e.features[0] && e.features[0].properties.id;
+      if (id) openDetail(id);
+    });
+  } catch {}
+}
+function updateExtraPoints(features) {
+  lastExtraFeatures = features;
+  if (!mapInstance) return;
+  addExtraPointsLayer();
+  const src = mapInstance.getSource(EXTRA_POINTS_SRC);
+  if (src) src.setData({ type: "FeatureCollection", features });
 }
 async function ensureMap() {
   if (mapInstance) return mapInstance;
@@ -1188,9 +1223,12 @@ async function ensureMap() {
   mapInstance.on("idle", () => {
     addRadiusCircleLayer();
     if (lastOrigin) updateRadiusCircle(lastOrigin.lat, lastOrigin.lon, getRadius());
+    addExtraPointsLayer();
+    updateExtraPoints(lastExtraFeatures);
   });
-  // Klick auf freie Kartenfläche (nicht auf einen Marker/Bedienelement) -> dort suchen.
+  // Klick auf freie Kartenfläche (nicht auf einen Marker/Bedienelement/Punkt) -> dort suchen.
   mapInstance.on("click", async e => {
+    if (mapInstance.queryRenderedFeatures(e.point, { layers: ["extra-points-layer"] }).length) return;
     const { lat, lng } = e.lngLat;
     const tempEl = document.createElement("div");
     tempEl.className = "map-marker map-marker-temp";
@@ -1234,25 +1272,18 @@ function updateMapMarkers(rows, opts = {}) {
     });
   });
   // Alle weiteren Plätze im Umkreis (jenseits der geladenen/gefärbten Top-Treffer) als schlichte,
-  // ungefärbte Punkte - zeigt beim Rauszoomen, dass da noch mehr ist. Wetter wird erst beim
+  // ungefärbte Punkte auf einer eigenen Kartenebene (kein Deckel - GPU-gerendert, siehe
+  // updateExtraPoints). Zeigt beim Rauszoomen, dass da noch mehr ist. Wetter wird erst beim
   // Antippen live nachgeladen (openDetail holt sich das ohnehin frisch, unabhängig von rows).
   if (lastOrigin) {
     const shown = new Set(rows.map(r => r.spot.id));
     const radius = getRadius();
-    allKnownSpots()
-      .map(s => ({ s, d: haversine(lastOrigin.lat, lastOrigin.lon, s.lat, s.lon) }))
-      .filter(x => !shown.has(x.s.id) && x.d <= radius)
-      .sort((a, b) => a.d - b.d)
-      .slice(0, EXTRA_MARKERS_MAX)   // Deckel gegen hunderte DOM-Marker (Handy-Performance bei dichten Regionen)
-      .forEach(({ s }) => {
-      const el = document.createElement("div");
-      el.className = "map-marker map-marker-extra";
-      el.title = s.name;
-      el.innerHTML = `<img src="icons/marker-start.png" alt="">`;
-      el.addEventListener("click", () => openDetail(s.id));
-      const marker = new maplibregl.Marker({ element: el }).setLngLat([s.lon, s.lat]).addTo(mapInstance);
-      mapMarkers.push(marker);
-    });
+    const features = allKnownSpots()
+      .filter(s => !shown.has(s.id) && haversine(lastOrigin.lat, lastOrigin.lon, s.lat, s.lon) <= radius)
+      .map(s => ({ type: "Feature", geometry: { type: "Point", coordinates: [s.lon, s.lat] }, properties: { id: s.id, name: s.name } }));
+    updateExtraPoints(features);
+  } else {
+    updateExtraPoints([]);
   }
   if (opts.flyTo === false) return;
   const bounds = rowsBounds(rows);

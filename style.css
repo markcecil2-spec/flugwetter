@@ -411,8 +411,6 @@ header { position: relative; overflow: hidden; }
 /* Klick auf die Karte: sofortiges Feedback am Anklickpunkt, während die Suche laeuft */
 .map-marker-temp img { animation: map-temp-pulse 1s ease-in-out infinite; }
 @keyframes map-temp-pulse { 0%, 100% { opacity: .5; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.05); } }
-/* Weitere Plätze im Umkreis (jenseits der gefärbten Top-Treffer) - klein & blass, kein Ampel-Status */
-.map-marker-extra img { width: 16px; height: 16px; opacity: .6; filter: grayscale(1) drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
 
 /* Mini-Karte im "Live"-Tab: Start-/Landeplatz */
 .mini-map-wrap { position: relative; border-radius: 14px; overflow: hidden; height: 220px; border: 1px solid var(--line); margin-top: 8px; }
