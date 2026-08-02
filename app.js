@@ -1305,7 +1305,7 @@ function updateMapMarkers(rows, opts = {}) {
     landePlaetze.forEach(l => {
       const lEl = document.createElement("div");
       lEl.className = "map-lande-marker"; lEl.title = l.name;
-      lEl.innerHTML = `<img src="icons/marker-lande-black.png" alt="">`;
+      lEl.innerHTML = `<img src="icons/marker-lande-black.png" alt=""><span class="map-marker-label">${l.name}</span>`;
       lEl.addEventListener("click", e => { e.stopPropagation(); openDetail(r.spot.id); });
       const lMarker = new maplibregl.Marker({ element: lEl }).setLngLat([l.lon, l.lat]).addTo(mapInstance);
       mapMarkers.push(lMarker);
