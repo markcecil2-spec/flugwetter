@@ -899,6 +899,17 @@ async function geocodePlz(plz) {
   return { lat: parseFloat(p.latitude), lon: parseFloat(p.longitude), label: `${plz} ${p["place name"]}` };
 }
 
+// Klick auf die Karte -> Ortsname zum Anklickpunkt (Nominatim/OSM, kostenlos, ohne Schlüssel).
+async function reverseGeocode(lat, lon) {
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=10&accept-language=de`);
+    if (!res.ok) return null;
+    const j = await res.json();
+    const a = j.address || {};
+    return a.city || a.town || a.village || a.municipality || j.name || null;
+  } catch { return null; }
+}
+
 // Umkreis-Auswahl (Pills)
 let lastOrigin = null;
 let searchDay = 0;         // 0 = heute, 1 = morgen
@@ -1132,6 +1143,30 @@ async function ensureMiniMap(spot) {
     miniMapInstance.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 50, animate: false, maxZoom: 15 });
   }
 }
+// Kreis-Polygon (GeoJSON) um lat/lon mit radiusKm - fuer die Umkreis-Visualisierung auf der Karte.
+function circlePolygon(lat, lon, radiusKm, steps = 64) {
+  const coords = [];
+  for (let i = 0; i <= steps; i++) {
+    const angle = (i / steps) * 2 * Math.PI;
+    const dLat = (radiusKm / 111.32) * Math.sin(angle);
+    const dLon = (radiusKm / (111.32 * Math.cos(lat * Math.PI / 180))) * Math.cos(angle);
+    coords.push([lon + dLon, lat + dLat]);
+  }
+  return { type: "Feature", geometry: { type: "Polygon", coordinates: [coords] }, properties: {} };
+}
+const RADIUS_CIRCLE_SRC = "radius-circle";
+function addRadiusCircleLayer() {
+  if (!mapInstance || mapInstance.getSource(RADIUS_CIRCLE_SRC)) return;
+  mapInstance.addSource(RADIUS_CIRCLE_SRC, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+  mapInstance.addLayer({ id: "radius-circle-fill", type: "fill", source: RADIUS_CIRCLE_SRC, paint: { "fill-color": "#06b6a4", "fill-opacity": 0.08 } });
+  mapInstance.addLayer({ id: "radius-circle-line", type: "line", source: RADIUS_CIRCLE_SRC, paint: { "line-color": "#06b6a4", "line-width": 2, "line-dasharray": [2, 2] } });
+}
+function updateRadiusCircle(lat, lon, radiusKm) {
+  if (!mapInstance) return;
+  addRadiusCircleLayer();
+  const src = mapInstance.getSource(RADIUS_CIRCLE_SRC);
+  if (src) src.setData({ type: "FeatureCollection", features: [circlePolygon(lat, lon, radiusKm)] });
+}
 async function ensureMap() {
   if (mapInstance) return mapInstance;
   await loadMapLibre();
@@ -1145,6 +1180,25 @@ async function ensureMap() {
   });
   mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   mapInstance.on("zoom", updateMapLabelVisibility);
+  // Umkreis-Kreis übersteht einen Kartenstil-Wechsel (setStyle wirft eigene Layer/Quellen weg) nicht,
+  // deshalb nach jedem Stilwechsel neu anlegen + mit dem aktuellen Standort neu befüllen. "idle" statt
+  // "style.load" (Letzteres feuert in dieser MapLibre-Version nicht zuverlässig) - addRadiusCircleLayer
+  // ist idempotent (No-Op falls Quelle schon da), daher unproblematisch bei jedem Idle-Event.
+  mapInstance.on("idle", () => {
+    addRadiusCircleLayer();
+    if (lastOrigin) updateRadiusCircle(lastOrigin.lat, lastOrigin.lon, getRadius());
+  });
+  // Klick auf freie Kartenfläche (nicht auf einen Marker/Bedienelement) -> dort suchen.
+  mapInstance.on("click", async e => {
+    const { lat, lng } = e.lngLat;
+    const tempEl = document.createElement("div");
+    tempEl.className = "map-marker map-marker-temp";
+    tempEl.innerHTML = `<img src="icons/marker-start.png" alt="">`;
+    const tempMarker = new maplibregl.Marker({ element: tempEl }).setLngLat([lng, lat]).addTo(mapInstance);
+    mapMarkers.push(tempMarker);
+    const place = await reverseGeocode(lat, lng);
+    await runFlySearch(lat, lng, place || `${lat.toFixed(3)}, ${lng.toFixed(3)}`);
+  });
   const bounds = rowsBounds(lastRows);
   if (bounds) mapInstance.fitBounds(bounds, { padding: 50, animate: false, maxZoom: 13 });
   updateMapMarkers(lastRows, { flyTo: false });
@@ -1206,6 +1260,7 @@ async function runFlySearch(lat, lon, label) {
   lastOrigin = { lat, lon, label };
   rerunSearch = () => runFlySearch(lat, lon, label);
   const radius = getRadius();
+  updateRadiusCircle(lat, lon, radius);
   const candidates = allKnownSpots()
     .map(s => { const d = haversine(lat, lon, s.lat, s.lon); return { ...s, dist: d, sortKey: d }; })
     .filter(s => s.dist <= radius)

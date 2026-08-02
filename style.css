@@ -408,6 +408,9 @@ header { position: relative; overflow: hidden; }
 .map-lande-marker { display: none; cursor: pointer; line-height: 1; }
 .map-lande-marker img { width: 22px; height: 22px; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
 #mapEl.show-labels .map-lande-marker { display: block; }
+/* Klick auf die Karte: sofortiges Feedback am Anklickpunkt, während die Suche laeuft */
+.map-marker-temp img { animation: map-temp-pulse 1s ease-in-out infinite; }
+@keyframes map-temp-pulse { 0%, 100% { opacity: .5; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.05); } }
 
 /* Mini-Karte im "Live"-Tab: Start-/Landeplatz */
 .mini-map-wrap { position: relative; border-radius: 14px; overflow: hidden; height: 220px; border: 1px solid var(--line); margin-top: 8px; }
@@ -731,7 +734,7 @@ body:not(.route-home) main.wrap { padding-top: calc(72px + env(safe-area-inset-t
 
 /* Zustieg-Filter (Erschließung) */
 .acc-box { margin: 0; }
-.acc-head { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 2px 6px; }
+.acc-head { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 8px; }
 .acc-seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .apill { flex: 1; min-width: 64px; background: #212a35; border: 1px solid #2b3542; color: #9fb0c2; font-size: 12px; font-weight: 600; padding: 7px 8px; border-radius: 9px; cursor: pointer; font-family: inherit; text-align: center; transition: color .15s, background .15s; }
 .apill.on { background: rgba(6,182,164,.16); color: var(--sky); border-color: rgba(6,182,164,.55); }
@@ -742,7 +745,11 @@ body:not(.route-home) main.wrap { padding-top: calc(72px + env(safe-area-inset-t
 .filter-toggle .filter-sum { color: var(--sky); font-weight: 700; font-size: 13px; }
 .filter-toggle .filter-chev { margin-left: auto; color: var(--muted); transition: transform .18s; }
 .filter-toggle.open .filter-chev { transform: rotate(180deg); }
-.filter-panel { display: flex; flex-direction: column; gap: 9px; }
+.filter-panel {
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px; margin-top: 2px;
+}
 .filter-panel[hidden] { display: none; }
 .fly-lg { text-decoration: none; }
 
