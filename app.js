@@ -1866,18 +1866,24 @@ function closeDetail(fromPopstate = false) {
     if (!fromPopstate) history.back(); // legt den gepushten Eintrag wieder ab, damit "Zurück" danach nicht ins Leere laeuft
   }
 }
-window.addEventListener("popstate", () => {
-  if (!document.getElementById("detailModal").hidden) closeDetail(true);
-});
 document.getElementById("detailModal").addEventListener("click", e => { if (e.target.id === "detailModal") closeDetail(); });
 
 // ---------------- Feedback ----------------
 const FB_MAIL = "goflytoday.app@gmail.com";
 const fbModal = document.getElementById("feedbackModal");
-function fbClose() { fbModal.hidden = true; }
-document.getElementById("feedbackBtn").addEventListener("click", () => { fbModal.hidden = false; document.getElementById("fbText").focus(); });
-document.getElementById("feedbackClose").addEventListener("click", fbClose);
-document.getElementById("fbCancel").addEventListener("click", fbClose);
+let fbHistoryPushed = false; // Handy-/TWA-Zurück soll das Fenster schliessen statt die App zu verlassen
+function fbOpen() {
+  fbModal.hidden = false;
+  document.getElementById("fbText").focus();
+  if (!fbHistoryPushed) { history.pushState({ fbOpen: true }, "", location.href); fbHistoryPushed = true; }
+}
+function fbClose(fromPopstate = false) {
+  fbModal.hidden = true;
+  if (fbHistoryPushed) { fbHistoryPushed = false; if (!fromPopstate) history.back(); }
+}
+document.getElementById("feedbackBtn").addEventListener("click", fbOpen);
+document.getElementById("feedbackClose").addEventListener("click", () => fbClose());
+document.getElementById("fbCancel").addEventListener("click", () => fbClose());
 fbModal.addEventListener("click", e => { if (e.target === fbModal) fbClose(); });
 document.querySelectorAll(".fb-cat").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll(".fb-cat").forEach(x => x.classList.toggle("on", x === b));
@@ -1895,16 +1901,35 @@ document.getElementById("fbSend").addEventListener("click", () => {
 
 // ---------------- Einstellungen ----------------
 const settingsModal = document.getElementById("settingsModal");
+let settingsHistoryPushed = false; // Handy-/TWA-Zurück soll das Fenster schliessen statt die App zu verlassen
 function openSettings() {
   const v = document.querySelector(".build")?.textContent.match(/Version\s+(\S+)/);
   document.getElementById("settingsVersion").textContent = v ? v[1] : "";
   settingsModal.hidden = false;
+  if (!settingsHistoryPushed) { history.pushState({ settingsOpen: true }, "", location.href); settingsHistoryPushed = true; }
 }
-function closeSettings() { settingsModal.hidden = true; }
-document.getElementById("settingsClose").addEventListener("click", closeSettings);
+function closeSettings(fromPopstate = false) {
+  settingsModal.hidden = true;
+  if (settingsHistoryPushed) { settingsHistoryPushed = false; if (!fromPopstate) history.back(); }
+}
+document.getElementById("settingsClose").addEventListener("click", () => closeSettings());
 settingsModal.addEventListener("click", e => { if (e.target === settingsModal) closeSettings(); });
 document.getElementById("settingsFeedbackBtn").addEventListener("click", () => {
-  closeSettings(); fbModal.hidden = false; document.getElementById("fbText").focus();
+  // Direkter Wechsel Einstellungen -> Feedback: den gepushten Verlaufseintrag ERSETZEN statt
+  // history.back() + pushState() im selben Tick zu mischen (back() wirkt async, das würde sich
+  // mit dem sofortigen pushState() der Feedback-Historie in die Quere kommen).
+  settingsModal.hidden = true;
+  settingsHistoryPushed = false;
+  fbModal.hidden = false;
+  document.getElementById("fbText").focus();
+  fbHistoryPushed = true;
+  history.replaceState({ fbOpen: true }, "", location.href);
+});
+// Zurück-Taste (Handy/TWA): schliesst das oberste offene Fenster statt die Seite/App zu verlassen.
+window.addEventListener("popstate", () => {
+  if (!settingsModal.hidden) { closeSettings(true); return; }
+  if (!fbModal.hidden) { fbClose(true); return; }
+  if (!document.getElementById("detailModal").hidden) closeDetail(true);
 });
 
 // ---------------- Neu: Datenbank-Suche + eigener Platz ----------------
