@@ -694,7 +694,7 @@ main.wrap { padding-top: 12px; }
 .hi-ic { width: 20px; height: 20px; }
 .hi-dot { position: absolute; top: 5px; right: 5px; width: 11px; height: 11px; border-radius: 50%; background: var(--green); border: 2px solid var(--bg); }
 .hi-dot[hidden] { display: none; }
-.hi-soon { position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: var(--text); max-width: 260px; line-height: 1.4; box-shadow: 0 14px 34px rgba(0,0,0,.45); }
+.hi-soon { position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: var(--text); width: max-content; max-width: min(300px, calc(100vw - 32px)); line-height: 1.4; box-shadow: 0 14px 34px rgba(0,0,0,.45); }
 .hi-soon span { display: block; color: var(--muted); font-weight: 500; font-size: 12px; margin-top: 2px; }
 .hi-soon[hidden] { display: none; }
 
@@ -739,7 +739,8 @@ main.wrap { padding-top: 12px; }
 .dd-btn { position: relative; display: flex; align-items: center; width: 100%; text-align: left; cursor: pointer; }
 .dd-btn .sel-flag { pointer-events: none; }
 .dd-label { flex: 1; }
-.dd-chev { position: absolute; right: 23px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 12px; }
+.dd-chev { position: absolute; right: 19px; top: 50%; transform: translateY(-50%); color: var(--muted); display: flex; }
+.dd-chev svg, .sel-chev svg, .filter-chev svg { width: 16px; height: 16px; }
 .dd-menu { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 60; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 6px; box-shadow: 0 14px 34px rgba(0,0,0,.55); }
 .dd { z-index: 5; }
 .dd-menu[hidden] { display: none; }
@@ -775,8 +776,8 @@ main.wrap { padding-top: 12px; }
 .find-select { width: 100%; font-size: 15px; font-weight: 600; padding: 13px 38px 13px 14px; margin-bottom: 0; cursor: pointer; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 14px; appearance: none; -webkit-appearance: none; }
 .find-select:focus { outline: 2px solid var(--sky); border-color: var(--sky); }
 /* Einheitliche Pfeile (▾) rechts – wie beim Land-Dropdown */
-.sel-chev { position: absolute; right: 23px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-.dd-chev, .sel-chev { color: var(--muted); font-size: 12px; }
+.sel-chev { position: absolute; right: 19px; top: 50%; transform: translateY(-50%); pointer-events: none; display: flex; }
+.dd-chev, .sel-chev { color: var(--muted); }
 
 /* Heute/Morgen: große Pills mit Icon */
 .day-toggle { gap: 10px; margin: 4px 0 12px; }
@@ -824,7 +825,7 @@ main.wrap { padding-top: 12px; }
 .filter-toggle { display: flex; align-items: center; gap: 9px; width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; color: var(--text); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 2px; }
 .filter-toggle .ft-ic { width: 18px; height: 18px; color: var(--sky); flex: none; }
 .filter-toggle .filter-sum { color: var(--sky); font-weight: 700; font-size: 13px; }
-.filter-toggle .filter-chev { margin-left: auto; color: var(--muted); transition: transform .18s; }
+.filter-toggle .filter-chev { margin-left: auto; margin-right: 5px; color: var(--muted); transition: transform .18s; display: flex; }
 .filter-toggle.open .filter-chev { transform: rotate(180deg); }
 .filter-panel {
   display: flex; flex-direction: column; gap: 12px;
