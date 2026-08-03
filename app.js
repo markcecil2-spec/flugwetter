@@ -1958,10 +1958,53 @@ document.getElementById("settingsFeedbackBtn").addEventListener("click", () => {
   fbHistoryPushed = true;
   history.replaceState({ fbOpen: true }, "", location.href);
 });
+// ---------------- Benachrichtigungen (Glocke) ----------------
+// Wertiger Dialog statt kleiner Popover-Karte: zeigt beim ersten Mal den Sicherheitshinweis mit
+// "Als gelesen markieren", danach dauerhaft einen ruhigen "Alles klar"-Zustand.
+const ICON_WARN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>`;
+const ICON_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9"/></svg>`;
+const notifModal = document.getElementById("notifModal");
+let notifHistoryPushed = false;
+function renderNotifBody() {
+  const body = document.getElementById("notifBody");
+  if (localStorage.getItem(BELL_SEEN_KEY) !== "1") {
+    body.innerHTML = `
+      <div class="notif-icon warn">${ICON_WARN}</div>
+      <h3 class="notif-title">Wichtiger Hinweis</h3>
+      <p class="notif-text">GoFlyToday liefert ausschließlich eine Orientierungshilfe. Die Entscheidung, ob ein Flug sicher durchgeführt werden kann, liegt immer beim Piloten. Wetterdaten können fehlerhaft oder unvollständig sein. Vor jedem Flug müssen die Bedingungen eigenständig geprüft werden.</p>
+      <button type="button" class="btn-primary notif-ack" id="notifAckBtn">Als gelesen markieren</button>`;
+  } else {
+    body.innerHTML = `
+      <div class="notif-icon ok">${ICON_CHECK}</div>
+      <h3 class="notif-title">Alles klar</h3>
+      <p class="notif-text">Aktuell keine weiteren Benachrichtigungen. Neue Hinweise erscheinen hier automatisch.</p>
+      <button type="button" class="btn-primary notif-ack" id="notifOkBtn">Schließen</button>`;
+  }
+}
+function openNotif() {
+  renderNotifBody();
+  notifModal.hidden = false;
+  void notifModal.offsetWidth; // Reflow erzwingen, damit die Enter-Transition ab dem Ausgangszustand greift
+  notifModal.classList.add("show");
+  if (!notifHistoryPushed) { history.pushState({ notifOpen: true }, "", location.href); notifHistoryPushed = true; }
+}
+function closeNotif(fromPopstate = false) {
+  notifModal.classList.remove("show");
+  setTimeout(() => { notifModal.hidden = true; }, 320); // an die laengere CSS-Transition (Transform) angepasst
+  if (notifHistoryPushed) { notifHistoryPushed = false; if (!fromPopstate) history.back(); }
+}
+document.getElementById("notifClose").addEventListener("click", () => closeNotif());
+notifModal.addEventListener("click", e => { if (e.target === notifModal) closeNotif(); });
+document.getElementById("notifBody").addEventListener("click", e => {
+  if (e.target.closest("#notifAckBtn")) { markBellSeen(); renderNotifBody(); return; }
+  if (e.target.closest("#notifOkBtn")) { closeNotif(); return; }
+});
+
 // Zurück-Taste (Handy/TWA): schliesst das oberste offene Fenster statt die Seite/App zu verlassen.
 window.addEventListener("popstate", () => {
   if (!settingsModal.hidden) { closeSettings(true); return; }
   if (!fbModal.hidden) { fbClose(true); return; }
+  if (!notifModal.hidden) { closeNotif(true); return; }
   if (!document.getElementById("detailModal").hidden) closeDetail(true);
 });
 
@@ -2044,26 +2087,11 @@ document.body.addEventListener("click", e => {
       m.hidden = true; m.parentElement.querySelector(".dt-menu-btn")?.setAttribute("aria-expanded", "false");
     });
   }
-  // Offenes "Bald verfügbar"-Popover (Glocke/Zahnrad) schließen, wenn außerhalb geklickt
-  if (!e.target.closest(".hi-wrap")) {
-    document.querySelectorAll(".hi-soon:not([hidden])").forEach(s => {
-      s.hidden = true; s.previousElementSibling?.setAttribute("aria-expanded", "false");
-    });
-  }
   // Detailfenster schließen (X)
   if (e.target.closest("[data-detailclose]")) { closeDetail(); return; }
-  // Kopfleiste: Zahnrad öffnet die echte Einstellungsseite
+  // Kopfleiste: Zahnrad öffnet die echte Einstellungsseite, Glocke den Hinweis-Dialog
   if (e.target.closest("#settingsBtn")) { openSettings(); return; }
-  // Kopfleiste: Glocke - Benachrichtigungen kommen später, bis dahin nur ein Hinweis
-  const hiBtn = e.target.closest(".hi-btn");
-  if (hiBtn) {
-    const soon = hiBtn.nextElementSibling;
-    const willOpen = soon.hidden;
-    document.querySelectorAll(".hi-soon").forEach(s => { s.hidden = true; s.previousElementSibling?.setAttribute("aria-expanded", "false"); });
-    soon.hidden = !willOpen; hiBtn.setAttribute("aria-expanded", String(willOpen));
-    if (hiBtn.id === "notifBtn" && willOpen) markBellSeen();
-    return;
-  }
+  if (e.target.closest("#notifBtn")) { openNotif(); return; }
   // ☰-Menü auf/zu
   const mBtn = e.target.closest(".dt-menu-btn");
   if (mBtn) {
