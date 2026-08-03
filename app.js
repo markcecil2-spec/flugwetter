@@ -6,6 +6,15 @@ const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden S
 // Toleranz-Profil für die Ampel-Bewertung (früher wählbar per Liga/Können - jetzt fest auf die
 // sicherste/Anfänger-Stufe, Einordnung läuft stattdessen fein über den Farbverlauf, s. rateHour).
 const PROFILE = { windMax: 18, gustMax: 26, dirTol: 16, buffer: true };
+// Profi-Modus: erfahrene Piloten können eigene Wind-/Böen-/Richtungs-Grenzwerte hinterlegen statt
+// der festen sicheren PROFILE-Werte (Opt-in in den Einstellungen, Standard: aus für alle).
+let proMode = localStorage.getItem("flugwetter_promode") === "1";
+let proWindMax = parseInt(localStorage.getItem("flugwetter_pro_windmax"), 10) || PROFILE.windMax;
+let proGustMax = parseInt(localStorage.getItem("flugwetter_pro_gustmax"), 10) || PROFILE.gustMax;
+let proDirTol = parseInt(localStorage.getItem("flugwetter_pro_dirtol"), 10) || PROFILE.dirTol;
+function activeProfile() {
+  return proMode ? { windMax: proWindMax, gustMax: proGustMax, dirTol: proDirTol, buffer: true } : PROFILE;
+}
 // Böendifferenz (Böen - Mittelwind, km/h): ab wann Turbulenz-Warnung (grenz) bzw. K.o. (nein).
 const GUSTDIFF_WARN = 20, GUSTDIFF_BAD = 30;
 const DEFAULT_RADIUS = 100;    // km
@@ -90,7 +99,7 @@ function spotCompassSvg(spot, wd, opts = {}) {
   }).join("");
   const needleTip = polarPt(cx, cy, rOuter - 3, wd);
   const ratingColor = { gut: "var(--green-d)", grenz: "var(--amber)", nein: "var(--red)" }[opts.rating];
-  const fits = inSectors(wd, spot.sectors, PROFILE.dirTol);
+  const fits = inSectors(wd, spot.sectors, activeProfile().dirTol);
   const needleColor = opts.neutral ? "var(--muted)" : (ratingColor || (fits ? "var(--green-d)" : "var(--red)"));
   const viewBox = opts.compact ? "10 10 80 80" : "0 0 100 100";
   return `<svg viewBox="${viewBox}" class="scp${opts.neutral ? " idle" : ""}${opts.compact ? " scp-sm" : ""}" aria-hidden="true">
@@ -111,12 +120,13 @@ function haversine(lat1, lon1, lat2, lon2) {
 // Bewertung einer Stunde: 'gut' | 'grenz' | 'nein' + Grund (bei nein/grenz) + severity (0..1, nur
 // bei 'grenz' - steuert den Farbverlauf grün->gelb in dayCardHtml statt eines harten Sprungs).
 function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
-  const windMax = PROFILE.windMax, gustMax = PROFILE.gustMax, dirTol = PROFILE.dirTol;
+  const profile = activeProfile();
+  const windMax = profile.windMax, gustMax = profile.gustMax, dirTol = profile.dirTol;
   // Puffer über den harten Grenzen: statt sofort "nein" gibt's dort erst "grenzwertig"
   // (mehr zutrauen, aber trotzdem warnen).
-  const dirTolBuf = dirTol + (PROFILE.buffer ? 6 : 0);
-  const windMaxBuf = windMax * (PROFILE.buffer ? 1.15 : 1);
-  const gustMaxBuf = gustMax * (PROFILE.buffer ? 1.15 : 1);
+  const dirTolBuf = dirTol + (profile.buffer ? 6 : 0);
+  const windMaxBuf = windMax * (profile.buffer ? 1.15 : 1);
+  const gustMaxBuf = gustMax * (profile.buffer ? 1.15 : 1);
   if (!isDay) return { rating: "nein", reason: "Nacht" };
   if (wc === 95 || wc === 96 || wc === 99) return { rating: "nein", reason: "Gewitter" };  // Gewitter (WMO) – unabhängig vom Regen
   if (rain > 0) return { rating: "nein", reason: "Regen" };
@@ -1465,6 +1475,45 @@ hdSlider.addEventListener("change", () => {
   applyHdUI();
   if (lastRows.length) { renderFlyResults(lastRows, lastHeadline, lastTruncated); updateMapMarkers(displayRowsFor(lastRows), { flyTo: false }); }
 });
+
+// Profi-Modus (Einstellungen): eigene Wind-/Böen-/Richtungs-Grenzwerte statt PROFILE (s. oben).
+function applyProUI() {
+  document.querySelectorAll("#proModeSeg .apill").forEach(x => x.classList.toggle("on", x.dataset.pro === (proMode ? "on" : "off")));
+  document.getElementById("proSliders").hidden = !proMode;
+  document.getElementById("proWindSlider").value = proWindMax;
+  document.getElementById("proGustSlider").value = proGustMax;
+  document.getElementById("proDirSlider").value = proDirTol;
+  document.getElementById("proWindVal").textContent = `${proWindMax} km/h`;
+  document.getElementById("proGustVal").textContent = `${proGustMax} km/h`;
+  document.getElementById("proDirVal").textContent = `${proDirTol}°`;
+}
+document.getElementById("proModeSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-pro]"); if (!b) return;
+  proMode = b.dataset.pro === "on";
+  localStorage.setItem("flugwetter_promode", proMode ? "1" : "0");
+  applyProUI();
+  if (rerunSearch) rerunSearch();
+});
+[["proWindSlider", "proWindVal", " km/h"], ["proGustSlider", "proGustVal", " km/h"], ["proDirSlider", "proDirVal", "°"]].forEach(([sliderId, valId, unit]) => {
+  document.getElementById(sliderId).addEventListener("input", () => {
+    document.getElementById(valId).textContent = document.getElementById(sliderId).value + unit; // nur Live-Label
+  });
+});
+document.getElementById("proWindSlider").addEventListener("change", () => {
+  proWindMax = parseInt(document.getElementById("proWindSlider").value, 10);
+  localStorage.setItem("flugwetter_pro_windmax", String(proWindMax));
+  if (rerunSearch) rerunSearch();
+});
+document.getElementById("proGustSlider").addEventListener("change", () => {
+  proGustMax = parseInt(document.getElementById("proGustSlider").value, 10);
+  localStorage.setItem("flugwetter_pro_gustmax", String(proGustMax));
+  if (rerunSearch) rerunSearch();
+});
+document.getElementById("proDirSlider").addEventListener("change", () => {
+  proDirTol = parseInt(document.getElementById("proDirSlider").value, 10);
+  localStorage.setItem("flugwetter_pro_dirtol", String(proDirTol));
+  if (rerunSearch) rerunSearch();
+});
 document.getElementById("accSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-acc]"); if (!b) return;
   accFilter = b.dataset.acc;
@@ -2173,6 +2222,7 @@ document.getElementById("hintClose").addEventListener("click", () => {
   }
   applyAccUI();
   applyHdUI();
+  applyProUI();
   route();
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});

@@ -294,7 +294,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 85 · August 2026</p>
+      <p class="build">GoFlyToday · Version 86 · August 2026</p>
     </section>
   </main>
 
@@ -357,7 +357,25 @@
         </div>
         <div class="settings-group">
           <div class="settings-group-label">Für Fortgeschrittene</div>
-          <button type="button" class="dt-mi" disabled>🎚️ Eigene Grenzwerte<span class="dt-soon">bald</span></button>
+          <div class="acc-seg" id="proModeSeg" role="group" aria-label="Eigene Grenzwerte">
+            <button type="button" class="apill" data-pro="off">Standard (sicher)</button>
+            <button type="button" class="apill" data-pro="on">🎚️ Eigene Grenzwerte</button>
+          </div>
+          <div class="pro-sliders" id="proSliders" hidden>
+            <div class="hd-box">
+              <div class="hd-head">Max. Wind <span id="proWindVal" class="hd-val"></span></div>
+              <input type="range" id="proWindSlider" class="hd-slider" min="12" max="35" step="1" aria-label="Maximaler Wind in km/h">
+            </div>
+            <div class="hd-box">
+              <div class="hd-head">Max. Böen <span id="proGustVal" class="hd-val"></span></div>
+              <input type="range" id="proGustSlider" class="hd-slider" min="18" max="45" step="1" aria-label="Maximale Böen in km/h">
+            </div>
+            <div class="hd-box">
+              <div class="hd-head">Richtungstoleranz <span id="proDirVal" class="hd-val"></span></div>
+              <input type="range" id="proDirSlider" class="hd-slider" min="5" max="45" step="1" aria-label="Richtungstoleranz in Grad">
+            </div>
+            <p class="pro-hint">Ersetzt dein persönliches Sicherheitsprofil nur für dich. Nur aktivieren, wenn du deine eigenen Grenzen aus Erfahrung gut einschätzen kannst.</p>
+          </div>
         </div>
         <div class="settings-group">
           <div class="settings-group-label">Sprache</div>
