@@ -1540,7 +1540,7 @@ function renderFirstRun() {
   if (!out) return;
   out.innerHTML = `
     <div class="firstrun">
-      <div class="fr-ico">🪂</div>
+      <div class="fr-ico"><img src="icons/logo-glider.png" alt=""></div>
       <div class="fr-title">Wo kannst du heute fliegen?</div>
       <div class="fr-sub">Ein Tipp – und du siehst die fliegbaren Startplätze in deiner Nähe.</div>
       <button type="button" class="fr-gps" id="frGps">📍 Meinen Standort verwenden</button>
@@ -1558,7 +1558,7 @@ function renderFirstRunMap() {
   out.hidden = false;
   out.innerHTML = `
     <div class="firstrun">
-      <div class="fr-ico">🪂</div>
+      <div class="fr-ico"><img src="icons/logo-glider.png" alt=""></div>
       <div class="fr-title">Wo kannst du heute fliegen?</div>
       <div class="fr-sub">Ein Tipp – und du siehst die fliegbaren Startplätze in deiner Nähe.</div>
       <button type="button" class="fr-gps" id="frGpsMap">📍 Meinen Standort verwenden</button>
@@ -1680,7 +1680,7 @@ function updateHero(flyable) {
   let l1, mid, l3;
   if (flyable == null) { l1 = "Wo kannst du"; mid = w.toLowerCase(); l3 = "fliegen?"; }
   else { const word = flyable === 1 ? "Startplatz" : "Startplätzen"; l1 = `${w} kannst du an`; mid = `${flyable} ${word}`; l3 = "fliegen."; }
-  el.innerHTML = `<span class="ht-l">${l1}</span><span class="hl">${mid}</span><span class="ht-l">${l3}</span>`;
+  el.innerHTML = `<span class="ht-l">${l1}</span><span class="hl">${mid}</span> <span class="ht-l">${l3}</span>`;
 }
 
 // Zeitabhängige Begrüßung
@@ -1844,6 +1844,20 @@ document.getElementById("fbSend").addEventListener("click", () => {
   ta.value = ""; fbClose();
 });
 
+// ---------------- Einstellungen ----------------
+const settingsModal = document.getElementById("settingsModal");
+function openSettings() {
+  const v = document.querySelector(".build")?.textContent.match(/Version\s+(\S+)/);
+  document.getElementById("settingsVersion").textContent = v ? v[1] : "";
+  settingsModal.hidden = false;
+}
+function closeSettings() { settingsModal.hidden = true; }
+document.getElementById("settingsClose").addEventListener("click", closeSettings);
+settingsModal.addEventListener("click", e => { if (e.target === settingsModal) closeSettings(); });
+document.getElementById("settingsFeedbackBtn").addEventListener("click", () => {
+  closeSettings(); fbModal.hidden = false; document.getElementById("fbText").focus();
+});
+
 // ---------------- Neu: Datenbank-Suche + eigener Platz ----------------
 function renderDbSearch(query = "") {
   const wrap = document.getElementById("dbResults");
@@ -1923,8 +1937,25 @@ document.body.addEventListener("click", e => {
       m.hidden = true; m.parentElement.querySelector(".dt-menu-btn")?.setAttribute("aria-expanded", "false");
     });
   }
+  // Offenes "Bald verfügbar"-Popover (Glocke/Zahnrad) schließen, wenn außerhalb geklickt
+  if (!e.target.closest(".hi-wrap")) {
+    document.querySelectorAll(".hi-soon:not([hidden])").forEach(s => {
+      s.hidden = true; s.previousElementSibling?.setAttribute("aria-expanded", "false");
+    });
+  }
   // Detailfenster schließen (X)
   if (e.target.closest("[data-detailclose]")) { closeDetail(); return; }
+  // Kopfleiste: Zahnrad öffnet die echte Einstellungsseite
+  if (e.target.closest("#settingsBtn")) { openSettings(); return; }
+  // Kopfleiste: Glocke - Benachrichtigungen kommen später, bis dahin nur ein Hinweis
+  const hiBtn = e.target.closest(".hi-btn");
+  if (hiBtn) {
+    const soon = hiBtn.nextElementSibling;
+    const willOpen = soon.hidden;
+    document.querySelectorAll(".hi-soon").forEach(s => { s.hidden = true; s.previousElementSibling?.setAttribute("aria-expanded", "false"); });
+    soon.hidden = !willOpen; hiBtn.setAttribute("aria-expanded", String(willOpen));
+    return;
+  }
   // ☰-Menü auf/zu
   const mBtn = e.target.closest(".dt-menu-btn");
   if (mBtn) {
