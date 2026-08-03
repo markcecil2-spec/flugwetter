@@ -671,11 +671,11 @@ main.wrap { padding-top: 12px; }
 
 /* Hero mit Live-Zähler */
 /* Hero: Foto vollflächig hinter Titel + Bedienelementen, unten in den Hintergrund verlaufend */
-.home-hero { position: relative; margin: 0 -16px 14px; min-height: 567px; }
+.home-hero { position: relative; margin: 0 -16px 14px; aspect-ratio: 2 / 1; }
 .home-hero .hero-bg { position: absolute; inset: 0; overflow: hidden; }
 .home-hero .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center 16%; display: block; }
 .home-hero .hero-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,17,23,.4) 0%, rgba(13,17,23,.3) 26%, rgba(13,17,23,.5) 56%, rgba(13,17,23,.8) 86%, var(--bg) 100%); }
-.hero-fg { position: relative; padding: 18px 16px 16px; display: flex; flex-direction: column; gap: 9px; }
+.hero-fg { position: relative; padding: 28px 16px 16px; display: flex; flex-direction: column; gap: 9px; }
 .home-hero .hero-fg > * { margin: 0; }
 .home-hero .hero-fg .hero-content { margin-bottom: 0; }
 .home-hero .hero-fg .select-wrap { margin-top: 0; }
