@@ -23,6 +23,10 @@ const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" ar
 // Monochrome Meta-Icons (Fahrzeit / Entfernung)
 const IC_CAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13M5 13h14M5 13v4m14-4v4M7 17h.01M17 17h.01"/></svg>`;
 const IC_PIN = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>`;
+const IC_WIND = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.6 4.6a2 2 0 1 1 2 3.4H2"/><path d="M12.6 19.4a2 2 0 1 0 2-3.4H2"/><path d="M17.7 8a2.5 2.5 0 1 1 2 4H2"/></svg>`;
+const IC_CABLECAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8l20-4"/><rect x="8" y="9" width="8" height="6" rx="1"/><path d="M10 15v3M14 15v3"/></svg>`;
+const IC_CLIPBOARD = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V2h6v2"/><path d="M9 10h6M9 14h6"/></svg>`;
+const IC_GLOBE = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/></svg>`;
 // Höhendifferenz-Schwelle, ab der "Thermik grundsätzlich möglich" als plausibel gilt (Standort-Eigenschaft)
 const THERMIK_HOEHENDIFF_MIN = 300; // m
 
@@ -665,7 +669,7 @@ function iconCardsHtml(spot, thStart, driveSec) {
     const sub = thStart != null ? `<span class="dv-dot gut"></span>gut · ab ${thStart} Uhr` : `<span class="dv-dot gut"></span>möglich`;
     cards.push({ img: "icons/ic-thermik.png", label: "Thermik", sub });
   }
-  cards.push({ img: null, ic: "🚌", label: "ÖPNV", sub: `<span class="dv-dot nein"></span>nicht verfügbar` });
+  cards.push({ img: null, ic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="12" rx="2"/><path d="M4 13h16"/><circle cx="8" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/><path d="M7 5v3M17 5v3"/></svg>`, label: "ÖPNV", sub: `<span class="dv-dot nein"></span>nicht verfügbar` });
   return `<div class="dv-cards">${cards.map(c => { const tag = c.href ? "a" : "div";
     const attrs = c.href ? ` href="${c.href}" target="_blank" rel="noopener"` : "";
     return `<${tag} class="dv-card"${attrs}>
@@ -815,18 +819,18 @@ function renderCard(spot, days, opts = {}) {
 
   // Aktionsleiste: Einstiegspunkte für den Flugtag (als Objekte -> zwei Anzeigeformen: Pillen & Badges)
   const actList = [
-    { icon: "🌬️", label: "Windy", href: `https://www.windy.com/?${spot.lat},${spot.lon},12` },
+    { icon: IC_WIND, label: "Windy", href: `https://www.windy.com/?${spot.lat},${spot.lon},12` },
   ];
   if (spot.acc && spot.acc.includes("b")) {
     const base = (spot.name || "").replace(/\s*\([^)]*\)\s*$/, "").trim();  // Richtungs-Suffix „(N)" weg
     const q = encodeURIComponent(`${base} ${spot.region || ""} Bergbahn Seilbahn`.replace(/\s+/g, " ").trim());
-    actList.push({ icon: "🚠", label: "Bergbahn", href: `https://www.google.com/search?q=${q}` });
+    actList.push({ icon: IC_CABLECAR, label: "Bergbahn", href: `https://www.google.com/search?q=${q}` });
   }
   if (spot.landeLat != null && spot.landeLon != null) {
-    actList.push({ icon: "🛬", label: "Landeplatz", href: mapsUrl({ lat: spot.landeLat, lon: spot.landeLon }) });
+    actList.push({ icon: IC_PIN, label: "Landeplatz", href: mapsUrl({ lat: spot.landeLat, lon: spot.landeLon }) });
   }
-  if (spot.dhv) actList.push({ icon: "📋", label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
-  if (spot.vereinUrl) actList.push({ icon: "🌐", label: "Verein", href: spot.vereinUrl });
+  if (spot.dhv) actList.push({ icon: IC_CLIPBOARD, label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
+  if (spot.vereinUrl) actList.push({ icon: IC_GLOBE, label: "Verein", href: spot.vereinUrl });
   // Landeplatz hat im Details-Tab schon einen eigenen Navigations-Button an der Karte -> hier redundant
   const actionsBadges = `<div class="dv-actions">${actList.filter(a => a.label !== "Landeplatz").map(a => `<a class="dv-act" href="${a.href}" target="_blank" rel="noopener"><span class="dv-act-ic">${a.icon}</span><span>${a.label}</span></a>`).join("")}</div>`;
 
@@ -1301,7 +1305,7 @@ function updateMapMarkers(rows, opts = {}) {
     const el = document.createElement("div");
     el.className = "map-marker";
     el.title = r.spot.name;
-    el.innerHTML = `<img src="${START_ICON_BY_STATUS[r.ts.status] || START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label">${r.spot.name}</span>`;
+    el.innerHTML = `<img src="${START_ICON_BY_STATUS[r.ts.status] || START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label ml-${r.ts.status}">${r.spot.name}</span>`;
     // stopPropagation: sonst bubbelt der Klick zum generischen Karten-Click-Handler durch (der
     // Klicks auf leere Kartenflächen als neue Ortssuche interpretiert) und startet ungewollt eine
     // zweite Suche samt Zoom-Animation im Hintergrund, während das Detailfenster schon offen ist.
@@ -1424,9 +1428,14 @@ function updateFilterSummary() {
   const sum = document.getElementById("filterSummary");
   if (!sum) return;
   const parts = [];
+  if (favOnlyFilter) parts.push("⭐ Favoriten");
   if (accFilter !== "all") parts.push(accShort(accFilter));
   if (minHoehendiff > 0) parts.push(`⛰️ ab ${minHoehendiff} m`);
   sum.textContent = parts.length ? "· " + parts.join(" · ") : "";
+}
+function applyFavSegUI() {
+  document.querySelectorAll("#favSeg .apill").forEach(x => x.classList.toggle("on", (x.dataset.favonly === "1") === favOnlyFilter));
+  updateFilterSummary();
 }
 
 // Zustieg-Filter (DHV-Erschließung): acc-Code f=zu Fuß, a=Auto, b=Bergbahn.
@@ -1540,6 +1549,12 @@ document.getElementById("accSeg").addEventListener("click", e => {
   // Zustieg ist reine Anzeige-Filterung auf den schon geholten Ergebnissen -> kein neuer Abruf noetig
   // (verhindert auch, dass ein enger Filter plaetze zeigt, die "Egal" nie hatte, s. renderSearch).
   // Karte muss denselben Filter zeigen wie die Liste, sonst weichen Liste/Karte voneinander ab.
+  if (lastRows.length) { renderFlyResults(lastRows, lastHeadline, lastTruncated); updateMapMarkers(displayRowsFor(lastRows), { flyTo: false }); }
+});
+document.getElementById("favSeg").addEventListener("click", e => {
+  const b = e.target.closest("[data-favonly]"); if (!b) return;
+  favOnlyFilter = b.dataset.favonly === "1";
+  applyFavSegUI();
   if (lastRows.length) { renderFlyResults(lastRows, lastHeadline, lastTruncated); updateMapMarkers(displayRowsFor(lastRows), { flyTo: false }); }
 });
 // Filter-Bereich auf-/zuklappen
@@ -2046,6 +2061,7 @@ document.body.addEventListener("click", e => {
     const willOpen = soon.hidden;
     document.querySelectorAll(".hi-soon").forEach(s => { s.hidden = true; s.previousElementSibling?.setAttribute("aria-expanded", "false"); });
     soon.hidden = !willOpen; hiBtn.setAttribute("aria-expanded", String(willOpen));
+    if (hiBtn.id === "notifBtn" && willOpen) markBellSeen();
     return;
   }
   // ☰-Menü auf/zu
@@ -2132,6 +2148,7 @@ document.body.addEventListener("click", e => {
   // "Nur Favoriten"-Filter in der Ergebnisliste
   if (e.target.closest("#favOnlyBtn")) {
     favOnlyFilter = !favOnlyFilter;
+    applyFavSegUI();
     renderFlyResults(lastRows, lastHeadline, lastTruncated);
     updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
     return;
@@ -2245,6 +2262,14 @@ form.addEventListener("submit", async e => {
 });
 
 // ---------------- Start ----------------
+// Glocke: grüner Punkt fällt erst weg, sobald der Sicherheitshinweis einmal geöffnet wurde.
+const BELL_SEEN_KEY = "flugwetter_bell_seen";
+function markBellSeen() {
+  if (localStorage.getItem(BELL_SEEN_KEY) === "1") return;
+  localStorage.setItem(BELL_SEEN_KEY, "1");
+  document.querySelector("#notifBtn .hi-dot").hidden = true;
+}
+
 // Hinweis-Banner ausblendbar (Zustand merken)
 const HINT_KEY = "flugwetter_hint_dismissed";
 document.getElementById("hintClose").addEventListener("click", () => {
@@ -2259,6 +2284,7 @@ document.getElementById("hintClose").addEventListener("click", () => {
     saveFavs(ids);
   }
   if (localStorage.getItem(HINT_KEY) === "1") document.getElementById("hintBanner").style.display = "none";
+  if (localStorage.getItem(BELL_SEEN_KEY) === "1") document.querySelector("#notifBtn .hi-dot").hidden = true;
   const r = localStorage.getItem("flugwetter_radius");
   if (r && document.querySelector(`#radiusPills .rpill[data-km="${r}"]`)) {
     document.querySelectorAll("#radiusPills .rpill").forEach(x => x.classList.toggle("on", x.dataset.km === r));
@@ -2266,6 +2292,7 @@ document.getElementById("hintClose").addEventListener("click", () => {
   applyAccUI();
   applyHdUI();
   applyProUI();
+  applyFavSegUI();
   route();
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
