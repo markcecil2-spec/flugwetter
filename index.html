@@ -85,6 +85,7 @@
           </span>
           <select id="regionSelect" class="find-select has-lead" aria-label="Region wählen">
             <option value="">Region / Filter …</option>
+            <option value="__fav__">⭐ Meine Favoriten</option>
             <option value="allgaeu">Allgäu</option>
             <option value="alb">Schwäbische Alb</option>
             <option value="schwarzwald">Schwarzwald</option>
@@ -294,7 +295,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 88 · August 2026</p>
+      <p class="build">GoFlyToday · Version 89 · August 2026</p>
     </section>
   </main>
 
@@ -353,48 +354,54 @@
       <div class="settings-list">
         <div class="settings-group">
           <div class="settings-group-label">Benachrichtigungen</div>
-          <button type="button" class="dt-mi" disabled>🔔 Verwalten<span class="dt-soon">bald</span></button>
+          <button type="button" class="dt-mi" disabled><svg class="dt-mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Verwalten<span class="dt-soon">bald</span></button>
         </div>
         <div class="settings-group">
-          <div class="settings-group-label">Für Fortgeschrittene</div>
+          <div class="settings-group-label">Sicherheitsprofil</div>
           <div class="acc-seg" id="proModeSeg" role="group" aria-label="Eigene Grenzwerte">
-            <button type="button" class="apill" data-pro="off">Standard (sicher)</button>
-            <button type="button" class="apill" data-pro="on">🎚️ Eigene Grenzwerte</button>
+            <button type="button" class="apill" data-pro="off">Standard (empfohlen)</button>
+            <button type="button" class="apill" data-pro="on">Eigene Grenzwerte</button>
           </div>
           <div class="pro-sliders" id="proSliders" hidden>
             <div class="hd-box">
-              <div class="hd-head">Max. Wind <span id="proWindVal" class="hd-val"></span></div>
+              <div class="hd-head"><span class="hd-label">Max. Wind <button type="button" class="info-btn" aria-label="Was bedeutet das?">ⓘ</button></span><span id="proWindVal" class="hd-val"></span></div>
               <input type="range" id="proWindSlider" class="hd-slider" min="12" max="35" step="1" aria-label="Maximaler Wind in km/h">
+              <p class="slider-info" hidden>Modellwind in 10 m Höhe über Grund – kann am Hang oder direkt am Startplatz abweichen.</p>
             </div>
             <div class="hd-box">
-              <div class="hd-head">Max. Böen <span id="proGustVal" class="hd-val"></span></div>
+              <div class="hd-head"><span class="hd-label">Max. Böen <button type="button" class="info-btn" aria-label="Was bedeutet das?">ⓘ</button></span><span id="proGustVal" class="hd-val"></span></div>
               <input type="range" id="proGustSlider" class="hd-slider" min="18" max="45" step="1" aria-label="Maximale Böen in km/h">
+              <p class="slider-info" hidden>Höchster kurzer Windausschlag über dem Mittelwind, ebenfalls in 10 m Höhe – nicht zwingend am Hang.</p>
             </div>
             <div class="hd-box">
-              <div class="hd-head">Richtungstoleranz <span id="proDirVal" class="hd-val"></span></div>
+              <div class="hd-head"><span class="hd-label">Richtungstoleranz <button type="button" class="info-btn" aria-label="Was bedeutet das?">ⓘ</button></span><span id="proDirVal" class="hd-val"></span></div>
               <input type="range" id="proDirSlider" class="hd-slider" min="5" max="45" step="1" aria-label="Richtungstoleranz in Grad">
+              <p class="slider-info" hidden>Wie weit die Windrichtung vom optimalen Startsektor abweichen darf, bevor es als „falsche Richtung" gilt.</p>
             </div>
-            <p class="pro-hint">Ersetzt dein persönliches Sicherheitsprofil nur für dich. Nur aktivieren, wenn du deine eigenen Grenzen aus Erfahrung gut einschätzen kannst.</p>
+            <div class="info-box"><svg class="info-box-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg><span>Ersetzt dein persönliches Sicherheitsprofil nur für dich. Nur aktivieren, wenn du deine eigenen Grenzen aus Erfahrung gut einschätzen kannst.</span></div>
           </div>
         </div>
         <div class="settings-group">
           <div class="settings-group-label">Sprache</div>
-          <button type="button" class="dt-mi" disabled>🇩🇪 Deutsch<span class="dt-active">aktiv</span></button>
-          <button type="button" class="dt-mi" disabled>🇬🇧 English<span class="dt-soon">bald</span></button>
+          <div class="dt-mi settings-static">🇩🇪 Deutsch<span class="lang-active">✔</span></div>
+          <div class="dt-mi settings-static">🇬🇧 English<span class="lang-soon">Coming Soon</span></div>
         </div>
         <div class="settings-group">
           <div class="settings-group-label">Rechtliches</div>
-          <a class="dt-mi" href="datenschutz.html">🔒 Datenschutz</a>
-          <a class="dt-mi" href="datenschutz.html#impressum">🏢 Impressum</a>
+          <a class="dt-mi" href="datenschutz.html"><svg class="dt-mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Datenschutz</a>
+          <a class="dt-mi" href="datenschutz.html#impressum"><svg class="dt-mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6l8-3 8 3v15"/><path d="M9 21v-6h6v6"/><path d="M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg>Impressum</a>
         </div>
         <div class="settings-group">
           <div class="settings-group-label">Support</div>
-          <a class="dt-mi" href="https://buymeacoffee.com/GoFlyToday" target="_blank" rel="noopener">☕ GoFlyToday unterstützen</a>
-          <button type="button" class="dt-mi" id="settingsFeedbackBtn">💬 Feedback senden</button>
+          <a class="dt-mi dt-mi-stacked" href="https://buymeacoffee.com/GoFlyToday" target="_blank" rel="noopener">
+            <span class="dt-mi-title"><svg class="dt-mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h13"/><path d="M6 21V9h9v6a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3"/><path d="M15 10.5h2a2 2 0 0 1 0 4h-1.3"/><path d="M8 3c0 1-1 1-1 2M11.5 3c0 1-1 1-1 2"/></svg>GoFlyToday unterstützen</span>
+            <span class="dt-mi-subtext">Mit deiner Unterstützung finanzierst du die Weiterentwicklung der App.</span>
+          </a>
+          <button type="button" class="dt-mi" id="settingsFeedbackBtn"><svg class="dt-mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Feedback senden</button>
         </div>
         <div class="settings-group">
           <div class="settings-group-label">App</div>
-          <div class="dt-mi settings-version">ℹ️ Version <span id="settingsVersion"></span></div>
+          <div class="dt-mi settings-static"><svg class="dt-mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>Version <span class="settings-version-num" id="settingsVersion"></span></div>
         </div>
       </div>
     </div>

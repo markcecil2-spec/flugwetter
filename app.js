@@ -1451,6 +1451,12 @@ function applyAccUI() {
   updateFilterSummary();
 }
 
+// Füllstand-Anzeige für alle .hd-slider-Regler (Grad statt reinem accent-color, s. CSS).
+function updateSliderFill(el) {
+  const min = parseFloat(el.min) || 0, max = parseFloat(el.max) || 100, val = parseFloat(el.value);
+  el.style.setProperty("--range-progress", `${((val - min) / (max - min)) * 100}%`);
+}
+
 // Mindest-Höhendifferenz-Filter (Schieberegler): blendet kleine Übungshänge aus.
 let minHoehendiff = parseInt(localStorage.getItem("flugwetter_minhd"), 10) || 0;
 function hdMatch(spot, min) {
@@ -1463,11 +1469,13 @@ function applyHdUI() {
   const slider = document.getElementById("hdSlider"), val = document.getElementById("hdVal");
   slider.value = minHoehendiff;
   val.textContent = minHoehendiff > 0 ? `ab ${minHoehendiff} m` : "Egal";
+  updateSliderFill(slider);
   updateFilterSummary();
 }
 const hdSlider = document.getElementById("hdSlider");
 hdSlider.addEventListener("input", () => {
   document.getElementById("hdVal").textContent = `ab ${hdSlider.value} m`; // nur Live-Label beim Ziehen
+  updateSliderFill(hdSlider);
 });
 hdSlider.addEventListener("change", () => {
   minHoehendiff = parseInt(hdSlider.value, 10) || 0;
@@ -1486,6 +1494,7 @@ function applyProUI() {
   document.getElementById("proWindVal").textContent = `${proWindMax} km/h`;
   document.getElementById("proGustVal").textContent = `${proGustMax} km/h`;
   document.getElementById("proDirVal").textContent = `${proDirTol}°`;
+  ["proWindSlider", "proGustSlider", "proDirSlider"].forEach(id => updateSliderFill(document.getElementById(id)));
 }
 document.getElementById("proModeSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-pro]"); if (!b) return;
@@ -1495,8 +1504,10 @@ document.getElementById("proModeSeg").addEventListener("click", e => {
   if (rerunSearch) rerunSearch();
 });
 [["proWindSlider", "proWindVal", " km/h"], ["proGustSlider", "proGustVal", " km/h"], ["proDirSlider", "proDirVal", "°"]].forEach(([sliderId, valId, unit]) => {
-  document.getElementById(sliderId).addEventListener("input", () => {
-    document.getElementById(valId).textContent = document.getElementById(sliderId).value + unit; // nur Live-Label
+  const el = document.getElementById(sliderId);
+  el.addEventListener("input", () => {
+    document.getElementById(valId).textContent = el.value + unit; // nur Live-Label
+    updateSliderFill(el);
   });
 });
 document.getElementById("proWindSlider").addEventListener("change", () => {
@@ -1513,6 +1524,13 @@ document.getElementById("proDirSlider").addEventListener("change", () => {
   proDirTol = parseInt(document.getElementById("proDirSlider").value, 10);
   localStorage.setItem("flugwetter_pro_dirtol", String(proDirTol));
   if (rerunSearch) rerunSearch();
+});
+// ⓘ-Erklärung je Grenzwert-Regler auf-/zuklappen
+document.querySelectorAll(".pro-sliders .info-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const p = btn.closest(".hd-box").querySelector(".slider-info");
+    p.hidden = !p.hidden;
+  });
 });
 document.getElementById("accSeg").addEventListener("click", e => {
   const b = e.target.closest("[data-acc]"); if (!b) return;
@@ -1536,7 +1554,7 @@ document.getElementById("filterToggle").addEventListener("click", () => {
 // Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
 function renderRegionOptions(country) {
   const sel = document.getElementById("regionSelect");
-  const opts = ['<option value="">Region / Filter …</option>'];
+  const opts = ['<option value="">Region / Filter …</option>', '<option value="__fav__">⭐ Meine Favoriten</option>'];
   Object.entries(REGIONS).forEach(([key, r]) => { if (r.country === country) opts.push(`<option value="${key}">${r.name}</option>`); });
   sel.innerHTML = opts.join("");
 }
