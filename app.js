@@ -585,39 +585,6 @@ function statusCardHtml(day, rt, ts, dayW) {
   </div>`;
 }
 
-// ---------------- Favoriten-Karte: "Heute auf einen Blick" ----------------
-// Aggregierte Übersicht über alle Favoriten (heute): wie viele fliegbar, gemeinsame beste Zeit,
-// Stunden mit/ohne gute Bedingungen, Starkwind-Warnungen – reine Aggregation echter Werte.
-function favoritesSummaryHtml(results) {
-  if (!results.length) return "";
-  const n = results.length;
-  const statuses = results.map(r => dayStatus(r.days, 0));
-  // "past" (alle Fenster heute schon vorbei) zählt hier nicht mehr als aktuell fliegbar.
-  const flyable = statuses.filter(s => s.status !== "nein" && !s.past).length;
-  const goodWins = statuses.filter(s => s.status === "gut" && !s.past).map(s => s.win);
-  let bestZeit = "";
-  if (goodWins.length) {
-    const from = new Date(Math.min(...goodWins.map(w => w.from.getTime())));
-    const to = new Date(Math.max(...goodWins.map(w => w.to.getTime())));
-    bestZeit = `${from.getHours().toString().padStart(2, "0")}:00 – ${to.getHours().toString().padStart(2, "0")}:00 Uhr`;
-  }
-  // Stunden mit mind. einem fliegbaren ("gut") bzw. nur grenzwertigem Favoriten, über alle Plätze vereinigt
-  const hourSets = { gut: new Set(), grenz: new Set() };
-  results.forEach(r => { (r.days[0] ? r.days[0].dayHours : []).forEach(h => { if (h.rating === "gut") hourSets.gut.add(h.t.getHours()); else if (h.rating === "grenz") hourSets.grenz.add(h.t.getHours()); }); });
-  const gutStunden = hourSets.gut.size;
-  const grenzStunden = [...hourSets.grenz].filter(h => !hourSets.gut.has(h)).length;
-  const starkwind = statuses.filter(s => s.status === "nein" && (s.reason === "zu stark" || s.reason === "Böen")).length;
-  return `<div class="fav-summary">
-    <div class="fav-sum-head">Heute im Überblick</div>
-    <div class="fav-sum-main"><b>${flyable} von ${n}</b> Favoriten <span class="${flyable ? "gut" : "nein"}">${flyable ? "sind fliegbar" : "sind heute nicht fliegbar"}</span></div>
-    ${bestZeit ? `<div class="fav-sum-best">Beste Zeit insgesamt<br><span class="fav-sum-time">🕐 ${bestZeit}</span></div>` : ""}
-    <div class="fav-sum-stats">
-      <div class="fav-sum-stat"><span class="fss-ic gut">🪂</span><b>${gutStunden} h</b><span>gute Bedingungen</span></div>
-      <div class="fav-sum-stat"><span class="fss-ic grenz">💨</span><b>${grenzStunden} h</b><span>eingeschränkt</span></div>
-      <div class="fav-sum-stat"><span class="fss-ic ${starkwind ? "nein" : "gut"}">${starkwind ? "⚠️" : "✓"}</span><b>${starkwind}</b><span>Starkwindwarnung</span></div>
-    </div>
-  </div>`;
-}
 // "Tipp für morgen": vergleicht die gemeinsame beste Zeit heute vs. morgen über alle Favoriten
 function favoritesTipHtml(results) {
   if (!results.length) return "";
@@ -899,25 +866,49 @@ function renderCard(spot, days, opts = {}) {
   return `<div class="card" data-spot="${spot.id}">${head}${body}</div>`;
 }
 
+// Heute/Morgen fuer die Favoriten - bewusst eigener Zustand, unabhaengig vom Home-Screen (searchDay),
+// damit ein Tageswechsel auf der einen Seite die andere nicht ungefragt mitaendert.
+let favDay = 0;
+let lastFavResults = [];
 async function renderFavorites() {
   const list = document.getElementById("favList");
   const empty = document.getElementById("favEmpty");
-  const summaryEl = document.getElementById("favSummary");
+  const headEl = document.getElementById("favHead");
   const tipEl = document.getElementById("favTip");
   const favs = favoriteSpots();
   empty.hidden = favs.length > 0;
-  if (!favs.length) { list.innerHTML = ""; summaryEl.innerHTML = ""; tipEl.innerHTML = ""; return; }
+  if (!favs.length) { list.innerHTML = ""; headEl.innerHTML = ""; tipEl.innerHTML = ""; lastFavResults = []; return; }
   list.innerHTML = favs.map(s => `<div class="card loading">Lade ${s.name} …</div>`).join("");
-  summaryEl.innerHTML = ""; tipEl.innerHTML = "";
-  const results = await Promise.all(favs.map(async s => {
-    try { const days = analyse(s, await fetchForecast(s)); return { spot: s, days, html: renderCard(s, days, { collapsible: true }) }; }
-    catch (e) { return { spot: s, days: null, html: `<div class="card"><div class="spot-name">${s.name}</div><div class="spot-region">Fehler: ${e.message}</div></div>` }; }
+  headEl.innerHTML = ""; tipEl.innerHTML = "";
+  lastFavResults = await Promise.all(favs.map(async s => {
+    try { return { spot: s, days: analyse(s, await fetchForecast(s)) }; }
+    catch (e) { return { spot: s, days: null, error: e.message }; }
   }));
-  list.innerHTML = results.map(r => r.html).join("");
-  const ok = results.filter(r => r.days);
-  summaryEl.innerHTML = favoritesSummaryHtml(ok);
-  tipEl.innerHTML = favoritesTipHtml(ok);
+  renderFavList();
 }
+// Reine Anzeige aus dem Cache (lastFavResults) - beim Heute/Morgen-Wechsel kein erneuter Abruf noetig,
+// die Vorhersage deckt beide Tage schon ab (s. analyse()/dayStatus()).
+function renderFavList() {
+  const list = document.getElementById("favList");
+  const headEl = document.getElementById("favHead");
+  const tipEl = document.getElementById("favTip");
+  const ok = lastFavResults.filter(r => r.days);
+  const failed = lastFavResults.filter(r => !r.days);
+  const dayW = favDay === 1 ? "Morgen" : "Heute";
+  const rows = ok.map(r => ({ spot: r.spot, ts: dayStatus(r.days, favDay) }));
+  const flyable = rows.filter(r => r.ts.status !== "nein").length;
+  headEl.innerHTML = lastFavResults.length ? `<div class="fly-head">${dayW} · <b>${flyable}</b> von ${lastFavResults.length} fliegbar</div>` : "";
+  const rowsHtml = rows.map(r => spotRowHtml(r.spot, r.ts, r.spot.region || "")).join("");
+  const failedHtml = failed.map(r => `<div class="card"><div class="spot-name">${r.spot.name}</div><div class="spot-region">Fehler: ${r.error}</div></div>`).join("");
+  list.innerHTML = rowsHtml ? `<div class="sc-list">${rowsHtml}</div>${failedHtml}` : failedHtml;
+  tipEl.innerHTML = favDay === 0 ? favoritesTipHtml(ok) : "";
+}
+document.getElementById("favDayToggle").addEventListener("click", e => {
+  const b = e.target.closest("[data-day]"); if (!b) return;
+  favDay = parseInt(b.dataset.day, 10);
+  document.querySelectorAll("#favDayToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
+  renderFavList();
+});
 
 // ---------------- „Wo kann ich heute fliegen?" ----------------
 // PLZ (Deutschland) -> Koordinaten via zippopotam.us (kostenlos, ohne Schlüssel).
@@ -1398,22 +1389,6 @@ async function runRegionSearch(key) {
   await renderSearch(candidates, origin, `${dayWord()} · Region <b>${R.name}</b>`);
 }
 
-// Filter: nur eigene Favoriten prüfen
-async function runFavSearch() {
-  rerunSearch = () => runFavSearch();
-  const origin = lastOrigin;
-  const favs = favoriteSpots();
-  if (!favs.length) {
-    document.getElementById("flyResults").innerHTML = `<p class="empty">Noch keine Favoriten. Über „＋ Neu" hinzufügen.</p>`;
-    return;
-  }
-  const candidates = favs.map(s => {
-    const d = origin ? haversine(origin.lat, origin.lon, s.lat, s.lon) : null;
-    return { ...s, dist: d, sortKey: d ?? 0 };
-  });
-  await renderSearch(candidates, origin, `${dayWord()} · ⭐ Favoriten`);
-}
-
 // Heute/Morgen-Umschalter
 document.getElementById("dayToggle").addEventListener("click", e => {
   const b = e.target.closest("[data-day]"); if (!b) return;
@@ -1569,7 +1544,7 @@ document.getElementById("filterToggle").addEventListener("click", () => {
 // Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
 function renderRegionOptions(country) {
   const sel = document.getElementById("regionSelect");
-  const opts = ['<option value="">Region / Filter …</option>', '<option value="__fav__">⭐ Meine Favoriten</option>'];
+  const opts = ['<option value="">Region / Filter …</option>'];
   Object.entries(REGIONS).forEach(([key, r]) => { if (r.country === country) opts.push(`<option value="${key}">${r.name}</option>`); });
   sel.innerHTML = opts.join("");
 }
@@ -1612,8 +1587,7 @@ let setCountryUI = null;   // wird in initCountryDD gesetzt (fürs Wiederherstel
 updateHero(null);
 document.getElementById("regionSelect").addEventListener("change", e => {
   const v = e.target.value;
-  if (v === "__fav__") runFavSearch();
-  else if (v) runRegionSearch(v);
+  if (v) runRegionSearch(v);
 });
 
 // Erster Start (kein GPS, keine letzte Region): klarer, einladender Einstieg statt leerer Fläche
@@ -1810,6 +1784,36 @@ function displayRowsFor(rows) {
   if (minHoehendiff > 0) displayRows = displayRows.filter(r => hdMatch(r.spot, minHoehendiff));
   return displayRows;
 }
+// Eine Ergebnis-/Favoriten-Zeile (Foto-Szene, Name, Meta, Navi, Stern, Zeitfenster) - gemeinsam
+// genutzt von der Fliegen-Liste UND den Favoriten, damit beide gleich aussehen und sich gleich verhalten.
+function spotRowHtml(spot, ts, subInfo) {
+  const s = spot, fav = isFav(s.id);
+  const timeSlot = ts.status === "nein"
+    ? `<span class="sc-nore">${ts.reasonText}</span>`
+    : ts.past
+      ? `<span class="sc-time ${ts.status}">War früh fliegbar</span>`
+      : `<span class="sc-time ${ts.status}">${winTimeShort(ts.win)}</span>`;
+  const windSlot = ts.status === "nein" ? "" : `<div class="sc-wind">${ts.status === "gut" && ts.type ? ts.type.label : ts.reasonLabel}</div>`;
+  const scene = spotScene(s, ts.status);
+  return `
+    <div class="spot-card ${ts.status} sc-${scene.cat}" data-spot="${s.id}">
+      <div class="sc-scene" style="background-image:url(${scene.img})"></div>
+      <span class="sc-dot"></span>
+      <div class="sc-main">
+        <div class="sc-name">${s.name}</div>
+        <div class="sc-meta">${subInfo || ""}</div>
+        ${(() => { const w = diffWarn(s); return w ? `<div class="sc-warn d${w.d}">⚠️ ${w.text}</div>` : ""; })()}
+      </div>
+      <div class="sc-right">
+        <div class="sc-actions">
+          <a class="sc-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">${NAV_ICON}</a>
+          <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}" title="${fav?"Favorit":"Zu Favoriten"}">${fav?"★":"☆"}</button>
+        </div>
+        ${timeSlot}
+        ${windSlot}
+      </div>
+    </div>`;
+}
 function renderFlyResults(rows, headline, truncated) {
   const flyableAll = rows.filter(r => r.ts.status !== "nein").length;
   updateHero(flyableAll);
@@ -1831,35 +1835,7 @@ function renderFlyResults(rows, headline, truncated) {
     document.getElementById("flyResults").innerHTML = head + `<p class="empty">${msg}</p>`;
     return;
   }
-  const list = displayRows.map(r => {
-    const s = r.spot, ts = r.ts;
-    const fav = isFav(s.id);
-    const timeSlot = ts.status === "nein"
-      ? `<span class="sc-nore">${ts.reasonText}</span>`
-      : ts.past
-        ? `<span class="sc-time ${ts.status}">War früh fliegbar</span>`
-        : `<span class="sc-time ${ts.status}">${winTimeShort(ts.win)}</span>`;
-    const windSlot = ts.status === "nein" ? "" : `<div class="sc-wind">${ts.status === "gut" && ts.type ? ts.type.label : ts.reasonLabel}</div>`;
-    const scene = spotScene(s, ts.status);
-    return `
-      <div class="spot-card ${ts.status} sc-${scene.cat}" data-spot="${s.id}">
-        <div class="sc-scene" style="background-image:url(${scene.img})"></div>
-        <span class="sc-dot"></span>
-        <div class="sc-main">
-          <div class="sc-name">${s.name}</div>
-          <div class="sc-meta">${r.subInfo}</div>
-          ${(() => { const w = diffWarn(s); return w ? `<div class="sc-warn d${w.d}">⚠️ ${w.text}</div>` : ""; })()}
-        </div>
-        <div class="sc-right">
-          <div class="sc-actions">
-            <a class="sc-nav" href="${mapsUrl(s)}" target="_blank" rel="noopener" title="Navigation starten" aria-label="Navigation">${NAV_ICON}</a>
-            <button class="ic0 star ${fav?"on":""}" data-fav="${s.id}" title="${fav?"Favorit":"Zu Favoriten"}">${fav?"★":"☆"}</button>
-          </div>
-          ${timeSlot}
-          ${windSlot}
-        </div>
-      </div>`;
-  }).join("");
+  const list = displayRows.map(r => spotRowHtml(r.spot, r.ts, r.subInfo)).join("");
   const listHtml = displayRows.length ? `<div class="sc-list">${list}</div>` : `<p class="empty">Keine Favoriten in dieser Suche.</p>`;
   document.getElementById("flyResults").innerHTML = head + listHtml;
 }
@@ -1958,6 +1934,48 @@ document.getElementById("settingsFeedbackBtn").addEventListener("click", () => {
   fbHistoryPushed = true;
   history.replaceState({ fbOpen: true }, "", location.href);
 });
+document.getElementById("settingsVersionBtn").addEventListener("click", () => {
+  // Gleiches Prinzip wie Einstellungen -> Feedback: History-Eintrag ersetzen statt stapeln.
+  settingsModal.hidden = true;
+  settingsHistoryPushed = false;
+  showChangelog();
+  changelogHistoryPushed = true;
+  history.replaceState({ changelogOpen: true }, "", location.href);
+});
+
+// ---------------- Changelog ("Was ist neu?") ----------------
+// Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
+const CHANGELOG = [
+  { v: 93, text: "Favoriten-Seite überarbeitet, Zustieg-Icons neu, Versionshinweise" },
+  { v: 92, text: "Glocke zeigt jetzt einen echten Hinweis-Dialog" },
+  { v: 91, text: "Pfeile und Fadenkreuz exakt ausgerichtet" },
+  { v: 90, text: "Karten-Beschriftungen verbessert, Favoriten-Filter, einheitliche Icons" },
+  { v: 89, text: "Einstellungen: neue Icons, Regler, Texte" },
+  { v: 88, text: "Zurück-Taste schließt Fenster statt die App zu verlassen" },
+  { v: 87, text: "Abstand im Kopfbereich korrigiert" },
+  { v: 86, text: "Profi-Modus mit eigenen Grenzwerten" },
+  { v: 85, text: "Neues Kopfleisten-Design, echte Einstellungsseite" },
+  { v: 84, text: "Landeplatz-Name auf der Karte" },
+  { v: 83, text: "Karte als Standardansicht, Freitextsuche, Höhendifferenz-Filter" },
+];
+const changelogModal = document.getElementById("changelogModal");
+let changelogHistoryPushed = false;
+function showChangelog() {
+  document.getElementById("changelogList").innerHTML = CHANGELOG.map(c =>
+    `<div class="changelog-item"><span class="changelog-v">v${c.v}</span><span class="changelog-text">${c.text}</span></div>`
+  ).join("");
+  changelogModal.hidden = false;
+  void changelogModal.offsetWidth; // Reflow erzwingen, damit die Enter-Transition greift
+  changelogModal.classList.add("show");
+}
+function closeChangelog(fromPopstate = false) {
+  changelogModal.classList.remove("show");
+  setTimeout(() => { changelogModal.hidden = true; }, 320);
+  if (changelogHistoryPushed) { changelogHistoryPushed = false; if (!fromPopstate) history.back(); }
+}
+document.getElementById("changelogClose").addEventListener("click", () => closeChangelog());
+changelogModal.addEventListener("click", e => { if (e.target === changelogModal) closeChangelog(); });
+
 // ---------------- Benachrichtigungen (Glocke) ----------------
 // Wertiger Dialog statt kleiner Popover-Karte: zeigt beim ersten Mal den Sicherheitshinweis mit
 // "Als gelesen markieren", danach dauerhaft einen ruhigen "Alles klar"-Zustand.
@@ -2005,12 +2023,13 @@ window.addEventListener("popstate", () => {
   if (!settingsModal.hidden) { closeSettings(true); return; }
   if (!fbModal.hidden) { fbClose(true); return; }
   if (!notifModal.hidden) { closeNotif(true); return; }
+  if (!changelogModal.hidden) { closeChangelog(true); return; }
   if (!document.getElementById("detailModal").hidden) closeDetail(true);
 });
 
 // ---------------- Neu: Datenbank-Suche + eigener Platz ----------------
-function renderDbSearch(query = "") {
-  const wrap = document.getElementById("dbResults");
+function renderDbSearch(query = "", wrapId = "dbResults") {
+  const wrap = document.getElementById(wrapId);
   const q = query.trim().toLowerCase();
   if (!q) {
     wrap.innerHTML = `<p class="db-hint">🔎 Tippe einen Namen oder Ort (z. B. „Tegelberg", „Alb"), um in ${SPOT_DB.length} Startplätzen zu suchen.</p>`;
@@ -2044,7 +2063,7 @@ function route() {
   document.getElementById("pageTitle").textContent = PAGES[id].title;
   document.getElementById("pageSub").textContent = PAGES[id].sub;
   window.scrollTo(0, 0);
-  if (id === "favorites") renderFavorites();
+  if (id === "favorites") { renderFavorites(); renderDbSearch(document.getElementById("favDbSearch").value, "favDbResults"); }
   if (id === "add") renderDbSearch();
   if (id === "home") {
     updateGreeting();
@@ -2185,7 +2204,10 @@ document.body.addEventListener("click", e => {
   const favBtn = e.target.closest("[data-fav]");
   if (favBtn) {
     toggleFav(favBtn.dataset.fav);
-    if (!document.getElementById("page-favorites").hidden) renderFavorites();
+    if (!document.getElementById("page-favorites").hidden) {
+      renderFavorites();
+      renderDbSearch(document.getElementById("favDbSearch").value, "favDbResults");
+    }
     if (!document.getElementById("page-add").hidden) renderDbSearch(document.getElementById("dbSearch").value);
     // Bei aktivem "Nur Favoriten"-Filter muss die Karte bei Entfernen aus der Liste verschwinden -> neu rendern.
     if (favOnlyFilter && favBtn.closest("#flyResults")) { renderFlyResults(lastRows, lastHeadline, lastTruncated); return; }
@@ -2226,6 +2248,7 @@ document.body.addEventListener("change", e => {
 
 // DB-Suche
 document.getElementById("dbSearch").addEventListener("input", e => renderDbSearch(e.target.value));
+document.getElementById("favDbSearch").addEventListener("input", e => renderDbSearch(e.target.value, "favDbResults"));
 
 // --- Formular „eigener Platz" ---
 const COMPASS_16 = ["N","NNO","NO","ONO","O","OSO","SO","SSO","S","SSW","SW","WSW","W","WNW","NW","NNW"];
