@@ -293,6 +293,8 @@ legend { font-size: 12.5px; font-weight: 700; padding: 0 6px; }
 }
 .tab .ti { font-size: 20px; line-height: 1; display: flex; }
 .tab .ti svg { width: 23px; height: 23px; display: block; }
+.tab .ti img { width: 24px; height: 24px; display: block; filter: grayscale(1) brightness(.85) opacity(.8); transition: filter .15s; }
+.tab.active .ti img { filter: none; }
 .tab.active { color: var(--sky); }
 .tab:active { background: rgba(148,163,184,.1); }
 

@@ -1946,6 +1946,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 95, date: "04.08.", text: "Neue Icons für die Menüleiste unten" },
   { v: 94, date: "04.08.", text: "Neues Icon und Datum bei den Versionshinweisen" },
   { v: 93, date: "04.08.", text: "Favoriten-Seite überarbeitet, Zustieg-Icons neu, Versionshinweise" },
   { v: 92, date: "03.08.", text: "Glocke zeigt jetzt einen echten Hinweis-Dialog" },
