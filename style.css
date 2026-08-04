@@ -696,9 +696,11 @@ main.wrap { padding-top: 12px; }
 .notif-icon.info { background: rgba(6,182,164,.14); color: var(--sky); }
 .changelog-card { max-width: 360px; }
 .changelog-list { text-align: left; max-height: 46vh; overflow-y: auto; display: flex; flex-direction: column; gap: 13px; margin-top: 4px; padding-right: 2px; }
-.changelog-item { display: flex; gap: 10px; align-items: baseline; }
-.changelog-v { flex: none; color: var(--sky); font-weight: 700; font-size: 12.5px; font-variant-numeric: tabular-nums; min-width: 30px; }
-.changelog-text { font-size: 13px; color: var(--text); line-height: 1.4; }
+.changelog-item { display: flex; gap: 12px; align-items: flex-start; }
+.changelog-meta { flex: none; min-width: 42px; display: flex; flex-direction: column; align-items: flex-start; }
+.changelog-v { color: var(--sky); font-weight: 700; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.changelog-date { color: var(--muted); font-size: 10.5px; font-variant-numeric: tabular-nums; margin-top: 1px; }
+.changelog-text { font-size: 13px; color: var(--text); line-height: 1.4; padding-top: 1px; }
 .notif-title { margin: 0 0 10px; font-size: 18px; }
 .notif-text { margin: 0 0 22px; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
 .notif-ack { width: 100%; }

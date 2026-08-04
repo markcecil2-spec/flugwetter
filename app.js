@@ -1946,23 +1946,24 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
-  { v: 93, text: "Favoriten-Seite überarbeitet, Zustieg-Icons neu, Versionshinweise" },
-  { v: 92, text: "Glocke zeigt jetzt einen echten Hinweis-Dialog" },
-  { v: 91, text: "Pfeile und Fadenkreuz exakt ausgerichtet" },
-  { v: 90, text: "Karten-Beschriftungen verbessert, Favoriten-Filter, einheitliche Icons" },
-  { v: 89, text: "Einstellungen: neue Icons, Regler, Texte" },
-  { v: 88, text: "Zurück-Taste schließt Fenster statt die App zu verlassen" },
-  { v: 87, text: "Abstand im Kopfbereich korrigiert" },
-  { v: 86, text: "Profi-Modus mit eigenen Grenzwerten" },
-  { v: 85, text: "Neues Kopfleisten-Design, echte Einstellungsseite" },
-  { v: 84, text: "Landeplatz-Name auf der Karte" },
-  { v: 83, text: "Karte als Standardansicht, Freitextsuche, Höhendifferenz-Filter" },
+  { v: 94, date: "04.08.", text: "Neues Icon und Datum bei den Versionshinweisen" },
+  { v: 93, date: "04.08.", text: "Favoriten-Seite überarbeitet, Zustieg-Icons neu, Versionshinweise" },
+  { v: 92, date: "03.08.", text: "Glocke zeigt jetzt einen echten Hinweis-Dialog" },
+  { v: 91, date: "03.08.", text: "Pfeile und Fadenkreuz exakt ausgerichtet" },
+  { v: 90, date: "03.08.", text: "Karten-Beschriftungen verbessert, Favoriten-Filter, einheitliche Icons" },
+  { v: 89, date: "03.08.", text: "Einstellungen: neue Icons, Regler, Texte" },
+  { v: 88, date: "03.08.", text: "Zurück-Taste schließt Fenster statt die App zu verlassen" },
+  { v: 87, date: "03.08.", text: "Abstand im Kopfbereich korrigiert" },
+  { v: 86, date: "03.08.", text: "Profi-Modus mit eigenen Grenzwerten" },
+  { v: 85, date: "03.08.", text: "Neues Kopfleisten-Design, echte Einstellungsseite" },
+  { v: 84, date: "02.08.", text: "Landeplatz-Name auf der Karte" },
+  { v: 83, date: "02.08.", text: "Karte als Standardansicht, Freitextsuche, Höhendifferenz-Filter" },
 ];
 const changelogModal = document.getElementById("changelogModal");
 let changelogHistoryPushed = false;
 function showChangelog() {
   document.getElementById("changelogList").innerHTML = CHANGELOG.map(c =>
-    `<div class="changelog-item"><span class="changelog-v">v${c.v}</span><span class="changelog-text">${c.text}</span></div>`
+    `<div class="changelog-item"><div class="changelog-meta"><span class="changelog-v">v${c.v}</span><span class="changelog-date">${c.date}</span></div><span class="changelog-text">${c.text}</span></div>`
   ).join("");
   changelogModal.hidden = false;
   void changelogModal.offsetWidth; // Reflow erzwingen, damit die Enter-Transition greift
