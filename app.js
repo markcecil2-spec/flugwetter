@@ -623,6 +623,65 @@ function statusDot(status) {
 }
 function fmtTime(d) { return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0"); }
 
+// ---------------- Briefing-Tab: Platzregeln, Fotos, Kontakte ----------------
+// Inhalte kommen aus briefings.js (nur fuer gepflegte Fluggebiete). Ohne Eintrag
+// wird der Tab gar nicht erst angeboten - s. renderCard.
+function briefingFor(spot) {
+  return (typeof BRIEFING_BY_SPOT !== "undefined" && BRIEFING_BY_SPOT[spot.id]) || null;
+}
+const BF_SECTIONS = [
+  { key: "vorStart", title: "Vor dem Start", open: false, tone: "",
+    ic: `<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>` },
+  { key: "startplatz", title: "Am Startplatz", open: false, tone: "",
+    ic: `<path d="M3 20l6-10 4 6 2-3 6 7z"/>` },
+  { key: "landeplatz", title: "Landeplatz & Volte", open: true, tone: "",
+    ic: `<path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/>` },
+  { key: "verboten", title: "Verboten & Vorsicht", open: false, tone: "warn",
+    ic: `<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>` },
+];
+function briefingHtml(spot) {
+  const b = briefingFor(spot);
+  if (!b) return "";
+  const ico = p => `<svg class="bf-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+
+  const photos = (b.photos || []).length
+    ? `<div class="bf-photos">${b.photos.map(p => `
+        <figure class="bf-photo">
+          <img src="${p.src}" alt="${escHtml(p.caption || "")}" loading="lazy">
+          <figcaption>${escHtml(p.caption || "")}${p.credit ? ` <span class="bf-credit">© ${escHtml(p.credit)}</span>` : ""}</figcaption>
+        </figure>`).join("")}</div>`
+    : "";
+
+  const secs = BF_SECTIONS.map(s => {
+    const items = (b.sections && b.sections[s.key]) || [];
+    if (!items.length) return "";
+    return `<details class="bf-sec${s.tone ? " bf-" + s.tone : ""}"${s.open ? " open" : ""}>
+      <summary>${ico(s.ic)}<span>${s.title}</span><span class="bf-count">${items.length}</span></summary>
+      <ul class="bf-list">${items.map(t => `<li>${escHtml(t)}</li>`).join("")}</ul>
+    </details>`;
+  }).join("");
+
+  const volte = b.pattern ? "" : `<p class="bf-soon">Landevolte als Karte: folgt für diesen Platz.</p>`;
+
+  const contacts = (b.contacts || []).length
+    ? `<h3 class="dv-h3">Kontakte & Notruf</h3>
+       <div class="bf-contacts">${b.contacts.map(c => `
+         <a class="bf-contact" href="tel:${escHtml(c.phone)}">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+           <span class="bf-c-name">${escHtml(c.name)}</span><span class="bf-c-num">${escHtml(c.display || c.phone)}</span>
+         </a>`).join("")}</div>`
+    : "";
+
+  return `<div class="bf">
+    ${photos}
+    ${secs}
+    ${volte}
+    ${contacts}
+    <p class="bf-src">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</p>
+    <p class="bf-src bf-warn-note">Zusammenfassung ohne Gewähr – vor Ort gilt immer die offizielle Infotafel bzw. die Auskunft des Vereins/der Flugschule.</p>
+  </div>`;
+}
+
 // Zustiegs-/Flugart-Karten fürs neue Detail-Layout (größer als die alten Chips, mit Sub-Info je Karte)
 function iconCardsHtml(spot, thStart, driveSec) {
   const a = spot.acc || "";
@@ -817,6 +876,7 @@ function renderCard(spot, days, opts = {}) {
       <div class="dtabs" role="tablist">
         <button type="button" class="dtab on" data-tab="wetter" role="tab">Wetter</button>
         <button type="button" class="dtab" data-tab="live" role="tab">Live</button>
+        ${briefingFor(spot) ? `<button type="button" class="dtab" data-tab="briefing" role="tab">Briefing</button>` : ""}
         <button type="button" class="dtab" data-tab="details" role="tab">Details</button>
       </div>
       <div class="dtab-panels">
@@ -828,6 +888,7 @@ function renderCard(spot, days, opts = {}) {
           </div>
         </div>
         <div class="dtab-panel" id="dtab-live" hidden>${liveHtml}${nowBar}${liveCardsHtml(spot)}</div>
+        ${briefingFor(spot) ? `<div class="dtab-panel" id="dtab-briefing" hidden>${briefingHtml(spot)}</div>` : ""}
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
           const thStart = thermikStartHour(days[dayIdx], ts.win);
@@ -1994,6 +2055,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 100, date: "04.08.", text: "Neuer Briefing-Tab mit Platzregeln und Notrufnummern (erster Platz: Gerlitzen)" },
   { v: 99, date: "04.08.", text: "Updates kommen jetzt zuverlässig an (Cache-Problem behoben)" },
   { v: 98, date: "04.08.", text: "Eigene Plätze im Neu-Tab bearbeiten und löschen" },
   { v: 97, date: "04.08.", text: "Karte zeigt jetzt immer auch den eigenen Standort" },

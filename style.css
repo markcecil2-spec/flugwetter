@@ -683,6 +683,50 @@ header { position: relative; overflow: hidden; }
 /* Datenbank-Suche: Hinweis wenn leer */
 .db-hint { font-size: 13px; color: var(--muted); line-height: 1.5; padding: 8px 2px 12px; margin: 0; }
 
+/* Briefing-Tab: Platzregeln, Fotos, Kontakte */
+.bf { display: flex; flex-direction: column; gap: 10px; }
+.bf-photos { display: flex; gap: 10px; overflow-x: auto; margin: 0 -2px 2px; padding-bottom: 4px; scroll-snap-type: x mandatory; }
+.bf-photo { flex: 0 0 82%; margin: 0; scroll-snap-align: start; }
+.bf-photo img { width: 100%; height: 168px; object-fit: cover; border-radius: 12px; display: block; border: 1px solid var(--line); }
+.bf-photo figcaption { font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+.bf-credit { opacity: .75; }
+
+.bf-sec { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.bf-sec > summary {
+  display: flex; align-items: center; gap: 9px; padding: 12px 13px; cursor: pointer;
+  font-size: 14px; font-weight: 700; list-style: none;
+}
+.bf-sec > summary::-webkit-details-marker { display: none; }
+.bf-sec > summary::after {
+  content: ""; width: 8px; height: 8px; margin-left: auto; flex: none;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translate(-2px, -2px); transition: transform .15s;
+}
+.bf-sec[open] > summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.bf-ic { width: 17px; height: 17px; flex: none; color: var(--sky); }
+.bf-count { font-size: 11px; font-weight: 600; color: var(--muted); background: rgba(148,163,184,.14); border-radius: 999px; padding: 1px 7px; }
+.bf-warn > summary .bf-ic { color: var(--amber); }
+.bf-warn { border-color: rgba(250,204,21,.32); }
+
+.bf-list { margin: 0; padding: 0 14px 13px 32px; display: flex; flex-direction: column; gap: 8px; }
+.bf-list li { font-size: 13.5px; line-height: 1.5; color: var(--text); }
+.bf-list li::marker { color: var(--sky); }
+
+.bf-soon { font-size: 12.5px; color: var(--muted); font-style: italic; margin: 0; padding: 2px 2px 0; }
+
+.bf-contacts { display: flex; flex-direction: column; gap: 7px; }
+.bf-contact {
+  display: flex; align-items: center; gap: 10px; text-decoration: none;
+  padding: 10px 12px; background: var(--card-2); border: 1px solid var(--line);
+  border-radius: 11px; color: var(--text);
+}
+.bf-contact svg { width: 16px; height: 16px; flex: none; color: var(--sky); }
+.bf-c-name { font-size: 13.5px; font-weight: 600; flex: 1; min-width: 0; }
+.bf-c-num { font-size: 13px; color: var(--sky); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.bf-src { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin: 4px 0 0; }
+.bf-warn-note { border-left: 2px solid var(--amber); padding-left: 9px; }
+
 /* Eigene Plätze verwalten (Neu-Seite) */
 .user-spot-list { display: flex; flex-direction: column; gap: 8px; }
 .us-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 11px; }
