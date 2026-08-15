@@ -1136,12 +1136,17 @@ function loadMapLibre() {
   return mapLibrePromise;
 }
 const MAP_LABEL_ZOOM = 10; // ab dieser Zoomstufe werden Startplatz-Namen neben den Punkten eingeblendet
+// Kartenausschnitt für die Treffer. Der eigene Standort wird mit eingerahmt, sonst
+// zoomt die Karte auf weit entfernte Treffer und der blaue Punkt liegt ausserhalb
+// des Bildes (sah aus, als würde er nach kurzer Zeit verschwinden).
 function rowsBounds(rows) {
-  if (!rows.length) return null;
+  if (!rows.length) return null; // ohne Treffer bleibt die bisherige Logik (flyTo auf den Suchmittelpunkt)
+  const pts = rows.map(r => [r.spot.lon, r.spot.lat]);
+  if (userPos) pts.push([userPos.lon, userPos.lat]);
   let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
-  rows.forEach(r => {
-    minLat = Math.min(minLat, r.spot.lat); maxLat = Math.max(maxLat, r.spot.lat);
-    minLon = Math.min(minLon, r.spot.lon); maxLon = Math.max(maxLon, r.spot.lon);
+  pts.forEach(([lon, lat]) => {
+    minLat = Math.min(minLat, lat); maxLat = Math.max(maxLat, lat);
+    minLon = Math.min(minLon, lon); maxLon = Math.max(maxLon, lon);
   });
   return [[minLon, minLat], [maxLon, maxLat]];
 }
@@ -1989,6 +1994,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 97, date: "04.08.", text: "Karte zeigt jetzt immer auch den eigenen Standort" },
   { v: 96, date: "04.08.", text: "Eigener Standort als blauer Punkt auf allen Karten" },
   { v: 95, date: "04.08.", text: "Neue Icons für die Menüleiste unten" },
   { v: 94, date: "04.08.", text: "Neues Icon und Datum bei den Versionshinweisen" },
