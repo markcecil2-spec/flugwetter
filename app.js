@@ -1994,6 +1994,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 99, date: "04.08.", text: "Updates kommen jetzt zuverlässig an (Cache-Problem behoben)" },
   { v: 98, date: "04.08.", text: "Eigene Plätze im Neu-Tab bearbeiten und löschen" },
   { v: 97, date: "04.08.", text: "Karte zeigt jetzt immer auch den eigenen Standort" },
   { v: 96, date: "04.08.", text: "Eigener Standort als blauer Punkt auf allen Karten" },
