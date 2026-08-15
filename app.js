@@ -1994,6 +1994,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 98, date: "04.08.", text: "Eigene Plätze im Neu-Tab bearbeiten und löschen" },
   { v: 97, date: "04.08.", text: "Karte zeigt jetzt immer auch den eigenen Standort" },
   { v: 96, date: "04.08.", text: "Eigener Standort als blauer Punkt auf allen Karten" },
   { v: 95, date: "04.08.", text: "Neue Icons für die Menüleiste unten" },
@@ -2099,6 +2100,33 @@ function renderDbSearch(query = "", wrapId = "dbResults") {
   }).join("") || `<p class="empty">Nichts gefunden.</p>`;
 }
 
+// ---------------- Eigene Plätze verwalten (Neu-Seite, unter dem Formular) ----------------
+const IC_PENCIL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`;
+const IC_TRASH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>`;
+function escHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function renderUserSpots() {
+  const wrap = document.getElementById("userSpotList");
+  if (!wrap) return;
+  const list = loadUserSpots();
+  if (!list.length) {
+    wrap.innerHTML = `<p class="db-hint">Hier erscheinen die Plätze, die du oben selbst anlegst – zum Bearbeiten oder Löschen.</p>`;
+    return;
+  }
+  wrap.innerHTML = list.map(s => {
+    const sub = [s.region, s.sectorLabel, s.elevation != null ? s.elevation + " m" : null].filter(Boolean).join(" · ");
+    return `<div class="us-row">
+      <div class="us-main">
+        <div class="us-name">${escHtml(s.name)}</div>
+        <div class="us-sub">${escHtml(sub)}</div>
+      </div>
+      <button class="us-btn" data-edit="${s.id}" title="Bearbeiten" aria-label="Bearbeiten">${IC_PENCIL}</button>
+      <button class="us-btn us-del" data-del="${s.id}" title="Löschen" aria-label="Löschen">${IC_TRASH}</button>
+    </div>`;
+  }).join("");
+}
+
 // ---------------- Router ----------------
 const PAGES = {
   home:      { title: "GoFlyToday", sub: "Wetter. Startplätze. Entscheidung." },
@@ -2116,7 +2144,7 @@ function route() {
   document.getElementById("pageSub").textContent = PAGES[id].sub;
   window.scrollTo(0, 0);
   if (id === "favorites") { renderFavorites(); renderDbSearch(document.getElementById("favDbSearch").value, "favDbResults"); }
-  if (id === "add") renderDbSearch();
+  if (id === "add") { renderDbSearch(); renderUserSpots(); }
   if (id === "home") {
     updateGreeting();
     // Karte ist die Standardansicht - Marker/Overlay muessen auch ohne Klick auf "Karte" bereitstehen.
@@ -2267,11 +2295,17 @@ document.body.addEventListener("click", e => {
     const s = favBtn.classList.toggle("on"); favBtn.textContent = favBtn.classList.contains("on") ? "★" : "☆";
     return;
   }
+  const edit = e.target.closest("[data-edit]");
+  if (edit) { startEditSpot(edit.dataset.edit); return; }
   const del = e.target.closest("[data-del]");
   if (del) {
-    if (confirm("Diesen eigenen Platz löschen (und aus Favoriten entfernen)?")) {
-      saveUserSpots(loadUserSpots().filter(s => s.id !== del.dataset.del));
-      const f = loadFavs().filter(id => id !== del.dataset.del); saveFavs(f);
+    const id = del.dataset.del;
+    const spot = loadUserSpots().find(s => s.id === id);
+    if (confirm(`„${spot ? spot.name : "Dieser Platz"}“ wirklich löschen (auch aus den Favoriten)?`)) {
+      saveUserSpots(loadUserSpots().filter(s => s.id !== id));
+      saveFavs(loadFavs().filter(f => f !== id));
+      if (editingSpotId === id) resetForm();   // gerade in Bearbeitung -> Formular freigeben
+      renderUserSpots();
       renderFavorites();
     }
     return;
@@ -2316,10 +2350,44 @@ COMPASS_16.forEach((label, i) => {
   });
   compassEl.appendChild(b);
 });
+// Bearbeiten-Modus: dasselbe Formular, nur wird beim Speichern der bestehende
+// Eintrag ueberschrieben statt ein neuer angelegt.
+let editingSpotId = null;
+function applyEditUI() {
+  const editing = !!editingSpotId;
+  document.getElementById("addFormTitle").textContent = editing ? "2. Eigenen Platz bearbeiten" : "2. Eigenen Platz anlegen";
+  document.getElementById("saveSpotBtn").textContent = editing ? "Änderungen speichern" : "Speichern & favorisieren";
+  document.getElementById("resetBtn").textContent = editing ? "Abbrechen" : "Leeren";
+}
+function startEditSpot(id) {
+  const s = loadUserSpots().find(x => x.id === id);
+  if (!s) return;
+  editingSpotId = id;
+  form.name.value = s.name || "";
+  form.region.value = s.region || "";
+  form.lat.value = s.lat; form.lon.value = s.lon;
+  form.elevation.value = s.elevation != null ? s.elevation : "";
+  form.windMin.value = s.windMin != null ? s.windMin : 3;
+  form.windMax.value = s.windMax != null ? s.windMax : 26;
+  form.gustMax.value = s.gustMax != null ? s.gustMax : 30;
+  // Kompass-Auswahl aus dem gespeicherten sectorLabel zurueckholen (dort stehen genau
+  // die COMPASS_16-Kuerzel, mit denen das Label beim Anlegen gebaut wurde).
+  selectedDirs.clear();
+  compassEl.querySelectorAll(".on").forEach(b => b.classList.remove("on"));
+  (s.sectorLabel || "").split(",").forEach(part => {
+    const i = COMPASS_16.indexOf(part.trim());
+    if (i >= 0) { selectedDirs.add(i); compassEl.children[i].classList.add("on"); }
+  });
+  document.getElementById("formErr").hidden = true;
+  applyEditUI();
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 function resetForm() {
   form.reset(); selectedDirs.clear();
   compassEl.querySelectorAll(".on").forEach(b => b.classList.remove("on"));
   document.getElementById("formErr").hidden = true;
+  editingSpotId = null;
+  applyEditUI();
 }
 document.getElementById("resetBtn").addEventListener("click", resetForm);
 function coords() { return { lat: parseFloat(form.lat.value.replace(",", ".")), lon: parseFloat(form.lon.value.replace(",", ".")) }; }
@@ -2351,17 +2419,28 @@ form.addEventListener("submit", async e => {
   let elevation = parseInt(form.elevation.value, 10);
   if (isNaN(elevation)) { try { elevation = await fetchElevation(lat, lon); } catch { elevation = null; } }
   const dirs = [...selectedDirs].sort((a, b) => a - b);
-  const spot = {
-    id: "user_" + Date.now(), name: form.name.value.trim(), region: form.region.value.trim(),
+  const data = {
+    name: form.name.value.trim(), region: form.region.value.trim(),
     lat, lon, elevation, sectors: dirsToSectors(selectedDirs),
     sectorLabel: dirs.map(i => COMPASS_16[i]).join(", "),
     windMin: parseFloat(form.windMin.value) || 0,
     windMax: parseFloat(form.windMax.value) || 30,
     gustMax: parseFloat(form.gustMax.value) || 35,
   };
-  const list = loadUserSpots(); list.push(spot); saveUserSpots(list);
+  const list = loadUserSpots();
+  if (editingSpotId) {
+    const i = list.findIndex(s => s.id === editingSpotId);
+    if (i >= 0) { list[i] = { ...list[i], ...data }; saveUserSpots(list); }
+    resetForm();
+    renderUserSpots();
+    document.getElementById("userSpotList").scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
+  const spot = { id: "user_" + Date.now(), ...data };
+  list.push(spot); saveUserSpots(list);
   const f = loadFavs(); f.push(spot.id); saveFavs(f);   // eigener Platz ist automatisch Favorit
   resetForm();
+  renderUserSpots();
   location.hash = "#/home";
 });
 

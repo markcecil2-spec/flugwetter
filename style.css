@@ -683,6 +683,22 @@ header { position: relative; overflow: hidden; }
 /* Datenbank-Suche: Hinweis wenn leer */
 .db-hint { font-size: 13px; color: var(--muted); line-height: 1.5; padding: 8px 2px 12px; margin: 0; }
 
+/* Eigene Plätze verwalten (Neu-Seite) */
+.user-spot-list { display: flex; flex-direction: column; gap: 8px; }
+.us-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 11px; }
+.us-main { flex: 1; min-width: 0; }
+.us-name { font-weight: 700; font-size: 14px; }
+.us-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.us-btn {
+  flex: none; display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 9px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--card-2); color: var(--muted);
+  transition: color .12s, border-color .12s;
+}
+.us-btn svg { width: 17px; height: 17px; }
+.us-btn:hover { color: var(--sky); border-color: var(--sky); }
+.us-del:hover { color: var(--red); border-color: var(--red); }
+
 /* ============================================================
    REDESIGN v2 – dunkles, ruhiges Design mit Teal-Akzent
    ============================================================ */
