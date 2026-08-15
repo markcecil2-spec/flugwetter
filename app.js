@@ -2032,6 +2032,47 @@ function closeSettings(fromPopstate = false) {
 }
 document.getElementById("settingsClose").addEventListener("click", () => closeSettings());
 settingsModal.addEventListener("click", e => { if (e.target === settingsModal) closeSettings(); });
+// Werkzeug-Seite aus den Einstellungen heraus oeffnen. Kein closeSettings() + location.hash:
+// dessen history.back() feuert async und macht die Navigation sofort wieder rueckgaengig
+// (gleiche Falle wie bei Einstellungen -> Feedback). Stattdessen den gepushten Eintrag
+// durch die Zielseite ERSETZEN und route() selbst anstossen (replaceState loest kein
+// hashchange aus).
+document.getElementById("settingsVolteBtn").addEventListener("click", () => {
+  settingsModal.hidden = true;
+  settingsHistoryPushed = false;
+  history.replaceState({}, "", "#/volte");
+  route();
+});
+document.getElementById("volteSearch").addEventListener("input", e => renderVolteSearch(e.target.value));
+document.getElementById("volteModes").addEventListener("click", e => {
+  const b = e.target.closest("[data-vmode]"); if (!b) return;
+  volteMode = b.dataset.vmode;
+  document.querySelectorAll("#volteModes .apill").forEach(x => x.classList.toggle("on", x === b));
+  document.getElementById("volteHint").innerHTML = volteMode === "volte"
+    ? `Tippe die Punkte der <b>Landevolte</b> in Flugrichtung nacheinander an: Gegenanflug → Queranflug → Endanflug.`
+    : `Tippe die <b>Ecken des Landefelds</b> im Uhrzeigersinn an – die Fläche schließt sich automatisch.`;
+});
+document.getElementById("volteStyleToggle").addEventListener("click", e => {
+  const b = e.target.closest("[data-vstyle]"); if (!b) return;
+  volteStyleMode = b.dataset.vstyle;
+  document.querySelectorAll("#volteStyleToggle .mini-style-btn").forEach(x => x.classList.toggle("on", x === b));
+  // Ebenen/Geometrie stellt der idle-Handler nach dem Stilwechsel selbst wieder her.
+  if (volteMapInstance) volteMapInstance.setStyle(MINI_MAP_STYLES[volteStyleMode]);
+  document.getElementById("volteAttrib").textContent = attribTextFor(volteStyleMode);
+});
+document.getElementById("volteUndo").addEventListener("click", () => { voltePoints[volteMode].pop(); volteRedraw(); });
+document.getElementById("volteClear").addEventListener("click", () => {
+  if (!confirm("Alle gesetzten Punkte verwerfen?")) return;
+  voltePoints = { volte: [], feld: [] }; volteRedraw();
+});
+document.getElementById("volteCopy").addEventListener("click", async () => {
+  const btn = document.getElementById("volteCopy"), txt = document.getElementById("volteOut").value;
+  try { await navigator.clipboard.writeText(txt); }
+  catch { const t = document.getElementById("volteOut"); t.select(); document.execCommand("copy"); }
+  const alt = btn.textContent; btn.textContent = "Kopiert ✓";
+  setTimeout(() => { btn.textContent = alt; }, 1600);
+});
+
 document.getElementById("settingsFeedbackBtn").addEventListener("click", () => {
   // Direkter Wechsel Einstellungen -> Feedback: den gepushten Verlaufseintrag ERSETZEN statt
   // history.back() + pushState() im selben Tick zu mischen (back() wirkt async, das würde sich
@@ -2055,6 +2096,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 101, date: "04.08.", text: "Werkzeug zum Einzeichnen der Landevolte (in den Einstellungen)" },
   { v: 100, date: "04.08.", text: "Neuer Briefing-Tab mit Platzregeln und Notrufnummern (erster Platz: Gerlitzen)" },
   { v: 99, date: "04.08.", text: "Updates kommen jetzt zuverlässig an (Cache-Problem behoben)" },
   { v: 98, date: "04.08.", text: "Eigene Plätze im Neu-Tab bearbeiten und löschen" },
@@ -2190,11 +2232,121 @@ function renderUserSpots() {
   }).join("");
 }
 
+// ---------------- Werkzeug: Landevolte auf der Karte abgreifen ----------------
+// Erfasst Koordinaten durch Antippen der Satellitenkarte und gibt sie als fertigen
+// Textblock fuer briefings.js aus. Bewusst KEIN Raten aus Foto-Vorlagen - eine
+// Landevolte muss aus echten Koordinaten kommen.
+let volteSpot = null;
+let volteMode = "volte";
+let voltePoints = { volte: [], feld: [] };
+let volteMapInstance = null;
+let volteStyleMode = "sat";
+let volteMarkers = [];
+const VOLTE_SRC = "volte-src", VOLTE_FELD_SRC = "volte-feld-src";
+
+function renderVolteSearch(query = "") {
+  const wrap = document.getElementById("volteResults");
+  const q = query.trim().toLowerCase();
+  if (!q) { wrap.innerHTML = `<p class="db-hint">Tippe einen Namen oder Ort, um den Startplatz zu finden.</p>`; return; }
+  const list = allKnownSpots().filter(s => (s.name + " " + (s.region || "")).toLowerCase().includes(q)).slice(0, 6);
+  wrap.innerHTML = list.map(s => `<div class="db-row" data-volte-spot="${s.id}">
+      <div><div class="fr-name">${escHtml(s.name)} <span class="fr-go">›</span></div><div class="fr-sub">${escHtml(s.region || "")}</div></div>
+    </div>`).join("") || `<p class="empty">Nichts gefunden.</p>`;
+}
+
+function volteAddLayers() {
+  const m = volteMapInstance;
+  // Bei schnellem Stilwechsel kann idle feuern, bevor der neue Stil fertig ist -
+  // addSource/addLayer wirft dann "Style is not done loading".
+  if (!m || !m.isStyleLoaded()) return;
+  if (!m.getSource(VOLTE_FELD_SRC)) {
+    m.addSource(VOLTE_FELD_SRC, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    m.addLayer({ id: "volte-feld-fill", type: "fill", source: VOLTE_FELD_SRC, paint: { "fill-color": "#22c55e", "fill-opacity": .3 } });
+    m.addLayer({ id: "volte-feld-line", type: "line", source: VOLTE_FELD_SRC, paint: { "line-color": "#22c55e", "line-width": 2 } });
+  }
+  if (!m.getSource(VOLTE_SRC)) {
+    m.addSource(VOLTE_SRC, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+    m.addLayer({ id: "volte-line", type: "line", source: VOLTE_SRC,
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: { "line-color": "#38bdf8", "line-width": 3 } });
+  }
+}
+// Geometrie in die Quellen schreiben. Laeuft auch bei jedem idle mit, damit ein
+// Stilwechsel (der alle Quellen leert) die gesetzten Punkte nicht verschluckt.
+function volteSyncData() {
+  if (!volteMapInstance) return;
+  const line = volteMapInstance.getSource(VOLTE_SRC);
+  if (line) line.setData(voltePoints.volte.length > 1
+    ? { type: "Feature", geometry: { type: "LineString", coordinates: voltePoints.volte } }
+    : { type: "FeatureCollection", features: [] });
+  const feld = volteMapInstance.getSource(VOLTE_FELD_SRC);
+  if (feld) feld.setData(voltePoints.feld.length > 2
+    ? { type: "Feature", geometry: { type: "Polygon", coordinates: [[...voltePoints.feld, voltePoints.feld[0]]] } }
+    : { type: "FeatureCollection", features: [] });
+}
+function volteRedraw() {
+  if (!volteMapInstance) return;
+  volteAddLayers();
+  volteSyncData();
+  volteMarkers.forEach(mk => mk.remove());
+  volteMarkers = [];
+  ["volte", "feld"].forEach(key => voltePoints[key].forEach((c, i) => {
+    const el = document.createElement("div");
+    el.className = "volte-pt" + (key === "feld" ? " volte-pt-feld" : "");
+    el.textContent = i + 1;
+    volteMarkers.push(new maplibregl.Marker({ element: el }).setLngLat(c).addTo(volteMapInstance));
+  }));
+  volteUpdateOutput();
+}
+function volteUpdateOutput() {
+  const st = document.getElementById("volteStatus");
+  const n = voltePoints.volte.length, f = voltePoints.feld.length;
+  st.textContent = `Volte: ${n} Punkt${n === 1 ? "" : "e"} · Landefeld: ${f} Punkt${f === 1 ? "" : "e"}`;
+  const card = document.getElementById("volteOutCard");
+  if (!n && !f) { card.hidden = true; return; }
+  card.hidden = false;
+  const fmt = arr => arr.map(c => `      [${c[0].toFixed(6)}, ${c[1].toFixed(6)}]`).join(",\n");
+  const parts = [];
+  if (n) parts.push(`    volte: [\n${fmt(voltePoints.volte)}\n    ]`);
+  if (f) parts.push(`    feld: [\n${fmt(voltePoints.feld)}\n    ]`);
+  document.getElementById("volteOut").value =
+    `// ${volteSpot ? volteSpot.name : "?"} – ${volteSpot ? volteSpot.id : "?"}\n  pattern: {\n${parts.join(",\n")}\n  },`;
+}
+async function volteOpenSpot(id) {
+  const s = getSpot(id);
+  if (!s) return;
+  volteSpot = s;
+  voltePoints = { volte: [], feld: [] };
+  document.getElementById("volteSpotName").textContent = `2. Punkte antippen – ${s.name}`;
+  document.getElementById("volteMapCard").hidden = false;
+  // Auf den Landeplatz zentrieren, dort wird die Volte geflogen
+  const lat = s.landeLat != null ? s.landeLat : s.lat;
+  const lon = s.landeLon != null ? s.landeLon : s.lon;
+  try { await loadMapLibre(); } catch (e) { document.getElementById("volteMap").innerHTML = `<p class="empty">${e.message}</p>`; return; }
+  if (volteMapInstance) { volteMapInstance.remove(); volteMapInstance = null; volteMarkers = []; }
+  volteMapInstance = new maplibregl.Map({
+    container: "volteMap", style: MINI_MAP_STYLES[volteStyleMode],
+    center: [lon, lat], zoom: 16, attributionControl: false,
+  });
+  volteMapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+  document.getElementById("volteAttrib").textContent = attribTextFor(volteStyleMode);
+  // Ebenen UND Geometrie nach jedem Stilwechsel neu aufbauen (setStyle wirft beides weg).
+  // Marker bleiben aussen vor - die sind DOM und ueberleben den Stilwechsel ohnehin.
+  volteMapInstance.on("idle", () => { volteAddLayers(); volteSyncData(); });
+  volteMapInstance.on("click", e => {
+    voltePoints[volteMode].push([e.lngLat.lng, e.lngLat.lat]);
+    volteRedraw();
+  });
+  volteRedraw();
+  document.getElementById("volteMapCard").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 // ---------------- Router ----------------
 const PAGES = {
   home:      { title: "GoFlyToday", sub: "Wetter. Startplätze. Entscheidung." },
   favorites: { title: "Favoriten", sub: "Deine Plätze · 5-Tage-Ansicht" },
   add:       { title: "Fluggebiet hinzufügen", sub: "Aus Datenbank oder eigenen Platz" },
+  volte:     { title: "Landevolte zeichnen", sub: "Punkte antippen, Text schicken" },
   info:      { title: "Info & Recht", sub: "Wie die App funktioniert" },
 };
 function route() {
@@ -2208,6 +2360,10 @@ function route() {
   window.scrollTo(0, 0);
   if (id === "favorites") { renderFavorites(); renderDbSearch(document.getElementById("favDbSearch").value, "favDbResults"); }
   if (id === "add") { renderDbSearch(); renderUserSpots(); }
+  if (id === "volte") {
+    renderVolteSearch(document.getElementById("volteSearch").value);
+    if (volteMapInstance) setTimeout(() => volteMapInstance.resize(), 60);
+  }
   if (id === "home") {
     updateGreeting();
     // Karte ist die Standardansicht - Marker/Overlay muessen auch ohne Klick auf "Karte" bereitstehen.
@@ -2358,6 +2514,8 @@ document.body.addEventListener("click", e => {
     const s = favBtn.classList.toggle("on"); favBtn.textContent = favBtn.classList.contains("on") ? "★" : "☆";
     return;
   }
+  const volteRow = e.target.closest("[data-volte-spot]");
+  if (volteRow) { volteOpenSpot(volteRow.dataset.volteSpot); return; }
   const edit = e.target.closest("[data-edit]");
   if (edit) { startEditSpot(edit.dataset.edit); return; }
   const del = e.target.closest("[data-del]");

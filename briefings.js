@@ -30,7 +30,7 @@ const BRIEFINGS = {
     sections: {
       vorStart: [
         "Flycard beim offiziellen Landeplatz (Kärntner Flugschule) lösen – dort gibt es auch alle weiteren Infos zum Fluggebiet.",
-        "Bei Westwind am Landeplatz nicht starten.",
+        "Herrscht unten am Landeplatz Westwind, soll oben nicht gestartet werden.",
       ],
       startplatz: [
         "Am Gipfel kannst du je nach Windrichtung zwischen drei Startrichtungen wählen: Ost, Süd oder West.",

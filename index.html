@@ -13,7 +13,7 @@
   <!-- ?v=NN muss bei jedem Deploy mit der Versionsnummer/sw.js mitgezogen werden. Ohne das
        kann der Browser eine neue index.html mit einer alten app.js aus dem HTTP-Cache mischen
        (GitHub Pages liefert Assets mit max-age) - dann fehlen neue Funktionen kommentarlos. -->
-  <link rel="stylesheet" href="style.css?v=100" />
+  <link rel="stylesheet" href="style.css?v=101" />
 </head>
 <body>
   <header>
@@ -248,6 +248,44 @@
       </div>
     </section>
 
+    <!-- SEITE: Landevolte zeichnen (Werkzeug zum Erfassen der Koordinaten) -->
+    <section id="page-volte" class="page" hidden>
+      <div class="card add-sec">
+        <div class="add-sec-head"><span class="ash-num gut"><svg class="ash-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><h2>1. Startplatz wählen</h2></div>
+        <input id="volteSearch" class="db-search" placeholder="🔎 Startplatz suchen (Name/Ort) …" />
+        <div id="volteResults" class="db-results"></div>
+      </div>
+
+      <div class="card add-sec" id="volteMapCard" hidden>
+        <div class="add-sec-head"><span class="ash-num"><svg class="ash-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span><h2 id="volteSpotName">2. Punkte antippen</h2></div>
+        <p class="volte-hint" id="volteHint">Tippe die Punkte der <b>Landevolte</b> in Flugrichtung nacheinander an: Gegenanflug → Queranflug → Endanflug.</p>
+        <div class="acc-seg" id="volteModes">
+          <button type="button" class="apill on" data-vmode="volte">Volte</button>
+          <button type="button" class="apill" data-vmode="feld">Landefeld</button>
+        </div>
+        <div class="volte-map-wrap">
+          <div id="volteMap" class="volte-map"></div>
+          <div class="mini-style-toggle" id="volteStyleToggle">
+            <button type="button" class="mini-style-btn on" data-vstyle="sat">Satellit</button>
+            <button type="button" class="mini-style-btn" data-vstyle="street">Karte</button>
+            <button type="button" class="mini-style-btn" data-vstyle="terrain">Gelände</button>
+          </div>
+          <div class="map-attrib" id="volteAttrib"></div>
+        </div>
+        <div class="volte-actions">
+          <button type="button" class="btn-soft" id="volteUndo">↶ Letzter Punkt</button>
+          <button type="button" class="btn-soft" id="volteClear">Alles löschen</button>
+        </div>
+        <div class="volte-status" id="volteStatus"></div>
+      </div>
+
+      <div class="card add-sec" id="volteOutCard" hidden>
+        <div class="add-sec-head"><span class="ash-num"><svg class="ash-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><h2>3. Text kopieren &amp; schicken</h2></div>
+        <textarea id="volteOut" class="volte-out" readonly rows="9"></textarea>
+        <button type="button" class="btn-primary" id="volteCopy">In die Zwischenablage kopieren</button>
+      </div>
+    </section>
+
     <!-- SEITE: Info -->
     <section id="page-info" class="page" hidden>
       <div class="fb-card card">
@@ -320,7 +358,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 100 · August 2026</p>
+      <p class="build">GoFlyToday · Version 101 · August 2026</p>
     </section>
   </main>
 
@@ -426,6 +464,7 @@
         </div>
         <div class="settings-group">
           <div class="settings-group-label">App</div>
+          <button type="button" class="dt-mi" id="settingsVolteBtn"><svg class="dt-mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c4-1 6-4 7-7s3-6 7-7"/><path d="M14 3h3v3"/><circle cx="4" cy="18" r="1.6"/></svg>Landevolte zeichnen<svg class="dt-mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
           <button type="button" class="dt-mi" id="settingsVersionBtn"><svg class="dt-mi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>Version <span class="settings-version-num" id="settingsVersion"></span><svg class="dt-mi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
         </div>
       </div>
@@ -450,8 +489,8 @@
     </div>
   </div>
 
-  <script src="database.js?v=100"></script>
-  <script src="briefings.js?v=100"></script>
-  <script src="app.js?v=100"></script>
+  <script src="database.js?v=101"></script>
+  <script src="briefings.js?v=101"></script>
+  <script src="app.js?v=101"></script>
 </body>
 </html>
