@@ -427,6 +427,26 @@ header { position: relative; overflow: hidden; }
 .map-marker-temp img { animation: map-temp-pulse 1s ease-in-out infinite; }
 @keyframes map-temp-pulse { 0%, 100% { opacity: .5; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.05); } }
 
+/* Eigener Standort als blauer Punkt (grosse Karte + Mini-Karte) */
+.user-dot { position: relative; width: 18px; height: 18px; pointer-events: none; }
+.user-dot-core {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: #1a73e8; border: 3px solid #fff;
+  box-shadow: 0 1px 5px rgba(0,0,0,.45);
+}
+.user-dot-pulse {
+  position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px;
+  border-radius: 50%; background: rgba(26,115,232,.4);
+  animation: user-dot-pulse 2.6s ease-out infinite;
+}
+@keyframes user-dot-pulse {
+  0% { transform: scale(1); opacity: .55; }
+  70%, 100% { transform: scale(3.4); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .user-dot-pulse { animation: none; opacity: .3; }
+}
+
 /* Mini-Karte im "Live"-Tab: Start-/Landeplatz */
 .mini-map-wrap { position: relative; border-radius: 14px; overflow: hidden; height: 220px; border: 1px solid var(--line); margin-top: 8px; }
 .mini-map { width: 100%; height: 100%; background: var(--card-2); }

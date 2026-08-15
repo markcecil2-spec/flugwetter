@@ -1149,10 +1149,48 @@ function updateMapLabelVisibility() {
   document.getElementById("mapEl").classList.toggle("show-labels", mapInstance.getZoom() >= MAP_LABEL_ZOOM);
 }
 
+// ---------------- Eigener Standort als blauer Punkt (wie in Karten-Apps) ----------------
+// Bewusst getrennt von lastOrigin: das ist der Suchmittelpunkt und kann auch eine PLZ,
+// eine Region oder ein Kartenklick sein - der blaue Punkt zeigt nur echte GPS-Positionen.
+let userPos = null;
+let userMarker = null;      // grosse Karte
+let miniUserMarker = null;  // Mini-Karte im Detailfenster
+function userDotEl() {
+  const el = document.createElement("div");
+  el.className = "user-dot";
+  el.title = "Dein Standort";
+  el.innerHTML = `<span class="user-dot-pulse"></span><span class="user-dot-core"></span>`;
+  return el;
+}
+function syncUserDot() {
+  if (!userPos || typeof maplibregl === "undefined") return;
+  const at = [userPos.lon, userPos.lat];
+  if (mapInstance) {
+    if (userMarker) userMarker.setLngLat(at);
+    else userMarker = new maplibregl.Marker({ element: userDotEl() }).setLngLat(at).addTo(mapInstance);
+  }
+  if (miniMapInstance) {
+    if (miniUserMarker) miniUserMarker.setLngLat(at);
+    else miniUserMarker = new maplibregl.Marker({ element: userDotEl() }).setLngLat(at).addTo(miniMapInstance);
+  }
+}
+function setUserPos(lat, lon) { userPos = { lat, lon }; syncUserDot(); }
+// Stiller Positionsabruf beim Öffnen einer Karte - nur wenn der Standort früher schon
+// freigegeben wurde, sonst würde hier ungefragt ein Berechtigungsdialog aufpoppen.
+function refreshUserPos() {
+  if (!navigator.geolocation || localStorage.getItem("flugwetter_geo_ok") !== "1") return;
+  navigator.geolocation.getCurrentPosition(
+    p => setUserPos(p.coords.latitude, p.coords.longitude),
+    () => {},
+    { maximumAge: 300000, timeout: 8000 }
+  );
+}
+
 // ---------------- Mini-Karte im "Live"-Tab: Start- + Landeplatz auf einen Blick ----------------
 let miniMapInstance = null;
 function removeMiniMap() {
   if (miniMapInstance) { miniMapInstance.remove(); miniMapInstance = null; }
+  miniUserMarker = null; // Marker gehörte zur entfernten Karte
 }
 async function ensureMiniMap(spot) {
   if (!document.getElementById("miniMap")) return; // Tab evtl. schon wieder verlassen
@@ -1183,6 +1221,8 @@ async function ensureMiniMap(spot) {
     const lons = points.map(p => p[0]), lats = points.map(p => p[1]);
     miniMapInstance.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 50, animate: false, maxZoom: 15 });
   }
+  syncUserDot();
+  refreshUserPos();
 }
 // Kreis-Polygon (GeoJSON) um lat/lon mit radiusKm - fuer die Umkreis-Visualisierung auf der Karte.
 function circlePolygon(lat, lon, radiusKm, steps = 64) {
@@ -1284,6 +1324,8 @@ async function ensureMap() {
   if (bounds) mapInstance.fitBounds(bounds, { padding: 50, animate: false, maxZoom: 13 });
   updateMapMarkers(lastRows, { flyTo: false });
   updateMapLabelVisibility();
+  syncUserDot();
+  refreshUserPos();
   return mapInstance;
 }
 // Marker aus den aktuellen Suchergebnissen aufbauen – dieselben Daten wie die Listenansicht (rows).
@@ -1631,6 +1673,7 @@ function startGpsSearch() {
   if (btn) btn.classList.add("busy"); out.innerHTML = `<p class="loading-line">📍 Standort wird ermittelt …</p>`;
   navigator.geolocation.getCurrentPosition(async pos => {
     localStorage.setItem("flugwetter_geo_ok", "1");   // ab jetzt beim Öffnen automatisch
+    setUserPos(pos.coords.latitude, pos.coords.longitude);
     await runFlySearch(pos.coords.latitude, pos.coords.longitude, null);
     if (btn) btn.classList.remove("busy");
   }, () => {
@@ -1946,6 +1989,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 96, date: "04.08.", text: "Eigener Standort als blauer Punkt auf allen Karten" },
   { v: 95, date: "04.08.", text: "Neue Icons für die Menüleiste unten" },
   { v: 94, date: "04.08.", text: "Neues Icon und Datum bei den Versionshinweisen" },
   { v: 93, date: "04.08.", text: "Favoriten-Seite überarbeitet, Zustieg-Icons neu, Versionshinweise" },
@@ -2276,6 +2320,7 @@ function coords() { return { lat: parseFloat(form.lat.value.replace(",", ".")), 
 document.getElementById("geoBtn").addEventListener("click", () => {
   if (!navigator.geolocation) return alert("Standort nicht unterstützt.");
   navigator.geolocation.getCurrentPosition(async pos => {
+    setUserPos(pos.coords.latitude, pos.coords.longitude);
     form.lat.value = pos.coords.latitude.toFixed(5); form.lon.value = pos.coords.longitude.toFixed(5); tryElevation();
   }, () => alert("Standort nicht verfügbar (Berechtigung?)."));
 });
