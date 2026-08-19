@@ -114,11 +114,17 @@ function spotCompassSvg(spot, wd, opts = {}) {
     <circle cx="${cx}" cy="${cy}" r="5" fill="${needleColor}"/>
   </svg>`;
 }
-function haversine(lat1, lon1, lat2, lon2) {
+// Exakte Distanz in km. haversine() rundet auf ganze Kilometer (so ueberall in der
+// Umkreissuche genutzt) - fuer kurze Strecken wie "400 m zum Campingplatz" braucht es
+// den ungerundeten Wert.
+function haversineExact(lat1, lon1, lat2, lon2) {
   const R = 6371, rad = Math.PI / 180;
   const dLat = (lat2 - lat1) * rad, dLon = (lon2 - lon1) * rad;
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)**2;
-  return Math.round(2 * R * Math.asin(Math.sqrt(a)));
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+function haversine(lat1, lon1, lat2, lon2) {
+  return Math.round(haversineExact(lat1, lon1, lat2, lon2));
 }
 
 // Bewertung einer Stunde: 'gut' | 'grenz' | 'nein' + Grund (bei nein/grenz) + severity (0..1, nur
@@ -623,6 +629,112 @@ function statusDot(status) {
 }
 function fmtTime(d) { return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0"); }
 
+// ---------------- Campingplätze in der Nähe (OpenStreetMap via Overpass) ----------------
+// Overpass ist ehrenamtlich betrieben und antwortet nicht immer (im Test kam ein 504,
+// ein Spiegelserver lief in einen Timeout). Deshalb: Abruf nur beim Öffnen des Live-Tabs,
+// Ergebnis 30 Tage zwischenspeichern, und bei Problemen ersatzlos nichts anzeigen.
+const CAMP_TTL = 30 * 24 * 3600 * 1000;
+const CAMP_RADIUS_M = 15000;
+const CAMP_MAX = 25;
+let campMarkers = [];
+let lastCampList = [];   // damit die Marker auch ankommen, wenn die Karte spaeter fertig wird
+// Eigene Icons/Farben je Typ. Bewusst Violett/Blau statt Gruen-Gelb-Rot, damit die
+// Campingplaetze nicht mit der Ampel-Bewertung der Startplaetze verwechselt werden.
+const IC_TENT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 3 20h18z"/><path d="M12 4v16"/><path d="m9 20 3-6 3 6"/></svg>`;
+const IC_CARAVAN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16V9a2 2 0 0 1 2-2h12a4 4 0 0 1 4 4v5"/><path d="M2 16h3"/><path d="M11 16h11"/><circle cx="8" cy="16" r="2.2"/><rect x="6" y="9.5" width="5.5" height="3.6" rx=".6"/></svg>`;
+
+function campIsCaravan(t) { return t === "caravan_site"; }
+function campTypeLabel(t) { return campIsCaravan(t) ? "Wohnmobilstellplatz" : "Campingplatz"; }
+function campTypeIcon(t) { return campIsCaravan(t) ? IC_CARAVAN : IC_TENT; }
+function campTypeClass(t) { return campIsCaravan(t) ? "t-caravan" : "t-camp"; }
+async function fetchCampsites(lat, lon) {
+  const key = `camp_${lat.toFixed(3)}_${lon.toFixed(3)}`;
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) { const c = JSON.parse(raw); if (Date.now() - c.t < CAMP_TTL) return c.v; }
+  } catch {}
+  const filter = kind => `${kind}["tourism"~"^(camp_site|caravan_site)$"](around:${CAMP_RADIUS_M},${lat},${lon});`;
+  const q = `[out:json][timeout:20];(${filter("node")}${filter("way")});out center 60;`;
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 20000);
+  try {
+    const res = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST", signal: ctrl.signal,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "data=" + encodeURIComponent(q),
+    });
+    if (!res.ok) throw new Error("Overpass " + res.status);
+    const data = await res.json();
+    const list = (data.elements || []).map(e => {
+      const t = e.tags || {};
+      const la = e.lat != null ? e.lat : e.center && e.center.lat;
+      const lo = e.lon != null ? e.lon : e.center && e.center.lon;
+      if (la == null || lo == null) return null;
+      return { name: t.name || "Ohne Namen", type: t.tourism, lat: la, lon: lo, web: t.website || t["contact:website"] || "" };
+    }).filter(Boolean);
+    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v: list })); } catch {}
+    return list;
+  } catch { return null; }
+  finally { clearTimeout(to); }
+}
+function campRowHtml(c) {
+  const km = c.dist < 1 ? Math.round(c.dist * 1000) + " m" : c.dist.toFixed(1).replace(".", ",") + " km";
+  return `<div class="camp-row">
+    <span class="camp-ic ${campTypeClass(c.type)}">${campTypeIcon(c.type)}</span>
+    <div class="camp-main">
+      <div class="camp-name">${escHtml(c.name)}</div>
+      <div class="camp-sub">${km} · ${campTypeLabel(c.type)}</div>
+    </div>
+    <a class="camp-act" href="${mapsUrl(c)}" target="_blank" rel="noopener" aria-label="Navigation">${NAV_ICON}</a>
+    ${c.web ? `<a class="camp-act" href="${escHtml(c.web)}" target="_blank" rel="noopener" aria-label="Website">${IC_GLOBE}</a>` : ""}
+  </div>`;
+}
+function campAddMarkers(list) {
+  campMarkers.forEach(m => m.remove());
+  campMarkers = [];
+  if (!miniMapInstance || typeof maplibregl === "undefined") return;
+  list.forEach(c => {
+    const el = document.createElement("div");
+    el.className = "camp-marker " + campTypeClass(c.type);
+    el.title = `${c.name} · ${campTypeLabel(c.type)}`;
+    el.innerHTML = campTypeIcon(c.type);
+    campMarkers.push(new maplibregl.Marker({ element: el }).setLngLat([c.lon, c.lat]).addTo(miniMapInstance));
+  });
+}
+async function loadCampsites(spot) {
+  const sec = document.getElementById("campSection");
+  if (!sec) return;
+  lastCampList = [];   // Treffer des zuvor geoeffneten Platzes verwerfen
+  const lat = spot.landeLat != null ? spot.landeLat : spot.lat;
+  const lon = spot.landeLon != null ? spot.landeLon : spot.lon;
+  sec.innerHTML = `<h3 class="dv-h3">Campingplätze in der Nähe</h3><p class="loading-line">wird gesucht …</p>`;
+  const raw = await fetchCampsites(lat, lon);
+  const wrap = document.getElementById("campSection");
+  if (!wrap) return;                       // Tab inzwischen verlassen
+  if (!raw || !raw.length) { wrap.innerHTML = ""; lastCampList = []; return; }
+  const list = raw
+    .map(c => ({ ...c, dist: haversineExact(lat, lon, c.lat, c.lon) }))
+    // Namenlose Einträge nach hinten - ein "Ohne Namen" ganz oben hilft niemandem
+    .sort((a, b) => (a.name === "Ohne Namen") - (b.name === "Ohne Namen") || a.dist - b.dist)
+    .slice(0, CAMP_MAX);
+  lastCampList = list;
+  const first = list.slice(0, 3), rest = list.slice(3);
+  wrap.innerHTML = `<h3 class="dv-h3">Campingplätze in der Nähe</h3>
+    <div class="camp-list">
+      ${first.map(campRowHtml).join("")}
+      ${rest.length ? `<div class="camp-more" id="campMore" hidden>${rest.map(campRowHtml).join("")}</div>
+        <button type="button" class="camp-toggle" id="campToggle">Alle ${list.length} anzeigen</button>` : ""}
+    </div>
+    <p class="camp-attrib">Campingplätze © OpenStreetMap-Mitwirkende · Entfernung ab Landeplatz</p>`;
+  const btn = document.getElementById("campToggle");
+  if (btn) btn.addEventListener("click", () => {
+    const more = document.getElementById("campMore");
+    more.hidden = !more.hidden;
+    btn.textContent = more.hidden ? `Alle ${list.length} anzeigen` : "Weniger anzeigen";
+  });
+  campAddMarkers(list);
+}
+
 // ---------------- Briefing-Tab: Platzregeln, Fotos, Kontakte ----------------
 // Inhalte kommen aus briefings.js (nur fuer gepflegte Fluggebiete). Ohne Eintrag
 // wird der Tab gar nicht erst angeboten - s. renderCard.
@@ -759,7 +871,8 @@ function liveCardsHtml(spot) {
       <div class="mini-map-legend"><img src="icons/marker-start.png" alt=""><span>Startplatz</span><img src="icons/marker-lande.png" alt=""><span>Landeplatz</span></div>
       <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
     </div>
-    ${satHtml}`;
+    ${satHtml}
+    <div id="campSection" class="camp-sec"></div>`;
 }
 // Ein Tag als Karte (Kompass + Stunden-Streifen + Sterne-Urteil) - fuer Vorhersage-Tage UND fuer den
 // Wetter-Verlauf (historischer Tag, gleiche Datenform dank identischer Open-Meteo-Felder).
@@ -1257,6 +1370,7 @@ let miniMapInstance = null;
 function removeMiniMap() {
   if (miniMapInstance) { miniMapInstance.remove(); miniMapInstance = null; }
   miniUserMarker = null; // Marker gehörte zur entfernten Karte
+  campMarkers = [];
 }
 async function ensureMiniMap(spot) {
   if (!document.getElementById("miniMap")) return; // Tab evtl. schon wieder verlassen
@@ -1289,6 +1403,7 @@ async function ensureMiniMap(spot) {
   }
   syncUserDot();
   refreshUserPos();
+  campAddMarkers(lastCampList);   // falls die Campingdaten schon vor der Karte da waren
 }
 // Kreis-Polygon (GeoJSON) um lat/lon mit radiusKm - fuer die Umkreis-Visualisierung auf der Karte.
 function circlePolygon(lat, lon, radiusKm, steps = 64) {
@@ -2096,6 +2211,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 102, date: "04.08.", text: "Campingplätze und Wohnmobilstellplätze im Live-Tab" },
   { v: 101, date: "04.08.", text: "Werkzeug zum Einzeichnen der Landevolte (in den Einstellungen)" },
   { v: 100, date: "04.08.", text: "Neuer Briefing-Tab mit Platzregeln und Notrufnummern (erster Platz: Gerlitzen)" },
   { v: 99, date: "04.08.", text: "Updates kommen jetzt zuverlässig an (Cache-Problem behoben)" },
@@ -2435,7 +2551,7 @@ document.body.addEventListener("click", e => {
     const wrap = tab.closest("#detailBody"); if (!wrap) return;
     wrap.querySelectorAll(".dtab").forEach(t => t.classList.toggle("on", t === tab));
     wrap.querySelectorAll(".dtab-panel").forEach(p => { p.hidden = p.id !== "dtab-" + tab.dataset.tab; });
-    if (tab.dataset.tab === "live" && currentDetailSpot) ensureMiniMap(currentDetailSpot);
+    if (tab.dataset.tab === "live" && currentDetailSpot) { ensureMiniMap(currentDetailSpot); loadCampsites(currentDetailSpot); }
     return;
   }
 
