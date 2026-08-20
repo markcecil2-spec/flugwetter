@@ -82,6 +82,17 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .dtab-panel[hidden] { display: block; visibility: hidden; pointer-events: none; }
 
 
+/* Live-Quellen als Chips oben im Wetter-Tab (Station, Webcam) */
+.lc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.lc-chip {
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+  padding: 7px 11px 7px 9px; border-radius: 999px;
+  background: var(--card-2); border: 1px solid var(--line); color: var(--text);
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.lc-chip svg { width: 14px; height: 14px; flex: none; color: var(--sky); }
+.lc-chip:active { background: rgba(148,163,184,.14); }
+
 /* Details-Tab (neues Layout): Icon-Karten, Datentabelle, Start-/Landeplatz-Karten, Aktionen */
 .na { color: var(--muted); font-style: italic; }
 .dv-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
@@ -302,20 +313,22 @@ header { position: relative; overflow: hidden; }
   padding: 8px 10px; margin-bottom: 10px; border-radius: 10px;
   background: rgba(14,165,233,.08); font-size: 12.5px; color: var(--text);
 }
-.wind-ind { flex: none; width: 24px; height: 24px; color: var(--sky); animation: bob 2.6s ease-in-out infinite; }
-.wind-ind svg { width: 24px; height: 24px; display: block; }
-.wind-ind svg path { fill: currentColor; }
-@keyframes bob { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-1px) scale(1.06); } }
+/* Zeigt jetzt den Sektor-Kompass (grün = erlaubte Startrichtungen, Nadel = aktueller
+   Wind) statt eines reinen Richtungspfeils - keine Dreh-Animation, sonst dreht der
+   ganze Kompass mit. */
+.wind-ind { flex: none; display: flex; }
+/* .scp-sm hat dieselbe Spezifitaet und steht weiter unten - deshalb hier mitnennen,
+   sonst haengt die Groesse an der Reihenfolge im Stylesheet. */
+.wind-ind .scp, .wind-ind .scp.scp-sm { width: 66px; height: 66px; }
 .wind-txt { flex: 1; min-width: 140px; }
 .sun-txt { flex: none; color: var(--muted); white-space: nowrap; }
-@media (prefers-reduced-motion: reduce) { .wind-ind { animation: none; } }
 .scp { width: 64px; height: 64px; flex: none; transition: opacity .15s; }
 .scp.idle { opacity: .55; }
-.scp-dir { font-size: 10px; font-weight: 700; fill: var(--muted); }
+.scp-dir { font-size: 14px; font-weight: 700; fill: var(--muted); }
 /* Kompakter Kompass je Tag: rechts fest verankert, Stunden-Pillen fließen darum (ab einer
    gewissen Uhrzeit rutschen sie dadurch automatisch in die nächste Zeile) */
 .scp-day-wrap { float: right; margin: 0 0 6px 8px; }
-.scp.scp-sm { width: 42px; height: 42px; }
+.scp.scp-sm { width: 64px; height: 64px; }
 /* Uhrzeit-Tap: Winddetail-Leiste unter den Stunden (volle Breite, gut lesbar) */
 .hour-detail {
   margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--text);
@@ -334,8 +347,6 @@ header { position: relative; overflow: hidden; }
 .lw-fit.nein { color: #fff; background: #ef4444; }
 .livewind .lw-dot { width: 8px; height: 8px; border-radius: 50%; background: #34d76a; flex: none; animation: lwpulse 1.9s infinite; }
 @keyframes lwpulse { 0% { box-shadow: 0 0 0 0 rgba(52,215,106,.5); } 70% { box-shadow: 0 0 0 6px rgba(52,215,106,0); } 100% { box-shadow: 0 0 0 0 rgba(52,215,106,0); } }
-.livewind .wind-ind { color: #34d76a; width: 18px; height: 18px; animation: none; }
-.livewind .wind-ind svg { width: 18px; height: 18px; }
 .livewind .lw-txt { flex: 1; min-width: 150px; }
 .livewind .lw-src { color: var(--muted); font-size: 11.5px; font-weight: 500; width: 100%; }
 .livewind .lw-link { color: var(--sky); font-weight: 700; text-decoration: none; white-space: nowrap; margin-left: 4px; }
@@ -431,10 +442,23 @@ header { position: relative; overflow: hidden; }
   background: rgba(21,27,36,.88); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px;
   font-size: 11px; color: #e8edf3; backdrop-filter: blur(3px);
 }
-.mini-map-legend img { width: 18px; height: 18px; margin-left: 6px; }
+.mini-map-legend img { width: 17px; height: 17px; margin-left: 6px; border-radius: 3px; }
 .mini-map-legend img:first-child { margin-left: 0; }
+/* Karte vergrößern: Höhe wächst, MapLibre wird danach neu vermessen (s. app.js) */
+.mini-map-wrap { transition: height .2s; }
+.mini-map-wrap.big { height: 74vh; }
+.mini-map-big {
+  position: absolute; right: 10px; bottom: 34px; z-index: 5;
+  width: 34px; height: 34px; border-radius: 9px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(21,27,36,.9); border: 1px solid var(--line); color: #cbd5e1;
+  backdrop-filter: blur(3px);
+}
+.mini-map-big svg { width: 17px; height: 17px; }
+.mini-map-wrap.big .mini-map-big svg { transform: rotate(180deg); }
+
 .mini-marker { line-height: 1; cursor: pointer; }
-.mini-marker img { width: 30px; height: 30px; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+.mini-marker img { width: 28px; height: 28px; display: block; border-radius: 5px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
 .mini-style-toggle {
   position: absolute; left: 10px; top: 10px; z-index: 5; display: flex; gap: 2px;
   background: rgba(21,27,36,.88); border: 1px solid var(--line); border-radius: 9px; padding: 3px;
@@ -659,18 +683,34 @@ header { position: relative; overflow: hidden; }
 /* Datenbank-Suche: Hinweis wenn leer */
 .db-hint { font-size: 13px; color: var(--muted); line-height: 1.5; padding: 8px 2px 12px; margin: 0; }
 
-/* Campingplätze in der Nähe (Live-Tab) */
+/* Übernachten in der Nähe: zugeklappte Box mit Kurzfassung, Liste erst beim Aufklappen */
+.camp-box { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.camp-box > summary {
+  display: flex; align-items: center; gap: 10px; padding: 12px 13px;
+  cursor: pointer; list-style: none;
+}
+.camp-box > summary::-webkit-details-marker { display: none; }
+.camp-box > summary::after {
+  content: ""; width: 8px; height: 8px; margin-left: auto; flex: none;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translate(-2px, -2px); transition: transform .15s;
+}
+.camp-box[open] > summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.camp-head-pin { width: 22px; height: 22px; flex: none; display: block; border-radius: 4px; }
+.camp-head-txt { font-size: 14px; font-weight: 700; min-width: 0; }
+.camp-sum { display: block; font-size: 11.5px; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.camp-box .camp-list { padding: 0 12px 12px; }
+.camp-box .camp-attrib { padding: 0 13px 12px; margin: 0; }
+
+/* Campingplätze in der Nähe (Briefing-Tab) */
 .camp-list { display: flex; flex-direction: column; gap: 7px; }
 .camp-row {
   display: flex; align-items: center; gap: 10px;
-  padding: 9px 11px; background: var(--card-2);
+  padding: 9px 11px; background: var(--card);
   border: 1px solid var(--line); border-radius: 11px;
 }
-/* Violett/Blau statt Ampelfarben - Campingplätze sind keine Flugbewertung */
-.camp-ic { display: flex; flex: none; }
-.camp-ic svg { width: 18px; height: 18px; }
-.camp-ic.t-camp, .camp-marker.t-camp { color: #a78bfa; }
-.camp-ic.t-caravan, .camp-marker.t-caravan { color: #60a5fa; }
+/* Schild-Icons statt Linien-Symbolen (Marks Vorlage) */
+.camp-pin { width: 22px; height: 22px; flex: none; display: block; border-radius: 4px; }
 .camp-main { flex: 1; min-width: 0; }
 .camp-name { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .camp-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
@@ -680,15 +720,12 @@ header { position: relative; overflow: hidden; }
   border: 1px solid var(--line); background: var(--card); color: var(--sky);
 }
 .camp-act svg { width: 16px; height: 16px; }
-.camp-more { display: flex; flex-direction: column; gap: 7px; }
-.camp-toggle {
-  border: 1px solid var(--line); background: transparent; color: var(--sky);
-  font-family: inherit; font-size: 12.5px; font-weight: 600;
-  padding: 9px; border-radius: 10px; cursor: pointer; margin-top: 1px;
-}
+.camp-tags { display: flex; flex-wrap: wrap; gap: 5px 8px; margin-top: 5px; }
+.camp-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
+.camp-tag svg { width: 12px; height: 12px; flex: none; }
 .camp-attrib { font-size: 11px; color: var(--muted); margin: 8px 0 0; line-height: 1.5; }
-.camp-marker { display: flex; filter: drop-shadow(0 1px 3px rgba(0,0,0,.85)); }
-.camp-marker svg { width: 19px; height: 19px; }
+.camp-marker { display: flex; filter: drop-shadow(0 1px 3px rgba(0,0,0,.7)); }
+.camp-marker img { width: 22px; height: 22px; display: block; border-radius: 4px; }
 
 /* Werkzeug: Landevolte zeichnen */
 .volte-hint { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin: 0 0 10px; }
@@ -711,6 +748,91 @@ header { position: relative; overflow: hidden; }
   background: var(--card-2); border: 1px solid var(--line); border-radius: 11px;
   padding: 11px 12px; margin-bottom: 10px;
 }
+
+/* Flug-Check (Briefing-Tab): Kopfzeile, drei Schritte, Kontakt-Kacheln */
+.fc-stats {
+  display: flex; gap: 2px; background: var(--card-2); border: 1px solid var(--line);
+  border-radius: 14px; padding: 12px 6px; margin-bottom: 18px;
+}
+.fc-stat { flex: 1; min-width: 0; display: flex; align-items: center; gap: 9px; padding: 0 8px; }
+.fc-stat + .fc-stat { border-left: 1px solid var(--line); }
+.fc-stat-ic { display: flex; flex: none; }
+.fc-stat-ic svg { width: 22px; height: 22px; }
+.fc-stat.ok .fc-stat-ic { color: var(--green); }
+.fc-stat.warn .fc-stat-ic { color: var(--amber); }
+.fc-stat.neutral .fc-stat-ic { color: var(--muted); }
+.fc-stat-val { font-size: 13px; font-weight: 700; line-height: 1.25; }
+.fc-stat-sub { font-size: 11px; color: var(--muted); margin-top: 1px; line-height: 1.3; }
+
+.fc-head { font-size: 17px; font-weight: 800; margin: 0; }
+.fc-head-sub { font-size: 12.5px; color: var(--muted); margin: 2px 0 12px; }
+
+.fc-step { background: var(--card-2); border: 1px solid var(--line); border-radius: 13px; margin-bottom: 10px; overflow: hidden; }
+.fc-step[open] { border-color: rgba(6,182,164,.4); }
+.fc-step > summary { display: flex; align-items: center; gap: 11px; padding: 13px 14px; cursor: pointer; list-style: none; }
+.fc-step > summary::-webkit-details-marker { display: none; }
+.fc-step > summary::after {
+  content: ""; width: 9px; height: 9px; margin-left: auto; flex: none;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translate(-2px, -2px); transition: transform .15s;
+}
+.fc-step[open] > summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.fc-num {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  background: rgba(6,182,164,.16); color: var(--sky);
+  display: grid; place-items: center; font-size: 12.5px; font-weight: 800;
+}
+.fc-title { font-size: 15px; font-weight: 700; }
+.fc-body { padding: 0 14px 14px; border-top: 1px solid var(--line); margin-top: -1px; padding-top: 13px; }
+.fc-h4 { font-size: 13px; font-weight: 700; margin: 14px 0 8px; }
+.fc-body > .fc-h4:first-child { margin-top: 0; }
+
+.fc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fc-list li { display: flex; align-items: flex-start; gap: 9px; font-size: 13.5px; line-height: 1.45; }
+.fc-ok { width: 17px; height: 17px; flex: none; color: var(--sky); margin-top: 1px; }
+
+/* Navigation als Zeilenliste (wie "Landung & Luftraum"), Auto-Icon rechts als Link */
+.fc-navlist { display: flex; flex-direction: column; gap: 7px; }
+.fc-nav-row { display: flex; align-items: center; gap: 9px; }
+.fc-nav-pin { width: 22px; height: 22px; flex: none; display: block; border-radius: 4px; }
+.fc-nav-name { flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.4; }
+.fc-nav-btn {
+  flex: none; display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 10px; text-decoration: none;
+  border: 1px solid var(--line); background: var(--card); color: var(--sky);
+}
+.fc-nav-btn svg { width: 18px; height: 18px; }
+.fc-nav-btn:active { background: rgba(6,182,164,.14); }
+
+.fc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.fc-chip {
+  flex: 1 1 140px; display: flex; align-items: center; gap: 9px;
+  padding: 10px 12px; border-radius: 11px; border: 1px solid var(--line); background: var(--card);
+}
+.fc-chip-ic { display: flex; flex: none; }
+.fc-chip-ic svg { width: 19px; height: 19px; }
+.fc-chip.wind { border-color: rgba(56,189,248,.32); }
+.fc-chip.wind .fc-chip-ic { color: #38bdf8; }
+.fc-chip.therm { border-color: rgba(250,204,21,.32); }
+.fc-chip.therm .fc-chip-ic { color: var(--amber); }
+.fc-chip-val { font-size: 13.5px; font-weight: 700; }
+.fc-chip-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+.fc-notes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fc-notes li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; line-height: 1.45; color: var(--text); }
+.fc-notes li svg { width: 16px; height: 16px; flex: none; margin-top: 1px; }
+.fc-notes li.warn svg { color: var(--amber); }
+.fc-notes li.info svg { color: var(--sky); }
+
+.fc-contacts { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.fc-contact {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;
+  padding: 11px 8px; border-radius: 11px; text-decoration: none;
+  background: var(--card-2); border: 1px solid var(--line); color: var(--text);
+}
+.fc-contact svg { width: 17px; height: 17px; color: var(--sky); }
+.fc-c-name { font-size: 11.5px; font-weight: 600; line-height: 1.3; }
+.fc-c-num { font-size: 11.5px; color: var(--sky); font-weight: 700; font-variant-numeric: tabular-nums; }
 
 /* Briefing-Tab: Platzregeln, Fotos, Kontakte */
 .bf { display: flex; flex-direction: column; gap: 10px; }
