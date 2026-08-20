@@ -530,7 +530,6 @@ async function fetchHistoryDay(spot, dateStr) {
   wxSet(key, data);
   return data;
 }
-function havFine(a, b, c, d) { const R = 6371, r = Math.PI / 180; const x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); }
 // Nächste Station ≤ 2 km mit frischer Messung (≤ 60 Min) – sonst null (nicht faken)
 function liveWind(spot, stations) {
   if (!stations || !stations.length) return null;
@@ -538,7 +537,7 @@ function liveWind(spot, stations) {
   for (const st of stations) {
     const m = st.measurements; if (!m || !m.date) continue;
     if (now - new Date(m.date).getTime() > 3600000) continue;
-    const dd = havFine(spot.lat, spot.lon, st.location.latitude, st.location.longitude);
+    const dd = haversineExact(spot.lat, spot.lon, st.location.latitude, st.location.longitude);
     if (dd < bestD) { bestD = dd; best = st; }
   }
   if (!best) return null;
@@ -565,8 +564,6 @@ function formatDur(sec) {
 }
 // Kompakte Fensterzeit für die Ergebnisliste: „15–22 Uhr"
 function winTimeShort(w) { return `${w.from.getHours()}–${w.to.getHours()} Uhr`; }
-// „06:00 – 13:00" fürs Statuskarten-Badge
-function winTimeFull(w) { return `${String(w.from.getHours()).padStart(2, "0")}:00 – ${String(w.to.getHours()).padStart(2, "0")}:00`; }
 // 5-Segment-Balken (z.B. für die Flugart-Einschätzung in der Statuskarte)
 function barSegments(n, cls) {
   let s = "";
@@ -579,7 +576,8 @@ function statusCardHtml(day, rt, ts, dayW) {
   const statusWord = ts.status === "nein" ? "Nicht fliegbar" : rt.stars >= 5 ? "Sehr gut" : rt.stars >= 4 ? "Gut" : "Grenzwertig";
   const icon = day && day.wx && day.wx.code != null ? weatherEmoji(day.wx.code) : "🪂";
   const typeRow = rt.type ? `<div class="sc-type-row"><span>${rt.type.label}</span>${barSegments(rt.stars, cls)}</div>` : "";
-  const best = ts.status !== "nein" ? `<div class="sc-best"><span class="sc-best-label">${ts.past ? "War fliegbar" : "Beste Zeit"}</span><b>${winTimeFull(ts.win)}</b></div>` : "";
+  // Kein "Beste Zeit"-Badge mehr: jede Tageszeile darunter zeigt ihr eigenes
+  // Zeitfenster (winTxt in dayCardHtml) - oben war es nur die Wiederholung des ersten Tages.
   return `<div class="status-card ${cls}">
     <div class="sc-icon">${icon}</div>
     <div class="sc-mid">
@@ -587,7 +585,6 @@ function statusCardHtml(day, rt, ts, dayW) {
       <div class="sc-stars">${starStr(rt.stars)}</div>
       ${typeRow}
     </div>
-    ${best}
   </div>`;
 }
 
@@ -836,16 +833,19 @@ function startplatzTableHtml(spot, diffL) {
 }
 // "Live"-Tab: Live-Wetterstation + Live-Cam, jeweils nur falls fürs Gelände hinterlegt,
 // plus Übersichtskarte mit Start- und Landeplatz + Link auf ein Satellitenbild des Landeplatzes.
-function liveCardsHtml(spot) {
+// opts.skipLivewetter: die Station ist schon als Link in der Live-Messzeile oben eingebaut.
+function liveCardsHtml(spot, opts = {}) {
   const cards = [];
-  if (spot.livewetter) cards.push({ ic: "📡", label: "Live-Wetter", sub: "Station live ansehen", href: spot.livewetter });
+  if (spot.livewetter && !opts.skipLivewetter) cards.push({ ic: "📡", label: "Live-Wetter", sub: "Station live ansehen", href: spot.livewetter });
   if (spot.webcam) cards.push({ ic: "📷", label: "Live-Cam", sub: "Live-Bild ansehen", href: spot.webcam });
   const cardsHtml = cards.length ? `<div class="dv-cards">${cards.map(c => `
     <a class="dv-card" href="${c.href}" target="_blank" rel="noopener">
       <div class="dv-card-ic">${c.ic}</div>
       <div class="dv-card-label">${c.label}</div>
       <div class="dv-card-sub"><span class="dv-dot gut"></span>${c.sub}</div>
-    </a>`).join("")}</div>` : `<p class="empty">Für dieses Gelände sind noch keine Live-Daten hinterlegt.</p>`;
+    </a>`).join("")}</div>`
+    // Kein "keine Live-Daten"-Hinweis, wenn oben gerade eine Live-Messung steht
+    : opts.skipLivewetter ? "" : `<p class="empty">Für dieses Gelände sind noch keine Live-Daten hinterlegt.</p>`;
   const satCards = [];
   if (spot.lat != null && spot.lon != null) satCards.push({ ic: "icons/marker-start.png", label: spot.name, href: mapsUrl(spot) });
   const landePlaetzeNav = [];
@@ -919,12 +919,16 @@ function renderCard(spot, days, opts = {}) {
     : cur.rating === "grenz"
       ? `<span class="lw-fit grenz">grenzwertig · ${grenzLabel(cur.reason)}</span>`
       : `<span class="lw-fit nein">passt gerade nicht · ${neinText(cur.reason)}</span>`) : "";
-  const nowBar = cur ? `
+  const sunSpan = sun ? `<span class="sun-txt">🌅 ${fmtTime(sun.sunrise)} · 🌇 ${fmtTime(sun.sunset)}</span>` : "";
+  // Gibt es eine echte Messung in der Nähe, entfällt der Modellwert "jetzt" - zwei
+  // Zeilen mit unterschiedlichen Zahlen zur selben Uhrzeit verwirren mehr als sie nützen.
+  // Sonnenauf-/-untergang wandern dann in die Live-Zeile.
+  const nowBar = (cur && !opts.live) ? `
     <div class="nowbar">
       <span class="wind-ind"><svg viewBox="0 0 24 24" style="transform:rotate(${Math.round((cur.wd + 180) % 360)}deg)"><path d="M12 2 L19 21 L12 16.5 L5 21 Z"/></svg></span>
       <span class="wind-txt">jetzt <b>${Math.round(cur.ws)}</b> km/h aus <b>${degToCompass(cur.wd)}</b> · Böen ${Math.round(cur.wg)}</span>
       ${nowFit}
-      ${sun ? `<span class="sun-txt">🌅 ${fmtTime(sun.sunrise)} · 🌇 ${fmtTime(sun.sunset)}</span>` : ""}
+      ${sunSpan}
     </div>` : "";
   let liveHtml = "";
   if (opts.live) {
@@ -942,9 +946,13 @@ function renderCard(spot, days, opts = {}) {
       <span class="wind-ind"><svg viewBox="0 0 24 24" style="transform:rotate(${(L.dir + 180) % 360}deg)"><path d="M12 2 L19 21 L12 16.5 L5 21 Z"/></svg></span>
       <span class="lw-txt"><b>Live ${L.avg}</b> km/h aus <b>${degToCompass(L.dir)}</b> · Böen ${L.max}</span>
       ${fit}
-      <span class="lw-src">${L.name} · ${L.dist.toFixed(1)} km · vor ${L.ago} Min · gemessen</span>
+      <span class="lw-src">${L.name} · ${L.dist.toFixed(1)} km · vor ${L.ago} Min · gemessen${spot.livewetter
+        ? ` <a class="lw-link" href="${spot.livewetter}" target="_blank" rel="noopener">Station ansehen ›</a>` : ""}</span>
+      ${sunSpan}
     </div>`;
   }
+  // Die Station steckt jetzt als Link in der Live-Zeile -> Kachel unten nicht doppelt zeigen
+  const liveMerged = !!(opts.live && spot.livewetter);
   const badge = ts.status === "nein"
     ? `<span class="badge red">${statusDot("nein")} ${dayW}: ${ts.reasonText}</span>`
     : ts.past
@@ -1000,7 +1008,7 @@ function renderCard(spot, days, opts = {}) {
             <div class="hist-body"></div>
           </div>
         </div>
-        <div class="dtab-panel" id="dtab-live" hidden>${liveHtml}${nowBar}${liveCardsHtml(spot)}</div>
+        <div class="dtab-panel" id="dtab-live" hidden>${liveHtml}${nowBar}${liveCardsHtml(spot, { skipLivewetter: liveMerged })}</div>
         ${briefingFor(spot) ? `<div class="dtab-panel" id="dtab-briefing" hidden>${briefingHtml(spot)}</div>` : ""}
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
@@ -2211,6 +2219,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 103, date: "04.08.", text: "Live-Tab aufgeräumt, Zeitfenster stehen jetzt nur noch bei den Tagen" },
   { v: 102, date: "04.08.", text: "Campingplätze und Wohnmobilstellplätze im Live-Tab" },
   { v: 101, date: "04.08.", text: "Werkzeug zum Einzeichnen der Landevolte (in den Einstellungen)" },
   { v: 100, date: "04.08.", text: "Neuer Briefing-Tab mit Platzregeln und Notrufnummern (erster Platz: Gerlitzen)" },

@@ -102,11 +102,6 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .bar-seg.on.gut { background: var(--green); }
 .bar-seg.on.grenz { background: var(--amber); }
 .bar-seg.on.nein { background: var(--red); }
-.sc-best { flex: none; text-align: center; background: rgba(0,0,0,.18); border-radius: 12px; padding: 8px 12px; }
-.sc-best-label { display: block; font-size: 9.5px; color: var(--muted); margin-bottom: 2px; }
-.sc-best b { font-size: 13px; color: var(--text); white-space: nowrap; }
-.status-card.gut .sc-best b { color: var(--green); }
-.status-card.grenz .sc-best b { color: var(--amber); }
 
 /* Details-Tab (neues Layout): Icon-Karten, Datentabelle, Start-/Landeplatz-Karten, Aktionen */
 .na { color: var(--muted); font-style: italic; }
@@ -364,6 +359,8 @@ header { position: relative; overflow: hidden; }
 .livewind .wind-ind svg { width: 18px; height: 18px; }
 .livewind .lw-txt { flex: 1; min-width: 150px; }
 .livewind .lw-src { color: var(--muted); font-size: 11.5px; font-weight: 500; width: 100%; }
+.livewind .lw-link { color: var(--sky); font-weight: 700; text-decoration: none; white-space: nowrap; margin-left: 4px; }
+.livewind .sun-txt { width: 100%; font-size: 11.5px; }
 
 /* Aktions-Button (kompakter) */
 .fly-btn {
