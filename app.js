@@ -564,33 +564,6 @@ function formatDur(sec) {
 }
 // Kompakte Fensterzeit für die Ergebnisliste: „15–22 Uhr"
 function winTimeShort(w) { return `${w.from.getHours()}–${w.to.getHours()} Uhr`; }
-// 5-Segment-Balken (z.B. für die Flugart-Einschätzung in der Statuskarte)
-function barSegments(n, cls) {
-  let s = "";
-  for (let i = 0; i < 5; i++) s += `<span class="bar-seg ${i < n ? "on " + cls : ""}"></span>`;
-  return `<span class="bar-segs">${s}</span>`;
-}
-// Große Status-Karte oben im Wetter-Tab: Icon, Bewertung, Sterne, Flugart-Tendenz.
-// nowRow = aktuelle Bedingungen (Live-Messung oder Modellwert), nur beim heutigen Tag.
-function statusCardHtml(day, rt, ts, dayW, nowRow = "") {
-  const cls = ts.status === "nein" ? "nein" : ts.status;
-  const statusWord = ts.status === "nein" ? "Nicht fliegbar" : rt.stars >= 5 ? "Sehr gut" : rt.stars >= 4 ? "Gut" : "Grenzwertig";
-  const icon = day && day.wx && day.wx.code != null ? weatherEmoji(day.wx.code) : "🪂";
-  const typeRow = rt.type ? `<div class="sc-type-row"><span>${rt.type.label}</span>${barSegments(rt.stars, cls)}</div>` : "";
-  // Kein "Beste Zeit"-Badge mehr: jede Tageszeile darunter zeigt ihr eigenes
-  // Zeitfenster (winTxt in dayCardHtml) - oben war es nur die Wiederholung des ersten Tages.
-  return `<div class="status-card ${cls}">
-    <div class="sc-top">
-      <div class="sc-icon">${icon}</div>
-      <div class="sc-mid">
-        <div class="sc-title">${dayW === "morgen" ? "Morgen: " : ""}${statusWord}</div>
-        <div class="sc-stars">${starStr(rt.stars)}</div>
-        ${typeRow}
-      </div>
-    </div>
-    ${nowRow ? `<div class="sc-now">${nowRow}</div>` : ""}
-  </div>`;
-}
 
 // "Tipp für morgen": vergleicht die gemeinsame beste Zeit heute vs. morgen über alle Favoriten
 function favoritesTipHtml(results) {
@@ -837,19 +810,16 @@ function startplatzTableHtml(spot, diffL) {
 }
 // "Live"-Tab: Live-Wetterstation + Live-Cam, jeweils nur falls fürs Gelände hinterlegt,
 // plus Übersichtskarte mit Start- und Landeplatz + Link auf ein Satellitenbild des Landeplatzes.
-// opts.skipLivewetter: die Station ist schon als Link in der Live-Messzeile oben eingebaut.
-function liveCardsHtml(spot, opts = {}) {
+function liveCardsHtml(spot) {
   const cards = [];
-  if (spot.livewetter && !opts.skipLivewetter) cards.push({ ic: "📡", label: "Live-Wetter", sub: "Station live ansehen", href: spot.livewetter });
+  if (spot.livewetter) cards.push({ ic: "📡", label: "Live-Wetter", sub: "Station live ansehen", href: spot.livewetter });
   if (spot.webcam) cards.push({ ic: "📷", label: "Live-Cam", sub: "Live-Bild ansehen", href: spot.webcam });
   const cardsHtml = cards.length ? `<div class="dv-cards">${cards.map(c => `
     <a class="dv-card" href="${c.href}" target="_blank" rel="noopener">
       <div class="dv-card-ic">${c.ic}</div>
       <div class="dv-card-label">${c.label}</div>
       <div class="dv-card-sub"><span class="dv-dot gut"></span>${c.sub}</div>
-    </a>`).join("")}</div>`
-    // Kein "keine Live-Daten"-Hinweis, wenn oben gerade eine Live-Messung steht
-    : opts.skipLivewetter ? "" : `<p class="empty">Für dieses Gelände sind noch keine Live-Daten hinterlegt.</p>`;
+    </a>`).join("")}</div>` : `<p class="empty">Für dieses Gelände sind noch keine Live-Daten hinterlegt.</p>`;
   const satCards = [];
   if (spot.lat != null && spot.lon != null) satCards.push({ ic: "icons/marker-start.png", label: spot.name, href: mapsUrl(spot) });
   const landePlaetzeNav = [];
@@ -955,8 +925,6 @@ function renderCard(spot, days, opts = {}) {
       ${sunSpan}
     </div>`;
   }
-  // Die Station steckt jetzt als Link in der Live-Zeile -> Kachel unten nicht doppelt zeigen
-  const liveMerged = !!(opts.live && spot.livewetter);
   const badge = ts.status === "nein"
     ? `<span class="badge red">${statusDot("nein")} ${dayW}: ${ts.reasonText}</span>`
     : ts.past
@@ -989,8 +957,11 @@ function renderCard(spot, days, opts = {}) {
 
   const rt = todayRating(days, dayIdx);
   const ftHint = rt.type ? `<div class="ft-hint">Flugart nur grobe Schätzung – kein Thermik-Forecast</div>` : "";
-  // Nur beim heutigen Tag: "jetzt"-Werte gehoeren nicht unter eine Morgen-Vorhersage.
-  const statusCard = statusCardHtml(days[dayIdx], rt, ts, dayW, dayIdx === 0 ? (liveHtml || nowBar) : "");
+  // Aktuelle Bedingungen stehen oben im Wetter-Tab (nicht mehr im Live-Tab). Nur beim
+  // heutigen Tag - unter einer Morgen-Vorhersage waeren "jetzt"-Werte irrefuehrend.
+  // Die fruehere Bewertungs-Karte darueber ist entfallen: Sterne und Einschaetzung
+  // stehen ohnehin in der ersten Tageszeile.
+  const statusCard = dayIdx === 0 ? (liveHtml || nowBar) : "";
 
   // Kompakt (Favoriten): nur Name/Region + Ampel-Badge in der Kopfzeile - der Rest der Karte
   // ist leer, die ganze Kachel oeffnet per Klick das volle Detailfenster (s. data-spot-Handler).
@@ -1013,7 +984,7 @@ function renderCard(spot, days, opts = {}) {
             <div class="hist-body"></div>
           </div>
         </div>
-        <div class="dtab-panel" id="dtab-live" hidden>${liveHtml}${nowBar}${liveCardsHtml(spot, { skipLivewetter: liveMerged })}</div>
+        <div class="dtab-panel" id="dtab-live" hidden>${liveCardsHtml(spot)}</div>
         ${briefingFor(spot) ? `<div class="dtab-panel" id="dtab-briefing" hidden>${briefingHtml(spot)}</div>` : ""}
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
@@ -2224,6 +2195,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 105, date: "04.08.", text: "Wetter-Tab startet mit den aktuellen Bedingungen, doppelte Bewertung entfernt" },
   { v: 104, date: "04.08.", text: "Aktuelle Bedingungen stehen jetzt auch oben im Wetter-Tab" },
   { v: 103, date: "04.08.", text: "Live-Tab aufgeräumt, Zeitfenster stehen jetzt nur noch bei den Tagen" },
   { v: 102, date: "04.08.", text: "Campingplätze und Wohnmobilstellplätze im Live-Tab" },

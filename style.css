@@ -81,31 +81,6 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .dtab-panels .dtab-panel { grid-column: 1; grid-row: 1; min-width: 0; }
 .dtab-panel[hidden] { display: block; visibility: hidden; pointer-events: none; }
 
-/* Große Status-Karte oben im Wetter-Tab */
-.status-card { display: flex; flex-direction: column; gap: 12px; background: var(--card-2); border-radius: 16px; padding: 14px 16px; margin: 0 0 12px; border: 1px solid var(--line); }
-.sc-top { display: flex; align-items: center; gap: 14px; }
-/* Aktuelle Bedingungen in der Statuskarte: dieselbe Zeile wie im Live-Tab, nur ohne
-   eigenen Rahmen/Abstand - die Karte liefert den Rahmen schon. */
-.sc-now > .livewind, .sc-now > .nowbar { margin: 0; }
-.status-card.gut { border-color: rgba(34,197,94,.35); }
-.status-card.grenz { border-color: rgba(250,204,21,.35); }
-.status-card.nein { border-color: var(--line); }
-.sc-icon { flex: none; width: 52px; height: 52px; border-radius: 50%; background: rgba(148,163,184,.14); display: grid; place-items: center; font-size: 26px; }
-.status-card.gut .sc-icon { background: var(--green-bg); }
-.status-card.grenz .sc-icon { background: rgba(250,204,21,.14); }
-.sc-mid { flex: 1; min-width: 0; }
-.sc-title { font-weight: 800; font-size: 17px; }
-.status-card.gut .sc-title { color: var(--green); }
-.status-card.grenz .sc-title { color: var(--amber); }
-.status-card.nein .sc-title { color: var(--muted); }
-.sc-stars { font-size: 15px; letter-spacing: 1.5px; color: var(--amber); margin: 2px 0; }
-.sc-stars .off { color: rgba(148,163,184,.35); }
-.sc-type-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin-top: 3px; }
-.bar-segs { display: inline-flex; gap: 2px; }
-.bar-seg { width: 12px; height: 5px; border-radius: 2px; background: rgba(148,163,184,.25); }
-.bar-seg.on.gut { background: var(--green); }
-.bar-seg.on.grenz { background: var(--amber); }
-.bar-seg.on.nein { background: var(--red); }
 
 /* Details-Tab (neues Layout): Icon-Karten, Datentabelle, Start-/Landeplatz-Karten, Aktionen */
 .na { color: var(--muted); font-style: italic; }
@@ -1007,7 +982,6 @@ main.wrap { padding-top: 12px; }
 .spot-card .sc-meta .mi { color: rgba(255,255,255,.85); }
 .spot-card .sc-wind { color: rgba(255,255,255,.7); }
 .sc-main { flex: 1; min-width: 0; }
-.sc-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .sc-name { font-weight: 700; font-size: 15.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sc-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .sc-wind { font-size: 11.5px; color: var(--muted); font-weight: 600; text-align: right; margin: 0; }
