@@ -570,8 +570,9 @@ function barSegments(n, cls) {
   for (let i = 0; i < 5; i++) s += `<span class="bar-seg ${i < n ? "on " + cls : ""}"></span>`;
   return `<span class="bar-segs">${s}</span>`;
 }
-// Große Status-Karte oben im Wetter-Tab: Icon, Bewertung, Sterne, Flugart-Tendenz, beste Zeit
-function statusCardHtml(day, rt, ts, dayW) {
+// Große Status-Karte oben im Wetter-Tab: Icon, Bewertung, Sterne, Flugart-Tendenz.
+// nowRow = aktuelle Bedingungen (Live-Messung oder Modellwert), nur beim heutigen Tag.
+function statusCardHtml(day, rt, ts, dayW, nowRow = "") {
   const cls = ts.status === "nein" ? "nein" : ts.status;
   const statusWord = ts.status === "nein" ? "Nicht fliegbar" : rt.stars >= 5 ? "Sehr gut" : rt.stars >= 4 ? "Gut" : "Grenzwertig";
   const icon = day && day.wx && day.wx.code != null ? weatherEmoji(day.wx.code) : "🪂";
@@ -579,12 +580,15 @@ function statusCardHtml(day, rt, ts, dayW) {
   // Kein "Beste Zeit"-Badge mehr: jede Tageszeile darunter zeigt ihr eigenes
   // Zeitfenster (winTxt in dayCardHtml) - oben war es nur die Wiederholung des ersten Tages.
   return `<div class="status-card ${cls}">
-    <div class="sc-icon">${icon}</div>
-    <div class="sc-mid">
-      <div class="sc-title">${dayW === "morgen" ? "Morgen: " : ""}${statusWord}</div>
-      <div class="sc-stars">${starStr(rt.stars)}</div>
-      ${typeRow}
+    <div class="sc-top">
+      <div class="sc-icon">${icon}</div>
+      <div class="sc-mid">
+        <div class="sc-title">${dayW === "morgen" ? "Morgen: " : ""}${statusWord}</div>
+        <div class="sc-stars">${starStr(rt.stars)}</div>
+        ${typeRow}
+      </div>
     </div>
+    ${nowRow ? `<div class="sc-now">${nowRow}</div>` : ""}
   </div>`;
 }
 
@@ -985,7 +989,8 @@ function renderCard(spot, days, opts = {}) {
 
   const rt = todayRating(days, dayIdx);
   const ftHint = rt.type ? `<div class="ft-hint">Flugart nur grobe Schätzung – kein Thermik-Forecast</div>` : "";
-  const statusCard = statusCardHtml(days[dayIdx], rt, ts, dayW);
+  // Nur beim heutigen Tag: "jetzt"-Werte gehoeren nicht unter eine Morgen-Vorhersage.
+  const statusCard = statusCardHtml(days[dayIdx], rt, ts, dayW, dayIdx === 0 ? (liveHtml || nowBar) : "");
 
   // Kompakt (Favoriten): nur Name/Region + Ampel-Badge in der Kopfzeile - der Rest der Karte
   // ist leer, die ganze Kachel oeffnet per Klick das volle Detailfenster (s. data-spot-Handler).
@@ -2219,6 +2224,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 104, date: "04.08.", text: "Aktuelle Bedingungen stehen jetzt auch oben im Wetter-Tab" },
   { v: 103, date: "04.08.", text: "Live-Tab aufgeräumt, Zeitfenster stehen jetzt nur noch bei den Tagen" },
   { v: 102, date: "04.08.", text: "Campingplätze und Wohnmobilstellplätze im Live-Tab" },
   { v: 101, date: "04.08.", text: "Werkzeug zum Einzeichnen der Landevolte (in den Einstellungen)" },
