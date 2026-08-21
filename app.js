@@ -643,21 +643,20 @@ let campMarkers = [];
 let lastCampList = [];   // damit die Marker auch ankommen, wenn die Karte spaeter fertig wird
 let lastParkList = [];
 
-// Schild-Icons (aus Marks Vorlage) - dieselbe Bildsprache wie auf der Karte
+// Schild-Icons (aus Marks Vorlage) - dieselbe Bildsprache wie auf der Karte.
+// Es gibt genau diese drei Arten; Hotels sind bewusst nicht dabei.
 const PIN = {
   camp_site: "icons/pin-camping.png",
   caravan_site: "icons/pin-stellplatz.png",
-  unterkunft: "icons/pin-hotel.png",
   parkplatz: "icons/pin-parkplatz.png",
 };
 function campKat(t) {
   if (t === "caravan_site") return "caravan_site";
-  if (t === "camp_site") return "camp_site";
-  return "unterkunft";
+  if (t === "parkplatz") return "parkplatz";
+  return "camp_site";
 }
 function campTypeLabel(t) {
-  return { caravan_site: "Wohnmobilstellplatz", camp_site: "Campingplatz", hotel: "Hotel",
-    guest_house: "Pension", hostel: "Hostel", chalet: "Ferienhaus", alpine_hut: "Berghütte" }[t] || "Unterkunft";
+  return { caravan_site: "Wohnmobilstellplatz", parkplatz: "Parkplatz", camp_site: "Campingplatz" }[campKat(t)];
 }
 function campPin(t) { return PIN[campKat(t)]; }
 
@@ -2505,6 +2504,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 109, date: "21.08.", text: "Parkplätze wurden auf der Karte als Unterkunft angezeigt – behoben" },
   { v: 108, date: "21.08.", text: "Karte: „Startplätze hier suchen“ beim Verschieben, Marker mit Infofenster" },
   { v: 107, date: "21.08.", text: "Briefing verfeinert: Parkplätze mit Zielangabe, DHV-Infos, kompaktere Tage" },
   { v: 106, date: "20.08.", text: "Neuer Briefing-Tab mit Flug-Check, Parkplätzen, Übernachten und Schild-Icons" },
