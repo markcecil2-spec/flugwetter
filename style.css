@@ -119,22 +119,26 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .ic0.dt-star { color: var(--muted); font-size: 24px; line-height: 1; padding: 0; }
 .ic0.dt-star.on { color: var(--amber); }
 
-.days { display: flex; flex-direction: column; gap: 6px; }
+.days { display: flex; flex-direction: column; gap: 5px; }
 .day {
-  display: flex; flex-direction: column; gap: 6px;
-  padding: 12px 9px; border-radius: 10px;
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 8px 9px; border-radius: 10px;
 }
 .day.hasgreen { background: var(--green-bg); }
 .dlabel-wd { font-size: 12px; font-weight: 700; color: var(--muted); line-height: 1.25; }
-.dright { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.hours { display: flow-root; } /* Block-Formatierungskontext, damit die Stunden um den rechts verankerten Kompass fließen */
+.dright { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+/* Stunden links, Kompass rechts und dabei senkrecht mittig (vorher ein Float,
+   der immer oben klebte und dadurch schief wirkte) */
+.hours { display: flex; align-items: center; gap: 8px; }
+.hour-pills { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; }
+.scp-day-wrap { flex: none; }
 .h {
-  font-size: 10px; width: 30px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
-  margin: 0 3px 3px 0; padding: 3px 2px 4px; border-radius: 6px; background: rgba(148,163,184,.16); color: var(--muted); cursor: default;
+  font-size: 10px; width: 26px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  margin: 0 2px 2px 0; padding: 2px 1px 3px; border-radius: 6px; background: rgba(148,163,184,.16); color: var(--muted); cursor: default;
 }
 .h.ok { background: var(--green); color: #fff; font-weight: 700; }
 .h-num { font-size: 10px; font-weight: 700; line-height: 1.2; }
-.h-wx { font-size: 13px; line-height: 1.1; }
+.h-wx { font-size: 12px; line-height: 1.05; }
 .h-temp { font-size: 9px; line-height: 1.2; opacity: .85; }
 .wins { font-size: 12px; color: var(--green); font-weight: 600; }
 .day:not(.hasgreen) .wins { color: var(--muted); font-weight: 400; }
@@ -327,8 +331,8 @@ header { position: relative; overflow: hidden; }
 .scp-dir { font-size: 14px; font-weight: 700; fill: var(--muted); }
 /* Kompakter Kompass je Tag: rechts fest verankert, Stunden-Pillen fließen darum (ab einer
    gewissen Uhrzeit rutschen sie dadurch automatisch in die nächste Zeile) */
-.scp-day-wrap { float: right; margin: 0 0 6px 8px; }
-.scp.scp-sm { width: 64px; height: 64px; }
+
+.scp.scp-sm { width: 58px; height: 58px; }
 /* Uhrzeit-Tap: Winddetail-Leiste unter den Stunden (volle Breite, gut lesbar) */
 .hour-detail {
   margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--text);
@@ -683,7 +687,9 @@ header { position: relative; overflow: hidden; }
 /* Datenbank-Suche: Hinweis wenn leer */
 .db-hint { font-size: 13px; color: var(--muted); line-height: 1.5; padding: 8px 2px 12px; margin: 0; }
 
-/* Übernachten in der Nähe: zugeklappte Box mit Kurzfassung, Liste erst beim Aufklappen */
+/* Übernachten in der Nähe: zugeklappte Box mit Kurzfassung, Liste erst beim Aufklappen.
+   Deutlich abgesetzt von der Karte darüber. */
+.camp-sec { margin-top: 20px; }
 .camp-box { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .camp-box > summary {
   display: flex; align-items: center; gap: 10px; padding: 12px 13px;
@@ -790,6 +796,12 @@ header { position: relative; overflow: hidden; }
 .fc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .fc-list li { display: flex; align-items: flex-start; gap: 9px; font-size: 13.5px; line-height: 1.45; }
 .fc-ok { width: 17px; height: 17px; flex: none; color: var(--sky); margin-top: 1px; }
+/* Zustieg: eigenes Bild statt Haken (Hike & Fly, Auto, Bergbahn) */
+.fc-li-img { width: 19px; height: 19px; flex: none; display: block; margin-top: -1px; }
+/* Parken als Klappliste, etwas abgesetzt von der Navigation darüber */
+.park-sec { margin-top: 14px; }
+/* DHV-Verweis am Ende von Schritt 1 */
+.fc-links { margin-top: 14px; }
 
 /* Navigation als Zeilenliste (wie "Landung & Luftraum"), Auto-Icon rechts als Link */
 .fc-navlist { display: flex; flex-direction: column; gap: 7px; }
@@ -819,10 +831,11 @@ header { position: relative; overflow: hidden; }
 .fc-chip-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
 
 .fc-notes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-.fc-notes li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; line-height: 1.45; color: var(--text); }
-.fc-notes li svg { width: 16px; height: 16px; flex: none; margin-top: 1px; }
-.fc-notes li.warn svg { color: var(--amber); }
-.fc-notes li.info svg { color: var(--sky); }
+/* eigene Praefixe: .info/.warn sind in der App schon anders belegt (Info-Kasten) */
+.fc-notes li { display: flex; align-items: center; gap: 9px; font-size: 13px; line-height: 1.45; color: var(--text); background: none; padding: 0; margin: 0; }
+.fc-notes li svg { width: 16px; height: 16px; flex: none; }
+.fc-notes li.fc-warn svg { color: var(--amber); }
+.fc-notes li.fc-info svg { color: var(--sky); }
 
 .fc-contacts { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
 .fc-contact {

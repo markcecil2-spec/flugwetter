@@ -757,11 +757,24 @@ async function loadCampsites(spot) {
   const wrap = document.getElementById("campSection");
   if (!wrap) return;                       // Tab inzwischen verlassen
   if (!raw || !raw.length) { wrap.innerHTML = ""; return; }
-  // Entfernung: Übernachten ab Landeplatz, Parken ab dem jeweils näheren der beiden Punkte
-  const mitDist = raw.map(c => ({ ...c,
-    dist: c.parken && spot.lat != null
-      ? Math.min(haversineExact(lat, lon, c.lat, c.lon), haversineExact(spot.lat, spot.lon, c.lat, c.lon))
-      : haversineExact(lat, lon, c.lat, c.lon) }));
+  // Bezugspunkte fuer Parkplaetze: alle Landeplaetze und der Startplatz. Je Parkplatz
+  // wird der naechstgelegene genommen und benannt - "363 m zum Landeplatz" hilft nicht,
+  // wenn es vier davon gibt.
+  const ziele = [];
+  if (spot.landeLat != null && spot.landeLon != null) ziele.push({ name: kurzOrt(spot.landeName || "Landeplatz", spot.name), lat: spot.landeLat, lon: spot.landeLon });
+  if (Array.isArray(spot.landeExtra)) spot.landeExtra.forEach(l => ziele.push({ name: kurzOrt(l.name, spot.name), lat: l.lat, lon: l.lon }));
+  if (spot.lat != null) ziele.push({ name: "Startplatz", lat: spot.lat, lon: spot.lon });
+
+  // Entfernung: Übernachten ab Landeplatz, Parken ab dem jeweils nächsten Ziel
+  const mitDist = raw.map(c => {
+    if (!c.parken || !ziele.length) return { ...c, dist: haversineExact(lat, lon, c.lat, c.lon) };
+    let best = null, bestD = Infinity;
+    for (const z of ziele) {
+      const d = haversineExact(z.lat, z.lon, c.lat, c.lon);
+      if (d < bestD) { bestD = d; best = z; }
+    }
+    return { ...c, dist: bestD, zielName: best.name };
+  });
   const sortiert = arr => arr.sort((a, b) => (a.name === "Ohne Namen") - (b.name === "Ohne Namen") || a.dist - b.dist);
   const list = sortiert(mitDist.filter(c => !c.parken)).slice(0, CAMP_MAX);
   lastParkList = sortiert(mitDist.filter(c => c.parken)).slice(0, PARK_MAX);
@@ -793,23 +806,41 @@ const CAMP_AUS = {
 };
 // Parkplätze gehören in Schritt 1 (Anreise), kommen aber erst mit der Overpass-Antwort.
 // Deshalb rendert loadCampsites sie nachträglich in den Platzhalter dort.
+// "Hohenneuffen - Nord Toplandeplatz" -> "Toplandeplatz": den Platznamen vorne abschneiden,
+// damit in der Parkplatz-Zeile steht, ZU WELCHEM Ziel die Entfernung gilt.
+function kurzOrt(name, spotName) {
+  const norm = s => s.toLowerCase().replace(/[^a-z0-9äöüß]+/g, "");
+  const nSpot = norm(spotName.replace(/\s*\([^)]*\)\s*$/, ""));
+  const nName = norm(name);
+  if (!nSpot || !nName.startsWith(nSpot) || nName.length <= nSpot.length) return name;
+  let zaehler = 0, i = 0;
+  for (; i < name.length && zaehler < nSpot.length; i++) if (norm(name[i])) zaehler++;
+  return name.slice(i).replace(/^[\s–-]+/, "").trim() || name;
+}
 function renderParkplaetze() {
   const box = document.getElementById("parkSection");
   if (!box) return;
   if (!lastParkList.length) { box.innerHTML = ""; return; }
-  box.innerHTML = `<h4 class="fc-h4">Parken</h4>
-    <div class="camp-list">${lastParkList.map((p, i) => {
+  const naechster = lastParkList.reduce((m, p) => Math.min(m, p.dist), Infinity);
+  const ab = naechster < 1 ? `ab ${Math.round(naechster * 1000)} m` : `ab ${naechster.toFixed(1).replace(".", ",")} km`;
+  box.innerHTML = `<details class="camp-box park-box">
+    <summary>
+      <img class="camp-head-pin" src="${PIN.parkplatz}" alt="">
+      <span class="camp-head-txt">Parken<span class="camp-sum">${lastParkList.length} ${lastParkList.length === 1 ? "Parkplatz" : "Parkplätze"} · ${ab}</span></span>
+    </summary>
+    <div class="camp-list">${lastParkList.map(p => {
       const km = p.dist < 1 ? Math.round(p.dist * 1000) + " m" : p.dist.toFixed(1).replace(".", ",") + " km";
       const geb = p.gratis === true ? " · kostenlos" : p.gratis === false ? " · gebührenpflichtig" : "";
       return `<div class="camp-row">
         <img class="camp-pin" src="${PIN.parkplatz}" alt="">
         <div class="camp-main">
           <div class="camp-name">${escHtml(p.name)}</div>
-          <div class="camp-sub">${km} zum Landeplatz${geb}</div>
+          <div class="camp-sub">${km} zu ${escHtml(p.zielName || "Landeplatz")}${geb}</div>
         </div>
         <a class="camp-act" href="${mapsUrl(p)}" target="_blank" rel="noopener" aria-label="Navigation">${NAV_ICON}</a>
       </div>`;
-    }).join("")}</div>`;
+    }).join("")}</div>
+  </details>`;
 }
 function campSummary(list) {
   const camps = list.filter(c => campKat(c.type) === "camp_site").length;
@@ -848,9 +879,16 @@ const FC_CHECK = `<svg class="fc-ok" viewBox="0 0 24 24" fill="none" stroke="cur
 const FC_WARN = `<svg class="fc-warn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>`;
 const FC_INFO = `<svg class="fc-info-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>`;
 
+// Zustiegs-Punkte bekommen statt des Hakens ihr eigenes Bild (Hike & Fly, Auto, Bergbahn)
+const FC_ZUSTIEG_BILD = { hikefly: "icons/ic-hikefly.png", auto: "icons/ic-auto.png", bahn: "icons/ic-bahn.png" };
 function fcList(items) {
   if (!items || !items.length) return "";
-  return `<ul class="fc-list">${items.map(t => `<li>${FC_CHECK}<span>${escHtml(t)}</span></li>`).join("")}</ul>`;
+  return `<ul class="fc-list">${items.map(t => {
+    const txt = typeof t === "string" ? t : t.text;
+    const bild = typeof t === "object" && t.bild ? FC_ZUSTIEG_BILD[t.bild] : null;
+    const vorn = bild ? `<img class="fc-li-img" src="${bild}" alt="">` : FC_CHECK;
+    return `<li>${vorn}<span>${escHtml(txt)}</span></li>`;
+  }).join("")}</ul>`;
 }
 function fcStep(nr, titel, inhalt, offen) {
   if (!inhalt.trim()) return "";
@@ -885,9 +923,9 @@ function briefingPanelHtml(spot, ctx) {
   // --- Schritt 1: Anreise & Start ---
   const zustieg = [];
   const a = spot.acc || "";
-  if (a.includes("a")) zustieg.push("Mit dem Auto erreichbar" + (driveSec != null ? ` · ${formatDur(driveSec)} Fahrt` : ""));
-  if (a.includes("b")) zustieg.push("Bergbahn vorhanden");
-  if (a.includes("f")) zustieg.push("Zu Fuß erreichbar (Hike & Fly)");
+  if (a.includes("a")) zustieg.push({ bild: "auto", text: "Mit dem Auto erreichbar" + (driveSec != null ? ` · ${formatDur(driveSec)} Fahrt` : "") });
+  if (a.includes("b")) zustieg.push({ bild: "bahn", text: "Bergbahn vorhanden" });
+  if (a.includes("f")) zustieg.push({ bild: "hikefly", text: "Zu Fuß erreichbar (Hike & Fly)" });
   const navKarten = [];
   if (spot.lat != null) navKarten.push({ ic: "icons/pin-startplatz.png", label: spot.name, href: mapsUrl(spot) });
   const landeAlle = [];
@@ -896,18 +934,21 @@ function briefingPanelHtml(spot, ctx) {
   landeAlle.forEach(l => navKarten.push({ ic: "icons/pin-landeplatz.png", label: l.name, href: mapsUrl({ lat: l.lat, lon: l.lon }) }));
   const schritt1 = `
     ${fcList([...zustieg, ...(S.vorStart || [])])}
-    <div id="parkSection"></div>
     ${navKarten.length ? `<h4 class="fc-h4">Navigation</h4><div class="fc-navlist">${navKarten.map(c => `
       <div class="fc-nav-row">
         <img class="fc-nav-pin" src="${c.ic}" alt="">
         <span class="fc-nav-name">${escHtml(c.label)}</span>
         <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="Navigation zu ${escHtml(c.label)}">${IC_CAR}</a>
-      </div>`).join("")}</div>` : ""}`;
+      </div>`).join("")}</div>` : ""}
+    <div id="parkSection" class="park-sec"></div>
+    ${spot.dhv ? `<div class="fc-links"><a class="lc-chip" href="https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}" target="_blank" rel="noopener">${IC_CLIPBOARD}<span>DHV-Infos zum Gelände</span></a></div>` : ""}`;
 
   // --- Schritt 2: Startplatz ---
   const check2 = [];
   if (spot.sectorLabel) check2.push(`Windrichtung ${spot.sectorLabel} liegt optimal an`);
   if (spot.elevation != null) check2.push(`Start auf ${spot.elevation} m ü. NN`);
+  if (spot.gleitschirm) check2.push(`Zugelassen: ${spot.gleitschirm}`);
+  if (spot.gemeinde) check2.push(`Gemeinde ${spot.gemeinde}`);
   check2.push(...(S.startplatz || []));
   const thStart = thermikStartHour(day, ts.win);
   const chips = [];
@@ -919,7 +960,8 @@ function briefingPanelHtml(spot, ctx) {
   const warn = diffWarn(spot);
   const hinweise2 = [];
   if (warn) hinweise2.push({ typ: "warn", text: warn.text });
-  if (spot.gleitschirm) hinweise2.push({ typ: "info", text: "Zugelassen: " + spot.gleitschirm });
+  // DHV-Bemerkung im Original (nur bei 21 % der Plätze hinterlegt)
+  if (spot.bemerkung) hinweise2.push({ typ: "info", text: spot.bemerkung });
   const schritt2 = `
     ${check2.length ? `<h4 class="fc-h4">Checkliste Startplatz</h4>${fcList(check2)}` : ""}
     <h4 class="fc-h4">Wind &amp; Bedingungen</h4>
@@ -928,17 +970,29 @@ function briefingPanelHtml(spot, ctx) {
         <div><div class="fc-chip-val">${c.wert}</div><div class="fc-chip-sub">${escHtml(c.sub)}</div></div>
       </div>`).join("")}</div>
     ${hinweise2.length ? `<h4 class="fc-h4">Hinweise</h4><ul class="fc-notes">${hinweise2.map(h =>
-      `<li class="${h.typ}">${h.typ === "warn" ? FC_WARN : FC_INFO}<span>${escHtml(h.text)}</span></li>`).join("")}</ul>` : ""}`;
+      `<li class="fc-${h.typ}">${h.typ === "warn" ? FC_WARN : FC_INFO}<span>${escHtml(h.text)}</span></li>`).join("")}</ul>` : ""}`;
 
   // --- Schritt 3: Landung & Luftraum ---
   const check3 = [];
-  landeAlle.forEach(l => check3.push(`${l.name}${l.hoehe != null ? ` · ${l.hoehe} m ü. NN` : ""}`));
+  landeAlle.forEach(l => {
+    const teile = [];
+    if (l.hoehe != null) teile.push(`${l.hoehe} m ü. NN`);
+    // Höhenabstand und benötigte Gleitzahl: sagt einem Anfänger, ob der Platz
+    // überhaupt erreichbar ist. Beides nur rechnen, wenn die Daten wirklich da sind.
+    if (l.hoehe != null && spot.elevation != null && spot.elevation > l.hoehe && l.lat != null) {
+      const dh = spot.elevation - l.hoehe;
+      const weite = haversineExact(spot.lat, spot.lon, l.lat, l.lon) * 1000;
+      teile.push(`${dh} m tiefer`);
+      if (weite > 100) teile.push(`Gleitzahl ${(weite / dh).toFixed(1).replace(".", ",")} nötig`);
+    }
+    check3.push(`${l.name}${teile.length ? " · " + teile.join(" · ") : ""}`);
+  });
   check3.push(...(S.landeplatz || []));
   const verboten = S.verboten || [];
   const schritt3 = `
     ${check3.length ? fcList(check3) : ""}
     ${verboten.length ? `<h4 class="fc-h4">Verboten &amp; Vorsicht</h4><ul class="fc-notes">${verboten.map(t =>
-      `<li class="warn">${FC_WARN}<span>${escHtml(t)}</span></li>`).join("")}</ul>` : ""}`;
+      `<li class="fc-warn">${FC_WARN}<span>${escHtml(t)}</span></li>`).join("")}</ul>` : ""}`;
 
   // --- Kontakte ---
   const kontakte = (b && b.contacts || []).length ? `
@@ -1068,8 +1122,8 @@ function dayCardHtml(spot, days, i) {
     <div class="day ${day.windows.length ? "hasgreen" : ""}">
       <div class="dlabel-wd">${wd} ${day.date.getDate()}.${day.date.getMonth()+1}.</div>
       <div class="dright"><div class="hours">
+        <div class="hour-pills">${hoursHtml}</div>
         <div class="scp-day-wrap">${spotCompassSvg(spot, 0, { neutral: true, compact: true, needle: true })}</div>
-        ${hoursHtml}
       </div><div class="hour-detail" hidden></div><div class="dbottom">${rating}</div></div>
     </div>`;
 }
@@ -1140,7 +1194,7 @@ function renderCard(spot, days, opts = {}) {
   if (spot.landeLat != null && spot.landeLon != null) {
     actList.push({ icon: IC_PIN, label: "Landeplatz", href: mapsUrl({ lat: spot.landeLat, lon: spot.landeLon }) });
   }
-  if (spot.dhv) actList.push({ icon: IC_CLIPBOARD, label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
+  // DHV-Info steht jetzt im Briefing unter "Anreise & Start"
   if (spot.vereinUrl) actList.push({ icon: IC_GLOBE, label: "Verein", href: spot.vereinUrl });
   // Landeplatz hat im Details-Tab schon einen eigenen Navigations-Button an der Karte -> hier redundant
   const actionsBadges = `<div class="dv-actions">${actList.filter(a => a.label !== "Landeplatz").map(a => `<a class="dv-act" href="${a.href}" target="_blank" rel="noopener"><span class="dv-act-ic">${a.icon}</span><span>${a.label}</span></a>`).join("")}</div>`;
@@ -2388,6 +2442,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 107, date: "21.08.", text: "Briefing verfeinert: Parkplätze mit Zielangabe, DHV-Infos, kompaktere Tage" },
   { v: 106, date: "20.08.", text: "Neuer Briefing-Tab mit Flug-Check, Parkplätzen, Übernachten und Schild-Icons" },
   { v: 105, date: "04.08.", text: "Wetter-Tab startet mit den aktuellen Bedingungen, doppelte Bewertung entfernt" },
   { v: 104, date: "04.08.", text: "Aktuelle Bedingungen stehen jetzt auch oben im Wetter-Tab" },
