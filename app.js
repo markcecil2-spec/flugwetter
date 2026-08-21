@@ -25,6 +25,8 @@ const IC_CAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentC
 const IC_PIN = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>`;
 const IC_WIND = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.6 4.6a2 2 0 1 1 2 3.4H2"/><path d="M12.6 19.4a2 2 0 1 0 2-3.4H2"/><path d="M17.7 8a2.5 2.5 0 1 1 2 4H2"/></svg>`;
 const IC_CABLECAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8l20-4"/><rect x="8" y="9" width="8" height="6" rx="1"/><path d="M10 15v3M14 15v3"/></svg>`;
+const IC_SAT = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>`;
+const IC_PHONE = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>`;
 const IC_CLIPBOARD = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V2h6v2"/><path d="M9 10h6M9 14h6"/></svg>`;
 const IC_GLOBE = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/></svg>`;
 // Höhendifferenz-Schwelle, ab der "Thermik grundsätzlich möglich" als plausibel gilt (Standort-Eigenschaft)
@@ -660,8 +662,8 @@ function campTypeLabel(t) {
 function campPin(t) { return PIN[campKat(t)]; }
 
 async function fetchNearbyPois(lat, lon, sLat, sLon) {
-  // poi3 = ohne Unterkuenfte, mit Parkplaetzen; aeltere Eintraege bleiben ungenutzt liegen
-  const key = `poi3_${lat.toFixed(3)}_${lon.toFixed(3)}`;
+  // poi4 = zusaetzlich Telefon/Adresse/Oeffnungszeiten fuers Marker-Fenster
+  const key = `poi4_${lat.toFixed(3)}_${lon.toFixed(3)}`;
   try {
     const raw = localStorage.getItem(key);
     if (raw) { const c = JSON.parse(raw); if (Date.now() - c.t < CAMP_TTL) return c.v; }
@@ -701,6 +703,7 @@ async function fetchNearbyPois(lat, lon, sLat, sLon) {
       if (t.toilets === "yes") aus.push("wc");
       if (t.drinking_water === "yes") aus.push("wasser");
       const parken = t.amenity === "parking";
+      const ort = [t["addr:street"], t["addr:housenumber"]].filter(Boolean).join(" ");
       return {
         name: t.name || (parken ? "Parkplatz" : "Ohne Namen"),
         type: parken ? "parkplatz" : t.tourism,
@@ -708,6 +711,10 @@ async function fetchNearbyPois(lat, lon, sLat, sLon) {
         // fee=no ist eine ausdrueckliche Angabe, fehlendes Tag sagt nichts
         gratis: parken ? (t.fee === "no" ? true : t.fee ? false : null) : null,
         web: t.website || t["contact:website"] || "",
+        tel: t.phone || t["contact:phone"] || "",
+        adresse: [ort, [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", "),
+        saison: t.opening_hours || "",
+        plaetze: parken && t.capacity ? t.capacity : "",
       };
     }).filter(Boolean);
     try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v: list })); } catch {}
@@ -734,6 +741,32 @@ function campRowHtml(c, i) {
     ${c.web ? `<a class="camp-act" href="${escHtml(c.web)}" target="_blank" rel="noopener" aria-label="Website">${IC_GLOBE}</a>` : ""}
   </div>`;
 }
+// Kleines Fenster beim Antippen eines Markers: was es ist, wie weit, und was man
+// damit tun kann (navigieren, Website, anrufen).
+function poiPopupHtml(c, titel, pin, untertitel) {
+  const zeilen = [];
+  if (c.adresse) zeilen.push(c.adresse);
+  if (c.plaetze) zeilen.push(`${escHtml(c.plaetze)} Stellplätze`);
+  if (c.saison) zeilen.push(`Geöffnet: ${escHtml(c.saison)}`);
+  if (c.aus && c.aus.length) zeilen.push(c.aus.map(k => (CAMP_AUS[k] || {}).label).filter(Boolean).join(" · "));
+  const akt = [];
+  akt.push(`<a class="poi-act primary" href="${mapsUrl(c)}" target="_blank" rel="noopener">${IC_CAR}Hierhin navigieren</a>`);
+  if (c.web) akt.push(`<a class="poi-act" href="${escHtml(c.web)}" target="_blank" rel="noopener">${IC_GLOBE}Website</a>`);
+  if (c.tel) akt.push(`<a class="poi-act" href="tel:${escHtml(c.tel.replace(/\s/g, ""))}">${IC_PHONE}Anrufen</a>`);
+  // Satellitenbild: war vorher der einzige Marker-Klick, bleibt als Option erhalten
+  akt.push(`<a class="poi-act" href="${satMapsUrl(c.lat, c.lon)}" target="_blank" rel="noopener">${IC_SAT}Satellitenbild</a>`);
+  return `<div class="poi-pop">
+    <div class="poi-pop-head">
+      <img src="${pin}" alt="">
+      <div><b>${escHtml(titel)}</b><span>${escHtml(untertitel)}</span></div>
+    </div>
+    ${zeilen.length ? `<div class="poi-pop-info">${zeilen.map(z => `<div>${z}</div>`).join("")}</div>` : ""}
+    <div class="poi-pop-acts">${akt.join("")}</div>
+  </div>`;
+}
+function poiPopup(html) {
+  return new maplibregl.Popup({ offset: 16, closeButton: true, maxWidth: "260px", className: "poi-popup" }).setHTML(html);
+}
 function campAddMarkers(list) {
   campMarkers.forEach(m => m.remove());
   campMarkers = [];
@@ -743,7 +776,12 @@ function campAddMarkers(list) {
     el.className = "camp-marker";
     el.title = `${c.name} · ${campTypeLabel(c.type)}`;
     el.innerHTML = `<img src="${campPin(c.type)}" alt="">`;
-    campMarkers.push(new maplibregl.Marker({ element: el }).setLngLat([c.lon, c.lat]).addTo(miniMapInstance));
+    const km = c.dist == null ? "" : c.dist < 1 ? `${Math.round(c.dist * 1000)} m` : `${c.dist.toFixed(1).replace(".", ",")} km`;
+    const sub = [campTypeLabel(c.type), km, c.gratis === true ? "kostenlos" : c.gratis === false ? "gebührenpflichtig" : ""].filter(Boolean).join(" · ");
+    campMarkers.push(new maplibregl.Marker({ element: el })
+      .setLngLat([c.lon, c.lat])
+      .setPopup(poiPopup(poiPopupHtml(c, c.name, campPin(c.type), sub)))
+      .addTo(miniMapInstance));
   });
 }
 async function loadCampsites(spot) {
@@ -1620,13 +1658,21 @@ async function ensureMiniMap(spot) {
   miniMapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   const startEl = document.createElement("div");
   startEl.className = "mini-marker mini-start"; startEl.innerHTML = `<img src="icons/pin-startplatz.png" alt="Startplatz">`; startEl.title = spot.name;
-  startEl.addEventListener("click", () => window.open(satMapsUrl(spot.lat, spot.lon), "_blank"));
-  new maplibregl.Marker({ element: startEl }).setLngLat([spot.lon, spot.lat]).addTo(miniMapInstance);
+  new maplibregl.Marker({ element: startEl }).setLngLat([spot.lon, spot.lat])
+    .setPopup(poiPopup(poiPopupHtml(
+      { lat: spot.lat, lon: spot.lon, web: spot.vereinUrl || "" },
+      spot.name, "icons/pin-startplatz.png",
+      ["Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : "", spot.sectorLabel || ""].filter(Boolean).join(" · "))))
+    .addTo(miniMapInstance);
   landePlaetze.forEach(l => {
     const landeEl = document.createElement("div");
     landeEl.className = "mini-marker mini-lande"; landeEl.innerHTML = `<img src="icons/pin-landeplatz.png" alt="Landeplatz">`; landeEl.title = l.name;
-    landeEl.addEventListener("click", () => window.open(satMapsUrl(l.lat, l.lon), "_blank"));
-    new maplibregl.Marker({ element: landeEl }).setLngLat([l.lon, l.lat]).addTo(miniMapInstance);
+    new maplibregl.Marker({ element: landeEl }).setLngLat([l.lon, l.lat])
+      .setPopup(poiPopup(poiPopupHtml(
+        { lat: l.lat, lon: l.lon },
+        l.name, "icons/pin-landeplatz.png",
+        ["Landeplatz", l.hoehe != null ? l.hoehe + " m ü. NN" : ""].filter(Boolean).join(" · "))))
+      .addTo(miniMapInstance);
   });
   if (points.length > 1) {
     const lons = points.map(p => p[0]), lats = points.map(p => p[1]);
@@ -1696,6 +1742,20 @@ function updateExtraPoints(features) {
   const src = mapInstance.getSource(EXTRA_POINTS_SRC);
   if (src) src.setData({ type: "FeatureCollection", features });
 }
+// "Startplätze hier suchen": erscheint, sobald der Kartenausschnitt spuerbar vom
+// Suchmittelpunkt weggeschoben wurde - wie in Karten-Apps. Schwelle haengt am
+// eingestellten Umkreis, damit sie bei 25 km nicht dauernd und bei 250 km nie kommt.
+function updateHierBtn() {
+  const btn = document.getElementById("mapHierBtn");
+  if (!btn || !mapInstance) return;
+  const c = mapInstance.getCenter();
+  let zeigen = true;
+  if (lastOrigin) {
+    const d = haversineExact(lastOrigin.lat, lastOrigin.lon, c.lat, c.lng);
+    zeigen = d > Math.max(2, getRadius() * 0.2);
+  }
+  btn.hidden = !zeigen;
+}
 async function ensureMap() {
   if (mapInstance) return mapInstance;
   await loadMapLibre();
@@ -1709,7 +1769,10 @@ async function ensureMap() {
   });
   mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   mapInstance.on("zoom", updateMapLabelVisibility);
-  mapInstance.on("moveend", () => { lastMapView = { center: mapInstance.getCenter(), zoom: mapInstance.getZoom() }; });
+  mapInstance.on("moveend", () => {
+    lastMapView = { center: mapInstance.getCenter(), zoom: mapInstance.getZoom() };
+    updateHierBtn();
+  });
   // Umkreis-Kreis übersteht einen Kartenstil-Wechsel (setStyle wirft eigene Layer/Quellen weg) nicht,
   // deshalb nach jedem Stilwechsel neu anlegen + mit dem aktuellen Standort neu befüllen. "idle" statt
   // "style.load" (Letzteres feuert in dieser MapLibre-Version nicht zuverlässig) - addRadiusCircleLayer
@@ -2442,6 +2505,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 108, date: "21.08.", text: "Karte: „Startplätze hier suchen“ beim Verschieben, Marker mit Infofenster" },
   { v: 107, date: "21.08.", text: "Briefing verfeinert: Parkplätze mit Zielangabe, DHV-Infos, kompaktere Tage" },
   { v: 106, date: "20.08.", text: "Neuer Briefing-Tab mit Flug-Check, Parkplätzen, Übernachten und Schild-Icons" },
   { v: 105, date: "04.08.", text: "Wetter-Tab startet mit den aktuellen Bedingungen, doppelte Bewertung entfernt" },
@@ -2791,6 +2855,17 @@ document.body.addEventListener("click", e => {
     return;
   }
   // Karte vergroessern/verkleinern - MapLibre muss die neue Groesse mitbekommen
+  // Karte verschoben -> hier neu suchen
+  const hierBtn = e.target.closest("#mapHierBtn");
+  if (hierBtn) {
+    hierBtn.hidden = true;
+    const c = mapInstance.getCenter();
+    (async () => {
+      const ort = await reverseGeocode(c.lat, c.lng);
+      await runFlySearch(c.lat, c.lng, ort || `${c.lat.toFixed(3)}, ${c.lng.toFixed(3)}`);
+    })();
+    return;
+  }
   const bigBtn = e.target.closest("#miniMapBig");
   if (bigBtn) {
     const wrap = bigBtn.closest(".mini-map-wrap");
