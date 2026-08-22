@@ -883,10 +883,13 @@ function renderParkplaetze() {
   };
   const gruppe = (titel, arr) => arr.length
     ? `<div class="park-gruppe">${titel}</div><div class="camp-list">${arr.map(zeile).join("")}</div>` : "";
-  box.innerHTML = `<details class="camp-box park-box">
+  // "Parken" steht als Überschrift darüber (neben "Navigation") - in der Klappzeile
+  // stehen deshalb nur noch die Zahlen, sonst stünde das Wort zweimal da.
+  box.innerHTML = `<h4 class="fc-h4">Parken</h4>
+  <details class="camp-box park-box">
     <summary>
       <img class="camp-head-pin" src="${PIN.parkplatz}" alt="">
-      <span class="camp-head-txt">Parken<span class="camp-sum">${teile.join(" · ")}</span></span>
+      <span class="camp-head-txt park-head-txt">${teile.map(t => `<span>${escHtml(t)}</span>`).join("")}</span>
     </summary>
     <div class="park-inhalt">
       ${gruppe("Am Startplatz", amStart)}
@@ -933,6 +936,21 @@ const FC_INFO = `<svg class="fc-info-ic" viewBox="0 0 24 24" fill="none" stroke=
 
 // Zustiegs-Punkte bekommen statt des Hakens ihr eigenes Bild (Hike & Fly, Auto, Bergbahn)
 const FC_ZUSTIEG_BILD = { hikefly: "icons/ic-hikefly.png", auto: "icons/ic-auto.png", bahn: "icons/ic-bahn.png" };
+// Anreise-Symbole als Strichzeichnung in einer Kachel - leichter als die farbigen PNGs
+// und sie nehmen die Textfarbe an, passen also in beiden Themes.
+const ZUSTIEG_IC = {
+  auto: `<rect x="2.6" y="9.4" width="18.8" height="6.8" rx="2.1"/><path d="M5.6 9.4 7.3 5.7A1.7 1.7 0 0 1 8.8 4.8h6.4a1.7 1.7 0 0 1 1.5.9l1.7 3.7"/><circle cx="6.9" cy="12.9" r="1"/><circle cx="17.1" cy="12.9" r="1"/><path d="M4.4 16.2v1.9M19.6 16.2v1.9"/>`,
+  bahn: `<path d="M2 5.2 22 3.1"/><path d="M12 4.2v2.4"/><rect x="6.3" y="6.6" width="11.4" height="9" rx="2.4"/><path d="M6.3 10.6h11.4"/><path d="M9.4 15.6 8.2 18.2M14.6 15.6l1.2 2.6"/>`,
+  fuss: `<circle cx="12.6" cy="4.3" r="1.9"/><path d="M10.7 21.4l1.9-6-2.3-2 1.1-4.8 3.2 1.6 1.4 2.8 2.6.9"/><path d="M10.4 8.6 7.3 10.2 6.1 13"/><path d="M12.3 15.4l2.3 2.3 1.1 3.7"/>`,
+};
+function anreiseHtml(items) {
+  if (!items.length) return "";
+  return `<div class="anr-list">${items.map(i => `
+    <div class="anr-row">
+      <span class="anr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ZUSTIEG_IC[i.ic]}</svg></span>
+      <div class="anr-txt"><div class="anr-titel">${escHtml(i.titel)}</div><div class="anr-sub">${escHtml(i.sub)}</div></div>
+    </div>`).join("")}</div>`;
+}
 function fcList(items) {
   if (!items || !items.length) return "";
   return `<ul class="fc-list">${items.map(t => {
@@ -986,17 +1004,136 @@ function flugartenHtml(spot) {
     ${teile.length ? `<p class="fa-note">${teile.join(" · ")}</p>` : ""}`;
 }
 
-// Kontakte/Notruf des Fluggebiets - stehen im Details-Tab
-function kontakteHtml(spot) {
+// Offizielle Notrufnummern je Land. 112 gilt EU-weit und in der Schweiz, die
+// landesspezifischen Nummern fuehren aber direkter zur Bergrettung/Luftrettung.
+const NOTRUF = {
+  de: [{ name: "Notruf / Bergrettung", num: "112" }],
+  at: [{ name: "Bergrettung", num: "140" }, { name: "Rettung", num: "144" }, { name: "Euronotruf", num: "112" }],
+  ch: [{ name: "Rega (Luftrettung)", num: "1414" }, { name: "Sanitätsnotruf", num: "144" }, { name: "Euronotruf", num: "112" }],
+  fr: [{ name: "SAMU", num: "15" }, { name: "Euronotruf", num: "112" }],
+  it: [{ name: "Soccorso alpino", num: "118" }, { name: "Euronotruf", num: "112" }],
+};
+// Kontakte des Fluggebiets (nur gepflegte Gelaende) + Notrufnummern des Landes.
+// opts.imBriefing: als Flug-Check-Schritt, also ohne eigene Ueberschrift.
+function kontakteHtml(spot, opts = {}) {
   const b = briefingFor(spot);
-  if (!b || !(b.contacts || []).length) return "";
-  return `<h3 class="dv-h3">Kontakte &amp; Notfall</h3>
-    <div class="fc-contacts">${b.contacts.map(c => `
-      <a class="fc-contact" href="tel:${escHtml(c.phone)}">
-        ${IC_PHONE}
-        <span class="fc-c-name">${escHtml(c.name)}</span>
-        <span class="fc-c-num">${escHtml(c.display || c.phone)}</span>
-      </a>`).join("")}</div>`;
+  const eigene = (b && b.contacts) || [];
+  const notruf = NOTRUF[spot.country] || NOTRUF.de;
+  const zeile = c => `<a class="fc-contact${c.notruf ? " fc-c-notruf" : ""}" href="tel:${escHtml(c.phone)}">
+      ${IC_PHONE}
+      <span class="fc-c-name">${escHtml(c.name)}</span>
+      <span class="fc-c-num">${escHtml(c.display || c.phone)}</span>
+    </a>`;
+  // Gepflegte Gelaende fuehren die Notrufnummern teils selbst auf (Gerlitzen z.B. alle drei)
+  // - dieselbe Nummer nicht zweimal zeigen.
+  const schonDa = new Set(eigene.map(c => (c.phone || "").replace(/[^\d+]/g, "")));
+  const alle = [
+    ...eigene.map(c => ({ ...c })),
+    ...notruf.filter(n => !schonDa.has(n.num)).map(n => ({ name: n.name, phone: n.num, display: n.num, notruf: true })),
+  ];
+  if (!alle.length) return "";
+  const body = `<div class="fc-contacts">${alle.map(zeile).join("")}</div>`;
+  return opts.imBriefing ? body : `<h3 class="dv-h3">Kontakte &amp; Notfall</h3>${body}`;
+}
+
+// Start-, Lande- und Differenzhoehe stimmen ueberein? Bei rund 16 % der DHV-Eintraege
+// nicht - dort werden die Einzelhoehen weggelassen statt eine falsche Rechnung zu zeigen.
+function hoehenStimmig(spot) {
+  return spot.elevation != null && spot.landeHoehe != null && spot.hoehendiff != null
+    && Math.abs((spot.elevation - spot.landeHoehe) - spot.hoehendiff) <= 5;
+}
+function distTxt(km) {
+  return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1).replace(".", ",")} km`;
+}
+// Kleine Zeilen-Icons fuer Landeplatz und Kurzueberblick
+const LP_IC = {
+  hoehe:   `<path d="M3 20l6-10 4 6 2-3 6 7z"/>`,
+  dist:    `<path d="M3 12h18"/><path d="M7 8l-4 4 4 4"/><path d="M17 8l4 4-4 4"/>`,
+  abstand: `<path d="M12 3v18"/><path d="M8 7l4-4 4 4"/><path d="M8 17l4 4 4-4"/>`,
+  gleit:   `<path d="M4 6l16 12"/><path d="M4 18h6"/><path d="M4 6v6"/>`,
+  richtung: `<path d="M12 2v20"/><path d="M12 2l4 5h-8z"/><path d="M2 12h20"/>`,
+  wind:    `<path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/><path d="M3 11h7"/>`,
+  boe:     `<path d="M3 9h9a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 15h12a2.5 2.5 0 1 1-2.5 2.5"/><path d="M17 12h2"/>`,
+  temp:    `<path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0z"/>`,
+  sonne:   `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>`,
+  uhr:     `<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>`,
+};
+const lpSvg = k => `<svg class="lp-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${LP_IC[k]}</svg>`;
+function lpRows(rows) {
+  return `<div class="lp-rows">${rows.map(([ic, label, val]) => `
+    <div class="lp-row">${lpSvg(ic)}<span class="lp-label">${escHtml(label)}</span><span class="lp-val">${escHtml(val)}</span></div>`).join("")}</div>`;
+}
+// Landeplätze als Reiter (nur ab zwei Plätzen). Gezeigt wird ausschliesslich, was in den
+// Daten steht: Höhe, Entfernung zum Start, Höhenabstand und die dafür nötige Gleitzahl.
+function landeplatzHtml(spot, landeAlle) {
+  if (!landeAlle.length) return "";
+  const panels = landeAlle.map(l => {
+    const rows = [];
+    if (l.hoehe != null) rows.push(["hoehe", "Höhe", `${l.hoehe} m ü. NN`]);
+    if (l.lat != null && spot.lat != null) {
+      rows.push(["dist", "Entfernung", distTxt(haversineExact(spot.lat, spot.lon, l.lat, l.lon))]);
+    }
+    // Höhenabstand und benötigte Gleitzahl: sagt einem Anfänger, ob der Platz
+    // überhaupt erreichbar ist. Beides nur rechnen, wenn die Daten wirklich da sind.
+    if (l.hoehe != null && spot.elevation != null && spot.elevation > l.hoehe && l.lat != null) {
+      const dh = spot.elevation - l.hoehe;
+      const weite = haversineExact(spot.lat, spot.lon, l.lat, l.lon) * 1000;
+      rows.push(["abstand", "Höhenabstand", `${dh} m tiefer`]);
+      if (weite > 100) rows.push(["gleit", "Gleitzahl", `${(weite / dh).toFixed(1).replace(".", ",")} nötig`]);
+    }
+    return rows.length ? lpRows(rows) : `<p class="lp-leer">Zu diesem Landeplatz sind keine weiteren Daten hinterlegt.</p>`;
+  });
+  if (panels.length === 1) return `<div class="lp-box">${panels[0]}</div>`;
+  return `<div class="lp-box">
+    <div class="lp-tabs" role="tablist">${landeAlle.map((l, i) => `
+      <button type="button" class="lp-tab${i === 0 ? " on" : ""}" data-lptab="${i}" role="tab">${escHtml(l.kurz || l.name)}</button>`).join("")}</div>
+    ${panels.map((p, i) => `<div class="lp-panel" data-lppanel="${i}"${i ? " hidden" : ""}>${p}</div>`).join("")}
+  </div>`;
+}
+// Kurzüberblick: die Tageswerte auf einen Blick. Bewusst die tatsächliche Vorhersage -
+// die zugelassene Startrichtung des Platzes steht schon in der Checkliste in Schritt 2.
+function kurzueberblickHtml(spot, day, ts) {
+  if (!day || !day.dayHours || !day.dayHours.length) return "";
+  const fenster = ts.win ? day.dayHours.filter(h => h.t >= ts.win.from && h.t <= ts.win.to) : [];
+  const hrs = fenster.length ? fenster : day.dayHours;
+  const rows = [];
+  // Unter ~5 km/h ist die gemeldete Richtung Zufall - dann lieber "wechselnd" schreiben,
+  // als aus einem Nullwind-Tag eine scheinbar klare Richtungsangabe zu machen.
+  const richtHrs = hrs.filter(h => h.ws >= 5);
+  if (!richtHrs.length) rows.push(["richtung", "Windrichtung", "wechselnd (kaum Wind)"]);
+  else {
+    const richt = [];
+    richtHrs.forEach(h => { const c = degToCompass(h.wd); if (richt[richt.length - 1] !== c) richt.push(c); });
+    const uniq = [...new Set(richt)];
+    const a = richt[0], b = richt[richt.length - 1];
+    rows.push(["richtung", "Windrichtung", uniq.length === 1 ? uniq[0] : a === b ? uniq.slice(0, 3).join(" / ") : `${a}–${b}`]);
+  }
+  const ws = hrs.map(h => Math.round(h.ws));
+  rows.push(["wind", "Wind", `${Math.min(...ws)} – ${Math.max(...ws)} km/h`]);
+  const wg = hrs.map(h => Math.round(h.wg));
+  rows.push(["boe", "Böen", `bis ${Math.max(...wg)} km/h`]);
+  if (day.wx && day.wx.tmin != null && day.wx.tmax != null) rows.push(["temp", "Temperatur", `${day.wx.tmin} – ${day.wx.tmax} °C`]);
+  const th = thermikStartHour(day, ts.win);
+  if (th != null) rows.push(["sonne", "Thermik", `ab ca. ${th} Uhr`]);
+  if (ts.win) rows.push(["uhr", "Beste Zeit", windowLabel(ts.win) + " Uhr"]);
+  return `<h3 class="dv-h3">Kurzüberblick</h3><div class="lp-box">${lpRows(rows)}
+    <p class="lp-note">${fenster.length ? "Werte aus dem fliegbaren Fenster" : "Werte über den ganzen Tag – heute kein fliegbares Fenster"}</p></div>`;
+}
+// Gilt an jedem Platz gleich - deshalb fest hinterlegt und nicht pro Gelände gepflegt.
+const ALLG_HINWEISE_HTML = `<h3 class="dv-h3">Wichtige Hinweise</h3>
+  <ul class="fc-notes allg-notes">
+    <li class="fc-info">${FC_INFO}<span>Starte nur bei passenden Bedingungen und eigenem Können.</span></li>
+    <li class="fc-info">${FC_INFO}<span>Halte Abstand zu anderen Piloten.</span></li>
+    <li class="fc-info">${FC_INFO}<span>Respektiere Wildtiere, Weidetiere, Grundstücke und Sperrgebiete.</span></li>
+    <li class="fc-info">${FC_INFO}<span>Melde Unfälle oder Beinaheunfälle.</span></li>
+  </ul>`;
+// Eigene Notizen zum Platz - bleiben nur auf diesem Gerät (localStorage), gehen nirgends hin.
+function notizenHtml(spot) {
+  const txt = localStorage.getItem("flugwetter_note_" + spot.id) || "";
+  return `<h3 class="dv-h3">Notizen</h3>
+    <textarea class="bf-note" data-note="${escHtml(spot.id)}" rows="4"
+      placeholder="Eigene Notizen hier hinzufügen …">${escHtml(txt)}</textarea>
+    <p class="lp-note">Bleibt nur auf diesem Gerät.</p>`;
 }
 function briefingPanelHtml(spot, ctx) {
   const b = briefingFor(spot);
@@ -1008,47 +1145,65 @@ function briefingPanelHtml(spot, ctx) {
   const fliegbar = ts.status !== "nein";
   const winSec = (day.windows || []).reduce((s, w) => s + (w.to - w.from) / 1000, 0);
   const kacheln = [
-    { ic: fliegbar ? FC_CHECK : FC_WARN, cls: fliegbar ? "ok" : "warn",
+    { ic: fliegbar ? FC_CHECK : FC_WARN, cls: fliegbar ? "ok" : "warn", urteil: true,
       wert: fliegbar ? "Heute fliegbar" : "Heute nicht fliegbar",
       sub: fliegbar ? (rt.stars >= 4 ? "Gute Bedingungen" : "Grenzwertige Bedingungen") : ts.reasonText },
   ];
   if (winSec > 0) kacheln.push({ cls: "neutral", wert: formatDur(winSec), sub: "Flugfenster",
+    sub2: ts.win ? windowLabel(ts.win) : null,
     ic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>` });
   if (spot.hoehendiff) kacheln.push({ cls: "neutral", wert: spot.hoehendiff + " m", sub: "Höhendifferenz",
+    // Start- und Landehoehe nur zeigen, wenn sie zur Hoehendifferenz passen: bei 16 % der
+    // DHV-Eintraege widersprechen sich die drei Angaben (teils identische Start-/Landehoehe
+    // bei angegebener Differenz). Lieber nichts zeigen als eine sichtbar falsche Rechnung.
+    sub2: hoehenStimmig(spot) ? `${spot.elevation} m – ${spot.landeHoehe} m` : null,
     ic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-10 4 6 2-3 6 7z"/></svg>` });
-  const kopf = `<div class="fc-stats">${kacheln.map(k => `
-    <div class="fc-stat ${k.cls}"><span class="fc-stat-ic">${k.ic}</span>
-      <div><div class="fc-stat-val">${k.wert}</div><div class="fc-stat-sub">${escHtml(k.sub)}</div></div>
+  // Drei einzelne Kacheln nebeneinander - bei fliegbarem Tag alle drei grün umrandet.
+  const kopf = `<div class="fc-kopf ${fliegbar ? "ok" : "warn"}">${kacheln.map(k => `
+    <div class="fc-tile ${k.cls || ""}${k.urteil ? " fc-tile-urteil" : ""}"><span class="fc-stat-ic">${k.ic}</span>
+      <div class="fc-tile-txt"><div class="fc-stat-val">${k.wert}</div><div class="fc-stat-sub">${escHtml(k.sub)}</div>
+        ${k.sub2 ? `<div class="fc-stat-sub2">${escHtml(k.sub2)}</div>` : ""}</div>
     </div>`).join("")}</div>`;
 
   // --- Schritt 1: Anreise & Start ---
   const zustieg = [];
   const a = spot.acc || "";
-  if (a.includes("a")) zustieg.push({ bild: "auto", text: "Mit dem Auto erreichbar" + (driveSec != null ? ` · ${formatDur(driveSec)} Fahrt` : "") });
-  if (a.includes("b")) zustieg.push({ bild: "bahn", text: "Bergbahn vorhanden" });
-  if (a.includes("f")) zustieg.push({ bild: "hikefly", text: "Zu Fuß erreichbar (Hike & Fly)" });
+  if (a.includes("a")) zustieg.push({ ic: "auto", titel: "Mit dem Auto", sub: driveSec != null ? `erreichbar · ${formatDur(driveSec)} Fahrt` : "erreichbar" });
+  if (a.includes("b")) zustieg.push({ ic: "bahn", titel: "Bergbahn", sub: "vorhanden" });
+  if (a.includes("f")) zustieg.push({ ic: "fuss", titel: "Zu Fuß erreichbar", sub: "(Hike & Fly)" });
   const navKarten = [];
   // Ist der Startplatz nicht mit dem Auto erreichbar (reines Hike & Fly oder nur per
   // Bergbahn), waere eine Autoroute dorthin irrefuehrend - dann lieber das Satellitenbild.
   const startMitAuto = a.includes("a");
+  // In der schmalen Spalte wird der Gebietsname vor jedem Ziel zu lang - er steht ohnehin
+  // in der Kopfzeile des Fensters. Also "Startplatz" bzw. "Landeplatz 1" statt "Gerlitzen …".
   if (spot.lat != null) navKarten.push({
-    ic: "icons/pin-startplatz.png", label: spot.name,
+    ic: "icons/pin-startplatz.png", label: "Startplatz",
     href: startMitAuto ? mapsUrl(spot) : satMapsUrl(spot.lat, spot.lon),
     sat: !startMitAuto,
   });
   const landeAlle = [];
   if (spot.landeLat != null && spot.landeLon != null) landeAlle.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon, hoehe: spot.landeHoehe });
   if (Array.isArray(spot.landeExtra)) landeAlle.push(...spot.landeExtra);
-  landeAlle.forEach(l => navKarten.push({ ic: "icons/pin-landeplatz.png", label: l.name, href: mapsUrl({ lat: l.lat, lon: l.lon }) }));
+  // Der DHV liefert Haupt- und Zusatzlandeplaetze in beliebiger Reihenfolge ("Landeplatz 2"
+  // vor "Landeplatz 1") - natuerlich sortieren, damit die Reiter in der erwarteten Folge stehen.
+  landeAlle.sort((a, b) => (a.name || "").localeCompare(b.name || "", "de", { numeric: true }));
+  landeAlle.forEach(l => { l.kurz = kurzOrt(l.name, spot.name); });
+  landeAlle.forEach(l => navKarten.push({ ic: "icons/pin-landeplatz.png", label: l.kurz, href: mapsUrl({ lat: l.lat, lon: l.lon }) }));
+  // Navigation und Parken stehen nebeneinander (zwei Spalten), darüber der Zustieg.
   const schritt1 = `
-    ${fcList([...zustieg, ...(S.vorStart || [])])}
-    ${navKarten.length ? `<h4 class="fc-h4">Navigation</h4><div class="fc-navlist">${navKarten.map(c => `
-      <div class="fc-nav-row">
-        <img class="fc-nav-pin" src="${c.ic}" alt="">
-        <span class="fc-nav-name">${escHtml(c.label)}</span>
-        <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="${c.sat ? "Satellitenbild von" : "Navigation zu"} ${escHtml(c.label)}">${c.sat ? IC_SAT : IC_CAR}</a>
-      </div>`).join("")}</div>` : ""}
-    <div id="parkSection" class="park-sec"></div>`;
+    <h4 class="fc-h4">Anreise</h4>
+    ${anreiseHtml(zustieg)}
+    ${(S.vorStart || []).length ? fcList(S.vorStart) : ""}
+    <div class="fc-cols">
+      ${navKarten.length ? `<div class="fc-col"><h4 class="fc-h4">Navigation</h4><div class="fc-navlist">${navKarten.map(c => `
+        <div class="fc-nav-row">
+          <img class="fc-nav-pin" src="${c.ic}" alt="">
+          <span class="fc-nav-name">${escHtml(c.label)}</span>
+          <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="${c.sat ? "Satellitenbild von" : "Navigation zu"} ${escHtml(c.label)}">${c.sat ? IC_SAT : IC_CAR}</a>
+        </div>`).join("")}</div></div>` : ""}
+      <div class="fc-col"><div id="parkSection" class="park-sec"></div></div>
+    </div>`;
 
   // --- Schritt 2: Startplatz ---
   const check2 = [];
@@ -1071,34 +1226,30 @@ function briefingPanelHtml(spot, ctx) {
     ${hinweise2.length ? `<h4 class="fc-h4">Hinweise</h4><ul class="fc-notes">${hinweise2.map(h =>
       `<li class="fc-${h.typ}">${h.typ === "warn" ? FC_WARN : FC_INFO}<span>${escHtml(h.text)}</span></li>`).join("")}</ul>` : ""}`;
 
-  // --- Schritt 3: Landung & Luftraum ---
-  const check3 = [];
-  landeAlle.forEach(l => {
-    const teile = [];
-    if (l.hoehe != null) teile.push(`${l.hoehe} m ü. NN`);
-    // Höhenabstand und benötigte Gleitzahl: sagt einem Anfänger, ob der Platz
-    // überhaupt erreichbar ist. Beides nur rechnen, wenn die Daten wirklich da sind.
-    if (l.hoehe != null && spot.elevation != null && spot.elevation > l.hoehe && l.lat != null) {
-      const dh = spot.elevation - l.hoehe;
-      const weite = haversineExact(spot.lat, spot.lon, l.lat, l.lon) * 1000;
-      teile.push(`${dh} m tiefer`);
-      if (weite > 100) teile.push(`Gleitzahl ${(weite / dh).toFixed(1).replace(".", ",")} nötig`);
-    }
-    check3.push(`${l.name}${teile.length ? " · " + teile.join(" · ") : ""}`);
-  });
-  check3.push(...(S.landeplatz || []));
-  const verboten = S.verboten || [];
+  // --- Schritt 3: Landeplatz ---
+  // Mehrere Landeplätze bekommen je einen Reiter. Größe, Untergrund und bevorzugte
+  // Landerichtung stehen bewusst NICHT drin - dazu gibt es in den DHV-Daten nichts.
   const schritt3 = `
-    ${check3.length ? fcList(check3) : ""}
-    ${verboten.length ? `<h4 class="fc-h4">Verboten &amp; Vorsicht</h4><ul class="fc-notes">${verboten.map(t =>
+    ${landeplatzHtml(spot, landeAlle)}
+    ${(S.landeplatz || []).length ? fcList(S.landeplatz) : ""}
+    ${(S.verboten || []).length ? `<h4 class="fc-h4">Wichtig</h4><ul class="fc-notes">${S.verboten.map(t =>
       `<li class="fc-warn">${FC_WARN}<span>${escHtml(t)}</span></li>`).join("")}</ul>` : ""}`;
+
+  // --- Schritt 4: Kontakte & Notruf ---
+  const schritt4 = kontakteHtml(spot, { imBriefing: true });
+
+  const schritte = [
+    ["Anreise &amp; Start", schritt1],
+    ["Startplatz", schritt2],
+    ["Landeplatz", schritt3],
+    ["Kontakte &amp; Notruf", schritt4],
+  ].filter(([, inhalt]) => inhalt.trim());
 
   return `${kopf}
     <h3 class="fc-head">Flug-Check</h3>
-    <p class="fc-head-sub">Deine Vorbereitung in 3 Schritten</p>
-    ${fcStep(1, "Anreise &amp; Start", schritt1, false)}
-    ${fcStep(2, "Startplatz", schritt2, false)}
-    ${fcStep(3, "Landung &amp; Luftraum", schritt3, false)}
+    <p class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</p>
+    ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
+    ${kurzueberblickHtml(spot, day, ts)}
     <h3 class="dv-h3">Übersicht Start &amp; Landeplatz</h3>
     <div class="mini-map-wrap">
       <div id="miniMap" class="mini-map"></div>
@@ -1114,8 +1265,11 @@ function briefingPanelHtml(spot, ctx) {
       <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
     </div>
     <div id="campSection" class="camp-sec"></div>
-    ${b ? `<p class="bf-src bf-warn-note">Ohne Gewähr – vor Ort gilt immer die offizielle Infotafel bzw. die Auskunft des Vereins/der Flugschule.
-      <span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span></p>` : ""}`;
+    ${ALLG_HINWEISE_HTML}
+    ${notizenHtml(spot)}
+    <p class="bf-src bf-warn-note">Alle Angaben ohne Gewähr. Informiere dich vor dem Flug über die aktuellen
+      Bedingungen und respektiere andere Piloten und die Natur.
+      ${b ? `<span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span>` : ""}</p>`;
 }
 
 
@@ -1149,9 +1303,8 @@ function startplatzTableHtml(spot, diffL) {
     ["Höhe Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : null],
     ["Höhe Landeplatz", spot.landeHoehe != null ? spot.landeHoehe + " m ü. NN" : null],
     ["Höhendifferenz", spot.hoehendiff ? spot.hoehendiff + " m" : null],
-    ["Windbereich", `${spot.windMin}–${spot.windMax} km/h`],
-    ["Böen", `max. ${spot.gustMax} km/h`],
-    ["Gelände", null],
+    // Windbereich/Böen standen hier mit den DHV-Werten des Platzes - bewertet wird aber
+    // nach den Grenzwerten aus den Einstellungen. "Gelände" war immer leer.
     ["Schwierigkeit", diffL.text],
     ["Gleitschirm", spot.gleitschirm || null],
   ];
@@ -1328,8 +1481,7 @@ function renderCard(spot, days, opts = {}) {
             <h3 class="dv-h3">Aktionen &amp; Tools</h3>
             ${actionsBadges}
             ${startplatzTableHtml(spot, diffL)}
-            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}
-            ${kontakteHtml(spot)}`;
+            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}`;
         })()}</div>
       </div>`;
 
@@ -2928,6 +3080,14 @@ document.body.addEventListener("click", e => {
     bigBtn.setAttribute("aria-label", gross ? "Karte verkleinern" : "Karte vergrößern");
     if (miniMapInstance) setTimeout(() => miniMapInstance.resize(), 220);
     return;
+  }
+
+  // Briefing, Schritt Landeplatz: zwischen mehreren Landeplätzen umschalten
+  const lpTab = e.target.closest(".lp-tab");
+  if (lpTab) {
+    const box = lpTab.closest(".lp-box");
+    box.querySelectorAll(".lp-tab").forEach(t => t.classList.toggle("on", t === lpTab));
+    box.querySelectorAll(".lp-panel").forEach(p => { p.hidden = p.dataset.lppanel !== lpTab.dataset.lptab; });
     return;
   }
 
@@ -3032,6 +3192,16 @@ document.body.addEventListener("click", e => {
 });
 
 // Wetter-Verlauf: Datum waehlen -> genau diesen Tag laden und als dieselbe Tages-Karte anzeigen.
+// Eigene Notiz zum Platz - direkt beim Tippen sichern, damit nichts verloren geht,
+// wenn das Detailfenster geschlossen wird. Leere Notiz raeumt den Eintrag wieder weg.
+document.body.addEventListener("input", e => {
+  const note = e.target.closest("[data-note]");
+  if (!note) return;
+  const key = "flugwetter_note_" + note.dataset.note;
+  if (note.value.trim()) localStorage.setItem(key, note.value);
+  else localStorage.removeItem(key);
+});
+
 document.body.addEventListener("change", e => {
   const dateEl = e.target.closest(".hist-date");
   if (!dateEl) return;
