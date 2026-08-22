@@ -638,7 +638,7 @@ const CAMP_TTL = 30 * 24 * 3600 * 1000;
 const CAMP_RADIUS_M = 15000;    // Übernachten: großzügig, dafür fährt man auch
 const PARK_RADIUS_M = 3000;     // Parken: nur was wirklich zum Platz gehört
 const CAMP_MAX = 25;
-const PARK_MAX = 6;
+const PARK_MAX = 4;   // je Gruppe (Startplatz / Landeplatz)
 let campMarkers = [];
 let lastCampList = [];   // damit die Marker auch ankommen, wenn die Karte spaeter fertig wird
 let lastParkList = [];
@@ -814,7 +814,13 @@ async function loadCampsites(spot) {
   });
   const sortiert = arr => arr.sort((a, b) => (a.name === "Ohne Namen") - (b.name === "Ohne Namen") || a.dist - b.dist);
   const list = sortiert(mitDist.filter(c => !c.parken)).slice(0, CAMP_MAX);
-  lastParkList = sortiert(mitDist.filter(c => c.parken)).slice(0, PARK_MAX);
+  // Getrennt deckeln: die Parkplaetze am Landeplatz liegen meist naeher, sonst waeren
+  // die am Startplatz nach reiner Entfernungssortierung nie dabei.
+  const parken = mitDist.filter(c => c.parken);
+  lastParkList = [
+    ...sortiert(parken.filter(c => c.zielName === "Startplatz")).slice(0, PARK_MAX),
+    ...sortiert(parken.filter(c => c.zielName !== "Startplatz")).slice(0, PARK_MAX),
+  ];
   lastCampList = list;
   wrap.innerHTML = list.length ? campSectionHtml(list) : "";
   renderParkplaetze();
@@ -858,25 +864,34 @@ function renderParkplaetze() {
   const box = document.getElementById("parkSection");
   if (!box) return;
   if (!lastParkList.length) { box.innerHTML = ""; return; }
-  const naechster = lastParkList.reduce((m, p) => Math.min(m, p.dist), Infinity);
-  const ab = naechster < 1 ? `ab ${Math.round(naechster * 1000)} m` : `ab ${naechster.toFixed(1).replace(".", ",")} km`;
+  const amStart = lastParkList.filter(p => p.zielName === "Startplatz");
+  const amLande = lastParkList.filter(p => p.zielName !== "Startplatz");
+  const teile = [];
+  if (amStart.length) teile.push(`${amStart.length} am Startplatz`);
+  if (amLande.length) teile.push(`${amLande.length} am Landeplatz`);
+  const zeile = p => {
+    const km = p.dist < 1 ? Math.round(p.dist * 1000) + " m" : p.dist.toFixed(1).replace(".", ",") + " km";
+    const geb = p.gratis === true ? " · kostenlos" : p.gratis === false ? " · gebührenpflichtig" : "";
+    return `<div class="camp-row">
+      <img class="camp-pin" src="${PIN.parkplatz}" alt="">
+      <div class="camp-main">
+        <div class="camp-name">${escHtml(p.name)}</div>
+        <div class="camp-sub">${km} zu ${escHtml(p.zielName || "Landeplatz")}${geb}</div>
+      </div>
+      <a class="camp-act" href="${mapsUrl(p)}" target="_blank" rel="noopener" aria-label="Navigation">${NAV_ICON}</a>
+    </div>`;
+  };
+  const gruppe = (titel, arr) => arr.length
+    ? `<div class="park-gruppe">${titel}</div><div class="camp-list">${arr.map(zeile).join("")}</div>` : "";
   box.innerHTML = `<details class="camp-box park-box">
     <summary>
       <img class="camp-head-pin" src="${PIN.parkplatz}" alt="">
-      <span class="camp-head-txt">Parken<span class="camp-sum">${lastParkList.length} ${lastParkList.length === 1 ? "Parkplatz" : "Parkplätze"} · ${ab}</span></span>
+      <span class="camp-head-txt">Parken<span class="camp-sum">${teile.join(" · ")}</span></span>
     </summary>
-    <div class="camp-list">${lastParkList.map(p => {
-      const km = p.dist < 1 ? Math.round(p.dist * 1000) + " m" : p.dist.toFixed(1).replace(".", ",") + " km";
-      const geb = p.gratis === true ? " · kostenlos" : p.gratis === false ? " · gebührenpflichtig" : "";
-      return `<div class="camp-row">
-        <img class="camp-pin" src="${PIN.parkplatz}" alt="">
-        <div class="camp-main">
-          <div class="camp-name">${escHtml(p.name)}</div>
-          <div class="camp-sub">${km} zu ${escHtml(p.zielName || "Landeplatz")}${geb}</div>
-        </div>
-        <a class="camp-act" href="${mapsUrl(p)}" target="_blank" rel="noopener" aria-label="Navigation">${NAV_ICON}</a>
-      </div>`;
-    }).join("")}</div>
+    <div class="park-inhalt">
+      ${gruppe("Am Startplatz", amStart)}
+      ${gruppe("Am Landeplatz", amLande)}
+    </div>
   </details>`;
 }
 function campSummary(list) {
@@ -934,6 +949,41 @@ function fcStep(nr, titel, inhalt, offen) {
     <div class="fc-body">${inhalt}</div>
   </details>`;
 }
+// Was an diesem Platz grundsaetzlich geht (nicht das Tageswetter!).
+// Zwei Quellen mit unterschiedlicher Verlaesslichkeit:
+//  - Tandem/Schulung stehen als offizielle DHV-Angabe im Feld "gleitschirm" (98 % der Plaetze)
+//  - Soaring/Thermik/Strecke sind aus der Hoehendifferenz abgeleitet, also eine Einschaetzung
+const FLUGART_MIN = { soaring: 150, thermik: 400, strecke: 800 };
+function flugartenHtml(spot) {
+  const hd = spot.hoehendiff;
+  const g = (spot.gleitschirm || "").toLowerCase();
+  const arten = [{ label: "Abgleiter", quelle: "hd" }];
+  if (hd != null) {
+    if (hd >= FLUGART_MIN.soaring) arten.push({ label: "Soaring", quelle: "hd" });
+    if (hd >= FLUGART_MIN.thermik) arten.push({ label: "Thermikflug", quelle: "hd" });
+    if (hd >= FLUGART_MIN.strecke) arten.push({ label: "Streckenflug / XC", quelle: "hd" });
+  }
+  if (g.includes("2-sitzig")) arten.push({ label: "Tandem", quelle: "dhv" });
+  if (g.includes("schulung")) arten.push({ label: "Schulung", quelle: "dhv" });
+  const abgeleitet = arten.some(a => a.quelle === "hd" && a.label !== "Abgleiter");
+  return `<h4 class="fc-h4">Grundsätzlich möglich</h4>
+    <div class="fa-pills">${arten.map(a => `<span class="fa-pill fa-${a.quelle}">${a.label}</span>`).join("")}</div>
+    <p class="fa-note">Tandem und Schulung nach DHV-Angabe.${abgeleitet && hd != null
+      ? ` Soaring, Thermik und Strecke aus der Höhendifferenz (${hd} m) geschätzt – kein Versprechen, entscheidend sind Wetter und Können.` : ""}</p>`;
+}
+
+// Kontakte/Notruf des Fluggebiets - stehen im Details-Tab
+function kontakteHtml(spot) {
+  const b = briefingFor(spot);
+  if (!b || !(b.contacts || []).length) return "";
+  return `<h3 class="dv-h3">Kontakte &amp; Notfall</h3>
+    <div class="fc-contacts">${b.contacts.map(c => `
+      <a class="fc-contact" href="tel:${escHtml(c.phone)}">
+        ${IC_PHONE}
+        <span class="fc-c-name">${escHtml(c.name)}</span>
+        <span class="fc-c-num">${escHtml(c.display || c.phone)}</span>
+      </a>`).join("")}</div>`;
+}
 function briefingPanelHtml(spot, ctx) {
   const b = briefingFor(spot);
   const S = (b && b.sections) || {};
@@ -964,7 +1014,14 @@ function briefingPanelHtml(spot, ctx) {
   if (a.includes("b")) zustieg.push({ bild: "bahn", text: "Bergbahn vorhanden" });
   if (a.includes("f")) zustieg.push({ bild: "hikefly", text: "Zu Fuß erreichbar (Hike & Fly)" });
   const navKarten = [];
-  if (spot.lat != null) navKarten.push({ ic: "icons/pin-startplatz.png", label: spot.name, href: mapsUrl(spot) });
+  // Ist der Startplatz nicht mit dem Auto erreichbar (reines Hike & Fly oder nur per
+  // Bergbahn), waere eine Autoroute dorthin irrefuehrend - dann lieber das Satellitenbild.
+  const startMitAuto = a.includes("a");
+  if (spot.lat != null) navKarten.push({
+    ic: "icons/pin-startplatz.png", label: spot.name,
+    href: startMitAuto ? mapsUrl(spot) : satMapsUrl(spot.lat, spot.lon),
+    sat: !startMitAuto,
+  });
   const landeAlle = [];
   if (spot.landeLat != null && spot.landeLon != null) landeAlle.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon, hoehe: spot.landeHoehe });
   if (Array.isArray(spot.landeExtra)) landeAlle.push(...spot.landeExtra);
@@ -975,10 +1032,9 @@ function briefingPanelHtml(spot, ctx) {
       <div class="fc-nav-row">
         <img class="fc-nav-pin" src="${c.ic}" alt="">
         <span class="fc-nav-name">${escHtml(c.label)}</span>
-        <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="Navigation zu ${escHtml(c.label)}">${IC_CAR}</a>
+        <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="${c.sat ? "Satellitenbild von" : "Navigation zu"} ${escHtml(c.label)}">${c.sat ? IC_SAT : IC_CAR}</a>
       </div>`).join("")}</div>` : ""}
-    <div id="parkSection" class="park-sec"></div>
-    ${spot.dhv ? `<div class="fc-links"><a class="lc-chip" href="https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}" target="_blank" rel="noopener">${IC_CLIPBOARD}<span>DHV-Infos zum Gelände</span></a></div>` : ""}`;
+    <div id="parkSection" class="park-sec"></div>`;
 
   // --- Schritt 2: Startplatz ---
   const check2 = [];
@@ -988,8 +1044,10 @@ function briefingPanelHtml(spot, ctx) {
   if (spot.gemeinde) check2.push(`Gemeinde ${spot.gemeinde}`);
   check2.push(...(S.startplatz || []));
   const thStart = thermikStartHour(day, ts.win);
+  // Kein Wind-Chip mehr: er zeigte die DHV-Werte des Platzes (z.B. 3-27 km/h), bewertet
+  // wird aber nach den Grenzwerten aus den Einstellungen (18 km/h + Puffer). Zwei
+  // verschiedene Zahlen fuer dieselbe Sache - die aus der Datenbank half niemandem.
   const chips = [];
-  chips.push({ cls: "wind", ic: IC_WIND, wert: `${spot.windMin}–${spot.windMax} km/h`, sub: "erlaubter Windbereich" });
   if (spot.hoehendiff && spot.hoehendiff >= THERMIK_HOEHENDIFF_MIN) {
     chips.push({ cls: "therm", wert: "Thermik möglich", sub: thStart != null ? `ab ca. ${thStart} Uhr` : "je nach Einstrahlung",
       ic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>` });
@@ -1001,11 +1059,12 @@ function briefingPanelHtml(spot, ctx) {
   if (spot.bemerkung) hinweise2.push({ typ: "info", text: spot.bemerkung });
   const schritt2 = `
     ${check2.length ? `<h4 class="fc-h4">Checkliste Startplatz</h4>${fcList(check2)}` : ""}
-    <h4 class="fc-h4">Wind &amp; Bedingungen</h4>
+    ${flugartenHtml(spot)}
+    ${chips.length ? `<h4 class="fc-h4">Bedingungen</h4>
     <div class="fc-chips">${chips.map(c => `
       <div class="fc-chip ${c.cls}"><span class="fc-chip-ic">${c.ic}</span>
         <div><div class="fc-chip-val">${c.wert}</div><div class="fc-chip-sub">${escHtml(c.sub)}</div></div>
-      </div>`).join("")}</div>
+      </div>`).join("")}</div>` : ""}
     ${hinweise2.length ? `<h4 class="fc-h4">Hinweise</h4><ul class="fc-notes">${hinweise2.map(h =>
       `<li class="fc-${h.typ}">${h.typ === "warn" ? FC_WARN : FC_INFO}<span>${escHtml(h.text)}</span></li>`).join("")}</ul>` : ""}`;
 
@@ -1031,16 +1090,6 @@ function briefingPanelHtml(spot, ctx) {
     ${verboten.length ? `<h4 class="fc-h4">Verboten &amp; Vorsicht</h4><ul class="fc-notes">${verboten.map(t =>
       `<li class="fc-warn">${FC_WARN}<span>${escHtml(t)}</span></li>`).join("")}</ul>` : ""}`;
 
-  // --- Kontakte ---
-  const kontakte = (b && b.contacts || []).length ? `
-    <h3 class="dv-h3">Kontakte &amp; Notfall</h3>
-    <div class="fc-contacts">${b.contacts.map(c => `
-      <a class="fc-contact" href="tel:${escHtml(c.phone)}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
-        <span class="fc-c-name">${escHtml(c.name)}</span>
-        <span class="fc-c-num">${escHtml(c.display || c.phone)}</span>
-      </a>`).join("")}</div>` : "";
-
   return `${kopf}
     <h3 class="fc-head">Flug-Check</h3>
     <p class="fc-head-sub">Deine Vorbereitung in 3 Schritten</p>
@@ -1062,9 +1111,8 @@ function briefingPanelHtml(spot, ctx) {
       <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
     </div>
     <div id="campSection" class="camp-sec"></div>
-    ${kontakte}
-    ${b ? `<p class="bf-src">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</p>
-      <p class="bf-src bf-warn-note">Zusammenfassung ohne Gewähr – vor Ort gilt immer die offizielle Infotafel bzw. die Auskunft des Vereins/der Flugschule.</p>` : ""}`;
+    ${b ? `<p class="bf-src bf-warn-note">Ohne Gewähr – vor Ort gilt immer die offizielle Infotafel bzw. die Auskunft des Vereins/der Flugschule.
+      <span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span></p>` : ""}`;
 }
 
 
@@ -1081,7 +1129,6 @@ function iconCardsHtml(spot, thStart, driveSec) {
     const sub = thStart != null ? `<span class="dv-dot gut"></span>gut · ab ${thStart} Uhr` : `<span class="dv-dot gut"></span>möglich`;
     cards.push({ img: "icons/ic-thermik.png", label: "Thermik", sub });
   }
-  cards.push({ img: null, ic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="12" rx="2"/><path d="M4 13h16"/><circle cx="8" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/><path d="M7 5v3M17 5v3"/></svg>`, label: "ÖPNV", sub: `<span class="dv-dot nein"></span>nicht verfügbar` });
   return `<div class="dv-cards">${cards.map(c => { const tag = c.href ? "a" : "div";
     const attrs = c.href ? ` href="${c.href}" target="_blank" rel="noopener"` : "";
     return `<${tag} class="dv-card"${attrs}>
@@ -1231,7 +1278,7 @@ function renderCard(spot, days, opts = {}) {
   if (spot.landeLat != null && spot.landeLon != null) {
     actList.push({ icon: IC_PIN, label: "Landeplatz", href: mapsUrl({ lat: spot.landeLat, lon: spot.landeLon }) });
   }
-  // DHV-Info steht jetzt im Briefing unter "Anreise & Start"
+  if (spot.dhv) actList.push({ icon: IC_CLIPBOARD, label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
   if (spot.vereinUrl) actList.push({ icon: IC_GLOBE, label: "Verein", href: spot.vereinUrl });
   // Landeplatz hat im Details-Tab schon einen eigenen Navigations-Button an der Karte -> hier redundant
   const actionsBadges = `<div class="dv-actions">${actList.filter(a => a.label !== "Landeplatz").map(a => `<a class="dv-act" href="${a.href}" target="_blank" rel="noopener"><span class="dv-act-ic">${a.icon}</span><span>${a.label}</span></a>`).join("")}</div>`;
@@ -1239,7 +1286,6 @@ function renderCard(spot, days, opts = {}) {
   const diffHtml = (() => { const w = diffWarn(spot); return w ? `<div class="spot-warn d${w.d}">⚠️ ${w.text}</div>` : ""; })();
 
   const rt = todayRating(days, dayIdx);
-  const ftHint = rt.type ? `<div class="ft-hint">Flugart nur grobe Schätzung – kein Thermik-Forecast</div>` : "";
   // Aktuelle Bedingungen stehen oben im Wetter-Tab (nicht mehr im Live-Tab). Nur beim
   // heutigen Tag - unter einer Morgen-Vorhersage waeren "jetzt"-Werte irrefuehrend.
   // Die fruehere Bewertungs-Karte darueber ist entfallen: Sterne und Einschaetzung
@@ -1262,7 +1308,7 @@ function renderCard(spot, days, opts = {}) {
         <button type="button" class="dtab" data-tab="details" role="tab">Details</button>
       </div>
       <div class="dtab-panels">
-        <div class="dtab-panel" id="dtab-wetter">${statusCard}${liveChips}${ftHint}<div class="days">${daysHtml}</div>
+        <div class="dtab-panel" id="dtab-wetter">${statusCard}${liveChips}<div class="days">${daysHtml}</div>
           <div class="hist-section">
             <h3 class="dv-h3">📅 Wetter-Verlauf</h3>
             <input type="date" class="hist-date" data-hist="${spot.id}" max="${histMaxDate()}">
@@ -1279,7 +1325,8 @@ function renderCard(spot, days, opts = {}) {
             <h3 class="dv-h3">Aktionen &amp; Tools</h3>
             ${actionsBadges}
             ${startplatzTableHtml(spot, diffL)}
-            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}`;
+            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}
+            ${kontakteHtml(spot)}`;
         })()}</div>
       </div>`;
 
@@ -1466,7 +1513,7 @@ const REGIONS = {
 
 // Gemeinsame Auswertung + Anzeige für eine Kandidatenliste.
 // candidates: mit .dist (Anzeige-km oder null) und .sortKey (Zahl). origin: {lat,lon} oder null (für Fahrzeit).
-async function renderSearch(candidates, origin, headline) {
+async function renderSearch(candidates, origin, headline, opts = {}) {
   // Zustiegs-Filter wird NICHT mehr vor dem Kappen angewendet (sonst holt ein enger Filter
   // andere/weiter entfernte Plaetze als "Egal", weil er ueber den ganzen Umkreis statt nur die
   // ohnehin schon gezeigten naechsten 50 filtert). Er wirkt jetzt rein auf der Anzeige, s. renderFlyResults.
@@ -1500,7 +1547,9 @@ async function renderSearch(candidates, origin, headline) {
     lastHeadline = headline; lastTruncated = truncated;
     renderFlyResults(rows, headline, truncated);
     lastRows = rows;
-    updateMapMarkers(displayRowsFor(rows));
+    // opts.keepView: Suche kam vom Karten-Knopf - dann den Ausschnitt lassen,
+    // sonst zoomt die Karte weg von der Stelle, die der Nutzer gerade angesteuert hat.
+    updateMapMarkers(displayRowsFor(rows), opts.keepView ? { flyTo: false } : {});
   } catch (e) {
     out.innerHTML = `<p class="empty">Fehler beim Abruf: ${e.message}</p>`;
   }
@@ -1874,7 +1923,7 @@ document.getElementById("mapLocateBtn").addEventListener("click", () => {
 });
 
 // Umkreissuche ab einem Punkt (GPS oder PLZ)
-async function runFlySearch(lat, lon, label) {
+async function runFlySearch(lat, lon, label, opts = {}) {
   lastOrigin = { lat, lon, label };
   rerunSearch = () => runFlySearch(lat, lon, label);
   const radius = getRadius();
@@ -1884,7 +1933,7 @@ async function runFlySearch(lat, lon, label) {
     .filter(s => s.dist <= radius)
     .sort((a, b) => a.sortKey - b.sortKey);
   const headline = `${dayWord()} im Umkreis ${radius} km${label ? " um <b>" + label + "</b>" : ""}`;
-  await renderSearch(candidates, { lat, lon }, headline);
+  await renderSearch(candidates, { lat, lon }, headline, opts);
 }
 
 // Regions-Suche (nach Gebiet statt Umkreis); Fahrzeit nur falls Standort schon bekannt
@@ -2504,6 +2553,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 110, date: "21.08.", text: "Mögliche Flugarten je Platz, Parkplätze auch am Startplatz, Karte bleibt beim Suchen stehen" },
   { v: 109, date: "21.08.", text: "Parkplätze wurden auf der Karte als Unterkunft angezeigt – behoben" },
   { v: 108, date: "21.08.", text: "Karte: „Startplätze hier suchen“ beim Verschieben, Marker mit Infofenster" },
   { v: 107, date: "21.08.", text: "Briefing verfeinert: Parkplätze mit Zielangabe, DHV-Infos, kompaktere Tage" },
@@ -2862,7 +2912,8 @@ document.body.addEventListener("click", e => {
     const c = mapInstance.getCenter();
     (async () => {
       const ort = await reverseGeocode(c.lat, c.lng);
-      await runFlySearch(c.lat, c.lng, ort || `${c.lat.toFixed(3)}, ${c.lng.toFixed(3)}`);
+      // keepView: der Nutzer hat den Ausschnitt bewusst gewaehlt - nicht wegzoomen
+      await runFlySearch(c.lat, c.lng, ort || `${c.lat.toFixed(3)}, ${c.lng.toFixed(3)}`, { keepView: true });
     })();
     return;
   }
