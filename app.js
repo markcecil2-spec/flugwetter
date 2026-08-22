@@ -954,22 +954,36 @@ function fcStep(nr, titel, inhalt, offen) {
 //  - Tandem/Schulung stehen als offizielle DHV-Angabe im Feld "gleitschirm" (98 % der Plaetze)
 //  - Soaring/Thermik/Strecke sind aus der Hoehendifferenz abgeleitet, also eine Einschaetzung
 const FLUGART_MIN = { soaring: 150, thermik: 400, strecke: 800 };
+const FA_ICONS = {
+  abgleiter: `<path d="M3 6l7 4 4-3 7 5"/><path d="M14 12v6"/><path d="M11 15l3 3 3-3"/>`,
+  soaring:   `<path d="M3 14c3-4 6-4 9 0s6 4 9 0"/><path d="M3 19c3-4 6-4 9 0s6 4 9 0"/><path d="M7 8l5-4 5 4"/>`,
+  thermik:   `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>`,
+  strecke:   `<circle cx="5" cy="18" r="2.4"/><circle cx="19" cy="6" r="2.4"/><path d="M7.2 16.5C10 14 9 10 12.5 8.2"/><path d="M14.5 6.5l2-.5.5 2"/>`,
+  tandem:    `<circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="8.5" r="2"/><path d="M3 20v-2a5 5 0 0 1 10 0v2"/><path d="M14.5 20v-1.5a4 4 0 0 1 6.5-3.1"/>`,
+  schulung:  `<path d="M12 4 2 9l10 5 10-5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/>`,
+};
 function flugartenHtml(spot) {
   const hd = spot.hoehendiff;
   const g = (spot.gleitschirm || "").toLowerCase();
-  const arten = [{ label: "Abgleiter", quelle: "hd" }];
+  const arten = [{ label: "Abgleiter", ic: "abgleiter", quelle: "hd" }];
   if (hd != null) {
-    if (hd >= FLUGART_MIN.soaring) arten.push({ label: "Soaring", quelle: "hd" });
-    if (hd >= FLUGART_MIN.thermik) arten.push({ label: "Thermikflug", quelle: "hd" });
-    if (hd >= FLUGART_MIN.strecke) arten.push({ label: "Streckenflug / XC", quelle: "hd" });
+    if (hd >= FLUGART_MIN.soaring) arten.push({ label: "Soaring", ic: "soaring", quelle: "hd" });
+    if (hd >= FLUGART_MIN.thermik) arten.push({ label: "Thermik", ic: "thermik", quelle: "hd" });
+    if (hd >= FLUGART_MIN.strecke) arten.push({ label: "Strecke / XC", ic: "strecke", quelle: "hd" });
   }
-  if (g.includes("2-sitzig")) arten.push({ label: "Tandem", quelle: "dhv" });
-  if (g.includes("schulung")) arten.push({ label: "Schulung", quelle: "dhv" });
-  const abgeleitet = arten.some(a => a.quelle === "hd" && a.label !== "Abgleiter");
+  if (g.includes("2-sitzig")) arten.push({ label: "Tandem", ic: "tandem", quelle: "dhv" });
+  if (g.includes("schulung")) arten.push({ label: "Schulung", ic: "schulung", quelle: "dhv" });
+  // Fussnote nur ueber das schreiben, was auch wirklich dasteht
+  const ausHoehe = arten.filter(a => a.quelle === "hd" && a.label !== "Abgleiter").map(a => a.label);
+  const ausDhv = arten.filter(a => a.quelle === "dhv").map(a => a.label);
+  const teile = [];
+  if (ausDhv.length) teile.push(`${ausDhv.join(" und ")} nach DHV-Angabe`);
+  if (ausHoehe.length && hd != null) teile.push(`${ausHoehe.join(" und ")} aus ${hd} m Höhendifferenz geschätzt`);
+  const svg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${FA_ICONS[k]}</svg>`;
   return `<h4 class="fc-h4">Grundsätzlich möglich</h4>
-    <div class="fa-pills">${arten.map(a => `<span class="fa-pill fa-${a.quelle}">${a.label}</span>`).join("")}</div>
-    <p class="fa-note">Tandem und Schulung nach DHV-Angabe.${abgeleitet && hd != null
-      ? ` Soaring, Thermik und Strecke aus der Höhendifferenz (${hd} m) geschätzt – kein Versprechen, entscheidend sind Wetter und Können.` : ""}</p>`;
+    <div class="fa-grid">${arten.map(a => `
+      <div class="fa-card fa-${a.quelle}">${svg(a.ic)}<span>${a.label}</span></div>`).join("")}</div>
+    ${teile.length ? `<p class="fa-note">${teile.join(" · ")}</p>` : ""}`;
 }
 
 // Kontakte/Notruf des Fluggebiets - stehen im Details-Tab
@@ -1043,15 +1057,9 @@ function briefingPanelHtml(spot, ctx) {
   if (spot.gleitschirm) check2.push(`Zugelassen: ${spot.gleitschirm}`);
   if (spot.gemeinde) check2.push(`Gemeinde ${spot.gemeinde}`);
   check2.push(...(S.startplatz || []));
-  const thStart = thermikStartHour(day, ts.win);
-  // Kein Wind-Chip mehr: er zeigte die DHV-Werte des Platzes (z.B. 3-27 km/h), bewertet
-  // wird aber nach den Grenzwerten aus den Einstellungen (18 km/h + Puffer). Zwei
-  // verschiedene Zahlen fuer dieselbe Sache - die aus der Datenbank half niemandem.
-  const chips = [];
-  if (spot.hoehendiff && spot.hoehendiff >= THERMIK_HOEHENDIFF_MIN) {
-    chips.push({ cls: "therm", wert: "Thermik möglich", sub: thStart != null ? `ab ca. ${thStart} Uhr` : "je nach Einstrahlung",
-      ic: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>` });
-  }
+  // Kein "Bedingungen"-Block mehr: Wind stand dort mit den DHV-Werten des Platzes
+  // (bewertet wird aber nach den Einstellungen), und Thermik steht schon in den
+  // Flugart-Kacheln darueber.
   const warn = diffWarn(spot);
   const hinweise2 = [];
   if (warn) hinweise2.push({ typ: "warn", text: warn.text });
@@ -1060,11 +1068,6 @@ function briefingPanelHtml(spot, ctx) {
   const schritt2 = `
     ${check2.length ? `<h4 class="fc-h4">Checkliste Startplatz</h4>${fcList(check2)}` : ""}
     ${flugartenHtml(spot)}
-    ${chips.length ? `<h4 class="fc-h4">Bedingungen</h4>
-    <div class="fc-chips">${chips.map(c => `
-      <div class="fc-chip ${c.cls}"><span class="fc-chip-ic">${c.ic}</span>
-        <div><div class="fc-chip-val">${c.wert}</div><div class="fc-chip-sub">${escHtml(c.sub)}</div></div>
-      </div>`).join("")}</div>` : ""}
     ${hinweise2.length ? `<h4 class="fc-h4">Hinweise</h4><ul class="fc-notes">${hinweise2.map(h =>
       `<li class="fc-${h.typ}">${h.typ === "warn" ? FC_WARN : FC_INFO}<span>${escHtml(h.text)}</span></li>`).join("")}</ul>` : ""}`;
 
@@ -2553,6 +2556,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 111, date: "21.08.", text: "Flugarten als Kacheln mit Symbolen, Hinweistext korrigiert" },
   { v: 110, date: "21.08.", text: "Mögliche Flugarten je Platz, Parkplätze auch am Startplatz, Karte bleibt beim Suchen stehen" },
   { v: 109, date: "21.08.", text: "Parkplätze wurden auf der Karte als Unterkunft angezeigt – behoben" },
   { v: 108, date: "21.08.", text: "Karte: „Startplätze hier suchen“ beim Verschieben, Marker mit Infofenster" },
