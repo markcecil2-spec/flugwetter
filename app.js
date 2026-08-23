@@ -883,13 +883,10 @@ function renderParkplaetze() {
   };
   const gruppe = (titel, arr) => arr.length
     ? `<div class="park-gruppe">${titel}</div><div class="camp-list">${arr.map(zeile).join("")}</div>` : "";
-  // "Parken" steht als Überschrift darüber (neben "Navigation") - in der Klappzeile
-  // stehen deshalb nur noch die Zahlen, sonst stünde das Wort zweimal da.
-  box.innerHTML = `<h4 class="fc-h4">Parken</h4>
-  <details class="camp-box park-box">
+  box.innerHTML = `<details class="camp-box park-box">
     <summary>
       <img class="camp-head-pin" src="${PIN.parkplatz}" alt="">
-      <span class="camp-head-txt park-head-txt">${teile.map(t => `<span>${escHtml(t)}</span>`).join("")}</span>
+      <span class="camp-head-txt">Parken<span class="camp-sum">${escHtml(teile.join(" · "))}</span></span>
     </summary>
     <div class="park-inhalt">
       ${gruppe("Am Startplatz", amStart)}
@@ -1190,20 +1187,17 @@ function briefingPanelHtml(spot, ctx) {
   landeAlle.sort((a, b) => (a.name || "").localeCompare(b.name || "", "de", { numeric: true }));
   landeAlle.forEach(l => { l.kurz = kurzOrt(l.name, spot.name); });
   landeAlle.forEach(l => navKarten.push({ ic: "icons/pin-landeplatz.png", label: l.kurz, href: mapsUrl({ lat: l.lat, lon: l.lon }) }));
-  // Navigation und Parken stehen nebeneinander (zwei Spalten), darüber der Zustieg.
   const schritt1 = `
     <h4 class="fc-h4">Anreise</h4>
     ${anreiseHtml(zustieg)}
     ${(S.vorStart || []).length ? fcList(S.vorStart) : ""}
-    <div class="fc-cols">
-      ${navKarten.length ? `<div class="fc-col"><h4 class="fc-h4">Navigation</h4><div class="fc-navlist">${navKarten.map(c => `
-        <div class="fc-nav-row">
-          <img class="fc-nav-pin" src="${c.ic}" alt="">
-          <span class="fc-nav-name">${escHtml(c.label)}</span>
-          <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="${c.sat ? "Satellitenbild von" : "Navigation zu"} ${escHtml(c.label)}">${c.sat ? IC_SAT : IC_CAR}</a>
-        </div>`).join("")}</div></div>` : ""}
-      <div class="fc-col"><div id="parkSection" class="park-sec"></div></div>
-    </div>`;
+    ${navKarten.length ? `<h4 class="fc-h4">Navigation</h4><div class="fc-navlist">${navKarten.map(c => `
+      <div class="fc-nav-row">
+        <img class="fc-nav-pin" src="${c.ic}" alt="">
+        <span class="fc-nav-name">${escHtml(c.label)}</span>
+        <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="${c.sat ? "Satellitenbild von" : "Navigation zu"} ${escHtml(c.label)}">${c.sat ? IC_SAT : IC_CAR}</a>
+      </div>`).join("")}</div>` : ""}
+    <div id="parkSection" class="park-sec"></div>`;
 
   // --- Schritt 2: Startplatz ---
   const check2 = [];
