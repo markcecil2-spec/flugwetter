@@ -766,6 +766,95 @@ function poiPopupHtml(c, titel, pin, untertitel) {
 function poiPopup(html) {
   return new maplibregl.Popup({ offset: 16, closeButton: true, maxWidth: "260px", className: "poi-popup" }).setHTML(html);
 }
+
+// ---------------- Langes Drücken auf die Hauptkarte: eigenen Platz hier anlegen ----------------
+// Bewusst ein eigener Timer statt des contextmenu-Ereignisses: auf iOS feuert contextmenu
+// auf dem Karten-Canvas nicht verlaesslich. Windrichtungen werden NICHT geraten - der Druck
+// fuellt nur Koordinaten, Ort und Hoehe vor, den Rest traegt der Nutzer im Formular ein.
+const LP_DAUER = 600, LP_TOLERANZ = 10;   // ms halten, erlaubte Fingerbewegung in Pixeln
+let lpTimer = null, lpVon = null, lpMarker = null, lpPopup = null;
+let lpKlickSperre = false, lpSperreZeit = 0;   // der Klick nach dem langen Druck darf nicht suchen
+const IC_PLUS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`;
+
+function lpStop() { clearTimeout(lpTimer); lpTimer = null; lpVon = null; }
+function lpAufraeumen() {
+  if (lpPopup) { lpPopup.remove(); lpPopup = null; }
+  if (lpMarker) { lpMarker.remove(); lpMarker = null; }
+}
+function lpPopupHtml(lat, lon, ort, hoehe, laedt) {
+  const zeilen = [`${lat.toFixed(5)}, ${lon.toFixed(5)}`];
+  if (ort) zeilen.push(escHtml(ort));
+  if (hoehe != null) zeilen.push(`${hoehe} m ü. NN`);
+  return `<div class="poi-pop">
+    <div class="poi-pop-head">
+      <img src="icons/pin-startplatz.png" alt="">
+      <div><b>Hier einen Platz anlegen?</b><span>${laedt ? "Ort und Höhe werden geladen …" : "Windrichtungen trägst du selbst ein"}</span></div>
+    </div>
+    <div class="poi-pop-info">${zeilen.map(z => `<div>${z}</div>`).join("")}</div>
+    <div class="poi-pop-acts">
+      <button type="button" class="poi-act primary" data-neuerplatz="${lat.toFixed(5)},${lon.toFixed(5)}"
+        data-ort="${escHtml(ort || "")}" data-hoehe="${hoehe != null ? hoehe : ""}">${IC_PLUS}Eigenen Platz anlegen</button>
+    </div>
+  </div>`;
+}
+async function lpAusloesen(el, x, y) {
+  lpKlickSperre = true; lpSperreZeit = Date.now();
+  if (navigator.vibrate) navigator.vibrate(15);   // nur Android, iOS kennt das nicht
+  const r = el.getBoundingClientRect();
+  const ll = mapInstance.unproject([x - r.left, y - r.top]);
+  const lat = ll.lat, lon = ll.lng;
+  lpAufraeumen();
+  const pin = document.createElement("div");
+  pin.className = "map-marker map-marker-temp";
+  pin.innerHTML = `<img src="icons/marker-start.png" alt="">`;
+  lpPopup = poiPopup(lpPopupHtml(lat, lon, null, null, true));
+  lpPopup.on("close", () => { if (lpMarker) { lpMarker.remove(); lpMarker = null; } lpPopup = null; });
+  lpMarker = new maplibregl.Marker({ element: pin }).setLngLat([lon, lat]).setPopup(lpPopup).addTo(mapInstance);
+  lpMarker.togglePopup();
+  // Ort und Höhe kommen nach - der Kasten steht schon, damit es sich nicht hängend anfühlt
+  const [ort, hoehe] = await Promise.all([
+    reverseGeocode(lat, lon).catch(() => null),
+    fetchElevation(lat, lon).catch(() => null),
+  ]);
+  if (lpPopup && lpPopup.isOpen()) lpPopup.setHTML(lpPopupHtml(lat, lon, ort, hoehe, false));
+}
+function lpSetup(el) {
+  const start = (x, y, ziel) => {
+    // Nicht auf Markern, Bedienelementen, Legende oder einem offenen Kasten
+    if (ziel.closest && ziel.closest(".map-marker, .maplibregl-ctrl, .mini-style-toggle, .map-hier, .maplibregl-popup, .map-legend, .map-attrib")) return;
+    lpVon = { x, y };
+    lpTimer = setTimeout(() => { lpTimer = null; lpAusloesen(el, x, y); }, LP_DAUER);
+  };
+  const bewegt = (x, y) => {
+    if (!lpVon) return;
+    if (Math.abs(x - lpVon.x) > LP_TOLERANZ || Math.abs(y - lpVon.y) > LP_TOLERANZ) lpStop();
+  };
+  el.addEventListener("touchstart", e => {
+    if (e.touches.length !== 1) return lpStop();   // Zwei Finger = Zoomen, nicht halten
+    const t = e.touches[0]; start(t.clientX, t.clientY, e.target);
+  }, { passive: true });
+  el.addEventListener("touchmove", e => { const t = e.touches[0]; if (t) bewegt(t.clientX, t.clientY); }, { passive: true });
+  el.addEventListener("touchend", lpStop);
+  el.addEventListener("touchcancel", lpStop);
+  el.addEventListener("mousedown", e => { if (e.button === 0) start(e.clientX, e.clientY, e.target); });
+  el.addEventListener("mousemove", e => bewegt(e.clientX, e.clientY));
+  el.addEventListener("mouseup", lpStop);
+  el.addEventListener("mouseleave", lpStop);
+}
+// Uebergabe ans Formular unter "Neu": Koordinaten, Ort und Hoehe stehen schon drin,
+// Name und Windrichtungen fehlen noch - beides darf nicht geraten werden.
+function neuerPlatzAus(lat, lon, ort, hoehe) {
+  resetForm();
+  form.lat.value = lat.toFixed(5);
+  form.lon.value = lon.toFixed(5);
+  if (ort) form.region.value = ort;
+  if (hoehe) form.elevation.value = hoehe;
+  location.hash = "#/add";
+  setTimeout(() => {
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+    form.name.focus({ preventScroll: true });
+  }, 150);
+}
 function campAddMarkers(list) {
   campMarkers.forEach(m => m.remove());
   campMarkers = [];
@@ -1963,6 +2052,9 @@ async function ensureMap() {
     container: "mapEl",
     style: MINI_MAP_STYLES[mapStyleMode],
     center, zoom, attributionControl: false,
+    // Doppeltipp zoomt nicht mehr - zusammen mit "Tipp = hier suchen" war das nur
+    // verwirrend. Zoomen geht weiter per Zwei-Finger-Geste und ueber die +/- Knoepfe.
+    doubleClickZoom: false,
   });
   mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
   mapInstance.on("zoom", updateMapLabelVisibility);
@@ -1981,8 +2073,18 @@ async function ensureMap() {
     updateExtraPoints(lastExtraFeatures);
   });
   // Klick auf freie Kartenfläche (nicht auf einen Marker/Bedienelement/Punkt) -> dort suchen.
+  // Ein Doppeltipp loest zwei click-Events aus - ohne die Sperre liefen zwei Suchen
+  // gleichzeitig los (zwei Ortsabfragen, zwei Ergebnislisten).
+  let letzterKartenklick = 0;
   mapInstance.on("click", async e => {
     if (mapInstance.queryRenderedFeatures(e.point, { layers: ["extra-points-layer"] }).length) return;
+    // Nach einem langen Druck kommt noch ein Klick hinterher - der darf keine Suche starten.
+    // Die Zeitgrenze verhindert, dass eine liegengebliebene Sperre einen viel spaeteren
+    // Klick schluckt (z.B. wenn der Nutzer direkt im Kasten weitergetippt hat).
+    if (lpKlickSperre) { lpKlickSperre = false; if (Date.now() - lpSperreZeit < 2000) return; }
+    const jetzt = Date.now();
+    if (jetzt - letzterKartenklick < 400) return;
+    letzterKartenklick = jetzt;
     const { lat, lng } = e.lngLat;
     const tempEl = document.createElement("div");
     tempEl.className = "map-marker map-marker-temp";
@@ -1992,6 +2094,7 @@ async function ensureMap() {
     const place = await reverseGeocode(lat, lng);
     await runFlySearch(lat, lng, place || `${lat.toFixed(3)}, ${lng.toFixed(3)}`);
   });
+  lpSetup(document.getElementById("mapEl"));
   const bounds = rowsBounds(lastRows);
   if (bounds) mapInstance.fitBounds(bounds, { padding: 50, animate: false, maxZoom: 13 });
   updateMapMarkers(lastRows, { flyTo: false });
@@ -3073,6 +3176,16 @@ document.body.addEventListener("click", e => {
     const gross = wrap.classList.toggle("big");
     bigBtn.setAttribute("aria-label", gross ? "Karte verkleinern" : "Karte vergrößern");
     if (miniMapInstance) setTimeout(() => miniMapInstance.resize(), 220);
+    return;
+  }
+
+  // Langer Druck auf die Karte -> Formular unter "Neu" mit den Koordinaten öffnen
+  const npBtn = e.target.closest("[data-neuerplatz]");
+  if (npBtn) {
+    const [lat, lon] = npBtn.dataset.neuerplatz.split(",").map(Number);
+    const ort = npBtn.dataset.ort, hoehe = npBtn.dataset.hoehe;
+    lpAufraeumen();
+    neuerPlatzAus(lat, lon, ort, hoehe);
     return;
   }
 
