@@ -742,7 +742,57 @@ function campRowHtml(c, i) {
 }
 // Kleines Fenster beim Antippen eines Markers: was es ist, wie weit, und was man
 // damit tun kann (navigieren, Website, anrufen).
-function poiPopupHtml(c, titel, pin, untertitel) {
+// Alles, was ueber den Startplatz in den Daten steht - fuer den Info-Knopf im Kartenkasten.
+// Leere Felder fallen weg, nichts wird geschaetzt.
+function infosStart(spot) {
+  const a = spot.acc || "";
+  const zustieg = [a.includes("a") && "Auto", a.includes("b") && "Bergbahn", a.includes("f") && "zu Fuß"].filter(Boolean).join(", ");
+  const rows = [
+    ["Ort", [spot.gemeinde, spot.bundesland].filter(Boolean).join(", ")],
+    ["Höhe", spot.elevation != null ? spot.elevation + " m ü. NN" : ""],
+    ["Startrichtung", spot.sectorLabel || ""],
+    ["Höhendifferenz", spot.hoehendiff ? spot.hoehendiff + " m" : ""],
+    ["Schwierigkeit", spot.diff ? diffLabelFull(spot).text : ""],
+    ["Zugelassen", spot.gleitschirm || ""],
+    ["Zustieg", zustieg],
+    ["Koordinaten", `${spot.lat.toFixed(5)}, ${spot.lon.toFixed(5)}`],
+  ];
+  const links = [];
+  if (spot.dhv) links.push({ label: "DHV-Geländedaten", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
+  if (spot.vereinUrl) links.push({ label: "Verein", href: spot.vereinUrl });
+  if (spot.livewetter) links.push({ label: "Live-Wetter", href: spot.livewetter });
+  if (spot.webcam && spot.webcam !== spot.livewetter) links.push({ label: "Live-Cam", href: spot.webcam });
+  return { rows, text: spot.bemerkung || "", links };
+}
+function infosLande(spot, l) {
+  const rows = [["Höhe", l.hoehe != null ? l.hoehe + " m ü. NN" : ""]];
+  if (l.lat != null && spot.lat != null) {
+    const km = haversineExact(spot.lat, spot.lon, l.lat, l.lon);
+    rows.push(["Entfernung zum Start", distTxt(km)]);
+    if (l.hoehe != null && spot.elevation != null && spot.elevation > l.hoehe) {
+      const dh = spot.elevation - l.hoehe;
+      rows.push(["Höhenabstand", `${dh} m tiefer`]);
+      if (km * 1000 > 100) rows.push(["Gleitzahl", `${(km * 1000 / dh).toFixed(1).replace(".", ",")} nötig`]);
+    }
+    rows.push(["Koordinaten", `${l.lat.toFixed(5)}, ${l.lon.toFixed(5)}`]);
+  }
+  return { rows, text: "", links: [] };
+}
+function poiInfoHtml(infos) {
+  const rows = infos.rows.filter(([, v]) => v);
+  if (!rows.length && !infos.text && !infos.links.length) return "";
+  return `<div class="poi-pop-detail" hidden>
+    <div class="poi-info-rows">${rows.map(([k, v]) => `
+      <div class="poi-info-row"><span>${escHtml(k)}</span><b>${escHtml(v)}</b></div>`).join("")}</div>
+    ${infos.text ? `<p class="poi-info-text">„${escHtml(infos.text)}"</p>` : ""}
+    ${infos.links.map(l => `<a class="poi-act" href="${escHtml(l.href)}" target="_blank" rel="noopener">${IC_GLOBE}${escHtml(l.label)}</a>`).join("")}
+    <button type="button" class="poi-act" data-poi-back>${IC_ZURUECK}Zurück</button>
+  </div>`;
+}
+const IC_INFO_KREIS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>`;
+const IC_ZURUECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
+
+function poiPopupHtml(c, titel, pin, untertitel, infos) {
   const zeilen = [];
   if (c.adresse) zeilen.push(c.adresse);
   if (c.plaetze) zeilen.push(`${escHtml(c.plaetze)} Stellplätze`);
@@ -754,6 +804,8 @@ function poiPopupHtml(c, titel, pin, untertitel) {
   if (c.tel) akt.push(`<a class="poi-act" href="tel:${escHtml(c.tel.replace(/\s/g, ""))}">${IC_PHONE}Anrufen</a>`);
   // Satellitenbild: war vorher der einzige Marker-Klick, bleibt als Option erhalten
   akt.push(`<a class="poi-act" href="${satMapsUrl(c.lat, c.lon)}" target="_blank" rel="noopener">${IC_SAT}Satellitenbild</a>`);
+  const detail = infos ? poiInfoHtml(infos) : "";
+  if (detail) akt.push(`<button type="button" class="poi-act" data-poi-info>${IC_INFO_KREIS}Alle Infos</button>`);
   return `<div class="poi-pop">
     <div class="poi-pop-head">
       <img src="${pin}" alt="">
@@ -761,6 +813,7 @@ function poiPopupHtml(c, titel, pin, untertitel) {
     </div>
     ${zeilen.length ? `<div class="poi-pop-info">${zeilen.map(z => `<div>${z}</div>`).join("")}</div>` : ""}
     <div class="poi-pop-acts">${akt.join("")}</div>
+    ${detail}
   </div>`;
 }
 function poiPopup(html) {
@@ -1178,7 +1231,7 @@ function landeplatzHtml(spot, landeAlle) {
 }
 // Kurzüberblick: die Tageswerte auf einen Blick. Bewusst die tatsächliche Vorhersage -
 // die zugelassene Startrichtung des Platzes steht schon in der Checkliste in Schritt 2.
-function kurzueberblickHtml(spot, day, ts) {
+function kurzueberblickHtml(spot, day, ts, tagW) {
   if (!day || !day.dayHours || !day.dayHours.length) return "";
   const fenster = ts.win ? day.dayHours.filter(h => h.t >= ts.win.from && h.t <= ts.win.to) : [];
   const hrs = fenster.length ? fenster : day.dayHours;
@@ -1203,7 +1256,7 @@ function kurzueberblickHtml(spot, day, ts) {
   if (th != null) rows.push(["sonne", "Thermik", `ab ca. ${th} Uhr`]);
   if (ts.win) rows.push(["uhr", "Beste Zeit", windowLabel(ts.win) + " Uhr"]);
   return `<h3 class="dv-h3">Kurzüberblick</h3><div class="lp-box">${lpRows(rows)}
-    <p class="lp-note">${fenster.length ? "Werte aus dem fliegbaren Fenster" : "Werte über den ganzen Tag – heute kein fliegbares Fenster"}</p></div>`;
+    <p class="lp-note">${fenster.length ? "Werte aus dem fliegbaren Fenster" : `Werte über den ganzen Tag – ${(tagW || "Heute").toLowerCase()} kein fliegbares Fenster`}</p></div>`;
 }
 // Gilt an jedem Platz gleich - deshalb fest hinterlegt und nicht pro Gelände gepflegt.
 const ALLG_HINWEISE_HTML = `<h3 class="dv-h3">Wichtige Hinweise</h3>
@@ -1230,9 +1283,12 @@ function briefingPanelHtml(spot, ctx) {
   // --- Kopfzeile: Bewertung, Flugfenster, Höhendifferenz ---
   const fliegbar = ts.status !== "nein";
   const winSec = (day.windows || []).reduce((s, w) => s + (w.to - w.from) / 1000, 0);
+  // Das Briefing zeigt den auf der Startseite gewaehlten Tag - die Beschriftung muss
+  // mitziehen, sonst steht "Heute fliegbar" ueber den Werten von morgen.
+  const tagW = dayIdx === 1 ? "Morgen" : "Heute";
   const kacheln = [
     { ic: fliegbar ? FC_CHECK : FC_WARN, cls: fliegbar ? "ok" : "warn", urteil: true,
-      wert: fliegbar ? "Heute fliegbar" : "Heute nicht fliegbar",
+      wert: `${tagW} ${fliegbar ? "fliegbar" : "nicht fliegbar"}`,
       sub: fliegbar ? (rt.stars >= 4 ? "Gute Bedingungen" : "Grenzwertige Bedingungen") : ts.reasonText },
   ];
   if (winSec > 0) kacheln.push({ cls: "neutral", wert: formatDur(winSec), sub: "Flugfenster",
@@ -1332,7 +1388,7 @@ function briefingPanelHtml(spot, ctx) {
     <h3 class="fc-head">Flug-Check</h3>
     <p class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</p>
     ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
-    ${kurzueberblickHtml(spot, day, ts)}
+    ${kurzueberblickHtml(spot, day, ts, tagW)}
     <h3 class="dv-h3">Übersicht Start &amp; Landeplatz</h3>
     <div class="mini-map-wrap">
       <div id="miniMap" class="mini-map"></div>
@@ -1356,27 +1412,6 @@ function briefingPanelHtml(spot, ctx) {
 }
 
 
-// Zustiegs-/Flugart-Karten fürs neue Detail-Layout (größer als die alten Chips, mit Sub-Info je Karte)
-function iconCardsHtml(spot, thStart, driveSec) {
-  const a = spot.acc || "";
-  const driveTxt = driveSec != null ? `<span class="dv-dot gut"></span>${formatDur(driveSec)}` : NA;
-  const vorhanden = `<span class="dv-dot gut"></span>vorhanden`;
-  const cards = [];
-  if (a.includes("f")) cards.push({ img: "icons/ic-hikefly.png", label: "Hike & Fly", sub: vorhanden });
-  if (a.includes("a")) cards.push({ img: "icons/ic-auto.png", label: "Mit dem Auto", sub: driveTxt });
-  if (a.includes("b")) cards.push({ img: "icons/ic-bahn.png", label: "Bergbahn", sub: vorhanden });
-  if (spot.hoehendiff && spot.hoehendiff >= THERMIK_HOEHENDIFF_MIN) {
-    const sub = thStart != null ? `<span class="dv-dot gut"></span>gut · ab ${thStart} Uhr` : `<span class="dv-dot gut"></span>möglich`;
-    cards.push({ img: "icons/ic-thermik.png", label: "Thermik", sub });
-  }
-  return `<div class="dv-cards">${cards.map(c => { const tag = c.href ? "a" : "div";
-    const attrs = c.href ? ` href="${c.href}" target="_blank" rel="noopener"` : "";
-    return `<${tag} class="dv-card"${attrs}>
-      ${c.img ? `<img src="${c.img}" alt="">` : `<div class="dv-card-ic">${c.ic}</div>`}
-      <div class="dv-card-label">${c.label}</div>
-      <div class="dv-card-sub">${c.sub}</div>
-    </${tag}>`; }).join("")}</div>`;
-}
 // Startplatz-Datentabelle (links im neuen Layout) – zeigt "nicht verfügbar" statt erfundener Werte
 function startplatzTableHtml(spot, diffL) {
   const ort = [spot.gemeinde, spot.bundesland].filter(Boolean).join(", ");
@@ -1557,10 +1592,10 @@ function renderCard(spot, days, opts = {}) {
         <div class="dtab-panel" id="dtab-briefing" hidden>${briefingPanelHtml(spot, { days, dayIdx, ts, rt, driveSec: opts.driveSec })}</div>
         <div class="dtab-panel" id="dtab-details" hidden>${(() => {
           const diffL = diffLabelFull(spot);
-          const thStart = thermikStartHour(days[dayIdx], ts.win);
+          // Die Zustiegs-/Thermik-Kacheln standen hier doppelt - dieselben Angaben
+          // stehen im Briefing unter "Anreise" bzw. bei "Grundsätzlich möglich".
           return `
             ${diffHtml}
-            ${iconCardsHtml(spot, thStart, opts.driveSec)}
             <h3 class="dv-h3">Aktionen &amp; Tools</h3>
             ${actionsBadges}
             ${startplatzTableHtml(spot, diffL)}
@@ -1948,7 +1983,8 @@ async function ensureMiniMap(spot) {
     .setPopup(poiPopup(poiPopupHtml(
       { lat: spot.lat, lon: spot.lon, web: spot.vereinUrl || "" },
       spot.name, "icons/pin-startplatz.png",
-      ["Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : "", spot.sectorLabel || ""].filter(Boolean).join(" · "))))
+      ["Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : "", spot.sectorLabel || ""].filter(Boolean).join(" · "),
+      infosStart(spot))))
     .addTo(miniMapInstance);
   landePlaetze.forEach(l => {
     const landeEl = document.createElement("div");
@@ -1957,7 +1993,8 @@ async function ensureMiniMap(spot) {
       .setPopup(poiPopup(poiPopupHtml(
         { lat: l.lat, lon: l.lon },
         l.name, "icons/pin-landeplatz.png",
-        ["Landeplatz", l.hoehe != null ? l.hoehe + " m ü. NN" : ""].filter(Boolean).join(" · "))))
+        ["Landeplatz", l.hoehe != null ? l.hoehe + " m ü. NN" : ""].filter(Boolean).join(" · "),
+        infosLande(spot, l))))
       .addTo(miniMapInstance);
   });
   if (points.length > 1) {
@@ -2805,6 +2842,10 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 115, date: "26.08.", text: "Briefing folgt der Auswahl „Morgen“, Info-Knopf an den Kartenmarkern, doppelte Kacheln entfernt" },
+  { v: 114, date: "26.08.", text: "Karte: lange drücken legt hier einen eigenen Platz an, Doppeltipp entfernt" },
+  { v: 113, date: "26.08.", text: "Parken steht wieder unter der Navigation" },
+  { v: 112, date: "26.08.", text: "Briefing neu aufgebaut: vier Schritte, Landeplatz-Reiter, Kurzüberblick und Notizfeld" },
   { v: 111, date: "21.08.", text: "Flugarten als Kacheln mit Symbolen, Hinweistext korrigiert" },
   { v: 110, date: "21.08.", text: "Mögliche Flugarten je Platz, Parkplätze auch am Startplatz, Karte bleibt beim Suchen stehen" },
   { v: 109, date: "21.08.", text: "Parkplätze wurden auf der Karte als Unterkunft angezeigt – behoben" },
@@ -3176,6 +3217,16 @@ document.body.addEventListener("click", e => {
     const gross = wrap.classList.toggle("big");
     bigBtn.setAttribute("aria-label", gross ? "Karte verkleinern" : "Karte vergrößern");
     if (miniMapInstance) setTimeout(() => miniMapInstance.resize(), 220);
+    return;
+  }
+
+  // Marker-Kasten: zwischen Aktionen und der vollen Datenliste umschalten
+  const poiInfoBtn = e.target.closest("[data-poi-info], [data-poi-back]");
+  if (poiInfoBtn) {
+    const pop = poiInfoBtn.closest(".poi-pop");
+    const zeigen = poiInfoBtn.hasAttribute("data-poi-info");
+    pop.querySelector(".poi-pop-acts").hidden = zeigen;
+    pop.querySelector(".poi-pop-detail").hidden = !zeigen;
     return;
   }
 

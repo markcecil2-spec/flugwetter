@@ -95,16 +95,6 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 
 /* Details-Tab (neues Layout): Icon-Karten, Datentabelle, Start-/Landeplatz-Karten, Aktionen */
 .na { color: var(--muted); font-style: italic; }
-.dv-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
-.dv-dot.gut { background: var(--green); }
-.dv-dot.nein { background: var(--red); }
-.dv-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; margin: 0 0 16px; }
-.dv-card { background: var(--card-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px; text-align: center; display: block; color: inherit; text-decoration: none; }
-.dv-card img { width: 34px; height: 34px; border-radius: 50%; margin: 0 auto 8px; display: block; }
-.dv-card-ic { width: 34px; height: 34px; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; background: var(--card); border-radius: 50%; color: var(--text); }
-.dv-card-ic svg { width: 18px; height: 18px; }
-.dv-card-label { font-size: 12.5px; font-weight: 700; margin-bottom: 4px; }
-.dv-card-sub { font-size: 11.5px; color: var(--muted); }
 .dv-h3 { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; margin: 18px 0 10px; color: var(--text); }
 .dv-table { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 4px 12px; }
 .dv-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; font-size: 13px; border-bottom: 1px solid var(--line); }
@@ -502,6 +492,19 @@ button.poi-act { width: 100%; font-family: inherit; cursor: pointer; }
 .poi-act svg { width: 15px; height: 15px; flex: none; color: var(--sky); }
 .poi-act.primary { background: var(--sky); border-color: var(--sky); color: #04231f; }
 .poi-act.primary svg { color: #04231f; }
+/* "Alle Infos": klappt an Ort und Stelle im Kasten auf, statt ein neues Fenster zu öffnen */
+.poi-pop-detail { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+/* display:flex sticht das eingebaute display:none von [hidden] aus - beide Bloecke
+   brauchen die Regel, sonst stehen Aktionen und Datenliste gleichzeitig da. */
+.poi-pop-detail[hidden], .poi-pop-acts[hidden] { display: none; }
+.poi-info-rows { display: flex; flex-direction: column; }
+.poi-info-row { display: flex; align-items: baseline; gap: 10px; padding: 6px 0; font-size: 11.5px; }
+.poi-info-row + .poi-info-row { border-top: 1px solid var(--line); }
+.poi-info-row span { flex: 1; min-width: 0; color: var(--muted); }
+.poi-info-row b { text-align: right; font-size: 12px; }
+.poi-info-text { font-size: 11.5px; color: var(--muted); line-height: 1.5; margin: 4px 0 2px; }
+/* Lange Datenlisten dürfen den Kasten nicht über die Karte hinauswachsen lassen */
+.poi-popup .maplibregl-popup-content { max-height: 60vh; overflow-y: auto; }
 
 .mini-marker { line-height: 1; cursor: pointer; }
 .mini-marker img { width: 28px; height: 28px; display: block; border-radius: 5px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.55)); }
