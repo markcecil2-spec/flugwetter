@@ -12,6 +12,7 @@
   --green-bg: rgba(34,197,94,.13);
   --red: #ef4444;       /* Danger */
   --amber: #facc15;     /* Warning */
+  --wp-oben: #6ea8fe;   /* Modellflächen im Windprofil – klar unterscheidbar vom Grün */
 }
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; }
@@ -96,6 +97,27 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 /* Details-Tab (neues Layout): Icon-Karten, Datentabelle, Start-/Landeplatz-Karten, Aktionen */
 .na { color: var(--muted); font-style: italic; }
 .dv-h3 { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; margin: 18px 0 10px; color: var(--text); }
+
+/* Windprofil: Wind in verschiedenen Höhen – steht direkt unter dem angetippten Tag */
+.wp-inline { background: var(--card); border: 1px solid var(--line); border-radius: 11px; padding: 8px 9px 7px; margin: 8px 0 2px; }
+.wp-inline[hidden] { display: none; }
+.wp-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
+.wp-stunde { font-size: 11.5px; font-weight: 700; }
+.wp-legende { display: flex; align-items: center; gap: 4px; font-size: 9.5px; color: var(--muted); }
+.wp-pt { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.wp-pt.gruen { background: var(--green); }
+.wp-pt.blau { background: var(--wp-oben); margin-left: 6px; }
+/* Auf breiten Fenstern nicht mitwachsen - sonst wird das Diagramm hoeher als der Tag darueber */
+.wp-svg { width: 100%; max-width: 420px; height: auto; display: block; margin: 0 auto; }
+.wp-grid { stroke: var(--line); stroke-width: 1; }
+.wp-ax { fill: var(--muted); font-size: 8.5px; }
+.wp-val { fill: var(--text); font-size: 9.5px; font-weight: 700; }
+.wp-dir { fill: var(--muted); font-weight: 600; }
+.wp-linie { fill: none; stroke: var(--wp-oben); stroke-width: 1.6; stroke-dasharray: 4 3; opacity: .7; }
+.wp-boden { fill: rgba(148,163,184,.18); }
+.wp-start { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.wp-oben { font-size: 10px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+.wp-note { font-size: 9.5px; color: var(--muted); line-height: 1.45; margin: 4px 0 0; }
 .dv-table { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 4px 12px; }
 .dv-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; font-size: 13px; border-bottom: 1px solid var(--line); }
 .dv-row:last-child { border-bottom: none; }

@@ -495,6 +495,131 @@ async function fetchForecast(spot) {
   wxSet(key, data);
   return data;
 }
+// ---------------- Windprofil: Wind in verschiedenen Höhen ----------------
+// Zwei Quellen mit VERSCHIEDENEN Nullpunkten, das ist der Knackpunkt:
+//  - 10/80/120/180 m sind ueber GRUND gemessen -> Hoehe ue. NN = Gelaendehoehe + x
+//  - Druckflaechen (hPa) sind absolut, ihre echte Hoehe steht in geopotential_height
+// Eigene Abfrage, absichtlich getrennt von fetchForecast: 32 zusaetzliche Stundenreihen
+// duerfen niemals in die Umkreissuche mit bis zu 50 Plaetzen geraten.
+const WP_LEVELS = [1000, 975, 950, 925, 900, 850, 800, 700, 600];
+const WP_BODEN = [10, 80, 120, 180];
+async function fetchWindProfil(spot) {
+  const key = wxKey("wp1", spot.lat, spot.lon);
+  const cached = wxGet(key); if (cached) return cached;
+  const vars = [
+    ...WP_BODEN.flatMap(h => [`wind_speed_${h}m`, `wind_direction_${h}m`]),
+    ...WP_LEVELS.flatMap(p => [`wind_speed_${p}hPa`, `wind_direction_${p}hPa`, `geopotential_height_${p}hPa`]),
+  ].join(",");
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${spot.lat}&longitude=${spot.lon}` +
+    `&hourly=${vars}&timezone=Europe%2FBerlin&forecast_days=5&wind_speed_unit=kmh`;
+  const data = await (await fetchRetry(url)).json();
+  wxSet(key, data);
+  return data;
+}
+// Schichten einer Stunde, von unten nach oben, jeweils mit echter Hoehe ue. NN.
+function windProfilStunde(data, iso) {
+  const i = data.hourly.time.indexOf(iso);
+  if (i < 0) return null;
+  const grund = data.elevation;
+  const schichten = [];
+  WP_BODEN.forEach(h => {
+    const ws = data.hourly[`wind_speed_${h}m`][i], wd = data.hourly[`wind_direction_${h}m`][i];
+    if (ws == null || wd == null) return;
+    schichten.push({ hoehe: Math.round(grund + h), ws, wd, quelle: "boden", ueberGrund: h });
+  });
+  WP_LEVELS.forEach(p => {
+    const h = data.hourly[`geopotential_height_${p}hPa`][i];
+    const ws = data.hourly[`wind_speed_${p}hPa`][i], wd = data.hourly[`wind_direction_${p}hPa`][i];
+    // Flaechen unterhalb des Gelaendes liefern Fuellwerte (bei Gerlitzen dreimal exakt
+    // dieselbe Zahl) - das sieht aus wie Wetter, ist aber keins. Raus damit.
+    if (h == null || ws == null || wd == null || h <= grund + 10) return;
+    schichten.push({ hoehe: Math.round(h), ws, wd, quelle: "modell", hpa: p });
+  });
+  schichten.sort((a, b) => a.hoehe - b.hoehe);
+  return schichten.length ? { grund, schichten } : null;
+}
+function wpZahl(n) { return n.toLocaleString("de-DE"); }
+// Open-Meteo liefert bei gesetzter Zeitzone naive Ortszeit-Stempel ("2026-08-27T12:00").
+// Genau in dieser Form muss der Schluessel zurueckgebaut werden, um die Stunde zu finden.
+function isoStunde(d) {
+  const p = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:00`;
+}
+// Pfeil zeigt zur Herkunftsseite - dieselbe Lesart wie die Nadel in den Tageszeilen.
+function wpPfeil(x, y, wd, farbe) {
+  return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${Math.round(wd)})">
+    <path d="M0 -6.5 L3.4 1.6 L0 -0.8 L-3.4 1.6 Z" fill="${farbe}"/></g>`;
+}
+function windProfilSvg(spot, prof, stundeLabel) {
+  const { grund, schichten } = prof;
+  // Bis 2500 m ueber Grund zeichnen - darueber fliegt hier niemand, und eine Achse bis
+  // 6000 m quetscht genau den Teil zusammen, auf den es beim Starten ankommt.
+  const deckel = grund + 2500;
+  const sichtbar = schichten.filter(s => s.hoehe <= deckel);
+  const darueber = schichten.filter(s => s.hoehe > deckel);
+  const liste = sichtbar.length >= 2 ? sichtbar : schichten.slice(0, 5);
+  const yTop = Math.max(...liste.map(s => s.hoehe));
+  const spanne = Math.max(yTop - grund, 300);
+  const yUnten = grund - spanne * 0.07;           // schmales Band fuers Gelaende
+  const xMax = Math.max(20, Math.ceil(Math.max(...liste.map(s => s.ws)) * 1.3 / 10) * 10);
+
+  const W = 300, H = 196, mL = 44, mR = 74, mT = 10, mB = 24, band = 10;
+  const px = ws => mL + (ws / xMax) * (W - mL - mR);
+  // Wurzel-Achse statt linear: die vier Bodenwerte liegen innerhalb von 180 m, die
+  // Modellflaechen ueber 1000 m auseinander. Linear waere genau der Startbereich - der
+  // wichtigste - ein Pixelklumpen. Die beschrifteten Hilfslinien zeigen die Stauchung.
+  const wurzel = h => Math.sqrt(Math.max(0, h - grund));
+  const wMax = wurzel(yTop) || 1;
+  const yNull = H - mB - band;
+  const py = h => yNull - (wurzel(h) / wMax) * (yNull - mT);
+
+  // Wenige, weit auseinanderliegende Hilfslinien - in der Tageszeile ist kein Platz fuer mehr
+  const linien = [];
+  [0, 250, 1000, 2500].filter(o => o <= yTop - grund).forEach(o => {
+    const h = grund + o, y = py(h);
+    linien.push(`<line x1="${mL}" y1="${y.toFixed(1)}" x2="${W - mR}" y2="${y.toFixed(1)}" class="wp-grid"/>
+      <text x="${mL - 6}" y="${(y + 3).toFixed(1)}" text-anchor="end" class="wp-ax">${wpZahl(Math.round(h / 10) * 10)}</text>`);
+  });
+  const xTicks = [];
+  for (let v = 0; v <= xMax; v += xMax > 40 ? 20 : 10) {
+    xTicks.push(`<line x1="${px(v).toFixed(1)}" y1="${mT}" x2="${px(v).toFixed(1)}" y2="${yNull.toFixed(1)}" class="wp-grid"/>
+      <text x="${px(v).toFixed(1)}" y="${H - mB + 13}" text-anchor="middle" class="wp-ax">${v}</text>`);
+  }
+  const gelaende = `<rect x="${mL}" y="${yNull.toFixed(1)}" width="${W - mL - mR}" height="${band}" class="wp-boden"/>`;
+  // Startplatzhoehe laut DHV - weicht meist leicht von der Modell-Gelaendehoehe ab
+  const sp = spot.elevation != null && spot.elevation > grund && spot.elevation <= yTop
+    ? `<line x1="${mL}" y1="${py(spot.elevation).toFixed(1)}" x2="${W - mR}" y2="${py(spot.elevation).toFixed(1)}" class="wp-start"/>` : "";
+
+  const pfad = liste.map((s, i) => `${i ? "L" : "M"}${px(s.ws).toFixed(1)} ${py(s.hoehe).toFixed(1)}`).join(" ");
+  // Zwei Punkte koennen nur wenige Meter auseinanderliegen (180 m ueber Grund und die
+  // erste Modellflaeche). Dann nur einen Wert beschriften, sonst ueberdrucken sie sich.
+  let letzteY = Infinity;
+  const punkte = liste.map(s => {
+    const x = px(s.ws), y = py(s.hoehe);
+    const farbe = s.quelle === "boden" ? "var(--green)" : "var(--wp-oben)";
+    const passt = inSectors(s.wd, spot.sectors, activeProfile().dirTol);
+    const platz = Math.abs(y - letzteY) >= 11;
+    if (platz) letzteY = y;
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.4" fill="${farbe}"/>` + (platz
+      ? `${wpPfeil(x + 11, y, s.wd, passt ? "var(--green)" : "var(--muted)")}
+         <text x="${(x + 18).toFixed(1)}" y="${(y + 3).toFixed(1)}" class="wp-val">${s.ws.toFixed(1).replace(".", ",")}<tspan class="wp-dir"> ${degToCompass(s.wd)}</tspan></text>` : "");
+  }).join("");
+
+  const oben = darueber.length
+    ? `<div class="wp-oben">↑ ${darueber.map(s => `${wpZahl(s.hoehe)} m: ${Math.round(s.ws)} ${degToCompass(s.wd)}`).join(" · ")}</div>` : "";
+  return `<div class="wp-kopf"><span class="wp-stunde">Windprofil · ${escHtml(stundeLabel)}</span>
+      <span class="wp-legende"><i class="wp-pt gruen"></i>über Grund<i class="wp-pt blau"></i>Modell</span></div>
+    <svg class="wp-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Windprofil">
+      <text x="0" y="8" class="wp-ax">m ü. NN</text>
+      <text x="${W - mR}" y="${H - 4}" text-anchor="end" class="wp-ax">km/h</text>
+      ${xTicks.join("")}${linien.join("")}${gelaende}${sp}
+      <path d="${pfad}" class="wp-linie"/>
+      ${punkte}
+    </svg>
+    ${oben}
+    <p class="wp-note">Pfeil = Herkunft, grün = passt zur Startrichtung. Modell ~2 km, kein Talwind, keine Thermik.</p>`;
+}
+
 // Mehrere Plätze in EINEM Aufruf (heute + morgen) – für die Umkreis-/Regionssuche.
 // Bereits zwischengespeicherte Plätze werden aus dem Cache bedient; nur fehlende werden angefragt.
 async function fetchBulkToday(spots) {
@@ -1472,7 +1597,7 @@ function dayCardHtml(spot, days, i) {
     const hourLabel = `${wd} ${x.t.getHours()} Uhr`;
     const hwx = x.wc != null ? `<span class="h-wx">${weatherEmoji(x.wc)}</span>` : "";
     const htemp = x.temp != null ? `<span class="h-temp">${Math.round(x.temp)}°</span>` : "";
-    return `<span class="${cls}"${style} title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}"><span class="h-num">${x.t.getHours()}</span>${hwx}${htemp}</span>`;
+    return `<span class="${cls}"${style} title="${info} · ${rtxt}" data-info="${info}" data-reason="${rtxt}" data-rating="${x.rating}" data-ws="${x.ws}" data-wd="${x.wd}" data-wg="${x.wg}" data-hourlabel="${hourLabel}" data-iso="${isoStunde(x.t)}"><span class="h-num">${x.t.getHours()}</span>${hwx}${htemp}</span>`;
   }).join("");
   const winTxt = day.windows.length ? day.windows.map(windowLabel).join(" · ") : "";
   const rating = `<div class="drating ${rv.cls}"><span class="dstars">${starStr(rv.stars)}</span><span class="dverdict">${rv.text}</span>${winTxt ? `<span class="dwin"> · ${winTxt}</span>` : ""}</div>`;
@@ -1482,7 +1607,7 @@ function dayCardHtml(spot, days, i) {
       <div class="dright"><div class="hours">
         <div class="hour-pills">${hoursHtml}</div>
         <div class="scp-day-wrap">${spotCompassSvg(spot, 0, { neutral: true, compact: true, needle: true })}</div>
-      </div><div class="hour-detail" hidden></div><div class="dbottom">${rating}</div></div>
+      </div><div class="hour-detail" hidden></div><div class="wp-inline" hidden></div><div class="dbottom">${rating}</div></div>
     </div>`;
 }
 function renderCard(spot, days, opts = {}) {
@@ -2719,6 +2844,47 @@ async function openDetail(id) {
     body.innerHTML = renderCard(spot, analyse(spot, data), { dayIdx: searchDay, live, driveSec });
   } catch (e) { body.innerHTML = `<div class="card">Fehler: ${e.message}</div>`; }
 }
+// Das Profil oeffnet ausschliesslich durch Antippen einer Stunde - und laedt auch erst
+// dann. Wer nur die Ampel sehen will, loest keine Abfrage aus. Immer nur ein Diagramm
+// offen, sonst waere die Tagesliste nicht mehr ueberschaubar.
+let wpDaten = null, wpSpot = null, wpLaeuft = null;
+function wpSchliesseAndere(behalten) {
+  document.querySelectorAll(".wp-inline").forEach(el => {
+    if (el !== behalten) { el.hidden = true; el.innerHTML = ""; }
+  });
+}
+function wpZeichne(dayEl, iso, label) {
+  const box = dayEl && dayEl.querySelector(".wp-inline");
+  if (!box || !wpDaten || !wpSpot) return;
+  const prof = windProfilStunde(wpDaten, iso);
+  // Vergangene Tage (Wetter-Verlauf) stehen nicht in der Vorhersage - dann gar nichts zeigen
+  if (!prof) { box.hidden = true; box.innerHTML = ""; return; }
+  box.hidden = false;
+  box.innerHTML = windProfilSvg(wpSpot, prof, label);
+}
+async function wpAntippen(dayEl, iso, label) {
+  const spot = currentDetailSpot;
+  const box = dayEl && dayEl.querySelector(".wp-inline");
+  if (!spot || !box) return;
+  wpSchliesseAndere(box);
+  if (wpSpot !== spot) { wpDaten = null; wpLaeuft = null; wpSpot = spot; }
+  if (!wpDaten) {
+    box.hidden = false;
+    box.innerHTML = `<p class="wp-note">Lade Höhenwinde …</p>`;
+    try {
+      // Mehrfaches Antippen waehrend des Ladens soll nicht mehrfach abfragen
+      wpLaeuft = wpLaeuft || fetchWindProfil(spot);
+      const daten = await wpLaeuft;
+      if (currentDetailSpot !== spot) return;   // inzwischen geschlossen oder gewechselt
+      wpDaten = daten;
+    } catch (e) {
+      wpLaeuft = null;
+      box.innerHTML = `<p class="wp-note">Höhenwinde nicht abrufbar (${escHtml(e.message)}).</p>`;
+      return;
+    }
+  }
+  wpZeichne(dayEl, iso, label);
+}
 function closeDetail(fromPopstate = false) {
   document.getElementById("detailModal").hidden = true;
   document.getElementById("detailBody").innerHTML = "";
@@ -2842,6 +3008,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 116, date: "26.08.", text: "Neu: Windprofil unter jedem Tag – Wind und Richtung in verschiedenen Höhen, Stunde antippen" },
   { v: 115, date: "26.08.", text: "Briefing folgt der Auswahl „Morgen“, Info-Knopf an den Kartenmarkern, doppelte Kacheln entfernt" },
   { v: 114, date: "26.08.", text: "Karte: lange drücken legt hier einen eigenen Platz an, Doppeltipp entfernt" },
   { v: 113, date: "26.08.", text: "Parken steht wieder unter der Navigation" },
@@ -3298,6 +3465,8 @@ document.body.addEventListener("click", e => {
       hd.innerHTML = hcell.dataset.info + (rea ? ` · <span class="hd-reason ${rating}">${rea}</span>` : "");
       hd.hidden = false;
     }
+    // Dasselbe Antippen öffnet/aktualisiert das Windprofil direkt unter diesem Tag
+    if (hcell.dataset.iso && dayEl) wpAntippen(dayEl, hcell.dataset.iso, hcell.dataset.hourlabel || "");
     return;
   }
 
