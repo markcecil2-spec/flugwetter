@@ -98,38 +98,40 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .na { color: var(--muted); font-style: italic; }
 .dv-h3 { display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 700; margin: 18px 0 10px; color: var(--text); }
 
-/* Windprofil: Wind in verschiedenen Höhen – steht direkt unter dem angetippten Tag */
-.wp-inline { background: var(--card); border: 1px solid var(--line); border-radius: 11px; padding: 8px 9px 7px; margin: 8px 0 2px; }
+/* Windprofil – Zeilenraster statt Streudiagramm, steht unter dem angetippten Tag */
+.wp-inline {
+  background: linear-gradient(180deg, var(--card) 0%, #121822 100%);
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 11px 9px; margin: 9px 0 3px;
+}
 .wp-inline[hidden] { display: none; }
-.wp-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 2px; }
-.wp-stunde { font-size: 11.5px; font-weight: 700; }
+.wp-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.wp-stunde { font-size: 12px; font-weight: 700; letter-spacing: .01em; }
 .wp-legende { display: flex; align-items: center; gap: 4px; font-size: 9.5px; color: var(--muted); }
 .wp-pt { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
 .wp-pt.gruen { background: var(--green); }
-.wp-pt.blau { background: var(--wp-oben); margin-left: 6px; }
-/* Auf breiten Fenstern nicht mitwachsen - sonst wird das Diagramm hoeher als der Tag darueber */
-.wp-svg { width: 100%; max-width: 420px; height: auto; display: block; margin: 0 auto; }
-.wp-grid { stroke: var(--line); stroke-width: 1; }
-.wp-ax { fill: var(--muted); font-size: 8.5px; }
-.wp-val { fill: var(--text); font-size: 9.5px; font-weight: 700; }
-.wp-dir { fill: var(--muted); font-weight: 600; }
-.wp-linie { fill: none; stroke: var(--wp-oben); stroke-width: 1.6; stroke-dasharray: 4 3; opacity: .7; }
-.wp-boden { fill: rgba(148,163,184,.18); }
-.wp-start { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
-.wp-oben { font-size: 10px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
-.wp-note { font-size: 9.5px; color: var(--muted); line-height: 1.45; margin: 4px 0 0; }
-.dv-table { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 4px 12px; }
-.dv-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; font-size: 13px; border-bottom: 1px solid var(--line); }
-.dv-row:last-child { border-bottom: none; }
-.dv-row-label { color: var(--muted); }
-.dv-row-val { font-weight: 600; text-align: right; }
-.dv-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px; margin: 0 0 6px; }
-.dv-act { display: flex; flex-direction: column; align-items: center; gap: 6px; background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 8px; text-decoration: none; color: var(--text); font-size: 12px; font-weight: 600; text-align: center; }
-.dv-act-ic { font-size: 18px; display: flex; align-items: center; justify-content: center; }
-.dv-act-ic .nav-ic, .dv-act-ic .mi { width: 18px; height: 18px; }
-.spot-name-row { display: flex; align-items: center; gap: 8px; }
-.ic0.dt-star { color: var(--muted); font-size: 24px; line-height: 1; padding: 0; }
-.ic0.dt-star.on { color: var(--amber); }
+.wp-pt.blau { background: var(--wp-oben); margin-left: 7px; }
+/* Spaltenköpfe – ersetzen die frühere Achsenbeschriftung im Diagramm */
+.wp-spalten {
+  display: flex; justify-content: space-between;
+  font-size: 8.5px; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--muted); opacity: .8; margin: 7px 1px 3px;
+}
+.wp-svg { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+.wp-h { fill: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.wp-val { fill: var(--text); font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wp-dir { fill: var(--muted); font-size: 9.5px; font-weight: 700; letter-spacing: .04em; }
+.wp-boden { fill: rgba(148,163,184,.13); }
+.wp-grund { stroke: rgba(148,163,184,.45); stroke-width: 1; }
+.wp-boden-tx { fill: var(--muted); font-size: 9.5px; font-weight: 700; }
+/* Richtungsdrehung über die Höhe – die eigentliche Aussage des Profils */
+.wp-scher {
+  display: inline-block; margin-top: 8px; padding: 4px 9px; border-radius: 7px;
+  background: rgba(110,168,254,.12); border: 1px solid rgba(110,168,254,.3);
+  color: var(--text); font-size: 10.5px; font-weight: 600;
+}
+.wp-oben { font-size: 10px; color: var(--muted); line-height: 1.45; margin-top: 6px; }
+.wp-note { font-size: 9.5px; color: var(--muted); line-height: 1.45; margin: 7px 0 0; opacity: .85; }
 
 .days { display: flex; flex-direction: column; gap: 5px; }
 .day {

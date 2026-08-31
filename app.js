@@ -552,74 +552,64 @@ function wpPfeil(x, y, wd, farbe) {
 }
 function windProfilSvg(spot, prof, stundeLabel) {
   const { grund, schichten } = prof;
-  // Bis 2500 m ueber Grund zeichnen - darueber fliegt hier niemand, und eine Achse bis
-  // 6000 m quetscht genau den Teil zusammen, auf den es beim Starten ankommt.
   const deckel = grund + 2500;
-  const sichtbar = schichten.filter(s => s.hoehe <= deckel);
+  const drin = schichten.filter(s => s.hoehe <= deckel);
   const darueber = schichten.filter(s => s.hoehe > deckel);
-  const liste = sichtbar.length >= 2 ? sichtbar : schichten.slice(0, 5);
-  const yTop = Math.max(...liste.map(s => s.hoehe));
-  const spanne = Math.max(yTop - grund, 300);
-  const yUnten = grund - spanne * 0.07;           // schmales Band fuers Gelaende
-  const xMax = Math.max(20, Math.ceil(Math.max(...liste.map(s => s.ws)) * 1.3 / 10) * 10);
+  // Oben zuerst - so schaut man auch in den Himmel
+  const liste = (drin.length >= 2 ? drin : schichten.slice(0, 5)).slice().reverse();
+  const maxWs = Math.max(...liste.map(s => s.ws), 5);
 
-  const W = 300, H = 196, mL = 44, mR = 74, mT = 10, mB = 24, band = 10;
-  const px = ws => mL + (ws / xMax) * (W - mL - mR);
-  // Wurzel-Achse statt linear: die vier Bodenwerte liegen innerhalb von 180 m, die
-  // Modellflaechen ueber 1000 m auseinander. Linear waere genau der Startbereich - der
-  // wichtigste - ein Pixelklumpen. Die beschrifteten Hilfslinien zeigen die Stauchung.
-  const wurzel = h => Math.sqrt(Math.max(0, h - grund));
-  const wMax = wurzel(yTop) || 1;
-  const yNull = H - mB - band;
-  const py = h => yNull - (wurzel(h) / wMax) * (yNull - mT);
+  // Zeilenraster statt Streudiagramm: die Schichten liegen 4 m bis 1200 m auseinander.
+  // Auf einer massstabsgetreuen Achse klumpen die unteren vier zusammen und die
+  // Beschriftungen ueberdrucken sich. Gleich hohe Zeilen loesen beides; die echten
+  // Hoehen stehen als Zahl daneben und sagen die Wahrheit ueber die Abstaende.
+  const W = 320, ZH = 25, mT = 4, links = 50, rechts = 78, band = 17;
+  const barVon = links + 9, barBis = W - rechts;
+  const H = mT + liste.length * ZH + band;
+  const yZeile = i => mT + i * ZH + ZH / 2;
 
-  // Wenige, weit auseinanderliegende Hilfslinien - in der Tageszeile ist kein Platz fuer mehr
-  const linien = [];
-  [0, 250, 1000, 2500].filter(o => o <= yTop - grund).forEach(o => {
-    const h = grund + o, y = py(h);
-    linien.push(`<line x1="${mL}" y1="${y.toFixed(1)}" x2="${W - mR}" y2="${y.toFixed(1)}" class="wp-grid"/>
-      <text x="${mL - 6}" y="${(y + 3).toFixed(1)}" text-anchor="end" class="wp-ax">${wpZahl(Math.round(h / 10) * 10)}</text>`);
-  });
-  const xTicks = [];
-  for (let v = 0; v <= xMax; v += xMax > 40 ? 20 : 10) {
-    xTicks.push(`<line x1="${px(v).toFixed(1)}" y1="${mT}" x2="${px(v).toFixed(1)}" y2="${yNull.toFixed(1)}" class="wp-grid"/>
-      <text x="${px(v).toFixed(1)}" y="${H - mB + 13}" text-anchor="middle" class="wp-ax">${v}</text>`);
-  }
-  const gelaende = `<rect x="${mL}" y="${yNull.toFixed(1)}" width="${W - mL - mR}" height="${band}" class="wp-boden"/>`;
-  // Startplatzhoehe laut DHV - weicht meist leicht von der Modell-Gelaendehoehe ab
-  const sp = spot.elevation != null && spot.elevation > grund && spot.elevation <= yTop
-    ? `<line x1="${mL}" y1="${py(spot.elevation).toFixed(1)}" x2="${W - mR}" y2="${py(spot.elevation).toFixed(1)}" class="wp-start"/>` : "";
-
-  const pfad = liste.map((s, i) => `${i ? "L" : "M"}${px(s.ws).toFixed(1)} ${py(s.hoehe).toFixed(1)}`).join(" ");
-  // Zwei Punkte koennen nur wenige Meter auseinanderliegen (180 m ueber Grund und die
-  // erste Modellflaeche). Dann nur einen Wert beschriften, sonst ueberdrucken sie sich.
-  let letzteY = Infinity;
-  const punkte = liste.map(s => {
-    const x = px(s.ws), y = py(s.hoehe);
-    const farbe = s.quelle === "boden" ? "var(--green)" : "var(--wp-oben)";
+  const zeilen = liste.map((s, i) => {
+    const y = yZeile(i);
+    const amBoden = s.quelle === "boden";
+    const farbe = amBoden ? "var(--green)" : "var(--wp-oben)";
+    const breite = Math.max(3, (s.ws / maxWs) * (barBis - barVon));
     const passt = inSectors(s.wd, spot.sectors, activeProfile().dirTol);
-    const platz = Math.abs(y - letzteY) >= 11;
-    if (platz) letzteY = y;
-    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.4" fill="${farbe}"/>` + (platz
-      ? `${wpPfeil(x + 11, y, s.wd, passt ? "var(--green)" : "var(--muted)")}
-         <text x="${(x + 18).toFixed(1)}" y="${(y + 3).toFixed(1)}" class="wp-val">${s.ws.toFixed(1).replace(".", ",")}<tspan class="wp-dir"> ${degToCompass(s.wd)}</tspan></text>` : "");
+    return `<g>
+      <text x="${links - 9}" y="${(y + 3.4).toFixed(1)}" text-anchor="end" class="wp-h">${wpZahl(s.hoehe)}</text>
+      <circle cx="${links}" cy="${y.toFixed(1)}" r="2.6" fill="${farbe}"/>
+      <rect x="${barVon}" y="${(y - 4.5).toFixed(1)}" width="${breite.toFixed(1)}" height="9" rx="4.5" fill="${farbe}" opacity="${amBoden ? .9 : .55}"/>
+      <text x="${(barBis + 26).toFixed(1)}" y="${(y + 3.8).toFixed(1)}" text-anchor="end" class="wp-val">${s.ws.toFixed(1).replace(".", ",")}</text>
+      ${wpPfeil(barBis + 38, y, s.wd, passt ? "var(--green)" : "var(--muted)")}
+      <text x="${(barBis + 47).toFixed(1)}" y="${(y + 3.4).toFixed(1)}" class="wp-dir">${degToCompass(s.wd)}</text>
+    </g>`;
   }).join("");
 
-  const oben = darueber.length
-    ? `<div class="wp-oben">↑ ${darueber.map(s => `${wpZahl(s.hoehe)} m: ${Math.round(s.ws)} ${degToCompass(s.wd)}`).join(" · ")}</div>` : "";
+  // Das Band ist die GELÄNDEhoehe des Modells - darauf beziehen sich die Bodenwerte.
+  // Die DHV-Startplatzhoehe weicht davon oft ab (Modell rechnet mit 2-km-Rasterzellen).
+  // Nur "Startplatz" draufzuschreiben waere falsch: dann stuende ueber dem Band eine
+  // kleinere Zahl als im Band selbst.
+  const yBand = mT + liste.length * ZH;
+  const abw = spot.elevation != null ? Math.abs(spot.elevation - grund) : 0;
+  const bandTxt = `Startplatz · ${wpZahl(Math.round(grund))} m` + (abw > 30 ? `   ·   laut DHV ${wpZahl(spot.elevation)} m` : "");
+  const bodenBand = `<rect x="0" y="${yBand}" width="${W}" height="${band}" class="wp-boden" rx="3"/>
+    <line x1="0" y1="${yBand + 0.5}" x2="${W}" y2="${yBand + 0.5}" class="wp-grund"/>
+    <text x="6" y="${yBand + 12}" class="wp-boden-tx">${escHtml(bandTxt)}</text>`;
+
+  // Richtungsaenderung ueber die Hoehe - fuer den Piloten die eigentliche Aussage
+  const unten = liste[liste.length - 1], obenS = liste[0];
+  const dreh = Math.abs(((obenS.wd - unten.wd + 540) % 360) - 180);
+  const scher = dreh >= 45
+    ? `<div class="wp-scher">Dreht mit der Höhe: ${degToCompass(unten.wd)} → ${degToCompass(obenS.wd)}</div>` : "";
+  const hoeher = darueber.length
+    ? `<div class="wp-oben">Höher: ${darueber.map(s => `${wpZahl(s.hoehe)} m · ${Math.round(s.ws)} km/h ${degToCompass(s.wd)}`).join(" · ")}</div>` : "";
+
   return `<div class="wp-kopf"><span class="wp-stunde">Windprofil · ${escHtml(stundeLabel)}</span>
       <span class="wp-legende"><i class="wp-pt gruen"></i>über Grund<i class="wp-pt blau"></i>Modell</span></div>
-    <svg class="wp-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Windprofil">
-      <text x="0" y="8" class="wp-ax">m ü. NN</text>
-      <text x="${W - mR}" y="${H - 4}" text-anchor="end" class="wp-ax">km/h</text>
-      ${xTicks.join("")}${linien.join("")}${gelaende}${sp}
-      <path d="${pfad}" class="wp-linie"/>
-      ${punkte}
-    </svg>
-    ${oben}
+    <div class="wp-spalten"><span>m ü. NN</span><span>km/h</span></div>
+    <svg class="wp-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Windprofil">${zeilen}${bodenBand}</svg>
+    ${scher}${hoeher}
     <p class="wp-note">Pfeil = Herkunft, grün = passt zur Startrichtung. Modell ~2 km, kein Talwind, keine Thermik.</p>`;
 }
-
 // Mehrere Plätze in EINEM Aufruf (heute + morgen) – für die Umkreis-/Regionssuche.
 // Bereits zwischengespeicherte Plätze werden aus dem Cache bedient; nur fehlende werden angefragt.
 async function fetchBulkToday(spots) {
@@ -3008,6 +2998,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 117, date: "26.08.", text: "Windprofil neu gestaltet: klare Zeilen mit Balken, Richtung als Kürzel, Hinweis auf Drehung mit der Höhe" },
   { v: 116, date: "26.08.", text: "Neu: Windprofil unter jedem Tag – Wind und Richtung in verschiedenen Höhen, Stunde antippen" },
   { v: 115, date: "26.08.", text: "Briefing folgt der Auswahl „Morgen“, Info-Knopf an den Kartenmarkern, doppelte Kacheln entfernt" },
   { v: 114, date: "26.08.", text: "Karte: lange drücken legt hier einen eigenen Platz an, Doppeltipp entfernt" },
