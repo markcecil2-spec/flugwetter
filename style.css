@@ -133,6 +133,19 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .wp-oben { font-size: 10px; color: var(--muted); line-height: 1.45; margin-top: 6px; }
 .wp-note { font-size: 9.5px; color: var(--muted); line-height: 1.45; margin: 7px 0 0; opacity: .85; }
 
+.dv-table { background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 4px 12px; }
+.dv-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; font-size: 13px; border-bottom: 1px solid var(--line); }
+.dv-row:last-child { border-bottom: none; }
+.dv-row-label { color: var(--muted); }
+.dv-row-val { font-weight: 600; text-align: right; }
+.dv-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px; margin: 0 0 6px; }
+.dv-act { display: flex; flex-direction: column; align-items: center; gap: 6px; background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px 8px; text-decoration: none; color: var(--text); font-size: 12px; font-weight: 600; text-align: center; }
+.dv-act-ic { font-size: 18px; display: flex; align-items: center; justify-content: center; }
+.dv-act-ic .nav-ic, .dv-act-ic .mi { width: 18px; height: 18px; }
+.spot-name-row { display: flex; align-items: center; gap: 8px; }
+.ic0.dt-star { color: var(--muted); font-size: 24px; line-height: 1; padding: 0; }
+.ic0.dt-star.on { color: var(--amber); }
+
 .days { display: flex; flex-direction: column; gap: 5px; }
 .day {
   display: flex; flex-direction: column; gap: 4px;

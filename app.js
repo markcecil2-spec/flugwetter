@@ -1713,6 +1713,7 @@ function renderCard(spot, days, opts = {}) {
             ${diffHtml}
             <h3 class="dv-h3">Aktionen &amp; Tools</h3>
             ${actionsBadges}
+            <h3 class="dv-h3">Daten zum Gelände</h3>
             ${startplatzTableHtml(spot, diffL)}
             ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}`;
         })()}</div>
@@ -2998,6 +2999,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 118, date: "26.08.", text: "Details-Tab war ohne Formatierung – behoben, Datentabelle mit Überschrift" },
   { v: 117, date: "26.08.", text: "Windprofil neu gestaltet: klare Zeilen mit Balken, Richtung als Kürzel, Hinweis auf Drehung mit der Höhe" },
   { v: 116, date: "26.08.", text: "Neu: Windprofil unter jedem Tag – Wind und Richtung in verschiedenen Höhen, Stunde antippen" },
   { v: 115, date: "26.08.", text: "Briefing folgt der Auswahl „Morgen“, Info-Knopf an den Kartenmarkern, doppelte Kacheln entfernt" },
