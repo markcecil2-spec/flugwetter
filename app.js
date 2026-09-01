@@ -539,6 +539,16 @@ function windProfilStunde(data, iso) {
   return schichten.length ? { grund, schichten } : null;
 }
 function wpZahl(n) { return n.toLocaleString("de-DE"); }
+// Balkenfarbe nach Windstaerke: bis 15 km/h gruen, bis 30 gelb werdend, ab 45 voll rot.
+// Bewusst eine feste Skala fuer alle Hoehen - in 2000 m gelten nicht die Startplatz-
+// Grenzwerte, aber 45 km/h sind ueberall viel Wind.
+function wpStaerkeFarbe(ws) {
+  if (ws <= 15) return COLOR_GOOD;
+  if (ws >= 45) return COLOR_BAD;
+  return ws <= 30
+    ? lerpHex(COLOR_GOOD, COLOR_WARN, (ws - 15) / 15)
+    : lerpHex(COLOR_WARN, COLOR_BAD, (ws - 30) / 15);
+}
 // Open-Meteo liefert bei gesetzter Zeitzone naive Ortszeit-Stempel ("2026-08-27T12:00").
 // Genau in dieser Form muss der Schluessel zurueckgebaut werden, um die Stunde zu finden.
 function isoStunde(d) {
@@ -563,24 +573,30 @@ function windProfilSvg(spot, prof, stundeLabel) {
   // Auf einer massstabsgetreuen Achse klumpen die unteren vier zusammen und die
   // Beschriftungen ueberdrucken sich. Gleich hohe Zeilen loesen beides; die echten
   // Hoehen stehen als Zahl daneben und sagen die Wahrheit ueber die Abstaende.
-  const W = 320, ZH = 25, mT = 4, links = 50, rechts = 78, band = 17;
+  const W = 320, ZH = 25, mT = 17, links = 50, rechts = 78, band = 17;
   const barVon = links + 9, barBis = W - rechts;
   const H = mT + liste.length * ZH + band;
   const yZeile = i => mT + i * ZH + ZH / 2;
 
+  // Zwei Farbkanäle mit je EINER Bedeutung:
+  //  - Balken = Windstärke, gruen ueber gelb nach rot. Gleiche Farbsprache wie die
+  //    Stundenkacheln darueber, damit man nicht zweimal umdenken muss.
+  //  - Richtung wird nur in der Startplatz-Zeile bewertet (Zeilenhintergrund + Pfeil).
+  //    In 2000 m ist die Startrichtung des Gelaendes schlicht bedeutungslos.
+  const startZeile = liste.length - 1;                  // unterste Schicht = Startplatzhoehe
+  const startPasst = inSectors(liste[startZeile].wd, spot.sectors, activeProfile().dirTol);
+  const startFarbe = startPasst ? "var(--green)" : "var(--red)";
+
   const zeilen = liste.map((s, i) => {
     const y = yZeile(i);
-    const amBoden = s.quelle === "boden";
-    const farbe = amBoden ? "var(--green)" : "var(--wp-oben)";
+    const istStart = i === startZeile;
     const breite = Math.max(3, (s.ws / maxWs) * (barBis - barVon));
-    const passt = inSectors(s.wd, spot.sectors, activeProfile().dirTol);
     return `<g>
-      <text x="${links - 9}" y="${(y + 3.4).toFixed(1)}" text-anchor="end" class="wp-h">${wpZahl(s.hoehe)}</text>
-      <circle cx="${links}" cy="${y.toFixed(1)}" r="2.6" fill="${farbe}"/>
-      <rect x="${barVon}" y="${(y - 4.5).toFixed(1)}" width="${breite.toFixed(1)}" height="9" rx="4.5" fill="${farbe}" opacity="${amBoden ? .9 : .55}"/>
+      <text x="${links - 9}" y="${(y + 3.4).toFixed(1)}" text-anchor="end" class="wp-h${istStart ? " on" : ""}">${wpZahl(s.hoehe)}</text>
+      <rect x="${barVon}" y="${(y - 4.5).toFixed(1)}" width="${breite.toFixed(1)}" height="9" rx="4.5" fill="${wpStaerkeFarbe(s.ws)}" opacity="${istStart ? 1 : .8}"/>
       <text x="${(barBis + 26).toFixed(1)}" y="${(y + 3.8).toFixed(1)}" text-anchor="end" class="wp-val">${s.ws.toFixed(1).replace(".", ",")}</text>
-      ${wpPfeil(barBis + 38, y, s.wd, passt ? "var(--green)" : "var(--muted)")}
-      <text x="${(barBis + 47).toFixed(1)}" y="${(y + 3.4).toFixed(1)}" class="wp-dir">${degToCompass(s.wd)}</text>
+      ${wpPfeil(barBis + 38, y, s.wd, istStart ? startFarbe : "var(--muted)")}
+      <text x="${(barBis + 47).toFixed(1)}" y="${(y + 3.4).toFixed(1)}" class="wp-dir${istStart ? " on" : ""}">${degToCompass(s.wd)}</text>
     </g>`;
   }).join("");
 
@@ -591,9 +607,13 @@ function windProfilSvg(spot, prof, stundeLabel) {
   const yBand = mT + liste.length * ZH;
   const abw = spot.elevation != null ? Math.abs(spot.elevation - grund) : 0;
   const bandTxt = `Startplatz · ${wpZahl(Math.round(grund))} m` + (abw > 30 ? `   ·   laut DHV ${wpZahl(spot.elevation)} m` : "");
-  const bodenBand = `<rect x="0" y="${yBand}" width="${W}" height="${band}" class="wp-boden" rx="3"/>
-    <line x1="0" y1="${yBand + 0.5}" x2="${W}" y2="${yBand + 0.5}" class="wp-grund"/>
-    <text x="6" y="${yBand + 12}" class="wp-boden-tx">${escHtml(bandTxt)}</text>`;
+  // Startplatz-Zeile und das Band darunter gehoeren zusammen: EIN durchgehend getoenter
+  // Block in der Richtungsfarbe, innen nur durch eine feine Linie geteilt. Vorher waren es
+  // zwei Kaesten in zwei verschiedenen Farben, die nichts miteinander zu tun zu haben schienen.
+  const yStartZeile = yZeile(startZeile) - ZH / 2;
+  const startBlock = `<rect x="0" y="${yStartZeile.toFixed(1)}" width="${W}" height="${(ZH + band).toFixed(1)}" rx="7" fill="${startFarbe}" opacity=".13"/>
+    <line x1="7" y1="${yBand + 0.5}" x2="${W - 7}" y2="${yBand + 0.5}" stroke="${startFarbe}" stroke-width="1" opacity=".35"/>`;
+  const bodenBand = `<text x="8" y="${yBand + 12}" class="wp-boden-tx" fill="${startFarbe}">${escHtml(bandTxt)}</text>`;
 
   // Richtungsaenderung ueber die Hoehe - fuer den Piloten die eigentliche Aussage
   const unten = liste[liste.length - 1], obenS = liste[0];
@@ -603,12 +623,15 @@ function windProfilSvg(spot, prof, stundeLabel) {
   const hoeher = darueber.length
     ? `<div class="wp-oben">Höher: ${darueber.map(s => `${wpZahl(s.hoehe)} m · ${Math.round(s.ws)} km/h ${degToCompass(s.wd)}`).join(" · ")}</div>` : "";
 
-  return `<div class="wp-kopf"><span class="wp-stunde">Windprofil · ${escHtml(stundeLabel)}</span>
-      <span class="wp-legende"><i class="wp-pt gruen"></i>über Grund<i class="wp-pt blau"></i>Modell</span></div>
-    <div class="wp-spalten"><span>m ü. NN</span><span>km/h</span></div>
-    <svg class="wp-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Windprofil">${zeilen}${bodenBand}</svg>
+  // Spaltenköpfe stehen im SVG, damit sie exakt über ihren Zahlen sitzen. Als HTML-Zeile
+  // darüber klebten sie an den Rändern und "km/h" stand über der Himmelsrichtung.
+  const kopfzeile = `<text x="${links - 9}" y="9" text-anchor="end" class="wp-sp">m ü. NN</text>
+    <text x="${(barBis + 26).toFixed(1)}" y="9" text-anchor="end" class="wp-sp">km/h</text>`;
+  return `<div class="wp-kopf"><span class="wp-stunde">Windprofil · ${escHtml(stundeLabel)}</span></div>
+    <svg class="wp-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Windprofil">${kopfzeile}${startBlock}${zeilen}${bodenBand}</svg>
     ${scher}${hoeher}
-    <p class="wp-note">Pfeil = Herkunft, grün = passt zur Startrichtung. Modell ~2 km, kein Talwind, keine Thermik.</p>`;
+    <p class="wp-note">Balkenfarbe = Windstärke. Die Richtung wird nur am Startplatz bewertet (farbige Zeile), Pfeil = Herkunft.
+      Modell ~2 km, kein Talwind, keine Thermik.</p>`;
 }
 // Mehrere Plätze in EINEM Aufruf (heute + morgen) – für die Umkreis-/Regionssuche.
 // Bereits zwischengespeicherte Plätze werden aus dem Cache bedient; nur fehlende werden angefragt.
@@ -2999,6 +3022,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 119, date: "26.08.", text: "Windprofil: Balkenfarbe zeigt jetzt die Windstärke, die Richtung wird nur am Startplatz bewertet" },
   { v: 118, date: "26.08.", text: "Details-Tab war ohne Formatierung – behoben, Datentabelle mit Überschrift" },
   { v: 117, date: "26.08.", text: "Windprofil neu gestaltet: klare Zeilen mit Balken, Richtung als Kürzel, Hinweis auf Drehung mit der Höhe" },
   { v: 116, date: "26.08.", text: "Neu: Windprofil unter jedem Tag – Wind und Richtung in verschiedenen Höhen, Stunde antippen" },

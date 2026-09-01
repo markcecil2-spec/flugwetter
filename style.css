@@ -107,28 +107,23 @@ h1 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
 .wp-inline[hidden] { display: none; }
 .wp-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .wp-stunde { font-size: 12px; font-weight: 700; letter-spacing: .01em; }
-.wp-legende { display: flex; align-items: center; gap: 4px; font-size: 9.5px; color: var(--muted); }
-.wp-pt { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-.wp-pt.gruen { background: var(--green); }
-.wp-pt.blau { background: var(--wp-oben); margin-left: 7px; }
-/* Spaltenköpfe – ersetzen die frühere Achsenbeschriftung im Diagramm */
-.wp-spalten {
-  display: flex; justify-content: space-between;
-  font-size: 8.5px; letter-spacing: .09em; text-transform: uppercase;
-  color: var(--muted); opacity: .8; margin: 7px 1px 3px;
-}
 .wp-svg { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+/* Spaltenköpfe im Diagramm - sitzen exakt über ihren Zahlen */
+.wp-sp { fill: var(--muted); font-size: 8.5px; font-weight: 700; letter-spacing: .07em; opacity: .8; }
 .wp-h { fill: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.wp-h.on { fill: var(--text); font-weight: 700; }
 .wp-val { fill: var(--text); font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .wp-dir { fill: var(--muted); font-size: 9.5px; font-weight: 700; letter-spacing: .04em; }
-.wp-boden { fill: rgba(148,163,184,.13); }
-.wp-grund { stroke: rgba(148,163,184,.45); stroke-width: 1; }
-.wp-boden-tx { fill: var(--muted); font-size: 9.5px; font-weight: 700; }
+.wp-dir.on { fill: var(--text); }
+/* Farbe kommt aus dem SVG (Richtungsfarbe) - hier nur Groesse/Gewicht */
+.wp-boden-tx { font-size: 9.5px; font-weight: 700; }
 /* Richtungsdrehung über die Höhe – die eigentliche Aussage des Profils */
+/* Bewusst neutral: der Hinweis ist eine Beobachtung, kein Urteil - er soll nicht mit
+   der Ampelfarbe der Startplatz-Zeile konkurrieren. */
 .wp-scher {
-  display: inline-block; margin-top: 8px; padding: 4px 9px; border-radius: 7px;
-  background: rgba(110,168,254,.12); border: 1px solid rgba(110,168,254,.3);
-  color: var(--text); font-size: 10.5px; font-weight: 600;
+  display: inline-block; margin-top: 9px; padding: 4px 9px; border-radius: 7px;
+  background: var(--card-2); border: 1px solid var(--line);
+  color: var(--muted); font-size: 10.5px; font-weight: 600;
 }
 .wp-oben { font-size: 10px; color: var(--muted); line-height: 1.45; margin-top: 6px; }
 .wp-note { font-size: 9.5px; color: var(--muted); line-height: 1.45; margin: 7px 0 0; opacity: .85; }
