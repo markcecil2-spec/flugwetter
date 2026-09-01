@@ -501,10 +501,13 @@ async function fetchForecast(spot) {
 //  - Druckflaechen (hPa) sind absolut, ihre echte Hoehe steht in geopotential_height
 // Eigene Abfrage, absichtlich getrennt von fetchForecast: 32 zusaetzliche Stundenreihen
 // duerfen niemals in die Umkreissuche mit bis zu 50 Plaetzen geraten.
-const WP_LEVELS = [1000, 975, 950, 925, 900, 850, 800, 700, 600];
-const WP_BODEN = [10, 80, 120, 180];
+// Zwischenflaechen (875/825/775/750 hPa) halbieren die Abstaende ueber dem Gelaende und
+// machen die Rechnung auf 500-m-Schritte deutlich genauer. Ueber Grund endet die API
+// bei 200 m - 300 m und hoeher nimmt sie zwar an, liefert aber null.
+const WP_LEVELS = [1000, 975, 950, 925, 900, 875, 850, 825, 800, 775, 750, 700, 600];
+const WP_BODEN = [10, 80, 120, 180, 200];
 async function fetchWindProfil(spot) {
-  const key = wxKey("wp1", spot.lat, spot.lon);
+  const key = wxKey("wp2", spot.lat, spot.lon);
   const cached = wxGet(key); if (cached) return cached;
   const vars = [
     ...WP_BODEN.flatMap(h => [`wind_speed_${h}m`, `wind_direction_${h}m`]),
@@ -539,6 +542,34 @@ function windProfilStunde(data, iso) {
   return schichten.length ? { grund, schichten } : null;
 }
 function wpZahl(n) { return n.toLocaleString("de-DE"); }
+// Wind zwischen zwei Modellflaechen: ueber die Komponenten rechnen, nicht ueber Grad.
+// 350 Grad und 10 Grad ergeben als Mittel sonst 180 - also genau die Gegenrichtung.
+function wpUv(ws, wd) { const r = wd * Math.PI / 180; return { u: -ws * Math.sin(r), v: -ws * Math.cos(r) }; }
+function wpVonUv(u, v) { return { ws: Math.hypot(u, v), wd: (Math.atan2(-u, -v) * 180 / Math.PI + 360) % 360 }; }
+function wpInterpol(schichten, h) {
+  let unten = null, oben = null;
+  for (const s of schichten) { if (s.hoehe <= h) unten = s; if (s.hoehe >= h && !oben) oben = s; }
+  if (!unten || !oben) return null;                       // ausserhalb der Daten: nie hochrechnen
+  if (oben.hoehe === unten.hoehe) return { ws: oben.ws, wd: oben.wd };
+  const t = (h - unten.hoehe) / (oben.hoehe - unten.hoehe);
+  const a = wpUv(unten.ws, unten.wd), b = wpUv(oben.ws, oben.wd);
+  return wpVonUv(a.u + (b.u - a.u) * t, a.v + (b.v - a.v) * t);
+}
+// Startplatz (echter Messwert) plus glatte 500-m-Schritte darueber. Die Modellflaechen
+// liegen unregelmaessig (4 m bis 1200 m Abstand) - als Zeilenfolge liest sich das wirr.
+// Zwischenwerte sind gerechnet, nicht gemessen; das steht auch unter dem Diagramm.
+function wpRaster(prof) {
+  const { grund, schichten } = prof;
+  if (!schichten.length) return [];
+  const start = schichten[0];
+  const zeilen = [{ hoehe: start.hoehe, ws: start.ws, wd: start.wd, art: "start" }];
+  const top = schichten[schichten.length - 1].hoehe;
+  for (let h = Math.ceil((start.hoehe + 50) / 500) * 500; h <= grund + 2500 && h <= top; h += 500) {
+    const w = wpInterpol(schichten, h);
+    if (w) zeilen.push({ hoehe: h, ws: w.ws, wd: w.wd, art: "raster" });
+  }
+  return zeilen;
+}
 // Balkenfarbe nach Windstaerke: bis 15 km/h gruen, bis 30 gelb werdend, ab 45 voll rot.
 // Bewusst eine feste Skala fuer alle Hoehen - in 2000 m gelten nicht die Startplatz-
 // Grenzwerte, aber 45 km/h sind ueberall viel Wind.
@@ -562,11 +593,10 @@ function wpPfeil(x, y, wd, farbe) {
 }
 function windProfilSvg(spot, prof, stundeLabel) {
   const { grund, schichten } = prof;
-  const deckel = grund + 2500;
-  const drin = schichten.filter(s => s.hoehe <= deckel);
-  const darueber = schichten.filter(s => s.hoehe > deckel);
-  // Oben zuerst - so schaut man auch in den Himmel
-  const liste = (drin.length >= 2 ? drin : schichten.slice(0, 5)).slice().reverse();
+  const raster = wpRaster(prof);
+  if (!raster.length) return `<p class="wp-note">Für diese Stunde liegen keine Höhenwinde vor.</p>`;
+  const liste = raster.slice().reverse();                 // oben zuerst, so schaut man in den Himmel
+  const darueber = schichten.filter(s => s.hoehe > grund + 2500).slice(-1);
   const maxWs = Math.max(...liste.map(s => s.ws), 5);
 
   // Zeilenraster statt Streudiagramm: die Schichten liegen 4 m bis 1200 m auseinander.
@@ -630,7 +660,8 @@ function windProfilSvg(spot, prof, stundeLabel) {
   return `<div class="wp-kopf"><span class="wp-stunde">Windprofil · ${escHtml(stundeLabel)}</span></div>
     <svg class="wp-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Windprofil">${kopfzeile}${startBlock}${zeilen}${bodenBand}</svg>
     ${scher}${hoeher}
-    <p class="wp-note">Balkenfarbe = Windstärke. Die Richtung wird nur am Startplatz bewertet (farbige Zeile), Pfeil = Herkunft.
+    <p class="wp-note">Startplatz-Zeile aus dem Modell, die 500-m-Stufen darüber dazwischen gerechnet.
+      Balkenfarbe = Windstärke, Richtung nur am Startplatz bewertet, Pfeil = Herkunft.
       Modell ~2 km, kein Talwind, keine Thermik.</p>`;
 }
 // Mehrere Plätze in EINEM Aufruf (heute + morgen) – für die Umkreis-/Regionssuche.
@@ -3022,6 +3053,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 120, date: "26.08.", text: "Windprofil jetzt in gleichmäßigen 500-m-Stufen statt krummer Modellhöhen" },
   { v: 119, date: "26.08.", text: "Windprofil: Balkenfarbe zeigt jetzt die Windstärke, die Richtung wird nur am Startplatz bewertet" },
   { v: 118, date: "26.08.", text: "Details-Tab war ohne Formatierung – behoben, Datentabelle mit Überschrift" },
   { v: 117, date: "26.08.", text: "Windprofil neu gestaltet: klare Zeilen mit Balken, Richtung als Kürzel, Hinweis auf Drehung mit der Höhe" },
