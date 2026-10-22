@@ -2826,7 +2826,7 @@ function drawSuggest(v) {
     { type: "all" },
   ];
   suggestActive = -1;
-  const icMtn = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-10 4 6 2-3 6 7z"/></svg>`;
+  const icGlider = `<img src="icons/logo-glider.png" alt="">`;   // unser Gleitschirm-Logo = Startplatz
   const icPin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>`;
   const icFind = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>`;
   const opt = (i, ic, name, sub, cls = "") => `<button type="button" class="sg-opt ${cls}" role="option" data-i="${i}">
@@ -2837,7 +2837,7 @@ function drawSuggest(v) {
   for (const h of hits) {
     const s = h.s;
     const sub = [s.region, s.sectorLabel ? `Start ${s.sectorLabel.replace(/ · /g, ", ")}` : "", s.elevation != null ? `${s.elevation} m` : "", h.d != null ? `${Math.round(h.d)} km` : ""].filter(Boolean).join(" · ");
-    html += opt(i++, icMtn, markMatch(s.name, v), sub);
+    html += opt(i++, icGlider, markMatch(s.name, v), sub);
   }
   if (places.length) html += `<div class="sg-head">Orte &amp; Gebiete – Startplätze im Umkreis</div>`;
   for (const pl of places) html += opt(i++, icPin, markMatch(pl.name, v), [pl.kind, pl.where].filter(Boolean).join(" · "), "sg-place");
