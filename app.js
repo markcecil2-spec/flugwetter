@@ -2252,69 +2252,6 @@ document.getElementById("radiusPills").addEventListener("click", e => {
   if (lastOrigin) runFlySearch(lastOrigin.lat, lastOrigin.lon, lastOrigin.label, { focus: searchFocus });
 });
 
-// Regionen (Zentrum + Radius km) für die Regions-Suche
-const REGIONS = {
-  allgaeu:         { name: "Allgäu",               country: "de", lat: 47.55,   lon: 10.25,   r: 45 },
-  alb:             { name: "Schwäbische Alb",      country: "de", lat: 48.45,   lon: 9.35,    r: 60 },
-  schwarzwald:     { name: "Schwarzwald",          country: "de", lat: 48.15,   lon: 8.15,    r: 85 },
-  werdenfels:      { name: "Werdenfelser Land",    country: "de", lat: 47.52,   lon: 11.10,   r: 28 },
-  voralpen:        { name: "Bayerische Voralpen",  country: "de", lat: 47.65,   lon: 11.50,   r: 40 },
-  chiemgau:        { name: "Chiemgau",             country: "de", lat: 47.75,   lon: 12.50,   r: 40 },
-  berchtesgaden:   { name: "Berchtesgadener Land", country: "de", lat: 47.63,   lon: 12.99,   r: 28 },
-  rheinlandpfalz:  { name: "Rheinland-Pfalz",      country: "de", lat: 49.9040, lon: 7.4628,  r: 110 },
-  hessen:          { name: "Hessen",               country: "de", lat: 50.4453, lon: 8.8423,  r: 130 },
-  nrw:             { name: "Nordrhein-Westfalen",  country: "de", lat: 51.2689, lon: 8.1517,  r: 140 },
-  thueringen:      { name: "Thüringen",            country: "de", lat: 50.8381, lon: 11.0289, r: 100 },
-  sachsen:         { name: "Sachsen",              country: "de", lat: 50.8241, lon: 13.5145, r: 90 },
-  deutschland:     { name: "Deutschland (alle)",   country: "de", lat: 49.4477, lon: 9.6313,  r: 580 },
-  tirol:           { name: "Tirol",                country: "at", lat: 47.1777, lon: 11.4725, r: 110 },
-  steiermark:      { name: "Steiermark",           country: "at", lat: 47.3339, lon: 14.5904, r: 100 },
-  oberoesterreich: { name: "Oberösterreich",       country: "at", lat: 48.1353, lon: 13.9855, r: 80 },
-  kaernten:        { name: "Kärnten",              country: "at", lat: 46.7719, lon: 13.8763, r: 85 },
-  salzburg_at:     { name: "Salzburg",             country: "at", lat: 47.4645, lon: 13.2025, r: 75 },
-  vorarlberg:      { name: "Vorarlberg",           country: "at", lat: 47.2126, lon: 9.9555,  r: 38 },
-  oesterreich:     { name: "Österreich (alle)",    country: "at", lat: 47.3464, lon: 12.9527, r: 320 },
-  bern:            { name: "Bern",                 country: "ch", lat: 46.6993, lon: 7.6290,  r: 70 },
-  wallis:          { name: "Wallis",                country: "ch", lat: 46.2432, lon: 7.4828,  r: 72 },
-  graubuenden:     { name: "Graubünden",            country: "ch", lat: 46.6820, lon: 9.5928,  r: 65 },
-  schwyz:          { name: "Schwyz",                country: "ch", lat: 47.0531, lon: 8.7208,  r: 25 },
-  waadt:           { name: "Waadt",                 country: "ch", lat: 46.4752, lon: 6.8354,  r: 60 },
-  uri:             { name: "Uri",                   country: "ch", lat: 46.8105, lon: 8.6529,  r: 30 },
-  tessin:          { name: "Tessin",                country: "ch", lat: 46.1835, lon: 8.9583,  r: 40 },
-  stgallen:        { name: "St. Gallen",            country: "ch", lat: 47.1610, lon: 9.3128,  r: 38 },
-  obwalden:        { name: "Obwalden",              country: "ch", lat: 46.8506, lon: 8.3245,  r: 22 },
-  luzern:          { name: "Luzern",                country: "ch", lat: 46.9611, lon: 8.2367,  r: 32 },
-  schweiz:         { name: "Schweiz (alle)",        country: "ch", lat: 46.7255, lon: 8.2455,  r: 170 },
-  rhonealpes_fr:   { name: "Rhône-Alpes",           country: "fr", lat: 45.4655, lon: 5.9135,  r: 180 },
-  hautesavoie_fr:  { name: "Haute-Savoie",          country: "fr", lat: 45.9752, lon: 6.6043,  r: 55 },
-  provence_fr:     { name: "Provence",              country: "fr", lat: 44.1226, lon: 6.2527,  r: 120 },
-  savoie_fr:       { name: "Savoie",                country: "fr", lat: 45.5704, lon: 6.4906,  r: 65 },
-  isere_fr:        { name: "Isère",                 country: "fr", lat: 45.1346, lon: 5.7896,  r: 50 },
-  puydedome_fr:    { name: "Puy-de-Dôme",           country: "fr", lat: 45.5807, lon: 3.1024,  r: 60 },
-  hautepyrenees_fr:{ name: "Hautes-Pyrénées",       country: "fr", lat: 42.8864, lon: 0.1470,  r: 40 },
-  hautesalpes_fr:  { name: "Hautes-Alpes",          country: "fr", lat: 44.6802, lon: 6.2126,  r: 55 },
-  ain_fr:          { name: "Ain",                   country: "fr", lat: 46.0977, lon: 5.6472,  r: 65 },
-  drome_fr:        { name: "Drôme",                 country: "fr", lat: 44.5035, lon: 5.3674,  r: 65 },
-  doubs_fr:        { name: "Doubs",                 country: "fr", lat: 47.1077, lon: 6.3193,  r: 110 },
-  saoneetloire_fr: { name: "Saône-et-Loire",        country: "fr", lat: 46.5919, lon: 4.5514,  r: 50 },
-  jura_fr:         { name: "Jura (FR)",             country: "fr", lat: 46.6691, lon: 5.8667,  r: 45 },
-  corse_fr:        { name: "Korsika",               country: "fr", lat: 42.4367, lon: 9.1534,  r: 65 },
-  vosges_fr:       { name: "Vogesen",               country: "fr", lat: 48.0367, lon: 6.8159,  r: 65 },
-  ariege_fr:       { name: "Ariège",                country: "fr", lat: 42.8281, lon: 1.4871,  r: 50 },
-  cantal_fr:       { name: "Cantal",                country: "fr", lat: 45.0887, lon: 2.7187,  r: 25 },
-  cotesdarmor_fr:  { name: "Côtes-d'Armor",         country: "fr", lat: 48.6753, lon: -3.0817, r: 50 },
-  hautegaronne_fr: { name: "Haute-Garonne",         country: "fr", lat: 42.9436, lon: 0.7780,  r: 50 },
-  ardeche_fr:      { name: "Ardèche",               country: "fr", lat: 44.7947, lon: 4.3568,  r: 70 },
-  var_fr:          { name: "Var",                   country: "fr", lat: 43.4442, lon: 6.2191,  r: 60 },
-  frankreich:      { name: "Frankreich (alle)",     country: "fr", lat: 45.8432, lon: 4.2100,  r: 710 },
-  sudtirol_it:     { name: "Südtirol",              country: "it", lat: 46.5726, lon: 11.5399, r: 160 },
-  lombardei_it:    { name: "Lombardei",             country: "it", lat: 46.0038, lon: 9.7884,  r: 155 },
-  piemont_it:      { name: "Piemont",               country: "it", lat: 45.2564, lon: 7.7534,  r: 235 },
-  venetien_it:     { name: "Venetien",              country: "it", lat: 45.8959, lon: 11.4492, r: 95 },
-  ligurien_it:     { name: "Ligurien",              country: "it", lat: 44.1268, lon: 8.3967,  r: 120 },
-  friaul_it:       { name: "Friaul",                country: "it", lat: 46.2988, lon: 13.0226, r: 110 },
-  italien:         { name: "Italien (alle)",        country: "it", lat: 43.4161, lon: 11.6762, r: 790 },
-};
 
 // Gemeinsame Auswertung + Anzeige für eine Kandidatenliste.
 // candidates: mit .dist (Anzeige-km oder null) und .sortKey (Zahl). origin: {lat,lon} oder null (für Fahrzeit).
@@ -2980,25 +2917,6 @@ async function runFlySearch(lat, lon, label, opts = {}) {
   await renderSearch(candidates, { lat, lon }, headline, opts);
 }
 
-// Regions-Suche (nach Gebiet statt Umkreis); Fahrzeit nur falls Standort schon bekannt
-async function runRegionSearch(key) {
-  const R = REGIONS[key]; if (!R) return;
-  routeAufraeumen();
-  searchFocus = null;
-  localStorage.setItem("flugwetter_lastregion", key);   // Nordstern: beim nächsten Öffnen sofort zeigen
-  rerunSearch = () => runRegionSearch(key);
-  const origin = lastOrigin;
-  const candidates = allKnownSpots()
-    .map(s => {
-      const toCenter = haversine(R.lat, R.lon, s.lat, s.lon);
-      return { ...s, _c: toCenter,
-        dist: origin ? haversine(origin.lat, origin.lon, s.lat, s.lon) : null,
-        sortKey: origin ? haversine(origin.lat, origin.lon, s.lat, s.lon) : toCenter };
-    })
-    .filter(s => s._c <= R.r && (!s.country || s.country === R.country))
-    .sort((a, b) => a.sortKey - b.sortKey);
-  await renderSearch(candidates, origin, `${dayWord()} · Region <b>${R.name}</b>`);
-}
 
 // Heute/Morgen-Umschalter
 document.getElementById("dayToggle").addEventListener("click", e => {
@@ -3174,54 +3092,7 @@ async function filterAusListe() {
   mapTogglePop("mapFilterSheet");
 }
 
-// Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
-function renderRegionOptions(country) {
-  const sel = document.getElementById("regionSelect");
-  const opts = ['<option value="">Region / Filter …</option>'];
-  Object.entries(REGIONS).forEach(([key, r]) => { if (r.country === country) opts.push(`<option value="${key}">${r.name}</option>`); });
-  sel.innerHTML = opts.join("");
-}
-// Länderflaggen als kleine SVG (plattformübergreifend, statt Emoji)
-const FLAGS = {
-  de: `<svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#000"/><rect width="5" height="1" y="1" fill="#DD0000"/><rect width="5" height="1" y="2" fill="#FFCE00"/></svg>`,
-  at: `<svg viewBox="0 0 5 3" preserveAspectRatio="none"><rect width="5" height="1" y="0" fill="#ED2939"/><rect width="5" height="1" y="1" fill="#fff"/><rect width="5" height="1" y="2" fill="#ED2939"/></svg>`,
-  ch: `<svg viewBox="0 0 5 5" preserveAspectRatio="none"><rect width="5" height="5" fill="#D52B1E"/><rect x="2" y="1" width="1" height="3" fill="#fff"/><rect x="1" y="2" width="3" height="1" fill="#fff"/></svg>`,
-  fr: `<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#0055A4"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#EF4135"/></svg>`,
-  it: `<svg viewBox="0 0 3 2" preserveAspectRatio="none"><rect width="1" height="2" x="0" fill="#008C45"/><rect width="1" height="2" x="1" fill="#fff"/><rect width="1" height="2" x="2" fill="#CD212A"/></svg>`,
-};
-// Eigenes Land-Dropdown (kein natives <select> → wird von Chrome nicht als Adressfeld autofill-gefärbt)
-const COUNTRIES = [["de", "Deutschland"], ["at", "Österreich"], ["ch", "Schweiz"], ["fr", "Frankreich"], ["it", "Italien"]];
-let setCountryUI = null;   // wird in initCountryDD gesetzt (fürs Wiederherstellen der letzten Region)
-(function initCountryDD() {
-  const dd = document.getElementById("countryDD");
-  const btn = document.getElementById("countryBtn");
-  const menu = document.getElementById("countryMenu");
-  menu.innerHTML = COUNTRIES.map(([v, n]) =>
-    `<button type="button" class="dd-opt" role="option" data-country="${v}"><span class="dd-flag">${FLAGS[v]}</span>${n}</button>`).join("");
-  const close = () => { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); };
-  const setCountry = v => {
-    const c = COUNTRIES.find(x => x[0] === v) || COUNTRIES[0];
-    document.getElementById("countryFlag").innerHTML = FLAGS[v] || "";
-    document.getElementById("countryLabel").textContent = c[1];
-    renderRegionOptions(v);
-  };
-  btn.addEventListener("click", e => {
-    e.stopPropagation();
-    const open = menu.hidden; menu.hidden = !open; btn.setAttribute("aria-expanded", String(open));
-  });
-  menu.addEventListener("click", e => {
-    const o = e.target.closest("[data-country]"); if (!o) return;
-    setCountry(o.dataset.country); close();
-  });
-  document.addEventListener("click", e => { if (!dd.contains(e.target)) close(); });
-  setCountryUI = setCountry;
-  setCountry("de");
-})();
 updateHero(null);
-document.getElementById("regionSelect").addEventListener("change", e => {
-  const v = e.target.value;
-  if (v) runRegionSearch(v);
-});
 
 // Erster Start (kein GPS, keine letzte Region): klarer, einladender Einstieg statt leerer Fläche
 function renderFirstRun() {
@@ -3233,7 +3104,7 @@ function renderFirstRun() {
       <div class="fr-title">Wo kannst du heute fliegen?</div>
       <div class="fr-sub">Ein Tipp – und du siehst die fliegbaren Startplätze in deiner Nähe.</div>
       <button type="button" class="fr-gps" id="frGps">📍 Meinen Standort verwenden</button>
-      <div class="fr-or">oder oben eine <b>Region</b> wählen</div>
+      <div class="fr-or">oder oben einen <b>Ort</b> suchen</div>
     </div>`;
   const b = document.getElementById("frGps");
   if (b) b.addEventListener("click", startGpsSearch);
@@ -3251,7 +3122,7 @@ function renderFirstRunMap() {
       <div class="fr-title">Wo kannst du heute fliegen?</div>
       <div class="fr-sub">Ein Tipp – und du siehst die fliegbaren Startplätze in deiner Nähe.</div>
       <button type="button" class="fr-gps" id="frGpsMap">📍 Meinen Standort verwenden</button>
-      <div class="fr-or">oder oben eine <b>Region</b> wählen</div>
+      <div class="fr-or">oder oben einen <b>Ort</b> suchen</div>
     </div>`;
   const b = document.getElementById("frGpsMap");
   if (b) b.addEventListener("click", startGpsSearch);
@@ -3269,7 +3140,7 @@ function startGpsSearch() {
     if (btn) btn.classList.remove("busy");
   }, () => {
     if (btn) btn.classList.remove("busy");
-    out.innerHTML = `<p class="empty">Standort nicht verfügbar (Berechtigung?). Nutze die Suche oder eine Region.</p>`;
+    out.innerHTML = `<p class="empty">Standort nicht verfügbar (Berechtigung?). Nutze die Suche oben.</p>`;
   });
 }
 document.getElementById("gpsBtn").addEventListener("click", startGpsSearch);
@@ -3868,6 +3739,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 152, date: "22.10.", text: "Länder- und Regions-Auswahl entfernt – gesucht wird über Suchfeld, Standort, Route oder Karte" },
   { v: 151, date: "22.10.", text: "Hauptkarte: Ebenen- und Filter-Knopf wie im Briefing; Umkreis, Favoriten, Zustieg und Höhendifferenz jetzt im Filter auf der Karte" },
   { v: 150, date: "22.10.", text: "Tippen auf die Karte startet keine neue Suche mehr – dafür „Startplätze hier suchen“" },
   { v: 148, date: "22.10.", text: "„Startplätze entlang der Route“ als eigener Knopf über Karte/Liste" },
@@ -4199,15 +4071,10 @@ function route() {
     if (localStorage.getItem("flugwetter_geo_ok") === "1" && !lastOrigin) {
       startGpsSearch();                                  // GPS schon erlaubt -> Umkreis-Liste
     } else if (!lastOrigin && !out.innerHTML.trim()) {
-      const lr = localStorage.getItem("flugwetter_lastregion");
-      if (lr && REGIONS[lr]) {                            // sonst: letzte Region direkt zeigen
-        if (setCountryUI) setCountryUI(REGIONS[lr].country);
-        document.getElementById("regionSelect").value = lr;
-        runRegionSearch(lr);
-      } else {
-        renderFirstRun();                                // erster Start: klarer Einstieg
-        renderFirstRunMap();                              // ...und dasselbe als Overlay auf der Karte
-      }
+      // Die Regionsauswahl ist weg - also auch keine "letzte Region" mehr beim Start
+      try { localStorage.removeItem("flugwetter_lastregion"); } catch {}
+      renderFirstRun();                                  // erster Start: klarer Einstieg
+      renderFirstRunMap();                               // ...und dasselbe als Overlay auf der Karte
     }
   }
 }
