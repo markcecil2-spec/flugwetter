@@ -2721,15 +2721,32 @@ function handleSearchInput(v) {
   if (/^\d{5}$/.test(v)) { plzSearch(); return; }
   if (v.length >= 2 && !/^\d+$/.test(v)) nameSearchTimer = setTimeout(() => runNameSearch(v), 350);
 }
-document.getElementById("plzInput").addEventListener("input", e => handleSearchInput(e.target.value));
+// Bestaetigen per Enter oder Pfeil-Knopf. Danach Feld verlassen, damit die Handy-Tastatur
+// zugeht und die Treffer sichtbar sind. lastSubmitted verhindert, dass der folgende blur
+// dieselbe Suche (inkl. Nominatim-Abfrage) gleich nochmal startet.
+let lastSubmitted = null;
+function submitSearch() {
+  const inp = document.getElementById("plzInput"), v = inp.value.trim();
+  clearTimeout(nameSearchTimer);
+  if (/^\d{5}$/.test(v)) plzSearch(); else if (v.length >= 2) runNameSearch(v, { allowGeocode: true }); else return;
+  lastSubmitted = v;
+  inp.blur();
+}
+function syncSearchGo() {
+  document.getElementById("searchGo").hidden = !document.getElementById("plzInput").value.trim();
+}
+document.getElementById("plzInput").addEventListener("input", e => { lastSubmitted = null; syncSearchGo(); handleSearchInput(e.target.value); });
 document.getElementById("plzInput").addEventListener("keydown", e => {
   if (e.key !== "Enter") return;
-  const v = e.target.value.trim();
-  clearTimeout(nameSearchTimer);
-  if (/^\d{5}$/.test(v)) plzSearch(); else if (v.length >= 2) runNameSearch(v, { allowGeocode: true });
+  e.preventDefault();
+  submitSearch();
 });
+// pointerdown ohne Fokuswechsel: sonst feuert erst blur (Suche) und dann click (Suche nochmal).
+document.getElementById("searchGo").addEventListener("pointerdown", e => e.preventDefault());
+document.getElementById("searchGo").addEventListener("click", submitSearch);
 document.getElementById("plzInput").addEventListener("blur", () => {
   const v = document.getElementById("plzInput").value.trim();
+  if (v === lastSubmitted) return;
   if (v.length >= 2 && !/^\d{5}$/.test(v) && !/^\d+$/.test(v)) runNameSearch(v, { allowGeocode: true });
 });
 
