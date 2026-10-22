@@ -2953,7 +2953,7 @@ document.querySelectorAll("#routePanel [data-umweg]").forEach(b => {
     if (routeGeo) runRouteSearch();   // Route steht schon -> gleich neu filtern
   });
 });
-// Eigener Knopf unter Karte/Liste: klappt das Route-Feld auf/zu
+// Eigener Knopf ueber Karte/Liste: klappt das Route-Feld auf/zu
 document.getElementById("routeBtn").addEventListener("click", () => {
   const panel = document.getElementById("routePanel"), btn = document.getElementById("routeBtn");
   panel.hidden = !panel.hidden;
@@ -3861,7 +3861,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
-  { v: 148, date: "22.10.", text: "„Startplätze entlang der Route“ als eigener Knopf unter Karte/Liste" },
+  { v: 148, date: "22.10.", text: "„Startplätze entlang der Route“ als eigener Knopf über Karte/Liste" },
   { v: 147, date: "22.10.", text: "Neu: Startplätze entlang einer Route – Von/Nach eingeben, Umweg 10/20/30 km, Ergebnis in Fahrtrichtung" },
   { v: 146, date: "22.10.", text: "Startseite: Ladeanzeige mit Gleitschirm-Ring statt Textzeile (Standort, Suche, Prüfen)" },
   { v: 145, date: "22.10.", text: "Briefing: Liste „Übernachten in der Nähe“ entfernt (steht über den Filter auf der Karte); Karte schaut beim Scrollen nicht mehr neben der Kopfzeile hervor" },
