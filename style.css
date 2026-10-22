@@ -1345,7 +1345,9 @@ main.wrap { padding-top: 12px; }
 /* ---------- Briefing-Karte mit Filtern (v126) ---------- */
 /* Am Handy randlos ueber die volle Breite, am PC als Kachel im 760-px-Inhalt. */
 .bf-map-wrap { margin: 0 -16px 16px; }
-.bf-map.mini-map-wrap { height: 64vh; height: 64dvh; min-height: 360px; margin-top: 0; border-radius: 0; border-left: 0; border-right: 0; }
+/* isolation: eigene Ebene - Knoepfe und Marker der Karte rutschen beim Scrollen nicht mehr
+   ueber die feste Kopfzeile des Fensters */
+.bf-map.mini-map-wrap { isolation: isolate; height: 64vh; height: 64dvh; min-height: 360px; margin-top: 0; border-radius: 0; border-left: 0; border-right: 0; }
 @media (min-width: 700px) {
   .bf-map-wrap { margin-inline: 0; }
   .bf-map.mini-map-wrap { border-radius: 16px; border: 1px solid var(--line); }
@@ -1417,6 +1419,8 @@ body.bf-full-open { overflow: hidden; }
 .bf-map .mini-marker img { width: 36px; height: 36px; border: 2px solid #fff; border-radius: 9px; }
 /* Start und Landung liegen immer ueber den Umgebungs-Symbolen */
 .bf-map .mini-start { z-index: 6; }
+/* Infofenster immer ueber allen Symbolen (auch ueber Start/Landung) */
+.bf-map .maplibregl-popup { z-index: 20; }
 .bf-map .mini-lande { z-index: 5; }
 .poi-pop-head img[src^="data:"] { border-radius: 50%; }
 
