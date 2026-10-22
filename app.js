@@ -2764,39 +2764,103 @@ function hideSuggest() {
   box.hidden = true; box.innerHTML = ""; suggestItems = []; suggestActive = -1;
   document.getElementById("plzInput").setAttribute("aria-expanded", "false");
 }
+// ---- Orte (See, Berg, Stadt, Region) per Photon (komoot, OSM-Daten) ----
+// Nominatim verbietet Autocomplete in seiner Nutzungsrichtlinie, Photon ist dafuer gebaut.
+// Entprellt, je Suchbegriff gecacht, auf den Alpenraum + Nachbarn begrenzt (wo die DB Plaetze hat).
+const PLACE_BBOX = "-5,41,19,55.5";   // lon/lat: Frankreich bis Oesterreich, Italien bis Nordsee
+const PLACE_TYPES = { lake: "See", reservoir: "Stausee", water: "Gewässer", peak: "Berg", mountain_range: "Gebirge",
+  ridge: "Bergrücken", volcano: "Berg", valley: "Tal", city: "Stadt", town: "Ort", village: "Ort", hamlet: "Ort",
+  suburb: "Stadtteil", state: "Bundesland", region: "Region", county: "Landkreis", island: "Insel", country: "Land" };
+const placeCache = new Map();
+let placeTimer = null, placeSeq = 0, suggestPlaces = [];
+async function fetchPlaces(q) {
+  const key = foldText(q);
+  if (placeCache.has(key)) return placeCache.get(key);
+  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lang=de&bbox=${PLACE_BBOX}`);
+  if (!res.ok) throw new Error("photon " + res.status);
+  const j = await res.json();
+  const seen = new Set(), out = [];
+  for (const f of j.features || []) {
+    const pr = f.properties || {}, [lon, lat] = f.geometry?.coordinates || [];
+    if (!pr.name || lat == null) continue;
+    // Strassen, Haltestellen, Laeden usw. raus - gesucht sind Gebiete und Landmarken.
+    if (["highway", "railway", "shop", "amenity", "building", "office", "public_transport"].includes(pr.osm_key)) continue;
+    const where = [pr.state, pr.countrycode && pr.countrycode !== "DE" ? pr.country : ""].filter(Boolean).join(", ");
+    const id = pr.name + "|" + where;
+    if (seen.has(id)) continue; seen.add(id);
+    out.push({ name: pr.name, lat, lon, kind: PLACE_TYPES[pr.osm_value] || PLACE_TYPES[pr.type] || "", where });
+    if (out.length >= 4) break;
+  }
+  placeCache.set(key, out);
+  return out;
+}
+function schedulePlaces(v) {
+  clearTimeout(placeTimer);
+  const seq = ++placeSeq;
+  placeTimer = setTimeout(async () => {
+    let places = [];
+    try { places = await fetchPlaces(v); } catch { return; }   // offline/Dienst weg: einfach nur Startplaetze
+    // Nur anzeigen, wenn noch dasselbe im Feld steht und die Liste offen ist.
+    if (seq !== placeSeq || document.getElementById("searchSuggest").hidden) return;
+    suggestPlaces = places;
+    drawSuggest(v);
+  }, 300);
+}
+
+let suggestSpotHits = [];
 function renderSuggest(v) {
   v = v.trim();
-  if (v.length < 2 || /^\d+$/.test(v)) { hideSuggest(); return; }
-  const hits = suggestSpots(v);
-  suggestItems = hits.map(h => ({ type: "spot", id: h.s.id, name: h.s.name }));
-  suggestItems.push({ type: "all" });
+  if (v.length < 2 || /^\d+$/.test(v)) { hideSuggest(); clearTimeout(placeTimer); placeSeq++; return; }
+  suggestSpotHits = suggestSpots(v).slice(0, 5);
+  suggestPlaces = placeCache.get(foldText(v)) || [];
+  drawSuggest(v);
+  if (v.length >= 3 && !placeCache.has(foldText(v))) schedulePlaces(v);
+}
+function drawSuggest(v) {
+  // Mit Orten nur 3 Startplaetze - sonst rutschen die Orte am Handy unter die Tastatur.
+  // Der Rest steckt in "Alle Treffer".
+  const places = suggestPlaces, hits = places.length ? suggestSpotHits.slice(0, 3) : suggestSpotHits;
+  suggestItems = [
+    ...hits.map(h => ({ type: "spot", id: h.s.id, name: h.s.name })),
+    ...places.map(pl => ({ type: "place", ...pl })),
+    { type: "all" },
+  ];
   suggestActive = -1;
-  const pin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-10 4 6 2-3 6 7z"/></svg>`;
-  const rows = hits.map((h, i) => {
+  const icMtn = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-10 4 6 2-3 6 7z"/></svg>`;
+  const icPin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>`;
+  const icFind = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>`;
+  const opt = (i, ic, name, sub, cls = "") => `<button type="button" class="sg-opt ${cls}" role="option" data-i="${i}">
+      <span class="sg-ic">${ic}</span>
+      <span class="sg-txt"><span class="sg-name">${name}</span>${sub ? `<span class="sg-sub">${escHtml(sub)}</span>` : ""}</span></button>`;
+  let i = 0, html = "";
+  if (hits.length) html += `<div class="sg-head">Startplätze</div>`;
+  for (const h of hits) {
     const s = h.s;
     const sub = [s.region, s.sectorLabel ? `Start ${s.sectorLabel.replace(/ · /g, ", ")}` : "", s.elevation != null ? `${s.elevation} m` : "", h.d != null ? `${Math.round(h.d)} km` : ""].filter(Boolean).join(" · ");
-    return `<button type="button" class="sg-opt" role="option" data-i="${i}">
-      <span class="sg-ic">${pin}</span>
-      <span class="sg-txt"><span class="sg-name">${markMatch(s.name, v)}</span><span class="sg-sub">${escHtml(sub)}</span></span></button>`;
-  }).join("");
+    html += opt(i++, icMtn, markMatch(s.name, v), sub);
+  }
+  if (places.length) html += `<div class="sg-head">Orte &amp; Gebiete – Startplätze im Umkreis</div>`;
+  for (const pl of places) html += opt(i++, icPin, markMatch(pl.name, v), [pl.kind, pl.where].filter(Boolean).join(" · "), "sg-place");
   const allLbl = hits.length ? `Alle Treffer für „${escHtml(v)}“` : `Ort „${escHtml(v)}“ suchen`;
+  html += opt(i, icFind, allLbl, "", "sg-all");
   const box = document.getElementById("searchSuggest");
-  box.innerHTML = rows + `<button type="button" class="sg-opt sg-all" role="option" data-i="${hits.length}">
-      <span class="sg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
-      <span class="sg-txt"><span class="sg-name">${allLbl}</span></span></button>`;
+  box.innerHTML = html;
   box.hidden = false;
   document.getElementById("plzInput").setAttribute("aria-expanded", "true");
 }
-function pickSuggest(i) {
+async function pickSuggest(i) {
   const it = suggestItems[i]; if (!it) return;
   const inp = document.getElementById("plzInput");
   hideSuggest();
   if (it.type === "all") { submitSearch(); return; }
-  clearTimeout(nameSearchTimer);
+  clearTimeout(nameSearchTimer); clearTimeout(placeTimer); placeSeq++;
   inp.value = it.name; syncSearchGo();
   lastSubmitted = it.name;   // blur danach soll keine zweite Suche starten
   inp.blur();
-  openDetail(it.id);
+  if (it.type === "spot") { openDetail(it.id); return; }
+  // Ort/Gebiet: Karte dorthin, Startplaetze im eingestellten Umkreis wie bei der PLZ-Suche.
+  await switchToMapView();
+  await runFlySearch(it.lat, it.lon, escHtml(it.name));
 }
 function moveSuggest(step) {
   if (!suggestItems.length) return;
