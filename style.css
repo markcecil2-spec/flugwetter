@@ -1482,3 +1482,9 @@ body.bf-full-open { overflow: hidden; }
 .lb-txt { display: flex; flex-direction: column; min-width: 0; }
 .lb-label { font-size: 15.5px; line-height: 1.15; white-space: nowrap; }
 .lb-sub { font-size: 12px; font-weight: 600; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Kleine Variante fuer Startseite / Wetter-Verlauf */
+.detail-loader.klein { min-height: 0; padding: 32px 16px 28px; gap: 6px; }
+.detail-loader.klein .dl-ring { width: 76px; height: 76px; margin-bottom: 6px; }
+.detail-loader.klein .dl-spin { border-width: 3px; }
+.detail-loader.klein .dl-ring img { width: 38px; height: 38px; }
+.detail-loader.klein .dl-sub { font-size: 14.5px; font-weight: 600; color: var(--text); opacity: .85; }
