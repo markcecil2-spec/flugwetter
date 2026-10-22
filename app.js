@@ -2333,7 +2333,7 @@ async function renderSearch(candidates, origin, headline, opts = {}) {
     out.innerHTML = `<p class="empty">Kein Startplatz gefunden. (Die Datenbank wächst noch.)</p>`;
     return;
   }
-  out.innerHTML = `<p class="loading-line">🔎 Prüfe ${candidates.length} Plätze …</p>`;
+  out.innerHTML = ladeHtml(`Prüfe ${candidates.length} Plätze …`);
   try {
     const results = await fetchBulkToday(candidates);
     let drive = [];
@@ -3062,7 +3062,7 @@ function renderFirstRunMap() {
 function startGpsSearch() {
   const out = document.getElementById("flyResults"), btn = document.getElementById("gpsBtn");
   if (!navigator.geolocation) { out.innerHTML = `<p class="empty">Standort nicht unterstützt – nutze die Suche.</p>`; return; }
-  if (btn) btn.classList.add("busy"); out.innerHTML = `<p class="loading-line">📍 Standort wird ermittelt …</p>`;
+  if (btn) btn.classList.add("busy"); out.innerHTML = ladeHtml("Standort wird ermittelt …");
   navigator.geolocation.getCurrentPosition(async pos => {
     localStorage.setItem("flugwetter_geo_ok", "1");   // ab jetzt beim Öffnen automatisch
     setUserPos(pos.coords.latitude, pos.coords.longitude);
@@ -3088,7 +3088,7 @@ async function plzSearch() {
   const inp = document.getElementById("plzInput"), out = document.getElementById("flyResults");
   const plz = inp.value.trim();
   if (!/^\d{5}$/.test(plz)) return;
-  out.innerHTML = `<p class="loading-line">🔎 Suche PLZ ${plz} …</p>`;
+  out.innerHTML = ladeHtml(`Suche PLZ ${plz} …`);
   try { const o = await geocodePlz(plz); await runFlySearch(o.lat, o.lon, o.label); }
   catch { clearSearchResults(`PLZ ${plz} nicht gefunden.`); }
 }
@@ -3115,7 +3115,7 @@ async function runNameSearch(q, opts = {}) {
 // Fallback fuer die Namenssuche: kein eigener Startplatz gefunden -> allgemeinen Ort/See/Berg
 // per Nominatim suchen, Karte dorthin oeffnen und wie eine Umkreissuche von dort aus behandeln.
 async function tryForwardGeocode(q) {
-  document.getElementById("flyResults").innerHTML = `<p class="loading-line">🔎 Suche Ort „${q}“ …</p>`;
+  document.getElementById("flyResults").innerHTML = ladeHtml(`Suche Ort „${escHtml(q)}“ …`);
   const hit = await forwardGeocode(q);
   if (!hit) { clearSearchResults(`Kein Startplatz und kein Ort „${q}“ gefunden.`); return; }
   await switchToMapView();
@@ -3451,6 +3451,14 @@ function renderFlyResults(rows, headline, truncated) {
 // ---------------- Detail-Fenster: 7-Tage-Vorhersage ----------------
 let currentDetailSpot = null;
 let detailHistoryPushed = false; // Handy-/TWA-Zurück soll das Detail-Fenster schliessen statt die App zu verlassen
+// Kleine Ladeanzeige (derselbe Ring mit Gleitschirm wie beim Oeffnen eines Startplatzes)
+// fuer Liste/Suche auf der Startseite und den Wetter-Verlauf. text ist bereits HTML-sicher.
+function ladeHtml(text) {
+  return `<div class="detail-loader klein" role="status" aria-live="polite">
+      <div class="dl-ring"><span class="dl-spin"></span><img src="icons/logo-glider.png" alt=""></div>
+      <div class="dl-sub">${text}</div>
+    </div>`;
+}
 // Die Ladeansicht (Ring mit Gleitschirm) bleibt mindestens so lange stehen - Marks Wunsch,
 // auch wenn die Vorhersage aus dem Zwischenspeicher sofort da ist.
 const DETAIL_LADE_MIN_MS = 2000;
@@ -3656,6 +3664,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 146, date: "22.10.", text: "Startseite: Ladeanzeige mit Gleitschirm-Ring statt Textzeile (Standort, Suche, Prüfen)" },
   { v: 145, date: "22.10.", text: "Briefing: Liste „Übernachten in der Nähe“ entfernt (steht über den Filter auf der Karte); Karte schaut beim Scrollen nicht mehr neben der Kopfzeile hervor" },
   { v: 144, date: "22.10.", text: "Briefing-Karte: neue Filter ÖPNV (Bus, Bahn, Tram) und Tankstelle" },
   { v: 143, date: "22.10.", text: "Live-Wetter, Live-Cam und Windy als große, farbige Knöpfe im Wetter-Tab; Knopf „Satellitenbild“ in den Kartenfenstern entfernt" },
@@ -4239,7 +4248,7 @@ document.body.addEventListener("change", e => {
   const body = dateEl.nextElementSibling;
   const spot = getSpot(dateEl.dataset.hist);
   if (!dateEl.value) { body.innerHTML = ""; return; }
-  body.innerHTML = `<p class="loading-line">Lade ${dateEl.value} …</p>`;
+  body.innerHTML = ladeHtml(`Lade ${escHtml(dateEl.value)} …`);
   fetchHistoryDay(spot, dateEl.value).then(data => {
     const days = analyse(spot, data);
     body.innerHTML = days.length ? dayCardHtml(spot, days, 0) : `<p class="empty">Keine Daten für dieses Datum.</p>`;
