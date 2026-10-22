@@ -909,6 +909,21 @@ function campParkAus(e) {
 }
 // Alte Zwischenspeicher (Einzelabfragen bis v127, umg1 bis v128) freigeben - localStorage ist knapp.
 try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_|umg1_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
+// Vorberechnete Umgebung vom eigenen Server (umgebung/<id>.json, monatlich per GitHub
+// Actions aus den OSM-Laenderdateien gebaut - s. tools/umgebung_bauen.py). Schnell und ohne
+// Overpass. Fehlt die Datei (eigene Plaetze, neue DB-Eintraege) -> null, dann live.
+async function fetchVorberechnet(spot) {
+  if (!spot.id.startsWith("db_")) return null;
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(`umgebung/${encodeURIComponent(spot.id)}.json`, { signal: ctrl.signal });
+    if (!res.ok) return null;
+    const v = await res.json();
+    return v && Array.isArray(v.cp) ? v : null;
+  } catch { return null; }
+  finally { clearTimeout(to); }
+}
 async function fetchUmgebung(spot) {
   const sLat = spot.lat, sLon = spot.lon;
   const lLat = spot.landeLat != null ? spot.landeLat : sLat, lLon = spot.landeLon != null ? spot.landeLon : sLon;
@@ -1350,10 +1365,12 @@ async function loadCampsites(spot) {
   const lon = spot.landeLon != null ? spot.landeLon : spot.lon;
   sec.innerHTML = `<p class="loading-line">Umgebung wird gesucht …</p>`;
   bfBase = "laedt"; bfUpdateChips();
-  const umg = await fetchUmgebung(spot);
+  const umg = (await fetchVorberechnet(spot)) || (await fetchUmgebung(spot));
   const wrap = document.getElementById("campSection");
   if (!wrap || bfSpotId !== spot.id) return;   // Tab verlassen oder anderer Platz offen
   bfBase = umg ? "ok" : "fehler";
+  const standEl = document.getElementById("bfStand");
+  if (standEl && umg && umg.stand) { const [j, m] = umg.stand.split("-"); standEl.textContent = ` · Stand ${m}/${j}`; }
   if (umg) {
     const mitZiel = c => ({ ...c, ...bfNaechster(spot, c.lat, c.lon) });
     const nah = (arr, n) => arr.map(mitZiel).sort((a, b) => a.dist - b.dist).slice(0, n);
@@ -1840,7 +1857,7 @@ function briefingPanelHtml(spot, ctx) {
           <button type="button" class="bf-sheet-ok" data-bfclose>Fertig</button></div>
         <div class="bf-fix"><img src="icons/pin-startplatz.png" alt=""><img src="icons/pin-landeplatz.png" alt=""><span>Start- und Landeplatz sind immer sichtbar</span></div>
         <div class="bf-opts">${bfOpts}</div>
-        <p class="bf-sheet-note">Daten © OpenStreetMap-Mitwirkende · nur was dort eingetragen ist</p>
+        <p class="bf-sheet-note">Daten © OpenStreetMap-Mitwirkende · nur was dort eingetragen ist<span id="bfStand"></span></p>
       </div>
       <div class="bf-msg" id="bfMsg" hidden></div>
       <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
@@ -3550,6 +3567,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 130, date: "22.10.", text: "Briefing-Karte lädt die Umgebung jetzt vom eigenen Server – schnell und ohne den überlasteten Overpass-Dienst. Wichtige Hinweise und Notizen stehen jetzt unter Details" },
   { v: 129, date: "22.10.", text: "Briefing-Karte: neue Filter Supermarkt und Toilette" },
   { v: 128, date: "22.10.", text: "Briefing-Karte: ganze Umgebung in einer Abfrage, Ersatzserver springt nach 4 Sekunden ein – kein Dauer-Laden mehr" },
   { v: 127, date: "22.10.", text: "Briefing-Karte lädt Parken, Seilbahn, Hotel und Essen zuverlässiger (Ersatzserver, keine Überlast mehr) und zeigt an, wenn etwas nicht lädt" },
