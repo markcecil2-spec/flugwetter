@@ -1191,6 +1191,11 @@ main.wrap { padding-top: 12px; }
 .gps-btn:hover { background: rgba(6,182,164,.28); }
 .gps-btn svg { width: 20px; height: 20px; }
 .gps-btn.busy { opacity: .6; pointer-events: none; }
+/* Bestaetigen-Knopf: erscheint erst, wenn etwas eingetippt ist */
+.search-go { flex: none; width: 40px; height: 40px; border-radius: 11px; border: none; background: var(--sky); color: #fff; display: grid; place-items: center; cursor: pointer; transition: filter .12s; }
+.search-go[hidden] { display: none; }
+.search-go:hover { filter: brightness(1.1); }
+.search-go svg { width: 20px; height: 20px; }
 
 /* Land-/Region-Dropdowns (dunkle Zeilen wie im Design) */
 .find-select { width: 100%; font-size: 15px; font-weight: 600; padding: 13px 38px 13px 14px; margin-bottom: 0; cursor: pointer; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 14px; appearance: none; -webkit-appearance: none; }
