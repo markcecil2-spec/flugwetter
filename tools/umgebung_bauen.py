@@ -180,7 +180,21 @@ def main():
                         if dS <= BAHN_R:
                             tr["stationen"].append((dS, {**basis(t, la, lo, "Bahnstation"), "art": "Bergbahn-Station"}))
     os.makedirs(ausgabe, exist_ok=True)
-    nah = lambda arr, k: [d for _, d in sorted(arr, key=lambda x: x[0])[:CAP[k]]]
+    GENERISCH = {"Parkplatz", "Toilette", "Bahnstation", "Ohne Namen", "Einkehr", "Unterkunft", "Supermarkt"}
+
+    def nah(arr, k):
+        # Lokal oft doppelt in OSM (Gebaeude + Punkt): gleicher Name und < 150 m = dasselbe,
+        # namenlose nur bei < 30 m. Gleiche Regel wie ohneDoppelte() in app.js.
+        out = []
+        for _, d in sorted(arr, key=lambda x: x[0]):
+            g = 0.03 if d["name"] in GENERISCH else 0.15
+            if "lat" not in d:          # Bahnlinien: keine Einzelkoordinate, nicht zusammenfassen
+                out.append(d)
+            elif not any(o["name"] == d["name"] and o.get("parken") == d.get("parken") and km(o["lat"], o["lon"], d["lat"], d["lon"]) < g for o in out):
+                out.append(d)
+            if len(out) >= CAP[k]:
+                break
+        return out
 
     def parkplaetze(tr):
         out, ids = [], set()

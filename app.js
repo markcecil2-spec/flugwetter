@@ -909,6 +909,18 @@ function campParkAus(e) {
 }
 // Alte Zwischenspeicher (Einzelabfragen bis v127, umg1 bis v128) freigeben - localStorage ist knapp.
 try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_|umg1_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
+// In OSM steht ein Lokal oft zweimal: als Gebaeude und als Punkt darin. Gleicher Name und
+// weniger als 150 m auseinander = dasselbe. Namenlose ("Parkplatz", "Toilette") nur, wenn sie
+// fast aufeinander liegen (30 m) - zwei Parkplaetze nebeneinander sind wirklich zwei.
+const GENERISCH = new Set(["Parkplatz", "Toilette", "Bahnstation", "Ohne Namen", "Einkehr", "Unterkunft", "Supermarkt"]);
+function ohneDoppelte(arr) {
+  const out = [];
+  for (const c of arr) {
+    const grenze = GENERISCH.has(c.name) ? 0.03 : 0.15;
+    if (!out.some(o => o.name === c.name && o.parken === c.parken && haversineExact(o.lat, o.lon, c.lat, c.lon) < grenze)) out.push(c);
+  }
+  return out;
+}
 // Vorberechnete Umgebung vom eigenen Server (umgebung/<id>.json, monatlich per GitHub
 // Actions aus den OSM-Laenderdateien gebaut - s. tools/umgebung_bauen.py). Schnell und ohne
 // Overpass. Fehlt die Datei (eigene Plaetze, neue DB-Eintraege) -> null, dann live.
@@ -1373,7 +1385,7 @@ async function loadCampsites(spot) {
   if (standEl && umg && umg.stand) { const [j, m] = umg.stand.split("-"); standEl.textContent = ` · Stand ${m}/${j}`; }
   if (umg) {
     const mitZiel = c => ({ ...c, ...bfNaechster(spot, c.lat, c.lon) });
-    const nah = (arr, n) => arr.map(mitZiel).sort((a, b) => a.dist - b.dist).slice(0, n);
+    const nah = (arr, n) => ohneDoppelte(arr.map(mitZiel).sort((a, b) => a.dist - b.dist)).slice(0, n);
     bfData.hotel = nah(umg.hotel, 30);
     bfData.essen = nah(umg.essen, 40);
     bfData.supermarkt = nah(umg.supermarkt || [], 15);
@@ -1381,7 +1393,7 @@ async function loadCampsites(spot) {
     bfData.bahn = { linien: umg.linien, stationen: nah(umg.stationen, 20) };
   }
   bfFitPending.forEach(cat => bfFitTo(cat)); bfFitPending.clear();
-  const raw = umg ? umg.cp : null;
+  const raw = umg ? ohneDoppelte(umg.cp) : null;
   if (!raw || !raw.length) { wrap.innerHTML = ""; campAddMarkers(); return; }
   // Bezugspunkte fuer Parkplaetze: alle Landeplaetze und der Startplatz. Je Parkplatz
   // wird der naechstgelegene genommen und benannt - "363 m zum Landeplatz" hilft nicht,
@@ -3588,6 +3600,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 136, date: "22.10.", text: "Briefing-Karte: Parken, Seilbahn, Camping, Hotel, Essen, Supermarkt und Toilette für alle Startplätze – blitzschnell vom eigenen Server, doppelte Einträge herausgefiltert" },
   { v: 135, date: "22.10.", text: "Kein leerer Platz mehr unter den Notizen – jeder Tab ist nur so lang wie sein Inhalt" },
   { v: 134, date: "22.10.", text: "Kurzüberblick (Wind, Böen, Temperatur, beste Zeit) steht jetzt oben im Details-Tab" },
   { v: 133, date: "22.10.", text: "Ladeansicht beim Öffnen eines Startplatzes steht mindestens 2 Sekunden" },
