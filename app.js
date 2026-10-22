@@ -2728,6 +2728,7 @@ let lastSubmitted = null;
 function submitSearch() {
   const inp = document.getElementById("plzInput"), v = inp.value.trim();
   clearTimeout(nameSearchTimer);
+  hideSuggest();
   if (/^\d{5}$/.test(v)) plzSearch(); else if (v.length >= 2) runNameSearch(v, { allowGeocode: true }); else return;
   lastSubmitted = v;
   inp.blur();
@@ -2735,16 +2736,99 @@ function submitSearch() {
 function syncSearchGo() {
   document.getElementById("searchGo").hidden = !document.getElementById("plzInput").value.trim();
 }
-document.getElementById("plzInput").addEventListener("input", e => { lastSubmitted = null; syncSearchGo(); handleSearchInput(e.target.value); });
+// ---- Vorschlaege beim Tippen (rein lokal aus der Startplatz-DB, kein Netz) ----
+// Umlaute/Akzente egal: "jochel" findet "Jöchelspitze", "zuerich" aber nicht "Zürich" (bewusst simpel).
+const foldText = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+let suggestItems = [], suggestActive = -1;
+// Rang: Name beginnt mit Eingabe < ein Wort im Namen beginnt damit < Name enthaelt sie < nur Ort passt.
+function suggestSpots(q) {
+  const f = foldText(q);
+  const hits = [];
+  for (const s of allKnownSpots()) {
+    const n = foldText(s.name);
+    let rank = n.startsWith(f) ? 0 : n.split(/[\s\-(/]+/).some(w => w.startsWith(f)) ? 1 : n.includes(f) ? 2 : -1;
+    if (rank < 0 && foldText(`${s.region} ${s.gemeinde || ""}`).includes(f)) rank = 3;
+    if (rank >= 0) hits.push({ s, rank, d: lastOrigin ? haversine(lastOrigin.lat, lastOrigin.lon, s.lat, s.lon) : null });
+  }
+  hits.sort((a, b) => a.rank - b.rank || (a.d ?? 0) - (b.d ?? 0) || a.s.name.localeCompare(b.s.name, "de"));
+  return hits.slice(0, 6);
+}
+// Treffer im Namen fett - nur wenn er ohne Umlaut-Faltung auffindbar ist, sonst Name schlicht.
+function markMatch(name, q) {
+  const i = name.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0) return escHtml(name);
+  return escHtml(name.slice(0, i)) + "<b>" + escHtml(name.slice(i, i + q.length)) + "</b>" + escHtml(name.slice(i + q.length));
+}
+function hideSuggest() {
+  const box = document.getElementById("searchSuggest");
+  box.hidden = true; box.innerHTML = ""; suggestItems = []; suggestActive = -1;
+  document.getElementById("plzInput").setAttribute("aria-expanded", "false");
+}
+function renderSuggest(v) {
+  v = v.trim();
+  if (v.length < 2 || /^\d+$/.test(v)) { hideSuggest(); return; }
+  const hits = suggestSpots(v);
+  suggestItems = hits.map(h => ({ type: "spot", id: h.s.id, name: h.s.name }));
+  suggestItems.push({ type: "all" });
+  suggestActive = -1;
+  const pin = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-10 4 6 2-3 6 7z"/></svg>`;
+  const rows = hits.map((h, i) => {
+    const s = h.s;
+    const sub = [s.region, s.sectorLabel ? `Start ${s.sectorLabel.replace(/ · /g, ", ")}` : "", s.elevation != null ? `${s.elevation} m` : "", h.d != null ? `${Math.round(h.d)} km` : ""].filter(Boolean).join(" · ");
+    return `<button type="button" class="sg-opt" role="option" data-i="${i}">
+      <span class="sg-ic">${pin}</span>
+      <span class="sg-txt"><span class="sg-name">${markMatch(s.name, v)}</span><span class="sg-sub">${escHtml(sub)}</span></span></button>`;
+  }).join("");
+  const allLbl = hits.length ? `Alle Treffer für „${escHtml(v)}“` : `Ort „${escHtml(v)}“ suchen`;
+  const box = document.getElementById("searchSuggest");
+  box.innerHTML = rows + `<button type="button" class="sg-opt sg-all" role="option" data-i="${hits.length}">
+      <span class="sg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+      <span class="sg-txt"><span class="sg-name">${allLbl}</span></span></button>`;
+  box.hidden = false;
+  document.getElementById("plzInput").setAttribute("aria-expanded", "true");
+}
+function pickSuggest(i) {
+  const it = suggestItems[i]; if (!it) return;
+  const inp = document.getElementById("plzInput");
+  hideSuggest();
+  if (it.type === "all") { submitSearch(); return; }
+  clearTimeout(nameSearchTimer);
+  inp.value = it.name; syncSearchGo();
+  lastSubmitted = it.name;   // blur danach soll keine zweite Suche starten
+  inp.blur();
+  openDetail(it.id);
+}
+function moveSuggest(step) {
+  if (!suggestItems.length) return;
+  // Zustaende -1 (im Feld) .. n-1, im Kreis - nach dem letzten Eintrag geht's zurueck ins Feld.
+  const n = suggestItems.length + 1;
+  suggestActive = ((suggestActive + 1 + step) % n + n) % n - 1;
+  document.querySelectorAll("#searchSuggest .sg-opt").forEach((b, k) => b.classList.toggle("on", k === suggestActive));
+}
+const sgBox = document.getElementById("searchSuggest");
+// pointerdown ohne Fokuswechsel - sonst feuert vor dem click der blur des Feldes (Suche + Liste zu).
+sgBox.addEventListener("pointerdown", e => e.preventDefault());
+sgBox.addEventListener("click", e => { const b = e.target.closest(".sg-opt"); if (b) pickSuggest(+b.dataset.i); });
+
+document.getElementById("plzInput").addEventListener("input", e => { lastSubmitted = null; syncSearchGo(); renderSuggest(e.target.value); handleSearchInput(e.target.value); });
+document.getElementById("plzInput").addEventListener("focus", e => renderSuggest(e.target.value));
 document.getElementById("plzInput").addEventListener("keydown", e => {
+  if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+    if (document.getElementById("searchSuggest").hidden) return;
+    e.preventDefault(); moveSuggest(e.key === "ArrowDown" ? 1 : -1); return;
+  }
+  if (e.key === "Escape") { hideSuggest(); return; }
   if (e.key !== "Enter") return;
   e.preventDefault();
+  if (suggestActive >= 0) { pickSuggest(suggestActive); return; }
+  hideSuggest();
   submitSearch();
 });
 // pointerdown ohne Fokuswechsel: sonst feuert erst blur (Suche) und dann click (Suche nochmal).
 document.getElementById("searchGo").addEventListener("pointerdown", e => e.preventDefault());
 document.getElementById("searchGo").addEventListener("click", submitSearch);
 document.getElementById("plzInput").addEventListener("blur", () => {
+  hideSuggest();
   const v = document.getElementById("plzInput").value.trim();
   if (v === lastSubmitted) return;
   if (v.length >= 2 && !/^\d{5}$/.test(v) && !/^\d+$/.test(v)) runNameSearch(v, { allowGeocode: true });
