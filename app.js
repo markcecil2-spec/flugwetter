@@ -907,13 +907,14 @@ function campParkAus(e) {
     plaetze: parken && t.capacity ? t.capacity : "",
   };
 }
-// Alte Zwischenspeicher der Einzelabfragen (bis v127) freigeben - localStorage ist knapp.
-try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
+// Alte Zwischenspeicher (Einzelabfragen bis v127, umg1 bis v128) freigeben - localStorage ist knapp.
+try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_|umg1_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
 async function fetchUmgebung(spot) {
   const sLat = spot.lat, sLon = spot.lon;
   const lLat = spot.landeLat != null ? spot.landeLat : sLat, lLon = spot.landeLon != null ? spot.landeLon : sLon;
   const r3 = x => x.toFixed(3);
-  const key = `umg1_${r3(sLat)}_${r3(sLon)}_${r3(lLat)}_${r3(lLon)}`;
+  // umg2: seit v129 mit Supermarkt und Toilette - alte umg1-Eintraege haben die nicht
+  const key = `umg2_${r3(sLat)}_${r3(sLon)}_${r3(lLat)}_${r3(lLon)}`;
   try {
     const raw = localStorage.getItem(key);
     if (raw) { const c = JSON.parse(raw); if (Date.now() - c.t < CAMP_TTL) return c.v; }
@@ -927,6 +928,10 @@ async function fetchUmgebung(spot) {
     + `nwr["amenity"~"^(restaurant|cafe|biergarten)$"]${um(4000, sLat, sLon)};`
     + `nwr["amenity"~"^(restaurant|cafe|biergarten)$"]${um(4000, lLat, lLon)};`
     + `nwr["tourism"="alpine_hut"]${um(8000, sLat, sLon)};`
+    + `nwr["shop"="supermarket"]${um(5000, sLat, sLon)};`
+    + `nwr["shop"="supermarket"]${um(5000, lLat, lLon)};`
+    + `nwr["amenity"="toilets"]${um(3000, sLat, sLon)};`
+    + `nwr["amenity"="toilets"]${um(3000, lLat, lLon)};`
     + `node["aerialway"="station"]${um(7000, sLat, sLon)};`
     + `)->.p;.p out center 700;(`
     + `way["aerialway"~"^(cable_car|gondola|chair_lift|mixed_lift)$"]${um(7000, sLat, sLon)};`
@@ -934,7 +939,7 @@ async function fetchUmgebung(spot) {
     + `)->.b;.b out geom 80;`;
   try {
     const data = await overpassRequest(q);
-    const v = { cp: [], hotel: [], essen: [], linien: [], stationen: [] };
+    const v = { cp: [], hotel: [], essen: [], supermarkt: [], toilette: [], linien: [], stationen: [] };
     const seen = new Set();
     const klein = (p, art) => ({ name: p.name, lat: p.lat, lon: p.lon, web: p.web, tel: p.tel, adresse: p.adresse, saison: p.saison, aus: [], art });
     for (const e of data.elements || []) {
@@ -949,6 +954,13 @@ async function fetchUmgebung(spot) {
         const c = campParkAus(e); if (c) v.cp.push(c); continue;
       }
       if (t.aerialway === "station") { const p = osmPoi(e, "Bahnstation"); if (p) v.stationen.push(klein(p, "Bergbahn-Station")); continue; }
+      if (t.shop === "supermarket") { const p = osmPoi(e, "Supermarkt"); if (p) v.supermarkt.push(klein(p, "Supermarkt")); continue; }
+      if (t.amenity === "toilets") {
+        const p = osmPoi(e, "Toilette");
+        // Gebuehr nur zeigen, wenn ausdruecklich getaggt
+        if (p) v.toilette.push(klein(p, t.fee === "no" ? "Toilette · kostenlos" : t.fee === "yes" ? "Toilette · gebührenpflichtig" : "Toilette"));
+        continue;
+      }
       if (BF_HOTEL_ART[t.tourism]) { const p = osmPoi(e, "Unterkunft"); if (p) v.hotel.push(klein(p, BF_HOTEL_ART[t.tourism])); continue; }
       const essArt = BF_ESSEN_ART[t.amenity] || BF_ESSEN_ART[t.tourism];
       if (essArt) { const p = osmPoi(e, "Einkehr"); if (p) v.essen.push(klein(p, essArt)); }
@@ -1155,6 +1167,8 @@ const BF_PICTO = {
   stellplatz: `<path d="M3 16.5V8.5a1.5 1.5 0 0 1 1.5-1.5h9.5l4.5 4.5h1.5v5"/><path d="M3 16.5h2.8M10.2 16.5h3.6M18.2 16.5H21"/><circle cx="8" cy="16.8" r="1.9"/><circle cx="16" cy="16.8" r="1.9"/><path d="M6 10h4"/>`,
   hotel: `<path d="M3 18.5V6.5M3 14h18v4.5"/><path d="M21 14a3.5 3.5 0 0 0-3.5-3.5H11V14"/><circle cx="7" cy="11" r="1.7"/>`,
   essen: `<path d="M7 3.5v6a2 2 0 0 0 4 0v-6M9 9.5v11"/><path d="M17 3.5c-2.2 1.8-2.2 7.2 0 8.5v8.5"/>`,
+  supermarkt: `<path d="M3 4.5h2.5l2.2 10.5h10.6l2-7.5H7"/><circle cx="9.5" cy="19" r="1.4"/><circle cx="16.5" cy="19" r="1.4"/>`,
+  toilette: `<circle cx="7.5" cy="5" r="1.6"/><path d="M5.5 9h4l1 5H9.5v6h-4v-6H4.5z"/><circle cx="16.5" cy="5" r="1.6"/><path d="M14.5 9h4v11M16.5 14v6M14.5 9v6"/>`,
 };
 const BF_CATS = {
   parken:     { label: "Parken",     farbe: "#2563eb" },
@@ -1163,12 +1177,14 @@ const BF_CATS = {
   stellplatz: { label: "Stellplatz", farbe: "#0d9488" },
   hotel:      { label: "Hotel",      farbe: "#7c3aed" },
   essen:      { label: "Essen",      farbe: "#ea580c" },
+  supermarkt: { label: "Supermarkt", farbe: "#db2777" },
+  toilette:   { label: "Toilette",   farbe: "#0284c7" },
 };
 const IC_VOLL_AN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>`;
 const IC_VOLL_AUS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>`;
-const BF_ORDER = ["parken", "bahn", "camping", "stellplatz", "hotel", "essen"];
+const BF_ORDER = ["parken", "bahn", "camping", "stellplatz", "hotel", "essen", "supermarkt", "toilette"];
 const BF_FILTER_KEY = "flugwetter_bf_filter";
-const BF_DEFAULT = { parken: true, bahn: true, camping: false, stellplatz: false, hotel: false, essen: false };
+const BF_DEFAULT = { parken: true, bahn: true, camping: false, stellplatz: false, hotel: false, essen: false, supermarkt: false, toilette: false };
 function bfFilter() {
   try { return { ...BF_DEFAULT, ...JSON.parse(localStorage.getItem(BF_FILTER_KEY) || "{}") }; } catch { return { ...BF_DEFAULT }; }
 }
@@ -1185,7 +1201,7 @@ function bfIconUrl(cat) {
 // Pro geoeffnetem Platz: was ist geladen, was laeuft, was ist schiefgegangen.
 let bfSpotId = null;
 let bfBase = "";   // Status der Umgebungs-Abfrage: "" | "laedt" | "ok" | "fehler"
-const bfData = { hotel: null, essen: null, bahn: null };     // null = noch nicht da
+const bfData = { hotel: null, essen: null, bahn: null, supermarkt: null, toilette: null };   // null = noch nicht da
 function bfResetForSpot(spot) {
   bfSpotId = spot.id;
   for (const k of Object.keys(bfData)) bfData[k] = null;
@@ -1343,6 +1359,8 @@ async function loadCampsites(spot) {
     const nah = (arr, n) => arr.map(mitZiel).sort((a, b) => a.dist - b.dist).slice(0, n);
     bfData.hotel = nah(umg.hotel, 30);
     bfData.essen = nah(umg.essen, 40);
+    bfData.supermarkt = nah(umg.supermarkt || [], 15);
+    bfData.toilette = nah(umg.toilette || [], 20);
     bfData.bahn = { linien: umg.linien, stationen: nah(umg.stationen, 20) };
   }
   bfFitPending.forEach(cat => bfFitTo(cat)); bfFitPending.clear();
@@ -3532,6 +3550,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 129, date: "22.10.", text: "Briefing-Karte: neue Filter Supermarkt und Toilette" },
   { v: 128, date: "22.10.", text: "Briefing-Karte: ganze Umgebung in einer Abfrage, Ersatzserver springt nach 4 Sekunden ein – kein Dauer-Laden mehr" },
   { v: 127, date: "22.10.", text: "Briefing-Karte lädt Parken, Seilbahn, Hotel und Essen zuverlässiger (Ersatzserver, keine Überlast mehr) und zeigt an, wenn etwas nicht lädt" },
   { v: 126, date: "22.10.", text: "Gesuchter Ort pulsiert als grüner Punkt auf der Karte, ein gesuchter Startplatz pulsiert selbst" },
