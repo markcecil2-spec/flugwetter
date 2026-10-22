@@ -13,7 +13,7 @@
   <!-- ?v=NN muss bei jedem Deploy mit der Versionsnummer/sw.js mitgezogen werden. Ohne das
        kann der Browser eine neue index.html mit einer alten app.js aus dem HTTP-Cache mischen
        (GitHub Pages liefert Assets mit max-age) - dann fehlen neue Funktionen kommentarlos. -->
-  <link rel="stylesheet" href="style.css?v=146" />
+  <link rel="stylesheet" href="style.css?v=147" />
 </head>
 <body>
   <header>
@@ -143,6 +143,28 @@
         <div class="view-toggle" id="viewToggle" role="group" aria-label="Ansicht">
           <button type="button" class="vpill on" data-view="map"><svg class="vpill-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg> Karte</button>
           <button type="button" class="vpill" data-view="list"><svg class="vpill-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg> Liste</button>
+          <button type="button" class="vpill vpill-route" data-view="route" aria-expanded="false" aria-controls="routePanel"><svg class="vpill-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/></svg> Route</button>
+        </div>
+
+        <!-- Startplaetze entlang einer Route (Stufe 1: Korridor um die Strecke, Bewertung fuer den Tag) -->
+        <div id="routePanel" class="route-panel" hidden>
+          <div class="rp-feld">
+            <span class="rp-punkt rp-von" aria-hidden="true"></span>
+            <input id="routeVon" class="rp-input" placeholder="Von: Mein Standort" autocomplete="off" enterkeyhint="next" aria-label="Start der Route">
+            <div class="suggest rp-sug" id="routeVonSug" hidden></div>
+          </div>
+          <div class="rp-feld">
+            <span class="rp-punkt rp-nach" aria-hidden="true"></span>
+            <input id="routeNach" class="rp-input" placeholder="Nach: z. B. Gardasee" autocomplete="off" enterkeyhint="search" aria-label="Ziel der Route">
+            <div class="suggest rp-sug" id="routeNachSug" hidden></div>
+          </div>
+          <div class="rp-umweg" role="group" aria-label="Maximaler Umweg">
+            <span class="rp-umweg-lbl">Max. Umweg</span>
+            <button type="button" data-umweg="10">10 km</button>
+            <button type="button" data-umweg="20" class="on">20 km</button>
+            <button type="button" data-umweg="30">30 km</button>
+          </div>
+          <button type="button" id="routeGo" class="rp-go">Startplätze auf der Route finden</button>
         </div>
 
         <div id="hintBanner" class="hint-banner">
@@ -366,7 +388,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 146 · Oktober 2026</p>
+      <p class="build">GoFlyToday · Version 147 · Oktober 2026</p>
     </section>
   </main>
 
@@ -497,8 +519,8 @@
     </div>
   </div>
 
-  <script src="database.js?v=146"></script>
-  <script src="briefings.js?v=146"></script>
-  <script src="app.js?v=146"></script>
+  <script src="database.js?v=147"></script>
+  <script src="briefings.js?v=147"></script>
+  <script src="app.js?v=147"></script>
 </body>
 </html>
