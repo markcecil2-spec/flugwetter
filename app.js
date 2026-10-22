@@ -3384,7 +3384,7 @@ let currentDetailSpot = null;
 let detailHistoryPushed = false; // Handy-/TWA-Zurück soll das Detail-Fenster schliessen statt die App zu verlassen
 // Die Ladeansicht (Ring mit Gleitschirm) bleibt mindestens so lange stehen - Marks Wunsch,
 // auch wenn die Vorhersage aus dem Zwischenspeicher sofort da ist.
-const DETAIL_LADE_MIN_MS = 3000;
+const DETAIL_LADE_MIN_MS = 2000;
 async function openDetail(id) {
   const spot = getSpot(id); if (!spot) return;
   const ladeStart = Date.now();
@@ -3587,7 +3587,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
-  { v: 132, date: "22.10.", text: "Ladeansicht beim Öffnen eines Startplatzes steht mindestens 3 Sekunden" },
+  { v: 133, date: "22.10.", text: "Ladeansicht beim Öffnen eines Startplatzes steht mindestens 2 Sekunden" },
   { v: 131, date: "22.10.", text: "Neue Ladeansicht beim Öffnen eines Startplatzes" },
   { v: 130, date: "22.10.", text: "Briefing-Karte lädt die Umgebung jetzt vom eigenen Server – schnell und ohne den überlasteten Overpass-Dienst. Wichtige Hinweise und Notizen stehen jetzt unter Details" },
   { v: 129, date: "22.10.", text: "Briefing-Karte: neue Filter Supermarkt und Toilette" },
