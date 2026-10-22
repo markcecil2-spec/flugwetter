@@ -8,21 +8,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Abfragen messen
+      - name: Varianten messen
         run: |
-          S="47.1971,9.799"; L="47.1829,9.7821"
-          Q='[out:json][timeout:25];(nwr["tourism"~"^(camp_site|caravan_site)$"](around:15000,'$L');nwr["amenity"="parking"](around:3000,'$L');nwr["amenity"="parking"](around:3000,'$S');nwr["tourism"~"^(hotel|guest_house|hostel|motel)$"](around:10000,'$L');nwr["amenity"~"^(restaurant|cafe|biergarten)$"](around:4000,'$S');nwr["amenity"~"^(restaurant|cafe|biergarten)$"](around:4000,'$L');nwr["tourism"="alpine_hut"](around:8000,'$S');nwr["shop"="supermarket"](around:5000,'$S');nwr["shop"="supermarket"](around:5000,'$L');nwr["amenity"="toilets"](around:3000,'$S');nwr["amenity"="toilets"](around:3000,'$L');node["aerialway"="station"](around:7000,'$S'););out center 700;'
+          L="47.1829,9.7821"
           SMALL='[out:json][timeout:25];nwr["amenity"="parking"](around:3000,'$L');out center 50;'
-          for name in combined small; do
-            if [ $name = combined ]; then QQ="$Q"; else QQ="$SMALL"; fi
-            for u in https://overpass-api.de/api/interpreter https://overpass.private.coffee/api/interpreter https://overpass.kumi.systems/api/interpreter https://maps.mail.ru/osm/tools/overpass/api/interpreter; do
-              echo "=== $name  $u"
-              curl -sS -o /tmp/out.json -D /tmp/h.txt -w 'status=%{http_code} time=%{time_total}s size=%{size_download}\n' \
-                --max-time 60 -H 'Origin: https://goflytoday.de' \
-                -H 'Content-Type: application/x-www-form-urlencoded' \
-                --data-urlencode "data=$QQ" "$u" || echo "curl failed"
-              grep -i 'access-control-allow-origin' /tmp/h.txt || echo "KEIN CORS-Header"
-              head -c 300 /tmp/out.json | tr '\n' ' '; echo
-              python3 -c "import json;d=json.load(open('/tmp/out.json'));print('elements',len(d.get('elements',[])),'remark',d.get('remark',''))" 2>/dev/null || true
-            done
+          UA='Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36'
+          run() { echo "=== $1"; shift; curl -sS -o /tmp/o -D /tmp/h -w 'status=%{http_code} time=%{time_total}s size=%{size_download}\n' --max-time 25 "$@" || echo "curl failed"; grep -i 'access-control-allow-origin\|^retry-after' /tmp/h || echo "kein CORS"; head -c 200 /tmp/o | tr '\n' ' '; echo; }
+          D=https://overpass-api.de/api/interpreter
+          run "de POST ohne UA"        -H 'Content-Type: application/x-www-form-urlencoded' --data-urlencode "data=$SMALL" $D
+          run "de POST Browser-UA"     -A "$UA" -H 'Content-Type: application/x-www-form-urlencoded' --data-urlencode "data=$SMALL" $D
+          run "de POST UA+Referer+Origin" -A "$UA" -e 'https://goflytoday.de/' -H 'Origin: https://goflytoday.de' -H 'Accept: */*' -H 'Content-Type: application/x-www-form-urlencoded' --data-urlencode "data=$SMALL" $D
+          run "de GET UA+Referer"      -A "$UA" -e 'https://goflytoday.de/' -G --data-urlencode "data=$SMALL" $D
+          run "de GET App-UA"          -A 'GoFlyToday/1.0 (+https://goflytoday.de)' -G --data-urlencode "data=$SMALL" $D
+          run "de status"              -A "$UA" https://overpass-api.de/api/status
+          for u in https://overpass.private.coffee/api/interpreter https://overpass.kumi.systems/api/interpreter https://maps.mail.ru/osm/tools/overpass/api/interpreter https://overpass.osm.ch/api/interpreter; do
+            run "$u GET UA" -A "$UA" -e 'https://goflytoday.de/' -G --data-urlencode "data=$SMALL" $u
           done
+          run "osm.ch status" -A "$UA" https://overpass.osm.ch/api/status
