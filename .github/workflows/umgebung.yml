@@ -6,10 +6,7 @@ name: umgebung
 on:
   schedule:
     - cron: "17 3 3 * *"      # am 3. jedes Monats, 03:17 UTC
-  workflow_dispatch:
-  push:
-    branches: [claude/goflytoday-app-not-working-oofhku]
-    paths: [".github/workflows/umgebung.yml", "tools/umgebung_bauen.py"]
+  workflow_dispatch:           # von Hand: Actions -> umgebung -> Run workflow
 permissions:
   contents: write
 concurrency:
