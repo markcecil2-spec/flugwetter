@@ -1,0 +1,28 @@
+# Temporaere Diagnose: misst, wie die Overpass-Server auf die Umgebungs-Abfrage
+# der Briefing-Karte antworten. Laeuft nur auf diesem Arbeits-Branch, wird danach geloescht.
+name: overpass-diagnose
+on:
+  push:
+    branches: [claude/goflytoday-app-not-working-oofhku]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Abfragen messen
+        run: |
+          S="47.1971,9.799"; L="47.1829,9.7821"
+          Q='[out:json][timeout:25];(nwr["tourism"~"^(camp_site|caravan_site)$"](around:15000,'$L');nwr["amenity"="parking"](around:3000,'$L');nwr["amenity"="parking"](around:3000,'$S');nwr["tourism"~"^(hotel|guest_house|hostel|motel)$"](around:10000,'$L');nwr["amenity"~"^(restaurant|cafe|biergarten)$"](around:4000,'$S');nwr["amenity"~"^(restaurant|cafe|biergarten)$"](around:4000,'$L');nwr["tourism"="alpine_hut"](around:8000,'$S');nwr["shop"="supermarket"](around:5000,'$S');nwr["shop"="supermarket"](around:5000,'$L');nwr["amenity"="toilets"](around:3000,'$S');nwr["amenity"="toilets"](around:3000,'$L');node["aerialway"="station"](around:7000,'$S'););out center 700;'
+          SMALL='[out:json][timeout:25];nwr["amenity"="parking"](around:3000,'$L');out center 50;'
+          for name in combined small; do
+            if [ $name = combined ]; then QQ="$Q"; else QQ="$SMALL"; fi
+            for u in https://overpass-api.de/api/interpreter https://overpass.private.coffee/api/interpreter https://overpass.kumi.systems/api/interpreter https://maps.mail.ru/osm/tools/overpass/api/interpreter; do
+              echo "=== $name  $u"
+              curl -sS -o /tmp/out.json -D /tmp/h.txt -w 'status=%{http_code} time=%{time_total}s size=%{size_download}\n' \
+                --max-time 60 -H 'Origin: https://goflytoday.de' \
+                -H 'Content-Type: application/x-www-form-urlencoded' \
+                --data-urlencode "data=$QQ" "$u" || echo "curl failed"
+              grep -i 'access-control-allow-origin' /tmp/h.txt || echo "KEIN CORS-Header"
+              head -c 300 /tmp/out.json | tr '\n' ' '; echo
+              python3 -c "import json;d=json.load(open('/tmp/out.json'));print('elements',len(d.get('elements',[])),'remark',d.get('remark',''))" 2>/dev/null || true
+            done
+          done
