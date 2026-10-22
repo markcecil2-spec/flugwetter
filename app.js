@@ -2327,8 +2327,9 @@ async function renderSearch(candidates, origin, headline, opts = {}) {
   const out = document.getElementById("flyResults");
   const mapFirstRun = document.getElementById("mapFirstRun");
   if (mapFirstRun) mapFirstRun.hidden = true;
-  const truncated = candidates.length > MAX_CANDIDATES;
-  candidates = candidates.slice(0, MAX_CANDIDATES);
+  const cap = opts.max || MAX_CANDIDATES;
+  const truncated = candidates.length > cap;
+  candidates = candidates.slice(0, cap);
   if (!candidates.length) {
     out.innerHTML = `<p class="empty">Kein Startplatz gefunden. (Die Datenbank wächst noch.)</p>`;
     return;
@@ -2340,15 +2341,20 @@ async function renderSearch(candidates, origin, headline, opts = {}) {
     if (origin) { try { drive = await fetchDriveTimes(origin, candidates); } catch { drive = []; } }
     const rows = candidates.map((s, i) => {
       const drv = drive[i];
-      const subInfo = (drv != null ? IC_CAR + " " + formatDur(drv) + " · " : "") +
-        (s.dist != null ? IC_PIN + " " + s.dist + " km" : (s.region || ""));
+      // Route: wo unterwegs und wie weit neben der Strecke
+      const subInfo = s.routeKm != null
+        ? `${IC_ROUTE} nach ${Math.round(s.routeKm)} km · ${s.abseits < 1 ? "direkt an der Strecke" : Math.round(s.abseits) + " km abseits"}`
+        : (drv != null ? IC_CAR + " " + formatDur(drv) + " · " : "") +
+          (s.dist != null ? IC_PIN + " " + s.dist + " km" : (s.region || ""));
       const days = analyse(s, results[i]);
       const ts = dayStatus(days, searchDay);
       ts.type = flightType(days[searchDay], ts.win);
       return { spot: s, ts, drive: drv, subInfo };
     });
     const rank = { gut: 0, grenz: 1, nein: 2 };
-    rows.sort((a, b) =>
+    // Route: in Fahrtrichtung statt "fliegbar zuerst" - man will wissen, was als Naechstes kommt
+    if (opts.entlangRoute) rows.sort((a, b) => a.spot.routeKm - b.spot.routeKm);
+    else rows.sort((a, b) =>
       rank[a.ts.status] - rank[b.ts.status] ||
       ((a.drive ?? a.spot.sortKey ?? Infinity) - (b.drive ?? b.spot.sortKey ?? Infinity)));
     lastHeadline = headline; lastTruncated = truncated;
@@ -2625,7 +2631,8 @@ function updateHierBtn() {
   if (!btn || !mapInstance) return;
   const c = mapInstance.getCenter();
   let zeigen = true;
-  if (lastOrigin) {
+  if (routeGeo) zeigen = false;   // Route ist die Suche - kein "hier suchen" dazwischen
+  else if (lastOrigin) {
     const d = haversineExact(lastOrigin.lat, lastOrigin.lon, c.lat, c.lng);
     zeigen = d > Math.max(2, getRadius() * 0.2);
   }
@@ -2660,6 +2667,7 @@ async function ensureMap() {
     if (lastOrigin) updateRadiusCircle(lastOrigin.lat, lastOrigin.lon, getRadius());
     addExtraPointsLayer();
     updateExtraPoints(lastExtraFeatures);
+    routeLinieZeichnen();
   });
   // Klick auf freie Kartenfläche (nicht auf einen Marker/Bedienelement/Punkt) -> dort suchen.
   // Ein Doppeltipp loest zwei click-Events aus - ohne die Sperre liefen zwei Suchen
@@ -2767,9 +2775,187 @@ function updateFocusMarker(rows) {
   }
   focusMarker = new maplibregl.Marker({ element: el }).setLngLat([f.lon, f.lat]).addTo(mapInstance);
 }
+// ---------------- Startplaetze entlang einer Route (Stufe 1) ----------------
+// Strecke von OSRM (gleicher Dienst wie die Fahrzeiten), dann alle Plaetze, die hoechstens
+// "Umweg" km (Luftlinie) neben der Strecke liegen. Liste in Fahrtrichtung, Bewertung fuer den
+// gewaehlten Tag. Stufe 2 (spaeter): Ankunftszeit je Platz und Bewertung genau dafuer.
+const IC_ROUTE = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/></svg>`;
+const ROUTE_MAX_PLAETZE = 80;   // mehr verkraftet die Wetter-Sammelabfrage nicht sinnvoll
+const ROUTE_SRC = "route-linie";
+let routeGeo = null;            // [[lon,lat], ...] der aktuellen Route, null = keine
+let routeUmweg = (() => { try { return +localStorage.getItem("flugwetter_route_umweg") || 20; } catch { return 20; } })();
+
+async function fetchRoute(a, b) {
+  const url = `https://router.project-osrm.org/route/v1/driving/${a.lon.toFixed(5)},${a.lat.toFixed(5)};${b.lon.toFixed(5)},${b.lat.toFixed(5)}?overview=full&geometries=geojson`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Routenserver antwortet nicht (" + res.status + ")");
+  const j = await res.json();
+  const r = j.routes && j.routes[0];
+  if (!r) throw new Error("Keine Route gefunden");
+  return { coords: r.geometry.coordinates, km: r.distance / 1000, sec: r.duration };
+}
+// Plaetze im Korridor: kleinster Abstand zur Strecke (flache Naeherung, auf ein paar
+// hundert km genau genug) und die Position entlang der Strecke (km ab Start).
+function plaetzeAmKorridor(coords, maxKm) {
+  // Strecke auf Stuetzpunkte im Abstand >= 300 m ausduennen - OSRM liefert tausende
+  const pts = [coords[0]];
+  for (const c of coords) { const l = pts[pts.length - 1]; if (haversineExact(l[1], l[0], c[1], c[0]) >= 0.3) pts.push(c); }
+  if (pts[pts.length - 1] !== coords[coords.length - 1]) pts.push(coords[coords.length - 1]);
+  const lat0 = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+  const kx = 111.32 * Math.cos(lat0 * Math.PI / 180), ky = 110.57;
+  const xy = pts.map(([lon, lat]) => [lon * kx, lat * ky]);
+  const kum = [0];
+  for (let i = 1; i < xy.length; i++) kum.push(kum[i - 1] + Math.hypot(xy[i][0] - xy[i - 1][0], xy[i][1] - xy[i - 1][1]));
+  const lons = pts.map(p => p[0]), lats = pts.map(p => p[1]);
+  const dLat = maxKm / ky, dLon = maxKm / kx;
+  const box = [Math.min(...lons) - dLon, Math.min(...lats) - dLat, Math.max(...lons) + dLon, Math.max(...lats) + dLat];
+  const out = [];
+  for (const s of allKnownSpots()) {
+    if (s.lon < box[0] || s.lon > box[2] || s.lat < box[1] || s.lat > box[3]) continue;
+    const px = s.lon * kx, py = s.lat * ky;
+    let best = Infinity, entlang = 0;
+    for (let i = 1; i < xy.length; i++) {
+      const [ax, ay] = xy[i - 1], [bx, by] = xy[i];
+      const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+      const t = l2 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / l2)) : 0;
+      const d = Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+      if (d < best) { best = d; entlang = kum[i - 1] + t * Math.sqrt(l2); }
+    }
+    if (best <= maxKm) out.push({ ...s, routeKm: entlang, abseits: best, dist: Math.round(best), sortKey: entlang });
+  }
+  // Zu viele: die am weitesten abseits fliegen zuerst raus, danach in Fahrtrichtung
+  out.sort((a, b) => a.abseits - b.abseits);
+  return { plaetze: out.slice(0, ROUTE_MAX_PLAETZE).sort((a, b) => a.routeKm - b.routeKm), mehr: out.length > ROUTE_MAX_PLAETZE };
+}
+function routeLinieZeichnen() {
+  if (!mapInstance) return;
+  const data = { type: "FeatureCollection", features: routeGeo ? [{ type: "Feature", geometry: { type: "LineString", coordinates: routeGeo }, properties: {} }] : [] };
+  try {
+    const src = mapInstance.getSource(ROUTE_SRC);
+    if (src) { src.setData(data); return; }
+    if (!routeGeo) return;
+    mapInstance.addSource(ROUTE_SRC, { type: "geojson", data });
+    mapInstance.addLayer({ id: "route-rand", type: "line", source: ROUTE_SRC, layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#ffffff", "line-width": 9, "line-opacity": 0.85 } });
+    mapInstance.addLayer({ id: "route-linie", type: "line", source: ROUTE_SRC, layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "#06b6a4", "line-width": 5 } });
+  } catch {}   // Stil noch nicht fertig - kommt mit dem naechsten "idle"
+}
+function routeAufraeumen() {
+  if (!routeGeo) return;
+  routeGeo = null;
+  routeLinieZeichnen();
+}
+// Start/Ziel aus dem Eingabefeld: gewaehlter Vorschlag, sonst erster Ortstreffer;
+// leeres "Von" = eigener Standort.
+function eigenerStandort() {
+  return new Promise((ok, fehler) => {
+    if (userPos) return ok({ lat: userPos.lat, lon: userPos.lon, name: "Mein Standort" });
+    if (!navigator.geolocation) return fehler(new Error("Standort nicht verfügbar – bitte „Von“ eintragen"));
+    navigator.geolocation.getCurrentPosition(p => {
+      try { localStorage.setItem("flugwetter_geo_ok", "1"); } catch {}
+      setUserPos(p.coords.latitude, p.coords.longitude);
+      ok({ lat: p.coords.latitude, lon: p.coords.longitude, name: "Mein Standort" });
+    }, () => fehler(new Error("Standort nicht freigegeben – bitte „Von“ eintragen")), { timeout: 10000, maximumAge: 300000 });
+  });
+}
+async function routePunkt(inp, leerIstStandort) {
+  const v = inp.value.trim();
+  if (inp.dataset.lat) return { lat: +inp.dataset.lat, lon: +inp.dataset.lon, name: v };
+  if (!v) {
+    if (leerIstStandort) return eigenerStandort();
+    throw new Error("Bitte ein Ziel eintragen");
+  }
+  if (/^\d{5}$/.test(v)) { const o = await geocodePlz(v); return { lat: o.lat, lon: o.lon, name: v }; }
+  const treffer = await fetchPlaces(v).catch(() => []);
+  if (treffer.length) return { lat: treffer[0].lat, lon: treffer[0].lon, name: treffer[0].name };
+  const g = await forwardGeocode(v);
+  if (g) return { lat: g.lat, lon: g.lon, name: v };
+  throw new Error(`„${v}“ nicht gefunden`);
+}
+async function runRouteSearch() {
+  const out = document.getElementById("flyResults");
+  await switchToMapView();
+  out.hidden = false;   // Lade-/Fehlerhinweis auch in der Kartenansicht sichtbar
+  out.innerHTML = ladeHtml("Route wird berechnet …");
+  try {
+    const [a, b] = await Promise.all([
+      routePunkt(document.getElementById("routeVon"), true),
+      routePunkt(document.getElementById("routeNach"), false),
+    ]);
+    const r = await fetchRoute(a, b);
+    const { plaetze, mehr } = plaetzeAmKorridor(r.coords, routeUmweg);
+    // Kein Umkreis, kein Suchziel - die Route ist die Suche
+    lastOrigin = null; searchFocus = null;
+    const kreis = mapInstance && mapInstance.getSource(RADIUS_CIRCLE_SRC);
+    if (kreis) kreis.setData({ type: "FeatureCollection", features: [] });
+    routeGeo = r.coords;
+    routeLinieZeichnen();
+    updateHierBtn();
+    rerunSearch = () => runRouteSearch();
+    const headline = `${dayWord()} auf der Route <b>${escHtml(a.name)} → ${escHtml(b.name)}</b>`
+      + ` · ${Math.round(r.km)} km, ${formatDur(r.sec)} · ±${routeUmweg} km`;
+    if (!plaetze.length) { out.innerHTML = `<div class="fly-head">${headline}</div><p class="empty">Kein Startplatz innerhalb von ${routeUmweg} km neben der Strecke. Umweg vergrößern?</p>`; }
+    else await renderSearch(plaetze, null, headline + (mehr ? ` · die ${ROUTE_MAX_PLAETZE} nächsten an der Strecke` : ""), { entlangRoute: true, keepView: true, max: ROUTE_MAX_PLAETZE });
+    if (mapInstance) {
+      const lons = r.coords.map(c => c[0]), lats = r.coords.map(c => c[1]);
+      mapInstance.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 40, duration: 600 });
+    }
+    // In der Kartenansicht die Liste wieder ausblenden - ausser es gibt nur eine Meldung
+    if (plaetze.length) out.hidden = document.querySelector("#viewToggle .vpill.on[data-view=map]") != null;
+  } catch (e) {
+    out.innerHTML = `<p class="empty">${escHtml(e.message || "Route konnte nicht berechnet werden")}</p>`;
+  }
+}
+// Eingabefelder: Ortsvorschlaege wie im Suchfeld (Photon), Auswahl merkt sich die Koordinaten
+function routeFeld(inputId, sugId) {
+  const inp = document.getElementById(inputId), box = document.getElementById(sugId);
+  let timer = null, seq = 0, treffer = [];
+  const zu = () => { box.hidden = true; box.innerHTML = ""; };
+  inp.addEventListener("input", () => {
+    delete inp.dataset.lat; delete inp.dataset.lon;
+    clearTimeout(timer);
+    const v = inp.value.trim(), n = ++seq;
+    if (v.length < 3 || /^\d+$/.test(v)) { zu(); return; }
+    timer = setTimeout(async () => {
+      treffer = await fetchPlaces(v).catch(() => []);
+      if (n !== seq || !treffer.length) { if (n === seq) zu(); return; }
+      box.innerHTML = treffer.map((pl, i) => `<button type="button" class="sg-opt sg-place" data-i="${i}">
+        <span class="sg-ic">${IC_PIN}</span><span class="sg-txt"><span class="sg-name">${escHtml(pl.name)}</span>
+        <span class="sg-sub">${escHtml([pl.kind, pl.where].filter(Boolean).join(" · "))}</span></span></button>`).join("");
+      box.hidden = false;
+    }, 300);
+  });
+  box.addEventListener("pointerdown", e => e.preventDefault());
+  box.addEventListener("click", e => {
+    const b = e.target.closest("[data-i]"); if (!b) return;
+    const pl = treffer[+b.dataset.i];
+    inp.value = pl.name; inp.dataset.lat = pl.lat; inp.dataset.lon = pl.lon;
+    zu();
+    if (inputId === "routeVon") document.getElementById("routeNach").focus();
+    else inp.blur();
+  });
+  inp.addEventListener("blur", () => setTimeout(zu, 150));
+  inp.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    e.preventDefault(); zu();
+    if (inputId === "routeVon") document.getElementById("routeNach").focus();
+    else { inp.blur(); runRouteSearch(); }
+  });
+}
+routeFeld("routeVon", "routeVonSug");
+routeFeld("routeNach", "routeNachSug");
+document.getElementById("routeGo").addEventListener("click", () => runRouteSearch());
+document.querySelectorAll("#routePanel [data-umweg]").forEach(b => {
+  b.classList.toggle("on", +b.dataset.umweg === routeUmweg);
+  b.addEventListener("click", () => {
+    routeUmweg = +b.dataset.umweg;
+    try { localStorage.setItem("flugwetter_route_umweg", String(routeUmweg)); } catch {}
+    document.querySelectorAll("#routePanel [data-umweg]").forEach(x => x.classList.toggle("on", x === b));
+    if (routeGeo) runRouteSearch();   // Route steht schon -> gleich neu filtern
+  });
+});
 // Aktiv auf Kartenansicht wechseln - vom Toggle-Button UND vom Freitext-Ortssuche-Fallback genutzt.
 async function switchToMapView() {
-  document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x.dataset.view === "map"));
+  document.querySelectorAll("#viewToggle .vpill:not([data-view=route])").forEach(x => x.classList.toggle("on", x.dataset.view === "map"));
   document.getElementById("flyResults").hidden = true;
   document.getElementById("mapView").hidden = false;
   try { await ensureMap(); mapInstance.resize(); restoreMapView(); }
@@ -2777,8 +2963,16 @@ async function switchToMapView() {
 }
 document.getElementById("viewToggle").addEventListener("click", async e => {
   const b = e.target.closest(".vpill"); if (!b) return;
+  if (b.dataset.view === "route") {
+    const panel = document.getElementById("routePanel");
+    panel.hidden = !panel.hidden;
+    b.classList.toggle("aktiv", !panel.hidden);
+    b.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
+    if (!panel.hidden) document.getElementById(document.getElementById("routeNach").value ? "routeGo" : "routeNach").focus();
+    return;
+  }
   if (b.dataset.view === "map") { await switchToMapView(); return; }
-  document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll("#viewToggle .vpill:not([data-view=route])").forEach(x => x.classList.toggle("on", x === b));
   document.getElementById("flyResults").hidden = false;
   document.getElementById("mapView").hidden = true;
 });
@@ -2790,6 +2984,7 @@ document.getElementById("mapLocateBtn").addEventListener("click", () => {
 
 // Umkreissuche ab einem Punkt (GPS oder PLZ)
 async function runFlySearch(lat, lon, label, opts = {}) {
+  routeAufraeumen();
   lastOrigin = { lat, lon, label };
   const focus = opts.focus || null;
   searchFocus = focus;
@@ -2807,6 +3002,7 @@ async function runFlySearch(lat, lon, label, opts = {}) {
 // Regions-Suche (nach Gebiet statt Umkreis); Fahrzeit nur falls Standort schon bekannt
 async function runRegionSearch(key) {
   const R = REGIONS[key]; if (!R) return;
+  routeAufraeumen();
   searchFocus = null;
   localStorage.setItem("flugwetter_lastregion", key);   // Nordstern: beim nächsten Öffnen sofort zeigen
   rerunSearch = () => runRegionSearch(key);
@@ -3099,6 +3295,7 @@ async function plzSearch() {
 async function runNameSearch(q, opts = {}) {
   const ql = q.trim().toLowerCase();
   if (ql.length < 2) return;
+  routeAufraeumen();
   searchFocus = null;
   const matches = allKnownSpots()
     .filter(s => (s.name + " " + (s.region || "")).toLowerCase().includes(ql))
@@ -3664,6 +3861,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 147, date: "22.10.", text: "Neu: Startplätze entlang einer Route – Von/Nach eingeben, Umweg 10/20/30 km, Ergebnis in Fahrtrichtung" },
   { v: 146, date: "22.10.", text: "Startseite: Ladeanzeige mit Gleitschirm-Ring statt Textzeile (Standort, Suche, Prüfen)" },
   { v: 145, date: "22.10.", text: "Briefing: Liste „Übernachten in der Nähe“ entfernt (steht über den Filter auf der Karte); Karte schaut beim Scrollen nicht mehr neben der Kopfzeile hervor" },
   { v: 144, date: "22.10.", text: "Briefing-Karte: neue Filter ÖPNV (Bus, Bahn, Tram) und Tankstelle" },

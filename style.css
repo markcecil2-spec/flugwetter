@@ -1488,3 +1488,22 @@ body.bf-full-open { overflow: hidden; }
 .detail-loader.klein .dl-spin { border-width: 3px; }
 .detail-loader.klein .dl-ring img { width: 38px; height: 38px; }
 .detail-loader.klein .dl-sub { font-size: 14.5px; font-weight: 600; color: var(--text); opacity: .85; }
+
+/* ---------- Startplaetze entlang einer Route (v147) ---------- */
+.vpill-route.aktiv { color: var(--sky); box-shadow: inset 0 0 0 1.5px var(--sky); }
+.route-panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin: 10px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.route-panel[hidden] { display: none; }
+.rp-feld { position: relative; display: flex; align-items: center; gap: 10px; background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }
+.rp-feld:focus-within { border-color: var(--sky); }
+.rp-punkt { flex: none; width: 12px; height: 12px; border-radius: 50%; }
+.rp-von { border: 3px solid var(--sky); }
+.rp-nach { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.25); }
+.rp-input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--text); font-size: 15px; padding: 12px 0; font-family: inherit; }
+.rp-input::placeholder { color: var(--muted); }
+.rp-sug { top: calc(100% + 4px); }
+.rp-umweg { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.rp-umweg-lbl { font-size: 13px; color: var(--muted); font-weight: 600; margin-right: 4px; }
+.rp-umweg button { background: var(--card-2); border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.rp-umweg button.on { background: rgba(6,182,164,.16); border-color: var(--sky); color: var(--text); }
+.rp-go { background: var(--sky); color: #05221d; border: 0; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; }
+.rp-go:active { transform: scale(.98); }
