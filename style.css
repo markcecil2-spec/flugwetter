@@ -1439,3 +1439,16 @@ body.bf-full-open { overflow: hidden; }
 .bf-msg button { flex: none; background: var(--sky); color: #fff; border: 0; border-radius: 8px; padding: 6px 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; }
 .bf-spin { flex: none; width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); border-top-color: var(--sky); animation: bf-dreh .8s linear infinite; }
 @keyframes bf-dreh { to { transform: rotate(360deg); } }
+
+/* ---------- Ladeansicht im Startplatz-Fenster (v131) ---------- */
+.detail-loader { min-height: 70vh; min-height: 70dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; padding: 24px; }
+.dl-ring { position: relative; width: 112px; height: 112px; display: grid; place-items: center; margin-bottom: 10px; }
+.dl-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle, rgba(6,182,164,.16) 0 55%, transparent 70%); }
+.dl-spin { position: absolute; inset: 0; border-radius: 50%; border: 4px solid rgba(6,182,164,.15); border-top-color: var(--sky); border-right-color: var(--sky);
+  animation: dl-dreh 1s cubic-bezier(.55,.15,.45,.85) infinite; }
+.dl-ring img { width: 56px; height: 56px; object-fit: contain; position: relative; animation: dl-schweb 2.2s ease-in-out infinite; }
+.dl-name { font-size: 18px; font-weight: 800; color: var(--text); }
+.dl-sub { font-size: 14px; color: var(--muted); }
+@keyframes dl-dreh { to { transform: rotate(360deg); } }
+@keyframes dl-schweb { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) { .dl-ring img { animation: none; } .dl-spin { animation-duration: 2.4s; } }
