@@ -28,7 +28,6 @@ const IC_CABLECAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="cur
 const IC_SAT = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>`;
 const IC_PHONE = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>`;
 const IC_CLIPBOARD = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V2h6v2"/><path d="M9 10h6M9 14h6"/></svg>`;
-const IC_STERN = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>`;
 const IC_GLOBE = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/></svg>`;
 // Höhendifferenz-Schwelle, ab der "Thermik grundsätzlich möglich" als plausibel gilt (Standort-Eigenschaft)
 const THERMIK_HOEHENDIFF_MIN = 300; // m
@@ -1165,7 +1164,7 @@ function poiPopupHtml(c, titel, pin, untertitel, infos) {
   if (c.tel) akt.push(`<a class="poi-act" href="tel:${escHtml(c.tel.replace(/\s/g, ""))}">${IC_PHONE}Anrufen</a>`);
   // Google-Bewertungen: nur als Link - Google erlaubt Places-Daten (Sterne) nicht auf einer
   // OSM-Karte, und speichern duerfte man sie auch nicht. Der Link oeffnet den Ort in Google Maps.
-  if (c.googleQ) akt.push(`<a class="poi-act" href="${googleMapsSucheUrl(c.googleQ)}" target="_blank" rel="noopener">${IC_STERN}Bewertungen auf Google</a>`);
+  if (c.googleQ) akt.push(`<a class="poi-act" href="${googleMapsSucheUrl(c.googleQ)}" target="_blank" rel="noopener">${IC_PIN}In Google Maps öffnen</a>`);
   // Satellitenbild: war vorher der einzige Marker-Klick, bleibt als Option erhalten
   akt.push(`<a class="poi-act" href="${satMapsUrl(c.lat, c.lon)}" target="_blank" rel="noopener">${IC_SAT}Satellitenbild</a>`);
   const detail = infos ? poiInfoHtml(infos) : "";
@@ -3691,6 +3690,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 142, date: "22.10.", text: "Knopf heißt jetzt „In Google Maps öffnen“" },
   { v: 141, date: "22.10.", text: "Landeplatz: „Höhendifferenz“ statt „Höhenabstand“" },
   { v: 140, date: "22.10.", text: "Landeplätze auf der Briefing-Karte zeigen immer die nötige Gleitzahl" },
   { v: 139, date: "22.10.", text: "Seilbahn-Stationen: Knopf zur Website der Bahn bzw. Suche nach Preisen" },
