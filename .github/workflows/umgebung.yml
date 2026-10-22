@@ -39,7 +39,8 @@ jobs:
             curl -fsSL --retry 5 --retry-delay 30 -o "$W/$land.osm.pbf" "https://download.geofabrik.de/europe/$land-latest.osm.pbf"
             ls -lh "$W/$land.osm.pbf"
             osmium tags-filter "$W/$land.osm.pbf" \
-              nwr/amenity=parking,toilets,restaurant,cafe,biergarten \
+              nwr/amenity=parking,toilets,restaurant,cafe,biergarten,fuel \
+              n/highway=bus_stop nwr/railway=station,halt,tram_stop \
               nwr/tourism=camp_site,caravan_site,hotel,guest_house,hostel,motel,alpine_hut \
               nwr/shop=supermarket \
               w/aerialway=cable_car,gondola,chair_lift,mixed_lift n/aerialway=station \

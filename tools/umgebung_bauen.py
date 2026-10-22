@@ -20,13 +20,15 @@ from collections import defaultdict
 CAMP_R, PARK_R = 15.0, 3.0           # km, wie CAMP_RADIUS_M / PARK_RADIUS_M in app.js
 HOTEL_R, ESSEN_R, HUETTE_R = 10.0, 4.0, 8.0
 MARKT_R, WC_R, BAHN_R = 5.0, 3.0, 7.0
+OEPNV_R, TANK_R = 2.0, 8.0            # Haltestellen um Start und Landung, Tankstellen um die Landung
 MAX_R = max(CAMP_R, HOTEL_R, HUETTE_R, BAHN_R)
 
 # Obergrenzen je Platz (etwas ueber dem, was app.js anzeigt)
-CAP = {"park": 8, "camp": 30, "hotel": 30, "essen": 40, "supermarkt": 15, "toilette": 20, "stationen": 20, "linien": 30}
+CAP = {"park": 8, "camp": 30, "hotel": 30, "essen": 40, "supermarkt": 15, "toilette": 20, "stationen": 20, "linien": 30, "oepnv": 15, "tankstelle": 10}
 
 HOTEL_ART = {"hotel": "Hotel", "guest_house": "Pension", "hostel": "Hostel", "motel": "Motel"}
 ESSEN_ART = {"restaurant": "Restaurant", "cafe": "Café", "biergarten": "Biergarten", "alpine_hut": "Berghütte"}
+OEPNV_ART = {"station": "Bahnhof", "halt": "Haltepunkt", "tram_stop": "Straßenbahn"}
 BAHN_ART = {"cable_car": "Seilbahn", "gondola": "Gondelbahn", "chair_lift": "Sessellift", "mixed_lift": "Kombibahn", "funicular": "Standseilbahn"}
 
 
@@ -183,11 +185,21 @@ def main():
                             fee = t.get("fee")
                             art = "Toilette · kostenlos" if fee == "no" else "Toilette · gebührenpflichtig" if fee == "yes" else "Toilette"
                             tr["toilette"].append((dSL, {**basis(t, la, lo, "Toilette"), "art": art}))
+                    elif (t.get("highway") == "bus_stop" or t.get("railway") in OEPNV_ART) and not t.get("aerialway") and t.get("station") != "funicular":
+                        if dSL <= OEPNV_R:
+                            art = "Bushaltestelle" if t.get("highway") == "bus_stop" else OEPNV_ART[t["railway"]]
+                            tr["oepnv"].append((dSL, {**basis(t, la, lo, "Haltestelle"), "art": art}))
+                    elif am == "fuel":
+                        if dL <= TANK_R:
+                            d = basis(t, la, lo, "Tankstelle")
+                            if d["name"] == "Tankstelle" and t.get("brand"):
+                                d["name"] = t["brand"]
+                            tr["tankstelle"].append((dL, {**d, "art": "Tankstelle"}))
                     elif t.get("aerialway") == "station" and geom["type"] == "Point":
                         if dS <= BAHN_R:
                             tr["stationen"].append((dS, {**basis(t, la, lo, "Bahnstation"), "art": "Bergbahn-Station"}))
     os.makedirs(ausgabe, exist_ok=True)
-    GENERISCH = {"Parkplatz", "Toilette", "Bahnstation", "Ohne Namen", "Einkehr", "Unterkunft", "Supermarkt"}
+    GENERISCH = {"Parkplatz", "Toilette", "Bahnstation", "Ohne Namen", "Einkehr", "Unterkunft", "Supermarkt", "Haltestelle", "Tankstelle"}
 
     def nah(arr, k):
         # Lokal oft doppelt in OSM (Gebaeude + Punkt): gleicher Name und < 150 m = dasselbe,
@@ -218,6 +230,8 @@ def main():
             "essen": [ohne_leere(d) for d in nah(tr["essen"], "essen")],
             "supermarkt": [ohne_leere(d) for d in nah(tr["supermarkt"], "supermarkt")],
             "toilette": [ohne_leere(d) for d in nah(tr["toilette"], "toilette")],
+            "oepnv": [ohne_leere(d) for d in nah(tr["oepnv"], "oepnv")],
+            "tankstelle": [ohne_leere(d) for d in nah(tr["tankstelle"], "tankstelle")],
             "linien": [d for d in nah(tr["linien"], "linien")],
             "stationen": [ohne_leere(d) for d in nah(tr["stationen"], "stationen")],
         }

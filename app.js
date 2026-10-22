@@ -908,7 +908,7 @@ function campParkAus(e) {
   };
 }
 // Alte Zwischenspeicher (Einzelabfragen bis v127, umg1 bis v128) freigeben - localStorage ist knapp.
-try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_|umg1_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
+try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_|umg1_|umg2_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
 // Nur die Bahn, die zum Start fuehrt - keine Nebenlifte im Skigebiet.
 //  Ausgang: Bahnen mit einem Ende hoechstens 1,5 km vom Start. Von jeder aus wird vom
 //  unteren Ende (dem vom Start weiter entfernten) Abschnitt fuer Abschnitt nach unten
@@ -977,7 +977,7 @@ function bahnStationen(spot, linien, osmStationen) {
 // In OSM steht ein Lokal oft zweimal: als Gebaeude und als Punkt darin. Gleicher Name und
 // weniger als 150 m auseinander = dasselbe. Namenlose ("Parkplatz", "Toilette") nur, wenn sie
 // fast aufeinander liegen (30 m) - zwei Parkplaetze nebeneinander sind wirklich zwei.
-const GENERISCH = new Set(["Parkplatz", "Toilette", "Bahnstation", "Ohne Namen", "Einkehr", "Unterkunft", "Supermarkt"]);
+const GENERISCH = new Set(["Parkplatz", "Toilette", "Bahnstation", "Ohne Namen", "Einkehr", "Unterkunft", "Supermarkt", "Haltestelle", "Tankstelle"]);
 function ohneDoppelte(arr) {
   const out = [];
   for (const c of arr) {
@@ -1005,8 +1005,8 @@ async function fetchUmgebung(spot) {
   const sLat = spot.lat, sLon = spot.lon;
   const lLat = spot.landeLat != null ? spot.landeLat : sLat, lLon = spot.landeLon != null ? spot.landeLon : sLon;
   const r3 = x => x.toFixed(3);
-  // umg2: seit v129 mit Supermarkt und Toilette - alte umg1-Eintraege haben die nicht
-  const key = `umg2_${r3(sLat)}_${r3(sLon)}_${r3(lLat)}_${r3(lLon)}`;
+  // umg3: seit v144 mit OePNV und Tankstelle - aeltere Eintraege haben die nicht
+  const key = `umg3_${r3(sLat)}_${r3(sLon)}_${r3(lLat)}_${r3(lLon)}`;
   try {
     const raw = localStorage.getItem(key);
     if (raw) { const c = JSON.parse(raw); if (Date.now() - c.t < CAMP_TTL) return c.v; }
@@ -1024,6 +1024,9 @@ async function fetchUmgebung(spot) {
     + `nwr["shop"="supermarket"]${um(5000, lLat, lLon)};`
     + `nwr["amenity"="toilets"]${um(3000, sLat, sLon)};`
     + `nwr["amenity"="toilets"]${um(3000, lLat, lLon)};`
+    + `node["highway"="bus_stop"]${um(2000, sLat, sLon)};node["highway"="bus_stop"]${um(2000, lLat, lLon)};`
+    + `nwr["railway"~"^(station|halt|tram_stop)$"]${um(2000, sLat, sLon)};nwr["railway"~"^(station|halt|tram_stop)$"]${um(2000, lLat, lLon)};`
+    + `nwr["amenity"="fuel"]${um(8000, lLat, lLon)};`
     + `node["aerialway"="station"]${um(7000, sLat, sLon)};`
     + `)->.p;.p out center 700;(`
     + `way["aerialway"~"^(cable_car|gondola|chair_lift|mixed_lift)$"]${um(7000, sLat, sLon)};`
@@ -1031,7 +1034,7 @@ async function fetchUmgebung(spot) {
     + `)->.b;.b out geom 80;`;
   try {
     const data = await overpassRequest(q);
-    const v = { cp: [], hotel: [], essen: [], supermarkt: [], toilette: [], linien: [], stationen: [] };
+    const v = { cp: [], hotel: [], essen: [], supermarkt: [], toilette: [], oepnv: [], tankstelle: [], linien: [], stationen: [] };
     const seen = new Set();
     const klein = (p, art) => ({ name: p.name, lat: p.lat, lon: p.lon, web: p.web, tel: p.tel, adresse: p.adresse, saison: p.saison, aus: [], art });
     for (const e of data.elements || []) {
@@ -1046,6 +1049,10 @@ async function fetchUmgebung(spot) {
         const c = campParkAus(e); if (c) v.cp.push(c); continue;
       }
       if (t.aerialway === "station") { const p = osmPoi(e, "Bahnstation"); if (p) v.stationen.push(klein(p, "Bergbahn-Station")); continue; }
+      if (t.highway === "bus_stop" || (OEPNV_ART[t.railway] && t.station !== "funicular")) {
+        const p = osmPoi(e, "Haltestelle"); if (p) v.oepnv.push(klein(p, t.highway === "bus_stop" ? "Bushaltestelle" : OEPNV_ART[t.railway])); continue;
+      }
+      if (t.amenity === "fuel") { const p = osmPoi(e, t.brand || "Tankstelle"); if (p) v.tankstelle.push(klein(p, "Tankstelle")); continue; }
       if (t.shop === "supermarket") { const p = osmPoi(e, "Supermarkt"); if (p) v.supermarkt.push(klein(p, "Supermarkt")); continue; }
       if (t.amenity === "toilets") {
         const p = osmPoi(e, "Toilette");
@@ -1143,7 +1150,7 @@ function googleMapsSucheUrl(q) {
 }
 // Suchbegriff fuer Google Maps: Name + Adresse, ohne Adresse Name + Ort des Startplatzes.
 // Namenlose Eintraege ("Parkplatz", "Toilette") bekommen keinen - Google wuerde nur raten.
-const BF_GOOGLE_KAT = new Set(["camping", "stellplatz", "hotel", "essen", "supermarkt"]);
+const BF_GOOGLE_KAT = new Set(["camping", "stellplatz", "hotel", "essen", "supermarkt", "tankstelle"]);
 function googleSuchbegriff(c, cat, spot) {
   if (!BF_GOOGLE_KAT.has(cat) || !c.name || GENERISCH.has(c.name)) return "";
   // Nur Hausnummer ohne Strasse ("2, 87645 Schwangau") hilft Google nicht - weglassen
@@ -1281,6 +1288,8 @@ const BF_PICTO = {
   hotel: `<path d="M3 18.5V6.5M3 14h18v4.5"/><path d="M21 14a3.5 3.5 0 0 0-3.5-3.5H11V14"/><circle cx="7" cy="11" r="1.7"/>`,
   essen: `<path d="M7 3.5v6a2 2 0 0 0 4 0v-6M9 9.5v11"/><path d="M17 3.5c-2.2 1.8-2.2 7.2 0 8.5v8.5"/>`,
   supermarkt: `<path d="M3 4.5h2.5l2.2 10.5h10.6l2-7.5H7"/><circle cx="9.5" cy="19" r="1.4"/><circle cx="16.5" cy="19" r="1.4"/>`,
+  oepnv: `<rect x="5" y="3.5" width="14" height="14" rx="3"/><path d="M5 11h14M9 20.5l-1.5-3M15 20.5l1.5-3"/><circle cx="8.5" cy="14.3" r=".9"/><circle cx="15.5" cy="14.3" r=".9"/>`,
+  tankstelle: `<path d="M5 20.5V5a1.5 1.5 0 0 1 1.5-1.5h6A1.5 1.5 0 0 1 14 5v15.5M3.5 20.5h12"/><path d="M5 10h9"/><path d="M14 8.5l3 3V17a1.5 1.5 0 0 0 3 0V9l-2.5-2.5"/>`,
   toilette: `<circle cx="7.5" cy="5" r="1.6"/><path d="M5.5 9h4l1 5H9.5v6h-4v-6H4.5z"/><circle cx="16.5" cy="5" r="1.6"/><path d="M14.5 9h4v11M16.5 14v6M14.5 9v6"/>`,
 };
 const BF_CATS = {
@@ -1292,12 +1301,14 @@ const BF_CATS = {
   essen:      { label: "Essen",      farbe: "#ea580c" },
   supermarkt: { label: "Supermarkt", farbe: "#db2777" },
   toilette:   { label: "Toilette",   farbe: "#0284c7" },
+  oepnv:      { label: "ÖPNV",       farbe: "#d97706" },
+  tankstelle: { label: "Tankstelle", farbe: "#475569" },
 };
 const IC_VOLL_AN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>`;
 const IC_VOLL_AUS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>`;
-const BF_ORDER = ["parken", "bahn", "camping", "stellplatz", "hotel", "essen", "supermarkt", "toilette"];
+const BF_ORDER = ["parken", "bahn", "camping", "stellplatz", "hotel", "essen", "supermarkt", "toilette", "oepnv", "tankstelle"];
 const BF_FILTER_KEY = "flugwetter_bf_filter";
-const BF_DEFAULT = { parken: true, bahn: true, camping: false, stellplatz: false, hotel: false, essen: false, supermarkt: false, toilette: false };
+const BF_DEFAULT = { parken: true, bahn: true, camping: false, stellplatz: false, hotel: false, essen: false, supermarkt: false, toilette: false, oepnv: false, tankstelle: false };
 function bfFilter() {
   try { return { ...BF_DEFAULT, ...JSON.parse(localStorage.getItem(BF_FILTER_KEY) || "{}") }; } catch { return { ...BF_DEFAULT }; }
 }
@@ -1314,7 +1325,7 @@ function bfIconUrl(cat) {
 // Pro geoeffnetem Platz: was ist geladen, was laeuft, was ist schiefgegangen.
 let bfSpotId = null;
 let bfBase = "";   // Status der Umgebungs-Abfrage: "" | "laedt" | "ok" | "fehler"
-const bfData = { hotel: null, essen: null, bahn: null, supermarkt: null, toilette: null };   // null = noch nicht da
+const bfData = { hotel: null, essen: null, bahn: null, supermarkt: null, toilette: null, oepnv: null, tankstelle: null };   // null = noch nicht da
 function bfResetForSpot(spot) {
   bfSpotId = spot.id;
   for (const k of Object.keys(bfData)) bfData[k] = null;
@@ -1337,6 +1348,7 @@ function osmPoi(e, fallbackName) {
   };
 }
 const BF_ESSEN_ART = { restaurant: "Restaurant", cafe: "Café", biergarten: "Biergarten", alpine_hut: "Berghütte" };
+const OEPNV_ART = { station: "Bahnhof", halt: "Haltepunkt", tram_stop: "Straßenbahn" };
 const BF_HOTEL_ART = { hotel: "Hotel", guest_house: "Pension", hostel: "Hostel", motel: "Motel" };
 const BF_BAHN_ART = { cable_car: "Seilbahn", gondola: "Gondelbahn", chair_lift: "Sessellift", mixed_lift: "Kombibahn", funicular: "Standseilbahn" };
 // Naechster Bezugspunkt (Start oder Landeplatz) - fuer die Entfernungsangabe im Kasten.
@@ -1476,6 +1488,8 @@ async function loadCampsites(spot) {
     bfData.essen = nah(umg.essen, 40);
     bfData.supermarkt = nah(umg.supermarkt || [], 15);
     bfData.toilette = nah(umg.toilette || [], 20);
+    bfData.oepnv = nah(umg.oepnv || [], 15);
+    bfData.tankstelle = nah(umg.tankstelle || [], 10);
     const linien = bahnenZumStart(spot, umg.linien || []);
     bfData.bahn = { linien, stationen: bahnStationen(spot, linien, umg.stationen || []).map(mitZiel) };
   }
@@ -3693,6 +3707,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 144, date: "22.10.", text: "Briefing-Karte: neue Filter ÖPNV (Bus, Bahn, Tram) und Tankstelle" },
   { v: 143, date: "22.10.", text: "Live-Wetter, Live-Cam und Windy als große, farbige Knöpfe im Wetter-Tab; Knopf „Satellitenbild“ in den Kartenfenstern entfernt" },
   { v: 142, date: "22.10.", text: "Knopf heißt jetzt „In Google Maps öffnen“" },
   { v: 141, date: "22.10.", text: "Landeplatz: „Höhendifferenz“ statt „Höhenabstand“" },
