@@ -13,7 +13,7 @@
   <!-- ?v=NN muss bei jedem Deploy mit der Versionsnummer/sw.js mitgezogen werden. Ohne das
        kann der Browser eine neue index.html mit einer alten app.js aus dem HTTP-Cache mischen
        (GitHub Pages liefert Assets mit max-age) - dann fehlen neue Funktionen kommentarlos. -->
-  <link rel="stylesheet" href="style.css?v=122" />
+  <link rel="stylesheet" href="style.css?v=123" />
 </head>
 <body>
   <header>
@@ -66,10 +66,11 @@
             <span class="search-ic" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
             </span>
-            <input id="plzInput" class="search-input" enterkeyhint="search" placeholder="Startplatz, Ort oder PLZ…" autocomplete="off" />
+            <input id="plzInput" class="search-input" enterkeyhint="search" role="combobox" aria-autocomplete="list" aria-controls="searchSuggest" aria-expanded="false" placeholder="Startplatz, Ort oder PLZ…" autocomplete="off" />
             <button type="button" id="searchGo" class="search-go" title="Suchen" aria-label="Suchen" hidden>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
+            <div id="searchSuggest" class="suggest" role="listbox" aria-label="Vorschläge" hidden></div>
             <button id="gpsBtn" class="gps-btn" title="Meinen Standort verwenden" aria-label="Meinen Standort verwenden">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3.2M12 18.3v3.2M2.5 12h3.2M18.3 12h3.2"/></svg>
             </button>
@@ -365,7 +366,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 122 · Oktober 2026</p>
+      <p class="build">GoFlyToday · Version 123 · Oktober 2026</p>
     </section>
   </main>
 
@@ -496,8 +497,8 @@
     </div>
   </div>
 
-  <script src="database.js?v=122"></script>
-  <script src="briefings.js?v=122"></script>
-  <script src="app.js?v=122"></script>
+  <script src="database.js?v=123"></script>
+  <script src="briefings.js?v=123"></script>
+  <script src="app.js?v=123"></script>
 </body>
 </html>
