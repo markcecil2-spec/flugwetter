@@ -1175,7 +1175,6 @@ function poiPopup(html) {
 // fuellt nur Koordinaten, Ort und Hoehe vor, den Rest traegt der Nutzer im Formular ein.
 const LP_DAUER = 600, LP_TOLERANZ = 10;   // ms halten, erlaubte Fingerbewegung in Pixeln
 let lpTimer = null, lpVon = null, lpMarker = null, lpPopup = null;
-let lpKlickSperre = false, lpSperreZeit = 0;   // der Klick nach dem langen Druck darf nicht suchen
 const IC_PLUS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`;
 
 function lpStop() { clearTimeout(lpTimer); lpTimer = null; lpVon = null; }
@@ -1200,7 +1199,6 @@ function lpPopupHtml(lat, lon, ort, hoehe, laedt) {
   </div>`;
 }
 async function lpAusloesen(el, x, y) {
-  lpKlickSperre = true; lpSperreZeit = Date.now();
   if (navigator.vibrate) navigator.vibrate(15);   // nur Android, iOS kennt das nicht
   const r = el.getBoundingClientRect();
   const ll = mapInstance.unproject([x - r.left, y - r.top]);
@@ -2669,28 +2667,10 @@ async function ensureMap() {
     updateExtraPoints(lastExtraFeatures);
     routeLinieZeichnen();
   });
-  // Klick auf freie Kartenfläche (nicht auf einen Marker/Bedienelement/Punkt) -> dort suchen.
-  // Ein Doppeltipp loest zwei click-Events aus - ohne die Sperre liefen zwei Suchen
-  // gleichzeitig los (zwei Ortsabfragen, zwei Ergebnislisten).
-  let letzterKartenklick = 0;
-  mapInstance.on("click", async e => {
-    if (mapInstance.queryRenderedFeatures(e.point, { layers: ["extra-points-layer"] }).length) return;
-    // Nach einem langen Druck kommt noch ein Klick hinterher - der darf keine Suche starten.
-    // Die Zeitgrenze verhindert, dass eine liegengebliebene Sperre einen viel spaeteren
-    // Klick schluckt (z.B. wenn der Nutzer direkt im Kasten weitergetippt hat).
-    if (lpKlickSperre) { lpKlickSperre = false; if (Date.now() - lpSperreZeit < 2000) return; }
-    const jetzt = Date.now();
-    if (jetzt - letzterKartenklick < 400) return;
-    letzterKartenklick = jetzt;
-    const { lat, lng } = e.lngLat;
-    const tempEl = document.createElement("div");
-    tempEl.className = "map-marker map-marker-temp";
-    tempEl.innerHTML = `<img src="icons/marker-start.png" alt="">`;
-    const tempMarker = new maplibregl.Marker({ element: tempEl }).setLngLat([lng, lat]).addTo(mapInstance);
-    mapMarkers.push(tempMarker);
-    const place = await reverseGeocode(lat, lng);
-    await runFlySearch(lat, lng, place || `${lat.toFixed(3)}, ${lng.toFixed(3)}`);
-  });
+  // Tippen auf freie Kartenflaeche startet KEINE Suche mehr (auf Wunsch) - man verschiebt
+  // die Karte oft nur und loeste dabei versehentlich eine neue Suche aus. Woanders suchen:
+  // Karte verschieben, dann "Startplaetze hier suchen". Langes Druecken legt weiter einen
+  // eigenen Platz an (lpSetup), Tipp auf graue Punkte oeffnet weiter den Platz.
   lpSetup(document.getElementById("mapEl"));
   const bounds = rowsBounds(lastRows);
   if (bounds) mapInstance.fitBounds(bounds, { padding: 50, animate: false, maxZoom: 13 });
@@ -3861,6 +3841,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 150, date: "22.10.", text: "Tippen auf die Karte startet keine neue Suche mehr – dafür „Startplätze hier suchen“" },
   { v: 148, date: "22.10.", text: "„Startplätze entlang der Route“ als eigener Knopf über Karte/Liste" },
   { v: 147, date: "22.10.", text: "Neu: Startplätze entlang einer Route – Von/Nach eingeben, Umweg 10/20/30 km, Ergebnis in Fahrtrichtung" },
   { v: 146, date: "22.10.", text: "Startseite: Ladeanzeige mit Gleitschirm-Ring statt Textzeile (Standort, Suche, Prüfen)" },
