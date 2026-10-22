@@ -736,7 +736,8 @@ button.poi-act { width: 100%; font-family: inherit; cursor: pointer; }
 /* Detail-Kopf: Name auf X-Höhe, ☰-Menü darunter */
 .detail-topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; position: sticky; top: 0; z-index: 4; background: var(--card); padding: 6px 0 8px; }
 .dt-left { min-width: 0; }
-.dt-right { display: flex; flex-direction: column; align-items: flex-end; gap: 18px; flex: none; }
+/* ☰ links neben dem ✕ in einer Zeile - spart die zweite Zeile, alles darunter rueckt hoch */
+.dt-right { display: flex; flex-direction: row; align-items: center; gap: 14px; flex: none; }
 .dt-menu-wrap { position: relative; }
 .dt-x, .dt-menu-btn { color: var(--muted); }
 .dt-menu-btn { font-size: 17px; }
@@ -1339,3 +1340,94 @@ main.wrap { padding-top: 12px; }
 .hint-banner { background: rgba(21,27,36,.72); border-color: rgba(6,182,164,.3); backdrop-filter: blur(2px); }
 .nowbar { background: rgba(6,182,164,.09); }
 .mine { color: var(--sky); background: rgba(6,182,164,.14); }
+
+/* ---------- Briefing-Karte mit Filtern (v126) ---------- */
+/* Am Handy randlos ueber die volle Breite, am PC als Kachel im 760-px-Inhalt. */
+.bf-map-wrap { margin: 0 -16px 16px; }
+.bf-map.mini-map-wrap { height: 64vh; height: 64dvh; min-height: 360px; margin-top: 0; border-radius: 0; border-left: 0; border-right: 0; }
+@media (min-width: 700px) {
+  .bf-map-wrap { margin-inline: 0; }
+  .bf-map.mini-map-wrap { border-radius: 16px; border: 1px solid var(--line); }
+}
+.bf-map .maplibregl-ctrl-bottom-right { bottom: 20px; }
+/* Runde schwebende Knoepfe wie in Karten-Apps */
+.bf-fab { position: relative; width: 52px; height: 52px; border-radius: 50%; border: 3px solid #fff; background: #fff; color: #1f2937;
+  display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.28); -webkit-tap-highlight-color: transparent;
+  transition: transform .1s; }
+.bf-fab:active { transform: scale(.94); }
+.bf-fab svg { width: 24px; height: 24px; }
+.bf-fabs { position: absolute; top: 12px; right: 12px; z-index: 6; display: flex; gap: 12px; }
+.bf-fab-layer { border-color: #f5b301; }
+.bf-fab-layer.on { background: #fff7e0; }
+.bf-fab-filter { border-color: var(--sky); color: var(--sky); }
+.bf-fab-filter.on { background: var(--sky); color: #fff; }
+.bf-badge { position: absolute; top: -9px; right: -6px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--sky); color: #fff;
+  border: 2px solid #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
+.bf-badge:empty { display: none; }
+.bf-fab-full { position: absolute; top: 12px; left: 12px; z-index: 6; width: 46px; height: 46px; border: 0; }
+.bf-fab-full svg { width: 20px; height: 20px; }
+/* Ebenen-Menue unter dem Ebenen-Knopf */
+.bf-pop { position: absolute; z-index: 7; background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 14px 34px rgba(0,0,0,.45); }
+.bf-pop[hidden] { display: none; }
+.bf-layer-pop { top: 74px; right: 12px; padding: 10px; display: flex; gap: 8px; }
+.bf-layer-pop .mini-style-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 76px; padding: 0 0 6px; background: none; border: 0;
+  color: var(--muted); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.bf-layer-pop .mini-style-btn.on { color: var(--text); }
+.bf-stil-bild { width: 64px; height: 52px; border-radius: 12px; border: 2px solid var(--line); background-size: cover; background-position: center; }
+.mini-style-btn.on .bf-stil-bild { border-color: var(--sky); box-shadow: 0 0 0 2px rgba(6,182,164,.35); }
+.bf-stil-street .bf-stil-bild { background: linear-gradient(135deg, #e8efe3 0 40%, #f6f1e7 40% 62%, #cfe3f5 62%); }
+.bf-stil-sat .bf-stil-bild { background: radial-gradient(circle at 30% 40%, #5c7a3a, transparent 45%), radial-gradient(circle at 75% 70%, #3f5a2c, transparent 50%), linear-gradient(135deg, #6d6a4c, #2f4a2a); }
+.bf-stil-terrain .bf-stil-bild { background: repeating-radial-gradient(circle at 35% 55%, #e9e4d3 0 6px, #d9cfb3 6px 7px), #e9e4d3; }
+/* Filter-Feld: schiebt sich von unten ueber die Karte */
+.bf-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; background: var(--card); border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--line); box-shadow: 0 -12px 34px rgba(0,0,0,.4); padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  max-height: 85%; overflow-y: auto; animation: bfUp .18s ease-out; }
+.bf-sheet[hidden] { display: none; }
+@keyframes bfUp { from { transform: translateY(24px); opacity: .4; } to { transform: none; opacity: 1; } }
+.bf-sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.bf-sheet-head b { font-size: 16px; }
+.bf-sheet-ok { background: var(--sky); color: #fff; border: 0; border-radius: 10px; padding: 8px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.bf-fix { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+.bf-fix img { width: 20px; height: 20px; border-radius: 4px; }
+.bf-fix span { margin-left: 4px; }
+.bf-opts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bf-opt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 14px;
+  border: 1.5px solid var(--line); background: var(--card-2); color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: border-color .12s, background .12s, color .12s; -webkit-tap-highlight-color: transparent; }
+.bf-opt img { width: 38px; height: 38px; opacity: .45; filter: grayscale(.8); transition: opacity .12s, filter .12s; }
+.bf-opt.on { border-color: var(--sky); background: rgba(6,182,164,.12); color: var(--text); }
+.bf-opt.on img { opacity: 1; filter: none; }
+.bf-opt .bf-cnt { position: absolute; top: 6px; left: 6px; }
+.bf-opt-check { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; color: transparent; }
+.bf-opt.on .bf-opt-check { background: var(--sky); border-color: var(--sky); color: #fff; }
+.bf-opt-check svg { width: 13px; height: 13px; }
+.bf-cnt { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(148,163,184,.22); color: var(--text); font-size: 11.5px; font-weight: 700; display: grid; place-items: center; }
+.bf-cnt:empty { display: none; }
+.bf-sheet-note { margin: 12px 0 0; font-size: 11.5px; color: var(--muted); text-align: center; }
+/* Vollbild: Karte fuellt den ganzen Schirm */
+.bf-map-wrap.full { position: fixed; inset: 0; z-index: 90; margin: 0; background: var(--card); display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
+.bf-map-wrap.full .bf-map.mini-map-wrap { flex: 1; height: auto; min-height: 0; border-radius: 0; border: 0; }
+body.bf-full-open { overflow: hidden; }
+/* Marker: rundes Farbsymbol mit kleiner Spitze, wie man es aus Karten-Apps kennt */
+.bf-marker { cursor: pointer; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+.bf-marker img { width: 30px; height: 30px; display: block; }
+.bf-marker::after { content: ""; width: 0; height: 0; margin-top: -2px; border: 5px solid transparent; border-top: 7px solid #fff; border-bottom: 0; }
+.bf-map .mini-marker img { width: 36px; height: 36px; border: 2px solid #fff; border-radius: 9px; }
+.bf-map .mini-start { z-index: 3; }
+.poi-pop-head img[src^="data:"] { border-radius: 50%; }
+
+/* ---------- Suchziel auf der Hauptkarte (v126) ---------- */
+/* Ort: gruener Punkt mit Welle. Startplatz: sein Icon pumpt, darunter dieselbe Welle.
+   Animiert werden nur Kinder bzw. Pseudo-Elemente - am Marker selbst setzt MapLibre transform. */
+.focus-dot { position: relative; width: 22px; height: 22px; pointer-events: none; }
+.focus-dot-core { position: absolute; inset: 3px; border-radius: 50%; background: #22c55e; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.45); }
+.focus-dot-ring, .map-marker-pulse::before { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+  background: rgba(34,197,94,.55); animation: focus-wave 1.6s ease-out infinite; pointer-events: none; }
+.map-marker-pulse { position: relative; z-index: 5; }
+.map-marker-pulse::before { content: ""; width: 34px; height: 34px; margin: -17px 0 0 -17px; }
+.map-marker-pulse img { position: relative; animation: focus-pump 1.6s ease-in-out infinite; }
+.map-marker-pulse .map-marker-label { display: block; }
+@keyframes focus-wave { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(3.2); opacity: 0; } }
+@keyframes focus-pump { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.22); } }
+@media (prefers-reduced-motion: reduce) { .focus-dot-ring, .map-marker-pulse::before, .map-marker-pulse img { animation: none; } }
