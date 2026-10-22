@@ -829,6 +829,39 @@ function campTypeLabel(t) {
 }
 function campPin(t) { return PIN[campKat(t)]; }
 
+// Overpass-Abfragen laufen ueber diese eine Funktion:
+//  - nacheinander statt gleichzeitig: overpass-api.de erlaubt pro Nutzer nur ~2 parallele
+//    Abfragen und weist den Rest mit 429 ab. Seit der Briefing-Karte (Parken + Seilbahn +
+//    Hotel + Essen) kamen bis zu vier auf einmal - dann blieb die Karte leer.
+//  - Antwortet ein Server nicht (Fehler, 429/504, Zeitlimit), kommt der naechste dran.
+const OVERPASS_SERVER = [
+  "https://overpass-api.de/api/interpreter",
+  "https://overpass.private.coffee/api/interpreter",
+  "https://overpass.kumi.systems/api/interpreter",
+];
+let overpassKette = Promise.resolve();
+function overpassRequest(query) {
+  const lauf = overpassKette.then(async () => {
+    let letzterFehler = null;
+    for (const url of OVERPASS_SERVER) {
+      const ctrl = new AbortController();
+      const to = setTimeout(() => ctrl.abort(), 15000);
+      try {
+        const res = await fetch(url, {
+          method: "POST", signal: ctrl.signal,
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "data=" + encodeURIComponent(query),
+        });
+        if (!res.ok) throw new Error("Overpass " + res.status);
+        return await res.json();
+      } catch (e) { letzterFehler = e; }
+      finally { clearTimeout(to); }
+    }
+    throw letzterFehler || new Error("Overpass nicht erreichbar");
+  });
+  overpassKette = lauf.catch(() => {});   // ein Fehlschlag haelt die Schlange nicht an
+  return lauf;
+}
 async function fetchNearbyPois(lat, lon, sLat, sLon) {
   // poi4 = zusaetzlich Telefon/Adresse/Oeffnungszeiten fuers Marker-Fenster
   const key = `poi4_${lat.toFixed(3)}_${lon.toFixed(3)}`;
@@ -846,16 +879,8 @@ async function fetchNearbyPois(lat, lon, sLat, sLon) {
     + (sLat != null ? teil("node", `["amenity"="parking"]`, PARK_RADIUS_M, sLat, sLon)
                     + teil("way", `["amenity"="parking"]`, PARK_RADIUS_M, sLat, sLon) : "")
     + `);out center 400;`;
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 20000);
   try {
-    const res = await fetch("https://overpass-api.de/api/interpreter", {
-      method: "POST", signal: ctrl.signal,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "data=" + encodeURIComponent(q),
-    });
-    if (!res.ok) throw new Error("Overpass " + res.status);
-    const data = await res.json();
+    const data = await overpassRequest(q);
     const list = (data.elements || []).map(e => {
       const t = e.tags || {};
       const la = e.lat != null ? e.lat : e.center && e.center.lat;
@@ -888,7 +913,6 @@ async function fetchNearbyPois(lat, lon, sLat, sLon) {
     try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v: list })); } catch {}
     return list;
   } catch { return null; }
-  finally { clearTimeout(to); }
 }
 function campRowHtml(c, i) {
   const km = c.dist < 1 ? Math.round(c.dist * 1000) + " m" : c.dist.toFixed(1).replace(".", ",") + " km";
@@ -1133,20 +1157,11 @@ async function overpassCached(key, query) {
     const raw = localStorage.getItem(key);
     if (raw) { const c = JSON.parse(raw); if (Date.now() - c.t < CAMP_TTL) return c.v; }
   } catch {}
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 20000);
   try {
-    const res = await fetch("https://overpass-api.de/api/interpreter", {
-      method: "POST", signal: ctrl.signal,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: "data=" + encodeURIComponent(query),
-    });
-    if (!res.ok) throw new Error("Overpass " + res.status);
-    const v = (await res.json()).elements || [];
+    const v = (await overpassRequest(query)).elements || [];
     try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v })); } catch {}
     return v;
   } catch { return null; }
-  finally { clearTimeout(to); }
 }
 // Gemeinsame Felder fuer den Marker-Kasten (poiPopupHtml) aus OSM-Tags.
 function osmPoi(e, fallbackName) {
@@ -1253,6 +1268,20 @@ function bfUpdateChips() {
   const f = bfFilter();
   const badge = document.getElementById("bfBadge");
   if (badge) badge.textContent = BF_ORDER.filter(c => f[c]).length || "";
+  // Rueckmeldung auf der Karte: laedt noch / hat nicht geklappt (mit Nochmal-Knopf)
+  const msg = document.getElementById("bfMsg");
+  if (msg) {
+    const st = cat => cat in bfState ? bfState[cat] : bfBase;
+    const aktiv = BF_ORDER.filter(c => f[c]);
+    const fehler = aktiv.filter(c => st(c) === "fehler");
+    if (fehler.length) {
+      msg.innerHTML = `<span>⚠ ${fehler.map(c => BF_CATS[c].label).join(", ")}: Server antwortet nicht</span><button type="button" data-bfretry>Nochmal</button>`;
+      msg.className = "bf-msg warn"; msg.hidden = false;
+    } else if (aktiv.some(c => st(c) === "laedt")) {
+      msg.innerHTML = `<span class="bf-spin"></span><span>Umgebung wird geladen …</span>`;
+      msg.className = "bf-msg"; msg.hidden = false;
+    } else msg.hidden = true;
+  }
   document.querySelectorAll("[data-bfcat]").forEach(chip => {
     const cat = chip.dataset.bfcat, on = !!f[cat];
     chip.classList.toggle("on", on);
@@ -1824,6 +1853,7 @@ function briefingPanelHtml(spot, ctx) {
         <div class="bf-opts">${bfOpts}</div>
         <p class="bf-sheet-note">Daten © OpenStreetMap-Mitwirkende · nur was dort eingetragen ist</p>
       </div>
+      <div class="bf-msg" id="bfMsg" hidden></div>
       <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
     </div>
   </div>
@@ -3531,6 +3561,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 127, date: "22.10.", text: "Briefing-Karte lädt Parken, Seilbahn, Hotel und Essen zuverlässiger (Ersatzserver, keine Überlast mehr) und zeigt an, wenn etwas nicht lädt" },
   { v: 126, date: "22.10.", text: "Gesuchter Ort pulsiert als grüner Punkt auf der Karte, ein gesuchter Startplatz pulsiert selbst" },
   { v: 126, date: "22.10.", text: "Briefing neu: große Karte mit Filtern für Parken, Seilbahn, Camping, Stellplatz, Hotel und Essen – Flug-Check darunter zum Aufklappen" },
   { v: 125, date: "22.10.", text: "Startplätze in den Suchvorschlägen mit Gleitschirm-Symbol" },
@@ -3929,6 +3960,13 @@ document.body.addEventListener("click", e => {
   const bfPopBtn = e.target.closest("#bfFilterBtn, #bfLayerBtn");
   if (bfPopBtn) { bfTogglePop(bfPopBtn.id === "bfFilterBtn" ? "bfSheet" : "bfLayerPop"); return; }
   if (e.target.closest("[data-bfclose]")) { bfTogglePop(null); return; }
+  if (e.target.closest("[data-bfretry]") && currentDetailSpot) {
+    const sp = currentDetailSpot;
+    if (bfBase === "fehler") loadCampsites(sp);
+    Object.keys(bfState).forEach(cat => { if (bfState[cat] === "fehler") { bfState[cat] = ""; bfEnsureCat(cat, sp); } });
+    bfUpdateChips();
+    return;
+  }
   // Briefing-Karte: Kategorie ein-/ausblenden, Auswahl bleibt fuer den naechsten Platz
   const bfChip = e.target.closest("[data-bfcat]");
   if (bfChip) {
