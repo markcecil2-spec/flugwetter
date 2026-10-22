@@ -949,10 +949,24 @@ function bahnenZumStart(spot, linien) {
   wege.sort((x, y) => (y.weg.some(k => BAHN_KABINE.has(k.l.art)) - x.weg.some(k => BAHN_KABINE.has(k.l.art))) || x.k.d - y.k.d);
   return wege.length ? wege[0].weg.map(k => k.l) : [];
 }
-// Stationen nur an den gezeigten Bahnen
-function stationenAn(linien, stationen) {
-  const enden = linien.flatMap(bahnEnden);
-  return stationen.filter(st => enden.some(e => haversineExact(e.lat, e.lon, st.lat, st.lon) <= BAHN_ANSCHLUSS_KM));
+// Gondel-Icon an beiden Enden jeder gezeigten Bahn: das Ende naeher am Start ist die
+// Berg-, das andere die Talstation. Wo zwei Abschnitte aneinanderstossen (unter 150 m),
+// steht nur ein Icon "Mittelstation". Namen aus den OSM-Stationen, wenn eine dort liegt.
+function bahnStationen(spot, linien, osmStationen) {
+  const zumStart = p => haversineExact(spot.lat, spot.lon, p.lat, p.lon);
+  const out = [];
+  for (const l of linien) {
+    const [a, b] = bahnEnden(l);
+    const [oben, unten] = zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
+    for (const [p, rolle] of [[oben, "Bergstation"], [unten, "Talstation"]]) {
+      const da = out.find(o => haversineExact(o.lat, o.lon, p.lat, p.lon) < 0.15);
+      if (da) { da.art = "Mittelstation"; da.bahnen.push(l.name || l.art); continue; }
+      const osm = osmStationen.find(st => haversineExact(st.lat, st.lon, p.lat, p.lon) < 0.15 && !GENERISCH.has(st.name));
+      out.push({ lat: p.lat, lon: p.lon, art: rolle, bahnen: [l.name || l.art], osmName: osm ? osm.name : "" });
+    }
+  }
+  // Titel: Stationsname aus OSM, sonst die Bahn(en); darunter, welche Station es ist
+  return out.map(o => ({ lat: o.lat, lon: o.lon, art: o.art, name: o.osmName || o.bahnen.join(" / ") }));
 }
 // In OSM steht ein Lokal oft zweimal: als Gebaeude und als Punkt darin. Gleicher Name und
 // weniger als 150 m auseinander = dasselbe. Namenlose ("Parkplatz", "Toilette") nur, wenn sie
@@ -1452,7 +1466,7 @@ async function loadCampsites(spot) {
     bfData.supermarkt = nah(umg.supermarkt || [], 15);
     bfData.toilette = nah(umg.toilette || [], 20);
     const linien = bahnenZumStart(spot, umg.linien || []);
-    bfData.bahn = { linien, stationen: nah(stationenAn(linien, umg.stationen || []), 10) };
+    bfData.bahn = { linien, stationen: bahnStationen(spot, linien, umg.stationen || []).map(mitZiel) };
   }
   bfFitPending.forEach(cat => bfFitTo(cat)); bfFitPending.clear();
   const raw = umg ? ohneDoppelte(umg.cp) : null;
@@ -3662,6 +3676,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 138, date: "22.10.", text: "Briefing-Karte: Gondel-Symbol an Tal- und Bergstation jeder Bahn; Infofenster liegt jetzt über allen Symbolen" },
   { v: 137, date: "22.10.", text: "Briefing-Karte: Knopf „Bewertungen auf Google“ bei Hotels, Campingplätzen, Restaurants und Supermärkten; Seilbahn-Filter zeigt nur noch die Bahn zum Startplatz" },
   { v: 136, date: "22.10.", text: "Briefing-Karte: Parken, Seilbahn, Camping, Hotel, Essen, Supermarkt und Toilette für alle Startplätze – blitzschnell vom eigenen Server, doppelte Einträge herausgefiltert" },
   { v: 135, date: "22.10.", text: "Kein leerer Platz mehr unter den Notizen – jeder Tab ist nur so lang wie sein Inhalt" },
