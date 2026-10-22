@@ -1431,3 +1431,11 @@ body.bf-full-open { overflow: hidden; }
 @keyframes focus-wave { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(3.2); opacity: 0; } }
 @keyframes focus-pump { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.22); } }
 @media (prefers-reduced-motion: reduce) { .focus-dot-ring, .map-marker-pulse::before, .map-marker-pulse img { animation: none; } }
+/* Lade-/Fehlerhinweis unten auf der Briefing-Karte */
+.bf-msg { position: absolute; left: 12px; bottom: 26px; right: 64px; z-index: 6; display: flex; align-items: center; gap: 8px; width: max-content; max-width: calc(100% - 76px);
+  background: rgba(21,27,36,.92); color: #e8edf3; border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; font-size: 13px; font-weight: 600; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+.bf-msg[hidden] { display: none; }
+.bf-msg.warn { border-color: rgba(250,204,21,.6); }
+.bf-msg button { flex: none; background: var(--sky); color: #fff; border: 0; border-radius: 8px; padding: 6px 10px; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+.bf-spin { flex: none; width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); border-top-color: var(--sky); animation: bf-dreh .8s linear infinite; }
+@keyframes bf-dreh { to { transform: rotate(360deg); } }
