@@ -1490,7 +1490,17 @@ body.bf-full-open { overflow: hidden; }
 .detail-loader.klein .dl-sub { font-size: 14.5px; font-weight: 600; color: var(--text); opacity: .85; }
 
 /* ---------- Startplaetze entlang einer Route (v147) ---------- */
-.vpill-route.aktiv { color: var(--sky); box-shadow: inset 0 0 0 1.5px var(--sky); }
+/* Eigener Knopf ganz unten in den Suchfeldern */
+.route-btn { width: 100%; display: flex; align-items: center; gap: 11px; margin: 10px 0 0; padding: 12px 14px; border-radius: 14px; cursor: pointer;
+  background: var(--card); border: 1px solid var(--line); color: var(--text); font-size: 15px; font-weight: 700; font-family: inherit; text-align: left; }
+.route-btn-ic { flex: none; width: 30px; height: 30px; border-radius: 9px; background: rgba(6,182,164,.16); color: var(--sky); display: grid; place-items: center; }
+.route-btn-ic svg { width: 18px; height: 18px; }
+.route-btn-txt { flex: 1; }
+.route-btn-chev { flex: none; display: flex; color: var(--muted); transition: transform .15s; }
+.route-btn-chev svg { width: 18px; height: 18px; }
+.route-btn.offen { border-color: var(--sky); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.route-btn.offen .route-btn-chev { transform: rotate(180deg); }
+.route-btn.offen + .route-panel { margin-top: 0; border-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-color: var(--sky); }
 .route-panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin: 10px 0 0; display: flex; flex-direction: column; gap: 8px; }
 .route-panel[hidden] { display: none; }
 .rp-feld { position: relative; display: flex; align-items: center; gap: 10px; background: var(--card-2); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; }

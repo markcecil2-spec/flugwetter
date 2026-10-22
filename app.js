@@ -2953,9 +2953,17 @@ document.querySelectorAll("#routePanel [data-umweg]").forEach(b => {
     if (routeGeo) runRouteSearch();   // Route steht schon -> gleich neu filtern
   });
 });
+// Eigener Knopf unter Karte/Liste: klappt das Route-Feld auf/zu
+document.getElementById("routeBtn").addEventListener("click", () => {
+  const panel = document.getElementById("routePanel"), btn = document.getElementById("routeBtn");
+  panel.hidden = !panel.hidden;
+  btn.classList.toggle("offen", !panel.hidden);
+  btn.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
+  if (!panel.hidden) document.getElementById(document.getElementById("routeNach").value ? "routeGo" : "routeNach").focus();
+});
 // Aktiv auf Kartenansicht wechseln - vom Toggle-Button UND vom Freitext-Ortssuche-Fallback genutzt.
 async function switchToMapView() {
-  document.querySelectorAll("#viewToggle .vpill:not([data-view=route])").forEach(x => x.classList.toggle("on", x.dataset.view === "map"));
+  document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x.dataset.view === "map"));
   document.getElementById("flyResults").hidden = true;
   document.getElementById("mapView").hidden = false;
   try { await ensureMap(); mapInstance.resize(); restoreMapView(); }
@@ -2963,16 +2971,8 @@ async function switchToMapView() {
 }
 document.getElementById("viewToggle").addEventListener("click", async e => {
   const b = e.target.closest(".vpill"); if (!b) return;
-  if (b.dataset.view === "route") {
-    const panel = document.getElementById("routePanel");
-    panel.hidden = !panel.hidden;
-    b.classList.toggle("aktiv", !panel.hidden);
-    b.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
-    if (!panel.hidden) document.getElementById(document.getElementById("routeNach").value ? "routeGo" : "routeNach").focus();
-    return;
-  }
   if (b.dataset.view === "map") { await switchToMapView(); return; }
-  document.querySelectorAll("#viewToggle .vpill:not([data-view=route])").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x === b));
   document.getElementById("flyResults").hidden = false;
   document.getElementById("mapView").hidden = true;
 });
@@ -3861,6 +3861,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 148, date: "22.10.", text: "„Startplätze entlang der Route“ als eigener Knopf unter Karte/Liste" },
   { v: 147, date: "22.10.", text: "Neu: Startplätze entlang einer Route – Von/Nach eingeben, Umweg 10/20/30 km, Ergebnis in Fahrtrichtung" },
   { v: 146, date: "22.10.", text: "Startseite: Ladeanzeige mit Gleitschirm-Ring statt Textzeile (Standort, Suche, Prüfen)" },
   { v: 145, date: "22.10.", text: "Briefing: Liste „Übernachten in der Nähe“ entfernt (steht über den Filter auf der Karte); Karte schaut beim Scrollen nicht mehr neben der Kopfzeile hervor" },
