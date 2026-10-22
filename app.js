@@ -3382,8 +3382,19 @@ function renderFlyResults(rows, headline, truncated) {
 // ---------------- Detail-Fenster: 7-Tage-Vorhersage ----------------
 let currentDetailSpot = null;
 let detailHistoryPushed = false; // Handy-/TWA-Zurück soll das Detail-Fenster schliessen statt die App zu verlassen
+// Die Ladeansicht (Ring mit Gleitschirm) bleibt mindestens so lange stehen - Marks Wunsch,
+// auch wenn die Vorhersage aus dem Zwischenspeicher sofort da ist.
+const DETAIL_LADE_MIN_MS = 3000;
 async function openDetail(id) {
   const spot = getSpot(id); if (!spot) return;
+  const ladeStart = Date.now();
+  // Erst nach der Mindestzeit fuellen - und nur, wenn noch derselbe Platz offen ist
+  // (inzwischen geschlossen oder anderen Platz geoeffnet -> nichts ueberschreiben).
+  const nachMindestzeit = async () => {
+    const rest = DETAIL_LADE_MIN_MS - (Date.now() - ladeStart);
+    if (rest > 0) await new Promise(r => setTimeout(r, rest));
+    return currentDetailSpot === spot && !document.getElementById("detailModal").hidden;
+  };
   removeMiniMap();
   currentDetailSpot = spot;
   const modal = document.getElementById("detailModal"), body = document.getElementById("detailBody");
@@ -3405,8 +3416,12 @@ async function openDetail(id) {
     if (lastOrigin) {
       try { const d = await fetchDriveTimes(lastOrigin, [spot]); if (d[0] != null) driveSec = d[0]; } catch {}
     }
+    if (!(await nachMindestzeit())) return;
     body.innerHTML = renderCard(spot, analyse(spot, data), { dayIdx: searchDay, live, driveSec });
-  } catch (e) { body.innerHTML = `<div class="card">Fehler: ${e.message}</div>`; }
+  } catch (e) {
+    if (!(await nachMindestzeit())) return;
+    body.innerHTML = `<div class="card">Fehler: ${escHtml(e.message)}</div>`;
+  }
 }
 // Das Profil oeffnet ausschliesslich durch Antippen einer Stunde - und laedt auch erst
 // dann. Wer nur die Ampel sehen will, loest keine Abfrage aus. Immer nur ein Diagramm
@@ -3572,6 +3587,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 132, date: "22.10.", text: "Ladeansicht beim Öffnen eines Startplatzes steht mindestens 3 Sekunden" },
   { v: 131, date: "22.10.", text: "Neue Ladeansicht beim Öffnen eines Startplatzes" },
   { v: 130, date: "22.10.", text: "Briefing-Karte lädt die Umgebung jetzt vom eigenen Server – schnell und ohne den überlasteten Overpass-Dienst. Wichtige Hinweise und Notizen stehen jetzt unter Details" },
   { v: 129, date: "22.10.", text: "Briefing-Karte: neue Filter Supermarkt und Toilette" },

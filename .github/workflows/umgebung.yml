@@ -21,6 +21,8 @@ jobs:
     timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Werkzeug
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq osmium-tool
@@ -65,4 +67,10 @@ jobs:
           git add -A umgebung
           if git diff --cached --quiet; then echo "Keine Aenderung"; exit 0; fi
           git commit -q -m "Umgebung der Startplaetze aktualisiert ($(date -u +%Y-%m))"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          # Der Lauf dauert ~30 min - der Branch kann inzwischen weiter sein. Nachziehen und
+          # erst dann schieben; umgebung/ fasst nur dieser Ablauf an, also keine Konflikte.
+          for i in 1 2 3; do
+            git pull -q --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && exit 0
+            sleep 15
+          done
+          exit 1
