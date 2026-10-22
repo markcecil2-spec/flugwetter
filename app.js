@@ -1077,34 +1077,266 @@ function neuerPlatzAus(lat, lon, ort, hoehe) {
     form.name.focus({ preventScroll: true });
   }, 150);
 }
-function campAddMarkers(list) {
+// ---------------- Briefing-Karte: Umgebung mit Filtern (wie Park4night) ----------------
+// Start- und Landeplatz sind immer zu sehen. Alles andere schaltet man ueber Chips an der
+// Karte zu. Parken/Camping/Stellplatz kommen aus dem ohnehin geladenen Overpass-Abruf
+// (fetchNearbyPois), Seilbahn/Hotel/Essen werden erst beim Einschalten geholt - Overpass
+// ist ehrenamtlich und soll nicht bei jedem Briefing alles auf einmal liefern muessen.
+const BF_PICTO = {
+  parken: `<path d="M9 18V6h4.2a3.4 3.4 0 0 1 0 6.8H9" stroke-width="2.8"/>`,
+  bahn: `<path d="M3 6.5 21 3.5" /><path d="M12 5v3.2"/><rect x="6.5" y="8.2" width="11" height="10.3" rx="2.2"/><path d="M6.5 12.6h11"/>`,
+  camping: `<path d="M12 5 3.5 19h17z"/><path d="M12 11.5 9.2 19h5.6z"/>`,
+  stellplatz: `<path d="M3 16.5V8.5a1.5 1.5 0 0 1 1.5-1.5h9.5l4.5 4.5h1.5v5"/><path d="M3 16.5h2.8M10.2 16.5h3.6M18.2 16.5H21"/><circle cx="8" cy="16.8" r="1.9"/><circle cx="16" cy="16.8" r="1.9"/><path d="M6 10h4"/>`,
+  hotel: `<path d="M3 18.5V6.5M3 14h18v4.5"/><path d="M21 14a3.5 3.5 0 0 0-3.5-3.5H11V14"/><circle cx="7" cy="11" r="1.7"/>`,
+  essen: `<path d="M7 3.5v6a2 2 0 0 0 4 0v-6M9 9.5v11"/><path d="M17 3.5c-2.2 1.8-2.2 7.2 0 8.5v8.5"/>`,
+};
+const BF_CATS = {
+  parken:     { label: "Parken",     farbe: "#2563eb" },
+  bahn:       { label: "Seilbahn",   farbe: "#dc2626" },
+  camping:    { label: "Camping",    farbe: "#16a34a" },
+  stellplatz: { label: "Stellplatz", farbe: "#0d9488" },
+  hotel:      { label: "Hotel",      farbe: "#7c3aed" },
+  essen:      { label: "Essen",      farbe: "#ea580c" },
+};
+const IC_VOLL_AN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>`;
+const IC_VOLL_AUS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>`;
+const BF_ORDER = ["parken", "bahn", "camping", "stellplatz", "hotel", "essen"];
+const BF_FILTER_KEY = "flugwetter_bf_filter";
+const BF_DEFAULT = { parken: true, bahn: true, camping: false, stellplatz: false, hotel: false, essen: false };
+function bfFilter() {
+  try { return { ...BF_DEFAULT, ...JSON.parse(localStorage.getItem(BF_FILTER_KEY) || "{}") }; } catch { return { ...BF_DEFAULT }; }
+}
+function bfSaveFilter(f) { try { localStorage.setItem(BF_FILTER_KEY, JSON.stringify(f)); } catch {} }
+// Rundes Farbsymbol als Bild-URL (fuer Chips und Marker-Kasten) - dieselbe Grafik wie der Marker.
+const bfIconCache = {};
+function bfIconUrl(cat) {
+  if (bfIconCache[cat]) return bfIconCache[cat];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="${BF_CATS[cat].farbe}" stroke="#fff" stroke-width="2"/>`
+    + `<g transform="translate(4 4)" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">${BF_PICTO[cat]}</g></svg>`;
+  return (bfIconCache[cat] = "data:image/svg+xml," + encodeURIComponent(svg));
+}
+
+// Pro geoeffnetem Platz: was ist geladen, was laeuft, was ist schiefgegangen.
+let bfSpotId = null;
+let bfBase = "";   // Status des Basisabrufs (Parken/Camping/Stellplatz) aus fetchNearbyPois
+const bfData = { hotel: null, essen: null, bahn: null };     // null = noch nicht geholt
+const bfState = { hotel: "", essen: "", bahn: "" };           // "" | "laedt" | "ok" | "fehler"
+function bfResetForSpot(spot) {
+  if (bfSpotId === spot.id) return;
+  bfSpotId = spot.id;
+  for (const k of Object.keys(bfData)) { bfData[k] = null; bfState[k] = ""; }
+}
+
+// Overpass mit 30-Tage-Cache, wie fetchNearbyPois. Liefert die rohen Elemente oder null.
+async function overpassCached(key, query) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw) { const c = JSON.parse(raw); if (Date.now() - c.t < CAMP_TTL) return c.v; }
+  } catch {}
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 20000);
+  try {
+    const res = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST", signal: ctrl.signal,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: "data=" + encodeURIComponent(query),
+    });
+    if (!res.ok) throw new Error("Overpass " + res.status);
+    const v = (await res.json()).elements || [];
+    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v })); } catch {}
+    return v;
+  } catch { return null; }
+  finally { clearTimeout(to); }
+}
+// Gemeinsame Felder fuer den Marker-Kasten (poiPopupHtml) aus OSM-Tags.
+function osmPoi(e, fallbackName) {
+  const t = e.tags || {};
+  const lat = e.lat != null ? e.lat : e.center && e.center.lat;
+  const lon = e.lon != null ? e.lon : e.center && e.center.lon;
+  if (lat == null || lon == null) return null;
+  const strasse = [t["addr:street"], t["addr:housenumber"]].filter(Boolean).join(" ");
+  return {
+    name: t.name || fallbackName, lat, lon, aus: [],
+    web: t.website || t["contact:website"] || "",
+    tel: t.phone || t["contact:phone"] || "",
+    adresse: [strasse, [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", "),
+    saison: t.opening_hours || "",
+    tags: t,
+  };
+}
+const BF_ESSEN_ART = { restaurant: "Restaurant", cafe: "Café", biergarten: "Biergarten", alpine_hut: "Berghütte" };
+const BF_HOTEL_ART = { hotel: "Hotel", guest_house: "Pension", hostel: "Hostel", motel: "Motel" };
+const BF_BAHN_ART = { cable_car: "Seilbahn", gondola: "Gondelbahn", chair_lift: "Sessellift", mixed_lift: "Kombibahn", funicular: "Standseilbahn" };
+// Naechster Bezugspunkt (Start oder Landeplatz) - fuer die Entfernungsangabe im Kasten.
+function bfNaechster(spot, lat, lon) {
+  const ziele = [{ name: "Startplatz", lat: spot.lat, lon: spot.lon }];
+  if (spot.landeLat != null) ziele.push({ name: "Landeplatz", lat: spot.landeLat, lon: spot.landeLon });
+  let best = ziele[0], bestD = Infinity;
+  for (const z of ziele) { const d = haversineExact(z.lat, z.lon, lat, lon); if (d < bestD) { bestD = d; best = z; } }
+  return { dist: bestD, ziel: best.name };
+}
+async function bfFetchCat(cat, spot) {
+  const sLat = spot.lat, sLon = spot.lon;
+  const lLat = spot.landeLat != null ? spot.landeLat : sLat, lLon = spot.landeLon != null ? spot.landeLon : sLon;
+  const r = (x) => x.toFixed(3);
+  if (cat === "hotel") {
+    const q = `[out:json][timeout:25];(nwr["tourism"~"^(hotel|guest_house|hostel|motel)$"](around:10000,${lLat},${lLon}););out center 150;`;
+    const el = await overpassCached(`bf1_hotel_${r(lLat)}_${r(lLon)}`, q);
+    if (!el) return null;
+    return el.map(e => {
+      const p = osmPoi(e, "Unterkunft"); if (!p) return null;
+      return { ...p, art: BF_HOTEL_ART[p.tags.tourism] || "Unterkunft", ...bfNaechster(spot, p.lat, p.lon) };
+    }).filter(Boolean).sort((a, b) => a.dist - b.dist).slice(0, 30);
+  }
+  if (cat === "essen") {
+    const q = `[out:json][timeout:25];(`
+      + `nwr["amenity"~"^(restaurant|cafe|biergarten)$"](around:4000,${sLat},${sLon});`
+      + `nwr["amenity"~"^(restaurant|cafe|biergarten)$"](around:4000,${lLat},${lLon});`
+      + `nwr["tourism"="alpine_hut"](around:8000,${sLat},${sLon});`
+      + `);out center 200;`;
+    const el = await overpassCached(`bf1_essen_${r(sLat)}_${r(sLon)}_${r(lLat)}_${r(lLon)}`, q);
+    if (!el) return null;
+    const seen = new Set();
+    return el.map(e => {
+      if (seen.has(e.type + e.id)) return null; seen.add(e.type + e.id);
+      const p = osmPoi(e, "Einkehr"); if (!p) return null;
+      return { ...p, art: BF_ESSEN_ART[p.tags.amenity] || BF_ESSEN_ART[p.tags.tourism] || "Einkehr", ...bfNaechster(spot, p.lat, p.lon) };
+    }).filter(Boolean).sort((a, b) => a.dist - b.dist).slice(0, 40);
+  }
+  if (cat === "bahn") {
+    // out geom: die Seilbahnen sollen als Linie auf die Karte, nicht nur als Punkt.
+    const q = `[out:json][timeout:25];(`
+      + `way["aerialway"~"^(cable_car|gondola|chair_lift|mixed_lift)$"](around:7000,${sLat},${sLon});`
+      + `way["railway"="funicular"](around:7000,${sLat},${sLon});`
+      + `node["aerialway"="station"](around:7000,${sLat},${sLon});`
+      + `);out geom 120;`;
+    const el = await overpassCached(`bf1_bahn_${r(sLat)}_${r(sLon)}`, q);
+    if (!el) return null;
+    const linien = [], stationen = [];
+    for (const e of el) {
+      if (e.type === "way" && Array.isArray(e.geometry) && e.geometry.length > 1) {
+        const t = e.tags || {};
+        linien.push({ name: t.name || "", art: BF_BAHN_ART[t.aerialway] || BF_BAHN_ART[t.railway] || "Bergbahn",
+          coords: e.geometry.map(g => [g.lon, g.lat]), web: t.website || "", saison: t.opening_hours || "" });
+      } else if (e.type === "node") {
+        const p = osmPoi(e, "Bahnstation"); if (!p) continue;
+        stationen.push({ ...p, art: "Bergbahn-Station", ...bfNaechster(spot, p.lat, p.lon) });
+      }
+    }
+    return { linien, stationen };
+  }
+  return null;
+}
+// Kategorie holen, falls eingeschaltet und noch nicht da. Danach Karte + Chip aktualisieren.
+async function bfEnsureCat(cat, spot) {
+  if (!(cat in bfData) || bfData[cat] || bfState[cat] === "laedt") return;
+  bfState[cat] = "laedt"; bfUpdateChips();
+  const id = spot.id;
+  const res = await bfFetchCat(cat, spot);
+  if (bfSpotId !== id) return;              // inzwischen anderer Platz offen
+  bfData[cat] = res; bfState[cat] = res ? "ok" : "fehler";
+  bfUpdateChips(); bfRender();
+  if (bfFitPending.delete(cat)) bfFitTo(cat);
+}
+function bfItems(cat) {
+  if (cat === "parken") return lastParkList;
+  if (cat === "camping") return lastCampList.filter(c => campKat(c.type) === "camp_site");
+  if (cat === "stellplatz") return lastCampList.filter(c => campKat(c.type) === "caravan_site");
+  if (cat === "bahn") return bfData.bahn ? bfData.bahn.stationen : [];
+  return bfData[cat] || [];
+}
+function bfCount(cat) {
+  if (cat === "bahn") return bfData.bahn ? bfData.bahn.linien.length || bfData.bahn.stationen.length : 0;
+  return bfItems(cat).length;
+}
+function bfUpdateChips() {
+  const f = bfFilter();
+  document.querySelectorAll("[data-bfcat]").forEach(chip => {
+    const cat = chip.dataset.bfcat, on = !!f[cat];
+    chip.classList.toggle("on", on);
+    chip.setAttribute("aria-pressed", on ? "true" : "false");
+    const cnt = chip.querySelector(".bf-cnt");
+    const st = cat in bfState ? bfState[cat] : bfBase;
+    cnt.textContent = !on ? "" : st === "laedt" ? "…" : st === "fehler" ? "!" : st === "ok" ? String(bfCount(cat)) : "";
+    cnt.title = st === "fehler" ? "Konnte nicht geladen werden - später nochmal antippen" : "";
+  });
+}
+// Seilbahn-Linien als eigene Ebene. setStyle (Karte/Satellit/Gelaende) wirft eigene Ebenen
+// weg - deshalb nach jedem style.load erneut anlegen.
+const BF_BAHN_SRC = "bf-bahn";
+function bfBahnLayer() {
+  const m = miniMapInstance; if (!m) return;
+  const zeigen = !!bfFilter().bahn && bfData.bahn;
+  const data = { type: "FeatureCollection", features: zeigen ? bfData.bahn.linien.map(l => ({
+    type: "Feature", geometry: { type: "LineString", coordinates: l.coords }, properties: { name: l.name, art: l.art } })) : [] };
+  try {
+    const src = m.getSource(BF_BAHN_SRC);
+    if (src) { src.setData(data); return; }
+    m.addSource(BF_BAHN_SRC, { type: "geojson", data });
+    m.addLayer({ id: "bf-bahn-casing", type: "line", source: BF_BAHN_SRC, layout: { "line-cap": "round" },
+      paint: { "line-color": "#fff", "line-width": 6, "line-opacity": 0.9 } });
+    m.addLayer({ id: "bf-bahn-line", type: "line", source: BF_BAHN_SRC, layout: { "line-cap": "round" },
+      paint: { "line-color": BF_CATS.bahn.farbe, "line-width": 3 } });
+  } catch {}   // Stil noch nicht fertig - kommt mit style.load erneut
+}
+function bfRender() {
   campMarkers.forEach(m => m.remove());
   campMarkers = [];
   if (!miniMapInstance || typeof maplibregl === "undefined") return;
-  list.forEach(c => {
-    const el = document.createElement("div");
-    el.className = "camp-marker";
-    el.title = `${c.name} · ${campTypeLabel(c.type)}`;
-    el.innerHTML = `<img src="${campPin(c.type)}" alt="">`;
-    const km = c.dist == null ? "" : c.dist < 1 ? `${Math.round(c.dist * 1000)} m` : `${c.dist.toFixed(1).replace(".", ",")} km`;
-    const sub = [campTypeLabel(c.type), km, c.gratis === true ? "kostenlos" : c.gratis === false ? "gebührenpflichtig" : ""].filter(Boolean).join(" · ");
-    campMarkers.push(new maplibregl.Marker({ element: el })
-      .setLngLat([c.lon, c.lat])
-      .setPopup(poiPopup(poiPopupHtml(c, c.name, campPin(c.type), sub)))
-      .addTo(miniMapInstance));
-  });
+  const f = bfFilter();
+  for (const cat of BF_ORDER) {
+    if (!f[cat]) continue;
+    for (const c of bfItems(cat)) {
+      const el = document.createElement("div");
+      el.className = `bf-marker bf-m-${cat}`;
+      el.title = c.name;
+      el.innerHTML = `<img src="${bfIconUrl(cat)}" alt="">`;
+      const km = c.dist == null ? "" : distTxt(c.dist);
+      const art = c.art || campTypeLabel(c.type);
+      const sub = [art, km && (c.ziel || c.zielName) ? `${km} zum ${c.ziel || c.zielName}` : km,
+        c.gratis === true ? "kostenlos" : c.gratis === false ? "gebührenpflichtig" : ""].filter(Boolean).join(" · ");
+      campMarkers.push(new maplibregl.Marker({ element: el, anchor: "bottom" })
+        .setLngLat([c.lon, c.lat])
+        .setPopup(poiPopup(poiPopupHtml(c, c.name, bfIconUrl(cat), sub)))
+        .addTo(miniMapInstance));
+    }
+  }
+  bfBahnLayer();
 }
+// Nach dem Einschalten einer Kategorie so weit rauszoomen, dass Start, Landung und die
+// naechsten Treffer im Bild sind - sonst zeigt der Chip "3", auf der Karte ist aber nichts.
+const bfFitPending = new Set();
+function bfFitTo(cat) {
+  const spot = currentDetailSpot, m = miniMapInstance;
+  if (!spot || !m) return;
+  const items = cat === "bahn" && bfData.bahn
+    ? bfData.bahn.linien.flatMap(l => [l.coords[0], l.coords[l.coords.length - 1]]).map(([lon, lat]) => ({ lat, lon }))
+    : bfItems(cat).slice().sort((a, b) => (a.dist ?? 0) - (b.dist ?? 0)).slice(0, 5);
+  if (!items.length) return;
+  const pts = [[spot.lon, spot.lat], ...items.map(c => [c.lon, c.lat])];
+  if (spot.landeLat != null) pts.push([spot.landeLon, spot.landeLat]);
+  const lons = pts.map(q => q[0]), lats = pts.map(q => q[1]);
+  m.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 56, maxZoom: 15, duration: 600 });
+}
+// Alte Aufrufstellen (loadCampsites, ensureMiniMap) rufen weiter campAddMarkers.
+function campAddMarkers() { bfRender(); bfUpdateChips(); }
 async function loadCampsites(spot) {
   const sec = document.getElementById("campSection");
   if (!sec) return;
   lastCampList = []; lastParkList = [];   // Treffer des zuvor geoeffneten Platzes verwerfen
+  bfResetForSpot(spot);
+  // Zugeschaltete Zusatz-Kategorien (Seilbahn, Hotel, Essen) parallel holen
+  const fil = bfFilter();
+  Object.keys(bfData).forEach(cat => { if (fil[cat]) bfEnsureCat(cat, spot); });
   const lat = spot.landeLat != null ? spot.landeLat : spot.lat;
   const lon = spot.landeLon != null ? spot.landeLon : spot.lon;
   sec.innerHTML = `<p class="loading-line">Umgebung wird gesucht …</p>`;
+  bfBase = "laedt"; bfUpdateChips();
   const raw = await fetchNearbyPois(lat, lon, spot.lat, spot.lon);
   const wrap = document.getElementById("campSection");
   if (!wrap) return;                       // Tab inzwischen verlassen
-  if (!raw || !raw.length) { wrap.innerHTML = ""; return; }
+  bfBase = raw ? "ok" : "fehler";
+  if (!raw || !raw.length) { wrap.innerHTML = ""; campAddMarkers(); return; }
   // Bezugspunkte fuer Parkplaetze: alle Landeplaetze und der Startplatz. Je Parkplatz
   // wird der naechstgelegene genommen und benannt - "363 m zum Landeplatz" hilft nicht,
   // wenn es vier davon gibt.
@@ -1135,7 +1367,7 @@ async function loadCampsites(spot) {
   lastCampList = list;
   wrap.innerHTML = list.length ? campSectionHtml(list) : "";
   renderParkplaetze();
-  campAddMarkers([...list, ...lastParkList]);
+  campAddMarkers();
 
   // Fahrzeiten nachladen (OSRM) und die Zeilen ergaenzen. Bewusst NACH dem ersten
   // Rendern: die Liste steht sofort, die Zeiten kommen nach - faellt OSRM aus,
@@ -1553,25 +1785,33 @@ function briefingPanelHtml(spot, ctx) {
     ["Kontakte &amp; Notruf", schritt4],
   ].filter(([, inhalt]) => inhalt.trim());
 
-  return `${kopf}
-    <h3 class="fc-head">Flug-Check</h3>
-    <p class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</p>
-    ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
-    ${kurzueberblickHtml(spot, day, ts, tagW)}
-    <h3 class="dv-h3">Übersicht Start &amp; Landeplatz</h3>
-    <div class="mini-map-wrap">
+  const fil = bfFilter();
+  const chips = BF_ORDER.map(cat => `<button type="button" class="bf-chip${fil[cat] ? " on" : ""}" data-bfcat="${cat}" aria-pressed="${fil[cat] ? "true" : "false"}">
+      <img src="${bfIconUrl(cat)}" alt=""><span>${BF_CATS[cat].label}</span><span class="bf-cnt"></span></button>`).join("");
+  return `<div class="bf-map-wrap" id="bfMapWrap">
+    <div class="bf-chips" role="group" aria-label="Auf der Karte zeigen">
+      <span class="bf-chip bf-chip-fix" title="Immer sichtbar"><img src="icons/pin-startplatz.png" alt=""><img src="icons/pin-landeplatz.png" alt=""><span>Start &amp; Landung</span></span>
+      ${chips}
+    </div>
+    <div class="mini-map-wrap bf-map">
       <div id="miniMap" class="mini-map"></div>
       <div class="mini-style-toggle" role="group" aria-label="Kartenstil">
-        <button type="button" class="mini-style-btn on" data-ministyle="street">Karte</button>
-        <button type="button" class="mini-style-btn" data-ministyle="sat">Satellit</button>
-        <button type="button" class="mini-style-btn" data-ministyle="terrain">Gelände</button>
+        <button type="button" class="mini-style-btn${miniMapStyleMode === "street" ? " on" : ""}" data-ministyle="street">Karte</button>
+        <button type="button" class="mini-style-btn${miniMapStyleMode === "sat" ? " on" : ""}" data-ministyle="sat">Satellit</button>
+        <button type="button" class="mini-style-btn${miniMapStyleMode === "terrain" ? " on" : ""}" data-ministyle="terrain">Gelände</button>
       </div>
-      <button type="button" class="mini-map-big" id="miniMapBig" aria-label="Karte vergrößern">
+      <button type="button" class="mini-map-big bf-full-btn" id="miniMapBig" aria-label="Karte im Vollbild">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
       </button>
-      <div class="mini-map-legend"><img src="icons/pin-startplatz.png" alt=""><span>Startplatz</span><img src="icons/pin-landeplatz.png" alt=""><span>Landeplatz</span></div>
       <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
     </div>
+  </div>
+    ${kopf}
+    <details class="fc-wrap">
+      <summary><span class="fc-wrap-txt"><span class="fc-head">Flug-Check</span><span class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</span></span></summary>
+      ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
+    </details>
+    ${kurzueberblickHtml(spot, day, ts, tagW)}
     <div id="campSection" class="camp-sec"></div>
     ${ALLG_HINWEISE_HTML}
     ${notizenHtml(spot)}
@@ -2128,6 +2368,7 @@ function refreshUserPos() {
 // ---------------- Mini-Karte im "Live"-Tab: Start- + Landeplatz auf einen Blick ----------------
 let miniMapInstance = null;
 function removeMiniMap() {
+  document.body.classList.remove("bf-full-open");   // Vollbild gehoert zur Karte, die hier verschwindet
   if (miniMapInstance) { miniMapInstance.remove(); miniMapInstance = null; }
   miniUserMarker = null; // Marker gehörte zur entfernten Karte
   campMarkers = [];
@@ -2173,7 +2414,16 @@ async function ensureMiniMap(spot) {
   }
   syncUserDot();
   refreshUserPos();
-  campAddMarkers(lastCampList);   // falls die Campingdaten schon vor der Karte da waren
+  miniMapInstance.on("style.load", bfBahnLayer);   // Seilbahn-Linien nach Stilwechsel neu anlegen
+  miniMapInstance.on("click", "bf-bahn-line", ev => {
+    const pr = ev.features[0] && ev.features[0].properties; if (!pr) return;
+    new maplibregl.Popup({ offset: 8, maxWidth: "240px", className: "poi-popup" }).setLngLat(ev.lngLat)
+      .setHTML(`<div class="poi-pop"><div class="poi-pop-head"><img src="${bfIconUrl("bahn")}" alt=""><div><b>${escHtml(pr.name || pr.art)}</b><span>${escHtml(pr.art)}</span></div></div></div>`)
+      .addTo(miniMapInstance);
+  });
+  miniMapInstance.on("mouseenter", "bf-bahn-line", () => { miniMapInstance.getCanvas().style.cursor = "pointer"; });
+  miniMapInstance.on("mouseleave", "bf-bahn-line", () => { miniMapInstance.getCanvas().style.cursor = ""; });
+  campAddMarkers();   // falls die Umgebungsdaten schon vor der Karte da waren
 }
 // Kreis-Polygon (GeoJSON) um lat/lon mit radiusKm - fuer die Umkreis-Visualisierung auf der Karte.
 function circlePolygon(lat, lon, radiusKm, steps = 64) {
@@ -3218,6 +3468,12 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 126, date: "22.10.", text: "Briefing neu: große Karte mit Filtern für Parken, Seilbahn, Camping, Stellplatz, Hotel und Essen – Flug-Check darunter zum Aufklappen" },
+  { v: 125, date: "22.10.", text: "Startplätze in den Suchvorschlägen mit Gleitschirm-Symbol" },
+  { v: 124, date: "22.10.", text: "Suchvorschläge auch für Orte, Seen und Berge – Antippen zeigt die Startplätze im Umkreis auf der Karte" },
+  { v: 123, date: "22.10.", text: "Vorschläge beim Tippen ins Suchfeld" },
+  { v: 122, date: "22.10.", text: "Bestätigen-Knopf im Suchfeld" },
+  { v: 121, date: "22.10.", text: "Startplatz-Fenster über den ganzen Bildschirm" },
   { v: 120, date: "26.08.", text: "Windprofil jetzt in gleichmäßigen 500-m-Stufen statt krummer Modellhöhen" },
   { v: 119, date: "26.08.", text: "Windprofil: Balkenfarbe zeigt jetzt die Windstärke, die Richtung wird nur am Startplatz bewertet" },
   { v: 118, date: "26.08.", text: "Details-Tab war ohne Formatierung – behoben, Datentabelle mit Überschrift" },
@@ -3592,12 +3848,30 @@ document.body.addEventListener("click", e => {
     })();
     return;
   }
+  // Briefing-Karte: Vollbild an/aus (Chips wandern mit nach oben)
   const bigBtn = e.target.closest("#miniMapBig");
   if (bigBtn) {
-    const wrap = bigBtn.closest(".mini-map-wrap");
-    const gross = wrap.classList.toggle("big");
-    bigBtn.setAttribute("aria-label", gross ? "Karte verkleinern" : "Karte vergrößern");
-    if (miniMapInstance) setTimeout(() => miniMapInstance.resize(), 220);
+    const wrap = document.getElementById("bfMapWrap");
+    const voll = wrap.classList.toggle("full");
+    document.body.classList.toggle("bf-full-open", voll);
+    bigBtn.setAttribute("aria-label", voll ? "Vollbild beenden" : "Karte im Vollbild");
+    bigBtn.innerHTML = voll ? IC_VOLL_AUS : IC_VOLL_AN;
+    if (miniMapInstance) requestAnimationFrame(() => miniMapInstance.resize());
+    return;
+  }
+  // Briefing-Karte: Kategorie ein-/ausblenden, Auswahl bleibt fuer den naechsten Platz
+  const bfChip = e.target.closest("[data-bfcat]");
+  if (bfChip) {
+    const cat = bfChip.dataset.bfcat, f = bfFilter();
+    f[cat] = !f[cat]; bfSaveFilter(f);
+    // nach einem Fehler beim erneuten Einschalten nochmal versuchen
+    if (f[cat] && cat in bfData && bfState[cat] === "fehler") bfState[cat] = "";
+    if (f[cat] && cat in bfData && currentDetailSpot) bfEnsureCat(cat, currentDetailSpot);
+    bfUpdateChips(); bfRender();
+    if (f[cat]) {
+      // Daten schon da -> sofort hinzoomen, sonst sobald sie ankommen
+      if (cat in bfData && !bfData[cat]) bfFitPending.add(cat); else bfFitTo(cat);
+    } else bfFitPending.delete(cat);
     return;
   }
 

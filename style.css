@@ -1339,3 +1339,53 @@ main.wrap { padding-top: 12px; }
 .hint-banner { background: rgba(21,27,36,.72); border-color: rgba(6,182,164,.3); backdrop-filter: blur(2px); }
 .nowbar { background: rgba(6,182,164,.09); }
 .mine { color: var(--sky); background: rgba(6,182,164,.14); }
+
+/* ---------- Briefing-Karte mit Filtern (v126) ---------- */
+/* Am Handy randlos ueber die volle Breite, am PC als Kachel im 760-px-Inhalt. */
+.bf-map-wrap { margin: 0 -16px 14px; }
+.bf-chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 16px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.bf-chips::-webkit-scrollbar { display: none; }
+.bf-chip { flex: none; display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 13px 0 5px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card-2); color: var(--muted); font-size: 13.5px; font-weight: 600; cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s; -webkit-tap-highlight-color: transparent; }
+.bf-chip img { width: 28px; height: 28px; display: block; opacity: .5; filter: grayscale(.7); transition: opacity .12s, filter .12s; }
+.bf-chip.on { background: rgba(6,182,164,.14); border-color: var(--sky); color: var(--text); }
+.bf-chip.on img { opacity: 1; filter: none; }
+.bf-chip-fix { color: var(--text); cursor: default; padding-left: 7px; gap: 4px; }
+.bf-chip-fix img { width: 22px; height: 22px; border-radius: 4px; opacity: 1; filter: none; }
+.bf-chip-fix span { margin-left: 4px; }
+.bf-cnt { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--sky); color: #fff; font-size: 11.5px; font-weight: 700; display: grid; place-items: center; }
+.bf-cnt:empty { display: none; }
+.bf-map.mini-map-wrap { height: 62vh; height: 62dvh; min-height: 340px; margin-top: 0; border-radius: 0; border-left: 0; border-right: 0; }
+.bf-map .mini-map-big { bottom: auto; top: 10px; left: auto; right: 10px; width: 40px; height: 40px; border-radius: 12px; }
+.bf-map .maplibregl-ctrl-top-right { top: 56px; }
+@media (min-width: 700px) {
+  .bf-map-wrap { margin-inline: 0; }
+  .bf-chips { padding-inline: 0; }
+  .bf-map.mini-map-wrap { border-radius: 16px; border: 1px solid var(--line); }
+}
+/* Vollbild: Chips oben, Karte fuellt den Rest */
+.bf-map-wrap.full { position: fixed; inset: 0; z-index: 90; margin: 0; background: var(--card); display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
+.bf-map-wrap.full .bf-chips { padding: 10px 12px; }
+.bf-map-wrap.full .bf-map.mini-map-wrap { flex: 1; height: auto; min-height: 0; border-radius: 0; border: 0; }
+
+body.bf-full-open { overflow: hidden; }
+/* Marker: rundes Farbsymbol mit kleiner Spitze, wie man es aus Karten-Apps kennt */
+.bf-marker { cursor: pointer; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+.bf-marker img { width: 30px; height: 30px; display: block; }
+.bf-marker::after { content: ""; width: 0; height: 0; margin-top: -2px; border: 5px solid transparent; border-top: 7px solid #fff; border-bottom: 0; }
+.bf-map .mini-marker img { width: 36px; height: 36px; border: 2px solid #fff; border-radius: 9px; }
+.bf-map .mini-start { z-index: 3; }
+.poi-pop-head img[src^="data:"] { border-radius: 50%; }
+/* Flug-Check als einklappbarer Block unter der Karte */
+.fc-wrap { margin: 16px 0; }
+.fc-wrap > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; cursor: pointer;
+  background: var(--card-2); border: 1px solid var(--line); border-radius: 13px; padding: 13px 16px; }
+.fc-wrap > summary::-webkit-details-marker { display: none; }
+.fc-wrap > summary::after { content: ""; flex: none; width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg) translate(-2px, -2px); transition: transform .15s; }
+.fc-wrap[open] > summary { margin-bottom: 10px; border-color: rgba(6,182,164,.4); }
+.fc-wrap[open] > summary::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.fc-wrap-txt { display: flex; flex-direction: column; }
+.fc-wrap .fc-head, .fc-wrap .fc-head-sub { display: block; margin: 0; }
+.fc-wrap .fc-head-sub { margin-top: 2px; }
