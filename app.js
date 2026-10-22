@@ -830,88 +830,131 @@ function campTypeLabel(t) {
 function campPin(t) { return PIN[campKat(t)]; }
 
 // Overpass-Abfragen laufen ueber diese eine Funktion:
-//  - nacheinander statt gleichzeitig: overpass-api.de erlaubt pro Nutzer nur ~2 parallele
-//    Abfragen und weist den Rest mit 429 ab. Seit der Briefing-Karte (Parken + Seilbahn +
-//    Hotel + Essen) kamen bis zu vier auf einmal - dann blieb die Karte leer.
-//  - Antwortet ein Server nicht (Fehler, 429/504, Zeitlimit), kommt der naechste dran.
+//  - nacheinander (Warteschlange): overpass-api.de erlaubt pro Nutzer nur ~2 parallele Abfragen.
+//  - gestaffelt auf mehrere Server: antwortet der erste nach 4 s noch nicht, wird zusaetzlich
+//    der zweite gefragt, nach 8 s der dritte - die erste brauchbare Antwort gewinnt, die
+//    anderen werden abgebrochen. Ein Fehler (429/504/kein Netz) holt sofort den naechsten.
+//    Vorher wartete jede Stufe bis zu 15 s - bei ueberlastetem Server hing die Karte minutenlang.
+//  - nach 30 s ist Schluss, dann zeigt die Karte "Nochmal".
 const OVERPASS_SERVER = [
   "https://overpass-api.de/api/interpreter",
   "https://overpass.private.coffee/api/interpreter",
   "https://overpass.kumi.systems/api/interpreter",
 ];
+const OVERPASS_STAFFEL_MS = 4000, OVERPASS_MAX_MS = 30000;
 let overpassKette = Promise.resolve();
 function overpassRequest(query) {
-  const lauf = overpassKette.then(async () => {
-    let letzterFehler = null;
-    for (const url of OVERPASS_SERVER) {
-      const ctrl = new AbortController();
-      const to = setTimeout(() => ctrl.abort(), 15000);
-      try {
-        const res = await fetch(url, {
-          method: "POST", signal: ctrl.signal,
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: "data=" + encodeURIComponent(query),
+  const lauf = overpassKette.then(() => new Promise((resolve, reject) => {
+    const ctrls = [], timer = [];
+    let gestartet = 0, offen = 0, fertig = false;
+    const ende = () => { fertig = true; timer.forEach(clearTimeout); ctrls.forEach(c => c.abort()); };
+    const naechster = () => {
+      if (fertig || gestartet >= OVERPASS_SERVER.length) return;
+      const url = OVERPASS_SERVER[gestartet++];
+      const ctrl = new AbortController(); ctrls.push(ctrl); offen++;
+      fetch(url, {
+        method: "POST", signal: ctrl.signal,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "data=" + encodeURIComponent(query),
+      })
+        .then(res => { if (!res.ok) throw new Error("Overpass " + res.status); return res.json(); })
+        .then(j => { if (!fertig) { ende(); resolve(j); } })
+        .catch(() => {
+          offen--;
+          if (fertig) return;
+          if (gestartet < OVERPASS_SERVER.length) naechster();
+          else if (offen === 0) { ende(); reject(new Error("Overpass nicht erreichbar")); }
         });
-        if (!res.ok) throw new Error("Overpass " + res.status);
-        return await res.json();
-      } catch (e) { letzterFehler = e; }
-      finally { clearTimeout(to); }
-    }
-    throw letzterFehler || new Error("Overpass nicht erreichbar");
-  });
+    };
+    naechster();
+    for (let i = 1; i < OVERPASS_SERVER.length; i++) timer.push(setTimeout(naechster, i * OVERPASS_STAFFEL_MS));
+    timer.push(setTimeout(() => { if (!fertig) { ende(); reject(new Error("Overpass Zeitlimit")); } }, OVERPASS_MAX_MS));
+  }));
   overpassKette = lauf.catch(() => {});   // ein Fehlschlag haelt die Schlange nicht an
   return lauf;
 }
-async function fetchNearbyPois(lat, lon, sLat, sLon) {
-  // poi4 = zusaetzlich Telefon/Adresse/Oeffnungszeiten fuers Marker-Fenster
-  const key = `poi4_${lat.toFixed(3)}_${lon.toFixed(3)}`;
+
+// Die ganze Umgebung eines Platzes in EINER Abfrage: Parken, Camping, Stellplatz, Hotel,
+// Essen, Seilbahn. Vorher bis zu vier Einzelabfragen - jede konnte an der Ueberlast
+// scheitern. Die Filter blenden danach nur noch ein/aus, ohne Netz.
+// Gespeichert wird nur das Noetige (keine rohen OSM-Tags), 30 Tage.
+function campParkAus(e) {
+  const t = e.tags || {};
+  const la = e.lat != null ? e.lat : e.center && e.center.lat;
+  const lo = e.lon != null ? e.lon : e.center && e.center.lon;
+  if (la == null || lo == null) return null;
+  // Ausstattung nur uebernehmen, wenn sie in OSM ausdruecklich als "yes" getaggt ist.
+  // Fehlt ein Tag, heisst das NICHT "nicht vorhanden" - dann zeigen wir es einfach nicht.
+  const aus = [];
+  if (t.tents === "yes") aus.push("zelt");
+  if (t.caravans === "yes") aus.push("wohnwagen");
+  if (t.shower === "yes") aus.push("dusche");
+  if (t.power_supply === "yes") aus.push("strom");
+  if (t.toilets === "yes") aus.push("wc");
+  if (t.drinking_water === "yes") aus.push("wasser");
+  const parken = t.amenity === "parking";
+  const ort = [t["addr:street"], t["addr:housenumber"]].filter(Boolean).join(" ");
+  return {
+    name: t.name || (parken ? "Parkplatz" : "Ohne Namen"),
+    type: parken ? "parkplatz" : t.tourism,
+    parken, lat: la, lon: lo, aus,
+    // fee=no ist eine ausdrueckliche Angabe, fehlendes Tag sagt nichts
+    gratis: parken ? (t.fee === "no" ? true : t.fee ? false : null) : null,
+    web: t.website || t["contact:website"] || "",
+    tel: t.phone || t["contact:phone"] || "",
+    adresse: [ort, [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", "),
+    saison: t.opening_hours || "",
+    plaetze: parken && t.capacity ? t.capacity : "",
+  };
+}
+// Alte Zwischenspeicher der Einzelabfragen (bis v127) freigeben - localStorage ist knapp.
+try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
+async function fetchUmgebung(spot) {
+  const sLat = spot.lat, sLon = spot.lon;
+  const lLat = spot.landeLat != null ? spot.landeLat : sLat, lLon = spot.landeLon != null ? spot.landeLon : sLon;
+  const r3 = x => x.toFixed(3);
+  const key = `umg1_${r3(sLat)}_${r3(sLon)}_${r3(lLat)}_${r3(lLon)}`;
   try {
     const raw = localStorage.getItem(key);
     if (raw) { const c = JSON.parse(raw); if (Date.now() - c.t < CAMP_TTL) return c.v; }
   } catch {}
-  const uebernacht = `^(camp_site|caravan_site)$`;
-  const teil = (kind, filter, r, la, lo) => `${kind}${filter}(around:${r},${la},${lo});`;
+  const um = (r, la, lo) => `(around:${r},${la},${lo})`;
   const q = `[out:json][timeout:25];(`
-    + teil("node", `["tourism"~"${uebernacht}"]`, CAMP_RADIUS_M, lat, lon)
-    + teil("way", `["tourism"~"${uebernacht}"]`, CAMP_RADIUS_M, lat, lon)
-    + teil("node", `["amenity"="parking"]`, PARK_RADIUS_M, lat, lon)
-    + teil("way", `["amenity"="parking"]`, PARK_RADIUS_M, lat, lon)
-    + (sLat != null ? teil("node", `["amenity"="parking"]`, PARK_RADIUS_M, sLat, sLon)
-                    + teil("way", `["amenity"="parking"]`, PARK_RADIUS_M, sLat, sLon) : "")
-    + `);out center 400;`;
+    + `nwr["tourism"~"^(camp_site|caravan_site)$"]${um(CAMP_RADIUS_M, lLat, lLon)};`
+    + `nwr["amenity"="parking"]${um(PARK_RADIUS_M, lLat, lLon)};`
+    + `nwr["amenity"="parking"]${um(PARK_RADIUS_M, sLat, sLon)};`
+    + `nwr["tourism"~"^(hotel|guest_house|hostel|motel)$"]${um(10000, lLat, lLon)};`
+    + `nwr["amenity"~"^(restaurant|cafe|biergarten)$"]${um(4000, sLat, sLon)};`
+    + `nwr["amenity"~"^(restaurant|cafe|biergarten)$"]${um(4000, lLat, lLon)};`
+    + `nwr["tourism"="alpine_hut"]${um(8000, sLat, sLon)};`
+    + `node["aerialway"="station"]${um(7000, sLat, sLon)};`
+    + `)->.p;.p out center 700;(`
+    + `way["aerialway"~"^(cable_car|gondola|chair_lift|mixed_lift)$"]${um(7000, sLat, sLon)};`
+    + `way["railway"="funicular"]${um(7000, sLat, sLon)};`
+    + `)->.b;.b out geom 80;`;
   try {
     const data = await overpassRequest(q);
-    const list = (data.elements || []).map(e => {
+    const v = { cp: [], hotel: [], essen: [], linien: [], stationen: [] };
+    const seen = new Set();
+    const klein = (p, art) => ({ name: p.name, lat: p.lat, lon: p.lon, web: p.web, tel: p.tel, adresse: p.adresse, saison: p.saison, aus: [], art });
+    for (const e of data.elements || []) {
+      if (seen.has(e.type + e.id)) continue; seen.add(e.type + e.id);
       const t = e.tags || {};
-      const la = e.lat != null ? e.lat : e.center && e.center.lat;
-      const lo = e.lon != null ? e.lon : e.center && e.center.lon;
-      if (la == null || lo == null) return null;
-      // Ausstattung nur uebernehmen, wenn sie in OSM ausdruecklich als "yes" getaggt ist.
-      // Fehlt ein Tag, heisst das NICHT "nicht vorhanden" - dann zeigen wir es einfach nicht.
-      const aus = [];
-      if (t.tents === "yes") aus.push("zelt");
-      if (t.caravans === "yes") aus.push("wohnwagen");
-      if (t.shower === "yes") aus.push("dusche");
-      if (t.power_supply === "yes") aus.push("strom");
-      if (t.toilets === "yes") aus.push("wc");
-      if (t.drinking_water === "yes") aus.push("wasser");
-      const parken = t.amenity === "parking";
-      const ort = [t["addr:street"], t["addr:housenumber"]].filter(Boolean).join(" ");
-      return {
-        name: t.name || (parken ? "Parkplatz" : "Ohne Namen"),
-        type: parken ? "parkplatz" : t.tourism,
-        parken, lat: la, lon: lo, aus,
-        // fee=no ist eine ausdrueckliche Angabe, fehlendes Tag sagt nichts
-        gratis: parken ? (t.fee === "no" ? true : t.fee ? false : null) : null,
-        web: t.website || t["contact:website"] || "",
-        tel: t.phone || t["contact:phone"] || "",
-        adresse: [ort, [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", "),
-        saison: t.opening_hours || "",
-        plaetze: parken && t.capacity ? t.capacity : "",
-      };
-    }).filter(Boolean);
-    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v: list })); } catch {}
-    return list;
+      if (e.type === "way" && Array.isArray(e.geometry) && (t.aerialway || t.railway === "funicular")) {
+        if (e.geometry.length > 1) v.linien.push({ name: t.name || "", art: BF_BAHN_ART[t.aerialway] || BF_BAHN_ART[t.railway] || "Bergbahn",
+          coords: e.geometry.map(g => [+g.lon.toFixed(5), +g.lat.toFixed(5)]) });
+        continue;
+      }
+      if (t.amenity === "parking" || t.tourism === "camp_site" || t.tourism === "caravan_site") {
+        const c = campParkAus(e); if (c) v.cp.push(c); continue;
+      }
+      if (t.aerialway === "station") { const p = osmPoi(e, "Bahnstation"); if (p) v.stationen.push(klein(p, "Bergbahn-Station")); continue; }
+      if (BF_HOTEL_ART[t.tourism]) { const p = osmPoi(e, "Unterkunft"); if (p) v.hotel.push(klein(p, BF_HOTEL_ART[t.tourism])); continue; }
+      const essArt = BF_ESSEN_ART[t.amenity] || BF_ESSEN_ART[t.tourism];
+      if (essArt) { const p = osmPoi(e, "Einkehr"); if (p) v.essen.push(klein(p, essArt)); }
+    }
+    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v })); } catch {}
+    return v;
   } catch { return null; }
 }
 function campRowHtml(c, i) {
@@ -1103,9 +1146,8 @@ function neuerPlatzAus(lat, lon, ort, hoehe) {
 }
 // ---------------- Briefing-Karte: Umgebung mit Filtern (wie Park4night) ----------------
 // Start- und Landeplatz sind immer zu sehen. Alles andere schaltet man ueber Chips an der
-// Karte zu. Parken/Camping/Stellplatz kommen aus dem ohnehin geladenen Overpass-Abruf
-// (fetchNearbyPois), Seilbahn/Hotel/Essen werden erst beim Einschalten geholt - Overpass
-// ist ehrenamtlich und soll nicht bei jedem Briefing alles auf einmal liefern muessen.
+// Karte zu. Alle Kategorien kommen aus EINER Overpass-Abfrage (fetchUmgebung) - die
+// Filter blenden nur ein/aus.
 const BF_PICTO = {
   parken: `<path d="M9 18V6h4.2a3.4 3.4 0 0 1 0 6.8H9" stroke-width="2.8"/>`,
   bahn: `<path d="M3 6.5 21 3.5" /><path d="M12 5v3.2"/><rect x="6.5" y="8.2" width="11" height="10.3" rx="2.2"/><path d="M6.5 12.6h11"/>`,
@@ -1142,27 +1184,13 @@ function bfIconUrl(cat) {
 
 // Pro geoeffnetem Platz: was ist geladen, was laeuft, was ist schiefgegangen.
 let bfSpotId = null;
-let bfBase = "";   // Status des Basisabrufs (Parken/Camping/Stellplatz) aus fetchNearbyPois
-const bfData = { hotel: null, essen: null, bahn: null };     // null = noch nicht geholt
-const bfState = { hotel: "", essen: "", bahn: "" };           // "" | "laedt" | "ok" | "fehler"
+let bfBase = "";   // Status der Umgebungs-Abfrage: "" | "laedt" | "ok" | "fehler"
+const bfData = { hotel: null, essen: null, bahn: null };     // null = noch nicht da
 function bfResetForSpot(spot) {
-  if (bfSpotId === spot.id) return;
   bfSpotId = spot.id;
-  for (const k of Object.keys(bfData)) { bfData[k] = null; bfState[k] = ""; }
+  for (const k of Object.keys(bfData)) bfData[k] = null;
 }
 
-// Overpass mit 30-Tage-Cache, wie fetchNearbyPois. Liefert die rohen Elemente oder null.
-async function overpassCached(key, query) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw) { const c = JSON.parse(raw); if (Date.now() - c.t < CAMP_TTL) return c.v; }
-  } catch {}
-  try {
-    const v = (await overpassRequest(query)).elements || [];
-    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v })); } catch {}
-    return v;
-  } catch { return null; }
-}
 // Gemeinsame Felder fuer den Marker-Kasten (poiPopupHtml) aus OSM-Tags.
 function osmPoi(e, fallbackName) {
   const t = e.tags || {};
@@ -1190,69 +1218,6 @@ function bfNaechster(spot, lat, lon) {
   for (const z of ziele) { const d = haversineExact(z.lat, z.lon, lat, lon); if (d < bestD) { bestD = d; best = z; } }
   return { dist: bestD, ziel: best.name };
 }
-async function bfFetchCat(cat, spot) {
-  const sLat = spot.lat, sLon = spot.lon;
-  const lLat = spot.landeLat != null ? spot.landeLat : sLat, lLon = spot.landeLon != null ? spot.landeLon : sLon;
-  const r = (x) => x.toFixed(3);
-  if (cat === "hotel") {
-    const q = `[out:json][timeout:25];(nwr["tourism"~"^(hotel|guest_house|hostel|motel)$"](around:10000,${lLat},${lLon}););out center 150;`;
-    const el = await overpassCached(`bf1_hotel_${r(lLat)}_${r(lLon)}`, q);
-    if (!el) return null;
-    return el.map(e => {
-      const p = osmPoi(e, "Unterkunft"); if (!p) return null;
-      return { ...p, art: BF_HOTEL_ART[p.tags.tourism] || "Unterkunft", ...bfNaechster(spot, p.lat, p.lon) };
-    }).filter(Boolean).sort((a, b) => a.dist - b.dist).slice(0, 30);
-  }
-  if (cat === "essen") {
-    const q = `[out:json][timeout:25];(`
-      + `nwr["amenity"~"^(restaurant|cafe|biergarten)$"](around:4000,${sLat},${sLon});`
-      + `nwr["amenity"~"^(restaurant|cafe|biergarten)$"](around:4000,${lLat},${lLon});`
-      + `nwr["tourism"="alpine_hut"](around:8000,${sLat},${sLon});`
-      + `);out center 200;`;
-    const el = await overpassCached(`bf1_essen_${r(sLat)}_${r(sLon)}_${r(lLat)}_${r(lLon)}`, q);
-    if (!el) return null;
-    const seen = new Set();
-    return el.map(e => {
-      if (seen.has(e.type + e.id)) return null; seen.add(e.type + e.id);
-      const p = osmPoi(e, "Einkehr"); if (!p) return null;
-      return { ...p, art: BF_ESSEN_ART[p.tags.amenity] || BF_ESSEN_ART[p.tags.tourism] || "Einkehr", ...bfNaechster(spot, p.lat, p.lon) };
-    }).filter(Boolean).sort((a, b) => a.dist - b.dist).slice(0, 40);
-  }
-  if (cat === "bahn") {
-    // out geom: die Seilbahnen sollen als Linie auf die Karte, nicht nur als Punkt.
-    const q = `[out:json][timeout:25];(`
-      + `way["aerialway"~"^(cable_car|gondola|chair_lift|mixed_lift)$"](around:7000,${sLat},${sLon});`
-      + `way["railway"="funicular"](around:7000,${sLat},${sLon});`
-      + `node["aerialway"="station"](around:7000,${sLat},${sLon});`
-      + `);out geom 120;`;
-    const el = await overpassCached(`bf1_bahn_${r(sLat)}_${r(sLon)}`, q);
-    if (!el) return null;
-    const linien = [], stationen = [];
-    for (const e of el) {
-      if (e.type === "way" && Array.isArray(e.geometry) && e.geometry.length > 1) {
-        const t = e.tags || {};
-        linien.push({ name: t.name || "", art: BF_BAHN_ART[t.aerialway] || BF_BAHN_ART[t.railway] || "Bergbahn",
-          coords: e.geometry.map(g => [g.lon, g.lat]), web: t.website || "", saison: t.opening_hours || "" });
-      } else if (e.type === "node") {
-        const p = osmPoi(e, "Bahnstation"); if (!p) continue;
-        stationen.push({ ...p, art: "Bergbahn-Station", ...bfNaechster(spot, p.lat, p.lon) });
-      }
-    }
-    return { linien, stationen };
-  }
-  return null;
-}
-// Kategorie holen, falls eingeschaltet und noch nicht da. Danach Karte + Chip aktualisieren.
-async function bfEnsureCat(cat, spot) {
-  if (!(cat in bfData) || bfData[cat] || bfState[cat] === "laedt") return;
-  bfState[cat] = "laedt"; bfUpdateChips();
-  const id = spot.id;
-  const res = await bfFetchCat(cat, spot);
-  if (bfSpotId !== id) return;              // inzwischen anderer Platz offen
-  bfData[cat] = res; bfState[cat] = res ? "ok" : "fehler";
-  bfUpdateChips(); bfRender();
-  if (bfFitPending.delete(cat)) bfFitTo(cat);
-}
 function bfItems(cat) {
   if (cat === "parken") return lastParkList;
   if (cat === "camping") return lastCampList.filter(c => campKat(c.type) === "camp_site");
@@ -1271,7 +1236,7 @@ function bfUpdateChips() {
   // Rueckmeldung auf der Karte: laedt noch / hat nicht geklappt (mit Nochmal-Knopf)
   const msg = document.getElementById("bfMsg");
   if (msg) {
-    const st = cat => cat in bfState ? bfState[cat] : bfBase;
+    const st = () => bfBase;
     const aktiv = BF_ORDER.filter(c => f[c]);
     const fehler = aktiv.filter(c => st(c) === "fehler");
     if (fehler.length) {
@@ -1287,7 +1252,7 @@ function bfUpdateChips() {
     chip.classList.toggle("on", on);
     chip.setAttribute("aria-pressed", on ? "true" : "false");
     const cnt = chip.querySelector(".bf-cnt");
-    const st = cat in bfState ? bfState[cat] : bfBase;
+    const st = bfBase;
     cnt.textContent = !on ? "" : st === "laedt" ? "…" : st === "fehler" ? "!" : st === "ok" ? String(bfCount(cat)) : "";
     cnt.title = st === "fehler" ? "Konnte nicht geladen werden - später nochmal antippen" : "";
   });
@@ -1365,17 +1330,23 @@ async function loadCampsites(spot) {
   if (!sec) return;
   lastCampList = []; lastParkList = [];   // Treffer des zuvor geoeffneten Platzes verwerfen
   bfResetForSpot(spot);
-  // Zugeschaltete Zusatz-Kategorien (Seilbahn, Hotel, Essen) parallel holen
-  const fil = bfFilter();
-  Object.keys(bfData).forEach(cat => { if (fil[cat]) bfEnsureCat(cat, spot); });
   const lat = spot.landeLat != null ? spot.landeLat : spot.lat;
   const lon = spot.landeLon != null ? spot.landeLon : spot.lon;
   sec.innerHTML = `<p class="loading-line">Umgebung wird gesucht …</p>`;
   bfBase = "laedt"; bfUpdateChips();
-  const raw = await fetchNearbyPois(lat, lon, spot.lat, spot.lon);
+  const umg = await fetchUmgebung(spot);
   const wrap = document.getElementById("campSection");
-  if (!wrap) return;                       // Tab inzwischen verlassen
-  bfBase = raw ? "ok" : "fehler";
+  if (!wrap || bfSpotId !== spot.id) return;   // Tab verlassen oder anderer Platz offen
+  bfBase = umg ? "ok" : "fehler";
+  if (umg) {
+    const mitZiel = c => ({ ...c, ...bfNaechster(spot, c.lat, c.lon) });
+    const nah = (arr, n) => arr.map(mitZiel).sort((a, b) => a.dist - b.dist).slice(0, n);
+    bfData.hotel = nah(umg.hotel, 30);
+    bfData.essen = nah(umg.essen, 40);
+    bfData.bahn = { linien: umg.linien, stationen: nah(umg.stationen, 20) };
+  }
+  bfFitPending.forEach(cat => bfFitTo(cat)); bfFitPending.clear();
+  const raw = umg ? umg.cp : null;
   if (!raw || !raw.length) { wrap.innerHTML = ""; campAddMarkers(); return; }
   // Bezugspunkte fuer Parkplaetze: alle Landeplaetze und der Startplatz. Je Parkplatz
   // wird der naechstgelegene genommen und benannt - "363 m zum Landeplatz" hilft nicht,
@@ -3561,6 +3532,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 128, date: "22.10.", text: "Briefing-Karte: ganze Umgebung in einer Abfrage, Ersatzserver springt nach 4 Sekunden ein – kein Dauer-Laden mehr" },
   { v: 127, date: "22.10.", text: "Briefing-Karte lädt Parken, Seilbahn, Hotel und Essen zuverlässiger (Ersatzserver, keine Überlast mehr) und zeigt an, wenn etwas nicht lädt" },
   { v: 126, date: "22.10.", text: "Gesuchter Ort pulsiert als grüner Punkt auf der Karte, ein gesuchter Startplatz pulsiert selbst" },
   { v: 126, date: "22.10.", text: "Briefing neu: große Karte mit Filtern für Parken, Seilbahn, Camping, Stellplatz, Hotel und Essen – Flug-Check darunter zum Aufklappen" },
@@ -3963,8 +3935,6 @@ document.body.addEventListener("click", e => {
   if (e.target.closest("[data-bfretry]") && currentDetailSpot) {
     const sp = currentDetailSpot;
     if (bfBase === "fehler") loadCampsites(sp);
-    Object.keys(bfState).forEach(cat => { if (bfState[cat] === "fehler") { bfState[cat] = ""; bfEnsureCat(cat, sp); } });
-    bfUpdateChips();
     return;
   }
   // Briefing-Karte: Kategorie ein-/ausblenden, Auswahl bleibt fuer den naechsten Platz
@@ -3972,13 +3942,10 @@ document.body.addEventListener("click", e => {
   if (bfChip) {
     const cat = bfChip.dataset.bfcat, f = bfFilter();
     f[cat] = !f[cat]; bfSaveFilter(f);
-    // nach einem Fehler beim erneuten Einschalten nochmal versuchen
-    if (f[cat] && cat in bfData && bfState[cat] === "fehler") bfState[cat] = "";
-    if (f[cat] && cat in bfData && currentDetailSpot) bfEnsureCat(cat, currentDetailSpot);
     bfUpdateChips(); bfRender();
     if (f[cat]) {
       // Daten schon da -> sofort hinzoomen, sonst sobald sie ankommen
-      if (cat in bfData && !bfData[cat]) bfFitPending.add(cat); else bfFitTo(cat);
+      if (bfBase === "laedt") bfFitPending.add(cat); else bfFitTo(cat);
     } else bfFitPending.delete(cat);
     return;
   }
