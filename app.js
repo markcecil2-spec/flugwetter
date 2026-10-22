@@ -1867,7 +1867,6 @@ function briefingPanelHtml(spot, ctx) {
     <h3 class="fc-head">Flug-Check</h3>
     <p class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</p>
     ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
-    ${kurzueberblickHtml(spot, day, ts, tagW)}
     <div id="campSection" class="camp-sec"></div>
     <p class="bf-src bf-warn-note">Alle Angaben ohne Gewähr. Informiere dich vor dem Flug über die aktuellen
       Bedingungen und respektiere andere Piloten und die Natur.
@@ -2057,8 +2056,10 @@ function renderCard(spot, days, opts = {}) {
           const diffL = diffLabelFull(spot);
           // Die Zustiegs-/Thermik-Kacheln standen hier doppelt - dieselben Angaben
           // stehen im Briefing unter "Anreise" bzw. bei "Grundsätzlich möglich".
+          // Kurzueberblick (Tageswerte) oben - danach die festen Geländedaten
           return `
             ${diffHtml}
+            ${kurzueberblickHtml(spot, days[dayIdx] || {}, ts, dayIdx === 1 ? "Morgen" : "Heute")}
             <h3 class="dv-h3">Aktionen &amp; Tools</h3>
             ${actionsBadges}
             <h3 class="dv-h3">Daten zum Gelände</h3>
@@ -3587,6 +3588,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 134, date: "22.10.", text: "Kurzüberblick (Wind, Böen, Temperatur, beste Zeit) steht jetzt oben im Details-Tab" },
   { v: 133, date: "22.10.", text: "Ladeansicht beim Öffnen eines Startplatzes steht mindestens 2 Sekunden" },
   { v: 131, date: "22.10.", text: "Neue Ladeansicht beim Öffnen eines Startplatzes" },
   { v: 130, date: "22.10.", text: "Briefing-Karte lädt die Umgebung jetzt vom eigenen Server – schnell und ohne den überlasteten Overpass-Dienst. Wichtige Hinweise und Notizen stehen jetzt unter Details" },
