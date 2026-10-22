@@ -322,6 +322,30 @@ function dayStatus(days, idx = 0) {
   return { status: "nein", reason: r, reasonLabel: neinLabel(r), reasonText: neinText(r) };
 }
 function todayStatus(days) { return dayStatus(days, 0); }
+// Route Stufe 2: Bewertung ab der Ankunftszeit. Zaehlt nur ein Fenster, in dem nach der
+// Ankunft noch mindestens 1 Stunde bleibt; das Fenster beginnt fruehestens bei Ankunft.
+const ANKUNFT_MIN_FLUG_MS = 3600000;
+function ankunftStatus(days, idx, ankunft) {
+  const day = days[idx];
+  const basis = dayStatus(days, idx);
+  if (!day || !ankunft) return basis;
+  const an = ankunft.getTime();
+  const nutzbar = day.windows
+    .map(w => ({ w, von: Math.max(w.from.getTime(), an) }))
+    .filter(x => x.w.to.getTime() - x.von >= ANKUNFT_MIN_FLUG_MS);
+  const x = nutzbar.find(n => n.w.color === "gut") || nutzbar.find(n => n.w.color === "grenz");
+  if (x) {
+    const from = new Date(x.von);
+    return { status: x.w.color, win: { ...x.w, from, hours: Math.round((x.w.to.getTime() - x.von) / 3600000) },
+      reasonLabel: x.w.color === "gut" ? "Wind passt" : basis.reasonLabel, ankunft };
+  }
+  if (basis.status !== "nein") {
+    // Am Tag waere es gegangen - aber nicht mehr, wenn man dort ankommt
+    const hhmm = ankunft.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    return { status: "nein", reason: "spaet", reasonLabel: "Fenster vorbei", reasonText: `Bei Ankunft ${hhmm} vorbei`, ankunft };
+  }
+  return { ...basis, ankunft };
+}
 
 // Sterne-Bewertung für den gewählten Tag (emotional schnell erfassbar)
 function todayRating(days, idx = 0) {
@@ -2277,12 +2301,14 @@ async function renderSearch(candidates, origin, headline, opts = {}) {
     const rows = candidates.map((s, i) => {
       const drv = drive[i];
       // Route: wo unterwegs und wie weit neben der Strecke
+      const anTxt = opts.ankunft ? ` · an ca. ${opts.ankunft(s).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}` : "";
       const subInfo = s.routeKm != null
-        ? `${IC_ROUTE} nach ${Math.round(s.routeKm)} km · ${s.abseits < 1 ? "direkt an der Strecke" : Math.round(s.abseits) + " km abseits"}`
+        ? `${IC_ROUTE} nach ${Math.round(s.routeKm)} km${anTxt} · ${s.abseits < 1 ? "direkt an der Strecke" : Math.round(s.abseits) + " km abseits"}`
         : (drv != null ? IC_CAR + " " + formatDur(drv) + " · " : "") +
           (s.dist != null ? IC_PIN + " " + s.dist + " km" : (s.region || ""));
       const days = analyse(s, results[i]);
-      const ts = dayStatus(days, searchDay);
+      const ankunft = opts.ankunft ? opts.ankunft(s) : null;
+      const ts = ankunft ? ankunftStatus(days, searchDay, ankunft) : dayStatus(days, searchDay);
       ts.type = flightType(days[searchDay], ts.win);
       return { spot: s, ts, drive: drv, subInfo };
     });
@@ -2703,22 +2729,37 @@ const ROUTE_SRC = "route-linie";
 let routeGeo = null;            // [[lon,lat], ...] der aktuellen Route, null = keine
 let routeUmweg = (() => { try { return +localStorage.getItem("flugwetter_route_umweg") || 20; } catch { return 20; } })();
 
+// annotations=duration: Fahrzeit je Abschnitt - daraus die Ankunftszeit an jedem Punkt der
+// Strecke (Stufe 2). Gleiche Strecke nicht doppelt holen (Abfahrt/Umweg aendern).
+const routeCache = new Map();
 async function fetchRoute(a, b) {
-  const url = `https://router.project-osrm.org/route/v1/driving/${a.lon.toFixed(5)},${a.lat.toFixed(5)};${b.lon.toFixed(5)},${b.lat.toFixed(5)}?overview=full&geometries=geojson`;
+  const key = [a.lat, a.lon, b.lat, b.lon].map(x => x.toFixed(4)).join(",");
+  if (routeCache.has(key)) return routeCache.get(key);
+  const url = `https://router.project-osrm.org/route/v1/driving/${a.lon.toFixed(5)},${a.lat.toFixed(5)};${b.lon.toFixed(5)},${b.lat.toFixed(5)}?overview=full&geometries=geojson&annotations=duration`;
   const res = await fetch(url);
   if (!res.ok) throw new Error("Routenserver antwortet nicht (" + res.status + ")");
   const j = await res.json();
   const r = j.routes && j.routes[0];
   if (!r) throw new Error("Keine Route gefunden");
-  return { coords: r.geometry.coordinates, km: r.distance / 1000, sec: r.duration };
+  const coords = r.geometry.coordinates;
+  // Kumulierte Fahrzeit je Punkt; fehlen die Abschnittszeiten, gleichmaessig verteilen
+  const abschn = r.legs && r.legs[0] && r.legs[0].annotation && r.legs[0].annotation.duration;
+  const zeit = [0];
+  for (let i = 1; i < coords.length; i++) zeit.push(zeit[i - 1] + (abschn && abschn[i - 1] != null ? abschn[i - 1] : r.duration / (coords.length - 1)));
+  const out = { coords, zeit, km: r.distance / 1000, sec: r.duration };
+  routeCache.set(key, out);
+  return out;
 }
 // Plaetze im Korridor: kleinster Abstand zur Strecke (flache Naeherung, auf ein paar
 // hundert km genau genug) und die Position entlang der Strecke (km ab Start).
-function plaetzeAmKorridor(coords, maxKm) {
-  // Strecke auf Stuetzpunkte im Abstand >= 300 m ausduennen - OSRM liefert tausende
-  const pts = [coords[0]];
-  for (const c of coords) { const l = pts[pts.length - 1]; if (haversineExact(l[1], l[0], c[1], c[0]) >= 0.3) pts.push(c); }
-  if (pts[pts.length - 1] !== coords[coords.length - 1]) pts.push(coords[coords.length - 1]);
+function plaetzeAmKorridor(coords, maxKm, zeit) {
+  // Strecke auf Stuetzpunkte im Abstand >= 300 m ausduennen - OSRM liefert tausende.
+  // Zu jedem Stuetzpunkt die Fahrzeit ab Start merken (Stufe 2).
+  const pts = [coords[0]], ptsZeit = [0];
+  coords.forEach((c, i) => {
+    const l = pts[pts.length - 1];
+    if (haversineExact(l[1], l[0], c[1], c[0]) >= 0.3 || i === coords.length - 1) { pts.push(c); ptsZeit.push(zeit ? zeit[i] : 0); }
+  });
   const lat0 = pts.reduce((a, p) => a + p[1], 0) / pts.length;
   const kx = 111.32 * Math.cos(lat0 * Math.PI / 180), ky = 110.57;
   const xy = pts.map(([lon, lat]) => [lon * kx, lat * ky]);
@@ -2731,15 +2772,15 @@ function plaetzeAmKorridor(coords, maxKm) {
   for (const s of allKnownSpots()) {
     if (s.lon < box[0] || s.lon > box[2] || s.lat < box[1] || s.lat > box[3]) continue;
     const px = s.lon * kx, py = s.lat * ky;
-    let best = Infinity, entlang = 0;
+    let best = Infinity, entlang = 0, sek = 0;
     for (let i = 1; i < xy.length; i++) {
       const [ax, ay] = xy[i - 1], [bx, by] = xy[i];
       const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
       const t = l2 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / l2)) : 0;
       const d = Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
-      if (d < best) { best = d; entlang = kum[i - 1] + t * Math.sqrt(l2); }
+      if (d < best) { best = d; entlang = kum[i - 1] + t * Math.sqrt(l2); sek = ptsZeit[i - 1] + t * (ptsZeit[i] - ptsZeit[i - 1]); }
     }
-    if (best <= maxKm) out.push({ ...s, routeKm: entlang, abseits: best, dist: Math.round(best), sortKey: entlang });
+    if (best <= maxKm) out.push({ ...s, routeKm: entlang, routeSek: sek, abseits: best, dist: Math.round(best), sortKey: entlang });
   }
   // Zu viele: die am weitesten abseits fliegen zuerst raus, danach in Fahrtrichtung
   out.sort((a, b) => a.abseits - b.abseits);
@@ -2789,6 +2830,24 @@ async function routePunkt(inp, leerIstStandort) {
   if (g) return { lat: g.lat, lon: g.lon, name: v };
   throw new Error(`„${v}“ nicht gefunden`);
 }
+// Abfahrt (Stufe 2): Standard heute = jetzt auf die naechste Viertelstunde, morgen 08:00.
+// Hat man selbst eine Zeit eingetragen, bleibt sie beim Tageswechsel stehen.
+let routeAbManuell = false;
+function routeAbStandard() {
+  const inp = document.getElementById("routeAb");
+  if (!inp || routeAbManuell) return;
+  if (searchDay === 1) { inp.value = "08:00"; return; }
+  const d = new Date(Date.now() + 15 * 60000);
+  d.setMinutes(Math.floor(d.getMinutes() / 15) * 15);
+  inp.value = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+function routeAbfahrt() {
+  const [h, m] = (document.getElementById("routeAb").value || "08:00").split(":").map(Number);
+  const d = new Date(); d.setDate(d.getDate() + (searchDay === 1 ? 1 : 0)); d.setHours(h, m, 0, 0);
+  return d;
+}
+// Umweg zum Platz grob schaetzen: Luftlinie x 1,4 (Strassen sind krumm) mit 45 km/h
+const umwegSek = abseitsKm => abseitsKm * 1.4 / 45 * 3600;
 async function runRouteSearch() {
   const out = document.getElementById("flyResults");
   await switchToMapView();
@@ -2800,7 +2859,10 @@ async function runRouteSearch() {
       routePunkt(document.getElementById("routeNach"), false),
     ]);
     const r = await fetchRoute(a, b);
-    const { plaetze, mehr } = plaetzeAmKorridor(r.coords, routeUmweg);
+    const { plaetze, mehr } = plaetzeAmKorridor(r.coords, routeUmweg, r.zeit);
+    routeAbStandard();
+    const ab = routeAbfahrt();
+    const ankunft = s => new Date(ab.getTime() + (s.routeSek + umwegSek(s.abseits)) * 1000);
     // Kein Umkreis, kein Suchziel - die Route ist die Suche
     lastOrigin = null; searchFocus = null;
     const kreis = mapInstance && mapInstance.getSource(RADIUS_CIRCLE_SRC);
@@ -2810,9 +2872,10 @@ async function runRouteSearch() {
     updateHierBtn();
     rerunSearch = () => runRouteSearch();
     const headline = `${dayWord()} auf der Route <b>${escHtml(a.name)} → ${escHtml(b.name)}</b>`
-      + ` · ${Math.round(r.km)} km, ${formatDur(r.sec)} · ±${routeUmweg} km`;
+      + ` · ${Math.round(r.km)} km, ${formatDur(r.sec)} · ±${routeUmweg} km`
+      + ` · Abfahrt ${ab.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })} – bewertet ab Ankunft`;
     if (!plaetze.length) { out.innerHTML = `<div class="fly-head">${headline}</div><p class="empty">Kein Startplatz innerhalb von ${routeUmweg} km neben der Strecke. Umweg vergrößern?</p>`; }
-    else await renderSearch(plaetze, null, headline + (mehr ? ` · die ${ROUTE_MAX_PLAETZE} nächsten an der Strecke` : ""), { entlangRoute: true, keepView: true, max: ROUTE_MAX_PLAETZE });
+    else await renderSearch(plaetze, null, headline + (mehr ? ` · die ${ROUTE_MAX_PLAETZE} nächsten an der Strecke` : ""), { entlangRoute: true, keepView: true, max: ROUTE_MAX_PLAETZE, ankunft });
     if (mapInstance) {
       const lons = r.coords.map(c => c[0]), lats = r.coords.map(c => c[1]);
       mapInstance.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 40, duration: 600 });
@@ -2860,6 +2923,11 @@ function routeFeld(inputId, sugId) {
   });
 }
 routeFeld("routeVon", "routeVonSug");
+routeAbStandard();
+document.getElementById("routeAb").addEventListener("change", () => {
+  routeAbManuell = true;
+  if (routeGeo) runRouteSearch();   // Strecke kommt aus dem Zwischenspeicher, nur neu bewerten
+});
 routeFeld("routeNach", "routeNachSug");
 document.getElementById("routeGo").addEventListener("click", () => runRouteSearch());
 document.querySelectorAll("#routePanel [data-umweg]").forEach(b => {
@@ -2922,6 +2990,7 @@ async function runFlySearch(lat, lon, label, opts = {}) {
 document.getElementById("dayToggle").addEventListener("click", e => {
   const b = e.target.closest("[data-day]"); if (!b) return;
   searchDay = parseInt(b.dataset.day, 10);
+  routeAbStandard();
   document.querySelectorAll("#dayToggle .rpill").forEach(x => x.classList.toggle("on", x === b));
   updateGreeting();
   if (rerunSearch) rerunSearch();
@@ -3739,6 +3808,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 153, date: "22.10.", text: "Route Stufe 2: Abfahrtszeit eingeben – jeder Startplatz wird zur Ankunftszeit bewertet" },
   { v: 152, date: "22.10.", text: "Länder- und Regions-Auswahl entfernt – gesucht wird über Suchfeld, Standort, Route oder Karte" },
   { v: 151, date: "22.10.", text: "Hauptkarte: Ebenen- und Filter-Knopf wie im Briefing; Umkreis, Favoriten, Zustieg und Höhendifferenz jetzt im Filter auf der Karte" },
   { v: 150, date: "22.10.", text: "Tippen auf die Karte startet keine neue Suche mehr – dafür „Startplätze hier suchen“" },

@@ -1525,3 +1525,9 @@ body.bf-full-open { overflow: hidden; }
   border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
 .liste-filter-btn svg { width: 14px; height: 14px; }
 .lf-cnt { background: var(--sky); color: #fff; border-radius: 9px; min-width: 18px; height: 18px; padding: 0 5px; display: inline-grid; place-items: center; font-size: 11px; }
+/* Abfahrt (Route Stufe 2) */
+.rp-ab { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 600; flex-wrap: wrap; }
+.rp-ab svg { width: 16px; height: 16px; color: var(--sky); flex: none; }
+.rp-ab input { background: var(--card-2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 6px 10px; font-size: 15px; font-weight: 700; font-family: inherit; color-scheme: dark; }
+.rp-ab input:focus { outline: none; border-color: var(--sky); }
+.rp-ab-hint { font-size: 12px; font-weight: 500; }
