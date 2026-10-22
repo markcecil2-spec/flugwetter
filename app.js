@@ -1105,6 +1105,12 @@ function infosStart(spot) {
   if (spot.webcam && spot.webcam !== spot.livewetter) links.push({ label: "Live-Cam", href: spot.webcam });
   return { rows, text: spot.bemerkung || "", links };
 }
+// Noetige Gleitzahl Start -> Landeplatz (Luftlinie / Hoehenunterschied), z. B. "Gleitzahl 3,6"
+function gleitzahlTxt(spot, l) {
+  if (l.hoehe == null || spot.elevation == null || spot.elevation <= l.hoehe || l.lat == null) return "";
+  const m = haversineExact(spot.lat, spot.lon, l.lat, l.lon) * 1000;
+  return m > 100 ? `Gleitzahl ${(m / (spot.elevation - l.hoehe)).toFixed(1).replace(".", ",")}` : "";
+}
 function infosLande(spot, l) {
   const rows = [["Höhe", l.hoehe != null ? l.hoehe + " m ü. NN" : ""]];
   if (l.lat != null && spot.lat != null) {
@@ -2538,7 +2544,8 @@ async function ensureMiniMap(spot) {
   removeMiniMap();
   const hasLande = spot.landeLat != null && spot.landeLon != null;
   const landePlaetze = [];
-  if (hasLande) landePlaetze.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon });
+  // hoehe mitgeben - fehlte beim Hauptlandeplatz, dadurch kam dort nie eine Gleitzahl
+  if (hasLande) landePlaetze.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon, hoehe: spot.landeHoehe });
   if (Array.isArray(spot.landeExtra)) landePlaetze.push(...spot.landeExtra);
   const points = [[spot.lon, spot.lat], ...landePlaetze.map(l => [l.lon, l.lat])];
   miniMapInstance = new maplibregl.Map({
@@ -2563,7 +2570,7 @@ async function ensureMiniMap(spot) {
       .setPopup(poiPopup(poiPopupHtml(
         { lat: l.lat, lon: l.lon },
         l.name, "icons/pin-landeplatz.png",
-        ["Landeplatz", l.hoehe != null ? l.hoehe + " m ü. NN" : ""].filter(Boolean).join(" · "),
+        ["Landeplatz", l.hoehe != null ? l.hoehe + " m ü. NN" : "", gleitzahlTxt(spot, l)].filter(Boolean).join(" · "),
         infosLande(spot, l))))
       .addTo(miniMapInstance);
   });
@@ -3684,6 +3691,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 140, date: "22.10.", text: "Landeplätze auf der Briefing-Karte zeigen immer die nötige Gleitzahl" },
   { v: 139, date: "22.10.", text: "Seilbahn-Stationen: Knopf zur Website der Bahn bzw. Suche nach Preisen" },
   { v: 138, date: "22.10.", text: "Briefing-Karte: Gondel-Symbol an Tal- und Bergstation jeder Bahn; Infofenster liegt jetzt über allen Symbolen" },
   { v: 137, date: "22.10.", text: "Briefing-Karte: Knopf „Bewertungen auf Google“ bei Hotels, Campingplätzen, Restaurants und Supermärkten; Seilbahn-Filter zeigt nur noch die Bahn zum Startplatz" },
