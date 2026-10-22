@@ -1068,25 +1068,6 @@ async function fetchUmgebung(spot) {
     return v;
   } catch { return null; }
 }
-function campRowHtml(c, i) {
-  const km = c.dist < 1 ? Math.round(c.dist * 1000) + " m" : c.dist.toFixed(1).replace(".", ",") + " km";
-  // Ausstattung: hoechstens vier, sonst wird die Zeile unruhig
-  const aus = (c.aus || []).slice(0, 4).map(k => {
-    const a = CAMP_AUS[k]; if (!a) return "";
-    return `<span class="camp-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${a.ic}</svg>${a.label}</span>`;
-  }).join("");
-  const zusatz = c.parken && c.gratis === true ? " · kostenlos" : c.parken && c.gratis === false ? " · gebührenpflichtig" : "";
-  return `<div class="camp-row">
-    <img class="camp-pin" src="${campPin(c.type)}" alt="">
-    <div class="camp-main">
-      <div class="camp-name">${escHtml(c.name)}</div>
-      <div class="camp-sub">${km}<span data-camp-dur="${i}"></span> · ${campTypeLabel(c.type)}${zusatz}</div>
-      ${aus ? `<div class="camp-tags">${aus}</div>` : ""}
-    </div>
-    <a class="camp-act" href="${mapsUrl(c)}" target="_blank" rel="noopener" aria-label="Navigation">${NAV_ICON}</a>
-    ${c.web ? `<a class="camp-act" href="${escHtml(c.web)}" target="_blank" rel="noopener" aria-label="Website">${IC_GLOBE}</a>` : ""}
-  </div>`;
-}
 // Kleines Fenster beim Antippen eines Markers: was es ist, wie weit, und was man
 // damit tun kann (navigieren, Website, anrufen).
 // Alles, was ueber den Startplatz in den Daten steht - fuer den Info-Knopf im Kartenkasten.
@@ -1473,7 +1454,7 @@ async function loadCampsites(spot) {
   bfResetForSpot(spot);
   const lat = spot.landeLat != null ? spot.landeLat : spot.lat;
   const lon = spot.landeLon != null ? spot.landeLon : spot.lon;
-  sec.innerHTML = `<p class="loading-line">Umgebung wird gesucht …</p>`;
+  sec.innerHTML = "";   // Ladehinweis steht unten auf der Karte
   bfBase = "laedt"; bfUpdateChips();
   const umg = (await fetchVorberechnet(spot)) || (await fetchUmgebung(spot));
   const wrap = document.getElementById("campSection");
@@ -1524,22 +1505,12 @@ async function loadCampsites(spot) {
     ...sortiert(parken.filter(c => c.zielName !== "Startplatz")).slice(0, PARK_MAX),
   ];
   lastCampList = list;
-  wrap.innerHTML = list.length ? campSectionHtml(list) : "";
+  // Keine Liste "Uebernachten in der Naehe" mehr unter dem Flug-Check (auf Wunsch) -
+  // Camping und Stellplatz stehen auf der Karte ueber den Filter. #campSection bleibt
+  // als leerer Anker, an ihm erkennt loadCampsites, ob das Briefing noch offen ist.
+  wrap.innerHTML = "";
   renderParkplaetze();
   campAddMarkers();
-
-  // Fahrzeiten nachladen (OSRM) und die Zeilen ergaenzen. Bewusst NACH dem ersten
-  // Rendern: die Liste steht sofort, die Zeiten kommen nach - faellt OSRM aus,
-  // bleibt einfach die Entfernung stehen.
-  try {
-    const secs = await fetchDriveTimes({ lat, lon }, list);
-    if (!document.getElementById("campSection")) return;   // Tab inzwischen verlassen
-    secs.forEach((s, i) => {
-      if (s == null) return;
-      const el = document.querySelector(`[data-camp-dur="${i}"]`);
-      if (el) el.textContent = " · " + formatDur(s);
-    });
-  } catch {}
 }
 const CAMP_AUS = {
   zelt:      { label: "Zelt",       ic: `<path d="M12 4 3 20h18z"/><path d="M12 4v16"/>` },
@@ -1594,28 +1565,6 @@ function renderParkplaetze() {
       ${gruppe("Am Startplatz", amStart)}
       ${gruppe("Am Landeplatz", amLande)}
     </div>
-  </details>`;
-}
-function campSummary(list) {
-  const camps = list.filter(c => campKat(c.type) === "camp_site").length;
-  const vans = list.filter(c => campKat(c.type) === "caravan_site").length;
-  const teile = [];
-  if (camps) teile.push(`${camps} ${camps === 1 ? "Campingplatz" : "Campingplätze"}`);
-  if (vans) teile.push(`${vans} ${vans === 1 ? "Stellplatz" : "Stellplätze"}`);
-  const naechster = list[0] ? list.reduce((m, c) => Math.min(m, c.dist), Infinity) : null;
-  if (naechster != null) {
-    teile.push(naechster < 1 ? `ab ${Math.round(naechster * 1000)} m` : `ab ${naechster.toFixed(naechster < 10 ? 1 : 0).replace(".", ",")} km`);
-  }
-  return teile.join(" · ");
-}
-function campSectionHtml(list) {
-  return `<details class="camp-box">
-    <summary>
-      <img class="camp-head-pin" src="${PIN.camp_site}" alt="">
-      <span class="camp-head-txt">Übernachten in der Nähe<span class="camp-sum">${campSummary(list)}</span></span>
-    </summary>
-    <div class="camp-list">${list.map(campRowHtml).join("")}</div>
-    <p class="camp-attrib">Daten © OpenStreetMap-Mitwirkende · Entfernung und Fahrzeit ab Landeplatz. Ausstattung nur, soweit dort hinterlegt.</p>
   </details>`;
 }
 
@@ -3707,6 +3656,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 145, date: "22.10.", text: "Briefing: Liste „Übernachten in der Nähe“ entfernt (steht über den Filter auf der Karte); Karte schaut beim Scrollen nicht mehr neben der Kopfzeile hervor" },
   { v: 144, date: "22.10.", text: "Briefing-Karte: neue Filter ÖPNV (Bus, Bahn, Tram) und Tankstelle" },
   { v: 143, date: "22.10.", text: "Live-Wetter, Live-Cam und Windy als große, farbige Knöpfe im Wetter-Tab; Knopf „Satellitenbild“ in den Kartenfenstern entfernt" },
   { v: 142, date: "22.10.", text: "Knopf heißt jetzt „In Google Maps öffnen“" },
