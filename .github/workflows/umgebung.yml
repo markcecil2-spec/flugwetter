@@ -1,0 +1,68 @@
+# Umgebung der Startplaetze (Parken, Camping, Hotel, Essen, Supermarkt, Toilette, Seilbahn)
+# einmal im Monat aus den OpenStreetMap-Laenderdateien von Geofabrik neu berechnen und als
+# umgebung/<id>.json ins Repo legen. Die App laedt diese Dateien statt Overpass live zu fragen -
+# Overpass ist chronisch ueberlastet ("server is currently at capacity").
+name: umgebung
+on:
+  schedule:
+    - cron: "17 3 3 * *"      # am 3. jedes Monats, 03:17 UTC
+  workflow_dispatch:
+  push:
+    branches: [claude/goflytoday-app-not-working-oofhku]
+    paths: [".github/workflows/umgebung.yml", "tools/umgebung_bauen.py"]
+permissions:
+  contents: write
+concurrency:
+  group: umgebung
+  cancel-in-progress: false
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Werkzeug
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq osmium-tool
+          osmium --version | head -1
+          df -h / /mnt || true
+      - name: Arbeitsordner (grosse Platte unter /mnt, falls vorhanden)
+        run: |
+          if sudo mkdir -p /mnt/osm 2>/dev/null; then sudo chown "$USER" /mnt/osm; echo "W=/mnt/osm" >> "$GITHUB_ENV"; else mkdir -p "$RUNNER_TEMP/osm"; echo "W=$RUNNER_TEMP/osm" >> "$GITHUB_ENV"; fi
+      - name: Startplaetze exportieren
+        run: |
+          node -e 'const fs=require("fs");const m=new Function(fs.readFileSync("database.js","utf8")+";return SPOT_DB;")();fs.writeFileSync(process.argv[1],JSON.stringify(m.map(s=>({id:s.id,lat:s.lat,lon:s.lon,landeLat:s.landeLat??null,landeLon:s.landeLon??null}))));console.log(m.length+" Plaetze")' "$W/spots.json"
+      - name: Laender laden und filtern
+        run: |
+          set -euo pipefail
+          for land in germany austria switzerland france italy; do
+            echo "::group::$land"
+            curl -fsSL --retry 5 --retry-delay 30 -o "$W/$land.osm.pbf" "https://download.geofabrik.de/europe/$land-latest.osm.pbf"
+            ls -lh "$W/$land.osm.pbf"
+            osmium tags-filter "$W/$land.osm.pbf" \
+              nwr/amenity=parking,toilets,restaurant,cafe,biergarten \
+              nwr/tourism=camp_site,caravan_site,hotel,guest_house,hostel,motel,alpine_hut \
+              nwr/shop=supermarket \
+              w/aerialway=cable_car,gondola,chair_lift,mixed_lift n/aerialway=station \
+              w/railway=funicular \
+              -o "$W/$land.f.pbf" --overwrite
+            rm -f "$W/$land.osm.pbf"
+            osmium export "$W/$land.f.pbf" -f geojsonseq -a type,id \
+              --geometry-types=point,linestring,polygon -o "$W/$land.geojsonseq" --overwrite
+            rm -f "$W/$land.f.pbf"
+            ls -lh "$W/$land.geojsonseq"
+            echo "::endgroup::"
+          done
+      - name: Umgebung je Startplatz berechnen
+        run: |
+          rm -rf umgebung
+          UMGEBUNG_STAND="$(date -u +%Y-%m)" python3 tools/umgebung_bauen.py "$W/spots.json" umgebung "$W"/*.geojsonseq
+          du -sh umgebung
+      - name: Einchecken
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add -A umgebung
+          if git diff --cached --quiet; then echo "Keine Aenderung"; exit 0; fi
+          git commit -q -m "Umgebung der Startplaetze aktualisiert ($(date -u +%Y-%m))"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
