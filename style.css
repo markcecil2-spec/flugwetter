@@ -1272,11 +1272,6 @@ main.wrap { padding-top: 12px; }
 }
 
 /* Ausklappbarer Filter-Knopf */
-.filter-toggle { display: flex; align-items: center; gap: 9px; width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; color: var(--text); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; margin-top: 2px; }
-.filter-toggle .ft-ic { width: 18px; height: 18px; color: var(--sky); flex: none; }
-.filter-toggle .filter-sum { color: var(--sky); font-weight: 700; font-size: 13px; }
-.filter-toggle .filter-chev { margin-left: auto; margin-right: 5px; color: var(--muted); transition: transform .18s; display: flex; }
-.filter-toggle.open .filter-chev { transform: rotate(180deg); }
 .filter-panel {
   display: flex; flex-direction: column; gap: 12px;
   background: var(--card); border: 1px solid var(--line); border-radius: 14px;
@@ -1517,3 +1512,16 @@ body.bf-full-open { overflow: hidden; }
 .rp-umweg button.on { background: rgba(6,182,164,.16); border-color: var(--sky); color: var(--text); }
 .rp-go { background: var(--sky); color: #05221d; border: 0; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit; }
 .rp-go:active { transform: scale(.98); }
+
+/* ---------- Hauptkarte: Ebenen- und Filter-Knopf wie im Briefing (v151) ---------- */
+.map-view .maplibregl-ctrl-bottom-right { bottom: 58px; }
+.map-hier { top: 78px; }   /* unter den runden Knoepfen oben rechts */
+.map-sheet .filter-panel { display: block; background: none; border: 0; padding: 0; margin: 0; box-shadow: none; }
+.map-sheet .filter-panel > * + * { margin-top: 12px; }
+/* Liste: Filter-Knopf neben der Ueberschrift - springt zur Karte und oeffnet das Feld */
+.fly-head-row { display: flex; align-items: flex-start; gap: 10px; }
+.fly-head-row .fly-head { flex: 1; min-width: 0; }
+.liste-filter-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--line); color: var(--sky);
+  border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.liste-filter-btn svg { width: 14px; height: 14px; }
+.lf-cnt { background: var(--sky); color: #fff; border-radius: 9px; min-width: 18px; height: 18px; padding: 0 5px; display: inline-grid; place-items: center; font-size: 11px; }

@@ -2650,7 +2650,8 @@ async function ensureMap() {
     // verwirrend. Zoomen geht weiter per Zwei-Finger-Geste und ueber die +/- Knoepfe.
     doubleClickZoom: false,
   });
-  mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+  // Oben rechts sitzen Ebenen- und Filter-Knopf - Zoom deshalb unten rechts ueber dem Standort-Knopf
+  mapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
   mapInstance.on("zoom", updateMapLabelVisibility);
   mapInstance.on("moveend", () => {
     lastMapView = { center: mapInstance.getCenter(), zoom: mapInstance.getZoom() };
@@ -3010,6 +3011,10 @@ document.getElementById("dayToggle").addEventListener("click", e => {
 
 // Zusammenfassung am Filter-Knopf: aktive Zustieg-/Höhendifferenz-Filter (wenn nicht Egal)
 function updateFilterSummary() {
+  // Zaehler am Filter-Knopf der Karte: aktive Einschraenkungen (Umkreis zaehlt nicht - der
+  // ist keine Einschraenkung, sondern die Suchweite)
+  const badge = document.getElementById("mapFilterBadge");
+  if (badge) badge.textContent = [favOnlyFilter, accFilter !== "all", minHoehendiff > 0].filter(Boolean).length || "";
   const sum = document.getElementById("filterSummary");
   if (!sum) return;
   const parts = [];
@@ -3142,14 +3147,32 @@ document.getElementById("favSeg").addEventListener("click", e => {
   applyFavSegUI();
   if (lastRows.length) { renderFlyResults(lastRows, lastHeadline, lastTruncated); updateMapMarkers(displayRowsFor(lastRows), { flyTo: false }); }
 });
-// Filter-Bereich auf-/zuklappen
-document.getElementById("filterToggle").addEventListener("click", () => {
-  const panel = document.getElementById("filterPanel"), btn = document.getElementById("filterToggle");
-  const open = panel.hidden;
-  panel.hidden = !open;
-  btn.setAttribute("aria-expanded", String(open));
-  btn.classList.toggle("open", open);
+// Hauptkarte: Filter-Feld und Ebenen-Menue (wie auf der Briefing-Karte). Das alte
+// Klappfeld "Erweiterte Filter" ist weg - Umkreis, Favoriten, Zustieg und Hoehendifferenz
+// stehen jetzt im Filter-Feld auf der Karte.
+function mapTogglePop(id) {
+  for (const [popId, btnId] of [["mapFilterSheet", "mapFilterBtn"], ["mapLayerPop", "mapLayerBtn"]]) {
+    const pop = document.getElementById(popId), btn = document.getElementById(btnId);
+    if (!pop) continue;
+    const auf = popId === id && pop.hidden;
+    pop.hidden = !auf;
+    if (btn) { btn.classList.toggle("on", auf); btn.setAttribute("aria-expanded", auf ? "true" : "false"); }
+  }
+}
+document.getElementById("mapFilterBtn").addEventListener("click", e => { e.stopPropagation(); mapTogglePop("mapFilterSheet"); });
+document.getElementById("mapLayerBtn").addEventListener("click", e => { e.stopPropagation(); mapTogglePop("mapLayerPop"); });
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-mapclose]")) { mapTogglePop(null); return; }
+  if (e.target.closest("#mapLayerPop .mini-style-btn")) { setTimeout(() => mapTogglePop(null), 150); return; }
+  if (!e.target.closest("#mapFilterSheet, #mapLayerPop, #mapFilterBtn, #mapLayerBtn")) mapTogglePop(null);
 });
+document.addEventListener("click", e => { if (e.target.closest("[data-listefilter]")) filterAusListe(); });
+// Aus der Liste: zur Karte springen und das Filter-Feld oeffnen
+async function filterAusListe() {
+  await switchToMapView();
+  document.getElementById("mapView").scrollIntoView({ behavior: "smooth", block: "start" });
+  mapTogglePop("mapFilterSheet");
+}
 
 // Land-Umschalter – filtert, welche Regionen im Dropdown zur Auswahl stehen
 function renderRegionOptions(country) {
@@ -3609,7 +3632,11 @@ function renderFlyResults(rows, headline, truncated) {
   const favBtn = favCount
     ? `<button type="button" class="fav-only-btn${favOnlyFilter ? " on" : ""}" id="favOnlyBtn">⭐ Nur Favoriten${favOnlyFilter ? "" : ` (${favCount})`}</button>`
     : "";
-  const head = `<div class="fly-head">${headline} · ${scope}</div>${favBtn}`;
+  const nFilter = [favOnlyFilter, accFilter !== "all", minHoehendiff > 0].filter(Boolean).length;
+  const filterBtn = `<button type="button" class="liste-filter-btn" data-listefilter>`
+    + `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 4.5h17a1 1 0 0 1 .78 1.63L14.5 14.6V20a1 1 0 0 1-1.45.9l-2.5-1.25a1 1 0 0 1-.55-.9V14.6L2.72 6.13A1 1 0 0 1 3.5 4.5z"/></svg>`
+    + `Filter${nFilter ? ` <span class="lf-cnt">${nFilter}</span>` : ""}</button>`;
+  const head = `<div class="fly-head-row"><div class="fly-head">${headline} · ${scope}</div>${filterBtn}</div>${favBtn}`;
   if (!displayRows.length) {
     const reasons = [];
     if (accFilter !== "all") reasons.push(`„${accLabel(accFilter)}"`);
@@ -3841,6 +3868,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 151, date: "22.10.", text: "Hauptkarte: Ebenen- und Filter-Knopf wie im Briefing; Umkreis, Favoriten, Zustieg und Höhendifferenz jetzt im Filter auf der Karte" },
   { v: 150, date: "22.10.", text: "Tippen auf die Karte startet keine neue Suche mehr – dafür „Startplätze hier suchen“" },
   { v: 148, date: "22.10.", text: "„Startplätze entlang der Route“ als eigener Knopf über Karte/Liste" },
   { v: 147, date: "22.10.", text: "Neu: Startplätze entlang einer Route – Von/Nach eingeben, Umweg 10/20/30 km, Ergebnis in Fahrtrichtung" },
