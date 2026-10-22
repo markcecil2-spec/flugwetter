@@ -1,8 +1,8 @@
 // Minimaler Service Worker – macht die App installierbar und cached die Hülle.
-const CACHE = "flugwetter-v147";
+const CACHE = "flugwetter-v148";
 // ?v=NN muss zu den Verweisen in index.html passen, sonst legt der Precache andere
 // Cache-Keys an als die Seite spaeter anfragt.
-const ASSETS = ["./", "index.html", "style.css?v=147", "database.js?v=147", "briefings.js?v=147", "app.js?v=147", "manifest.webmanifest",
+const ASSETS = ["./", "index.html", "style.css?v=148", "database.js?v=148", "briefings.js?v=148", "app.js?v=148", "manifest.webmanifest",
   "datenschutz.html", "img/hero.jpg", "icons/favicon-32.png", "icons/favicon-48.png", "icons/icon-192.png", "icons/icon-512.png",
   "icons/ic-thermik.png", "icons/ic-hikefly.png", "icons/ic-bahn.png", "icons/ic-auto.png", "icons/ic-tandem.png"];
 
