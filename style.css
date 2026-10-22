@@ -1459,3 +1459,21 @@ body.bf-full-open { overflow: hidden; }
 @keyframes dl-dreh { to { transform: rotate(360deg); } }
 @keyframes dl-schweb { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @media (prefers-reduced-motion: reduce) { .dl-ring img { animation: none; } .dl-spin { animation-duration: 2.4s; } }
+
+/* ---------- Live-Wetter / Live-Cam / Windy als grosse Knoepfe (v143) ---------- */
+.lb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 16px; }
+/* Bei drei Knoepfen bekommt Live-Wetter eine eigene Zeile, sonst wird es am Handy zu eng */
+.lb-btn:first-child:nth-last-child(3), .lb-btn:only-child { grid-column: 1 / -1; }
+.lb-btn { min-width: 0; display: flex; align-items: center; gap: 9px; padding: 11px 10px; border-radius: 14px;
+  text-decoration: none; color: #fff; font-weight: 700; box-shadow: 0 6px 16px rgba(0,0,0,.28); transition: transform .1s, filter .12s;
+  -webkit-tap-highlight-color: transparent; }
+.lb-btn:active { transform: scale(.97); }
+.lb-btn:hover { filter: brightness(1.08); }
+.lb-live { background: linear-gradient(135deg, #0fbfa9, #058f80); }
+.lb-cam { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.lb-windy { background: linear-gradient(135deg, #f0623a, #c2361b); }
+.lb-ic { flex: none; width: 34px; height: 34px; border-radius: 11px; background: rgba(255,255,255,.2); display: grid; place-items: center; }
+.lb-ic svg { width: 20px; height: 20px; color: #fff; stroke: #fff; }
+.lb-txt { display: flex; flex-direction: column; min-width: 0; }
+.lb-label { font-size: 15.5px; line-height: 1.15; white-space: nowrap; }
+.lb-sub { font-size: 12px; font-weight: 600; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
