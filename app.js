@@ -3588,6 +3588,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 135, date: "22.10.", text: "Kein leerer Platz mehr unter den Notizen – jeder Tab ist nur so lang wie sein Inhalt" },
   { v: 134, date: "22.10.", text: "Kurzüberblick (Wind, Böen, Temperatur, beste Zeit) steht jetzt oben im Details-Tab" },
   { v: 133, date: "22.10.", text: "Ladeansicht beim Öffnen eines Startplatzes steht mindestens 2 Sekunden" },
   { v: 131, date: "22.10.", text: "Neue Ladeansicht beim Öffnen eines Startplatzes" },
