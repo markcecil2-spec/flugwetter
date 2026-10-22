@@ -2147,7 +2147,7 @@ document.getElementById("radiusPills").addEventListener("click", e => {
   const p = e.target.closest(".rpill"); if (!p) return;
   document.querySelectorAll("#radiusPills .rpill").forEach(x => x.classList.toggle("on", x === p));
   localStorage.setItem("flugwetter_radius", p.dataset.km);
-  if (lastOrigin) runFlySearch(lastOrigin.lat, lastOrigin.lon, lastOrigin.label);
+  if (lastOrigin) runFlySearch(lastOrigin.lat, lastOrigin.lon, lastOrigin.label, { focus: searchFocus });
 });
 
 // Regionen (Zentrum + Radius km) für die Regions-Suche
@@ -2306,6 +2306,11 @@ let lastHeadline = "", lastTruncated = false;
 let favOnlyFilter = false; // "Nur Favoriten"-Filter in der Ergebnisliste
 let mapInstance = null;
 let mapMarkers = [];
+// Ziel aus den Suchvorschlaegen: ein Ort bekommt einen gruenen pulsierenden Punkt, ein
+// Startplatz ein pulsierendes Icon - damit man auf der Karte sofort sieht, wo "das" ist.
+// Gilt nur fuer die Suche, die es gesetzt hat (jede andere Suche setzt es zurueck).
+let searchFocus = null;    // { type: "place" | "spot", id?, lat, lon, name }
+let focusMarker = null;
 // Letzter manueller Kartenausschnitt (Center+Zoom) - damit das Schliessen der Detailkarte oder ein
 // Ansicht-Wechsel den Ausschnitt NICHT zuruecksetzen (s. restoreMapView, closeDetail, switchToMapView).
 let lastMapView = null;
@@ -2590,7 +2595,7 @@ function updateMapMarkers(rows, opts = {}) {
   mapMarkers = [];
   rows.forEach(r => {
     const el = document.createElement("div");
-    el.className = "map-marker";
+    el.className = "map-marker" + (searchFocus && searchFocus.type === "spot" && searchFocus.id === r.spot.id ? " map-marker-pulse" : "");
     el.title = r.spot.name;
     el.innerHTML = `<img src="${START_ICON_BY_STATUS[r.ts.status] || START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label ml-${r.ts.status}">${r.spot.name}</span>`;
     // stopPropagation: sonst bubbelt der Klick zum generischen Karten-Click-Handler durch (der
@@ -2626,11 +2631,36 @@ function updateMapMarkers(rows, opts = {}) {
   } else {
     updateExtraPoints([]);
   }
+  updateFocusMarker(rows);
   if (opts.flyTo === false) return;
+  // Gesuchter Startplatz: nah ranzoomen, sonst geht er zwischen den Nachbarn im 100-km-Umkreis unter
+  if (searchFocus && searchFocus.type === "spot") {
+    mapInstance.flyTo({ center: [searchFocus.lon, searchFocus.lat], zoom: MAP_LABEL_ZOOM - 0.5, duration: 600 });   // knapp unter der Namens-Stufe: nur das Ziel traegt Namen
+    updateMapLabelVisibility();
+    return;
+  }
   const bounds = rowsBounds(rows);
   if (bounds) mapInstance.fitBounds(bounds, { padding: 50, duration: 600, maxZoom: 13 });
   else if (lastOrigin) mapInstance.flyTo({ center: [lastOrigin.lon, lastOrigin.lat], zoom: 8, duration: 600 });
   updateMapLabelVisibility();
+}
+function updateFocusMarker(rows) {
+  if (focusMarker) { focusMarker.remove(); focusMarker = null; }
+  const f = searchFocus;
+  if (!f || !mapInstance) return;
+  // Startplatz ist schon als farbiger Marker da (pulsiert ueber die Klasse) - nichts weiter tun.
+  if (f.type === "spot" && rows.some(r => r.spot.id === f.id)) return;
+  const el = document.createElement("div");
+  if (f.type === "place") {
+    el.className = "focus-dot"; el.title = f.name;
+    el.innerHTML = `<span class="focus-dot-ring"></span><span class="focus-dot-core"></span>`;
+  } else {
+    // Startplatz durch Filter ausgeblendet oder ohne Wetter-Treffer: trotzdem zeigen
+    el.className = "map-marker map-marker-pulse"; el.title = f.name;
+    el.innerHTML = `<img src="${START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label">${escHtml(f.name)}</span>`;
+    el.addEventListener("click", e => { e.stopPropagation(); openDetail(f.id); });
+  }
+  focusMarker = new maplibregl.Marker({ element: el }).setLngLat([f.lon, f.lat]).addTo(mapInstance);
 }
 // Aktiv auf Kartenansicht wechseln - vom Toggle-Button UND vom Freitext-Ortssuche-Fallback genutzt.
 async function switchToMapView() {
@@ -2656,7 +2686,9 @@ document.getElementById("mapLocateBtn").addEventListener("click", () => {
 // Umkreissuche ab einem Punkt (GPS oder PLZ)
 async function runFlySearch(lat, lon, label, opts = {}) {
   lastOrigin = { lat, lon, label };
-  rerunSearch = () => runFlySearch(lat, lon, label);
+  const focus = opts.focus || null;
+  searchFocus = focus;
+  rerunSearch = () => runFlySearch(lat, lon, label, { focus });
   const radius = getRadius();
   updateRadiusCircle(lat, lon, radius);
   const candidates = allKnownSpots()
@@ -2670,6 +2702,7 @@ async function runFlySearch(lat, lon, label, opts = {}) {
 // Regions-Suche (nach Gebiet statt Umkreis); Fahrzeit nur falls Standort schon bekannt
 async function runRegionSearch(key) {
   const R = REGIONS[key]; if (!R) return;
+  searchFocus = null;
   localStorage.setItem("flugwetter_lastregion", key);   // Nordstern: beim nächsten Öffnen sofort zeigen
   rerunSearch = () => runRegionSearch(key);
   const origin = lastOrigin;
@@ -2961,6 +2994,7 @@ async function plzSearch() {
 async function runNameSearch(q, opts = {}) {
   const ql = q.trim().toLowerCase();
   if (ql.length < 2) return;
+  searchFocus = null;
   const matches = allKnownSpots()
     .filter(s => (s.name + " " + (s.region || "")).toLowerCase().includes(ql))
     .map(s => { const d = lastOrigin ? haversine(lastOrigin.lat, lastOrigin.lon, s.lat, s.lon) : null; return { ...s, dist: d, sortKey: d ?? 0 }; })
@@ -2980,7 +3014,7 @@ async function tryForwardGeocode(q) {
   const hit = await forwardGeocode(q);
   if (!hit) { clearSearchResults(`Kein Startplatz und kein Ort „${q}“ gefunden.`); return; }
   await switchToMapView();
-  await runFlySearch(hit.lat, hit.lon, q);
+  await runFlySearch(hit.lat, hit.lon, escHtml(q), { focus: { type: "place", lat: hit.lat, lon: hit.lon, name: q } });
 }
 
 // Kombiniertes Suchfeld: 5 Ziffern → PLZ, sonst Startplatzname (entprellt). Der Orts-Fallback
@@ -3129,10 +3163,17 @@ async function pickSuggest(i) {
   inp.value = it.name; syncSearchGo();
   lastSubmitted = it.name;   // blur danach soll keine zweite Suche starten
   inp.blur();
-  if (it.type === "spot") { openDetail(it.id); return; }
-  // Ort/Gebiet: Karte dorthin, Startplaetze im eingestellten Umkreis wie bei der PLZ-Suche.
+  // Karte dorthin, Startplaetze im eingestellten Umkreis wie bei der PLZ-Suche. Das Ziel
+  // selbst pulsiert: Startplatz-Icon bzw. gruener Punkt beim Ort. Detail per Tipp aufs Icon.
   await switchToMapView();
-  await runFlySearch(it.lat, it.lon, escHtml(it.name));
+  if (it.type === "spot") {
+    const sp = getSpot(it.id); if (!sp) return;
+    await runFlySearch(sp.lat, sp.lon, escHtml(sp.name), { focus: { type: "spot", id: sp.id, lat: sp.lat, lon: sp.lon, name: sp.name } });
+  } else {
+    await runFlySearch(it.lat, it.lon, escHtml(it.name), { focus: { type: "place", lat: it.lat, lon: it.lon, name: it.name } });
+  }
+  // Die Karte liegt am Handy unterhalb des Suchfelds - hinscrollen, sonst sieht man den Puls nicht.
+  document.getElementById("mapView").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function moveSuggest(step) {
   if (!suggestItems.length) return;
@@ -3490,6 +3531,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 126, date: "22.10.", text: "Gesuchter Ort pulsiert als grüner Punkt auf der Karte, ein gesuchter Startplatz pulsiert selbst" },
   { v: 126, date: "22.10.", text: "Briefing neu: große Karte mit Filtern für Parken, Seilbahn, Camping, Stellplatz, Hotel und Essen – Flug-Check darunter zum Aufklappen" },
   { v: 125, date: "22.10.", text: "Startplätze in den Suchvorschlägen mit Gleitschirm-Symbol" },
   { v: 124, date: "22.10.", text: "Suchvorschläge auch für Orte, Seen und Berge – Antippen zeigt die Startplätze im Umkreis auf der Karte" },
