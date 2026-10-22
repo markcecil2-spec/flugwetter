@@ -960,13 +960,20 @@ function bahnStationen(spot, linien, osmStationen) {
     const [oben, unten] = zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
     for (const [p, rolle] of [[oben, "Bergstation"], [unten, "Talstation"]]) {
       const da = out.find(o => haversineExact(o.lat, o.lon, p.lat, p.lon) < 0.15);
-      if (da) { da.art = "Mittelstation"; da.bahnen.push(l.name || l.art); continue; }
+      if (da) { da.art = "Mittelstation"; da.bahnen.push(l.name || l.art); da.web = da.web || l.web || ""; continue; }
       const osm = osmStationen.find(st => haversineExact(st.lat, st.lon, p.lat, p.lon) < 0.15 && !GENERISCH.has(st.name));
-      out.push({ lat: p.lat, lon: p.lon, art: rolle, bahnen: [l.name || l.art], osmName: osm ? osm.name : "" });
+      out.push({ lat: p.lat, lon: p.lon, art: rolle, bahnen: [l.name || l.art], osmName: osm ? osm.name : "",
+        // Website: an der Bahn, sonst an der OSM-Station; Betreiber fuer die Suche
+        web: l.web || (osm && osm.web) || "", tel: (osm && osm.tel) || "", betreiber: l.betreiber || "" });
     }
   }
   // Titel: Stationsname aus OSM, sonst die Bahn(en); darunter, welche Station es ist
-  return out.map(o => ({ lat: o.lat, lon: o.lon, art: o.art, name: o.osmName || o.bahnen.join(" / ") }));
+  // Ohne Website: Google-Suche nach Bahn (+ Betreiber, + Ort) und "Preise" - klappt immer
+  const ort = (spot.gemeinde || spot.region || "").replace(/^\d{4,5}\s*/, "").split(",")[0];
+  // Gebietsname dazu ("Gipfelbahn" gibt es in vielen Skigebieten): "Gerlitzen (S)" -> "Gerlitzen"
+  const gebiet = spot.name.replace(/\s*\([^)]*\)\s*$/, "").split(/\s+-\s+/)[0];
+  return out.map(o => ({ lat: o.lat, lon: o.lon, art: o.art, name: o.osmName || o.bahnen.join(" / "), web: o.web, tel: o.tel,
+    bahnWeb: true, sucheQ: o.web ? "" : [o.bahnen.filter(b => !BAHN_KABINE.has(b))[0] || o.bahnen[0], gebiet, o.betreiber, ort !== gebiet ? ort : "", "Preise"].filter(Boolean).join(" ") }));
 }
 // In OSM steht ein Lokal oft zweimal: als Gebaeude und als Punkt darin. Gleicher Name und
 // weniger als 150 m auseinander = dasselbe. Namenlose ("Parkplatz", "Toilette") nur, wenn sie
@@ -1147,7 +1154,8 @@ function poiPopupHtml(c, titel, pin, untertitel, infos) {
   if (c.aus && c.aus.length) zeilen.push(c.aus.map(k => (CAMP_AUS[k] || {}).label).filter(Boolean).join(" · "));
   const akt = [];
   akt.push(`<a class="poi-act primary" href="${mapsUrl(c)}" target="_blank" rel="noopener">${IC_CAR}Hierhin navigieren</a>`);
-  if (c.web) akt.push(`<a class="poi-act" href="${escHtml(c.web)}" target="_blank" rel="noopener">${IC_GLOBE}Website</a>`);
+  if (c.web) akt.push(`<a class="poi-act" href="${escHtml(c.web)}" target="_blank" rel="noopener">${IC_GLOBE}${c.bahnWeb ? "Website der Bahn · Preise" : "Website"}</a>`);
+  if (c.sucheQ) akt.push(`<a class="poi-act" href="https://www.google.com/search?q=${encodeURIComponent(c.sucheQ)}" target="_blank" rel="noopener">${IC_GLOBE}Preise &amp; Website suchen</a>`);
   if (c.tel) akt.push(`<a class="poi-act" href="tel:${escHtml(c.tel.replace(/\s/g, ""))}">${IC_PHONE}Anrufen</a>`);
   // Google-Bewertungen: nur als Link - Google erlaubt Places-Daten (Sterne) nicht auf einer
   // OSM-Karte, und speichern duerfte man sie auch nicht. Der Link oeffnet den Ort in Google Maps.
@@ -3676,6 +3684,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 139, date: "22.10.", text: "Seilbahn-Stationen: Knopf zur Website der Bahn bzw. Suche nach Preisen" },
   { v: 138, date: "22.10.", text: "Briefing-Karte: Gondel-Symbol an Tal- und Bergstation jeder Bahn; Infofenster liegt jetzt über allen Symbolen" },
   { v: 137, date: "22.10.", text: "Briefing-Karte: Knopf „Bewertungen auf Google“ bei Hotels, Campingplätzen, Restaurants und Supermärkten; Seilbahn-Filter zeigt nur noch die Bahn zum Startplatz" },
   { v: 136, date: "22.10.", text: "Briefing-Karte: Parken, Seilbahn, Camping, Hotel, Essen, Supermarkt und Toilette für alle Startplätze – blitzschnell vom eigenen Server, doppelte Einträge herausgefiltert" },

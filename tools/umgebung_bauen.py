@@ -145,8 +145,15 @@ def main():
                         coords = geom["coordinates"]
                         dmin = min(km(s["lat"], s["lon"], c[1], c[0]) for c in coords)
                         if dmin <= BAHN_R:
-                            tr["linien"].append((dmin, {"name": t.get("name", ""), "art": BAHN_ART.get(t.get("aerialway")) or BAHN_ART.get(t.get("railway")) or "Bergbahn",
-                                                        "coords": [[r5(c[0]), r5(c[1])] for c in coords]}))
+                            linie = {"name": t.get("name", ""), "art": BAHN_ART.get(t.get("aerialway")) or BAHN_ART.get(t.get("railway")) or "Bergbahn",
+                                     "coords": [[r5(c[0]), r5(c[1])] for c in coords]}
+                            # Website und Betreiber fuers Fenster der Bahnstation (Preise, Fahrzeiten)
+                            web = t.get("website") or t.get("contact:website") or t.get("url") or t.get("operator:website")
+                            if web:
+                                linie["web"] = web
+                            if t.get("operator"):
+                                linie["betreiber"] = t["operator"]
+                            tr["linien"].append((dmin, linie))
                     elif am == "parking":
                         # getrennt nach Start und Landung - sonst verdraengen die vielen
                         # Parkplaetze im Tal die wenigen oben am Start
