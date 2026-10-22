@@ -1165,8 +1165,6 @@ function poiPopupHtml(c, titel, pin, untertitel, infos) {
   // Google-Bewertungen: nur als Link - Google erlaubt Places-Daten (Sterne) nicht auf einer
   // OSM-Karte, und speichern duerfte man sie auch nicht. Der Link oeffnet den Ort in Google Maps.
   if (c.googleQ) akt.push(`<a class="poi-act" href="${googleMapsSucheUrl(c.googleQ)}" target="_blank" rel="noopener">${IC_PIN}In Google Maps öffnen</a>`);
-  // Satellitenbild: war vorher der einzige Marker-Klick, bleibt als Option erhalten
-  akt.push(`<a class="poi-act" href="${satMapsUrl(c.lat, c.lon)}" target="_blank" rel="noopener">${IC_SAT}Satellitenbild</a>`);
   const detail = infos ? poiInfoHtml(infos) : "";
   if (detail) akt.push(`<button type="button" class="poi-act" data-poi-info>${IC_INFO_KREIS}Alle Infos</button>`);
   return `<div class="poi-pop">
@@ -2005,16 +2003,21 @@ function liveChipsHtml(spot, opts = {}) {
   // Holfuy-Seite, die Wind UND Bild zeigt) - dann nur EIN Chip statt zweier identischer.
   const gleicheQuelle = !!(spot.livewetter && spot.webcam && spot.livewetter === spot.webcam);
   if (spot.livewetter && !opts.stationImRow) {
-    chips.push({ ic: IC_STATION, label: gleicheQuelle ? "Live-Wetter & Cam" : "Live-Wetter", href: spot.livewetter });
+    chips.push({ cls: "lb-live", ic: IC_STATION, label: gleicheQuelle ? "Live-Wetter & Cam" : "Live-Wetter", sub: "Station vor Ort", href: spot.livewetter });
   }
-  if (spot.webcam && !gleicheQuelle) chips.push({ ic: IC_CAM, label: "Live-Cam", href: spot.webcam });
+  if (spot.webcam && !gleicheQuelle) chips.push({ cls: "lb-cam", ic: IC_CAM, label: "Live-Cam", sub: "Bild vom Platz", href: spot.webcam });
   // Windy: punktgenaue Wetterkarte, gehoert zu den Wetter-Quellen (frueher im Details-Tab)
   if (spot.lat != null && spot.lon != null) {
-    chips.push({ ic: IC_WIND, label: "Windy", href: `https://www.windy.com/?${spot.lat},${spot.lon},12` });
+    chips.push({ cls: "lb-windy", ic: IC_WIND, label: "Windy", sub: "Windkarte", href: `https://www.windy.com/?${spot.lat},${spot.lon},12` });
   }
   if (!chips.length) return "";
-  return `<div class="lc-chips">${chips.map(c => `
-    <a class="lc-chip" href="${c.href}" target="_blank" rel="noopener">${c.ic}<span>${c.label}</span></a>`).join("")}</div>`;
+  // Grosse, farbige Knoepfe ueber die volle Breite - vorher kleine graue Chips, die leicht
+  // uebersehen wurden. Live-Daten vor Ort sind vor dem Start das Wichtigste.
+  return `<div class="lb-row">${chips.map(c => `
+    <a class="lb-btn ${c.cls}" href="${c.href}" target="_blank" rel="noopener">
+      <span class="lb-ic">${c.ic}</span>
+      <span class="lb-txt"><span class="lb-label">${c.label}</span><span class="lb-sub">${c.sub}</span></span>
+    </a>`).join("")}</div>`;
 }
 // Ein Tag als Karte (Kompass + Stunden-Streifen + Sterne-Urteil) - fuer Vorhersage-Tage UND fuer den
 // Wetter-Verlauf (historischer Tag, gleiche Datenform dank identischer Open-Meteo-Felder).
@@ -3690,6 +3693,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 143, date: "22.10.", text: "Live-Wetter, Live-Cam und Windy als große, farbige Knöpfe im Wetter-Tab; Knopf „Satellitenbild“ in den Kartenfenstern entfernt" },
   { v: 142, date: "22.10.", text: "Knopf heißt jetzt „In Google Maps öffnen“" },
   { v: 141, date: "22.10.", text: "Landeplatz: „Höhendifferenz“ statt „Höhenabstand“" },
   { v: 140, date: "22.10.", text: "Landeplätze auf der Briefing-Karte zeigen immer die nötige Gleitzahl" },
