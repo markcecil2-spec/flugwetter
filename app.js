@@ -3392,7 +3392,12 @@ async function openDetail(id) {
     history.pushState({ detailOpen: true }, "", location.href);
     detailHistoryPushed = true;
   }
-  body.innerHTML = `<div class="card loading">Lade 5-Tage-Vorhersage für ${spot.name} …</div>`;
+  // Ladeansicht: drehender Ring in der App-Farbe, darin unser Gleitschirm
+  body.innerHTML = `<div class="detail-loader" role="status" aria-live="polite">
+      <div class="dl-ring"><span class="dl-spin"></span><img src="icons/logo-glider.png" alt=""></div>
+      <div class="dl-name">${escHtml(spot.name)}</div>
+      <div class="dl-sub">Vorhersage wird geladen …</div>
+    </div>`;
   try {
     const [data, stations] = await Promise.all([fetchForecast(spot), fetchPiou()]);
     const live = liveWind(spot, stations);
@@ -3567,6 +3572,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 131, date: "22.10.", text: "Neue Ladeansicht beim Öffnen eines Startplatzes" },
   { v: 130, date: "22.10.", text: "Briefing-Karte lädt die Umgebung jetzt vom eigenen Server – schnell und ohne den überlasteten Overpass-Dienst. Wichtige Hinweise und Notizen stehen jetzt unter Details" },
   { v: 129, date: "22.10.", text: "Briefing-Karte: neue Filter Supermarkt und Toilette" },
   { v: 128, date: "22.10.", text: "Briefing-Karte: ganze Umgebung in einer Abfrage, Ersatzserver springt nach 4 Sekunden ein – kein Dauer-Laden mehr" },
