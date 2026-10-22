@@ -1852,8 +1852,6 @@ function briefingPanelHtml(spot, ctx) {
     ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
     ${kurzueberblickHtml(spot, day, ts, tagW)}
     <div id="campSection" class="camp-sec"></div>
-    ${ALLG_HINWEISE_HTML}
-    ${notizenHtml(spot)}
     <p class="bf-src bf-warn-note">Alle Angaben ohne Gewähr. Informiere dich vor dem Flug über die aktuellen
       Bedingungen und respektiere andere Piloten und die Natur.
       ${b ? `<span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span>` : ""}</p>`;
@@ -2048,7 +2046,9 @@ function renderCard(spot, days, opts = {}) {
             ${actionsBadges}
             <h3 class="dv-h3">Daten zum Gelände</h3>
             ${startplatzTableHtml(spot, diffL)}
-            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}`;
+            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}
+            ${ALLG_HINWEISE_HTML}
+            ${notizenHtml(spot)}`;
         })()}</div>
       </div>`;
 
