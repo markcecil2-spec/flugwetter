@@ -28,6 +28,7 @@ const IC_CABLECAR = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="cur
 const IC_SAT = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>`;
 const IC_PHONE = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>`;
 const IC_CLIPBOARD = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4V2h6v2"/><path d="M9 10h6M9 14h6"/></svg>`;
+const IC_STERN = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>`;
 const IC_GLOBE = `<svg class="mi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/></svg>`;
 // Höhendifferenz-Schwelle, ab der "Thermik grundsätzlich möglich" als plausibel gilt (Standort-Eigenschaft)
 const THERMIK_HOEHENDIFF_MIN = 300; // m
@@ -909,6 +910,50 @@ function campParkAus(e) {
 }
 // Alte Zwischenspeicher (Einzelabfragen bis v127, umg1 bis v128) freigeben - localStorage ist knapp.
 try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_|umg1_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
+// Nur die Bahn, die zum Start fuehrt - keine Nebenlifte im Skigebiet.
+//  Ausgang: Bahnen mit einem Ende hoechstens 1,5 km vom Start. Von jeder aus wird vom
+//  unteren Ende (dem vom Start weiter entfernten) Abschnitt fuer Abschnitt nach unten
+//  verbunden. Es bleibt EIN Weg - Nebenlifte, die oben abzweigen, kommen nicht mit.
+// Schlepp- und Kinderlifte sind gar nicht erst in den Daten (s. tools/umgebung_bauen.py).
+const BAHN_ZUM_START_KM = 1.5, BAHN_ANSCHLUSS_KM = 0.3;
+const BAHN_KABINE = new Set(["Seilbahn", "Gondelbahn", "Standseilbahn", "Kombibahn"]);
+function bahnEnden(l) { const c = l.coords; return [c[0], c[c.length - 1]].map(([lon, lat]) => ({ lat, lon })); }
+function bahnenZumStart(spot, linien) {
+  const zumStart = p => haversineExact(spot.lat, spot.lon, p.lat, p.lon);
+  const kand = linien.map(l => {
+    const [a, b] = bahnEnden(l);
+    const [oben, unten] = zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
+    return { l, oben, unten, d: zumStart(oben) };
+  });
+  // Von einer Bahn aus Abschnitt fuer Abschnitt nach unten (Tal -> Mittel -> Berg)
+  const kette = erste => {
+    const weg = [erste];
+    for (let unten = erste.unten; weg.length < 5;) {
+      // Unterhalb einer Kabinenbahn nur noch Kabinenbahnen (mehrteilige Seilbahn) - ein
+      // Sessellift dort unten gehoert fast immer zu einem anderen Hang des Skigebiets.
+      const nurKabine = weg.some(k => BAHN_KABINE.has(k.l.art));
+      const weiter = kand
+        .filter(k => !weg.includes(k) && haversineExact(k.oben.lat, k.oben.lon, unten.lat, unten.lon) <= BAHN_ANSCHLUSS_KM
+          && zumStart(k.unten) > zumStart(unten) && (!nurKabine || BAHN_KABINE.has(k.l.art)))
+        .sort((x, y) => zumStart(y.unten) - zumStart(x.unten))[0];
+      if (!weiter) break;
+      weg.push(weiter); unten = weiter.unten;
+    }
+    return weg;
+  };
+  // Jede Bahn mit Ende nahe am Start ist Kandidat. Gewonnen hat der Weg, auf dem eine
+  // Kabinenbahn liegt (so kommt man von unten hoch - Gerlitzen: Kanzelbahn + Gipfelbahn
+  // statt eines der sechs Sessellifte, die oben auch alle ~300 m vom Start enden),
+  // danach die Bahn, die am naechsten am Start ankommt.
+  const wege = kand.filter(k => k.d <= BAHN_ZUM_START_KM).map(k => ({ k, weg: kette(k) }));
+  wege.sort((x, y) => (y.weg.some(k => BAHN_KABINE.has(k.l.art)) - x.weg.some(k => BAHN_KABINE.has(k.l.art))) || x.k.d - y.k.d);
+  return wege.length ? wege[0].weg.map(k => k.l) : [];
+}
+// Stationen nur an den gezeigten Bahnen
+function stationenAn(linien, stationen) {
+  const enden = linien.flatMap(bahnEnden);
+  return stationen.filter(st => enden.some(e => haversineExact(e.lat, e.lon, st.lat, st.lon) <= BAHN_ANSCHLUSS_KM));
+}
 // In OSM steht ein Lokal oft zweimal: als Gebaeude und als Punkt darin. Gleicher Name und
 // weniger als 150 m auseinander = dasselbe. Namenlose ("Parkplatz", "Toilette") nur, wenn sie
 // fast aufeinander liegen (30 m) - zwei Parkplaetze nebeneinander sind wirklich zwei.
@@ -1067,6 +1112,19 @@ function poiInfoHtml(infos) {
 const IC_INFO_KREIS = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>`;
 const IC_ZURUECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
 
+function googleMapsSucheUrl(q) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+}
+// Suchbegriff fuer Google Maps: Name + Adresse, ohne Adresse Name + Ort des Startplatzes.
+// Namenlose Eintraege ("Parkplatz", "Toilette") bekommen keinen - Google wuerde nur raten.
+const BF_GOOGLE_KAT = new Set(["camping", "stellplatz", "hotel", "essen", "supermarkt"]);
+function googleSuchbegriff(c, cat, spot) {
+  if (!BF_GOOGLE_KAT.has(cat) || !c.name || GENERISCH.has(c.name)) return "";
+  // Nur Hausnummer ohne Strasse ("2, 87645 Schwangau") hilft Google nicht - weglassen
+  const adr = (c.adresse || "").replace(/^\d+\s*\w?\s*,\s*/, "");
+  const ort = adr || (spot && (spot.gemeinde || spot.region)) || "";
+  return [c.name, ort].filter(Boolean).join(", ");
+}
 function poiPopupHtml(c, titel, pin, untertitel, infos) {
   const zeilen = [];
   if (c.adresse) zeilen.push(c.adresse);
@@ -1077,6 +1135,9 @@ function poiPopupHtml(c, titel, pin, untertitel, infos) {
   akt.push(`<a class="poi-act primary" href="${mapsUrl(c)}" target="_blank" rel="noopener">${IC_CAR}Hierhin navigieren</a>`);
   if (c.web) akt.push(`<a class="poi-act" href="${escHtml(c.web)}" target="_blank" rel="noopener">${IC_GLOBE}Website</a>`);
   if (c.tel) akt.push(`<a class="poi-act" href="tel:${escHtml(c.tel.replace(/\s/g, ""))}">${IC_PHONE}Anrufen</a>`);
+  // Google-Bewertungen: nur als Link - Google erlaubt Places-Daten (Sterne) nicht auf einer
+  // OSM-Karte, und speichern duerfte man sie auch nicht. Der Link oeffnet den Ort in Google Maps.
+  if (c.googleQ) akt.push(`<a class="poi-act" href="${googleMapsSucheUrl(c.googleQ)}" target="_blank" rel="noopener">${IC_STERN}Bewertungen auf Google</a>`);
   // Satellitenbild: war vorher der einzige Marker-Klick, bleibt als Option erhalten
   akt.push(`<a class="poi-act" href="${satMapsUrl(c.lat, c.lon)}" target="_blank" rel="noopener">${IC_SAT}Satellitenbild</a>`);
   const detail = infos ? poiInfoHtml(infos) : "";
@@ -1336,7 +1397,7 @@ function bfRender() {
         c.gratis === true ? "kostenlos" : c.gratis === false ? "gebührenpflichtig" : ""].filter(Boolean).join(" · ");
       campMarkers.push(new maplibregl.Marker({ element: el, anchor: "bottom" })
         .setLngLat([c.lon, c.lat])
-        .setPopup(poiPopup(poiPopupHtml(c, c.name, bfIconUrl(cat), sub)))
+        .setPopup(poiPopup(poiPopupHtml({ ...c, googleQ: googleSuchbegriff(c, cat, currentDetailSpot) }, c.name, bfIconUrl(cat), sub)))
         .addTo(miniMapInstance));
     }
   }
@@ -1390,7 +1451,8 @@ async function loadCampsites(spot) {
     bfData.essen = nah(umg.essen, 40);
     bfData.supermarkt = nah(umg.supermarkt || [], 15);
     bfData.toilette = nah(umg.toilette || [], 20);
-    bfData.bahn = { linien: umg.linien, stationen: nah(umg.stationen, 20) };
+    const linien = bahnenZumStart(spot, umg.linien || []);
+    bfData.bahn = { linien, stationen: nah(stationenAn(linien, umg.stationen || []), 10) };
   }
   bfFitPending.forEach(cat => bfFitTo(cat)); bfFitPending.clear();
   const raw = umg ? ohneDoppelte(umg.cp) : null;
@@ -3600,6 +3662,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 137, date: "22.10.", text: "Briefing-Karte: Knopf „Bewertungen auf Google“ bei Hotels, Campingplätzen, Restaurants und Supermärkten; Seilbahn-Filter zeigt nur noch die Bahn zum Startplatz" },
   { v: 136, date: "22.10.", text: "Briefing-Karte: Parken, Seilbahn, Camping, Hotel, Essen, Supermarkt und Toilette für alle Startplätze – blitzschnell vom eigenen Server, doppelte Einträge herausgefiltert" },
   { v: 135, date: "22.10.", text: "Kein leerer Platz mehr unter den Notizen – jeder Tab ist nur so lang wie sein Inhalt" },
   { v: 134, date: "22.10.", text: "Kurzüberblick (Wind, Böen, Temperatur, beste Zeit) steht jetzt oben im Details-Tab" },
