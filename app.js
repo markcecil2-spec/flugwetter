@@ -1118,7 +1118,7 @@ function infosLande(spot, l) {
     rows.push(["Entfernung zum Start", distTxt(km)]);
     if (l.hoehe != null && spot.elevation != null && spot.elevation > l.hoehe) {
       const dh = spot.elevation - l.hoehe;
-      rows.push(["Höhenabstand", `${dh} m tiefer`]);
+      rows.push(["Höhendifferenz", `${dh} m`]);
       if (km * 1000 > 100) rows.push(["Gleitzahl", `${(km * 1000 / dh).toFixed(1).replace(".", ",")} nötig`]);
     }
     rows.push(["Koordinaten", `${l.lat.toFixed(5)}, ${l.lon.toFixed(5)}`]);
@@ -1752,7 +1752,7 @@ function lpRows(rows) {
     <div class="lp-row">${lpSvg(ic)}<span class="lp-label">${escHtml(label)}</span><span class="lp-val">${escHtml(val)}</span></div>`).join("")}</div>`;
 }
 // Landeplätze als Reiter (nur ab zwei Plätzen). Gezeigt wird ausschliesslich, was in den
-// Daten steht: Höhe, Entfernung zum Start, Höhenabstand und die dafür nötige Gleitzahl.
+// Daten steht: Höhe, Entfernung zum Start, Höhendifferenz und die dafür nötige Gleitzahl.
 function landeplatzHtml(spot, landeAlle) {
   if (!landeAlle.length) return "";
   const panels = landeAlle.map(l => {
@@ -1761,12 +1761,12 @@ function landeplatzHtml(spot, landeAlle) {
     if (l.lat != null && spot.lat != null) {
       rows.push(["dist", "Entfernung", distTxt(haversineExact(spot.lat, spot.lon, l.lat, l.lon))]);
     }
-    // Höhenabstand und benötigte Gleitzahl: sagt einem Anfänger, ob der Platz
+    // Höhendifferenz und benötigte Gleitzahl: sagt einem Anfänger, ob der Platz
     // überhaupt erreichbar ist. Beides nur rechnen, wenn die Daten wirklich da sind.
     if (l.hoehe != null && spot.elevation != null && spot.elevation > l.hoehe && l.lat != null) {
       const dh = spot.elevation - l.hoehe;
       const weite = haversineExact(spot.lat, spot.lon, l.lat, l.lon) * 1000;
-      rows.push(["abstand", "Höhenabstand", `${dh} m tiefer`]);
+      rows.push(["abstand", "Höhendifferenz", `${dh} m`]);
       if (weite > 100) rows.push(["gleit", "Gleitzahl", `${(weite / dh).toFixed(1).replace(".", ",")} nötig`]);
     }
     return rows.length ? lpRows(rows) : `<p class="lp-leer">Zu diesem Landeplatz sind keine weiteren Daten hinterlegt.</p>`;
@@ -3691,6 +3691,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 141, date: "22.10.", text: "Landeplatz: „Höhendifferenz“ statt „Höhenabstand“" },
   { v: 140, date: "22.10.", text: "Landeplätze auf der Briefing-Karte zeigen immer die nötige Gleitzahl" },
   { v: 139, date: "22.10.", text: "Seilbahn-Stationen: Knopf zur Website der Bahn bzw. Suche nach Preisen" },
   { v: 138, date: "22.10.", text: "Briefing-Karte: Gondel-Symbol an Tal- und Bergstation jeder Bahn; Infofenster liegt jetzt über allen Symbolen" },
