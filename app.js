@@ -1251,6 +1251,8 @@ function bfCount(cat) {
 }
 function bfUpdateChips() {
   const f = bfFilter();
+  const badge = document.getElementById("bfBadge");
+  if (badge) badge.textContent = BF_ORDER.filter(c => f[c]).length || "";
   document.querySelectorAll("[data-bfcat]").forEach(chip => {
     const cat = chip.dataset.bfcat, on = !!f[cat];
     chip.classList.toggle("on", on);
@@ -1317,6 +1319,15 @@ function bfFitTo(cat) {
   if (spot.landeLat != null) pts.push([spot.landeLon, spot.landeLat]);
   const lons = pts.map(q => q[0]), lats = pts.map(q => q[1]);
   m.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 56, maxZoom: 15, duration: 600 });
+}
+function bfTogglePop(id) {
+  for (const [popId, btnId] of [["bfSheet", "bfFilterBtn"], ["bfLayerPop", "bfLayerBtn"]]) {
+    const pop = document.getElementById(popId), btn = document.getElementById(btnId);
+    if (!pop) continue;
+    const auf = popId === id && pop.hidden;
+    pop.hidden = !auf;
+    if (btn) { btn.classList.toggle("on", auf); btn.setAttribute("aria-expanded", auf ? "true" : "false"); }
+  }
 }
 // Alte Aufrufstellen (loadCampsites, ensureMiniMap) rufen weiter campAddMarkers.
 function campAddMarkers() { bfRender(); bfUpdateChips(); }
@@ -1786,31 +1797,40 @@ function briefingPanelHtml(spot, ctx) {
   ].filter(([, inhalt]) => inhalt.trim());
 
   const fil = bfFilter();
-  const chips = BF_ORDER.map(cat => `<button type="button" class="bf-chip${fil[cat] ? " on" : ""}" data-bfcat="${cat}" aria-pressed="${fil[cat] ? "true" : "false"}">
-      <img src="${bfIconUrl(cat)}" alt=""><span>${BF_CATS[cat].label}</span><span class="bf-cnt"></span></button>`).join("");
+  const bfOpts = BF_ORDER.map(cat => `<button type="button" class="bf-opt${fil[cat] ? " on" : ""}" data-bfcat="${cat}" aria-pressed="${fil[cat] ? "true" : "false"}">
+      <img src="${bfIconUrl(cat)}" alt=""><span class="bf-opt-lbl">${BF_CATS[cat].label}</span><span class="bf-cnt"></span>
+      <span class="bf-opt-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>`).join("");
+  const stil = (mode, label) => `<button type="button" class="mini-style-btn bf-stil-${mode}${miniMapStyleMode === mode ? " on" : ""}" data-ministyle="${mode}"><span class="bf-stil-bild"></span>${label}</button>`;
   return `<div class="bf-map-wrap" id="bfMapWrap">
-    <div class="bf-chips" role="group" aria-label="Auf der Karte zeigen">
-      <span class="bf-chip bf-chip-fix" title="Immer sichtbar"><img src="icons/pin-startplatz.png" alt=""><img src="icons/pin-landeplatz.png" alt=""><span>Start &amp; Landung</span></span>
-      ${chips}
-    </div>
     <div class="mini-map-wrap bf-map">
       <div id="miniMap" class="mini-map"></div>
-      <div class="mini-style-toggle" role="group" aria-label="Kartenstil">
-        <button type="button" class="mini-style-btn${miniMapStyleMode === "street" ? " on" : ""}" data-ministyle="street">Karte</button>
-        <button type="button" class="mini-style-btn${miniMapStyleMode === "sat" ? " on" : ""}" data-ministyle="sat">Satellit</button>
-        <button type="button" class="mini-style-btn${miniMapStyleMode === "terrain" ? " on" : ""}" data-ministyle="terrain">Gelände</button>
+      <button type="button" class="bf-fab bf-fab-full" id="miniMapBig" aria-label="Karte im Vollbild">${IC_VOLL_AN}</button>
+      <div class="bf-fabs">
+        <button type="button" class="bf-fab bf-fab-layer" id="bfLayerBtn" aria-label="Kartenansicht" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="m2.5 12.2 9.5 5 9.5-5"/><path d="m2.5 16.4 9.5 5 9.5-5"/></svg>
+        </button>
+        <button type="button" class="bf-fab bf-fab-filter" id="bfFilterBtn" aria-label="Filter" aria-expanded="false">
+          <span class="bf-badge" id="bfBadge"></span>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 4.5h17a1 1 0 0 1 .78 1.63L14.5 14.6V20a1 1 0 0 1-1.45.9l-2.5-1.25a1 1 0 0 1-.55-.9V14.6L2.72 6.13A1 1 0 0 1 3.5 4.5z"/></svg>
+        </button>
       </div>
-      <button type="button" class="mini-map-big bf-full-btn" id="miniMapBig" aria-label="Karte im Vollbild">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
-      </button>
+      <div class="bf-pop bf-layer-pop" id="bfLayerPop" hidden role="group" aria-label="Kartenansicht">
+        ${stil("street", "Karte")}${stil("sat", "Satellit")}${stil("terrain", "Gelände")}
+      </div>
+      <div class="bf-sheet" id="bfSheet" hidden>
+        <div class="bf-sheet-head"><b>Auf der Karte zeigen</b>
+          <button type="button" class="bf-sheet-ok" data-bfclose>Fertig</button></div>
+        <div class="bf-fix"><img src="icons/pin-startplatz.png" alt=""><img src="icons/pin-landeplatz.png" alt=""><span>Start- und Landeplatz sind immer sichtbar</span></div>
+        <div class="bf-opts">${bfOpts}</div>
+        <p class="bf-sheet-note">Daten © OpenStreetMap-Mitwirkende · nur was dort eingetragen ist</p>
+      </div>
       <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
     </div>
   </div>
     ${kopf}
-    <details class="fc-wrap">
-      <summary><span class="fc-wrap-txt"><span class="fc-head">Flug-Check</span><span class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</span></span></summary>
-      ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
-    </details>
+    <h3 class="fc-head">Flug-Check</h3>
+    <p class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</p>
+    ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
     ${kurzueberblickHtml(spot, day, ts, tagW)}
     <div id="campSection" class="camp-sec"></div>
     ${ALLG_HINWEISE_HTML}
@@ -2025,7 +2045,6 @@ function renderCard(spot, days, opts = {}) {
           <div class="spot-region">📍 ${[spot.gemeinde, spot.bundesland].filter(Boolean).join(", ") || spot.region || ""}</div>
         </div>
         <div class="dt-right">
-          <button type="button" class="ic0 dt-x" data-detailclose title="Schließen">✕</button>
           <div class="dt-menu-wrap">
             <button type="button" class="ic0 dt-menu-btn" aria-haspopup="true" aria-expanded="false" title="Mehr">☰</button>
             <div class="dt-menu" hidden>
@@ -2033,6 +2052,7 @@ function renderCard(spot, days, opts = {}) {
               <button type="button" class="dt-mi" data-share="${spot.id}">📤 Teilen</button>
             </div>
           </div>
+          <button type="button" class="ic0 dt-x" data-detailclose title="Schließen">✕</button>
         </div>
       </div>`;
   return `<div class="card" data-spot="${spot.id}">${head}${body}</div>`;
@@ -2387,7 +2407,8 @@ async function ensureMiniMap(spot) {
     container: "miniMap", style: MINI_MAP_STYLES[miniMapStyleMode],
     center: [spot.lon, spot.lat], zoom: 12, attributionControl: false, interactive: true,
   });
-  miniMapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+  // Oben rechts sitzen Ebenen- und Filter-Knopf, Zoom deshalb nach unten rechts
+  miniMapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
   const startEl = document.createElement("div");
   startEl.className = "mini-marker mini-start"; startEl.innerHTML = `<img src="icons/pin-startplatz.png" alt="Startplatz">`; startEl.title = spot.name;
   new maplibregl.Marker({ element: startEl }).setLngLat([spot.lon, spot.lat])
@@ -2415,6 +2436,7 @@ async function ensureMiniMap(spot) {
   syncUserDot();
   refreshUserPos();
   miniMapInstance.on("style.load", bfBahnLayer);   // Seilbahn-Linien nach Stilwechsel neu anlegen
+  miniMapInstance.on("click", () => bfTogglePop(null));   // Tipp auf die Karte schliesst Filter/Ebenen
   miniMapInstance.on("click", "bf-bahn-line", ev => {
     const pr = ev.features[0] && ev.features[0].properties; if (!pr) return;
     new maplibregl.Popup({ offset: 8, maxWidth: "240px", className: "poi-popup" }).setLngLat(ev.lngLat)
@@ -3796,6 +3818,8 @@ window.addEventListener("hashchange", route);
 document.body.addEventListener("click", e => {
   if (e.target.closest("a")) return;   // echte Links (Navigation/Deep-Links) normal öffnen lassen
 
+  // Filter-Feld / Ebenen-Menue der Briefing-Karte schliessen, wenn daneben getippt
+  if (!e.target.closest("#bfSheet, #bfLayerPop, #bfFilterBtn, #bfLayerBtn")) bfTogglePop(null);
   // Offenes ☰-Menü schließen, wenn außerhalb geklickt
   if (!e.target.closest(".dt-menu-wrap")) {
     document.querySelectorAll(".dt-menu:not([hidden])").forEach(m => {
@@ -3859,6 +3883,10 @@ document.body.addEventListener("click", e => {
     if (miniMapInstance) requestAnimationFrame(() => miniMapInstance.resize());
     return;
   }
+  // Briefing-Karte: Filter-Feld und Ebenen-Menue (je nur eins offen, Tipp daneben schliesst)
+  const bfPopBtn = e.target.closest("#bfFilterBtn, #bfLayerBtn");
+  if (bfPopBtn) { bfTogglePop(bfPopBtn.id === "bfFilterBtn" ? "bfSheet" : "bfLayerPop"); return; }
+  if (e.target.closest("[data-bfclose]")) { bfTogglePop(null); return; }
   // Briefing-Karte: Kategorie ein-/ausblenden, Auswahl bleibt fuer den naechsten Platz
   const bfChip = e.target.closest("[data-bfcat]");
   if (bfChip) {
@@ -3920,6 +3948,7 @@ document.body.addEventListener("click", e => {
   // teilen sich dieselbe Button-Klasse, aber je ihre eigene Karteninstanz + ihren eigenen Modus.
   const styleBtn = e.target.closest(".mini-style-btn");
   if (styleBtn) {
+    if (styleBtn.closest("#bfLayerPop")) setTimeout(() => bfTogglePop(null), 150);   // Auswahl kurz zeigen, dann zu
     const mode = styleBtn.dataset.ministyle;
     styleBtn.parentElement.querySelectorAll(".mini-style-btn").forEach(b => b.classList.toggle("on", b === styleBtn));
     if (styleBtn.closest("#mapView")) {
