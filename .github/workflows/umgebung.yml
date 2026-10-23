@@ -75,6 +75,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
           git add -A umgebung
+          [ -f tools/bahn_hoehen_cache.json ] && git add tools/bahn_hoehen_cache.json || true
           if git diff --cached --quiet; then echo "Keine Aenderung"; exit 0; fi
           git commit -q -m "Umgebung der Startplaetze aktualisiert ($(date -u +%Y-%m))"
           # Der Lauf dauert ~30 min - der Branch kann inzwischen weiter sein. Nachziehen und
