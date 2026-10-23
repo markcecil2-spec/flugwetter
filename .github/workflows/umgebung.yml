@@ -7,6 +7,11 @@ on:
   schedule:
     - cron: "17 3 3 * *"      # am 3. jedes Monats, 03:17 UTC
   workflow_dispatch:           # von Hand: Actions -> umgebung -> Run workflow
+    inputs:
+      nur_hoehen:
+        description: "Nur Bahn-Hoehen nachtragen (ohne OSM neu zu laden, ~15 min)"
+        type: boolean
+        default: false
 permissions:
   contents: write
 concurrency:
@@ -21,17 +26,21 @@ jobs:
         with:
           fetch-depth: 0
       - name: Werkzeug
+        if: ${{ !inputs.nur_hoehen }}
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq osmium-tool
           osmium --version | head -1
           df -h / /mnt || true
       - name: Arbeitsordner (grosse Platte unter /mnt, falls vorhanden)
+        if: ${{ !inputs.nur_hoehen }}
         run: |
           if sudo mkdir -p /mnt/osm 2>/dev/null; then sudo chown "$USER" /mnt/osm; echo "W=/mnt/osm" >> "$GITHUB_ENV"; else mkdir -p "$RUNNER_TEMP/osm"; echo "W=$RUNNER_TEMP/osm" >> "$GITHUB_ENV"; fi
       - name: Startplaetze exportieren
+        if: ${{ !inputs.nur_hoehen }}
         run: |
           node -e 'const fs=require("fs");const m=new Function(fs.readFileSync("database.js","utf8")+";return SPOT_DB;")();fs.writeFileSync(process.argv[1],JSON.stringify(m.map(s=>({id:s.id,lat:s.lat,lon:s.lon,landeLat:s.landeLat??null,landeLon:s.landeLon??null}))));console.log(m.length+" Plaetze")' "$W/spots.json"
       - name: Laender laden und filtern
+        if: ${{ !inputs.nur_hoehen }}
         run: |
           set -euo pipefail
           for land in germany austria switzerland france italy; do
@@ -54,15 +63,19 @@ jobs:
             echo "::endgroup::"
           done
       - name: Umgebung je Startplatz berechnen
+        if: ${{ !inputs.nur_hoehen }}
         run: |
           rm -rf umgebung
           UMGEBUNG_STAND="$(date -u +%Y-%m)" python3 tools/umgebung_bauen.py "$W/spots.json" umgebung "$W"/*.geojsonseq
           du -sh umgebung
+      - name: Hoehe der Bahn-Enden (Berg-/Talstation)
+        run: python3 tools/bahn_hoehen.py umgebung
       - name: Einchecken
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
           git add -A umgebung
+          [ -f tools/bahn_hoehen_cache.json ] && git add tools/bahn_hoehen_cache.json || true
           if git diff --cached --quiet; then echo "Keine Aenderung"; exit 0; fi
           git commit -q -m "Umgebung der Startplaetze aktualisiert ($(date -u +%Y-%m))"
           # Der Lauf dauert ~30 min - der Branch kann inzwischen weiter sein. Nachziehen und

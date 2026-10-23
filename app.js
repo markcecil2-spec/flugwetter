@@ -934,20 +934,32 @@ function campParkAus(e) {
 // Alte Zwischenspeicher (Einzelabfragen bis v127, umg1 bis v128) freigeben - localStorage ist knapp.
 try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_|umg1_|umg2_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
 // Nur die Bahn, die zum Start fuehrt - keine Nebenlifte im Skigebiet.
-//  Ausgang: Bahnen mit einem Ende hoechstens 1,5 km vom Start. Von jeder aus wird vom
-//  unteren Ende (dem vom Start weiter entfernten) Abschnitt fuer Abschnitt nach unten
-//  verbunden. Es bleibt EIN Weg - Nebenlifte, die oben abzweigen, kommen nicht mit.
+//  Ausgang: Bahnen, deren Bergstation hoechstens 1,5 km vom Start liegt und die von unten
+//  heraufkommen. Von jeder aus wird von der Talstation Abschnitt fuer Abschnitt weiter
+//  nach unten verbunden. Es bleibt EIN Weg - Nebenlifte, die oben abzweigen, kommen nicht mit.
 // Schlepp- und Kinderlifte sind gar nicht erst in den Daten (s. tools/umgebung_bauen.py).
 const BAHN_ZUM_START_KM = 1.5, BAHN_ANSCHLUSS_KM = 0.3;
 const BAHN_KABINE = new Set(["Seilbahn", "Gondelbahn", "Standseilbahn", "Kombibahn"]);
 function bahnEnden(l) { const c = l.coords; return [c[0], c[c.length - 1]].map(([lon, lat]) => ({ lat, lon })); }
+// [Bergstation, Talstation]. Mit Hoehe (l.h, s. tools/bahn_hoehen.py) eindeutig; ohne
+// (alte Daten, flache Bahn) geraten: das Ende naeher am Start ist oben.
+function bahnObenUnten(l, spot) {
+  const [a, b] = bahnEnden(l);
+  if (l.h) {
+    a.h = l.h[0]; b.h = l.h[1];
+    if (Math.abs(a.h - b.h) >= 30) return a.h > b.h ? [a, b] : [b, a];
+  }
+  const zumStart = p => haversineExact(spot.lat, spot.lon, p.lat, p.lon);
+  return zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
+}
 function bahnenZumStart(spot, linien) {
   const zumStart = p => haversineExact(spot.lat, spot.lon, p.lat, p.lon);
   const kand = linien.map(l => {
-    const [a, b] = bahnEnden(l);
-    const [oben, unten] = zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
+    const [oben, unten] = bahnObenUnten(l, spot);
     return { l, oben, unten, d: zumStart(oben) };
   });
+  // "Tiefer als" - mit Hoehe echt, ohne ueber den Abstand zum Start
+  const tiefer = (p, q) => p.h != null && q.h != null ? p.h < q.h - 30 : zumStart(p) > zumStart(q);
   // Von einer Bahn aus Abschnitt fuer Abschnitt nach unten (Tal -> Mittel -> Berg)
   const kette = erste => {
     const weg = [erste];
@@ -957,20 +969,16 @@ function bahnenZumStart(spot, linien) {
       const nurKabine = weg.some(k => BAHN_KABINE.has(k.l.art));
       const weiter = kand
         .filter(k => !weg.includes(k) && haversineExact(k.oben.lat, k.oben.lon, unten.lat, unten.lon) <= BAHN_ANSCHLUSS_KM
-          && zumStart(k.unten) > zumStart(unten) && (!nurKabine || BAHN_KABINE.has(k.l.art)))
-        .sort((x, y) => zumStart(y.unten) - zumStart(x.unten))[0];
+          && tiefer(k.unten, unten) && (!nurKabine || BAHN_KABINE.has(k.l.art)))
+        .sort((x, y) => tiefer(x.unten, y.unten) ? -1 : tiefer(y.unten, x.unten) ? 1 : 0)[0];
       if (!weiter) break;
       weg.push(weiter); unten = weiter.unten;
     }
     return weg;
   };
-  // Jede Bahn mit Ende nahe am Start ist Kandidat. Gewonnen hat der Weg, auf dem eine
-  // Kabinenbahn liegt (so kommt man von unten hoch - Gerlitzen: Kanzelbahn + Gipfelbahn
-  // statt eines der sechs Sessellifte, die oben auch alle ~300 m vom Start enden),
-  // danach die Bahn, die am naechsten am Start ankommt.
-  // Talstation moeglichst nah am Landeplatz: nach dem Flug will man wieder hoch (bzw. zum
-  // Auto an der Talstation). Zell am See: areitXpress -> Areitbahn II/III (Tal 2,8 km vom
-  // Landeplatz) statt Schmittenhoehebahn (4,7 km), obwohl beide oben am Start ankommen.
+  // Mit Hoehe: die Bahn muss von deutlich unterhalb des Starts heraufkommen. Liegt der Start
+  // an ihrer Talstation (Falera, Uebungshaenge im Tal), fuehrt sie nicht zum Start, sondern weg.
+  const kommtHoch = k => k.unten.h == null || !spot.elevation || k.unten.h < spot.elevation - 100;
   const lande = [];
   if (spot.landeLat != null) lande.push({ lat: spot.landeLat, lon: spot.landeLon });
   (spot.landeExtra || []).forEach(l => { if (l.lat != null) lande.push(l); });
@@ -979,21 +987,25 @@ function bahnenZumStart(spot, linien) {
     const tal = weg[weg.length - 1].unten;
     return Math.min(...lande.map(l => haversineExact(l.lat, l.lon, tal.lat, tal.lon)));
   };
-  const wege = kand.filter(k => k.d <= BAHN_ZUM_START_KM).map(k => { const weg = kette(k); return { k, weg, kabine: weg.some(x => BAHN_KABINE.has(x.l.art)), lande: zurLandung(weg) }; });
-  // Reihenfolge: Weg mit Kabinenbahn vor reinem Sessellift-Weg, dann Talstation naeher am
-  // Landeplatz (auf 0,5 km gerundet, kleine Unterschiede zaehlen nicht), dann naeher am Start.
-  wege.sort((x, y) => (y.kabine - x.kabine) || (Math.round(x.lande * 2) - Math.round(y.lande * 2)) || x.k.d - y.k.d);
+  const wege = kand.filter(k => k.d <= BAHN_ZUM_START_KM && kommtHoch(k)).map(k => {
+    const weg = kette(k);
+    return { k, weg, kabine: weg.some(x => BAHN_KABINE.has(x.l.art)), lande: zurLandung(weg) };
+  });
+  // Talstation moeglichst nah am Landeplatz: nach dem Flug will man wieder hoch bzw. zum
+  // Auto an der Talstation (Zell am See: areitXpress statt Schmittenhoehebahn). Eine
+  // Kabinenbahn zaehlt wie 1,5 km Vorsprung - Gerlitzen: Kanzelbahn + Gipfelbahn statt
+  // eines der Sessellifte, die oben auch alle am Start enden. Gerundet auf 0,5 km, bei
+  // Gleichstand gewinnt die Bahn, die naeher am Start ankommt.
+  const wert = w => Math.round((w.lande - (w.kabine ? 1.5 : 0)) * 2);
+  wege.sort((x, y) => (wert(x) - wert(y)) || x.k.d - y.k.d);
   return wege.length ? wege[0].weg.map(k => k.l) : [];
 }
-// Gondel-Icon an beiden Enden jeder gezeigten Bahn: das Ende naeher am Start ist die
-// Berg-, das andere die Talstation. Wo zwei Abschnitte aneinanderstossen (unter 150 m),
+// Gondel-Icon an beiden Enden jeder gezeigten Bahn: Berg- und Talstation s. bahnObenUnten(). Wo zwei Abschnitte aneinanderstossen (unter 150 m),
 // steht nur ein Icon "Mittelstation". Namen aus den OSM-Stationen, wenn eine dort liegt.
 function bahnStationen(spot, linien, osmStationen) {
-  const zumStart = p => haversineExact(spot.lat, spot.lon, p.lat, p.lon);
   const out = [];
   for (const l of linien) {
-    const [a, b] = bahnEnden(l);
-    const [oben, unten] = zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
+    const [oben, unten] = bahnObenUnten(l, spot);
     for (const [p, rolle] of [[oben, "Bergstation"], [unten, "Talstation"]]) {
       const da = out.find(o => haversineExact(o.lat, o.lon, p.lat, p.lon) < 0.15);
       if (da) { da.art = "Mittelstation"; da.bahnen.push(l.name || l.art); da.web = da.web || l.web || ""; continue; }
@@ -1387,44 +1399,37 @@ function bfCount(cat) {
   return bfItems(cat).length;
 }
 function bfUpdateChips() {
-  const f = bfFilter();
-  const badge = document.getElementById("bfBadge");
-  if (badge) badge.textContent = BF_ORDER.filter(c => f[c]).length || "";
+  fsUpdateCount();
   // Rueckmeldung auf der Karte: laedt noch / hat nicht geklappt (mit Nochmal-Knopf)
+  const f = bfFilter();
   const msg = document.getElementById("bfMsg");
   if (msg) {
-    const st = () => bfBase;
-    const aktiv = BF_ORDER.filter(c => f[c]);
-    const fehler = aktiv.filter(c => st(c) === "fehler");
-    if (fehler.length) {
-      msg.innerHTML = `<span>⚠ ${fehler.map(c => BF_CATS[c].label).join(", ")}: Server antwortet nicht</span><button type="button" data-bfretry>Nochmal</button>`;
+    const aktiv = umgSpot ? BF_ORDER.filter(c => f[c]) : [];
+    if (aktiv.length && bfBase === "fehler") {
+      msg.innerHTML = `<span>⚠ Umgebung: Server antwortet nicht</span><button type="button" data-bfretry>Nochmal</button>`;
       msg.className = "bf-msg warn"; msg.hidden = false;
-    } else if (aktiv.some(c => st(c) === "laedt")) {
+    } else if (aktiv.length && bfBase === "laedt") {
       msg.innerHTML = `<span class="bf-spin"></span><span>Umgebung wird geladen …</span>`;
       msg.className = "bf-msg"; msg.hidden = false;
     } else msg.hidden = true;
   }
-  document.querySelectorAll("[data-bfcat]").forEach(chip => {
-    const cat = chip.dataset.bfcat, on = !!f[cat];
-    chip.classList.toggle("on", on);
-    chip.setAttribute("aria-pressed", on ? "true" : "false");
-    const cnt = chip.querySelector(".bf-cnt");
-    const st = bfBase;
-    cnt.textContent = !on ? "" : st === "laedt" ? "…" : st === "fehler" ? "!" : st === "ok" ? String(bfCount(cat)) : "";
-    cnt.title = st === "fehler" ? "Konnte nicht geladen werden - später nochmal antippen" : "";
+  // Trefferzahl je Zeile im Filter-Feld
+  document.querySelectorAll("#fsRows .fs-cnt").forEach(c => {
+    const cat = c.closest("[data-fscat]").dataset.fscat;
+    c.textContent = umgSpot && bfBase === "ok" ? String(bfCount(cat)) : "";
   });
 }
 // Seilbahn-Linien als eigene Ebene. setStyle (Karte/Satellit/Gelaende) wirft eigene Ebenen
 // weg - deshalb nach jedem style.load erneut anlegen.
 const BF_BAHN_SRC = "bf-bahn";
-function bfBahnLayer() {
-  const m = miniMapInstance; if (!m) return;
-  const zeigen = !!bfFilter().bahn && bfData.bahn;
+function bfBahnLayer(force) {
+  const m = mapInstance; if (!m) return;
+  const zeigen = !!bfFilter().bahn && bfData.bahn && bfSpotId === (umgSpot && umgSpot.id);
   const data = { type: "FeatureCollection", features: zeigen ? bfData.bahn.linien.map(l => ({
     type: "Feature", geometry: { type: "LineString", coordinates: l.coords }, properties: { name: l.name, art: l.art } })) : [] };
   try {
     const src = m.getSource(BF_BAHN_SRC);
-    if (src) { src.setData(data); return; }
+    if (src) { if (force) src.setData(data); return; }   // ohne force nur anlegen: setData loest ein Neuzeichnen und damit wieder "idle" aus
     m.addSource(BF_BAHN_SRC, { type: "geojson", data });
     m.addLayer({ id: "bf-bahn-casing", type: "line", source: BF_BAHN_SRC, layout: { "line-cap": "round" },
       paint: { "line-color": "#fff", "line-width": 6, "line-opacity": 0.9 } });
@@ -1435,7 +1440,7 @@ function bfBahnLayer() {
 function bfRender() {
   campMarkers.forEach(m => m.remove());
   campMarkers = [];
-  if (!miniMapInstance || typeof maplibregl === "undefined") return;
+  if (!umgMap() || typeof maplibregl === "undefined" || bfSpotId !== umgSpot.id) return;
   const f = bfFilter();
   for (const cat of BF_ORDER) {
     if (!f[cat]) continue;
@@ -1450,17 +1455,17 @@ function bfRender() {
         c.gratis === true ? "kostenlos" : c.gratis === false ? "gebührenpflichtig" : ""].filter(Boolean).join(" · ");
       campMarkers.push(new maplibregl.Marker({ element: el, anchor: "bottom" })
         .setLngLat([c.lon, c.lat])
-        .setPopup(poiPopup(poiPopupHtml({ ...c, googleQ: googleSuchbegriff(c, cat, currentDetailSpot) }, c.name, bfIconUrl(cat), sub)))
-        .addTo(miniMapInstance));
+        .setPopup(poiPopup(poiPopupHtml({ ...c, googleQ: googleSuchbegriff(c, cat, umgSpot) }, c.name, bfIconUrl(cat), sub)))
+        .addTo(umgMap()));
     }
   }
-  bfBahnLayer();
+  bfBahnLayer(true);
 }
 // Nach dem Einschalten einer Kategorie so weit rauszoomen, dass Start, Landung und die
 // naechsten Treffer im Bild sind - sonst zeigt der Chip "3", auf der Karte ist aber nichts.
 const bfFitPending = new Set();
 function bfFitTo(cat) {
-  const spot = currentDetailSpot, m = miniMapInstance;
+  const spot = umgSpot, m = umgMap();
   if (!spot || !m) return;
   const items = cat === "bahn" && bfData.bahn
     ? bfData.bahn.linien.flatMap(l => [l.coords[0], l.coords[l.coords.length - 1]]).map(([lon, lat]) => ({ lat, lon }))
@@ -1471,29 +1476,16 @@ function bfFitTo(cat) {
   const lons = pts.map(q => q[0]), lats = pts.map(q => q[1]);
   m.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 56, maxZoom: 15, duration: 600 });
 }
-function bfTogglePop(id) {
-  for (const [popId, btnId] of [["bfSheet", "bfFilterBtn"], ["bfLayerPop", "bfLayerBtn"]]) {
-    const pop = document.getElementById(popId), btn = document.getElementById(btnId);
-    if (!pop) continue;
-    const auf = popId === id && pop.hidden;
-    pop.hidden = !auf;
-    if (btn) { btn.classList.toggle("on", auf); btn.setAttribute("aria-expanded", auf ? "true" : "false"); }
-  }
-}
-// Alte Aufrufstellen (loadCampsites, ensureMiniMap) rufen weiter campAddMarkers.
+// Aufrufstelle fuer loadCampsites: Marker neu setzen und Filter-Anzeige aktualisieren.
 function campAddMarkers() { bfRender(); bfUpdateChips(); }
 async function loadCampsites(spot) {
-  const sec = document.getElementById("campSection");
-  if (!sec) return;
   lastCampList = []; lastParkList = [];   // Treffer des zuvor geoeffneten Platzes verwerfen
   bfResetForSpot(spot);
   const lat = spot.landeLat != null ? spot.landeLat : spot.lat;
   const lon = spot.landeLon != null ? spot.landeLon : spot.lon;
-  sec.innerHTML = "";   // Ladehinweis steht unten auf der Karte
   bfBase = "laedt"; bfUpdateChips();
   const umg = (await fetchVorberechnet(spot)) || (await fetchUmgebung(spot));
-  const wrap = document.getElementById("campSection");
-  if (!wrap || bfSpotId !== spot.id) return;   // Tab verlassen oder anderer Platz offen
+  if (bfSpotId !== spot.id) return;   // inzwischen anderer Platz
   bfBase = umg ? "ok" : "fehler";
   const standEl = document.getElementById("bfStand");
   if (standEl && umg && umg.stand) { const [j, m] = umg.stand.split("-"); standEl.textContent = ` · Stand ${m}/${j}`; }
@@ -1511,7 +1503,7 @@ async function loadCampsites(spot) {
   }
   bfFitPending.forEach(cat => bfFitTo(cat)); bfFitPending.clear();
   const raw = umg ? ohneDoppelte(umg.cp) : null;
-  if (!raw || !raw.length) { wrap.innerHTML = ""; campAddMarkers(); return; }
+  if (!raw || !raw.length) { campAddMarkers(); return; }
   // Bezugspunkte fuer Parkplaetze: alle Landeplaetze und der Startplatz. Je Parkplatz
   // wird der naechstgelegene genommen und benannt - "363 m zum Landeplatz" hilft nicht,
   // wenn es vier davon gibt.
@@ -1540,10 +1532,6 @@ async function loadCampsites(spot) {
     ...sortiert(parken.filter(c => c.zielName !== "Startplatz")).slice(0, PARK_MAX),
   ];
   lastCampList = list;
-  // Keine Liste "Uebernachten in der Naehe" mehr unter dem Flug-Check (auf Wunsch) -
-  // Camping und Stellplatz stehen auf der Karte ueber den Filter. #campSection bleibt
-  // als leerer Anker, an ihm erkennt loadCampsites, ob das Briefing noch offen ist.
-  wrap.innerHTML = "";
   renderParkplaetze();
   campAddMarkers();
 }
@@ -1928,43 +1916,16 @@ function briefingPanelHtml(spot, ctx) {
     ["Kontakte &amp; Notruf", schritt4],
   ].filter(([, inhalt]) => inhalt.trim());
 
-  const fil = bfFilter();
-  const bfOpts = BF_ORDER.map(cat => `<button type="button" class="bf-opt${fil[cat] ? " on" : ""}" data-bfcat="${cat}" aria-pressed="${fil[cat] ? "true" : "false"}">
-      <img src="${bfIconUrl(cat)}" alt=""><span class="bf-opt-lbl">${BF_CATS[cat].label}</span><span class="bf-cnt"></span>
-      <span class="bf-opt-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>`).join("");
-  const stil = (mode, label) => `<button type="button" class="mini-style-btn bf-stil-${mode}${miniMapStyleMode === mode ? " on" : ""}" data-ministyle="${mode}"><span class="bf-stil-bild"></span>${label}</button>`;
-  return `<div class="bf-map-wrap" id="bfMapWrap">
-    <div class="mini-map-wrap bf-map">
-      <div id="miniMap" class="mini-map"></div>
-      <button type="button" class="bf-fab bf-fab-full" id="miniMapBig" aria-label="Karte im Vollbild">${IC_VOLL_AN}</button>
-      <div class="bf-fabs">
-        <button type="button" class="bf-fab bf-fab-layer" id="bfLayerBtn" aria-label="Kartenansicht" aria-expanded="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="m2.5 12.2 9.5 5 9.5-5"/><path d="m2.5 16.4 9.5 5 9.5-5"/></svg>
-        </button>
-        <button type="button" class="bf-fab bf-fab-filter" id="bfFilterBtn" aria-label="Filter" aria-expanded="false">
-          <span class="bf-badge" id="bfBadge"></span>
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 4.5h17a1 1 0 0 1 .78 1.63L14.5 14.6V20a1 1 0 0 1-1.45.9l-2.5-1.25a1 1 0 0 1-.55-.9V14.6L2.72 6.13A1 1 0 0 1 3.5 4.5z"/></svg>
-        </button>
-      </div>
-      <div class="bf-pop bf-layer-pop" id="bfLayerPop" hidden role="group" aria-label="Kartenansicht">
-        ${stil("street", "Karte")}${stil("sat", "Satellit")}${stil("terrain", "Gelände")}
-      </div>
-      <div class="bf-sheet" id="bfSheet" hidden>
-        <div class="bf-sheet-head"><b>Auf der Karte zeigen</b>
-          <button type="button" class="bf-sheet-ok" data-bfclose>Fertig</button></div>
-        <div class="bf-fix"><img src="icons/pin-startplatz.png" alt=""><img src="icons/pin-landeplatz.png" alt=""><span>Start- und Landeplatz sind immer sichtbar</span></div>
-        <div class="bf-opts">${bfOpts}</div>
-        <p class="bf-sheet-note">Daten © OpenStreetMap-Mitwirkende · nur was dort eingetragen ist<span id="bfStand"></span></p>
-      </div>
-      <div class="bf-msg" id="bfMsg" hidden></div>
-      <div class="map-attrib" id="miniMapAttrib">${attribTextFor(miniMapStyleMode)}</div>
-    </div>
-  </div>
+  const teaserIcons = ["parken", "bahn", "camping", "hotel", "essen"].map(c => `<img src="${bfIconUrl(c)}" alt="">`).join("");
+  return `<button type="button" class="umg-teaser" data-umgebung="${spot.id}">
+      <span class="umg-teaser-ic">${teaserIcons}</span>
+      <span class="umg-teaser-txt"><b>Umgebung auf der Karte</b><span>Parken, Seilbahn, Camping, Hotel, Essen …</span></span>
+      <svg class="umg-teaser-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+    </button>
     ${kopf}
     <h3 class="fc-head">Flug-Check</h3>
     <p class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</p>
     ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
-    <div id="campSection" class="camp-sec"></div>
     <p class="bf-src bf-warn-note">Alle Angaben ohne Gewähr. Informiere dich vor dem Flug über die aktuellen
       Bedingungen und respektiere andere Piloten und die Natur.
       ${b ? `<span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span>` : ""}</p>`;
@@ -2188,6 +2149,7 @@ function renderCard(spot, days, opts = {}) {
             <button type="button" class="ic0 dt-menu-btn" aria-haspopup="true" aria-expanded="false" title="Mehr">☰</button>
             <div class="dt-menu" hidden>
               <button type="button" class="dt-mi disabled" disabled>🔔 Flugwetter-Alarm<span class="dt-soon">bald</span></button>
+              <button type="button" class="dt-mi" data-umgebung="${spot.id}">🗺️ Umgebung auf der Karte</button>
               <button type="button" class="dt-mi" data-share="${spot.id}">📤 Teilen</button>
             </div>
           </div>
@@ -2383,7 +2345,6 @@ function attribTextFor(mode) {
     : mode === "terrain" ? "Kartendaten: © OpenStreetMap-Mitwirkende, SRTM · © OpenTopoMap"
     : "Kartendaten: © OpenStreetMap-Mitwirkende";
 }
-let miniMapStyleMode = "street";
 let mapStyleMode = "street";
 let lastRows = [];
 let lastHeadline = "", lastTruncated = false;
@@ -2442,7 +2403,6 @@ function updateMapLabelVisibility() {
 // eine Region oder ein Kartenklick sein - der blaue Punkt zeigt nur echte GPS-Positionen.
 let userPos = null;
 let userMarker = null;      // grosse Karte
-let miniUserMarker = null;  // Mini-Karte im Detailfenster
 function userDotEl() {
   const el = document.createElement("div");
   el.className = "user-dot";
@@ -2457,10 +2417,6 @@ function syncUserDot() {
     if (userMarker) userMarker.setLngLat(at);
     else userMarker = new maplibregl.Marker({ element: userDotEl() }).setLngLat(at).addTo(mapInstance);
   }
-  if (miniMapInstance) {
-    if (miniUserMarker) miniUserMarker.setLngLat(at);
-    else miniUserMarker = new maplibregl.Marker({ element: userDotEl() }).setLngLat(at).addTo(miniMapInstance);
-  }
 }
 function setUserPos(lat, lon) { userPos = { lat, lon }; syncUserDot(); }
 // Stiller Positionsabruf beim Öffnen einer Karte - nur wenn der Standort früher schon
@@ -2474,68 +2430,94 @@ function refreshUserPos() {
   );
 }
 
-// ---------------- Mini-Karte im "Live"-Tab: Start- + Landeplatz auf einen Blick ----------------
-let miniMapInstance = null;
-function removeMiniMap() {
-  document.body.classList.remove("bf-full-open");   // Vollbild gehoert zur Karte, die hier verschwindet
-  if (miniMapInstance) { miniMapInstance.remove(); miniMapInstance = null; }
-  miniUserMarker = null; // Marker gehörte zur entfernten Karte
-  campMarkers = [];
-}
-async function ensureMiniMap(spot) {
-  if (!document.getElementById("miniMap")) return; // Tab evtl. schon wieder verlassen
-  await loadMapLibre();
-  if (!document.getElementById("miniMap")) return; // erneut prüfen (async Ladezeit)
-  removeMiniMap();
-  const hasLande = spot.landeLat != null && spot.landeLon != null;
-  const landePlaetze = [];
+// ---------------- Umgebung eines Startplatzes auf der Hauptkarte ----------------
+// Frueher hatte das Briefing eine eigene Mini-Karte. Jetzt gibt es nur noch die Hauptkarte:
+// "Umgebung auf der Karte" blendet die anderen Startplaetze aus, zoomt auf Start und Landung
+// und zeigt Parken, Seilbahn, Camping usw. (Filter: Feld oben rechts, s. fsOeffnen).
+let umgSpot = null;        // Platz, dessen Umgebung gerade auf der Karte steht
+let umgMarkers = [];       // Start- und Landeplatz-Marker
+const umgMap = () => (umgSpot && mapInstance) || null;
+function umgPlaetze(spot) {
+  const out = [];
   // hoehe mitgeben - fehlte beim Hauptlandeplatz, dadurch kam dort nie eine Gleitzahl
-  if (hasLande) landePlaetze.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon, hoehe: spot.landeHoehe });
-  if (Array.isArray(spot.landeExtra)) landePlaetze.push(...spot.landeExtra);
-  const points = [[spot.lon, spot.lat], ...landePlaetze.map(l => [l.lon, l.lat])];
-  miniMapInstance = new maplibregl.Map({
-    container: "miniMap", style: MINI_MAP_STYLES[miniMapStyleMode],
-    center: [spot.lon, spot.lat], zoom: 12, attributionControl: false, interactive: true,
-  });
-  // Oben rechts sitzen Ebenen- und Filter-Knopf, Zoom deshalb nach unten rechts
-  miniMapInstance.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+  if (spot.landeLat != null && spot.landeLon != null) out.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon, hoehe: spot.landeHoehe });
+  if (Array.isArray(spot.landeExtra)) out.push(...spot.landeExtra);
+  return out;
+}
+function umgMarkerSetzen(m, spot) {
+  umgMarkers.forEach(x => x.remove()); umgMarkers = [];
   const startEl = document.createElement("div");
   startEl.className = "mini-marker mini-start"; startEl.innerHTML = `<img src="icons/pin-startplatz.png" alt="Startplatz">`; startEl.title = spot.name;
-  new maplibregl.Marker({ element: startEl }).setLngLat([spot.lon, spot.lat])
+  umgMarkers.push(new maplibregl.Marker({ element: startEl }).setLngLat([spot.lon, spot.lat])
     .setPopup(poiPopup(poiPopupHtml(
       { lat: spot.lat, lon: spot.lon, web: spot.vereinUrl || "" },
       spot.name, "icons/pin-startplatz.png",
       ["Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : "", spot.sectorLabel || ""].filter(Boolean).join(" · "),
       infosStart(spot))))
-    .addTo(miniMapInstance);
-  landePlaetze.forEach(l => {
+    .addTo(m));
+  umgPlaetze(spot).forEach(l => {
     const landeEl = document.createElement("div");
     landeEl.className = "mini-marker mini-lande"; landeEl.innerHTML = `<img src="icons/pin-landeplatz.png" alt="Landeplatz">`; landeEl.title = l.name;
-    new maplibregl.Marker({ element: landeEl }).setLngLat([l.lon, l.lat])
+    umgMarkers.push(new maplibregl.Marker({ element: landeEl }).setLngLat([l.lon, l.lat])
       .setPopup(poiPopup(poiPopupHtml(
         { lat: l.lat, lon: l.lon },
         l.name, "icons/pin-landeplatz.png",
         ["Landeplatz", l.hoehe != null ? l.hoehe + " m ü. NN" : "", gleitzahlTxt(spot, l)].filter(Boolean).join(" · "),
         infosLande(spot, l))))
-      .addTo(miniMapInstance);
+      .addTo(m));
   });
-  if (points.length > 1) {
-    const lons = points.map(p => p[0]), lats = points.map(p => p[1]);
-    miniMapInstance.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 50, animate: false, maxZoom: 15 });
+}
+function umgFitStartLande(m, spot, animate) {
+  const points = [[spot.lon, spot.lat], ...umgPlaetze(spot).map(l => [l.lon, l.lat])];
+  const lons = points.map(p => p[0]), lats = points.map(p => p[1]);
+  m.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]],
+    { padding: { top: 70, bottom: 70, left: 50, right: 50 }, animate, duration: 700, maxZoom: 15 });
+}
+// Die grauen Sammelpunkte (alle weiteren Plaetze) stoeren in der Umgebungsansicht
+function umgExtraAusblenden() {
+  const m = mapInstance;
+  try { if (m && m.getLayer("extra-points-layer")) m.setLayoutProperty("extra-points-layer", "visibility", umgSpot ? "none" : "visible"); } catch {}
+}
+async function umgebungOeffnen(id) {
+  const spot = getSpot(id); if (!spot) return;
+  if (!document.getElementById("detailModal").hidden) closeDetail();
+  routeAufraeumen();
+  if (!/^#\/(home)?$/.test(location.hash)) { location.hash = "#/home"; await new Promise(r => setTimeout(r, 60)); }
+  await switchToMapView();
+  const m = mapInstance; if (!m) return;
+  const neu = !umgSpot;
+  if (neu) lastMapView = { center: m.getCenter(), zoom: m.getZoom() };   // fuer "Zurueck"
+  umgSpot = spot;
+  document.body.classList.add("umg-modus");
+  document.getElementById("umgName").textContent = spot.name;
+  mapTogglePop(null);
+  umgExtraAusblenden();
+  bfBase = ""; bfResetForSpot(spot);
+  umgMarkerSetzen(m, spot);
+  m.resize();
+  umgFitStartLande(m, spot, !neu);
+  if (neu) m.jumpTo({ center: [spot.lon, spot.lat], zoom: 12 });
+  umgFitStartLande(m, spot, false);
+  document.getElementById("mapView").scrollIntoView({ block: "start" });   // Karte oben im Bild, nicht erst mitten auf der Seite
+  fsUpdateCount();
+  await loadCampsites(spot);
+}
+function umgebungSchliessen(opts = {}) {
+  if (!umgSpot) return;
+  umgSpot = null;
+  document.body.classList.remove("umg-modus");
+  umgMarkers.forEach(x => x.remove()); umgMarkers = [];
+  campMarkers.forEach(x => x.remove()); campMarkers = [];
+  document.querySelectorAll(".maplibregl-popup").forEach(x => x.remove());
+  bfBahnLayer(true);          // umgSpot ist weg -> Linien leeren
+  umgExtraAusblenden();       // ... und die grauen Punkte zurueck
+  const msg = document.getElementById("bfMsg"); if (msg) msg.hidden = true;
+  mapTogglePop(null);
+  if (mapInstance) {
+    mapInstance.resize();
+    if (opts.zurueck !== false) restoreMapView();
   }
-  syncUserDot();
-  refreshUserPos();
-  miniMapInstance.on("style.load", bfBahnLayer);   // Seilbahn-Linien nach Stilwechsel neu anlegen
-  miniMapInstance.on("click", () => bfTogglePop(null));   // Tipp auf die Karte schliesst Filter/Ebenen
-  miniMapInstance.on("click", "bf-bahn-line", ev => {
-    const pr = ev.features[0] && ev.features[0].properties; if (!pr) return;
-    new maplibregl.Popup({ offset: 8, maxWidth: "240px", className: "poi-popup" }).setLngLat(ev.lngLat)
-      .setHTML(`<div class="poi-pop"><div class="poi-pop-head"><img src="${bfIconUrl("bahn")}" alt=""><div><b>${escHtml(pr.name || pr.art)}</b><span>${escHtml(pr.art)}</span></div></div></div>`)
-      .addTo(miniMapInstance);
-  });
-  miniMapInstance.on("mouseenter", "bf-bahn-line", () => { miniMapInstance.getCanvas().style.cursor = "pointer"; });
-  miniMapInstance.on("mouseleave", "bf-bahn-line", () => { miniMapInstance.getCanvas().style.cursor = ""; });
-  campAddMarkers();   // falls die Umgebungsdaten schon vor der Karte da waren
+  updateFilterSummary(); updateHierBtn();
 }
 // Kreis-Polygon (GeoJSON) um lat/lon mit radiusKm - fuer die Umkreis-Visualisierung auf der Karte.
 function circlePolygon(lat, lon, radiusKm, steps = 64) {
@@ -2643,7 +2625,17 @@ async function ensureMap() {
     addExtraPointsLayer();
     updateExtraPoints(lastExtraFeatures);
     routeLinieZeichnen();
+    if (umgSpot) { bfBahnLayer(); umgExtraAusblenden(); }   // nach Kartenstil-Wechsel wieder anlegen
   });
+  // Seilbahn-Linie antippen: Name (Layer entsteht erst mit der Umgebungsansicht, Listener darf vorher da sein)
+  mapInstance.on("click", "bf-bahn-line", ev => {
+    const pr = ev.features[0] && ev.features[0].properties; if (!pr) return;
+    new maplibregl.Popup({ offset: 8, maxWidth: "240px", className: "poi-popup" }).setLngLat(ev.lngLat)
+      .setHTML(`<div class="poi-pop"><div class="poi-pop-head"><img src="${bfIconUrl("bahn")}" alt=""><div><b>${escHtml(pr.name || pr.art)}</b><span>${escHtml(pr.art)}</span></div></div></div>`)
+      .addTo(mapInstance);
+  });
+  mapInstance.on("mouseenter", "bf-bahn-line", () => { mapInstance.getCanvas().style.cursor = "pointer"; });
+  mapInstance.on("mouseleave", "bf-bahn-line", () => { mapInstance.getCanvas().style.cursor = ""; });
   // Tippen auf freie Kartenflaeche startet KEINE Suche mehr (auf Wunsch) - man verschiebt
   // die Karte oft nur und loeste dabei versehentlich eine neue Suche aus. Woanders suchen:
   // Karte verschieben, dann "Startplaetze hier suchen". Langes Druecken legt weiter einen
@@ -2862,6 +2854,7 @@ function routeAbfahrt() {
 // Umweg zum Platz grob schaetzen: Luftlinie x 1,4 (Strassen sind krumm) mit 45 km/h
 const umwegSek = abseitsKm => abseitsKm * 1.4 / 45 * 3600;
 async function runRouteSearch() {
+  umgebungSchliessen({ zurueck: false });
   const out = document.getElementById("flyResults");
   await switchToMapView();
   out.hidden = false;   // Lade-/Fehlerhinweis auch in der Kartenansicht sichtbar
@@ -2971,6 +2964,7 @@ async function switchToMapView() {
 document.getElementById("viewToggle").addEventListener("click", async e => {
   const b = e.target.closest(".vpill"); if (!b) return;
   if (b.dataset.view === "map") { await switchToMapView(); return; }
+  umgebungSchliessen({ zurueck: false });
   document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x === b));
   document.getElementById("flyResults").hidden = false;
   document.getElementById("mapView").hidden = true;
@@ -2983,6 +2977,7 @@ document.getElementById("mapLocateBtn").addEventListener("click", () => {
 
 // Umkreissuche ab einem Punkt (GPS oder PLZ)
 async function runFlySearch(lat, lon, label, opts = {}) {
+  umgebungSchliessen({ zurueck: false });   // neue Suche beendet die Umgebungsansicht
   routeAufraeumen();
   lastOrigin = { lat, lon, label };
   const focus = opts.focus || null;
@@ -3013,8 +3008,7 @@ document.getElementById("dayToggle").addEventListener("click", e => {
 function updateFilterSummary() {
   // Zaehler am Filter-Knopf der Karte: aktive Einschraenkungen (Umkreis zaehlt nicht - der
   // ist keine Einschraenkung, sondern die Suchweite)
-  const badge = document.getElementById("mapFilterBadge");
-  if (badge) badge.textContent = [favOnlyFilter, accFilter !== "all", minHoehendiff > 0].filter(Boolean).length || "";
+  fsUpdateCount();
   const sum = document.getElementById("filterSummary");
   if (!sum) return;
   const parts = [];
@@ -3155,10 +3149,67 @@ function mapTogglePop(id) {
     const pop = document.getElementById(popId), btn = document.getElementById(btnId);
     if (!pop) continue;
     const auf = popId === id && pop.hidden;
+    if (auf && popId === "mapFilterSheet") fsOeffnen();
     pop.hidden = !auf;
+    if (popId === "mapFilterSheet") document.getElementById("mapFilterBackdrop").hidden = !auf;
     if (btn) { btn.classList.toggle("on", auf); btn.setAttribute("aria-expanded", auf ? "true" : "false"); }
   }
 }
+// Filter-Feld (Park4Night-Art): Titel mit Zaehler, "Zuruecksetzen", Zeilen mit Haken und unten
+// "Filter anwenden". Mit geoeffneter Umgebung stehen hier die Kartenebenen (Parken, Seilbahn,
+// Camping ...) - die gelten erst mit "Filter anwenden". Sonst die Startplatz-Filter (Umkreis,
+// Favoriten, Zustieg, Hoehe) - die wirken wie bisher sofort.
+let fsPending = {};
+function fsRowsHtml() {
+  return BF_ORDER.map(cat => `<div class="fs-row${fsPending[cat] ? " on" : ""}" role="checkbox" tabindex="0" aria-checked="${fsPending[cat] ? "true" : "false"}" data-fscat="${cat}">
+      <img src="${bfIconUrl(cat)}" alt=""><span class="fs-lbl">${BF_CATS[cat].label}</span><span class="fs-cnt"></span>
+      <span class="fs-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>`).join("");
+}
+function fsOeffnen() {
+  fsPending = { ...bfFilter() };
+  document.getElementById("fsRows").innerHTML = fsRowsHtml();
+  fsUpdateCount();
+  bfUpdateChips();
+}
+function fsUpdateCount() {
+  const n = umgSpot ? BF_ORDER.filter(c => fsPending[c] != null ? fsPending[c] : bfFilter()[c]).length
+    : [favOnlyFilter, accFilter !== "all", minHoehendiff > 0].filter(Boolean).length;
+  const el = document.getElementById("fsCount"); if (el) el.textContent = n ? `(${n})` : "";
+  const badge = document.getElementById("mapFilterBadge");
+  if (badge) badge.textContent = (umgSpot ? BF_ORDER.filter(c => bfFilter()[c]).length : n) || "";
+}
+function fsAnwenden() {
+  if (umgSpot) {
+    const alt = bfFilter();
+    bfSaveFilter({ ...fsPending });
+    bfUpdateChips(); bfRender();
+    // Neu eingeschaltete Ebene: hinzoomen, sobald Daten da sind (sonst zeigt die Zeile "3", die Karte nichts)
+    const neu = BF_ORDER.filter(c => fsPending[c] && !alt[c]);
+    if (neu.length) neu.forEach(cat => { if (bfBase === "laedt") bfFitPending.add(cat); else bfFitTo(cat); });
+    fsUpdateCount();
+  }
+  mapTogglePop(null);
+}
+function fsZuruecksetzen() {
+  if (umgSpot) {
+    fsPending = { ...BF_DEFAULT };
+    document.querySelectorAll("#fsRows .fs-row").forEach(r => {
+      const on = !!fsPending[r.dataset.fscat];
+      r.classList.toggle("on", on); r.setAttribute("aria-checked", on ? "true" : "false");
+    });
+    fsUpdateCount();
+    return;
+  }
+  favOnlyFilter = false; accFilter = "all"; minHoehendiff = 0;
+  try { localStorage.setItem("flugwetter_acc", "all"); localStorage.setItem("flugwetter_minhd", "0"); } catch {}
+  applyFavSegUI(); applyAccUI(); applyHdUI();
+  if (lastRows.length) { renderFlyResults(lastRows, lastHeadline, lastTruncated); updateMapMarkers(displayRowsFor(lastRows), { flyTo: false }); }
+}
+document.getElementById("fsApply").addEventListener("click", fsAnwenden);
+document.getElementById("fsReset").addEventListener("click", fsZuruecksetzen);
+document.getElementById("fsRows").addEventListener("keydown", e => {
+  if ((e.key === " " || e.key === "Enter") && e.target.closest("[data-fscat]")) { e.preventDefault(); e.target.closest("[data-fscat]").click(); }
+});
 document.getElementById("mapFilterBtn").addEventListener("click", e => { e.stopPropagation(); mapTogglePop("mapFilterSheet"); });
 document.getElementById("mapLayerBtn").addEventListener("click", e => { e.stopPropagation(); mapTogglePop("mapLayerPop"); });
 document.addEventListener("click", e => {
@@ -3251,6 +3302,7 @@ async function plzSearch() {
 async function runNameSearch(q, opts = {}) {
   const ql = q.trim().toLowerCase();
   if (ql.length < 2) return;
+  umgebungSchliessen({ zurueck: false });
   routeAufraeumen();
   searchFocus = null;
   const matches = allKnownSpots()
@@ -3629,7 +3681,6 @@ async function openDetail(id) {
     if (rest > 0) await new Promise(r => setTimeout(r, rest));
     return currentDetailSpot === spot && !document.getElementById("detailModal").hidden;
   };
-  removeMiniMap();
   currentDetailSpot = spot;
   const modal = document.getElementById("detailModal"), body = document.getElementById("detailBody");
   modal.hidden = false;
@@ -3701,7 +3752,6 @@ async function wpAntippen(dayEl, iso, label) {
 function closeDetail(fromPopstate = false) {
   document.getElementById("detailModal").hidden = true;
   document.getElementById("detailBody").innerHTML = "";
-  removeMiniMap();
   restoreMapView();
   currentDetailSpot = null;
   if (detailHistoryPushed) {
@@ -3821,6 +3871,8 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 156, date: "23.10.", text: "Briefing-Karte ist weg: „Umgebung auf der Karte“ zeigt Parken, Seilbahn, Camping usw. direkt auf der Hauptkarte. Neues Filter-Feld mit Haken, Zähler, Zurücksetzen und „Filter anwenden“" },
+  { v: 155, date: "23.10.", text: "Teilen: Der Link führt jetzt direkt zum geteilten Fluggebiet (statt nur zur App). Seilbahn: Berg-/Talstation nach Höhe, nicht mehr nach Abstand geraten" },
   { v: 154, date: "23.10.", text: "Seilbahn auf der Briefing-Karte: bei mehreren Bahnen zum Start gewinnt die mit der Talstation nahe am Landeplatz" },
   { v: 153, date: "22.10.", text: "Route Stufe 2: Abfahrtszeit eingeben – jeder Startplatz wird zur Ankunftszeit bewertet" },
   { v: 152, date: "22.10.", text: "Länder- und Regions-Auswahl entfernt – gesucht wird über Suchfeld, Standort, Route oder Karte" },
@@ -4172,7 +4224,6 @@ document.body.addEventListener("click", e => {
   if (e.target.closest("a")) return;   // echte Links (Navigation/Deep-Links) normal öffnen lassen
 
   // Filter-Feld / Ebenen-Menue der Briefing-Karte schliessen, wenn daneben getippt
-  if (!e.target.closest("#bfSheet, #bfLayerPop, #bfFilterBtn, #bfLayerBtn")) bfTogglePop(null);
   // Offenes ☰-Menü schließen, wenn außerhalb geklickt
   if (!e.target.closest(".dt-menu-wrap")) {
     document.querySelectorAll(".dt-menu:not([hidden])").forEach(m => {
@@ -4196,7 +4247,9 @@ document.body.addEventListener("click", e => {
   if (shBtn) {
     const s = getSpot(shBtn.dataset.share);
     const txt = `Schau dir „${s ? s.name : "diesen Startplatz"}" auf GoFlyToday an – in 5 Sek. sehen, ob's heute passt:`;
-    const url = "https://goflytoday.de";
+    // Eigener Link je Startplatz (?spot=db_123): oeffnet beim Empfaenger direkt dieses Gebiet.
+    // Eigene Plaetze gibt es nur auf dem eigenen Geraet - die bleiben beim App-Link.
+    const url = s && s.id.startsWith("db_") ? "https://goflytoday.de/?spot=" + encodeURIComponent(s.id) : "https://goflytoday.de";
     if (navigator.share) navigator.share({ title: "GoFlyToday", text: txt, url }).catch(() => {});
     else if (navigator.clipboard) { navigator.clipboard.writeText(txt + " " + url); shBtn.textContent = "✓ Kopiert"; }
     const menu = shBtn.closest(".dt-menu"); if (menu && navigator.share) menu.hidden = true;
@@ -4209,7 +4262,7 @@ document.body.addEventListener("click", e => {
     const wrap = tab.closest("#detailBody"); if (!wrap) return;
     wrap.querySelectorAll(".dtab").forEach(t => t.classList.toggle("on", t === tab));
     wrap.querySelectorAll(".dtab-panel").forEach(p => { p.hidden = p.id !== "dtab-" + tab.dataset.tab; });
-    if (tab.dataset.tab === "briefing" && currentDetailSpot) { ensureMiniMap(currentDetailSpot); loadCampsites(currentDetailSpot); }
+    if (tab.dataset.tab === "briefing" && currentDetailSpot && !umgSpot) loadCampsites(currentDetailSpot);   // Parkplatz-Liste im Flug-Check
     return;
   }
   // Karte vergroessern/verkleinern - MapLibre muss die neue Groesse mitbekommen
@@ -4225,36 +4278,23 @@ document.body.addEventListener("click", e => {
     })();
     return;
   }
-  // Briefing-Karte: Vollbild an/aus (Chips wandern mit nach oben)
-  const bigBtn = e.target.closest("#miniMapBig");
-  if (bigBtn) {
-    const wrap = document.getElementById("bfMapWrap");
-    const voll = wrap.classList.toggle("full");
-    document.body.classList.toggle("bf-full-open", voll);
-    bigBtn.setAttribute("aria-label", voll ? "Vollbild beenden" : "Karte im Vollbild");
-    bigBtn.innerHTML = voll ? IC_VOLL_AUS : IC_VOLL_AN;
-    if (miniMapInstance) requestAnimationFrame(() => miniMapInstance.resize());
+  // Umgebung auf der Hauptkarte oeffnen / verlassen / zurueck zu den Details
+  const umgBtn = e.target.closest("[data-umgebung]");
+  if (umgBtn) { umgebungOeffnen(umgBtn.dataset.umgebung); return; }
+  if (e.target.closest("#umgBack")) { umgebungSchliessen(); return; }
+  if (e.target.closest("#umgDetail") && umgSpot) { openDetail(umgSpot.id); return; }
+  if (e.target.closest("[data-bfretry]") && umgSpot) {
+    if (bfBase === "fehler") loadCampsites(umgSpot);
     return;
   }
-  // Briefing-Karte: Filter-Feld und Ebenen-Menue (je nur eins offen, Tipp daneben schliesst)
-  const bfPopBtn = e.target.closest("#bfFilterBtn, #bfLayerBtn");
-  if (bfPopBtn) { bfTogglePop(bfPopBtn.id === "bfFilterBtn" ? "bfSheet" : "bfLayerPop"); return; }
-  if (e.target.closest("[data-bfclose]")) { bfTogglePop(null); return; }
-  if (e.target.closest("[data-bfretry]") && currentDetailSpot) {
-    const sp = currentDetailSpot;
-    if (bfBase === "fehler") loadCampsites(sp);
-    return;
-  }
-  // Briefing-Karte: Kategorie ein-/ausblenden, Auswahl bleibt fuer den naechsten Platz
-  const bfChip = e.target.closest("[data-bfcat]");
-  if (bfChip) {
-    const cat = bfChip.dataset.bfcat, f = bfFilter();
-    f[cat] = !f[cat]; bfSaveFilter(f);
-    bfUpdateChips(); bfRender();
-    if (f[cat]) {
-      // Daten schon da -> sofort hinzoomen, sonst sobald sie ankommen
-      if (bfBase === "laedt") bfFitPending.add(cat); else bfFitTo(cat);
-    } else bfFitPending.delete(cat);
+  // Filter-Feld, Umgebung: Zeile an-/abhaken (gilt erst mit "Filter anwenden")
+  const fsRow = e.target.closest("[data-fscat]");
+  if (fsRow) {
+    const cat = fsRow.dataset.fscat;
+    fsPending[cat] = !fsPending[cat];
+    fsRow.classList.toggle("on", !!fsPending[cat]);
+    fsRow.setAttribute("aria-checked", fsPending[cat] ? "true" : "false");
+    fsUpdateCount();
     return;
   }
 
@@ -4299,22 +4339,14 @@ document.body.addEventListener("click", e => {
     return;
   }
 
-  // Kartenstil umschalten (Karte/Satellit/Gelände) - Hauptkarte (#mapView) und Mini-Karte (Live-Tab)
-  // teilen sich dieselbe Button-Klasse, aber je ihre eigene Karteninstanz + ihren eigenen Modus.
+  // Kartenstil umschalten (Karte/Satellit/Gelände)
   const styleBtn = e.target.closest(".mini-style-btn");
   if (styleBtn) {
-    if (styleBtn.closest("#bfLayerPop")) setTimeout(() => bfTogglePop(null), 150);   // Auswahl kurz zeigen, dann zu
     const mode = styleBtn.dataset.ministyle;
     styleBtn.parentElement.querySelectorAll(".mini-style-btn").forEach(b => b.classList.toggle("on", b === styleBtn));
-    if (styleBtn.closest("#mapView")) {
-      mapStyleMode = mode;
-      if (mapInstance) mapInstance.setStyle(MINI_MAP_STYLES[mode]);
-      const at = document.getElementById("mapAttrib"); if (at) at.textContent = attribTextFor(mode);
-    } else {
-      miniMapStyleMode = mode;
-      if (miniMapInstance) miniMapInstance.setStyle(MINI_MAP_STYLES[mode]);
-      const at = document.getElementById("miniMapAttrib"); if (at) at.textContent = attribTextFor(mode);
-    }
+    mapStyleMode = mode;
+    if (mapInstance) mapInstance.setStyle(MINI_MAP_STYLES[mode]);
+    const at = document.getElementById("mapAttrib"); if (at) at.textContent = attribTextFor(mode);
     return;
   }
 
@@ -4559,5 +4591,13 @@ document.getElementById("hintClose").addEventListener("click", () => {
   applyProUI();
   applyFavSegUI();
   route();
+  // Geteilter Link: goflytoday.de/?spot=db_123 -> Detailfenster dieses Platzes direkt oeffnen
+  try {
+    const q = new URLSearchParams(location.search).get("spot");
+    if (q) {
+      history.replaceState(history.state, "", location.pathname + location.hash);   // Parameter weg, sonst bleibt er in der Leiste
+      if (getSpot(q)) openDetail(q);
+    }
+  } catch {}
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});

@@ -443,7 +443,6 @@ button.poi-act { width: 100%; font-family: inherit; cursor: pointer; }
 .ml-dot.nein { background: var(--red); }
 .map-attrib { position: absolute; z-index: 4; font-size: 9.5px; color: rgba(232,237,243,.55); pointer-events: none; white-space: nowrap; }
 .map-view .map-attrib { right: 62px; bottom: 6px; }
-.mini-map-wrap .map-attrib { right: 8px; bottom: 6px; }
 .map-marker { cursor: pointer; line-height: 1; }
 .map-marker img { width: 30px; height: 30px; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
 .map-marker-label { display: none; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
@@ -479,29 +478,6 @@ button.poi-act { width: 100%; font-family: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .user-dot-pulse { animation: none; opacity: .3; }
 }
-
-/* Mini-Karte im "Live"-Tab: Start-/Landeplatz */
-.mini-map-wrap { position: relative; border-radius: 14px; overflow: hidden; height: 220px; border: 1px solid var(--line); margin-top: 8px; }
-.mini-map { width: 100%; height: 100%; background: var(--card-2); }
-.mini-map-legend {
-  position: absolute; left: 10px; bottom: 10px; z-index: 5; display: flex; align-items: center; gap: 5px;
-  background: rgba(21,27,36,.88); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px;
-  font-size: 11px; color: #e8edf3; backdrop-filter: blur(3px);
-}
-.mini-map-legend img { width: 17px; height: 17px; margin-left: 6px; border-radius: 3px; }
-.mini-map-legend img:first-child { margin-left: 0; }
-/* Karte vergrößern: Höhe wächst, MapLibre wird danach neu vermessen (s. app.js) */
-.mini-map-wrap { transition: height .2s; }
-.mini-map-wrap.big { height: 74vh; }
-.mini-map-big {
-  position: absolute; right: 10px; bottom: 34px; z-index: 5;
-  width: 34px; height: 34px; border-radius: 9px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(21,27,36,.9); border: 1px solid var(--line); color: #cbd5e1;
-  backdrop-filter: blur(3px);
-}
-.mini-map-big svg { width: 17px; height: 17px; }
-.mini-map-wrap.big .mini-map-big svg { transform: rotate(180deg); }
 
 /* Marker-Fenster auf der Karte. MapLibre bringt eigene helle Popup-Styles mit,
    die hier auf das dunkle Design umgestellt werden. */
@@ -1341,17 +1317,7 @@ main.wrap { padding-top: 12px; }
 .nowbar { background: rgba(6,182,164,.09); }
 .mine { color: var(--sky); background: rgba(6,182,164,.14); }
 
-/* ---------- Briefing-Karte mit Filtern (v126) ---------- */
-/* Am Handy randlos ueber die volle Breite, am PC als Kachel im 760-px-Inhalt. */
-.bf-map-wrap { margin: 0 -16px 16px; }
-/* isolation: eigene Ebene - Knoepfe und Marker der Karte rutschen beim Scrollen nicht mehr
-   ueber die feste Kopfzeile des Fensters */
-.bf-map.mini-map-wrap { isolation: isolate; height: 64vh; height: 64dvh; min-height: 360px; margin-top: 0; border-radius: 0; border-left: 0; border-right: 0; }
-@media (min-width: 700px) {
-  .bf-map-wrap { margin-inline: 0; }
-  .bf-map.mini-map-wrap { border-radius: 16px; border: 1px solid var(--line); }
-}
-.bf-map .maplibregl-ctrl-bottom-right { bottom: 20px; }
+/* ---------- Karten-Knoepfe, Filter-Feld, Umgebungsansicht (v126, v156) ---------- */
 /* Runde schwebende Knoepfe wie in Karten-Apps */
 .bf-fab { position: relative; width: 52px; height: 52px; border-radius: 50%; border: 3px solid #fff; background: #fff; color: #1f2937;
   display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.28); -webkit-tap-highlight-color: transparent;
@@ -1366,8 +1332,6 @@ main.wrap { padding-top: 12px; }
 .bf-badge { position: absolute; top: -9px; right: -6px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--sky); color: #fff;
   border: 2px solid #fff; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
 .bf-badge:empty { display: none; }
-.bf-fab-full { position: absolute; top: 12px; left: 12px; z-index: 6; width: 46px; height: 46px; border: 0; }
-.bf-fab-full svg { width: 20px; height: 20px; }
 /* Ebenen-Menue unter dem Ebenen-Knopf */
 .bf-pop { position: absolute; z-index: 7; background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 14px 34px rgba(0,0,0,.45); }
 .bf-pop[hidden] { display: none; }
@@ -1380,48 +1344,82 @@ main.wrap { padding-top: 12px; }
 .bf-stil-street .bf-stil-bild { background: linear-gradient(135deg, #e8efe3 0 40%, #f6f1e7 40% 62%, #cfe3f5 62%); }
 .bf-stil-sat .bf-stil-bild { background: radial-gradient(circle at 30% 40%, #5c7a3a, transparent 45%), radial-gradient(circle at 75% 70%, #3f5a2c, transparent 50%), linear-gradient(135deg, #6d6a4c, #2f4a2a); }
 .bf-stil-terrain .bf-stil-bild { background: repeating-radial-gradient(circle at 35% 55%, #e9e4d3 0 6px, #d9cfb3 6px 7px), #e9e4d3; }
-/* Filter-Feld: schiebt sich von unten ueber die Karte */
-.bf-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; background: var(--card); border-radius: 20px 20px 0 0;
-  border-top: 1px solid var(--line); box-shadow: 0 -12px 34px rgba(0,0,0,.4); padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
-  max-height: 85%; overflow-y: auto; animation: bfUp .18s ease-out; }
-.bf-sheet[hidden] { display: none; }
-@keyframes bfUp { from { transform: translateY(24px); opacity: .4; } to { transform: none; opacity: 1; } }
-.bf-sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.bf-sheet-head b { font-size: 16px; }
-.bf-sheet-ok { background: var(--sky); color: #fff; border: 0; border-radius: 10px; padding: 8px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
-.bf-fix { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
-.bf-fix img { width: 20px; height: 20px; border-radius: 4px; }
-.bf-fix span { margin-left: 4px; }
-.bf-opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
-.bf-opt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 10px 3px 8px; border-radius: 13px; min-width: 0;
-  border: 1.5px solid var(--line); background: var(--card-2); color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer;
-  transition: border-color .12s, background .12s, color .12s; -webkit-tap-highlight-color: transparent; }
-.bf-opt img { width: 32px; height: 32px; opacity: .45; filter: grayscale(.8); transition: opacity .12s, filter .12s; }
-.bf-opt.on { border-color: var(--sky); background: rgba(6,182,164,.12); color: var(--text); }
-.bf-opt.on img { opacity: 1; filter: none; }
-.bf-opt .bf-cnt { position: absolute; top: 4px; left: 4px; min-width: 18px; height: 18px; font-size: 10.5px; padding: 0 5px; }
-.bf-opt-check { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; color: transparent; }
-.bf-opt.on .bf-opt-check { background: var(--sky); border-color: var(--sky); color: #fff; }
-.bf-opt-check svg { width: 12px; height: 12px; }
-.bf-opt-lbl { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bf-cnt { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: rgba(148,163,184,.22); color: var(--text); font-size: 11.5px; font-weight: 700; display: grid; place-items: center; }
 .bf-cnt:empty { display: none; }
-.bf-sheet-note { margin: 12px 0 0; font-size: 11.5px; color: var(--muted); text-align: center; }
-/* Vollbild: Karte fuellt den ganzen Schirm */
-.bf-map-wrap.full { position: fixed; inset: 0; z-index: 90; margin: 0; background: var(--card); display: flex; flex-direction: column;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
-.bf-map-wrap.full .bf-map.mini-map-wrap { flex: 1; height: auto; min-height: 0; border-radius: 0; border: 0; }
-body.bf-full-open { overflow: hidden; }
+/* Filter-Feld: Blatt von unten (Park4Night-Art) - Kopf mit Zaehler, Zeilen mit Haken, fester Knopf unten */
+.fs-backdrop { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.5); animation: fsFade .18s ease-out; }
+.fs-backdrop[hidden] { display: none; }
+.fsheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 71; max-width: 720px; margin: 0 auto; max-height: 88vh; max-height: 88dvh;
+  display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--line); border-bottom: 0; border-radius: 22px 22px 0 0;
+  box-shadow: 0 -14px 40px rgba(0,0,0,.5); animation: bfUp .2s ease-out; }
+.fsheet[hidden] { display: none; }
+@keyframes bfUp { from { transform: translateY(32px); opacity: .4; } to { transform: none; opacity: 1; } }
+@keyframes fsFade { from { opacity: 0; } to { opacity: 1; } }
+.fs-grip { width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: 10px auto 2px; cursor: pointer; flex: none; }
+.fs-head { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 8px 20px 12px; }
+.fs-title { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 800; }
+.fs-title svg { width: 18px; height: 18px; }
+#fsCount { color: var(--sky); }
+#fsCount:empty { display: none; }
+.fs-reset { background: none; border: 0; color: var(--sky); font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 6px 0; }
+.fs-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px 8px; overscroll-behavior: contain; display: flex; flex-direction: column; }
+.fs-h { margin: 14px 0 0; padding-bottom: 10px; font-size: 18px; font-weight: 800; border-bottom: 1px solid var(--line); }
+.fs-fix { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); padding: 10px 0 2px; }
+.fs-fix img { width: 20px; height: 20px; border-radius: 4px; }
+.fs-fix span { margin-left: 4px; }
+.fs-row { display: flex; align-items: center; gap: 14px; padding: 11px 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.fs-row img { flex: none; width: 40px; height: 40px; opacity: .5; filter: grayscale(.7); transition: opacity .12s, filter .12s; }
+.fs-row.on img { opacity: 1; filter: none; }
+.fs-lbl { flex: 1; min-width: 0; font-size: 16.5px; }
+.fs-cnt { flex: none; min-width: 22px; text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); }
+.fs-cnt:empty { display: none; }
+.fs-box { flex: none; width: 34px; height: 34px; border-radius: 9px; border: 2px solid var(--line); display: grid; place-items: center; color: transparent; transition: background .12s, border-color .12s; }
+.fs-box svg { width: 20px; height: 20px; }
+.fs-row.on .fs-box { background: var(--sky); border-color: var(--sky); color: #fff; }
+.fs-row:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; border-radius: 10px; }
+.fs-note { margin: 10px 0 6px; font-size: 11.5px; color: var(--muted); }
+.fs-foot { flex: none; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--card); }
+.fs-apply { width: 100%; background: var(--sky); color: #05221d; border: 0; border-radius: 999px; padding: 16px; font-size: 17px; font-weight: 800; cursor: pointer; font-family: inherit; }
+.fs-apply:active { transform: scale(.98); }
+/* ein Abschnitt je Modus: Umgebung nur mit geoeffnetem Platz, sonst die Startplatz-Filter */
+.fs-sec-umg { display: none; }
+body.umg-modus .fs-sec-umg { display: block; }
+body.umg-modus .fs-sec-start { display: none; }
+.fs-sec-start .filter-panel { display: block; background: none; border: 0; padding: 12px 0 0; margin: 0; box-shadow: none; }
+.fs-sec-start .filter-panel > * + * { margin-top: 14px; }
+/* Umgebungsansicht: Leiste oben links, andere Startplaetze weg */
+.umg-bar { display: none; position: absolute; top: 12px; left: 12px; right: 140px; z-index: 6; align-items: center; gap: 8px; }
+body.umg-modus .umg-bar { display: flex; }
+.umg-back { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 0; background: #fff; color: #1f2937; display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.28); }
+.umg-back svg { width: 22px; height: 22px; }
+.umg-name { min-width: 0; height: 46px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px 0 16px; border: 0; border-radius: 23px; background: #fff; color: #1f2937;
+  font-size: 15px; font-weight: 800; font-family: inherit; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.28); }
+.umg-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.umg-name svg { flex: none; width: 16px; height: 16px; color: var(--sky); }
+body.umg-modus .map-marker, body.umg-modus .map-lande-marker, body.umg-modus .focus-dot, body.umg-modus .map-legend,
+body.umg-modus #hintBanner, body.umg-modus #mapHierBtn, body.umg-modus #routeBtn, body.umg-modus #routePanel, body.umg-modus #viewToggle { display: none !important; }
+body.umg-modus .map-view { height: 72vh; height: 72dvh; }
+/* Teaser im Flug-Check: oeffnet die Umgebung auf der Hauptkarte */
+.umg-teaser { display: flex; align-items: center; gap: 12px; width: 100%; margin: 0 0 16px; padding: 14px; background: var(--card-2); border: 1px solid var(--line); border-radius: 16px;
+  color: var(--text); font-family: inherit; text-align: left; cursor: pointer; }
+.umg-teaser:active { transform: scale(.99); }
+.umg-teaser-ic { flex: none; display: flex; }
+.umg-teaser-ic img { width: 30px; height: 30px; margin-left: -8px; border-radius: 50%; box-shadow: 0 0 0 2px var(--card-2); }
+.umg-teaser-ic img:first-child { margin-left: 0; }
+.umg-teaser-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.umg-teaser-txt b { font-size: 15.5px; }
+.umg-teaser-txt span { font-size: 12.5px; color: var(--muted); }
+.umg-teaser-go { flex: none; width: 20px; height: 20px; color: var(--sky); }
 /* Marker: rundes Farbsymbol mit kleiner Spitze, wie man es aus Karten-Apps kennt */
 .bf-marker { cursor: pointer; display: flex; flex-direction: column; align-items: center; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
 .bf-marker img { width: 30px; height: 30px; display: block; }
 .bf-marker::after { content: ""; width: 0; height: 0; margin-top: -2px; border: 5px solid transparent; border-top: 7px solid #fff; border-bottom: 0; }
-.bf-map .mini-marker img { width: 36px; height: 36px; border: 2px solid #fff; border-radius: 9px; }
+.map-view .mini-marker img { width: 36px; height: 36px; border: 2px solid #fff; border-radius: 9px; }
 /* Start und Landung liegen immer ueber den Umgebungs-Symbolen */
-.bf-map .mini-start { z-index: 6; }
+.map-view .mini-start { z-index: 6; }
+.map-view .mini-lande { z-index: 5; }
 /* Infofenster immer ueber allen Symbolen (auch ueber Start/Landung) */
-.bf-map .maplibregl-popup { z-index: 20; }
-.bf-map .mini-lande { z-index: 5; }
+.map-view .maplibregl-popup { z-index: 20; }
 .poi-pop-head img[src^="data:"] { border-radius: 50%; }
 
 /* ---------- Suchziel auf der Hauptkarte (v126) ---------- */
@@ -1516,8 +1514,6 @@ body.bf-full-open { overflow: hidden; }
 /* ---------- Hauptkarte: Ebenen- und Filter-Knopf wie im Briefing (v151) ---------- */
 .map-view .maplibregl-ctrl-bottom-right { bottom: 58px; }
 .map-hier { top: 78px; }   /* unter den runden Knoepfen oben rechts */
-.map-sheet .filter-panel { display: block; background: none; border: 0; padding: 0; margin: 0; box-shadow: none; }
-.map-sheet .filter-panel > * + * { margin-top: 12px; }
 /* Liste: Filter-Knopf neben der Ueberschrift - springt zur Karte und oeffnet das Feld */
 .fly-head-row { display: flex; align-items: flex-start; gap: 10px; }
 .fly-head-row .fly-head { flex: 1; min-width: 0; }
