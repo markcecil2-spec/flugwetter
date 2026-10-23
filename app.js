@@ -968,8 +968,21 @@ function bahnenZumStart(spot, linien) {
   // Kabinenbahn liegt (so kommt man von unten hoch - Gerlitzen: Kanzelbahn + Gipfelbahn
   // statt eines der sechs Sessellifte, die oben auch alle ~300 m vom Start enden),
   // danach die Bahn, die am naechsten am Start ankommt.
-  const wege = kand.filter(k => k.d <= BAHN_ZUM_START_KM).map(k => ({ k, weg: kette(k) }));
-  wege.sort((x, y) => (y.weg.some(k => BAHN_KABINE.has(k.l.art)) - x.weg.some(k => BAHN_KABINE.has(k.l.art))) || x.k.d - y.k.d);
+  // Talstation moeglichst nah am Landeplatz: nach dem Flug will man wieder hoch (bzw. zum
+  // Auto an der Talstation). Zell am See: areitXpress -> Areitbahn II/III (Tal 2,8 km vom
+  // Landeplatz) statt Schmittenhoehebahn (4,7 km), obwohl beide oben am Start ankommen.
+  const lande = [];
+  if (spot.landeLat != null) lande.push({ lat: spot.landeLat, lon: spot.landeLon });
+  (spot.landeExtra || []).forEach(l => { if (l.lat != null) lande.push(l); });
+  const zurLandung = weg => {
+    if (!lande.length) return 0;
+    const tal = weg[weg.length - 1].unten;
+    return Math.min(...lande.map(l => haversineExact(l.lat, l.lon, tal.lat, tal.lon)));
+  };
+  const wege = kand.filter(k => k.d <= BAHN_ZUM_START_KM).map(k => { const weg = kette(k); return { k, weg, kabine: weg.some(x => BAHN_KABINE.has(x.l.art)), lande: zurLandung(weg) }; });
+  // Reihenfolge: Weg mit Kabinenbahn vor reinem Sessellift-Weg, dann Talstation naeher am
+  // Landeplatz (auf 0,5 km gerundet, kleine Unterschiede zaehlen nicht), dann naeher am Start.
+  wege.sort((x, y) => (y.kabine - x.kabine) || (Math.round(x.lande * 2) - Math.round(y.lande * 2)) || x.k.d - y.k.d);
   return wege.length ? wege[0].weg.map(k => k.l) : [];
 }
 // Gondel-Icon an beiden Enden jeder gezeigten Bahn: das Ende naeher am Start ist die
@@ -3808,6 +3821,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 154, date: "23.10.", text: "Seilbahn auf der Briefing-Karte: bei mehreren Bahnen zum Start gewinnt die mit der Talstation nahe am Landeplatz" },
   { v: 153, date: "22.10.", text: "Route Stufe 2: Abfahrtszeit eingeben – jeder Startplatz wird zur Ankunftszeit bewertet" },
   { v: 152, date: "22.10.", text: "Länder- und Regions-Auswahl entfernt – gesucht wird über Suchfeld, Standort, Route oder Karte" },
   { v: 151, date: "22.10.", text: "Hauptkarte: Ebenen- und Filter-Knopf wie im Briefing; Umkreis, Favoriten, Zustieg und Höhendifferenz jetzt im Filter auf der Karte" },
