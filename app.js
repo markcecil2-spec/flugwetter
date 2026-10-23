@@ -1350,15 +1350,6 @@ function bfIconUrl(cat) {
   return (bfIconCache[cat] = "data:image/svg+xml," + encodeURIComponent(svg));
 }
 
-// Pro geoeffnetem Platz: was ist geladen, was laeuft, was ist schiefgegangen.
-let bfSpotId = null;
-let bfBase = "";   // Status der Umgebungs-Abfrage: "" | "laedt" | "ok" | "fehler"
-const bfData = { hotel: null, essen: null, bahn: null, supermarkt: null, toilette: null, oepnv: null, tankstelle: null };   // null = noch nicht da
-function bfResetForSpot(spot) {
-  bfSpotId = spot.id;
-  for (const k of Object.keys(bfData)) bfData[k] = null;
-}
-
 // Gemeinsame Felder fuer den Marker-Kasten (poiPopupHtml) aus OSM-Tags.
 function osmPoi(e, fallbackName) {
   const t = e.tags || {};
@@ -1387,46 +1378,24 @@ function bfNaechster(spot, lat, lon) {
   for (const z of ziele) { const d = haversineExact(z.lat, z.lon, lat, lon); if (d < bestD) { bestD = d; best = z; } }
   return { dist: bestD, ziel: best.name };
 }
-function bfItems(cat) {
-  if (cat === "parken") return lastParkList;
-  if (cat === "camping") return lastCampList.filter(c => campKat(c.type) === "camp_site");
-  if (cat === "stellplatz") return lastCampList.filter(c => campKat(c.type) === "caravan_site");
-  if (cat === "bahn") return bfData.bahn ? bfData.bahn.stationen : [];
-  return bfData[cat] || [];
-}
-function bfCount(cat) {
-  if (cat === "bahn") return bfData.bahn ? bfData.bahn.linien.length || bfData.bahn.stationen.length : 0;
-  return bfItems(cat).length;
-}
-function bfUpdateChips() {
-  fsUpdateCount();
-  // Rueckmeldung auf der Karte: laedt noch / hat nicht geklappt (mit Nochmal-Knopf)
-  const f = bfFilter();
-  const msg = document.getElementById("bfMsg");
-  if (msg) {
-    const aktiv = umgSpot ? BF_ORDER.filter(c => f[c]) : [];
-    if (aktiv.length && bfBase === "fehler") {
-      msg.innerHTML = `<span>⚠ Umgebung: Server antwortet nicht</span><button type="button" data-bfretry>Nochmal</button>`;
-      msg.className = "bf-msg warn"; msg.hidden = false;
-    } else if (aktiv.length && bfBase === "laedt") {
-      msg.innerHTML = `<span class="bf-spin"></span><span>Umgebung wird geladen …</span>`;
-      msg.className = "bf-msg"; msg.hidden = false;
-    } else msg.hidden = true;
-  }
-  // Trefferzahl je Zeile im Filter-Feld
-  document.querySelectorAll("#fsRows .fs-cnt").forEach(c => {
-    const cat = c.closest("[data-fscat]").dataset.fscat;
-    c.textContent = umgSpot && bfBase === "ok" ? String(bfCount(cat)) : "";
-  });
+// Treffer einer Kategorie aus den aufbereiteten Daten eines Platzes (s. bauUmgebung)
+function umgItems(d, cat) {
+  if (cat === "bahn") return d.bahn.stationen;
+  return d[cat] || [];
 }
 // Seilbahn-Linien als eigene Ebene. setStyle (Karte/Satellit/Gelaende) wirft eigene Ebenen
 // weg - deshalb nach jedem style.load erneut anlegen.
 const BF_BAHN_SRC = "bf-bahn";
 function bfBahnLayer(force) {
   const m = mapInstance; if (!m) return;
-  const zeigen = !!bfFilter().bahn && bfData.bahn && bfSpotId === (umgSpot && umgSpot.id);
-  const data = { type: "FeatureCollection", features: zeigen ? bfData.bahn.linien.map(l => ({
-    type: "Feature", geometry: { type: "LineString", coordinates: l.coords }, properties: { name: l.name, art: l.art } })) : [] };
+  const zeigen = !!bfFilter().bahn && m.getZoom() >= UMG_ZOOM;
+  const gesehen = new Set(), features = [];
+  if (zeigen) for (const { d } of umgDaten) for (const l of d.bahn.linien) {
+    const k = l.name + "|" + l.coords.length + "|" + l.coords[0].join(",");
+    if (gesehen.has(k)) continue; gesehen.add(k);
+    features.push({ type: "Feature", geometry: { type: "LineString", coordinates: l.coords }, properties: { name: l.name, art: l.art } });
+  }
+  const data = { type: "FeatureCollection", features };
   try {
     const src = m.getSource(BF_BAHN_SRC);
     if (src) { if (force) src.setData(data); return; }   // ohne force nur anlegen: setData loest ein Neuzeichnen und damit wieder "idle" aus
@@ -1435,75 +1404,61 @@ function bfBahnLayer(force) {
       paint: { "line-color": "#fff", "line-width": 6, "line-opacity": 0.9 } });
     m.addLayer({ id: "bf-bahn-line", type: "line", source: BF_BAHN_SRC, layout: { "line-cap": "round" },
       paint: { "line-color": BF_CATS.bahn.farbe, "line-width": 3 } });
-  } catch {}   // Stil noch nicht fertig - kommt mit style.load erneut
+  } catch {}   // Stil noch nicht fertig - kommt mit dem naechsten "idle" erneut
 }
+// Symbole der eingeschalteten Kategorien fuer alle Plaetze im Kartenausschnitt (Daten: umgDaten)
+let umgZaehler = {};
 function bfRender() {
   campMarkers.forEach(m => m.remove());
   campMarkers = [];
-  if (!umgMap() || typeof maplibregl === "undefined" || bfSpotId !== umgSpot.id) return;
-  const f = bfFilter();
-  for (const cat of BF_ORDER) {
-    if (!f[cat]) continue;
-    for (const c of bfItems(cat)) {
-      const el = document.createElement("div");
-      el.className = `bf-marker bf-m-${cat}`;
-      el.title = c.name;
-      el.innerHTML = `<img src="${bfIconUrl(cat)}" alt="">`;
-      const km = c.dist == null ? "" : distTxt(c.dist);
-      const art = c.art || campTypeLabel(c.type);
-      const sub = [art, km && (c.ziel || c.zielName) ? `${km} zum ${c.ziel || c.zielName}` : km,
-        c.gratis === true ? "kostenlos" : c.gratis === false ? "gebührenpflichtig" : ""].filter(Boolean).join(" · ");
-      campMarkers.push(new maplibregl.Marker({ element: el, anchor: "bottom" })
-        .setLngLat([c.lon, c.lat])
-        .setPopup(poiPopup(poiPopupHtml({ ...c, googleQ: googleSuchbegriff(c, cat, umgSpot) }, c.name, bfIconUrl(cat), sub)))
-        .addTo(umgMap()));
+  umgZaehler = {};
+  const m = mapInstance;
+  if (!m || typeof maplibregl === "undefined") return;
+  if (m.getZoom() >= UMG_ZOOM) {
+    const f = bfFilter(), b = m.getBounds(), gesehen = new Set();
+    let n = 0;
+    for (const cat of BF_ORDER) {
+      if (!f[cat]) continue;
+      umgZaehler[cat] = 0;
+      for (const { spot, d } of umgDaten) for (const c of umgItems(d, cat)) {
+        if (!b.contains([c.lon, c.lat])) continue;
+        const key = cat + c.lat.toFixed(5) + c.lon.toFixed(5);
+        if (gesehen.has(key)) continue; gesehen.add(key);
+        umgZaehler[cat]++;
+        if (n++ >= UMG_MAX_MARKER) continue;
+        const el = document.createElement("div");
+        el.className = `bf-marker bf-m-${cat}`;
+        el.title = c.name;
+        el.innerHTML = `<img src="${bfIconUrl(cat)}" alt="">`;
+        const km = c.dist == null ? "" : distTxt(c.dist);
+        const art = c.art || campTypeLabel(c.type);
+        const sub = [art, km && (c.ziel || c.zielName) ? `${km} zum ${c.ziel || c.zielName}` : km,
+          c.gratis === true ? "kostenlos" : c.gratis === false ? "gebührenpflichtig" : ""].filter(Boolean).join(" · ");
+        campMarkers.push(new maplibregl.Marker({ element: el, anchor: "bottom" })
+          .setLngLat([c.lon, c.lat])
+          .setPopup(poiPopup(poiPopupHtml({ ...c, googleQ: googleSuchbegriff(c, cat, spot) }, c.name, bfIconUrl(cat), sub)))
+          .addTo(m));
+      }
     }
   }
   bfBahnLayer(true);
+  bfUpdateChips();
 }
-// Nach dem Einschalten einer Kategorie so weit rauszoomen, dass Start, Landung und die
-// naechsten Treffer im Bild sind - sonst zeigt der Chip "3", auf der Karte ist aber nichts.
-const bfFitPending = new Set();
-function bfFitTo(cat) {
-  const spot = umgSpot, m = umgMap();
-  if (!spot || !m) return;
-  const items = cat === "bahn" && bfData.bahn
-    ? bfData.bahn.linien.flatMap(l => [l.coords[0], l.coords[l.coords.length - 1]]).map(([lon, lat]) => ({ lat, lon }))
-    : bfItems(cat).slice().sort((a, b) => (a.dist ?? 0) - (b.dist ?? 0)).slice(0, 5);
-  if (!items.length) return;
-  const pts = [[spot.lon, spot.lat], ...items.map(c => [c.lon, c.lat])];
-  if (spot.landeLat != null) pts.push([spot.landeLon, spot.landeLat]);
-  const lons = pts.map(q => q[0]), lats = pts.map(q => q[1]);
-  m.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 56, maxZoom: 15, duration: 600 });
-}
-// Aufrufstelle fuer loadCampsites: Marker neu setzen und Filter-Anzeige aktualisieren.
-function campAddMarkers() { bfRender(); bfUpdateChips(); }
-async function loadCampsites(spot) {
-  lastCampList = []; lastParkList = [];   // Treffer des zuvor geoeffneten Platzes verwerfen
-  bfResetForSpot(spot);
+// Alle Treffer eines Platzes aufbereitet: Entfernung zu Start/Landung, nach Kategorie sortiert.
+// Aus den vorberechneten Daten (umgebung/<id>.json, s. fetchVorberechnet).
+function bauUmgebung(spot, umg) {
   const lat = spot.landeLat != null ? spot.landeLat : spot.lat;
   const lon = spot.landeLon != null ? spot.landeLon : spot.lon;
-  bfBase = "laedt"; bfUpdateChips();
-  const umg = (await fetchVorberechnet(spot)) || (await fetchUmgebung(spot));
-  if (bfSpotId !== spot.id) return;   // inzwischen anderer Platz
-  bfBase = umg ? "ok" : "fehler";
-  const standEl = document.getElementById("bfStand");
-  if (standEl && umg && umg.stand) { const [j, m] = umg.stand.split("-"); standEl.textContent = ` · Stand ${m}/${j}`; }
-  if (umg) {
-    const mitZiel = c => ({ ...c, ...bfNaechster(spot, c.lat, c.lon) });
-    const nah = (arr, n) => ohneDoppelte(arr.map(mitZiel).sort((a, b) => a.dist - b.dist)).slice(0, n);
-    bfData.hotel = nah(umg.hotel, 30);
-    bfData.essen = nah(umg.essen, 40);
-    bfData.supermarkt = nah(umg.supermarkt || [], 15);
-    bfData.toilette = nah(umg.toilette || [], 20);
-    bfData.oepnv = nah(umg.oepnv || [], 15);
-    bfData.tankstelle = nah(umg.tankstelle || [], 10);
-    const linien = bahnenZumStart(spot, umg.linien || []);
-    bfData.bahn = { linien, stationen: bahnStationen(spot, linien, umg.stationen || []).map(mitZiel) };
-  }
-  bfFitPending.forEach(cat => bfFitTo(cat)); bfFitPending.clear();
-  const raw = umg ? ohneDoppelte(umg.cp) : null;
-  if (!raw || !raw.length) { campAddMarkers(); return; }
+  const mitZiel = c => ({ ...c, ...bfNaechster(spot, c.lat, c.lon) });
+  const nah = (arr, n) => ohneDoppelte(arr.map(mitZiel).sort((a, b) => a.dist - b.dist)).slice(0, n);
+  const d = {
+    hotel: nah(umg.hotel || [], 30), essen: nah(umg.essen || [], 40), supermarkt: nah(umg.supermarkt || [], 15),
+    toilette: nah(umg.toilette || [], 20), oepnv: nah(umg.oepnv || [], 15), tankstelle: nah(umg.tankstelle || [], 10),
+    parken: [], camping: [], stellplatz: [], camp: [],
+  };
+  const linien = bahnenZumStart(spot, umg.linien || []);
+  d.bahn = { linien, stationen: bahnStationen(spot, linien, umg.stationen || []).map(mitZiel) };
+  const raw = ohneDoppelte(umg.cp || []);
   // Bezugspunkte fuer Parkplaetze: alle Landeplaetze und der Startplatz. Je Parkplatz
   // wird der naechstgelegene genommen und benannt - "363 m zum Landeplatz" hilft nicht,
   // wenn es vier davon gibt.
@@ -1511,29 +1466,122 @@ async function loadCampsites(spot) {
   if (spot.landeLat != null && spot.landeLon != null) ziele.push({ name: kurzOrt(spot.landeName || "Landeplatz", spot.name), lat: spot.landeLat, lon: spot.landeLon });
   if (Array.isArray(spot.landeExtra)) spot.landeExtra.forEach(l => ziele.push({ name: kurzOrt(l.name, spot.name), lat: l.lat, lon: l.lon }));
   if (spot.lat != null) ziele.push({ name: "Startplatz", lat: spot.lat, lon: spot.lon });
-
   // Entfernung: Übernachten ab Landeplatz, Parken ab dem jeweils nächsten Ziel
   const mitDist = raw.map(c => {
     if (!c.parken || !ziele.length) return { ...c, dist: haversineExact(lat, lon, c.lat, c.lon) };
     let best = null, bestD = Infinity;
     for (const z of ziele) {
-      const d = haversineExact(z.lat, z.lon, c.lat, c.lon);
-      if (d < bestD) { bestD = d; best = z; }
+      const dz = haversineExact(z.lat, z.lon, c.lat, c.lon);
+      if (dz < bestD) { bestD = dz; best = z; }
     }
     return { ...c, dist: bestD, zielName: best.name };
   });
   const sortiert = arr => arr.sort((a, b) => (a.name === "Ohne Namen") - (b.name === "Ohne Namen") || a.dist - b.dist);
-  const list = sortiert(mitDist.filter(c => !c.parken)).slice(0, CAMP_MAX);
+  d.camp = sortiert(mitDist.filter(c => !c.parken)).slice(0, CAMP_MAX);
+  d.camping = d.camp.filter(c => campKat(c.type) === "camp_site");
+  d.stellplatz = d.camp.filter(c => campKat(c.type) === "caravan_site");
   // Getrennt deckeln: die Parkplaetze am Landeplatz liegen meist naeher, sonst waeren
   // die am Startplatz nach reiner Entfernungssortierung nie dabei.
   const parken = mitDist.filter(c => c.parken);
-  lastParkList = [
+  d.parken = [
     ...sortiert(parken.filter(c => c.zielName === "Startplatz")).slice(0, PARK_MAX),
     ...sortiert(parken.filter(c => c.zielName !== "Startplatz")).slice(0, PARK_MAX),
   ];
-  lastCampList = list;
+  d.stand = umg.stand || "";
+  return d;
+}
+// ---------------- Umgebung erscheint beim Heranzoomen ----------------
+// Ab UMG_ZOOM holt die Karte fuer die naechsten Startplaetze im Ausschnitt die vorberechneten
+// Daten (umgebung/<id>.json) und zeigt die eingeschalteten Kategorien (Filter: Knopf "Umgebung").
+const UMG_ZOOM = 12, UMG_MAX_PLAETZE = 8, UMG_MAX_MARKER = 160;
+const umgCache = new Map();   // spot.id -> Promise<aufbereitete Daten | null>
+let umgDaten = [];            // [{ spot, d }] fuer den aktuellen Ausschnitt
+let umgToken = 0, umgTimer = null, umgOffen = 0;
+function umgHole(spot) {
+  if (!spot.id.startsWith("db_")) return Promise.resolve(null);   // eigene Plaetze: keine vorberechnete Datei
+  if (!umgCache.has(spot.id)) {
+    umgCache.set(spot.id, fetchVorberechnet(spot).then(u => u ? bauUmgebung(spot, u) : null).catch(() => null)
+      .then(d => { if (!d) umgCache.delete(spot.id); return d; }));
+  }
+  return umgCache.get(spot.id);
+}
+function umgAktualisieren() {
+  clearTimeout(umgTimer);
+  umgTimer = setTimeout(umgJetzt, 250);
+}
+async function umgJetzt() {
+  const m = mapInstance, token = ++umgToken;
+  if (!m) return;
+  const aktiv = BF_ORDER.some(c => bfFilter()[c]);
+  if (document.getElementById("mapView").hidden || m.getZoom() < UMG_ZOOM || !aktiv) {
+    if (umgDaten.length || campMarkers.length) { umgDaten = []; bfRender(); }
+    umgOffen = 0; bfUpdateChips();
+    return;
+  }
+  // Plaetze, deren Start oder Landung im (etwas erweiterten) Ausschnitt liegt, die naechsten zuerst
+  const b = m.getBounds(), c = m.getCenter();
+  const dx = (b.getEast() - b.getWest()) * 0.15, dy = (b.getNorth() - b.getSouth()) * 0.15;
+  const drin = (la, lo) => la != null && lo != null && la > b.getSouth() - dy && la < b.getNorth() + dy && lo > b.getWest() - dx && lo < b.getEast() + dx;
+  const plaetze = allKnownSpots().filter(sp => sp.id.startsWith("db_") && (drin(sp.lat, sp.lon) || drin(sp.landeLat, sp.landeLon)))
+    .map(sp => ({ sp, dist: haversineExact(c.lat, c.lng, sp.lat, sp.lon) }))
+    .sort((x, y) => x.dist - y.dist).slice(0, UMG_MAX_PLAETZE).map(x => x.sp);
+  umgOffen = plaetze.filter(sp => !umgCache.has(sp.id)).length;
+  bfUpdateChips();
+  const daten = await Promise.all(plaetze.map(async sp => ({ spot: sp, d: await umgHole(sp) })));
+  if (token !== umgToken) return;   // Karte hat sich inzwischen weiterbewegt
+  umgDaten = daten.filter(x => x.d);
+  umgOffen = 0;
+  bfRender();
+}
+// Aus dem Briefing: Karte auf Start und Landung zoomen - die Umgebung kommt dann von selbst
+async function umgebungZeigen(id) {
+  const spot = getSpot(id); if (!spot) return;
+  if (!document.getElementById("detailModal").hidden) closeDetail();
+  routeAufraeumen();
+  if (!/^#\/(home)?$/.test(location.hash)) { location.hash = "#/home"; await new Promise(r => setTimeout(r, 60)); }
+  await switchToMapView();
+  const m = mapInstance; if (!m) return;
+  if (!BF_ORDER.some(c => bfFilter()[c])) bfSaveFilter({ ...BF_DEFAULT });   // alles aus -> sonst sieht man nichts
+  fsUpdateCount();
+  const pts = [[spot.lon, spot.lat], ...umgPlaetze(spot).map(l => [l.lon, l.lat])];
+  const lons = pts.map(q => q[0]), lats = pts.map(q => q[1]);
+  const cam = m.cameraForBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]],
+    { padding: { top: 90, bottom: 70, left: 50, right: 50 }, maxZoom: 14.5 });
+  // Start und Landung moeglichst im Bild - aber nah genug, dass die Umgebung erscheint
+  m.flyTo({ center: cam ? cam.center : [spot.lon, spot.lat], zoom: Math.max(cam ? cam.zoom : 13, UMG_ZOOM + 0.3), duration: 800 });
+  document.getElementById("mapView").scrollIntoView({ block: "start" });
+}
+// Meldung unten auf der Karte (laedt / Hinweis) und Zaehler im Umgebungs-Filter
+let umgHinweis = "";
+function bfUpdateChips() {
+  fsUpdateCount();
+  const msg = document.getElementById("bfMsg");
+  if (msg) {
+    if (umgOffen > 0) {
+      msg.innerHTML = `<span class="bf-spin"></span><span>Umgebung wird geladen …</span>`;
+      msg.className = "bf-msg"; msg.hidden = false;
+    } else if (umgHinweis) {
+      msg.innerHTML = `<span>${umgHinweis}</span>`;
+      msg.className = "bf-msg"; msg.hidden = false;
+    } else msg.hidden = true;
+  }
+  // Trefferzahl je Zeile (im aktuellen Ausschnitt) und Stand der Daten
+  document.querySelectorAll("#fsRows .fs-cnt").forEach(c => {
+    const cat = c.closest("[data-fscat]").dataset.fscat;
+    c.textContent = umgZaehler[cat] != null ? String(umgZaehler[cat]) : "";
+  });
+  const standEl = document.getElementById("bfStand");
+  const stand = (umgDaten.find(x => x.d.stand) || { d: {} }).d.stand;
+  if (standEl) { if (stand) { const [j, mo] = stand.split("-"); standEl.textContent = ` · Stand ${mo}/${j}`; } else standEl.textContent = ""; }
+}
+// Parkplatz-Liste im Flug-Check (Briefing) - eigene Abfrage, auch fuer eigene Plaetze (live)
+async function loadCampsites(spot) {
+  lastCampList = []; lastParkList = [];   // Treffer des zuvor geoeffneten Platzes verwerfen
+  const umg = (await fetchVorberechnet(spot)) || (await fetchUmgebung(spot));
+  if (!umg || !currentDetailSpot || currentDetailSpot.id !== spot.id) return;   // Fenster inzwischen zu / anderer Platz
+  const d = bauUmgebung(spot, umg);
+  lastParkList = d.parken; lastCampList = d.camp;
   renderParkplaetze();
-  campAddMarkers();
 }
 const CAMP_AUS = {
   zelt:      { label: "Zelt",       ic: `<path d="M12 4 3 20h18z"/><path d="M12 4v16"/>` },
@@ -2430,94 +2478,11 @@ function refreshUserPos() {
   );
 }
 
-// ---------------- Umgebung eines Startplatzes auf der Hauptkarte ----------------
-// Frueher hatte das Briefing eine eigene Mini-Karte. Jetzt gibt es nur noch die Hauptkarte:
-// "Umgebung auf der Karte" blendet die anderen Startplaetze aus, zoomt auf Start und Landung
-// und zeigt Parken, Seilbahn, Camping usw. (Filter: Feld oben rechts, s. fsOeffnen).
-let umgSpot = null;        // Platz, dessen Umgebung gerade auf der Karte steht
-let umgMarkers = [];       // Start- und Landeplatz-Marker
-const umgMap = () => (umgSpot && mapInstance) || null;
 function umgPlaetze(spot) {
   const out = [];
-  // hoehe mitgeben - fehlte beim Hauptlandeplatz, dadurch kam dort nie eine Gleitzahl
   if (spot.landeLat != null && spot.landeLon != null) out.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon, hoehe: spot.landeHoehe });
   if (Array.isArray(spot.landeExtra)) out.push(...spot.landeExtra);
   return out;
-}
-function umgMarkerSetzen(m, spot) {
-  umgMarkers.forEach(x => x.remove()); umgMarkers = [];
-  const startEl = document.createElement("div");
-  startEl.className = "mini-marker mini-start"; startEl.innerHTML = `<img src="icons/pin-startplatz.png" alt="Startplatz">`; startEl.title = spot.name;
-  umgMarkers.push(new maplibregl.Marker({ element: startEl }).setLngLat([spot.lon, spot.lat])
-    .setPopup(poiPopup(poiPopupHtml(
-      { lat: spot.lat, lon: spot.lon, web: spot.vereinUrl || "" },
-      spot.name, "icons/pin-startplatz.png",
-      ["Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : "", spot.sectorLabel || ""].filter(Boolean).join(" · "),
-      infosStart(spot))))
-    .addTo(m));
-  umgPlaetze(spot).forEach(l => {
-    const landeEl = document.createElement("div");
-    landeEl.className = "mini-marker mini-lande"; landeEl.innerHTML = `<img src="icons/pin-landeplatz.png" alt="Landeplatz">`; landeEl.title = l.name;
-    umgMarkers.push(new maplibregl.Marker({ element: landeEl }).setLngLat([l.lon, l.lat])
-      .setPopup(poiPopup(poiPopupHtml(
-        { lat: l.lat, lon: l.lon },
-        l.name, "icons/pin-landeplatz.png",
-        ["Landeplatz", l.hoehe != null ? l.hoehe + " m ü. NN" : "", gleitzahlTxt(spot, l)].filter(Boolean).join(" · "),
-        infosLande(spot, l))))
-      .addTo(m));
-  });
-}
-function umgFitStartLande(m, spot, animate) {
-  const points = [[spot.lon, spot.lat], ...umgPlaetze(spot).map(l => [l.lon, l.lat])];
-  const lons = points.map(p => p[0]), lats = points.map(p => p[1]);
-  m.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]],
-    { padding: { top: 70, bottom: 70, left: 50, right: 50 }, animate, duration: 700, maxZoom: 15 });
-}
-// Die grauen Sammelpunkte (alle weiteren Plaetze) stoeren in der Umgebungsansicht
-function umgExtraAusblenden() {
-  const m = mapInstance;
-  try { if (m && m.getLayer("extra-points-layer")) m.setLayoutProperty("extra-points-layer", "visibility", umgSpot ? "none" : "visible"); } catch {}
-}
-async function umgebungOeffnen(id) {
-  const spot = getSpot(id); if (!spot) return;
-  if (!document.getElementById("detailModal").hidden) closeDetail();
-  routeAufraeumen();
-  if (!/^#\/(home)?$/.test(location.hash)) { location.hash = "#/home"; await new Promise(r => setTimeout(r, 60)); }
-  await switchToMapView();
-  const m = mapInstance; if (!m) return;
-  const neu = !umgSpot;
-  if (neu) lastMapView = { center: m.getCenter(), zoom: m.getZoom() };   // fuer "Zurueck"
-  umgSpot = spot;
-  document.body.classList.add("umg-modus");
-  document.getElementById("umgName").textContent = spot.name;
-  mapTogglePop(null);
-  umgExtraAusblenden();
-  bfBase = ""; bfResetForSpot(spot);
-  umgMarkerSetzen(m, spot);
-  m.resize();
-  umgFitStartLande(m, spot, !neu);
-  if (neu) m.jumpTo({ center: [spot.lon, spot.lat], zoom: 12 });
-  umgFitStartLande(m, spot, false);
-  document.getElementById("mapView").scrollIntoView({ block: "start" });   // Karte oben im Bild, nicht erst mitten auf der Seite
-  fsUpdateCount();
-  await loadCampsites(spot);
-}
-function umgebungSchliessen(opts = {}) {
-  if (!umgSpot) return;
-  umgSpot = null;
-  document.body.classList.remove("umg-modus");
-  umgMarkers.forEach(x => x.remove()); umgMarkers = [];
-  campMarkers.forEach(x => x.remove()); campMarkers = [];
-  document.querySelectorAll(".maplibregl-popup").forEach(x => x.remove());
-  bfBahnLayer(true);          // umgSpot ist weg -> Linien leeren
-  umgExtraAusblenden();       // ... und die grauen Punkte zurueck
-  const msg = document.getElementById("bfMsg"); if (msg) msg.hidden = true;
-  mapTogglePop(null);
-  if (mapInstance) {
-    mapInstance.resize();
-    if (opts.zurueck !== false) restoreMapView();
-  }
-  updateFilterSummary(); updateHierBtn();
 }
 // Kreis-Polygon (GeoJSON) um lat/lon mit radiusKm - fuer die Umkreis-Visualisierung auf der Karte.
 function circlePolygon(lat, lon, radiusKm, steps = 64) {
@@ -2614,6 +2579,7 @@ async function ensureMap() {
   mapInstance.on("moveend", () => {
     lastMapView = { center: mapInstance.getCenter(), zoom: mapInstance.getZoom() };
     updateHierBtn();
+    umgAktualisieren();   // ab UMG_ZOOM kommen Parken, Seilbahn usw. dazu
   });
   // Umkreis-Kreis übersteht einen Kartenstil-Wechsel (setStyle wirft eigene Layer/Quellen weg) nicht,
   // deshalb nach jedem Stilwechsel neu anlegen + mit dem aktuellen Standort neu befüllen. "idle" statt
@@ -2625,7 +2591,7 @@ async function ensureMap() {
     addExtraPointsLayer();
     updateExtraPoints(lastExtraFeatures);
     routeLinieZeichnen();
-    if (umgSpot) { bfBahnLayer(); umgExtraAusblenden(); }   // nach Kartenstil-Wechsel wieder anlegen
+    bfBahnLayer();   // nach Kartenstil-Wechsel wieder anlegen
   });
   // Seilbahn-Linie antippen: Name (Layer entsteht erst mit der Umgebungsansicht, Listener darf vorher da sein)
   mapInstance.on("click", "bf-bahn-line", ev => {
@@ -2854,7 +2820,6 @@ function routeAbfahrt() {
 // Umweg zum Platz grob schaetzen: Luftlinie x 1,4 (Strassen sind krumm) mit 45 km/h
 const umwegSek = abseitsKm => abseitsKm * 1.4 / 45 * 3600;
 async function runRouteSearch() {
-  umgebungSchliessen({ zurueck: false });
   const out = document.getElementById("flyResults");
   await switchToMapView();
   out.hidden = false;   // Lade-/Fehlerhinweis auch in der Kartenansicht sichtbar
@@ -2958,13 +2923,12 @@ async function switchToMapView() {
   document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x.dataset.view === "map"));
   document.getElementById("flyResults").hidden = true;
   document.getElementById("mapView").hidden = false;
-  try { await ensureMap(); mapInstance.resize(); restoreMapView(); }
+  try { await ensureMap(); mapInstance.resize(); restoreMapView(); umgAktualisieren(); }
   catch (e) { document.getElementById("mapEl").innerHTML = `<p class="empty">${e.message}</p>`; }
 }
 document.getElementById("viewToggle").addEventListener("click", async e => {
   const b = e.target.closest(".vpill"); if (!b) return;
   if (b.dataset.view === "map") { await switchToMapView(); return; }
-  umgebungSchliessen({ zurueck: false });
   document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x === b));
   document.getElementById("flyResults").hidden = false;
   document.getElementById("mapView").hidden = true;
@@ -2977,7 +2941,6 @@ document.getElementById("mapLocateBtn").addEventListener("click", () => {
 
 // Umkreissuche ab einem Punkt (GPS oder PLZ)
 async function runFlySearch(lat, lon, label, opts = {}) {
-  umgebungSchliessen({ zurueck: false });   // neue Suche beendet die Umgebungsansicht
   routeAufraeumen();
   lastOrigin = { lat, lon, label };
   const focus = opts.focus || null;
@@ -3145,20 +3108,23 @@ document.getElementById("favSeg").addEventListener("click", e => {
 // Klappfeld "Erweiterte Filter" ist weg - Umkreis, Favoriten, Zustieg und Hoehendifferenz
 // stehen jetzt im Filter-Feld auf der Karte.
 function mapTogglePop(id) {
-  for (const [popId, btnId] of [["mapFilterSheet", "mapFilterBtn"], ["mapLayerPop", "mapLayerBtn"]]) {
+  let sheetAuf = false;
+  for (const [popId, btnId] of [["mapFilterSheet", "mapFilterBtn"], ["umgFilterSheet", "umgFilterBtn"], ["mapLayerPop", "mapLayerBtn"]]) {
     const pop = document.getElementById(popId), btn = document.getElementById(btnId);
     if (!pop) continue;
     const auf = popId === id && pop.hidden;
-    if (auf && popId === "mapFilterSheet") fsOeffnen();
+    if (auf && popId === "umgFilterSheet") fsOeffnen();
     pop.hidden = !auf;
-    if (popId === "mapFilterSheet") document.getElementById("mapFilterBackdrop").hidden = !auf;
+    if (auf && pop.classList.contains("fsheet")) sheetAuf = true;
     if (btn) { btn.classList.toggle("on", auf); btn.setAttribute("aria-expanded", auf ? "true" : "false"); }
   }
+  document.getElementById("mapFilterBackdrop").hidden = !sheetAuf;
 }
-// Filter-Feld (Park4Night-Art): Titel mit Zaehler, "Zuruecksetzen", Zeilen mit Haken und unten
-// "Filter anwenden". Mit geoeffneter Umgebung stehen hier die Kartenebenen (Parken, Seilbahn,
-// Camping ...) - die gelten erst mit "Filter anwenden". Sonst die Startplatz-Filter (Umkreis,
-// Favoriten, Zustieg, Hoehe) - die wirken wie bisher sofort.
+// Zwei Filter-Felder (Park4Night-Art: Titel mit Zaehler, "Zuruecksetzen", Zeilen mit Haken,
+// fester Knopf unten):
+//  - "Startplaetze" (Trichter): Umkreis, Favoriten, Zustieg, Hoehe - wirkt sofort
+//  - "Umgebung" (Pin): Parken, Seilbahn, Camping ... - gilt mit "Filter anwenden"; die Symbole
+//    erscheinen beim Heranzoomen (ab UMG_ZOOM)
 let fsPending = {};
 function fsRowsHtml() {
   return BF_ORDER.map(cat => `<div class="fs-row${fsPending[cat] ? " on" : ""}" role="checkbox" tabindex="0" aria-checked="${fsPending[cat] ? "true" : "false"}" data-fscat="${cat}">
@@ -3168,54 +3134,57 @@ function fsRowsHtml() {
 function fsOeffnen() {
   fsPending = { ...bfFilter() };
   document.getElementById("fsRows").innerHTML = fsRowsHtml();
-  fsUpdateCount();
   bfUpdateChips();
 }
 function fsUpdateCount() {
-  const n = umgSpot ? BF_ORDER.filter(c => fsPending[c] != null ? fsPending[c] : bfFilter()[c]).length
-    : [favOnlyFilter, accFilter !== "all", minHoehendiff > 0].filter(Boolean).length;
-  const el = document.getElementById("fsCount"); if (el) el.textContent = n ? `(${n})` : "";
-  const badge = document.getElementById("mapFilterBadge");
-  if (badge) badge.textContent = (umgSpot ? BF_ORDER.filter(c => bfFilter()[c]).length : n) || "";
+  const nStart = [favOnlyFilter, accFilter !== "all", minHoehendiff > 0].filter(Boolean).length;
+  const offen = !document.getElementById("umgFilterSheet").hidden;
+  const nUmg = BF_ORDER.filter(c => offen && fsPending[c] != null ? fsPending[c] : bfFilter()[c]).length;
+  const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n ? String(n) : ""; };
+  set("mapFilterBadge", nStart);
+  set("umgFilterBadge", BF_ORDER.filter(c => bfFilter()[c]).length);
+  const t1 = document.getElementById("fsCountStart"); if (t1) t1.textContent = nStart ? `(${nStart})` : "";
+  const t2 = document.getElementById("fsCountUmg"); if (t2) t2.textContent = nUmg ? `(${nUmg})` : "";
 }
 function fsAnwenden() {
-  if (umgSpot) {
-    const alt = bfFilter();
-    bfSaveFilter({ ...fsPending });
-    bfUpdateChips(); bfRender();
-    // Neu eingeschaltete Ebene: hinzoomen, sobald Daten da sind (sonst zeigt die Zeile "3", die Karte nichts)
-    const neu = BF_ORDER.filter(c => fsPending[c] && !alt[c]);
-    if (neu.length) neu.forEach(cat => { if (bfBase === "laedt") bfFitPending.add(cat); else bfFitTo(cat); });
-    fsUpdateCount();
-  }
+  bfSaveFilter({ ...fsPending });
   mapTogglePop(null);
+  fsUpdateCount();
+  // Nicht nah genug dran: kurz sagen, wo die Symbole herkommen
+  if (mapInstance && BF_ORDER.some(c => fsPending[c]) && mapInstance.getZoom() < UMG_ZOOM) {
+    umgHinweis = "Näher heranzoomen – dann erscheinen Parken, Seilbahn &amp; Co.";
+    setTimeout(() => { umgHinweis = ""; bfUpdateChips(); }, 5000);
+  } else umgHinweis = "";
+  bfUpdateChips();
+  umgJetzt();
 }
-function fsZuruecksetzen() {
-  if (umgSpot) {
-    fsPending = { ...BF_DEFAULT };
-    document.querySelectorAll("#fsRows .fs-row").forEach(r => {
-      const on = !!fsPending[r.dataset.fscat];
-      r.classList.toggle("on", on); r.setAttribute("aria-checked", on ? "true" : "false");
-    });
-    fsUpdateCount();
-    return;
-  }
+function fsUmgZuruecksetzen() {
+  fsPending = { ...BF_DEFAULT };
+  document.querySelectorAll("#fsRows .fs-row").forEach(r => {
+    const on = !!fsPending[r.dataset.fscat];
+    r.classList.toggle("on", on); r.setAttribute("aria-checked", on ? "true" : "false");
+  });
+  fsUpdateCount();
+}
+function fsStartZuruecksetzen() {
   favOnlyFilter = false; accFilter = "all"; minHoehendiff = 0;
   try { localStorage.setItem("flugwetter_acc", "all"); localStorage.setItem("flugwetter_minhd", "0"); } catch {}
   applyFavSegUI(); applyAccUI(); applyHdUI();
   if (lastRows.length) { renderFlyResults(lastRows, lastHeadline, lastTruncated); updateMapMarkers(displayRowsFor(lastRows), { flyTo: false }); }
 }
 document.getElementById("fsApply").addEventListener("click", fsAnwenden);
-document.getElementById("fsReset").addEventListener("click", fsZuruecksetzen);
+document.getElementById("fsReset").addEventListener("click", fsUmgZuruecksetzen);
+document.getElementById("fsResetStart").addEventListener("click", fsStartZuruecksetzen);
 document.getElementById("fsRows").addEventListener("keydown", e => {
   if ((e.key === " " || e.key === "Enter") && e.target.closest("[data-fscat]")) { e.preventDefault(); e.target.closest("[data-fscat]").click(); }
 });
 document.getElementById("mapFilterBtn").addEventListener("click", e => { e.stopPropagation(); mapTogglePop("mapFilterSheet"); });
+document.getElementById("umgFilterBtn").addEventListener("click", e => { e.stopPropagation(); mapTogglePop("umgFilterSheet"); });
 document.getElementById("mapLayerBtn").addEventListener("click", e => { e.stopPropagation(); mapTogglePop("mapLayerPop"); });
 document.addEventListener("click", e => {
   if (e.target.closest("[data-mapclose]")) { mapTogglePop(null); return; }
   if (e.target.closest("#mapLayerPop .mini-style-btn")) { setTimeout(() => mapTogglePop(null), 150); return; }
-  if (!e.target.closest("#mapFilterSheet, #mapLayerPop, #mapFilterBtn, #mapLayerBtn")) mapTogglePop(null);
+  if (!e.target.closest("#mapFilterSheet, #umgFilterSheet, #mapLayerPop, #mapFilterBtn, #umgFilterBtn, #mapLayerBtn")) mapTogglePop(null);
 });
 document.addEventListener("click", e => { if (e.target.closest("[data-listefilter]")) filterAusListe(); });
 // Aus der Liste: zur Karte springen und das Filter-Feld oeffnen
@@ -3302,7 +3271,6 @@ async function plzSearch() {
 async function runNameSearch(q, opts = {}) {
   const ql = q.trim().toLowerCase();
   if (ql.length < 2) return;
-  umgebungSchliessen({ zurueck: false });
   routeAufraeumen();
   searchFocus = null;
   const matches = allKnownSpots()
@@ -3871,6 +3839,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 157, date: "23.10.", text: "Zwei Filter auf der Karte: „Startplätze“ (Trichter) und „Umgebung“ (Pin). Parken, Seilbahn, Camping usw. erscheinen automatisch, sobald du näher heranzoomst – ohne Umweg über das Briefing" },
   { v: 156, date: "23.10.", text: "Briefing-Karte ist weg: „Umgebung auf der Karte“ zeigt Parken, Seilbahn, Camping usw. direkt auf der Hauptkarte. Neues Filter-Feld mit Haken, Zähler, Zurücksetzen und „Filter anwenden“" },
   { v: 155, date: "23.10.", text: "Teilen: Der Link führt jetzt direkt zum geteilten Fluggebiet (statt nur zur App). Seilbahn: Berg-/Talstation nach Höhe, nicht mehr nach Abstand geraten" },
   { v: 154, date: "23.10.", text: "Seilbahn auf der Briefing-Karte: bei mehreren Bahnen zum Start gewinnt die mit der Talstation nahe am Landeplatz" },
@@ -4262,7 +4231,7 @@ document.body.addEventListener("click", e => {
     const wrap = tab.closest("#detailBody"); if (!wrap) return;
     wrap.querySelectorAll(".dtab").forEach(t => t.classList.toggle("on", t === tab));
     wrap.querySelectorAll(".dtab-panel").forEach(p => { p.hidden = p.id !== "dtab-" + tab.dataset.tab; });
-    if (tab.dataset.tab === "briefing" && currentDetailSpot && !umgSpot) loadCampsites(currentDetailSpot);   // Parkplatz-Liste im Flug-Check
+    if (tab.dataset.tab === "briefing" && currentDetailSpot) loadCampsites(currentDetailSpot);   // Parkplatz-Liste im Flug-Check
     return;
   }
   // Karte vergroessern/verkleinern - MapLibre muss die neue Groesse mitbekommen
@@ -4278,15 +4247,9 @@ document.body.addEventListener("click", e => {
     })();
     return;
   }
-  // Umgebung auf der Hauptkarte oeffnen / verlassen / zurueck zu den Details
+  // Briefing: Umgebung auf der Karte zeigen (zoomt auf Start und Landung)
   const umgBtn = e.target.closest("[data-umgebung]");
-  if (umgBtn) { umgebungOeffnen(umgBtn.dataset.umgebung); return; }
-  if (e.target.closest("#umgBack")) { umgebungSchliessen(); return; }
-  if (e.target.closest("#umgDetail") && umgSpot) { openDetail(umgSpot.id); return; }
-  if (e.target.closest("[data-bfretry]") && umgSpot) {
-    if (bfBase === "fehler") loadCampsites(umgSpot);
-    return;
-  }
+  if (umgBtn) { umgebungZeigen(umgBtn.dataset.umgebung); return; }
   // Filter-Feld, Umgebung: Zeile an-/abhaken (gilt erst mit "Filter anwenden")
   const fsRow = e.target.closest("[data-fscat]");
   if (fsRow) {

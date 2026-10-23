@@ -1359,14 +1359,11 @@ main.wrap { padding-top: 12px; }
 .fs-head { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 8px 20px 12px; }
 .fs-title { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 800; }
 .fs-title svg { width: 18px; height: 18px; }
-#fsCount { color: var(--sky); }
-#fsCount:empty { display: none; }
+.fs-count { color: var(--sky); }
+.fs-count:empty { display: none; }
 .fs-reset { background: none; border: 0; color: var(--sky); font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; padding: 6px 0; }
 .fs-body { flex: 1; min-height: 0; overflow-y: auto; padding: 0 20px 8px; overscroll-behavior: contain; display: flex; flex-direction: column; }
 .fs-h { margin: 14px 0 0; padding-bottom: 10px; font-size: 18px; font-weight: 800; border-bottom: 1px solid var(--line); }
-.fs-fix { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); padding: 10px 0 2px; }
-.fs-fix img { width: 20px; height: 20px; border-radius: 4px; }
-.fs-fix span { margin-left: 4px; }
 .fs-row { display: flex; align-items: center; gap: 14px; padding: 11px 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .fs-row img { flex: none; width: 40px; height: 40px; opacity: .5; filter: grayscale(.7); transition: opacity .12s, filter .12s; }
 .fs-row.on img { opacity: 1; filter: none; }
@@ -1381,24 +1378,12 @@ main.wrap { padding-top: 12px; }
 .fs-foot { flex: none; padding: 12px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--card); }
 .fs-apply { width: 100%; background: var(--sky); color: #05221d; border: 0; border-radius: 999px; padding: 16px; font-size: 17px; font-weight: 800; cursor: pointer; font-family: inherit; }
 .fs-apply:active { transform: scale(.98); }
-/* ein Abschnitt je Modus: Umgebung nur mit geoeffnetem Platz, sonst die Startplatz-Filter */
-.fs-sec-umg { display: none; }
-body.umg-modus .fs-sec-umg { display: block; }
-body.umg-modus .fs-sec-start { display: none; }
-.fs-sec-start .filter-panel { display: block; background: none; border: 0; padding: 12px 0 0; margin: 0; box-shadow: none; }
-.fs-sec-start .filter-panel > * + * { margin-top: 14px; }
-/* Umgebungsansicht: Leiste oben links, andere Startplaetze weg */
-.umg-bar { display: none; position: absolute; top: 12px; left: 12px; right: 140px; z-index: 6; align-items: center; gap: 8px; }
-body.umg-modus .umg-bar { display: flex; }
-.umg-back { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 0; background: #fff; color: #1f2937; display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.28); }
-.umg-back svg { width: 22px; height: 22px; }
-.umg-name { min-width: 0; height: 46px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px 0 16px; border: 0; border-radius: 23px; background: #fff; color: #1f2937;
-  font-size: 15px; font-weight: 800; font-family: inherit; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.28); }
-.umg-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.umg-name svg { flex: none; width: 16px; height: 16px; color: var(--sky); }
-body.umg-modus .map-marker, body.umg-modus .map-lande-marker, body.umg-modus .focus-dot, body.umg-modus .map-legend,
-body.umg-modus #hintBanner, body.umg-modus #mapHierBtn, body.umg-modus #routeBtn, body.umg-modus #routePanel, body.umg-modus #viewToggle { display: none !important; }
-body.umg-modus .map-view { height: 72vh; height: 72dvh; }
+.fs-sec .filter-panel { display: block; background: none; border: 0; padding: 0; margin: 0; box-shadow: none; }
+.fs-sec .filter-panel > * + * { margin-top: 14px; }
+.fs-hint { margin: 10px 0 2px; font-size: 13px; color: var(--muted); }
+.bf-fab-umg { border-color: #2563eb; color: #2563eb; }
+.bf-fab-umg.on { background: #2563eb; color: #fff; }
+.bf-fabs { gap: 10px; }
 /* Teaser im Flug-Check: oeffnet die Umgebung auf der Hauptkarte */
 .umg-teaser { display: flex; align-items: center; gap: 12px; width: 100%; margin: 0 0 16px; padding: 14px; background: var(--card-2); border: 1px solid var(--line); border-radius: 16px;
   color: var(--text); font-family: inherit; text-align: left; cursor: pointer; }
