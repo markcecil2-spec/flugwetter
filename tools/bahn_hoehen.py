@@ -37,6 +37,13 @@ try:
         hoehe = {tuple(map(float, k.split(","))): v for k, v in json.load(fh).items()}
 except (OSError, ValueError):
     hoehe = {}
+# Hoehen, die schon in den Dateien stehen ("h" aus einem frueheren Lauf), gelten weiter
+for f in dateien:
+    with open(f, encoding="utf-8") as fh:
+        for l in json.load(fh).get("linien", []):
+            if l.get("h"):
+                hoehe.setdefault(ende(l["coords"][0]), l["h"][0])
+                hoehe.setdefault(ende(l["coords"][-1]), l["h"][1])
 offen = [p for p in punkte if p not in hoehe]
 print(f"{len(hoehe)} Hoehen im Zwischenspeicher, {len(offen)} fehlen noch")
 
