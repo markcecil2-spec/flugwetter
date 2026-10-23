@@ -9,7 +9,7 @@ on:
   workflow_dispatch:           # von Hand: Actions -> umgebung -> Run workflow
     inputs:
       nur_hoehen:
-        description: "Nur Bahn-Hoehen nachtragen (ohne OSM neu zu laden, ~2 min)"
+        description: "Nur Bahn-Hoehen nachtragen (ohne OSM neu zu laden, ~15 min)"
         type: boolean
         default: false
 permissions:

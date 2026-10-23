@@ -7,8 +7,9 @@ liegt oder eine Kette auf einen anderen Hang weiterlief (Falera, Verbier -> Brus
 Mit Hoehe ist oben einfach oben.
 
 Hoehen aus dem Copernicus-Gelaendemodell (90 m) ueber die Open-Meteo Elevation API,
-100 Punkte je Abfrage. Laeuft nach tools/umgebung_bauen.py im Workflow umgebung.yml.
-Faellt die API aus, bleiben die Dateien ohne "h" - app.js kommt damit weiter zurecht.
+100 Punkte je Abfrage. Open-Meteo zaehlt jeden Punkt als Aufruf (Grenze ~600 je Minute),
+daher ~12 s Pause zwischen den Abfragen - 73 Abfragen dauern ~15 min. Laeuft nach tools/umgebung_bauen.py im Workflow umgebung.yml.
+Bleibt eine Abfrage trotz Wiederholung erfolglos, fehlt "h" nur bei diesen Bahnen - app.js kommt damit weiter zurecht.
 """
 import glob, json, os, sys, time, urllib.request
 
@@ -34,20 +35,21 @@ for i in range(0, len(punkte), 100):
     teil = punkte[i:i + 100]
     url = ("https://api.open-meteo.com/v1/elevation?latitude=" + ",".join(str(p[0]) for p in teil)
            + "&longitude=" + ",".join(str(p[1]) for p in teil))
-    for versuch in range(5):
+    werte = []
+    for versuch in range(6):
         try:
-            with urllib.request.urlopen(url, timeout=30) as r:
+            with urllib.request.urlopen(url, timeout=60) as r:
                 werte = json.load(r)["elevation"]
             break
         except Exception as e:
-            print(f"  Abfrage {i // 100 + 1}: {e}, neuer Versuch")
-            time.sleep(10 * (versuch + 1))
-    else:
-        sys.exit("Open-Meteo Elevation nicht erreichbar - keine Hoehen eingetragen")
+            print(f"  Abfrage {i // 100 + 1}: {e}, neuer Versuch", flush=True)
+            time.sleep(30 * (versuch + 1))
     for p, h in zip(teil, werte):
         if h is not None and h == h:        # NaN = kein Wert
             hoehe[p] = round(h)
-    time.sleep(0.5)
+    time.sleep(12)
+if not hoehe:
+    sys.exit("Open-Meteo Elevation nicht erreichbar - keine Hoehen eingetragen")
 
 geaendert = 0
 for f in dateien:
