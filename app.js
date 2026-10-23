@@ -934,20 +934,32 @@ function campParkAus(e) {
 // Alte Zwischenspeicher (Einzelabfragen bis v127, umg1 bis v128) freigeben - localStorage ist knapp.
 try { Object.keys(localStorage).filter(k => /^(poi4_|bf1_|umg1_|umg2_)/.test(k)).forEach(k => localStorage.removeItem(k)); } catch {}
 // Nur die Bahn, die zum Start fuehrt - keine Nebenlifte im Skigebiet.
-//  Ausgang: Bahnen mit einem Ende hoechstens 1,5 km vom Start. Von jeder aus wird vom
-//  unteren Ende (dem vom Start weiter entfernten) Abschnitt fuer Abschnitt nach unten
-//  verbunden. Es bleibt EIN Weg - Nebenlifte, die oben abzweigen, kommen nicht mit.
+//  Ausgang: Bahnen, deren Bergstation hoechstens 1,5 km vom Start liegt und die von unten
+//  heraufkommen. Von jeder aus wird von der Talstation Abschnitt fuer Abschnitt weiter
+//  nach unten verbunden. Es bleibt EIN Weg - Nebenlifte, die oben abzweigen, kommen nicht mit.
 // Schlepp- und Kinderlifte sind gar nicht erst in den Daten (s. tools/umgebung_bauen.py).
 const BAHN_ZUM_START_KM = 1.5, BAHN_ANSCHLUSS_KM = 0.3;
 const BAHN_KABINE = new Set(["Seilbahn", "Gondelbahn", "Standseilbahn", "Kombibahn"]);
 function bahnEnden(l) { const c = l.coords; return [c[0], c[c.length - 1]].map(([lon, lat]) => ({ lat, lon })); }
+// [Bergstation, Talstation]. Mit Hoehe (l.h, s. tools/bahn_hoehen.py) eindeutig; ohne
+// (alte Daten, flache Bahn) geraten: das Ende naeher am Start ist oben.
+function bahnObenUnten(l, spot) {
+  const [a, b] = bahnEnden(l);
+  if (l.h) {
+    a.h = l.h[0]; b.h = l.h[1];
+    if (Math.abs(a.h - b.h) >= 30) return a.h > b.h ? [a, b] : [b, a];
+  }
+  const zumStart = p => haversineExact(spot.lat, spot.lon, p.lat, p.lon);
+  return zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
+}
 function bahnenZumStart(spot, linien) {
   const zumStart = p => haversineExact(spot.lat, spot.lon, p.lat, p.lon);
   const kand = linien.map(l => {
-    const [a, b] = bahnEnden(l);
-    const [oben, unten] = zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
+    const [oben, unten] = bahnObenUnten(l, spot);
     return { l, oben, unten, d: zumStart(oben) };
   });
+  // "Tiefer als" - mit Hoehe echt, ohne ueber den Abstand zum Start
+  const tiefer = (p, q) => p.h != null && q.h != null ? p.h < q.h - 30 : zumStart(p) > zumStart(q);
   // Von einer Bahn aus Abschnitt fuer Abschnitt nach unten (Tal -> Mittel -> Berg)
   const kette = erste => {
     const weg = [erste];
@@ -957,20 +969,16 @@ function bahnenZumStart(spot, linien) {
       const nurKabine = weg.some(k => BAHN_KABINE.has(k.l.art));
       const weiter = kand
         .filter(k => !weg.includes(k) && haversineExact(k.oben.lat, k.oben.lon, unten.lat, unten.lon) <= BAHN_ANSCHLUSS_KM
-          && zumStart(k.unten) > zumStart(unten) && (!nurKabine || BAHN_KABINE.has(k.l.art)))
-        .sort((x, y) => zumStart(y.unten) - zumStart(x.unten))[0];
+          && tiefer(k.unten, unten) && (!nurKabine || BAHN_KABINE.has(k.l.art)))
+        .sort((x, y) => tiefer(x.unten, y.unten) ? -1 : tiefer(y.unten, x.unten) ? 1 : 0)[0];
       if (!weiter) break;
       weg.push(weiter); unten = weiter.unten;
     }
     return weg;
   };
-  // Jede Bahn mit Ende nahe am Start ist Kandidat. Gewonnen hat der Weg, auf dem eine
-  // Kabinenbahn liegt (so kommt man von unten hoch - Gerlitzen: Kanzelbahn + Gipfelbahn
-  // statt eines der sechs Sessellifte, die oben auch alle ~300 m vom Start enden),
-  // danach die Bahn, die am naechsten am Start ankommt.
-  // Talstation moeglichst nah am Landeplatz: nach dem Flug will man wieder hoch (bzw. zum
-  // Auto an der Talstation). Zell am See: areitXpress -> Areitbahn II/III (Tal 2,8 km vom
-  // Landeplatz) statt Schmittenhoehebahn (4,7 km), obwohl beide oben am Start ankommen.
+  // Mit Hoehe: die Bahn muss von deutlich unterhalb des Starts heraufkommen. Liegt der Start
+  // an ihrer Talstation (Falera, Uebungshaenge im Tal), fuehrt sie nicht zum Start, sondern weg.
+  const kommtHoch = k => k.unten.h == null || !spot.elevation || k.unten.h < spot.elevation - 100;
   const lande = [];
   if (spot.landeLat != null) lande.push({ lat: spot.landeLat, lon: spot.landeLon });
   (spot.landeExtra || []).forEach(l => { if (l.lat != null) lande.push(l); });
@@ -979,21 +987,25 @@ function bahnenZumStart(spot, linien) {
     const tal = weg[weg.length - 1].unten;
     return Math.min(...lande.map(l => haversineExact(l.lat, l.lon, tal.lat, tal.lon)));
   };
-  const wege = kand.filter(k => k.d <= BAHN_ZUM_START_KM).map(k => { const weg = kette(k); return { k, weg, kabine: weg.some(x => BAHN_KABINE.has(x.l.art)), lande: zurLandung(weg) }; });
-  // Reihenfolge: Weg mit Kabinenbahn vor reinem Sessellift-Weg, dann Talstation naeher am
-  // Landeplatz (auf 0,5 km gerundet, kleine Unterschiede zaehlen nicht), dann naeher am Start.
-  wege.sort((x, y) => (y.kabine - x.kabine) || (Math.round(x.lande * 2) - Math.round(y.lande * 2)) || x.k.d - y.k.d);
+  const wege = kand.filter(k => k.d <= BAHN_ZUM_START_KM && kommtHoch(k)).map(k => {
+    const weg = kette(k);
+    return { k, weg, kabine: weg.some(x => BAHN_KABINE.has(x.l.art)), lande: zurLandung(weg) };
+  });
+  // Talstation moeglichst nah am Landeplatz: nach dem Flug will man wieder hoch bzw. zum
+  // Auto an der Talstation (Zell am See: areitXpress statt Schmittenhoehebahn). Eine
+  // Kabinenbahn zaehlt wie 1,5 km Vorsprung - Gerlitzen: Kanzelbahn + Gipfelbahn statt
+  // eines der Sessellifte, die oben auch alle am Start enden. Gerundet auf 0,5 km, bei
+  // Gleichstand gewinnt die Bahn, die naeher am Start ankommt.
+  const wert = w => Math.round((w.lande - (w.kabine ? 1.5 : 0)) * 2);
+  wege.sort((x, y) => (wert(x) - wert(y)) || x.k.d - y.k.d);
   return wege.length ? wege[0].weg.map(k => k.l) : [];
 }
-// Gondel-Icon an beiden Enden jeder gezeigten Bahn: das Ende naeher am Start ist die
-// Berg-, das andere die Talstation. Wo zwei Abschnitte aneinanderstossen (unter 150 m),
+// Gondel-Icon an beiden Enden jeder gezeigten Bahn: Berg- und Talstation s. bahnObenUnten(). Wo zwei Abschnitte aneinanderstossen (unter 150 m),
 // steht nur ein Icon "Mittelstation". Namen aus den OSM-Stationen, wenn eine dort liegt.
 function bahnStationen(spot, linien, osmStationen) {
-  const zumStart = p => haversineExact(spot.lat, spot.lon, p.lat, p.lon);
   const out = [];
   for (const l of linien) {
-    const [a, b] = bahnEnden(l);
-    const [oben, unten] = zumStart(a) <= zumStart(b) ? [a, b] : [b, a];
+    const [oben, unten] = bahnObenUnten(l, spot);
     for (const [p, rolle] of [[oben, "Bergstation"], [unten, "Talstation"]]) {
       const da = out.find(o => haversineExact(o.lat, o.lon, p.lat, p.lon) < 0.15);
       if (da) { da.art = "Mittelstation"; da.bahnen.push(l.name || l.art); da.web = da.web || l.web || ""; continue; }
