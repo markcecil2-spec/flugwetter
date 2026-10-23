@@ -3833,6 +3833,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 155, date: "23.10.", text: "Teilen: Der Link führt jetzt direkt zum geteilten Fluggebiet (statt nur zur App). Seilbahn: Berg-/Talstation nach Höhe, nicht mehr nach Abstand geraten" },
   { v: 154, date: "23.10.", text: "Seilbahn auf der Briefing-Karte: bei mehreren Bahnen zum Start gewinnt die mit der Talstation nahe am Landeplatz" },
   { v: 153, date: "22.10.", text: "Route Stufe 2: Abfahrtszeit eingeben – jeder Startplatz wird zur Ankunftszeit bewertet" },
   { v: 152, date: "22.10.", text: "Länder- und Regions-Auswahl entfernt – gesucht wird über Suchfeld, Standort, Route oder Karte" },
@@ -4208,7 +4209,9 @@ document.body.addEventListener("click", e => {
   if (shBtn) {
     const s = getSpot(shBtn.dataset.share);
     const txt = `Schau dir „${s ? s.name : "diesen Startplatz"}" auf GoFlyToday an – in 5 Sek. sehen, ob's heute passt:`;
-    const url = "https://goflytoday.de";
+    // Eigener Link je Startplatz (?spot=db_123): oeffnet beim Empfaenger direkt dieses Gebiet.
+    // Eigene Plaetze gibt es nur auf dem eigenen Geraet - die bleiben beim App-Link.
+    const url = s && s.id.startsWith("db_") ? "https://goflytoday.de/?spot=" + encodeURIComponent(s.id) : "https://goflytoday.de";
     if (navigator.share) navigator.share({ title: "GoFlyToday", text: txt, url }).catch(() => {});
     else if (navigator.clipboard) { navigator.clipboard.writeText(txt + " " + url); shBtn.textContent = "✓ Kopiert"; }
     const menu = shBtn.closest(".dt-menu"); if (menu && navigator.share) menu.hidden = true;
@@ -4571,5 +4574,13 @@ document.getElementById("hintClose").addEventListener("click", () => {
   applyProUI();
   applyFavSegUI();
   route();
+  // Geteilter Link: goflytoday.de/?spot=db_123 -> Detailfenster dieses Platzes direkt oeffnen
+  try {
+    const q = new URLSearchParams(location.search).get("spot");
+    if (q) {
+      history.replaceState(history.state, "", location.pathname + location.hash);   // Parameter weg, sonst bleibt er in der Leiste
+      if (getSpot(q)) openDetail(q);
+    }
+  } catch {}
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
