@@ -1533,6 +1533,37 @@ async function umgJetzt() {
   umgOffen = 0;
   bfRender();
 }
+// Karte auf Start und Landung zoomen - nah genug, dass die Umgebung (ab UMG_ZOOM) erscheint
+function umgZoomAuf(spot) {
+  const m = mapInstance; if (!m) return;
+  const pts = [[spot.lon, spot.lat], ...umgPlaetze(spot).map(l => [l.lon, l.lat])];
+  const lons = pts.map(q => q[0]), lats = pts.map(q => q[1]);
+  const cam = m.cameraForBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]],
+    { padding: { top: 90, bottom: 130, left: 50, right: 50 }, maxZoom: 14.5 });
+  // Start und Landung moeglichst im Bild - aber nah genug, dass die Umgebung erscheint
+  m.flyTo({ center: cam ? cam.center : [spot.lon, spot.lat], zoom: Math.max(cam ? cam.zoom : 13, UMG_ZOOM + 0.3), duration: 800 });
+}
+// Tipp auf einen Startplatz der Karte: reinzoomen und kurze Karte unten zeigen. Zweiter Tipp
+// auf denselben Platz (oder "Details") oeffnet das Detailfenster.
+let umgKarteId = null;
+function spotAntippen(id, ts) {
+  const spot = getSpot(id); if (!spot) return;
+  if (umgKarteId === id) { openDetail(id); return; }
+  umgKarteId = id;
+  const st = !ts ? "" : ts.status === "gut" ? "Gute Bedingungen" : ts.status === "grenz" ? "Grenzwertig" : (ts.reasonText || "Nicht fliegbar");
+  const ort = [spot.gemeinde, spot.bundesland].filter(Boolean).join(", ") || spot.region || "";
+  const card = document.getElementById("umgCard");
+  card.innerHTML = `<div class="uc-txt"><div class="uc-name">${escHtml(spot.name)}</div>
+      <div class="uc-sub">${ts ? `<span class="uc-st ${ts.status}">${statusDot(ts.status)} ${escHtml(st)}</span> · ` : ""}${escHtml(ort)}${spot.elevation != null ? ` · ${spot.elevation} m` : ""}</div></div>
+    <button type="button" class="uc-go" data-ucgo="${spot.id}">Details</button>
+    <button type="button" class="uc-x" data-ucx aria-label="Schließen">✕</button>`;
+  card.hidden = false;
+  umgZoomAuf(spot);
+}
+function umgKarteZu() {
+  umgKarteId = null;
+  const card = document.getElementById("umgCard"); if (card) card.hidden = true;
+}
 // Aus dem Briefing: Karte auf Start und Landung zoomen - die Umgebung kommt dann von selbst
 async function umgebungZeigen(id) {
   const spot = getSpot(id); if (!spot) return;
@@ -1543,12 +1574,8 @@ async function umgebungZeigen(id) {
   const m = mapInstance; if (!m) return;
   if (!BF_ORDER.some(c => bfFilter()[c])) bfSaveFilter({ ...BF_DEFAULT });   // alles aus -> sonst sieht man nichts
   fsUpdateCount();
-  const pts = [[spot.lon, spot.lat], ...umgPlaetze(spot).map(l => [l.lon, l.lat])];
-  const lons = pts.map(q => q[0]), lats = pts.map(q => q[1]);
-  const cam = m.cameraForBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]],
-    { padding: { top: 90, bottom: 70, left: 50, right: 50 }, maxZoom: 14.5 });
-  // Start und Landung moeglichst im Bild - aber nah genug, dass die Umgebung erscheint
-  m.flyTo({ center: cam ? cam.center : [spot.lon, spot.lat], zoom: Math.max(cam ? cam.zoom : 13, UMG_ZOOM + 0.3), duration: 800 });
+  umgKarteZu();
+  umgZoomAuf(spot);
   document.getElementById("mapView").scrollIntoView({ block: "start" });
 }
 // Meldung unten auf der Karte (laedt / Hinweis) und Zaehler im Umgebungs-Filter
@@ -2533,7 +2560,7 @@ function addExtraPointsLayer() {
     mapInstance.on("mouseleave", "extra-points-layer", () => { mapInstance.getCanvas().style.cursor = ""; });
     mapInstance.on("click", "extra-points-layer", e => {
       const id = e.features[0] && e.features[0].properties.id;
-      if (id) openDetail(id);
+      if (id) spotAntippen(id);
     });
   } catch {}
 }
@@ -2629,7 +2656,7 @@ function updateMapMarkers(rows, opts = {}) {
     // stopPropagation: sonst bubbelt der Klick zum generischen Karten-Click-Handler durch (der
     // Klicks auf leere Kartenflächen als neue Ortssuche interpretiert) und startet ungewollt eine
     // zweite Suche samt Zoom-Animation im Hintergrund, während das Detailfenster schon offen ist.
-    el.addEventListener("click", e => { e.stopPropagation(); openDetail(r.spot.id); });
+    el.addEventListener("click", e => { e.stopPropagation(); spotAntippen(r.spot.id, r.ts); });
     const marker = new maplibregl.Marker({ element: el }).setLngLat([r.spot.lon, r.spot.lat]).addTo(mapInstance);
     mapMarkers.push(marker);
 
@@ -2640,7 +2667,7 @@ function updateMapMarkers(rows, opts = {}) {
       const lEl = document.createElement("div");
       lEl.className = "map-lande-marker"; lEl.title = l.name;
       lEl.innerHTML = `<img src="icons/marker-lande-black.png" alt=""><span class="map-marker-label">${l.name}</span>`;
-      lEl.addEventListener("click", e => { e.stopPropagation(); openDetail(r.spot.id); });
+      lEl.addEventListener("click", e => { e.stopPropagation(); spotAntippen(r.spot.id, r.ts); });
       const lMarker = new maplibregl.Marker({ element: lEl }).setLngLat([l.lon, l.lat]).addTo(mapInstance);
       mapMarkers.push(lMarker);
     });
@@ -2686,7 +2713,7 @@ function updateFocusMarker(rows) {
     // Startplatz durch Filter ausgeblendet oder ohne Wetter-Treffer: trotzdem zeigen
     el.className = "map-marker map-marker-pulse"; el.title = f.name;
     el.innerHTML = `<img src="${START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label">${escHtml(f.name)}</span>`;
-    el.addEventListener("click", e => { e.stopPropagation(); openDetail(f.id); });
+    el.addEventListener("click", e => { e.stopPropagation(); spotAntippen(f.id); });
   }
   focusMarker = new maplibregl.Marker({ element: el }).setLngLat([f.lon, f.lat]).addTo(mapInstance);
 }
@@ -2820,6 +2847,7 @@ function routeAbfahrt() {
 // Umweg zum Platz grob schaetzen: Luftlinie x 1,4 (Strassen sind krumm) mit 45 km/h
 const umwegSek = abseitsKm => abseitsKm * 1.4 / 45 * 3600;
 async function runRouteSearch() {
+  umgKarteZu();
   const out = document.getElementById("flyResults");
   await switchToMapView();
   out.hidden = false;   // Lade-/Fehlerhinweis auch in der Kartenansicht sichtbar
@@ -2929,6 +2957,7 @@ async function switchToMapView() {
 document.getElementById("viewToggle").addEventListener("click", async e => {
   const b = e.target.closest(".vpill"); if (!b) return;
   if (b.dataset.view === "map") { await switchToMapView(); return; }
+  umgKarteZu();
   document.querySelectorAll("#viewToggle .vpill").forEach(x => x.classList.toggle("on", x === b));
   document.getElementById("flyResults").hidden = false;
   document.getElementById("mapView").hidden = true;
@@ -2941,6 +2970,7 @@ document.getElementById("mapLocateBtn").addEventListener("click", () => {
 
 // Umkreissuche ab einem Punkt (GPS oder PLZ)
 async function runFlySearch(lat, lon, label, opts = {}) {
+  umgKarteZu();
   routeAufraeumen();
   lastOrigin = { lat, lon, label };
   const focus = opts.focus || null;
@@ -3271,6 +3301,7 @@ async function plzSearch() {
 async function runNameSearch(q, opts = {}) {
   const ql = q.trim().toLowerCase();
   if (ql.length < 2) return;
+  umgKarteZu();
   routeAufraeumen();
   searchFocus = null;
   const matches = allKnownSpots()
@@ -3839,6 +3870,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 158, date: "24.10.", text: "Tipp auf einen Startplatz in der Hauptkarte zoomt hinein (Umgebung erscheint), unten eine kurze Karte mit Bedingungen und „Details“. Zweiter Tipp öffnet die Details" },
   { v: 157, date: "23.10.", text: "Zwei Filter auf der Karte: „Startplätze“ (Trichter) und „Umgebung“ (Pin). Parken, Seilbahn, Camping usw. erscheinen automatisch, sobald du näher heranzoomst – ohne Umweg über das Briefing" },
   { v: 156, date: "23.10.", text: "Briefing-Karte ist weg: „Umgebung auf der Karte“ zeigt Parken, Seilbahn, Camping usw. direkt auf der Hauptkarte. Neues Filter-Feld mit Haken, Zähler, Zurücksetzen und „Filter anwenden“" },
   { v: 155, date: "23.10.", text: "Teilen: Der Link führt jetzt direkt zum geteilten Fluggebiet (statt nur zur App). Seilbahn: Berg-/Talstation nach Höhe, nicht mehr nach Abstand geraten" },
@@ -4247,6 +4279,10 @@ document.body.addEventListener("click", e => {
     })();
     return;
   }
+  // Karte unten (nach Tipp auf einen Startplatz): Details oeffnen / schliessen
+  const ucGo = e.target.closest("[data-ucgo]");
+  if (ucGo) { openDetail(ucGo.dataset.ucgo); return; }
+  if (e.target.closest("[data-ucx]")) { umgKarteZu(); return; }
   // Briefing: Umgebung auf der Karte zeigen (zoomt auf Start und Landung)
   const umgBtn = e.target.closest("[data-umgebung]");
   if (umgBtn) { umgebungZeigen(umgBtn.dataset.umgebung); return; }
