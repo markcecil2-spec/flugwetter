@@ -4494,6 +4494,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 164, date: "28.10.", text: "Heimat-Startplatz pulsiert als lila Herz statt als Kreis" },
   { v: 163, date: "28.10.", text: "Heimat-Startplatz aus dem Profil pulsiert auf der Karte lila (liegt er außerhalb der Treffer oder ist es ein Ort: lila Punkt)" },
   { v: 162, date: "28.10.", text: "Profil: neue Bilder für Schirm, Gurtzeug, Retter und Karabiner" },
   { v: 161, date: "28.10.", text: "Profil im neuen Design: Hero-Banner, Profilkarte mit Foto, Statistik, Schirm-, Gurtzeug- und Retter-Karten, Flugbuch-Liste mit Strecke, Erinnerungs-Karten mit eigenen Terminen" },
