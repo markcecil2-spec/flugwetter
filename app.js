@@ -3878,10 +3878,10 @@ function profilLeer() {
 
 // --- kleine Illustrationen (statt Fotos, solange keins gewaehlt ist) ---
 const ILL = {
-  schirm: `<svg viewBox="0 0 64 64"><defs><linearGradient id="gS" x1="0" x2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs><path d="M6 30C10 10 54 10 58 30c-6-5-14-5-26-5S12 25 6 30z" fill="url(#gS)"/><path d="M20 22c3 2 4 5 4 8M32 21v8M44 22c-3 2-4 5-4 8" stroke="#fff" stroke-opacity=".5" stroke-width="1.4" fill="none"/><path d="M10 31 32 52M54 31 32 52M22 28 32 52M42 28 32 52" stroke="#cbd5e1" stroke-width="1" fill="none"/><circle cx="32" cy="54" r="3" fill="#f97316"/></svg>`,
-  gurt: `<svg viewBox="0 0 64 64"><rect x="16" y="14" width="32" height="38" rx="10" fill="#1f2937" stroke="#475569" stroke-width="2"/><path d="M22 14c0-6 20-6 20 0" stroke="#94a3b8" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="22" y="30" width="20" height="8" rx="3" fill="#0f172a"/><path d="M22 34h20" stroke="#f97316" stroke-width="2"/><circle cx="19" cy="22" r="2.5" fill="#94a3b8"/><circle cx="45" cy="22" r="2.5" fill="#94a3b8"/></svg>`,
-  retter: `<svg viewBox="0 0 64 64"><rect x="14" y="20" width="36" height="30" rx="8" fill="#ef4444"/><rect x="14" y="30" width="36" height="8" fill="#f97316"/><path d="M24 20c0-8 16-8 16 0" stroke="#fecaca" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M32 38v12" stroke="#fff" stroke-opacity=".7" stroke-width="2"/></svg>`,
-  karabiner: `<svg viewBox="0 0 64 64"><rect x="18" y="10" width="28" height="44" rx="14" fill="none" stroke="#cbd5e1" stroke-width="6"/><rect x="18" y="10" width="28" height="44" rx="14" fill="none" stroke="#64748b" stroke-width="2"/><path d="M40 24l-6 12" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/></svg>`,
+  schirm: `<img src="img/gear/schirm.webp" alt="">`,
+  gurt: `<img src="img/gear/gurt.webp" alt="">`,
+  retter: `<img src="img/gear/retter.webp" alt="">`,
+  karabiner: `<img src="img/gear/karabiner.webp" alt="">`,
   schild: `<svg viewBox="0 0 64 64"><path d="M32 8 12 16v14c0 14 8 22 20 26 12-4 20-12 20-26V16z" fill="#22c55e"/><path d="m22 32 7 7 14-15" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   glocke: `<svg viewBox="0 0 64 64"><path d="M32 10c-10 0-16 8-16 18 0 10-4 12-6 16h44c-2-4-6-6-6-16 0-10-6-18-16-18z" fill="#f59e0b"/><circle cx="32" cy="52" r="5" fill="#fbbf24"/></svg>`,
 };
@@ -4469,6 +4469,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 162, date: "28.10.", text: "Profil: neue Bilder für Schirm, Gurtzeug, Retter und Karabiner" },
   { v: 161, date: "28.10.", text: "Profil im neuen Design: Hero-Banner, Profilkarte mit Foto, Statistik, Schirm-, Gurtzeug- und Retter-Karten, Flugbuch-Liste mit Strecke, Erinnerungs-Karten mit eigenen Terminen" },
   { v: 160, date: "27.10.", text: "Profil: Speichern-Knopf, Heimatgebiet mit Suchvorschlägen wie die Hauptsuche. Flugbuch (Flüge eintragen, Statistik, Lieblingsplatz, Abzeichen), „Geflogen / Will ich fliegen“ für Plätze (Detailfenster ☰, Haken auf der Karte), Erinnerungen für Rettungsschirm, Nachprüfung, Gurtzeug, Versicherung mit Kalender-Datei, Backup als Datei" },
   { v: 159, date: "27.10.", text: "Neu: Mein Profil (Name, Level, Schirm, Flugarten, Heimatgebiet – nur auf deinem Gerät). Das Level stellt die Ampel ein. Außerdem deutlich mehr grüne Tage: ein guter Kern von 3 Stunden reicht, gelbe Randstunden machen das Fenster nicht mehr gelb" },

@@ -1609,9 +1609,10 @@ main.wrap { padding-top: 12px; }
 .gear-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .gear-t { font-size: 17px; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; }
 .gear-body { display: flex; gap: 14px; align-items: center; }
-.gear-pic { flex: none; width: 92px; height: 78px; border-radius: 14px; overflow: hidden; border: 0; padding: 0; cursor: pointer; background: linear-gradient(135deg, #16324a, #0f1b2a); display: grid; place-items: center; }
+.gear-pic { flex: none; width: 88px; height: 88px; border-radius: 16px; overflow: hidden; border: 0; padding: 0; cursor: pointer; background: linear-gradient(135deg, #16324a, #0f1b2a); display: grid; place-items: center; }
 .gear-pic img { width: 100%; height: 100%; object-fit: cover; }
 .gear-pic svg { width: 62px; height: 62px; }
+.gear-pic img, .rem-pic img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .gear-txt { min-width: 0; }
 .gear-title { font-size: 18px; font-weight: 800; line-height: 1.2; }
 .gear-title.leer { color: var(--muted); font-weight: 600; }
@@ -1652,7 +1653,7 @@ main.wrap { padding-top: 12px; }
 .rem-card.rem-gelb { border-left-color: #f59e0b; }
 .rem-card.rem-rot { border-left-color: #ef4444; }
 .rem-main { display: flex; gap: 12px; align-items: flex-start; }
-.rem-pic { flex: none; width: 74px; height: 74px; border-radius: 12px; background: linear-gradient(135deg, #16324a, #0f1b2a); display: grid; place-items: center; }
+.rem-pic { flex: none; width: 74px; height: 74px; border-radius: 14px; overflow: hidden; background: linear-gradient(135deg, #16324a, #0f1b2a); display: grid; place-items: center; }
 .rem-pic svg { width: 50px; height: 50px; }
 .rem-txt { flex: 1; min-width: 0; }
 .rem-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
