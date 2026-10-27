@@ -3,20 +3,33 @@
 const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const MIN_WINDOW = 3;          // Fenster erst ab so vielen zusammenhängenden Stunden
 
-// Toleranz-Profil für die Ampel-Bewertung (früher wählbar per Liga/Können - jetzt fest auf die
-// sicherste/Anfänger-Stufe, Einordnung läuft stattdessen fein über den Farbverlauf, s. rateHour).
-const PROFILE = { windMax: 18, gustMax: 26, dirTol: 16, buffer: true };
-// Profi-Modus: erfahrene Piloten können eigene Wind-/Böen-/Richtungs-Grenzwerte hinterlegen statt
-// der festen sicheren PROFILE-Werte (Opt-in in den Einstellungen, Standard: aus für alle).
+// Bewertungsstufen fuer die Ampel. Die Stufe kommt aus dem Level im Profil (Einsteiger ->
+// vorsichtig, Fortgeschritten -> standard, Erfahren -> erfahren); ohne Profil gilt "standard".
+//  windMax/gustMax/dirTol: Grenzen (km/h, km/h, Grad) - darueber grenzwertig bis K.o. (mit Puffer)
+//  gruen: ab diesem Anteil von windMax/gustMax ist eine Stunde nicht mehr "gut", sondern gelb
+//  gustWarn/gustBad: Boendifferenz (Boen - Mittelwind) ab der gelb bzw. rot wird
+const STUFEN = {
+  vorsichtig: { label: "Vorsichtig", windMax: 18, gustMax: 26, dirTol: 16, gruen: 0.85, gustWarn: 20, gustBad: 30 },
+  standard:   { label: "Standard",   windMax: 20, gustMax: 28, dirTol: 20, gruen: 0.90, gustWarn: 22, gustBad: 32 },
+  erfahren:   { label: "Erfahren",   windMax: 24, gustMax: 32, dirTol: 24, gruen: 0.92, gustWarn: 25, gustBad: 35 },
+};
+const PROFILE = STUFEN.standard;
+// Eigenes Profil (Schirm, Level, Heimat ...) - nur auf diesem Geraet, kein Konto
+const PROFIL_KEY = "flugwetter_profile";
+function ladeProfil() { try { return JSON.parse(localStorage.getItem(PROFIL_KEY)) || {}; } catch { return {}; } }
+let profil = ladeProfil();
+const LEVEL_STUFE = { einsteiger: "vorsichtig", fortgeschritten: "standard", erfahren: "erfahren" };
+function aktuelleStufe() { return LEVEL_STUFE[profil.level] || "standard"; }
+// Profi-Modus: erfahrene Piloten koennen eigene Wind-/Boen-/Richtungs-Grenzwerte hinterlegen statt
+// der Werte der Stufe (Opt-in in den Einstellungen, Standard: aus fuer alle).
 let proMode = localStorage.getItem("flugwetter_promode") === "1";
 let proWindMax = parseInt(localStorage.getItem("flugwetter_pro_windmax"), 10) || PROFILE.windMax;
 let proGustMax = parseInt(localStorage.getItem("flugwetter_pro_gustmax"), 10) || PROFILE.gustMax;
 let proDirTol = parseInt(localStorage.getItem("flugwetter_pro_dirtol"), 10) || PROFILE.dirTol;
 function activeProfile() {
-  return proMode ? { windMax: proWindMax, gustMax: proGustMax, dirTol: proDirTol, buffer: true } : PROFILE;
+  const st = STUFEN[aktuelleStufe()];
+  return proMode ? { ...st, windMax: proWindMax, gustMax: proGustMax, dirTol: proDirTol, buffer: true } : { ...st, buffer: true };
 }
-// Böendifferenz (Böen - Mittelwind, km/h): ab wann Turbulenz-Warnung (grenz) bzw. K.o. (nein).
-const GUSTDIFF_WARN = 20, GUSTDIFF_BAD = 30;
 const DEFAULT_RADIUS = 100;    // km
 const MAX_CANDIDATES = 50;    // max. Plätze pro Suche (Performance bei großer DB)
 const NAV_ICON = `<svg class="nav-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 L4.5 20.29 L5.21 21 L12 18 L18.79 21 L19.5 20.29 Z"/></svg>`;
@@ -160,6 +173,7 @@ function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
   const windMax = profile.windMax, gustMax = profile.gustMax, dirTol = profile.dirTol;
   // Puffer über den harten Grenzen: statt sofort "nein" gibt's dort erst "grenzwertig"
   // (mehr zutrauen, aber trotzdem warnen).
+  const GUSTDIFF_WARN = profile.gustWarn, GUSTDIFF_BAD = profile.gustBad, gruen = profile.gruen;
   const dirTolBuf = dirTol + (profile.buffer ? 6 : 0);
   const windMaxBuf = windMax * (profile.buffer ? 1.15 : 1);
   const gustMaxBuf = gustMax * (profile.buffer ? 1.15 : 1);
@@ -194,11 +208,11 @@ function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
   }
   // Zu stark / böig: durchgehender Verlauf ab der 85%-Schwelle bis zur harten Nein-Grenze -
   // Text wechselt an windMax/gustMax von "recht stark"/"böig" zu "sehr stark"/"sehr böig".
-  if (ws > windMax * 0.85) {
-    return { rating: "grenz", reason: ws > windMax ? "sehr stark" : "recht stark", severity: clamp01((ws - windMax * 0.85) / (windMaxBuf - windMax * 0.85)) };
+  if (ws > windMax * gruen) {
+    return { rating: "grenz", reason: ws > windMax ? "sehr stark" : "recht stark", severity: clamp01((ws - windMax * gruen) / (windMaxBuf - windMax * gruen)) };
   }
-  if (wg > gustMax * 0.85) {
-    return { rating: "grenz", reason: wg > gustMax ? "sehr böig" : "böig", severity: clamp01((wg - gustMax * 0.85) / (gustMaxBuf - gustMax * 0.85)) };
+  if (wg > gustMax * gruen) {
+    return { rating: "grenz", reason: wg > gustMax ? "sehr böig" : "böig", severity: clamp01((wg - gustMax * gruen) / (gustMaxBuf - gustMax * gruen)) };
   }
   return { rating: "gut", reason: "" };
 }
@@ -206,13 +220,31 @@ function rateHour(spot, ws, wd, wg, rain, isDay, wc) {
 function fmtHour(d) { return d.getHours().toString().padStart(2, "0") + ":00"; }
 function fmtHourPlus(d) { return ((d.getHours() + 1) % 24).toString().padStart(2, "0") + ":00"; }
 
-// Fenster (≥ MIN_WINDOW zusammenhängende flugbare Stunden). Farbe: gut=alle gut, sonst grenz.
+// Fenster (>= MIN_WINDOW zusammenhaengende flugbare Stunden). Gruen, wenn darin ein Kern aus
+// guten Stunden liegt (>= MIN_WINDOW, eine einzelne leicht gelbe Stunde dazwischen ist erlaubt) -
+// frueher machte jede gelbe Randstunde (z.B. schwacher Wind am Morgen) das ganze Fenster gelb.
+// Ohne solchen Kern: gelbes Fenster ueber die ganze flugbare Strecke.
+function guterKern(run) {
+  const segs = [];
+  let cur = null;
+  run.forEach((h, i) => {
+    if (h.rating === "gut") { if (!cur) { cur = { von: i, bis: i }; segs.push(cur); } else cur.bis = i; } else cur = null;
+  });
+  // Zwei Kerne mit genau einer leicht gelben Stunde dazwischen zusammenfassen
+  for (let i = 0; i + 1 < segs.length;) {
+    const luecke = segs[i + 1].von - segs[i].bis - 1;
+    if (luecke === 1 && (run[segs[i].bis + 1].severity || 0) <= 0.5) { segs[i].bis = segs[i + 1].bis; segs.splice(i + 1, 1); } else i++;
+  }
+  const best = segs.filter(x => x.bis - x.von + 1 >= MIN_WINDOW).sort((x, y) => (y.bis - y.von) - (x.bis - x.von) || x.von - y.von)[0];
+  return best ? run.slice(best.von, best.bis + 1) : null;
+}
 function findWindows(hours) {
   const wins = []; let run = [];
   const flush = () => {
     if (run.length >= MIN_WINDOW) {
-      const anyGrenz = run.some(h => h.rating === "grenz");
-      wins.push({ from: run[0].t, to: run[run.length - 1].t, color: anyGrenz ? "grenz" : "gut", hours: run.length });
+      const kern = guterKern(run);
+      if (kern) wins.push({ from: kern[0].t, to: kern[kern.length - 1].t, color: "gut", hours: kern.length });
+      else wins.push({ from: run[0].t, to: run[run.length - 1].t, color: "grenz", hours: run.length });
     }
     run = [];
   };
@@ -1963,6 +1995,7 @@ function briefingPanelHtml(spot, ctx) {
   // Flugart-Kacheln darueber.
   const warn = diffWarn(spot);
   const hinweise2 = [];
+  hinweise2.push(...profilHinweise(spot));
   if (warn) hinweise2.push({ typ: "warn", text: warn.text });
   // DHV-Bemerkung im Original (nur bei 21 % der Plätze hinterlegt)
   if (spot.bemerkung) hinweise2.push({ typ: "info", text: spot.bemerkung });
@@ -3566,7 +3599,10 @@ function isEvening() { const h = new Date().getHours(); return h >= 20 || h < 5;
 
 function updateGreeting() {
   const g = document.getElementById("heroGreet");
-  if (g) g.textContent = timeGreeting();
+  if (g) {
+    const t = timeGreeting(), vorname = (profil.name || "").trim().split(/\s+/)[0], i = t.lastIndexOf(" ");
+    g.textContent = vorname ? `${t.slice(0, i)}, ${vorname}${t.slice(i)}` : t;
+  }
   const hint = document.getElementById("eveningHint");
   if (!hint) return;
   if (isEvening() && searchDay === 0 && sessionStorage.getItem("eveDismissed") !== "1") {
@@ -3806,6 +3842,130 @@ function closeSettings(fromPopstate = false) {
 }
 document.getElementById("settingsClose").addEventListener("click", () => closeSettings());
 settingsModal.addEventListener("click", e => { if (e.target === settingsModal) closeSettings(); });
+
+// ---------------- Mein Profil ----------------
+// Alles nur auf diesem Geraet (localStorage). Das Level stellt die Ampel ein (STUFEN), der Rest
+// gibt persoenliche Hinweise (profilHinweise), ein Heimatgebiet fuer den Start und den Namen
+// in der Begruessung.
+const profileModal = document.getElementById("profileModal");
+let profileHistoryPushed = false, profilStufeBeimOeffnen = null;
+function speichereProfil() {
+  try { localStorage.setItem(PROFIL_KEY, JSON.stringify(profil)); } catch {}
+  profilUi();
+  updateGreeting();
+}
+function profilSchirmText() {
+  const sc = profil.schirm || {};
+  const n = [sc.hersteller, sc.modell].filter(Boolean).join(" ");
+  return n ? n + (sc.en ? ` (EN ${sc.en})` : "") : "";
+}
+function profilLeer() {
+  const sc = profil.schirm || {};
+  return !profil.name && !profil.level && !profil.schein && !profil.stunden && !profil.seit && !profil.home
+    && !(profil.arten && profil.arten.length) && !(sc.hersteller || sc.modell || sc.en || sc.gewicht || sc.baujahr);
+}
+function profilUi() {
+  const sc = profil.schirm || {};
+  const LV = { einsteiger: "Einsteiger", fortgeschritten: "Fortgeschritten", erfahren: "Erfahren" };
+  const name = (profil.name || "").trim();
+  document.getElementById("pfAvatar").textContent = name ? name[0].toUpperCase() : "?";
+  document.getElementById("pfSub").textContent = [LV[profil.level], profilSchirmText()].filter(Boolean).join(" · ") || "Noch nichts eingetragen";
+  document.querySelectorAll("#pfLevel .apill").forEach(b => b.classList.toggle("on", b.dataset.pflevel === profil.level));
+  document.querySelectorAll("#pfEn .apill").forEach(b => b.classList.toggle("on", b.dataset.pfen === sc.en));
+  document.querySelectorAll("#pfArten .apill").forEach(b => b.classList.toggle("on", (profil.arten || []).includes(b.dataset.pfart)));
+  const st = STUFEN[aktuelleStufe()];
+  document.getElementById("pfAmpel").innerHTML = `Deine Ampel: <b>${st.label}</b> – grün bei Wind bis ca. ${Math.round(st.windMax * st.gruen)} km/h und Böen bis ca. ${Math.round(st.gustMax * st.gruen)} km/h.`
+    + (profil.level ? "" : " Wähle dein Level, dann passt sich die Ampel an.") + (proMode ? " <b>Eigene Grenzwerte</b> (Einstellungen) sind aktiv." : "");
+  const warn = document.getElementById("pfEnWarn");
+  const hoch = sc.en === "C" || sc.en === "D" || sc.en === "CCC";
+  warn.hidden = !(hoch && profil.level === "einsteiger");
+  warn.textContent = hoch && profil.level === "einsteiger" ? `EN ${sc.en} ist für Einsteiger ungewöhnlich anspruchsvoll – besprich die Schirmwahl mit deinem Fluglehrer.` : "";
+  document.getElementById("pfHomeAnzeige").innerHTML = profil.home ? `📍 ${escHtml(profil.home.name)}` : `<span class="pf-home-leer">Noch nicht gesetzt</span>`;
+  document.getElementById("profileDot").hidden = !profilLeer();   // Punkt am Knopf, solange noch nichts drinsteht
+}
+function profilFuellen() {
+  const sc = profil.schirm || {};
+  const set = (id, v) => { document.getElementById(id).value = v == null ? "" : v; };
+  set("pfName", profil.name); set("pfSchein", profil.schein); set("pfStunden", profil.stunden); set("pfSeit", profil.seit);
+  set("pfHersteller", sc.hersteller); set("pfModell", sc.modell); set("pfGewicht", sc.gewicht); set("pfBaujahr", sc.baujahr);
+  set("pfHomeSuche", "");
+  profilUi();
+}
+function profilOeffnen() {
+  profilFuellen();
+  profilStufeBeimOeffnen = aktuelleStufe() + "|" + proMode;
+  profileModal.hidden = false;
+  if (!profileHistoryPushed) { history.pushState({ profileOpen: true }, "", location.href); profileHistoryPushed = true; }
+}
+function profilSchliessen(fromPopstate = false) {
+  profileModal.hidden = true;
+  if (profileHistoryPushed) { profileHistoryPushed = false; if (!fromPopstate) history.back(); }
+  // Level geaendert -> Ampel arbeitet mit anderen Grenzen, Ergebnisse neu bewerten
+  if (profilStufeBeimOeffnen !== null && profilStufeBeimOeffnen !== aktuelleStufe() + "|" + proMode && rerunSearch) rerunSearch();
+  profilStufeBeimOeffnen = null;
+}
+document.getElementById("profileBtn").addEventListener("click", profilOeffnen);
+document.getElementById("profileClose").addEventListener("click", () => profilSchliessen());
+profileModal.addEventListener("click", e => { if (e.target === profileModal) profilSchliessen(); });
+// Textfelder: beim Tippen speichern
+const pfFeld = (id, fn) => document.getElementById(id).addEventListener("input", e => { fn(e.target.value.trim()); speichereProfil(); });
+const pfZahl = v => (v === "" || isNaN(+v) ? "" : +v);
+const pfSchirm = (k, v) => { profil.schirm = { ...(profil.schirm || {}), [k]: v }; };
+pfFeld("pfName", v => { profil.name = v; });
+pfFeld("pfSchein", v => { profil.schein = v; });
+pfFeld("pfStunden", v => { profil.stunden = pfZahl(v); });
+pfFeld("pfSeit", v => { profil.seit = pfZahl(v); });
+pfFeld("pfHersteller", v => pfSchirm("hersteller", v));
+pfFeld("pfModell", v => pfSchirm("modell", v));
+pfFeld("pfGewicht", v => pfSchirm("gewicht", pfZahl(v)));
+pfFeld("pfBaujahr", v => pfSchirm("baujahr", pfZahl(v)));
+profileModal.addEventListener("click", e => {
+  const lv = e.target.closest("[data-pflevel]");
+  if (lv) { profil.level = profil.level === lv.dataset.pflevel ? "" : lv.dataset.pflevel; speichereProfil(); return; }
+  const en = e.target.closest("[data-pfen]");
+  if (en) { pfSchirm("en", (profil.schirm || {}).en === en.dataset.pfen ? "" : en.dataset.pfen); speichereProfil(); return; }
+  const art = e.target.closest("[data-pfart]");
+  if (art) {
+    const a = new Set(profil.arten || []);
+    a.has(art.dataset.pfart) ? a.delete(art.dataset.pfart) : a.add(art.dataset.pfart);
+    profil.arten = [...a]; speichereProfil(); return;
+  }
+});
+// Heimatgebiet: Ortssuche (wie das Suchfeld oben) oder aktueller Standort
+document.getElementById("pfHomeSetzen").addEventListener("click", async () => {
+  const q = document.getElementById("pfHomeSuche").value.trim();
+  if (q.length < 2) return;
+  const btn = document.getElementById("pfHomeSetzen"); btn.textContent = "…";
+  try {
+    const sp = allKnownSpots().find(x => foldText(x.name) === foldText(q));
+    const o = sp ? { name: sp.name, lat: sp.lat, lon: sp.lon } : (await fetchPlaces(q))[0];
+    if (o) { profil.home = { name: o.name, lat: o.lat, lon: o.lon }; speichereProfil(); document.getElementById("pfHomeSuche").value = ""; }
+    else document.getElementById("pfHomeAnzeige").innerHTML = `<span class="pf-home-leer">Nichts gefunden – anderer Name?</span>`;
+  } catch { document.getElementById("pfHomeAnzeige").innerHTML = `<span class="pf-home-leer">Suche gerade nicht erreichbar</span>`; }
+  btn.textContent = "Setzen";
+});
+document.getElementById("pfHomeSuche").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("pfHomeSetzen").click(); });
+document.getElementById("pfHomeGps").addEventListener("click", () => {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    profil.home = { name: "Mein Standort", lat: +pos.coords.latitude.toFixed(4), lon: +pos.coords.longitude.toFixed(4) };
+    speichereProfil();
+  }, () => { document.getElementById("pfHomeAnzeige").innerHTML = `<span class="pf-home-leer">Standort nicht verfügbar (Berechtigung?)</span>`; });
+});
+document.getElementById("pfLoeschen").addEventListener("click", () => {
+  if (!confirm("Profil wirklich löschen? Name, Schirm, Level und Heimatgebiet gehen verloren.")) return;
+  profil = {}; try { localStorage.removeItem(PROFIL_KEY); } catch {}
+  profilFuellen(); updateGreeting();
+});
+// Persoenliche Hinweise im Briefing (Schritt Startplatz) - warnen, aber nie freigeben
+function profilHinweise(spot) {
+  const out = [];
+  const d = spot.diff || 0;
+  if (profil.level === "einsteiger" && d >= 1) out.push({ typ: "warn", text: `Für dein Level (Einsteiger): ${d === 2 ? "sehr anspruchsvolles" : "anspruchsvolles"} Gelände – hol dir vor Ort Rat bei Fluglehrer oder Verein.` });
+  else if (profil.level === "fortgeschritten" && d === 2) out.push({ typ: "warn", text: "Sehr anspruchsvolles Gelände – nur mit viel Erfahrung auf diesem Platz, sonst vorher mit Ortskundigen sprechen." });
+  if (profil.level === "einsteiger" && /(nicht|kein)[^.]{0,30}anf[äa]nger|anf[äa]nger[^.]{0,25}nicht/i.test(spot.bemerkung || "")) out.push({ typ: "warn", text: "Laut DHV-Bemerkung für Anfänger nicht geeignet." });
+  return out;
+}
 // Werkzeug-Seite aus den Einstellungen heraus oeffnen. Kein closeSettings() + location.hash:
 // dessen history.back() feuert async und macht die Navigation sofort wieder rueckgaengig
 // (gleiche Falle wie bei Einstellungen -> Feedback). Stattdessen den gepushten Eintrag
@@ -3870,6 +4030,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 159, date: "27.10.", text: "Neu: Mein Profil (Name, Level, Schirm, Flugarten, Heimatgebiet – nur auf deinem Gerät). Das Level stellt die Ampel ein. Außerdem deutlich mehr grüne Tage: ein guter Kern von 3 Stunden reicht, gelbe Randstunden machen das Fenster nicht mehr gelb" },
   { v: 158, date: "24.10.", text: "Tipp auf einen Startplatz in der Hauptkarte zoomt hinein (Umgebung erscheint), unten eine kurze Karte mit Bedingungen und „Details“. Zweiter Tipp öffnet die Details" },
   { v: 157, date: "23.10.", text: "Zwei Filter auf der Karte: „Startplätze“ (Trichter) und „Umgebung“ (Pin). Parken, Seilbahn, Camping usw. erscheinen automatisch, sobald du näher heranzoomst – ohne Umweg über das Briefing" },
   { v: 156, date: "23.10.", text: "Briefing-Karte ist weg: „Umgebung auf der Karte“ zeigt Parken, Seilbahn, Camping usw. direkt auf der Hauptkarte. Neues Filter-Feld mit Haken, Zähler, Zurücksetzen und „Filter anwenden“" },
@@ -4008,6 +4169,7 @@ document.getElementById("notifBody").addEventListener("click", e => {
 
 // Zurück-Taste (Handy/TWA): schliesst das oberste offene Fenster statt die Seite/App zu verlassen.
 window.addEventListener("popstate", () => {
+  if (!profileModal.hidden) { profilSchliessen(true); return; }
   if (!settingsModal.hidden) { closeSettings(true); return; }
   if (!fbModal.hidden) { fbClose(true); return; }
   if (!notifModal.hidden) { closeNotif(true); return; }
@@ -4207,6 +4369,8 @@ function route() {
     const out = document.getElementById("flyResults");
     if (localStorage.getItem("flugwetter_geo_ok") === "1" && !lastOrigin) {
       startGpsSearch();                                  // GPS schon erlaubt -> Umkreis-Liste
+    } else if (!lastOrigin && profil.home && !out.innerHTML.trim()) {
+      runFlySearch(profil.home.lat, profil.home.lon, profil.home.name);   // Heimatgebiet aus dem Profil
     } else if (!lastOrigin && !out.innerHTML.trim()) {
       // Die Regionsauswahl ist weg - also auch keine "letzte Region" mehr beim Start
       try { localStorage.removeItem("flugwetter_lastregion"); } catch {}
@@ -4589,6 +4753,7 @@ document.getElementById("hintClose").addEventListener("click", () => {
   applyHdUI();
   applyProUI();
   applyFavSegUI();
+  profilUi();   // Punkt am Profil-Knopf, solange das Profil leer ist
   route();
   // Geteilter Link: goflytoday.de/?spot=db_123 -> Detailfenster dieses Platzes direkt oeffnen
   try {
