@@ -3850,60 +3850,158 @@ settingsModal.addEventListener("click", e => { if (e.target === settingsModal) c
 // ---------------- Mein Profil ----------------
 // Alles nur auf diesem Geraet (localStorage). Das Level stellt die Ampel ein (STUFEN), der Rest
 // gibt persoenliche Hinweise (profilHinweise), ein Heimatgebiet fuer den Start und den Namen
-// in der Begruessung.
+// in der Begruessung. Reiter: Profil (Statistik, Ausruestung), Flugbuch, Erinnerungen.
 const profileModal = document.getElementById("profileModal");
 let profileHistoryPushed = false, profilStufeBeimOeffnen = null;
+const lsGet = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const FB_KEY = "flugwetter_flugbuch", ORTE_KEY = "flugwetter_orte", REM_KEY = "flugwetter_erinnerungen", REM_EIGENE_KEY = "flugwetter_rem_eigene";
+let flugbuch = lsGet(FB_KEY, []);       // [{ id, datum "JJJJ-MM-TT", spotId?, ort, dauer (Min.), km?, notiz }]
+let orte = lsGet(ORTE_KEY, {});         // { spotId: "geflogen" | "will" }
+let remData = lsGet(REM_KEY, {});       // { schluessel: { datum, monate } }
+let remEigene = lsGet(REM_EIGENE_KEY, []);   // eigene Erinnerungen [{ k, t, monate }] (Datum in remData)
+const heuteIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const fmtDatum = iso => iso ? iso.split("-").reverse().join(".") : "";
+const spotName = id => { const sp = getSpot(id); return sp ? sp.name : ""; };
+const hmm = min => `${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")}`;
+
 function speichereProfil() {
   try { localStorage.setItem(PROFIL_KEY, JSON.stringify(profil)); } catch {}
   profilUi();
   updateGreeting();
-}
-function profilSchirmText() {
-  const sc = profil.schirm || {};
-  const n = [sc.hersteller, sc.modell].filter(Boolean).join(" ");
-  return n ? n + (sc.en ? ` (EN ${sc.en})` : "") : "";
 }
 function profilLeer() {
   const sc = profil.schirm || {};
   return !profil.name && !profil.level && !profil.schein && !profil.stunden && !profil.seit && !profil.home
     && !(profil.arten && profil.arten.length) && !(sc.hersteller || sc.modell || sc.en || sc.gewicht || sc.baujahr);
 }
+
+// --- kleine Illustrationen (statt Fotos, solange keins gewaehlt ist) ---
+const ILL = {
+  schirm: `<svg viewBox="0 0 64 64"><defs><linearGradient id="gS" x1="0" x2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs><path d="M6 30C10 10 54 10 58 30c-6-5-14-5-26-5S12 25 6 30z" fill="url(#gS)"/><path d="M20 22c3 2 4 5 4 8M32 21v8M44 22c-3 2-4 5-4 8" stroke="#fff" stroke-opacity=".5" stroke-width="1.4" fill="none"/><path d="M10 31 32 52M54 31 32 52M22 28 32 52M42 28 32 52" stroke="#cbd5e1" stroke-width="1" fill="none"/><circle cx="32" cy="54" r="3" fill="#f97316"/></svg>`,
+  gurt: `<svg viewBox="0 0 64 64"><rect x="16" y="14" width="32" height="38" rx="10" fill="#1f2937" stroke="#475569" stroke-width="2"/><path d="M22 14c0-6 20-6 20 0" stroke="#94a3b8" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="22" y="30" width="20" height="8" rx="3" fill="#0f172a"/><path d="M22 34h20" stroke="#f97316" stroke-width="2"/><circle cx="19" cy="22" r="2.5" fill="#94a3b8"/><circle cx="45" cy="22" r="2.5" fill="#94a3b8"/></svg>`,
+  retter: `<svg viewBox="0 0 64 64"><rect x="14" y="20" width="36" height="30" rx="8" fill="#ef4444"/><rect x="14" y="30" width="36" height="8" fill="#f97316"/><path d="M24 20c0-8 16-8 16 0" stroke="#fecaca" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M32 38v12" stroke="#fff" stroke-opacity=".7" stroke-width="2"/></svg>`,
+  karabiner: `<svg viewBox="0 0 64 64"><rect x="18" y="10" width="28" height="44" rx="14" fill="none" stroke="#cbd5e1" stroke-width="6"/><rect x="18" y="10" width="28" height="44" rx="14" fill="none" stroke="#64748b" stroke-width="2"/><path d="M40 24l-6 12" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/></svg>`,
+  schild: `<svg viewBox="0 0 64 64"><path d="M32 8 12 16v14c0 14 8 22 20 26 12-4 20-12 20-26V16z" fill="#22c55e"/><path d="m22 32 7 7 14-15" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  glocke: `<svg viewBox="0 0 64 64"><path d="M32 10c-10 0-16 8-16 18 0 10-4 12-6 16h44c-2-4-6-6-6-16 0-10-6-18-16-18z" fill="#f59e0b"/><circle cx="32" cy="52" r="5" fill="#fbbf24"/></svg>`,
+};
+const IC_ST = {
+  plane: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3 2.5 10.5l7 3 3 7z"/><path d="m9.5 13.5 5-5"/></svg>`,
+  uhr: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+  berg: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 20 9 7l4 7 3-4 6 10z"/></svg>`,
+  strecke: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M7 19c8 0 2-14 10-14" stroke-dasharray="3 3"/></svg>`,
+};
+
+// --- Ausruestung: Schirm, Gurtzeug, Retter ---
+const GEAR = [
+  { k: "schirm", t: "Mein Schirm", leer: "Schirm eintragen", ill: "schirm", felder: [["hersteller", "Hersteller", "text", "z. B. Ozone"], ["modell", "Modell", "text", "z. B. Rush 5"], ["gewicht", "Startgewicht (kg)", "number", "inkl. Ausrüstung"], ["baujahr", "Baujahr", "number", "Jahr"]], en: true },
+  { k: "gurt", t: "Mein Gurtzeug", leer: "Gurtzeug eintragen", ill: "gurt", felder: [["modell", "Modell", "text", "z. B. Wani Light 3"], ["typ", "Art", "text", "z. B. Wendegurtzeug"], ["groesse", "Größe", "text", "z. B. M"], ["baujahr", "Baujahr", "number", "Jahr"]] },
+  { k: "retter", t: "Mein Retter", leer: "Retter eintragen", ill: "retter", felder: [["modell", "Modell", "text", "z. B. Beamer 3"], ["groesse", "Größe / Gewichtsbereich", "text", "z. B. 85–105 kg"], ["baujahr", "Baujahr", "number", "Jahr"]] },
+];
+let gearOffen = new Set();
+function gearZeilen(g) {
+  const d = profil[g.k] || {};
+  if (g.k === "schirm") return { titel: [d.hersteller, d.modell].filter(Boolean).join(" "), l1: [d.en ? `EN ${d.en}` : "", d.gewicht ? `${d.gewicht} kg` : ""].filter(Boolean).join(" · "), l2: d.baujahr ? `Baujahr ${d.baujahr}` : "" };
+  if (g.k === "gurt") return { titel: d.modell || "", l1: [d.typ, d.groesse ? `Größe ${d.groesse}` : ""].filter(Boolean).join(" · "), l2: d.baujahr ? `Baujahr ${d.baujahr}` : "" };
+  const gepackt = remData.rettung && remData.rettung.datum ? `Zuletzt gepackt ${fmtDatum(remData.rettung.datum)}` : "";
+  return { titel: d.modell || "", l1: d.groesse || "", l2: [d.baujahr ? `Baujahr ${d.baujahr}` : "", gepackt].filter(Boolean).join(" · ") };
+}
+function gearFoto(g) { const f = (profil.fotos || {})[g.k]; return f ? `<img src="${f}" alt="">` : ILL[g.ill]; }
+function gearTexte(g) {
+  const card = document.querySelector(`[data-gear="${g.k}"]`); if (!card) return;
+  const z = gearZeilen(g);
+  card.querySelector(".gear-title").textContent = z.titel || g.leer;
+  card.querySelector(".gear-title").classList.toggle("leer", !z.titel);
+  card.querySelector(".gear-l1").textContent = z.l1; card.querySelector(".gear-l2").textContent = z.l2;
+}
+function gearRender() {
+  document.getElementById("pfGear").innerHTML = GEAR.map(g => {
+    const d = profil[g.k] || {}, z = gearZeilen(g), offen = gearOffen.has(g.k);
+    return `<div class="gear-card${offen ? " editing" : ""}" data-gear="${g.k}">
+      <div class="gear-head"><span class="gear-t">${g.t}</span><button type="button" class="pf-outline" data-gearedit="${g.k}">${offen ? "Fertig" : "Bearbeiten"}</button></div>
+      <div class="gear-body">
+        <button type="button" class="gear-pic" data-pffoto="${g.k}" aria-label="Foto ändern">${gearFoto(g)}</button>
+        <div class="gear-txt"><div class="gear-title${z.titel ? "" : " leer"}">${escHtml(z.titel || g.leer)}</div><div class="gear-l1">${escHtml(z.l1)}</div><div class="gear-l2">${escHtml(z.l2)}</div></div>
+      </div>
+      <div class="gear-edit"${offen ? "" : " hidden"}>
+        <div class="pf-row">${g.felder.map(([f, l, typ, ph]) => `<label class="pf-field pf-wide">${l}<input class="pf-input" type="${typ}" ${typ === "number" ? 'inputmode="numeric"' : 'maxlength="30"'} placeholder="${ph}" data-pfg="${g.k}.${f}" value="${escHtml(d[f] == null ? "" : d[f])}"></label>`).join("")}</div>
+        ${g.en ? `<div class="pf-label">EN-Klasse</div><div class="acc-seg" role="group" aria-label="EN-Klasse">${["A", "B", "C", "D", "CCC"].map(e => `<button type="button" class="apill${d.en === e ? " on" : ""}" data-pfen="${e}">${e}</button>`).join("")}</div><div class="pf-warn" id="pfEnWarn" hidden></div>` : ""}
+        <button type="button" class="pf-btn pf-btn-ghost" data-pffoto="${g.k}">📷 Foto wählen</button>
+      </div>
+    </div>`;
+  }).join("");
+  pfEnWarnen();
+}
+function pfEnWarnen() {
+  const w = document.getElementById("pfEnWarn"); if (!w) return;
+  const en = (profil.schirm || {}).en, hoch = en === "C" || en === "D" || en === "CCC";
+  w.hidden = !(hoch && profil.level === "einsteiger");
+  w.textContent = hoch && profil.level === "einsteiger" ? `EN ${en} ist für Einsteiger ungewöhnlich anspruchsvoll – besprich die Schirmwahl mit deinem Fluglehrer.` : "";
+}
+// Foto: auf 256 px (Quadrat) verkleinern, damit es in localStorage passt
+function fotoKlein(file, max = 256) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(img.width, img.height), c = document.createElement("canvas");
+      c.width = c.height = Math.min(max, s);
+      c.getContext("2d").drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL("image/jpeg", 0.8));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(); };
+    img.src = url;
+  });
+}
+const fotoInput = document.createElement("input");
+fotoInput.type = "file"; fotoInput.accept = "image/*"; fotoInput.hidden = true;
+profileModal.appendChild(fotoInput);
+let fotoArt = "";
+fotoInput.addEventListener("change", async () => {
+  const f = fotoInput.files[0]; fotoInput.value = "";
+  if (!f || !fotoArt) return;
+  try { profil.fotos = { ...(profil.fotos || {}), [fotoArt]: await fotoKlein(f) }; speichereProfil(); gearRender(); } catch {}
+});
+
+// --- Anzeige ---
 function profilUi() {
-  const sc = profil.schirm || {};
   const LV = { einsteiger: "Einsteiger", fortgeschritten: "Fortgeschritten", erfahren: "Erfahren" };
   const name = (profil.name || "").trim();
-  document.getElementById("pfAvatar").textContent = name ? name[0].toUpperCase() : "?";
-  document.getElementById("pfSub").textContent = [LV[profil.level], profilSchirmText()].filter(Boolean).join(" · ") || "Noch nichts eingetragen";
+  const av = document.getElementById("pfAvatar"), foto = (profil.fotos || {}).avatar;
+  av.innerHTML = foto ? `<img src="${foto}" alt="">` : escHtml(name ? name[0].toUpperCase() : "?");
+  const nm = document.getElementById("pfMeName"); nm.textContent = name || "Dein Name"; nm.classList.toggle("leer", !name);
+  document.getElementById("pfSub").textContent = LV[profil.level] || "Level noch offen";
+  document.getElementById("pfSeitTxt").textContent = profil.seit ? `Fliegt seit ${profil.seit}` : "";
+  const chip = document.getElementById("pfScheinChip");
+  chip.hidden = !profil.schein; chip.textContent = profil.schein ? (profil.schein.length === 1 ? `${profil.schein}-Schein` : profil.schein) : "";
   document.querySelectorAll("#pfLevel .apill").forEach(b => b.classList.toggle("on", b.dataset.pflevel === profil.level));
-  document.querySelectorAll("#pfEn .apill").forEach(b => b.classList.toggle("on", b.dataset.pfen === sc.en));
   document.querySelectorAll("#pfArten .apill").forEach(b => b.classList.toggle("on", (profil.arten || []).includes(b.dataset.pfart)));
   const st = STUFEN[aktuelleStufe()];
   document.getElementById("pfAmpel").innerHTML = `Deine Ampel: <b>${st.label}</b> – grün bei Wind bis ca. ${Math.round(st.windMax * st.gruen)} km/h und Böen bis ca. ${Math.round(st.gustMax * st.gruen)} km/h.`
     + (profil.level ? "" : " Wähle dein Level, dann passt sich die Ampel an.") + (proMode ? " <b>Eigene Grenzwerte</b> (Einstellungen) sind aktiv." : "");
-  const warn = document.getElementById("pfEnWarn");
-  const hoch = sc.en === "C" || sc.en === "D" || sc.en === "CCC";
-  warn.hidden = !(hoch && profil.level === "einsteiger");
-  warn.textContent = hoch && profil.level === "einsteiger" ? `EN ${sc.en} ist für Einsteiger ungewöhnlich anspruchsvoll – besprich die Schirmwahl mit deinem Fluglehrer.` : "";
   document.getElementById("pfHomeAnzeige").innerHTML = profil.home ? `📍 ${escHtml(profil.home.name)}` : `<span class="pf-home-leer">Noch nicht gesetzt</span>`;
+  pfEnWarnen();
+  GEAR.forEach(gearTexte);
+  document.getElementById("pfStats").innerHTML = statHtml(fbEintraege());
   // Punkt am Knopf: Profil noch leer, oder eine Erinnerung ist bald/ueberfaellig (rot)
-  const alarm = typeof remAlarm === "function" ? remAlarm() : [];
+  const alarm = remAlarm();
   const dot = document.getElementById("profileDot");
   dot.hidden = !(profilLeer() || alarm.length);
   dot.classList.toggle("rot", alarm.some(x => x.r.st === "rot"));
 }
 function profilFuellen() {
-  const sc = profil.schirm || {};
   const set = (id, v) => { document.getElementById(id).value = v == null ? "" : v; };
   set("pfName", profil.name); set("pfSchein", profil.schein); set("pfStunden", profil.stunden); set("pfSeit", profil.seit);
-  set("pfHersteller", sc.hersteller); set("pfModell", sc.modell); set("pfGewicht", sc.gewicht); set("pfBaujahr", sc.baujahr);
   set("pfHomeSuche", "");
+  gearRender();
   profilUi();
 }
 function profilOeffnen(tab = "profil") {
   profilFuellen();
   pfTab(tab);
+  document.getElementById("pfEditMeBox").hidden = !profilLeer();   // leeres Profil: gleich zum Ausfuellen
   profilStufeBeimOeffnen = aktuelleStufe() + "|" + proMode;
   profileModal.hidden = false;
+  profileModal.querySelector(".pf-root").scrollTop = 0;
   if (!profileHistoryPushed) { history.pushState({ profileOpen: true }, "", location.href); profileHistoryPushed = true; }
 }
 function profilSchliessen(fromPopstate = false) {
@@ -3915,30 +4013,38 @@ function profilSchliessen(fromPopstate = false) {
 }
 document.getElementById("profileBtn").addEventListener("click", () => profilOeffnen());
 document.getElementById("profileClose").addEventListener("click", () => profilSchliessen());
-profileModal.addEventListener("click", e => { if (e.target === profileModal) profilSchliessen(); });
+document.getElementById("pfEditMe").addEventListener("click", () => {
+  const box = document.getElementById("pfEditMeBox"); box.hidden = !box.hidden;
+  pfTab("profil");
+  if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+document.getElementById("pfEditMeOk").addEventListener("click", () => { document.getElementById("pfEditMeBox").hidden = true; });
 // Textfelder: beim Tippen speichern
 const pfFeld = (id, fn) => document.getElementById(id).addEventListener("input", e => { fn(e.target.value.trim()); speichereProfil(); });
 const pfZahl = v => (v === "" || isNaN(+v) ? "" : +v);
-const pfSchirm = (k, v) => { profil.schirm = { ...(profil.schirm || {}), [k]: v }; };
 pfFeld("pfName", v => { profil.name = v; });
 pfFeld("pfSchein", v => { profil.schein = v; });
 pfFeld("pfStunden", v => { profil.stunden = pfZahl(v); });
 pfFeld("pfSeit", v => { profil.seit = pfZahl(v); });
-pfFeld("pfHersteller", v => pfSchirm("hersteller", v));
-pfFeld("pfModell", v => pfSchirm("modell", v));
-pfFeld("pfGewicht", v => pfSchirm("gewicht", pfZahl(v)));
-pfFeld("pfBaujahr", v => pfSchirm("baujahr", pfZahl(v)));
+document.getElementById("pfSchein").addEventListener("change", e => { profil.schein = e.target.value; speichereProfil(); });
+profileModal.addEventListener("input", e => {
+  const f = e.target.closest("[data-pfg]"); if (!f) return;
+  const [k, feld] = f.dataset.pfg.split(".");
+  profil[k] = { ...(profil[k] || {}), [feld]: f.type === "number" ? pfZahl(f.value) : f.value.trim() };
+  speichereProfil();
+});
 profileModal.addEventListener("click", e => {
   const lv = e.target.closest("[data-pflevel]");
   if (lv) { profil.level = profil.level === lv.dataset.pflevel ? "" : lv.dataset.pflevel; speichereProfil(); return; }
   const en = e.target.closest("[data-pfen]");
-  if (en) { pfSchirm("en", (profil.schirm || {}).en === en.dataset.pfen ? "" : en.dataset.pfen); speichereProfil(); return; }
+  if (en) { const neu = (profil.schirm || {}).en === en.dataset.pfen ? "" : en.dataset.pfen; profil.schirm = { ...(profil.schirm || {}), en: neu };
+    en.parentElement.querySelectorAll(".apill").forEach(b => b.classList.toggle("on", b.dataset.pfen === neu)); speichereProfil(); return; }
   const art = e.target.closest("[data-pfart]");
-  if (art) {
-    const a = new Set(profil.arten || []);
-    a.has(art.dataset.pfart) ? a.delete(art.dataset.pfart) : a.add(art.dataset.pfart);
-    profil.arten = [...a]; speichereProfil(); return;
-  }
+  if (art) { const a = new Set(profil.arten || []); a.has(art.dataset.pfart) ? a.delete(art.dataset.pfart) : a.add(art.dataset.pfart); profil.arten = [...a]; speichereProfil(); return; }
+  const ge = e.target.closest("[data-gearedit]");
+  if (ge) { gearOffen.has(ge.dataset.gearedit) ? gearOffen.delete(ge.dataset.gearedit) : gearOffen.add(ge.dataset.gearedit); gearRender(); return; }
+  const fo = e.target.closest("[data-pffoto]");
+  if (fo) { fotoArt = fo.dataset.pffoto; fotoInput.click(); return; }
 });
 // Heimatgebiet: dieselbe Suche wie oben (Startplaetze, Orte, PLZ) mit Vorschlaegen, oder aktueller Standort
 let pfHomeTimer = null, pfHomeSeq = 0, pfHomeTreffer = [];
@@ -3957,19 +4063,17 @@ document.getElementById("pfHomeSuche").addEventListener("input", e => {
   const raw = e.target.value.trim(), q = foldText(raw), seq = ++pfHomeSeq;
   clearTimeout(pfHomeTimer);
   if (q.length < 2) { pfHomeTreffer = []; pfHomeZeigen(); return; }
-  // Startplaetze sofort
   pfHomeTreffer = allKnownSpots().filter(sp => foldText(sp.name).includes(q) || foldText(sp.region || "").includes(q)).slice(0, 4)
     .map(sp => ({ name: sp.name, lat: sp.lat, lon: sp.lon, sub: "Startplatz · " + (sp.region || "") }));
   pfHomeZeigen();
-  // PLZ: eigene Abfrage; sonst Orte (Photon), kurz verzoegert
   pfHomeTimer = setTimeout(async () => {
-    let orte = [];
+    let ortsliste = [];
     try {
-      if (/^\d{5}$/.test(raw)) { const o = await geocodePlz(raw); orte = [{ name: o.label || `PLZ ${raw}`, lat: o.lat, lon: o.lon, sub: "PLZ" }]; }
-      else orte = (await fetchPlaces(raw)).map(o => ({ name: o.name, lat: o.lat, lon: o.lon, sub: [o.kind, o.where].filter(Boolean).join(" · ") }));
+      if (/^\d{5}$/.test(raw)) { const o = await geocodePlz(raw); ortsliste = [{ name: o.label || `PLZ ${raw}`, lat: o.lat, lon: o.lon, sub: "PLZ" }]; }
+      else ortsliste = (await fetchPlaces(raw)).map(o => ({ name: o.name, lat: o.lat, lon: o.lon, sub: [o.kind, o.where].filter(Boolean).join(" · ") }));
     } catch { return; }
-    if (seq !== pfHomeSeq) return;   // inzwischen weitergetippt
-    pfHomeTreffer = [...pfHomeTreffer, ...orte];
+    if (seq !== pfHomeSeq) return;
+    pfHomeTreffer = [...pfHomeTreffer, ...ortsliste];
     pfHomeZeigen();
   }, 300);
 });
@@ -3978,7 +4082,6 @@ profileModal.addEventListener("click", e => {
   if (b) { pfHomeSetzen(pfHomeTreffer[+b.dataset.pfhome]); return; }
   if (!e.target.closest("#pfHomeSug, #pfHomeSuche")) document.getElementById("pfHomeSug").hidden = true;
 });
-// "Setzen" / Enter: ersten Vorschlag nehmen
 document.getElementById("pfHomeSetzen").addEventListener("click", async () => {
   const q = document.getElementById("pfHomeSuche").value.trim();
   if (q.length < 2) return;
@@ -3989,13 +4092,6 @@ document.getElementById("pfHomeSetzen").addEventListener("click", async () => {
   else document.getElementById("pfHomeAnzeige").innerHTML = `<span class="pf-home-leer">Nichts gefunden – anderer Name?</span>`;
 });
 document.getElementById("pfHomeSuche").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("pfHomeSetzen").click(); });
-// Speichern: alles wird schon beim Eingeben gesichert - der Knopf bestaetigt und schliesst
-document.getElementById("pfSave").addEventListener("click", () => {
-  speichereProfil();
-  const b = document.getElementById("pfSave");
-  b.textContent = "✓ Gespeichert";
-  setTimeout(() => { b.textContent = "Speichern"; profilSchliessen(); }, 700);
-});
 document.getElementById("pfHomeGps").addEventListener("click", () => {
   if (!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(pos => {
@@ -4003,24 +4099,30 @@ document.getElementById("pfHomeGps").addEventListener("click", () => {
     speichereProfil();
   }, () => { document.getElementById("pfHomeAnzeige").innerHTML = `<span class="pf-home-leer">Standort nicht verfügbar (Berechtigung?)</span>`; });
 });
-document.getElementById("pfLoeschen").addEventListener("click", () => {
-  if (!confirm("Profil wirklich löschen? Name, Schirm, Level und Heimatgebiet gehen verloren.")) return;
-  profil = {}; try { localStorage.removeItem(PROFIL_KEY); } catch {}
-  profilFuellen(); updateGreeting();
+document.getElementById("pfSave").addEventListener("click", () => {
+  speichereProfil();
+  const b = document.getElementById("pfSave");
+  b.textContent = "✓ Gespeichert";
+  setTimeout(() => { b.textContent = "Speichern"; profilSchliessen(); }, 700);
 });
-// ---------------- Flugbuch, Meine Plaetze, Erinnerungen (Profil, Reiter 2 und 3) ----------------
-// Alles localStorage, nur auf diesem Geraet. Backup/Wiederherstellung als JSON-Datei.
-const FB_KEY = "flugwetter_flugbuch", ORTE_KEY = "flugwetter_orte", REM_KEY = "flugwetter_erinnerungen";
-const lsGet = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } };
-const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-let flugbuch = lsGet(FB_KEY, []);       // [{ id, datum "JJJJ-MM-TT", spotId?, ort, dauer (Min.), notiz }]
-let orte = lsGet(ORTE_KEY, {});         // { spotId: "geflogen" | "will" }
-let remData = lsGet(REM_KEY, {});       // { schluessel: { datum, monate } }
-const heuteIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
-const fmtDatum = iso => iso ? iso.split("-").reverse().join(".") : "";
-const spotName = id => { const sp = getSpot(id); return sp ? sp.name : ""; };
+document.getElementById("pfLoeschen").addEventListener("click", () => {
+  if (!confirm("Profil wirklich löschen? Name, Fotos, Ausrüstung, Level und Heimatgebiet gehen verloren (Flugbuch bleibt).")) return;
+  profil = {}; try { localStorage.removeItem(PROFIL_KEY); } catch {}
+  gearOffen.clear(); profilFuellen(); updateGreeting();
+  document.getElementById("pfEditMeBox").hidden = false;
+});
 
-// Meine Plaetze: geflogen (auch automatisch aus dem Flugbuch) / will ich
+// --- Reiter ---
+function pfTab(tab) {
+  profileModal.dataset.tab = tab;
+  document.querySelectorAll("#profileModal [data-pftab]").forEach(b => b.classList.toggle("on", b.dataset.pftab === tab));
+  document.querySelectorAll(".pf-pane").forEach(p => { p.hidden = p.dataset.pfpane !== tab; });
+  if (tab === "buch") fbRender();
+  if (tab === "rem") remRender();
+}
+profileModal.addEventListener("click", e => { const b = e.target.closest("[data-pftab]"); if (b) { pfTab(b.dataset.pftab); profileModal.querySelector(".pf-root").scrollTop = 0; } });
+
+// --- Meine Plaetze: geflogen (auch automatisch aus dem Flugbuch) / will ich ---
 function ortStatus(id) {
   if (orte[id] === "geflogen" || flugbuch.some(f => f.spotId === id)) return "geflogen";
   return orte[id] || "";
@@ -4028,7 +4130,6 @@ function ortStatus(id) {
 function ortSetzen(id, art) {
   if (art) orte[id] = art; else delete orte[id];
   lsSet(ORTE_KEY, orte);
-  if (art === "will" && flugbuch.some(f => f.spotId === id)) return;   // schon geflogen, "will" ergibt keinen Sinn
   if (mapInstance && lastRows.length) updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
   if (currentDetailSpot && currentDetailSpot.id === id) { const m = document.querySelector("#detailModal .dt-menu"); if (m) { const btns = m.querySelectorAll("[data-ort]");
     btns[0].textContent = ortStatus(id) === "geflogen" ? "✅ Schon geflogen" : "✔️ Als geflogen markieren";
@@ -4036,24 +4137,23 @@ function ortSetzen(id, art) {
   if (!profileModal.hidden) fbRender();
 }
 
-// Reiter im Profil
-function pfTab(tab) {
-  document.querySelectorAll("#pfTabs button").forEach(b => b.classList.toggle("on", b.dataset.pftab === tab));
-  document.querySelectorAll(".pf-pane").forEach(p => { p.hidden = p.dataset.pfpane !== tab; });
-  if (tab === "buch") fbRender();
-  if (tab === "rem") remRender();
-}
-document.getElementById("pfTabs").addEventListener("click", e => { const b = e.target.closest("[data-pftab]"); if (b) pfTab(b.dataset.pftab); });
-
 // --- Flugbuch ---
-let fbZeit = "jahr", fbOrteArt = "geflogen", fbSpotId = "";
+let statZeit = "jahr", fbOrteArt = "geflogen", fbSpotId = "", fbAlleZeigen = false;
 function fbEintraege() {
-  const jahr = String(new Date().getFullYear());
-  return flugbuch.filter(f => fbZeit === "alle" || f.datum.startsWith(jahr)).sort((a, b) => b.datum.localeCompare(a.datum));
+  const jahr = new Date().getFullYear();
+  const passt = f => statZeit === "alle" || f.datum.startsWith(String(statZeit === "vorjahr" ? jahr - 1 : jahr));
+  return flugbuch.filter(passt).sort((a, b) => b.datum.localeCompare(a.datum));
 }
 function fbOrtName(f) { return f.spotId ? (spotName(f.spotId) || f.ort) : f.ort; }
 const fbStunden = arr => arr.reduce((t, f) => t + (+f.dauer || 0), 0) / 60;
 const fmtStd = h => (Math.round(h * 10) / 10).toString().replace(".", ",");
+function statHtml(arr) {
+  const min = Math.round(arr.reduce((t, f) => t + (+f.dauer || 0), 0));
+  const plaetze = new Set(arr.map(f => f.spotId || foldText(f.ort)).filter(Boolean)).size;
+  const km = arr.reduce((m, f) => Math.max(m, +f.km || 0), 0);
+  const k = (ic, w, l) => `<div class="fb-tile"><span class="fb-ic">${IC_ST[ic]}</span><div><b>${w}</b><span>${l}</span></div></div>`;
+  return k("plane", arr.length, "Flüge") + k("uhr", hmm(min), "Stunden") + k("berg", plaetze, "Startplätze") + k("strecke", km ? `${fmtStd(km)} km` : "–", "längster Flug");
+}
 function fbBadges() {
   const n = flugbuch.length, h = fbStunden(flugbuch);
   const plaetze = new Set(flugbuch.map(f => f.spotId || foldText(f.ort)).filter(Boolean)).size;
@@ -4072,41 +4172,41 @@ function fbBadges() {
     { k: "3L", t: "3 Länder", ok: laender >= 3, fort: `${Math.min(laender, 3)}/3` },
   ];
 }
+const MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 function fbRender() {
-  const arr = fbEintraege();
-  const jahr = new Date().getFullYear();
-  document.getElementById("fbZeitJahr").textContent = `Dieses Jahr (${jahr})`;
-  document.querySelectorAll("#fbZeit .apill").forEach(b => b.classList.toggle("on", b.dataset.fbzeit === fbZeit));
-  // Kennzahlen
-  const zaehl = {};
-  arr.forEach(f => { const k = f.spotId || foldText(f.ort); if (k) zaehl[k] = (zaehl[k] || 0) + 1; });
-  const top = Object.entries(zaehl).sort((a, b) => b[1] - a[1])[0];
-  const topF = top && arr.find(f => (f.spotId || foldText(f.ort)) === top[0]);
-  const laengster = arr.reduce((m, f) => Math.max(m, +f.dauer || 0), 0);
-  const kachel = (w, l) => `<div class="fb-tile"><b>${w}</b><span>${l}</span></div>`;
-  document.getElementById("fbStats").innerHTML =
-    kachel(arr.length, "Flüge") + kachel(fmtStd(fbStunden(arr)), "Stunden") + kachel(Object.keys(zaehl).length, "Plätze")
-    + kachel(laengster ? `${Math.floor(laengster / 60)}:${String(laengster % 60).padStart(2, "0")}` : "–", "längster Flug")
-    + (topF ? `<div class="fb-tile fb-tile-wide"><b>${escHtml(fbOrtName(topF))}</b><span>Lieblingsplatz · ${top[1]}×</span></div>` : "");
-  // Abzeichen
+  document.getElementById("fbZeitJahr").textContent = `Dieses Jahr (${new Date().getFullYear()})`;
+  document.querySelectorAll("#fbZeit .apill").forEach(b => b.classList.toggle("on", b.dataset.fbzeit === statZeit));
+  document.getElementById("pfStatZeit").value = statZeit;
+  document.getElementById("fbStats").innerHTML = statHtml(fbEintraege());
+  document.getElementById("pfStats").innerHTML = statHtml(fbEintraege());
   document.getElementById("fbBadges").innerHTML = fbBadges().map(b =>
     `<div class="fb-badge${b.ok ? " ok" : ""}" title="${b.ok ? "Erreicht" : b.fort}"><span class="fb-badge-k">${b.k}</span><span class="fb-badge-t">${b.t}</span>${b.ok ? "" : `<span class="fb-badge-f">${b.fort}</span>`}</div>`).join("");
-  // Fluege
-  document.getElementById("fbListe").innerHTML = arr.length ? arr.map(f => `<div class="fb-row" data-fbid="${f.id}">
+  // Letzte Fluege
+  const alle = flugbuch.slice().sort((a, b) => b.datum.localeCompare(a.datum));
+  const zeig = fbAlleZeigen ? alle : alle.slice(0, 3);
+  document.getElementById("fbAlle").hidden = alle.length <= 3;
+  document.getElementById("fbAlle").textContent = fbAlleZeigen ? "Weniger ‹" : "Alle anzeigen ›";
+  document.getElementById("fbListe").innerHTML = zeig.length ? zeig.map(f => {
+    const [j, m, t] = f.datum.split("-");
+    return `<div class="fb-row" data-fbid="${f.id}">
+      <div class="fb-date"><b>${+t}</b><span>${MON[+m - 1] || ""}</span></div>
       <div class="fb-row-main"${f.spotId ? ` data-fbspot="${f.spotId}"` : ""}><div class="fb-row-t">${escHtml(fbOrtName(f)) || "Ohne Ortsangabe"}</div>
-        <div class="fb-row-s">${fmtDatum(f.datum)}${f.dauer ? ` · ${Math.floor(f.dauer / 60)}:${String(f.dauer % 60).padStart(2, "0")} h` : ""}${f.notiz ? ` · ${escHtml(f.notiz)}` : ""}</div></div>
-      <button type="button" class="fb-x" data-fbdel="${f.id}" aria-label="Flug löschen">✕</button></div>`).join("")
-    : `<p class="pf-note">Noch kein Flug eingetragen${fbZeit === "jahr" ? " – dieses Jahr" : ""}.</p>`;
+        <div class="fb-row-s">${f.dauer ? `<span>${IC_ST.uhr}${hmm(f.dauer)} h</span>` : ""}${f.km ? `<span>${IC_ST.strecke}${fmtStd(f.km)} km</span>` : ""}${f.notiz ? `<span class="fb-note">${escHtml(f.notiz)}</span>` : ""}</div></div>
+      ${f.spotId ? `<span class="fb-chev" data-fbspot="${f.spotId}">›</span>` : ""}
+      <button type="button" class="fb-x" data-fbdel="${f.id}" aria-label="Flug löschen">✕</button></div>`;
+  }).join("") : `<p class="pf-note">Noch kein Flug eingetragen.</p>`;
   // Meine Plaetze
   document.querySelectorAll("#fbOrteSeg .apill").forEach(b => b.classList.toggle("on", b.dataset.fbort === fbOrteArt));
   const ids = new Set(Object.keys(orte).filter(id => orte[id] === fbOrteArt));
   if (fbOrteArt === "geflogen") flugbuch.forEach(f => { if (f.spotId) ids.add(f.spotId); });
   const liste = [...ids].map(id => getSpot(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name, "de"));
   document.getElementById("fbOrteListe").innerHTML = liste.length ? liste.map(sp => `<div class="fb-row"><div class="fb-row-main" data-fbspot="${sp.id}"><div class="fb-row-t">${escHtml(sp.name)}</div>
-      <div class="fb-row-s">${escHtml([sp.gemeinde, sp.bundesland].filter(Boolean).join(", ") || sp.region || "")}</div></div>
+      <div class="fb-row-s"><span>${escHtml([sp.gemeinde, sp.bundesland].filter(Boolean).join(", ") || sp.region || "")}</span></div></div>
       ${orte[sp.id] === fbOrteArt ? `<button type="button" class="fb-x" data-fbortdel="${sp.id}" aria-label="Entfernen">✕</button>` : ""}</div>`).join("")
     : `<p class="pf-note">${fbOrteArt === "geflogen" ? "Hier erscheinen Plätze aus deinem Flugbuch und alle, die du im Detailfenster (☰) als geflogen markierst." : "Markiere Plätze im Detailfenster (☰) mit „Will ich fliegen“."}</p>`;
 }
+document.getElementById("pfStatZeit").addEventListener("change", e => { statZeit = e.target.value; fbRender(); });
+document.getElementById("fbAlle").addEventListener("click", () => { fbAlleZeigen = !fbAlleZeigen; fbRender(); });
 // Platz-Vorschlaege beim Tippen
 document.getElementById("fbPlatz").addEventListener("input", e => {
   fbSpotId = "";
@@ -4117,17 +4217,18 @@ document.getElementById("fbPlatz").addEventListener("input", e => {
   sug.hidden = !treffer.length;
 });
 function fbFormLeeren() {
-  document.getElementById("fbPlatz").value = ""; document.getElementById("fbDauer").value = ""; document.getElementById("fbNotiz").value = "";
+  ["fbPlatz", "fbDauer", "fbKm", "fbNotiz"].forEach(id => { document.getElementById(id).value = ""; });
   document.getElementById("fbDatum").value = heuteIso(); fbSpotId = ""; document.getElementById("fbSug").hidden = true;
 }
 document.getElementById("fbAdd").addEventListener("click", () => {
   const datum = document.getElementById("fbDatum").value || heuteIso();
   const ortText = document.getElementById("fbPlatz").value.trim();
   const dauer = Math.round(+document.getElementById("fbDauer").value) || 0;
+  const km = Math.round((+document.getElementById("fbKm").value || 0) * 10) / 10;
   if (!ortText && !fbSpotId) { document.getElementById("fbPlatz").focus(); return; }
-  flugbuch.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), datum, spotId: fbSpotId || "", ort: ortText, dauer, notiz: document.getElementById("fbNotiz").value.trim() });
+  flugbuch.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), datum, spotId: fbSpotId || "", ort: ortText, dauer, km, notiz: document.getElementById("fbNotiz").value.trim() });
   lsSet(FB_KEY, flugbuch);
-  fbFormLeeren(); fbRender();
+  fbFormLeeren(); fbRender(); profilUi();
   if (mapInstance && lastRows.length) updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
 });
 // Aus dem Detailfenster: Flugbuch mit vorausgefuelltem Platz
@@ -4143,21 +4244,21 @@ profileModal.addEventListener("click", e => {
   const pick = e.target.closest("[data-fbpick]");
   if (pick) { const sp = getSpot(pick.dataset.fbpick); document.getElementById("fbPlatz").value = sp.name; fbSpotId = sp.id; document.getElementById("fbSug").hidden = true; return; }
   const z = e.target.closest("[data-fbzeit]");
-  if (z) { fbZeit = z.dataset.fbzeit; fbRender(); return; }
+  if (z) { statZeit = z.dataset.fbzeit; fbRender(); return; }
   const o = e.target.closest("[data-fbort]");
   if (o) { fbOrteArt = o.dataset.fbort; fbRender(); return; }
   const del = e.target.closest("[data-fbdel]");
-  if (del) { if (confirm("Diesen Flug löschen?")) { flugbuch = flugbuch.filter(f => f.id !== del.dataset.fbdel); lsSet(FB_KEY, flugbuch); fbRender(); } return; }
+  if (del) { if (confirm("Diesen Flug löschen?")) { flugbuch = flugbuch.filter(f => f.id !== del.dataset.fbdel); lsSet(FB_KEY, flugbuch); fbRender(); profilUi(); } return; }
   const odel = e.target.closest("[data-fbortdel]");
   if (odel) { ortSetzen(odel.dataset.fbortdel, ""); return; }
   const sp = e.target.closest("[data-fbspot]");
   if (sp) { profilSchliessen(); openDetail(sp.dataset.fbspot); return; }
 });
-// Backup
+// Backup (Profil inkl. Fotos, Flugbuch, Plaetze, Erinnerungen)
 document.getElementById("fbExport").addEventListener("click", () => {
-  const daten = { app: "GoFlyToday", v: 1, stand: heuteIso(), profil, flugbuch, orte, erinnerungen: remData };
+  const daten = { app: "GoFlyToday", v: 2, stand: heuteIso(), profil, flugbuch, orte, erinnerungen: remData, eigene: remEigene };
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(daten, null, 1)], { type: "application/json" }));
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(daten)], { type: "application/json" }));
   a.download = `goflytoday-backup-${heuteIso()}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
@@ -4169,64 +4270,73 @@ document.getElementById("fbImport").addEventListener("change", async e => {
     const d = JSON.parse(await f.text());
     if (d.app !== "GoFlyToday") throw new Error("falsche Datei");
     if (!confirm("Backup laden? Profil, Flugbuch und Erinnerungen auf diesem Gerät werden ersetzt.")) return;
-    profil = d.profil || {}; flugbuch = Array.isArray(d.flugbuch) ? d.flugbuch : []; orte = d.orte || {}; remData = d.erinnerungen || {};
-    lsSet(PROFIL_KEY, profil); lsSet(FB_KEY, flugbuch); lsSet(ORTE_KEY, orte); lsSet(REM_KEY, remData);
+    profil = d.profil || {}; flugbuch = Array.isArray(d.flugbuch) ? d.flugbuch : []; orte = d.orte || {}; remData = d.erinnerungen || {}; remEigene = d.eigene || [];
+    lsSet(PROFIL_KEY, profil); lsSet(FB_KEY, flugbuch); lsSet(ORTE_KEY, orte); lsSet(REM_KEY, remData); lsSet(REM_EIGENE_KEY, remEigene);
     profilFuellen(); fbRender(); remRender(); updateGreeting(); remBannerZeigen();
   } catch { alert("Das ist keine gültige GoFlyToday-Backup-Datei."); }
 });
 
-// --- Erinnerungen (Rettungsschirm, Nachpruefung ...) ---
-// "intervall": zuletzt gemacht + Monate = faellig. "ablauf": fixes Ablaufdatum.
+// --- Erinnerungen (Rettungsschirm, Nachpruefung ...): zuletzt gemacht + Monate = faellig ---
 const REM_TYPEN = [
-  { k: "rettung", t: "Rettungsschirm packen", art: "intervall", monate: 12, label: "Zuletzt gepackt" },
-  { k: "nachpruefung", t: "Schirm-Nachprüfung", art: "intervall", monate: 24, label: "Zuletzt geprüft (neu: Kaufdatum)" },
-  { k: "gurtzeug", t: "Gurtzeug-Check", art: "intervall", monate: 12, label: "Zuletzt geprüft" },
-  { k: "haftpflicht", t: "Haftpflicht-Versicherung", art: "ablauf", label: "Läuft ab am" },
-  { k: "dhv", t: "DHV-/Vereinsmitgliedschaft", art: "ablauf", label: "Gültig bis" },
+  { k: "rettung", t: "Rettungsschirm packen", monate: 12, ill: "retter" },
+  { k: "nachpruefung", t: "Schirm-Nachprüfung", monate: 24, ill: "schirm" },
+  { k: "gurtzeug", t: "Gurtzeug-Check", monate: 12, ill: "gurt" },
+  { k: "karabiner", t: "Karabiner prüfen", monate: 12, ill: "karabiner" },
+  { k: "haftpflicht", t: "Haftpflicht-Versicherung", monate: 12, ill: "schild", label: "Zuletzt bezahlt" },
 ];
+const alleRem = () => [...REM_TYPEN, ...remEigene.map(x => ({ ...x, ill: "glocke", eigen: true }))];
 const REM_BALD_TAGE = 45;
 function addMonate(iso, m) { const d = new Date(iso + "T12:00:00"); d.setMonth(d.getMonth() + m); return d; }
-function remFaellig(t) {
-  const x = remData[t.k]; if (!x || !x.datum) return null;
-  return t.art === "ablauf" ? new Date(x.datum + "T12:00:00") : addMonate(x.datum, +x.monate || t.monate);
-}
+function remMonate(t) { return +((remData[t.k] || {}).monate) || t.monate; }
+function remFaellig(t) { const x = remData[t.k]; return x && x.datum ? addMonate(x.datum, remMonate(t)) : null; }
 function remStatus(t) {
   const d = remFaellig(t); if (!d) return { st: "offen", tage: null, d: null };
   const tage = Math.ceil((d - new Date()) / 86400000);
   return { st: tage < 0 ? "rot" : tage <= REM_BALD_TAGE ? "gelb" : "ok", tage, d };
 }
-function remTageText(r, t) {
+function remTageText(r) {
   if (r.st === "offen") return "Noch nicht eingetragen";
-  const wann = r.d.toLocaleDateString("de-DE");
+  const wann = r.d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
   if (r.tage < 0) return `Überfällig seit ${-r.tage} ${-r.tage === 1 ? "Tag" : "Tagen"} (${wann})`;
   if (r.tage === 0) return `Heute fällig (${wann})`;
-  return `${t.art === "ablauf" ? "Läuft ab" : "Fällig"} in ${r.tage} ${r.tage === 1 ? "Tag" : "Tagen"} (${wann})`;
+  return `Fällig in ${r.tage} ${r.tage === 1 ? "Tag" : "Tagen"} (${wann})`;
 }
+let remOffen = new Set();
 function remRender() {
-  document.getElementById("remListe").innerHTML = REM_TYPEN.map(t => {
-    const x = remData[t.k] || {}, r = remStatus(t);
+  document.getElementById("remListe").innerHTML = alleRem().map(t => {
+    const x = remData[t.k] || {}, r = remStatus(t), edit = remOffen.has(t.k) || r.st === "offen";
     return `<div class="rem-card rem-${r.st}" data-rem="${t.k}">
-      <div class="rem-head"><b>${t.t}</b><span class="rem-chip">${r.st === "ok" ? "in Ordnung" : r.st === "gelb" ? "bald" : r.st === "rot" ? "fällig" : "offen"}</span></div>
-      <div class="rem-txt">${remTageText(r, t)}</div>
-      <div class="pf-row rem-row">
-        <label class="pf-field">${t.label}<input type="date" class="pf-input" data-remdatum="${t.k}" value="${x.datum || ""}"></label>
-        ${t.art === "intervall" ? `<label class="pf-field rem-monate">Alle … Monate<input type="number" class="pf-input" min="1" max="120" inputmode="numeric" data-remmonate="${t.k}" value="${x.monate || t.monate}"></label>` : ""}
+      <div class="rem-main">
+        <div class="rem-pic">${ILL[t.ill]}</div>
+        <div class="rem-txt">
+          <div class="rem-head"><b>${escHtml(t.t)}</b><span class="rem-chip">${r.st === "ok" ? "in Ordnung" : r.st === "gelb" ? "bald fällig" : r.st === "rot" ? "überfällig" : "offen"}</span></div>
+          <div class="rem-line">${remTageText(r)}</div>
+          <div class="rem-meta"><span>⟳ Alle ${remMonate(t)} Monate</span>${x.datum ? `<span>📅 Zuletzt: ${fmtDatum(x.datum)}</span>` : ""}</div>
+        </div>
+        <button type="button" class="rem-dots" data-remmenu="${t.k}" aria-label="Bearbeiten">⋮</button>
       </div>
-      ${r.d ? `<button type="button" class="rem-ics" data-remics="${t.k}">📅 In den Kalender</button>` : ""}
+      <div class="rem-edit"${edit ? "" : " hidden"}>
+        <div class="pf-row">
+          <label class="pf-field">${t.label || "Zuletzt gemacht"}<input type="date" class="pf-input" data-remdatum="${t.k}" value="${x.datum || ""}"></label>
+          <label class="pf-field rem-monate">Alle … Monate<input type="number" class="pf-input" min="1" max="120" inputmode="numeric" data-remmonate="${t.k}" value="${remMonate(t)}"></label>
+        </div>
+        <div class="pf-row rem-acts">
+          ${r.d ? `<button type="button" class="pf-btn pf-btn-ghost" data-remics="${t.k}">📅 In den Kalender</button>` : ""}
+          ${t.eigen ? `<button type="button" class="pf-btn pf-btn-ghost rem-del" data-remdel="${t.k}">Löschen</button>` : ""}
+        </div>
+      </div>
     </div>`;
   }).join("");
   remAnzeigen();
 }
-// Punkt am Profil-Knopf / Reiter, Banner auf der Startseite
 function remAlarm() {
-  const l = REM_TYPEN.map(t => ({ t, r: remStatus(t) })).filter(x => x.r.st === "rot" || x.r.st === "gelb");
+  const l = alleRem().map(t => ({ t, r: remStatus(t) })).filter(x => x.r.st === "rot" || x.r.st === "gelb");
   l.sort((a, b) => a.r.tage - b.r.tage);
   return l;
 }
 function remAnzeigen() {
   const al = remAlarm();
-  const dot = document.getElementById("pfRemDot");
-  dot.hidden = !al.length; dot.className = "pf-tab-dot" + (al.some(x => x.r.st === "rot") ? " rot" : "");
+  document.querySelectorAll("[data-pfremdot]").forEach(dot => { dot.hidden = !al.length; dot.classList.toggle("rot", al.some(x => x.r.st === "rot")); });
   profilUi();
   remBannerZeigen();
 }
@@ -4236,7 +4346,7 @@ function remBannerZeigen() {
   let gesehen = ""; try { gesehen = sessionStorage.getItem("remBannerZu") || ""; } catch {}
   if (!al.length || gesehen === heuteIso()) { box.hidden = true; return; }
   const x = al[0];
-  box.innerHTML = `<span class="eve-txt">⏰ <b>${x.t.t}</b>: ${remTageText(x.r, x.t)}${al.length > 1 ? ` · +${al.length - 1} weitere` : ""}</span>
+  box.innerHTML = `<span class="eve-txt">⏰ <b>${escHtml(x.t.t)}</b>: ${remTageText(x.r)}${al.length > 1 ? ` · +${al.length - 1} weitere` : ""}</span>
     <button type="button" class="eve-btn" id="remBannerGo">Ansehen</button>
     <button type="button" class="eve-x" id="remBannerX" aria-label="Ausblenden">✕</button>`;
   box.hidden = false;
@@ -4248,15 +4358,34 @@ document.getElementById("remBanner").addEventListener("click", e => {
 profileModal.addEventListener("change", e => {
   const dz = e.target.closest("[data-remdatum]"), mz = e.target.closest("[data-remmonate]");
   const k = (dz || mz) && (dz || mz).dataset[dz ? "remdatum" : "remmonate"]; if (!k) return;
-  const t = REM_TYPEN.find(x => x.k === k);
+  const t = alleRem().find(x => x.k === k);
   remData[k] = { ...(remData[k] || {}), ...(dz ? { datum: dz.value } : { monate: Math.max(1, +mz.value || t.monate) }) };
   lsSet(REM_KEY, remData);
+  remRender();
+  if (k === "rettung") GEAR.forEach(gearTexte);
+});
+document.getElementById("remNeu").addEventListener("click", () => {
+  const box = document.getElementById("remNeuBox"); box.hidden = !box.hidden;
+  document.getElementById("remNeuDatum").value = heuteIso();
+  if (!box.hidden) box.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+document.getElementById("remNeuOk").addEventListener("click", () => {
+  const name = document.getElementById("remNeuName").value.trim();
+  if (!name) { document.getElementById("remNeuName").focus(); return; }
+  const k = "e" + Date.now().toString(36), monate = Math.max(1, +document.getElementById("remNeuMonate").value || 12);
+  remEigene.push({ k, t: name, monate }); lsSet(REM_EIGENE_KEY, remEigene);
+  remData[k] = { datum: document.getElementById("remNeuDatum").value || heuteIso(), monate }; lsSet(REM_KEY, remData);
+  document.getElementById("remNeuName").value = ""; document.getElementById("remNeuBox").hidden = true;
   remRender();
 });
 // Kalender-Datei (.ics): ganztaegig am Faelligkeitstag, Erinnerung 14 Tage vorher
 profileModal.addEventListener("click", e => {
+  const m = e.target.closest("[data-remmenu]");
+  if (m) { remOffen.has(m.dataset.remmenu) ? remOffen.delete(m.dataset.remmenu) : remOffen.add(m.dataset.remmenu); remRender(); return; }
+  const del = e.target.closest("[data-remdel]");
+  if (del) { if (!confirm("Erinnerung löschen?")) return; remEigene = remEigene.filter(x => x.k !== del.dataset.remdel); delete remData[del.dataset.remdel]; lsSet(REM_EIGENE_KEY, remEigene); lsSet(REM_KEY, remData); remRender(); return; }
   const b = e.target.closest("[data-remics]"); if (!b) return;
-  const t = REM_TYPEN.find(x => x.k === b.dataset.remics), d = remFaellig(t); if (!d) return;
+  const t = alleRem().find(x => x.k === b.dataset.remics), d = remFaellig(t); if (!d) return;
   const ymd = x => `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, "0")}${String(x.getDate()).padStart(2, "0")}`;
   const ende = new Date(d.getTime() + 86400000);
   const ics = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//GoFlyToday//DE", "BEGIN:VEVENT", `UID:${t.k}-${ymd(d)}@goflytoday.de`,
@@ -4340,6 +4469,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 161, date: "28.10.", text: "Profil im neuen Design: Hero-Banner, Profilkarte mit Foto, Statistik, Schirm-, Gurtzeug- und Retter-Karten, Flugbuch-Liste mit Strecke, Erinnerungs-Karten mit eigenen Terminen" },
   { v: 160, date: "27.10.", text: "Profil: Speichern-Knopf, Heimatgebiet mit Suchvorschlägen wie die Hauptsuche. Flugbuch (Flüge eintragen, Statistik, Lieblingsplatz, Abzeichen), „Geflogen / Will ich fliegen“ für Plätze (Detailfenster ☰, Haken auf der Karte), Erinnerungen für Rettungsschirm, Nachprüfung, Gurtzeug, Versicherung mit Kalender-Datei, Backup als Datei" },
   { v: 159, date: "27.10.", text: "Neu: Mein Profil (Name, Level, Schirm, Flugarten, Heimatgebiet – nur auf deinem Gerät). Das Level stellt die Ampel ein. Außerdem deutlich mehr grüne Tage: ein guter Kern von 3 Stunden reicht, gelbe Randstunden machen das Fenster nicht mehr gelb" },
   { v: 158, date: "24.10.", text: "Tipp auf einen Startplatz in der Hauptkarte zoomt hinein (Umgebung erscheint), unten eine kurze Karte mit Bedingungen und „Details“. Zweiter Tipp öffnet die Details" },
@@ -4654,6 +4784,7 @@ const PAGES = {
 };
 function route() {
   let id = location.hash.replace("#/", "") || "home";
+  if (typeof profileModal !== "undefined" && !profileModal.hidden) { profileModal.hidden = true; profileHistoryPushed = false; }   // Tab gewechselt: Profil-Seite zu
   if (!PAGES[id]) id = "home";
   document.querySelectorAll(".page").forEach(p => p.hidden = p.id !== "page-" + id);
   document.body.classList.toggle("route-home", id === "home");   // Startseite: Header transparent über dem Bild

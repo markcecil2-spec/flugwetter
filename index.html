@@ -13,7 +13,7 @@
   <!-- ?v=NN muss bei jedem Deploy mit der Versionsnummer/sw.js mitgezogen werden. Ohne das
        kann der Browser eine neue index.html mit einer alten app.js aus dem HTTP-Cache mischen
        (GitHub Pages liefert Assets mit max-age) - dann fehlen neue Funktionen kommentarlos. -->
-  <link rel="stylesheet" href="style.css?v=160" />
+  <link rel="stylesheet" href="style.css?v=161" />
 </head>
 <body>
   <header>
@@ -359,7 +359,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 160 · Oktober 2026</p>
+      <p class="build">GoFlyToday · Version 161 · Oktober 2026</p>
     </section>
   </main>
 
@@ -472,74 +472,71 @@
     </div>
   </div>
 
-  <!-- Mein Profil (nur auf diesem Geraet gespeichert) -->
-  <div id="profileModal" class="modal" hidden>
-    <div class="modal-card">
-      <div class="modal-head">
-        <h2><svg class="inline-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg> Mein Profil</h2>
-        <button id="profileClose" class="ic0" title="Schließen">✕</button>
+  <!-- Mein Profil: Seite ueber dem Inhalt, Tabbar bleibt sichtbar (nur auf diesem Geraet gespeichert) -->
+  <div id="profileModal" class="modal pf-page" hidden>
+    <div class="modal-card pf-root">
+      <button id="profileClose" class="pf-close" aria-label="Schließen">✕</button>
+
+      <div class="pf-hero only-profil">
+        <img src="img/hero.jpg" alt="">
+        <div class="pf-hero-txt"><h1>Mein Profil</h1><p>Deine Flüge. Deine Ausrüstung. Alles auf einen Blick.</p></div>
+        <button type="button" class="pf-pencil" id="pfEditMe" aria-label="Profil bearbeiten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
       </div>
-      <div class="pf-tabs" id="pfTabs" role="tablist">
-        <button type="button" class="on" data-pftab="profil" role="tab">Profil</button>
-        <button type="button" data-pftab="buch" role="tab">Flugbuch</button>
-        <button type="button" data-pftab="rem" role="tab">Erinnerungen<span class="pf-tab-dot" id="pfRemDot" hidden></span></button>
+      <div class="pf-topbar not-profil"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg> Mein Profil</h2></div>
+      <div class="pf-tabs-top not-profil" id="pfTabsTop">
+        <div class="pf-tabs" role="tablist">
+          <button type="button" data-pftab="profil" role="tab">Profil</button>
+          <button type="button" data-pftab="buch" role="tab">Flugbuch</button>
+          <button type="button" data-pftab="rem" role="tab">Erinnerungen<span class="pf-tab-dot" data-pfremdot hidden></span></button>
+        </div>
       </div>
-      <div class="settings-list pf-list">
+
+      <div class="pf-body">
+       <!-- ===== Profil ===== -->
        <div class="pf-pane" data-pfpane="profil">
-        <div class="pf-me">
-          <div class="pf-avatar" id="pfAvatar">?</div>
-          <div class="pf-me-txt">
-            <input type="text" id="pfName" class="pf-input" maxlength="30" placeholder="Dein Name oder Pilotenname" autocomplete="nickname">
-            <div class="pf-sub" id="pfSub">Noch nichts eingetragen</div>
+        <div class="pf-me-card">
+          <div class="pf-me">
+            <button type="button" class="pf-avatar" id="pfAvatar" aria-label="Foto ändern" data-pffoto="avatar"></button>
+            <div class="pf-me-txt">
+              <div class="pf-me-name" id="pfMeName">Dein Name</div>
+              <div class="pf-me-line" id="pfSub"></div>
+              <div class="pf-me-line" id="pfSeitTxt"></div>
+            </div>
+            <span class="pf-schein" id="pfScheinChip" hidden></span>
+          </div>
+          <div class="pf-tabs" role="tablist">
+            <button type="button" data-pftab="profil" role="tab">Profil</button>
+            <button type="button" data-pftab="buch" role="tab">Flugbuch</button>
+            <button type="button" data-pftab="rem" role="tab">Erinnerungen<span class="pf-tab-dot" data-pfremdot hidden></span></button>
+          </div>
+          <div class="pf-edit" id="pfEditMeBox" hidden>
+            <label class="pf-field">Name oder Pilotenname<input type="text" id="pfName" class="pf-input" maxlength="30" placeholder="Wie sollen wir dich nennen?" autocomplete="nickname"></label>
+            <div class="pf-label">Level <span class="pf-sublabel">stellt die Ampel ein</span></div>
+            <div class="acc-seg" id="pfLevel" role="group" aria-label="Level">
+              <button type="button" class="apill" data-pflevel="einsteiger">Einsteiger</button>
+              <button type="button" class="apill" data-pflevel="fortgeschritten">Fortgeschritten</button>
+              <button type="button" class="apill" data-pflevel="erfahren">Erfahren</button>
+            </div>
+            <div class="pf-ampel" id="pfAmpel"></div>
+            <div class="pf-row">
+              <label class="pf-field">Schein
+                <select id="pfSchein" class="pf-input"><option value="">–</option><option value="Schüler">Schüler</option><option value="A">A-Schein</option><option value="B">B-Schein</option><option value="Tandem">Tandempilot</option></select></label>
+              <label class="pf-field">Flugstunden<input type="number" id="pfStunden" class="pf-input" min="0" max="20000" inputmode="numeric" placeholder="z. B. 120"></label>
+              <label class="pf-field">Fliegt seit<input type="number" id="pfSeit" class="pf-input" min="1970" max="2100" inputmode="numeric" placeholder="Jahr"></label>
+            </div>
+            <button type="button" class="pf-btn pf-btn-ghost" data-pffoto="avatar">📷 Profilfoto wählen</button>
+            <button type="button" class="pf-btn pf-edit-ok" id="pfEditMeOk">Fertig</button>
           </div>
         </div>
 
-        <div class="settings-group">
-          <div class="settings-group-label">Erfahrung</div>
-          <div class="acc-seg" id="pfLevel" role="group" aria-label="Level">
-            <button type="button" class="apill" data-pflevel="einsteiger">Einsteiger</button>
-            <button type="button" class="apill" data-pflevel="fortgeschritten">Fortgeschritten</button>
-            <button type="button" class="apill" data-pflevel="erfahren">Erfahren</button>
-          </div>
-          <div class="pf-ampel" id="pfAmpel"></div>
-          <div class="pf-row">
-            <label class="pf-field">Schein
-              <select id="pfSchein" class="pf-input"><option value="">–</option><option value="Schüler">Schüler</option><option value="A">A-Schein</option><option value="B">B-Schein</option><option value="Tandem">Tandempilot</option></select></label>
-            <label class="pf-field">Flugstunden
-              <input type="number" id="pfStunden" class="pf-input" min="0" max="20000" inputmode="numeric" placeholder="z. B. 120"></label>
-            <label class="pf-field">Fliegt seit
-              <input type="number" id="pfSeit" class="pf-input" min="1970" max="2100" inputmode="numeric" placeholder="Jahr"></label>
-          </div>
-        </div>
+        <div class="pf-sec-head"><span class="pf-sec-t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20V9m5 11V4m5 16v-8m5 8V7"/></svg>Meine Statistiken</span>
+          <select id="pfStatZeit" class="pf-select" aria-label="Zeitraum"><option value="jahr">Dieses Jahr</option><option value="vorjahr">Letztes Jahr</option><option value="alle">Gesamt</option></select></div>
+        <div class="fb-stats" id="pfStats"></div>
 
-        <div class="settings-group">
-          <div class="settings-group-label">Mein Schirm</div>
-          <div class="pf-row">
-            <label class="pf-field pf-wide">Hersteller
-              <input type="text" id="pfHersteller" class="pf-input" list="pfHerstellerListe" maxlength="30" placeholder="z. B. Ozone" autocomplete="off"></label>
-            <label class="pf-field pf-wide">Modell
-              <input type="text" id="pfModell" class="pf-input" maxlength="30" placeholder="z. B. Rush 5" autocomplete="off"></label>
-          </div>
-          <datalist id="pfHerstellerListe"><option value="Advance"><option value="BGD"><option value="Dudek"><option value="Flow"><option value="Gin"><option value="Mac Para"><option value="Niviuk"><option value="Nova"><option value="Ozone"><option value="Phi"><option value="Sky Paragliders"><option value="Skywalk"><option value="Supair"><option value="Swing"><option value="U-Turn"><option value="UP"></datalist>
-          <div class="pf-label">EN-Klasse</div>
-          <div class="acc-seg" id="pfEn" role="group" aria-label="EN-Klasse">
-            <button type="button" class="apill" data-pfen="A">A</button>
-            <button type="button" class="apill" data-pfen="B">B</button>
-            <button type="button" class="apill" data-pfen="C">C</button>
-            <button type="button" class="apill" data-pfen="D">D</button>
-            <button type="button" class="apill" data-pfen="CCC">CCC</button>
-          </div>
-          <div class="pf-row">
-            <label class="pf-field">Startgewicht (kg)
-              <input type="number" id="pfGewicht" class="pf-input" min="30" max="200" inputmode="numeric" placeholder="inkl. Ausrüstung"></label>
-            <label class="pf-field">Baujahr
-              <input type="number" id="pfBaujahr" class="pf-input" min="1990" max="2100" inputmode="numeric" placeholder="Jahr"></label>
-          </div>
-          <div class="pf-warn" id="pfEnWarn" hidden></div>
-        </div>
+        <div id="pfGear"></div>
 
-        <div class="settings-group">
-          <div class="settings-group-label">Wie fliegst du?</div>
+        <div class="pf-box">
+          <div class="pf-box-t">Wie fliegst du?</div>
           <div class="acc-seg" id="pfArten" role="group" aria-label="Flugarten">
             <button type="button" class="apill" data-pfart="thermik">Thermik</button>
             <button type="button" class="apill" data-pfart="soaring">Soaring</button>
@@ -547,9 +544,8 @@
             <button type="button" class="apill" data-pfart="bahn">Mit Bergbahn</button>
           </div>
         </div>
-
-        <div class="settings-group">
-          <div class="settings-group-label">Heimatgebiet</div>
+        <div class="pf-box">
+          <div class="pf-box-t">Heimatgebiet</div>
           <div class="pf-home" id="pfHomeAnzeige"></div>
           <div class="pf-row pf-home-row fb-platz">
             <input type="text" id="pfHomeSuche" class="pf-input" placeholder="Startplatz, Ort oder PLZ suchen" autocomplete="off">
@@ -559,52 +555,51 @@
           <button type="button" class="pf-btn pf-btn-ghost" id="pfHomeGps">📍 Meinen Standort nehmen</button>
           <p class="pf-note">Die App startet dann dort statt bei „Wo kannst du heute fliegen?“.</p>
         </div>
-
         <div class="info-box"><svg class="info-box-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg><span>Alles bleibt auf diesem Gerät – kein Konto, keine Übertragung. Dein Level stellt die Ampel ein (Einsteiger vorsichtiger, Erfahren lockerer). Die App zeigt nur eine Tendenz; die Entscheidung triffst du vor Ort.</span></div>
         <button type="button" class="pf-btn pf-btn-ghost pf-del" id="pfLoeschen">Profil löschen</button>
         <div class="pf-foot"><button type="button" class="pf-btn pf-save" id="pfSave">Speichern</button></div>
        </div>
 
-       <!-- Flugbuch -->
+       <!-- ===== Flugbuch ===== -->
        <div class="pf-pane" data-pfpane="buch" hidden>
         <div class="acc-seg fb-zeit" id="fbZeit" role="group" aria-label="Zeitraum">
           <button type="button" class="apill on" data-fbzeit="jahr" id="fbZeitJahr">Dieses Jahr</button>
           <button type="button" class="apill" data-fbzeit="alle">Gesamt</button>
         </div>
         <div class="fb-stats" id="fbStats"></div>
-        <div class="settings-group">
-          <div class="settings-group-label">Flug eintragen</div>
+
+        <div class="pf-box">
+          <div class="pf-box-t"><span class="pf-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3 2.5 10.5l7 3 3 7z"/><path d="m9.5 13.5 5-5"/></svg></span>Neuen Flug eintragen</div>
           <div class="pf-row">
             <label class="pf-field">Datum<input type="date" id="fbDatum" class="pf-input"></label>
             <label class="pf-field">Dauer (Min.)<input type="number" id="fbDauer" class="pf-input" min="1" max="1500" inputmode="numeric" placeholder="z. B. 45"></label>
+            <label class="pf-field">Strecke (km)<input type="number" id="fbKm" class="pf-input" min="0" max="1000" step="0.1" inputmode="decimal" placeholder="optional"></label>
           </div>
-          <label class="pf-field fb-platz">Platz
+          <label class="pf-field fb-platz">Startplatz / Ort
             <input type="text" id="fbPlatz" class="pf-input" maxlength="60" placeholder="Startplatz suchen oder Ort eintippen" autocomplete="off">
             <div class="fb-sug" id="fbSug" hidden></div>
           </label>
           <label class="pf-field" style="margin-top:10px">Notiz (optional)
-            <input type="text" id="fbNotiz" class="pf-input" maxlength="140" placeholder="z. B. 1400 m Basis, ruhige Thermik"></label>
-          <button type="button" class="pf-btn fb-add" id="fbAdd">Eintragen</button>
+            <input type="text" id="fbNotiz" class="pf-input" maxlength="140" placeholder="z. B. 1400 m Basis, ruhige Thermik …"></label>
+          <button type="button" class="pf-btn fb-add" id="fbAdd">Flug eintragen</button>
         </div>
-        <div class="settings-group">
-          <div class="settings-group-label">Abzeichen</div>
-          <div class="fb-badges" id="fbBadges"></div>
+
+        <div class="pf-sec-head"><span class="pf-sec-t">Letzte Flüge</span><button type="button" class="pf-link" id="fbAlle">Alle anzeigen ›</button></div>
+        <div class="fb-liste" id="fbListe"></div>
+
+        <div class="pf-sec-head"><span class="pf-sec-t">Abzeichen</span></div>
+        <div class="fb-badges" id="fbBadges"></div>
+
+        <div class="pf-sec-head"><span class="pf-sec-t">Meine Plätze</span></div>
+        <div class="acc-seg" id="fbOrteSeg" role="group" aria-label="Meine Plätze">
+          <button type="button" class="apill on" data-fbort="geflogen">Geflogen</button>
+          <button type="button" class="apill" data-fbort="will">Will ich fliegen</button>
         </div>
-        <div class="settings-group">
-          <div class="settings-group-label">Meine Plätze</div>
-          <div class="acc-seg" id="fbOrteSeg" role="group" aria-label="Meine Plätze">
-            <button type="button" class="apill on" data-fbort="geflogen">Geflogen</button>
-            <button type="button" class="apill" data-fbort="will">Will ich fliegen</button>
-          </div>
-          <div class="fb-liste" id="fbOrteListe"></div>
-        </div>
-        <div class="settings-group">
-          <div class="settings-group-label">Meine Flüge</div>
-          <div class="fb-liste" id="fbListe"></div>
-        </div>
-        <div class="settings-group">
-          <div class="settings-group-label">Sicherung</div>
-          <p class="pf-note" style="margin:0 0 8px">Alles liegt nur auf diesem Handy. Mach ab und zu ein Backup (Profil, Flugbuch, Erinnerungen).</p>
+        <div class="fb-liste" id="fbOrteListe"></div>
+
+        <div class="pf-box">
+          <div class="pf-box-t">Sicherung</div>
+          <p class="pf-note" style="margin:0 0 8px">Alles liegt nur auf diesem Handy. Mach ab und zu ein Backup (Profil, Fotos, Flugbuch, Erinnerungen).</p>
           <div class="pf-row" style="margin-top:0">
             <button type="button" class="pf-btn pf-btn-ghost" id="fbExport" style="margin-top:0">Backup speichern</button>
             <label class="pf-btn pf-btn-ghost" style="margin-top:0;text-align:center">Backup laden<input type="file" id="fbImport" accept="application/json,.json" hidden></label>
@@ -612,10 +607,20 @@
         </div>
        </div>
 
-       <!-- Erinnerungen -->
+       <!-- ===== Erinnerungen ===== -->
        <div class="pf-pane" data-pfpane="rem" hidden>
-        <p class="pf-note" style="margin:0 0 10px">Trag ein, wann du etwas zuletzt gemacht hast – die App zeigt dir, was bald fällig ist, und legt es auf Wunsch in deinen Kalender. Die Intervalle sind Richtwerte: Richtig gilt, was Hersteller und Prüfstelle für dein Gerät vorgeben.</p>
+        <p class="pf-intro">Behalte den Überblick über wichtige Termine rund um deine Ausrüstung. Die App erinnert dich rechtzeitig – die Intervalle sind Richtwerte, es gilt, was Hersteller und Prüfstelle vorgeben.</p>
         <div id="remListe"></div>
+        <button type="button" class="pf-add" id="remNeu">＋ Erinnerung hinzufügen</button>
+        <div class="pf-box" id="remNeuBox" hidden>
+          <div class="pf-box-t">Neue Erinnerung</div>
+          <label class="pf-field">Name<input type="text" id="remNeuName" class="pf-input" maxlength="40" placeholder="z. B. Leinen vermessen"></label>
+          <div class="pf-row">
+            <label class="pf-field">Zuletzt gemacht<input type="date" id="remNeuDatum" class="pf-input"></label>
+            <label class="pf-field rem-monate">Alle … Monate<input type="number" id="remNeuMonate" class="pf-input" min="1" max="120" value="12" inputmode="numeric"></label>
+          </div>
+          <button type="button" class="pf-btn fb-add" id="remNeuOk">Hinzufügen</button>
+        </div>
        </div>
       </div>
     </div>
@@ -702,8 +707,8 @@
     <div class="fs-foot"><button type="button" class="fs-apply" id="fsApply">Filter anwenden</button></div>
   </div>
 
-  <script src="database.js?v=160"></script>
-  <script src="briefings.js?v=160"></script>
-  <script src="app.js?v=160"></script>
+  <script src="database.js?v=161"></script>
+  <script src="briefings.js?v=161"></script>
+  <script src="app.js?v=161"></script>
 </body>
 </html>
