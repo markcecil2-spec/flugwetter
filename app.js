@@ -2687,7 +2687,8 @@ function updateMapMarkers(rows, opts = {}) {
   rows.forEach(r => {
     const el = document.createElement("div");
     el.className = "map-marker" + (searchFocus && searchFocus.type === "spot" && searchFocus.id === r.spot.id ? " map-marker-pulse" : "")
-      + (ortStatus(r.spot.id) === "geflogen" ? " mk-flown" : ortStatus(r.spot.id) === "will" ? " mk-will" : "");
+      + (ortStatus(r.spot.id) === "geflogen" ? " mk-flown" : ortStatus(r.spot.id) === "will" ? " mk-will" : "")
+      + (istHeimat(r.spot) ? " mk-home" : "");
     el.title = r.spot.name;
     el.innerHTML = `<img src="${START_ICON_BY_STATUS[r.ts.status] || START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label ml-${r.ts.status}">${r.spot.name}</span>`;
     // stopPropagation: sonst bubbelt der Klick zum generischen Karten-Click-Handler durch (der
@@ -2724,6 +2725,7 @@ function updateMapMarkers(rows, opts = {}) {
     updateExtraPoints([]);
   }
   updateFocusMarker(rows);
+  updateHomeMarker(rows);
   if (opts.flyTo === false) return;
   // Gesuchter Startplatz: nah ranzoomen, sonst geht er zwischen den Nachbarn im 100-km-Umkreis unter
   if (searchFocus && searchFocus.type === "spot") {
@@ -2735,6 +2737,28 @@ function updateMapMarkers(rows, opts = {}) {
   if (bounds) mapInstance.fitBounds(bounds, { padding: 50, duration: 600, maxZoom: 13 });
   else if (lastOrigin) mapInstance.flyTo({ center: [lastOrigin.lon, lastOrigin.lat], zoom: 8, duration: 600 });
   updateMapLabelVisibility();
+}
+// Heimatgebiet aus dem Profil: der Startplatz pulsiert lila; liegt es ausserhalb der Treffer
+// oder ist ein Ort/Standort, steht ein lila pulsierender Punkt dort.
+function istHeimat(spot) {
+  const h = profil.home; if (!h) return false;
+  if (h.spotId) return h.spotId === spot.id;
+  return foldText(h.name) === foldText(spot.name) && haversineExact(h.lat, h.lon, spot.lat, spot.lon) < 1;
+}
+let homeMarker = null;
+function updateHomeMarker(rows) {
+  if (homeMarker) { homeMarker.remove(); homeMarker = null; }
+  const h = profil.home;
+  if (!h || !mapInstance || typeof maplibregl === "undefined") return;
+  if ((rows || []).some(r => istHeimat(r.spot))) return;   // Startplatz-Marker pulsiert selbst
+  const el = document.createElement("div");
+  el.className = "focus-dot home-dot"; el.title = "Heimat: " + h.name;
+  el.innerHTML = `<span class="focus-dot-ring"></span><span class="focus-dot-core"></span>`;
+  homeMarker = new maplibregl.Marker({ element: el }).setLngLat([h.lon, h.lat]).addTo(mapInstance);
+}
+function homeMarkerErneuern() {
+  if (mapInstance && lastRows.length) updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
+  else updateHomeMarker([]);
 }
 function updateFocusMarker(rows) {
   if (focusMarker) { focusMarker.remove(); focusMarker = null; }
@@ -4050,7 +4074,8 @@ profileModal.addEventListener("click", e => {
 let pfHomeTimer = null, pfHomeSeq = 0, pfHomeTreffer = [];
 function pfHomeSetzen(o) {
   profil.home = { name: o.name, lat: +(+o.lat).toFixed(4), lon: +(+o.lon).toFixed(4) };
-  speichereProfil();
+  if (o.spotId) profil.home.spotId = o.spotId;
+  speichereProfil(); homeMarkerErneuern();
   document.getElementById("pfHomeSuche").value = "";
   document.getElementById("pfHomeSug").hidden = true;
 }
@@ -4064,7 +4089,7 @@ document.getElementById("pfHomeSuche").addEventListener("input", e => {
   clearTimeout(pfHomeTimer);
   if (q.length < 2) { pfHomeTreffer = []; pfHomeZeigen(); return; }
   pfHomeTreffer = allKnownSpots().filter(sp => foldText(sp.name).includes(q) || foldText(sp.region || "").includes(q)).slice(0, 4)
-    .map(sp => ({ name: sp.name, lat: sp.lat, lon: sp.lon, sub: "Startplatz · " + (sp.region || "") }));
+    .map(sp => ({ name: sp.name, lat: sp.lat, lon: sp.lon, spotId: sp.id, sub: "Startplatz · " + (sp.region || "") }));
   pfHomeZeigen();
   pfHomeTimer = setTimeout(async () => {
     let ortsliste = [];
@@ -4096,7 +4121,7 @@ document.getElementById("pfHomeGps").addEventListener("click", () => {
   if (!navigator.geolocation) return;
   navigator.geolocation.getCurrentPosition(pos => {
     profil.home = { name: "Mein Standort", lat: +pos.coords.latitude.toFixed(4), lon: +pos.coords.longitude.toFixed(4) };
-    speichereProfil();
+    speichereProfil(); homeMarkerErneuern();
   }, () => { document.getElementById("pfHomeAnzeige").innerHTML = `<span class="pf-home-leer">Standort nicht verfügbar (Berechtigung?)</span>`; });
 });
 document.getElementById("pfSave").addEventListener("click", () => {
@@ -4108,7 +4133,7 @@ document.getElementById("pfSave").addEventListener("click", () => {
 document.getElementById("pfLoeschen").addEventListener("click", () => {
   if (!confirm("Profil wirklich löschen? Name, Fotos, Ausrüstung, Level und Heimatgebiet gehen verloren (Flugbuch bleibt).")) return;
   profil = {}; try { localStorage.removeItem(PROFIL_KEY); } catch {}
-  gearOffen.clear(); profilFuellen(); updateGreeting();
+  gearOffen.clear(); profilFuellen(); updateGreeting(); homeMarkerErneuern();
   document.getElementById("pfEditMeBox").hidden = false;
 });
 
@@ -4469,6 +4494,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 163, date: "28.10.", text: "Heimat-Startplatz aus dem Profil pulsiert auf der Karte lila (liegt er außerhalb der Treffer oder ist es ein Ort: lila Punkt)" },
   { v: 162, date: "28.10.", text: "Profil: neue Bilder für Schirm, Gurtzeug, Retter und Karabiner" },
   { v: 161, date: "28.10.", text: "Profil im neuen Design: Hero-Banner, Profilkarte mit Foto, Statistik, Schirm-, Gurtzeug- und Retter-Karten, Flugbuch-Liste mit Strecke, Erinnerungs-Karten mit eigenen Terminen" },
   { v: 160, date: "27.10.", text: "Profil: Speichern-Knopf, Heimatgebiet mit Suchvorschlägen wie die Hauptsuche. Flugbuch (Flüge eintragen, Statistik, Lieblingsplatz, Abzeichen), „Geflogen / Will ich fliegen“ für Plätze (Detailfenster ☰, Haken auf der Karte), Erinnerungen für Rettungsschirm, Nachprüfung, Gurtzeug, Versicherung mit Kalender-Datei, Backup als Datei" },
