@@ -3759,7 +3759,7 @@ const profileModal = document.getElementById("profileModal");
 let profileHistoryPushed = false, profilStufeBeimOeffnen = null;
 const lsGet = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-const FB_KEY = "flugwetter_flugbuch", ORTE_KEY = "flugwetter_orte", REM_KEY = "flugwetter_erinnerungen", REM_EIGENE_KEY = "flugwetter_rem_eigene";
+const FB_KEY = "flugwetter_flugbuch", ORTE_KEY = "flugwetter_orte", REM_KEY = "flugwetter_erinnerungen", REM_EIGENE_KEY = "flugwetter_rem_eigene", DOK_KEY = "flugwetter_dokumente";
 let flugbuch = lsGet(FB_KEY, []);       // [{ id, datum "JJJJ-MM-TT", spotId?, ort, dauer (Min.), km?, notiz }]
 let orte = lsGet(ORTE_KEY, {});         // { spotId: "geflogen" | "will" }
 let remData = lsGet(REM_KEY, {});       // { schluessel: { datum, monate } }
@@ -3787,6 +3787,7 @@ const ILL = {
   retter: `<img src="img/gear/retter.webp" alt="">`,
   karabiner: `<img src="img/gear/karabiner.webp" alt="">`,
   schild: `<svg viewBox="0 0 64 64"><path d="M32 8 12 16v14c0 14 8 22 20 26 12-4 20-12 20-26V16z" fill="#22c55e"/><path d="m22 32 7 7 14-15" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  dhv: `<svg viewBox="0 0 64 64"><defs><linearGradient id="gD" x1="0" x2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs><rect x="8" y="14" width="48" height="36" rx="6" fill="#0f1b2a" stroke="url(#gD)" stroke-width="3"/><path d="M16 32c3-9 17-9 20 0-7-3-13-3-20 0z" fill="url(#gD)"/><path d="M18 33l9 8M34 33l-7 8" stroke="#cbd5e1" stroke-width="1"/><path d="M40 24h10M40 31h10M40 38h7" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/></svg>`,
   glocke: `<svg viewBox="0 0 64 64"><path d="M32 10c-10 0-16 8-16 18 0 10-4 12-6 16h44c-2-4-6-6-6-16 0-10-6-18-16-18z" fill="#f59e0b"/><circle cx="32" cy="52" r="5" fill="#fbbf24"/></svg>`,
 };
 const IC_ST = {
@@ -4161,7 +4162,7 @@ profileModal.addEventListener("click", e => {
 });
 // Backup (Profil inkl. Fotos, Flugbuch, Plaetze, Erinnerungen)
 document.getElementById("fbExport").addEventListener("click", () => {
-  const daten = { app: "GoFlyToday", v: 2, stand: heuteIso(), profil, flugbuch, orte, erinnerungen: remData, eigene: remEigene };
+  const daten = { app: "GoFlyToday", v: 2, stand: heuteIso(), profil, flugbuch, orte, erinnerungen: remData, eigene: remEigene, dokumente: dokData };
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([JSON.stringify(daten)], { type: "application/json" }));
   a.download = `goflytoday-backup-${heuteIso()}.json`;
@@ -4175,29 +4176,44 @@ document.getElementById("fbImport").addEventListener("change", async e => {
     const d = JSON.parse(await f.text());
     if (d.app !== "GoFlyToday") throw new Error("falsche Datei");
     if (!confirm("Backup laden? Profil, Flugbuch und Erinnerungen auf diesem Gerät werden ersetzt.")) return;
-    profil = d.profil || {}; flugbuch = Array.isArray(d.flugbuch) ? d.flugbuch : []; orte = d.orte || {}; remData = d.erinnerungen || {}; remEigene = d.eigene || [];
-    lsSet(PROFIL_KEY, profil); lsSet(FB_KEY, flugbuch); lsSet(ORTE_KEY, orte); lsSet(REM_KEY, remData); lsSet(REM_EIGENE_KEY, remEigene);
+    profil = d.profil || {}; flugbuch = Array.isArray(d.flugbuch) ? d.flugbuch : []; orte = d.orte || {}; remData = d.erinnerungen || {}; remEigene = d.eigene || []; dokData = d.dokumente || {};
+    lsSet(PROFIL_KEY, profil); lsSet(FB_KEY, flugbuch); lsSet(ORTE_KEY, orte); lsSet(REM_KEY, remData); lsSet(REM_EIGENE_KEY, remEigene); lsSet(DOK_KEY, dokData);
     profilFuellen(); fbRender(); remRender(); updateGreeting(); remBannerZeigen();
   } catch { alert("Das ist keine gültige GoFlyToday-Backup-Datei."); }
 });
 
-// --- Erinnerungen (Rettungsschirm, Nachpruefung ...): zuletzt gemacht + Monate = faellig ---
+// --- Erinnerungen: Ausruestung (zuletzt gemacht + Monate = faellig) und Dokumente (Haken) ---
 const REM_TYPEN = [
   { k: "rettung", t: "Rettungsschirm packen", monate: 12, ill: "retter" },
   { k: "nachpruefung", t: "Schirm-Nachprüfung", monate: 24, ill: "schirm" },
   { k: "gurtzeug", t: "Gurtzeug-Check", monate: 12, ill: "gurt" },
   { k: "karabiner", t: "Karabiner prüfen", monate: 12, ill: "karabiner" },
-  { k: "haftpflicht", t: "Haftpflicht-Versicherung", monate: 12, ill: "schild", label: "Zuletzt bezahlt" },
 ];
+// Versicherung & Dokumente: nur ein Haken ("vorhanden"), optional Name/Nummer und "gueltig bis"
+const DOK_TYPEN = [
+  { k: "haftpflicht", t: "Haftpflichtversicherung", ill: "schild", ph: "Versicherer / Vertragsnummer" },
+  { k: "dhv", t: "DHV-Mitgliedschaft", ill: "dhv", ph: "Mitgliedsnummer" },
+];
+let dokData = lsGet(DOK_KEY, {});      // { haftpflicht: { ok, text, bis } }
 const alleRem = () => [...REM_TYPEN, ...remEigene.map(x => ({ ...x, ill: "glocke", eigen: true }))];
 const REM_BALD_TAGE = 45;
 function addMonate(iso, m) { const d = new Date(iso + "T12:00:00"); d.setMonth(d.getMonth() + m); return d; }
 function remMonate(t) { return +((remData[t.k] || {}).monate) || t.monate; }
 function remFaellig(t) { const x = remData[t.k]; return x && x.datum ? addMonate(x.datum, remMonate(t)) : null; }
+function tageBis(d) { return Math.ceil((d - new Date()) / 86400000); }
+function stufeVon(tage) { return tage < 0 ? "rot" : tage <= REM_BALD_TAGE ? "gelb" : "ok"; }
 function remStatus(t) {
   const d = remFaellig(t); if (!d) return { st: "offen", tage: null, d: null };
-  const tage = Math.ceil((d - new Date()) / 86400000);
-  return { st: tage < 0 ? "rot" : tage <= REM_BALD_TAGE ? "gelb" : "ok", tage, d };
+  const tage = tageBis(d);
+  return { st: stufeVon(tage), tage, d };
+}
+// Dokument: Haken gesetzt = in Ordnung; mit "gueltig bis" zaehlt zusaetzlich die Frist
+function dokStatus(t) {
+  const x = dokData[t.k] || {};
+  const d = x.bis ? new Date(x.bis + "T12:00:00") : null, tage = d ? tageBis(d) : null;
+  if (d && tage < 0) return { st: "rot", tage, d, ok: !!x.ok };
+  if (d && tage <= REM_BALD_TAGE) return { st: "gelb", tage, d, ok: !!x.ok };
+  return { st: x.ok ? "ok" : "offen", tage, d, ok: !!x.ok };
 }
 function remTageText(r) {
   if (r.st === "offen") return "Noch nicht eingetragen";
@@ -4206,36 +4222,78 @@ function remTageText(r) {
   if (r.tage === 0) return `Heute fällig (${wann})`;
   return `Fällig in ${r.tage} ${r.tage === 1 ? "Tag" : "Tagen"} (${wann})`;
 }
+const IC_KAL = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>`;
+const IC_DOK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>`;
+const IC_HAKEN = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
 let remOffen = new Set();
+const CHIP = { ok: "in Ordnung", gelb: "bald fällig", rot: "überfällig", offen: "offen" };
 function remRender() {
-  document.getElementById("remListe").innerHTML = alleRem().map(t => {
-    const x = remData[t.k] || {}, r = remStatus(t), edit = remOffen.has(t.k) || r.st === "offen";
-    return `<div class="rem-card rem-${r.st}" data-rem="${t.k}">
-      <div class="rem-main">
-        <div class="rem-pic">${ILL[t.ill]}</div>
-        <div class="rem-txt">
-          <div class="rem-head"><b>${escHtml(t.t)}</b><span class="rem-chip">${r.st === "ok" ? "in Ordnung" : r.st === "gelb" ? "bald fällig" : r.st === "rot" ? "überfällig" : "offen"}</span></div>
-          <div class="rem-line">${remTageText(r)}</div>
-          <div class="rem-meta"><span>⟳ Alle ${remMonate(t)} Monate</span>${x.datum ? `<span>📅 Zuletzt: ${fmtDatum(x.datum)}</span>` : ""}</div>
-        </div>
-        <button type="button" class="rem-dots" data-remmenu="${t.k}" aria-label="Bearbeiten">⋮</button>
-      </div>
+  const offenFuer = (k, r) => remOffen.has(k) || r.st === "offen";
+  // Ausruestung
+  const ausr = alleRem().map(t => {
+    const x = remData[t.k] || {}, r = remStatus(t), edit = offenFuer(t.k, r);
+    return `<div class="rem2 rem-${r.st}${edit ? " offen" : ""}" data-rem="${t.k}">
+      <button type="button" class="rem2-row" data-remrow="${t.k}">
+        <span class="rem2-pic">${ILL[t.ill]}</span>
+        <span class="rem2-txt"><b>${escHtml(t.t)}</b><span class="rem2-sub">${IC_KAL}${r.st === "offen" ? "Datum eintragen" : r.tage < 0 ? `Überfällig seit ${-r.tage} ${-r.tage === 1 ? "Tag" : "Tagen"}` : `Fällig am ${r.d.toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" })}`}</span></span>
+        <span class="rem-chip">${CHIP[r.st]}</span><span class="rem2-chev">›</span>
+      </button>
       <div class="rem-edit"${edit ? "" : " hidden"}>
         <div class="pf-row">
-          <label class="pf-field">${t.label || "Zuletzt gemacht"}<input type="date" class="pf-input" data-remdatum="${t.k}" value="${x.datum || ""}"></label>
+          <label class="pf-field">Zuletzt gemacht<input type="date" class="pf-input" data-remdatum="${t.k}" value="${x.datum || ""}"></label>
           <label class="pf-field rem-monate">Alle … Monate<input type="number" class="pf-input" min="1" max="120" inputmode="numeric" data-remmonate="${t.k}" value="${remMonate(t)}"></label>
         </div>
         <div class="pf-row rem-acts">
-          ${r.d ? `<button type="button" class="pf-btn pf-btn-ghost" data-remics="${t.k}">📅 In den Kalender</button>` : ""}
+          <button type="button" class="pf-btn" data-remsave="${t.k}">Speichern</button>
+          ${r.d ? `<button type="button" class="pf-btn pf-btn-ghost" data-remics="${t.k}">📅 Kalender</button>` : ""}
           ${t.eigen ? `<button type="button" class="pf-btn pf-btn-ghost rem-del" data-remdel="${t.k}">Löschen</button>` : ""}
         </div>
       </div>
     </div>`;
   }).join("");
+  // Versicherung & Dokumente: Haken
+  const dok = DOK_TYPEN.map(t => {
+    const x = dokData[t.k] || {}, r = dokStatus(t), edit = remOffen.has("dok:" + t.k);
+    const sub = r.d ? (r.tage < 0 ? `Abgelaufen am ${r.d.toLocaleDateString("de-DE")}` : `Gültig bis ${r.d.toLocaleDateString("de-DE")}`)
+      : x.text ? escHtml(x.text) : r.ok ? "Vorhanden" : "Datum prüfen";
+    return `<div class="rem2 rem-${r.st}${edit ? " offen" : ""}" data-dok="${t.k}">
+      <div class="rem2-row">
+        <span class="rem2-pic">${ILL[t.ill]}</span>
+        <button type="button" class="rem2-txt rem2-open" data-dokrow="${t.k}"><b>${t.t}</b><span class="rem2-sub">${IC_DOK}${sub}</span></button>
+        <button type="button" class="rem-haken${r.ok ? " an" : ""}" data-dokhaken="${t.k}" aria-label="${t.t}: ${r.ok ? "vorhanden" : "nicht eingetragen"}" aria-pressed="${r.ok}">${IC_HAKEN}</button>
+        <button type="button" class="rem2-chev rem2-open" data-dokrow="${t.k}" aria-label="Bearbeiten">›</button>
+      </div>
+      <div class="rem-edit"${edit ? "" : " hidden"}>
+        <label class="pf-field">${t.ph}<input type="text" class="pf-input" maxlength="40" data-doktext="${t.k}" value="${escHtml(x.text || "")}" placeholder="optional"></label>
+        <div class="pf-row">
+          <label class="pf-field">Gültig bis (optional)<input type="date" class="pf-input" data-dokbis="${t.k}" value="${x.bis || ""}"></label>
+        </div>
+        <div class="pf-row rem-acts"><button type="button" class="pf-btn" data-doksave="${t.k}">Speichern</button></div>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("remListe").innerHTML = `
+    ${remZusammenfassung()}
+    <h3 class="rem-h">Ausrüstung</h3>${ausr}
+    <h3 class="rem-h">Versicherung &amp; Dokumente</h3>${dok}`;
   remAnzeigen();
 }
+// Karte oben: wie viele Termine, wie viele ueberfaellig, wann der naechste kommt
+function remZusammenfassung() {
+  const alle = [...alleRem().map(t => remStatus(t)), ...DOK_TYPEN.map(t => dokStatus(t))].filter(r => r.st !== "offen" || r.ok);
+  const ueber = alle.filter(r => r.st === "rot").length;
+  const naechste = alle.filter(r => r.d && r.tage >= 0).sort((a, b) => a.tage - b.tage)[0];
+  return `<div class="rem-sum">
+    <div class="rem-sum-i"><span class="rem-sum-ic">${IC_KAL}</span><div><b>${alle.length}</b><span>Termine</span></div></div>
+    <div class="rem-sum-i${ueber ? " rot" : ""}"><span class="rem-sum-ic warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.01"/></svg></span><div><b>${ueber}</b><span>überfällig</span></div></div>
+    <div class="rem-sum-i"><span class="rem-sum-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><div><b>${naechste ? `${naechste.tage} <small>${naechste.tage === 1 ? "Tag" : "Tage"}</small>` : "–"}</b><span>nächster Termin</span></div></div>
+  </div>`;
+}
 function remAlarm() {
-  const l = alleRem().map(t => ({ t, r: remStatus(t) })).filter(x => x.r.st === "rot" || x.r.st === "gelb");
+  const l = [
+    ...alleRem().map(t => ({ t, r: remStatus(t) })),
+    ...DOK_TYPEN.map(t => ({ t, r: dokStatus(t) })),
+  ].filter(x => x.r.st === "rot" || x.r.st === "gelb");
   l.sort((a, b) => a.r.tage - b.r.tage);
   return l;
 }
@@ -4260,15 +4318,6 @@ document.getElementById("remBanner").addEventListener("click", e => {
   if (e.target.closest("#remBannerGo")) profilOeffnen("rem");
   if (e.target.closest("#remBannerX")) { try { sessionStorage.setItem("remBannerZu", heuteIso()); } catch {} document.getElementById("remBanner").hidden = true; }
 });
-profileModal.addEventListener("change", e => {
-  const dz = e.target.closest("[data-remdatum]"), mz = e.target.closest("[data-remmonate]");
-  const k = (dz || mz) && (dz || mz).dataset[dz ? "remdatum" : "remmonate"]; if (!k) return;
-  const t = alleRem().find(x => x.k === k);
-  remData[k] = { ...(remData[k] || {}), ...(dz ? { datum: dz.value } : { monate: Math.max(1, +mz.value || t.monate) }) };
-  lsSet(REM_KEY, remData);
-  remRender();
-  if (k === "rettung") GEAR.forEach(gearTexte);
-});
 document.getElementById("remNeu").addEventListener("click", () => {
   const box = document.getElementById("remNeuBox"); box.hidden = !box.hidden;
   document.getElementById("remNeuDatum").value = heuteIso();
@@ -4283,12 +4332,35 @@ document.getElementById("remNeuOk").addEventListener("click", () => {
   document.getElementById("remNeuName").value = ""; document.getElementById("remNeuBox").hidden = true;
   remRender();
 });
-// Kalender-Datei (.ics): ganztaegig am Faelligkeitstag, Erinnerung 14 Tage vorher
+// Zeile antippen = aufklappen; Eingaben gelten erst mit "Speichern"
 profileModal.addEventListener("click", e => {
-  const m = e.target.closest("[data-remmenu]");
-  if (m) { remOffen.has(m.dataset.remmenu) ? remOffen.delete(m.dataset.remmenu) : remOffen.add(m.dataset.remmenu); remRender(); return; }
+  const row = e.target.closest("[data-remrow]");
+  if (row) { const k = row.dataset.remrow; remOffen.has(k) ? remOffen.delete(k) : remOffen.add(k); remRender(); return; }
+  const dr = e.target.closest("[data-dokrow]");
+  if (dr) { const k = "dok:" + dr.dataset.dokrow; remOffen.has(k) ? remOffen.delete(k) : remOffen.add(k); remRender(); return; }
+  const hk = e.target.closest("[data-dokhaken]");
+  if (hk) { const k = hk.dataset.dokhaken; dokData[k] = { ...(dokData[k] || {}), ok: !(dokData[k] || {}).ok }; lsSet(DOK_KEY, dokData); remRender(); return; }
+  const sv = e.target.closest("[data-remsave]");
+  if (sv) {
+    const k = sv.dataset.remsave, t = alleRem().find(x => x.k === k), box = sv.closest(".rem2");
+    const datum = box.querySelector("[data-remdatum]").value, monate = Math.max(1, +box.querySelector("[data-remmonate]").value || t.monate);
+    remData[k] = { datum, monate }; lsSet(REM_KEY, remData);
+    remOffen.delete(k); remRender();
+    if (k === "rettung") GEAR.forEach(gearTexte);
+    return;
+  }
+  const ds = e.target.closest("[data-doksave]");
+  if (ds) {
+    const k = ds.dataset.doksave, box = ds.closest(".rem2");
+    const text = box.querySelector("[data-doktext]").value.trim(), bis = box.querySelector("[data-dokbis]").value;
+    // Etwas eingetragen -> gilt als vorhanden (Haken), sonst bleibt der Haken wie er war
+    dokData[k] = { ...(dokData[k] || {}), text, bis, ok: (text || bis) ? true : !!(dokData[k] || {}).ok };
+    lsSet(DOK_KEY, dokData); remOffen.delete("dok:" + k); remRender();
+    return;
+  }
   const del = e.target.closest("[data-remdel]");
   if (del) { if (!confirm("Erinnerung löschen?")) return; remEigene = remEigene.filter(x => x.k !== del.dataset.remdel); delete remData[del.dataset.remdel]; lsSet(REM_EIGENE_KEY, remEigene); lsSet(REM_KEY, remData); remRender(); return; }
+  // Kalender-Datei (.ics): ganztaegig am Faelligkeitstag, Erinnerung 14 Tage vorher
   const b = e.target.closest("[data-remics]"); if (!b) return;
   const t = alleRem().find(x => x.k === b.dataset.remics), d = remFaellig(t); if (!d) return;
   const ymd = x => `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, "0")}${String(x.getDate()).padStart(2, "0")}`;
@@ -4374,6 +4446,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 169, date: "29.10.", text: "Erinnerungen neu gestaltet: Zusammenfassung oben, Ausrüstung als Zeilen, Haftpflicht und DHV-Mitgliedschaft nur mit Haken, Eingaben gelten mit „Speichern“" },
   { v: 168, date: "29.10.", text: "Briefing: Block „Wichtige Hinweise“ entfernt (der Haftungstext bleibt)" },
   { v: 167, date: "29.10.", text: "Briefing „Anreise & Start“: Navigation, Parkplatz-Liste und Umgebungs-Kachel entfernt – das steht auf der Hauptkarte" },
   { v: 166, date: "28.10.", text: "Briefing „Heute im Überblick“: grüner Haken bei Windrichtung, Wind und Böen, wenn sie zu deinem Startplatz und deiner Ampel passen" },

@@ -13,7 +13,7 @@
   <!-- ?v=NN muss bei jedem Deploy mit der Versionsnummer/sw.js mitgezogen werden. Ohne das
        kann der Browser eine neue index.html mit einer alten app.js aus dem HTTP-Cache mischen
        (GitHub Pages liefert Assets mit max-age) - dann fehlen neue Funktionen kommentarlos. -->
-  <link rel="stylesheet" href="style.css?v=168" />
+  <link rel="stylesheet" href="style.css?v=169" />
 </head>
 <body>
   <header>
@@ -359,7 +359,7 @@
         <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 168 · Oktober 2026</p>
+      <p class="build">GoFlyToday · Version 169 · Oktober 2026</p>
     </section>
   </main>
 
@@ -609,9 +609,10 @@
 
        <!-- ===== Erinnerungen ===== -->
        <div class="pf-pane" data-pfpane="rem" hidden>
-        <p class="pf-intro">Behalte den Überblick über wichtige Termine rund um deine Ausrüstung. Die App erinnert dich rechtzeitig – die Intervalle sind Richtwerte, es gilt, was Hersteller und Prüfstelle vorgeben.</p>
+        <h2 class="rem-title">Deine Erinnerungen</h2>
+        <p class="pf-intro">Behalte den Überblick über wichtige Termine rund um deine Ausrüstung, Versicherung und Dokumente. Die Intervalle sind Richtwerte – es gilt, was Hersteller und Prüfstelle vorgeben.</p>
         <div id="remListe"></div>
-        <button type="button" class="pf-add" id="remNeu">＋ Erinnerung hinzufügen</button>
+        <button type="button" class="pf-add" id="remNeu"><span>＋</span> Erinnerung hinzufügen</button>
         <div class="pf-box" id="remNeuBox" hidden>
           <div class="pf-box-t">Neue Erinnerung</div>
           <label class="pf-field">Name<input type="text" id="remNeuName" class="pf-input" maxlength="40" placeholder="z. B. Leinen vermessen"></label>
@@ -619,7 +620,7 @@
             <label class="pf-field">Zuletzt gemacht<input type="date" id="remNeuDatum" class="pf-input"></label>
             <label class="pf-field rem-monate">Alle … Monate<input type="number" id="remNeuMonate" class="pf-input" min="1" max="120" value="12" inputmode="numeric"></label>
           </div>
-          <button type="button" class="pf-btn fb-add" id="remNeuOk">Hinzufügen</button>
+          <button type="button" class="pf-btn fb-add" id="remNeuOk">Speichern</button>
         </div>
        </div>
       </div>
@@ -707,8 +708,8 @@
     <div class="fs-foot"><button type="button" class="fs-apply" id="fsApply">Filter anwenden</button></div>
   </div>
 
-  <script src="database.js?v=168"></script>
-  <script src="briefings.js?v=168"></script>
-  <script src="app.js?v=168"></script>
+  <script src="database.js?v=169"></script>
+  <script src="briefings.js?v=169"></script>
+  <script src="app.js?v=169"></script>
 </body>
 </html>
