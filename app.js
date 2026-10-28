@@ -3868,7 +3868,7 @@ function profilUi() {
   document.querySelectorAll("#pfArten .apill").forEach(b => b.classList.toggle("on", (profil.arten || []).includes(b.dataset.pfart)));
   const st = STUFEN[aktuelleStufe()];
   document.getElementById("pfAmpel").innerHTML = `Deine Ampel: <b>${st.label}</b> – grün bei Wind bis ca. ${Math.round(st.windMax * st.gruen)} km/h und Böen bis ca. ${Math.round(st.gustMax * st.gruen)} km/h.`
-    + (profil.level ? "" : " Wähle dein Level, dann passt sich die Ampel an.") + (proMode ? " <b>Eigene Grenzwerte</b> (Einstellungen) sind aktiv." : "");
+    + (profil.level ? "" : " Wähle dein Level, dann passt sich die Ampel an.") + (proMode ? " <b>Eigene Grenzwerte</b> (Sicherheitsprofil unten) sind aktiv." : "");
   document.getElementById("pfHomeAnzeige").innerHTML = profil.home ? `📍 ${escHtml(profil.home.name)}` : `<span class="pf-home-leer">Noch nicht gesetzt</span>`;
   pfEnWarnen();
   GEAR.forEach(gearTexte);
@@ -4298,6 +4298,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 171, date: "29.10.", text: "Sicherheitsprofil (eigene Grenzwerte) ist von den Einstellungen ins Profil umgezogen" },
   { v: 170, date: "29.10.", text: "Flugbuch komplett entfernt (inkl. Statistik, Abzeichen und „Geflogen / Will ich fliegen“). Backup und Profil bleiben" },
   { v: 169, date: "29.10.", text: "Erinnerungen neu gestaltet: Zusammenfassung oben, Ausrüstung als Zeilen, Haftpflicht und DHV-Mitgliedschaft nur mit Haken, Eingaben gelten mit „Speichern“" },
   { v: 168, date: "29.10.", text: "Briefing: Block „Wichtige Hinweise“ entfernt (der Haftungstext bleibt)" },
