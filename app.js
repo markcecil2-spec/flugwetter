@@ -4298,6 +4298,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 172, date: "29.10.", text: "Runterziehen zum Neuladen: die App bleibt auf dem Bildschirm, auf dem du gerade bist (Seite, Suche, Karte, geöffnetes Detail oder Profil, Scrollstelle)" },
   { v: 171, date: "29.10.", text: "Sicherheitsprofil (eigene Grenzwerte) ist von den Einstellungen ins Profil umgezogen" },
   { v: 170, date: "29.10.", text: "Flugbuch komplett entfernt (inkl. Statistik, Abzeichen und „Geflogen / Will ich fliegen“). Backup und Profil bleiben" },
   { v: 169, date: "29.10.", text: "Erinnerungen neu gestaltet: Zusammenfassung oben, Ausrüstung als Zeilen, Haftpflicht und DHV-Mitgliedschaft nur mit Haken, Eingaben gelten mit „Speichern“" },
@@ -4661,6 +4662,58 @@ function route() {
   }
 }
 window.addEventListener("hashchange", route);
+
+// ---------------- Beim Neuladen dort bleiben, wo man war ----------------
+// Runterziehen laedt die Seite neu. Der Stand (Seite, Suche, Karte, offene Fenster, Scrollstelle)
+// wird beim Verlassen in sessionStorage gesichert und beim Start wiederhergestellt - nur im selben
+// Tab und hoechstens 3 Stunden alt (sonst startet die App normal).
+const ZUSTAND_KEY = "flugwetter_zustand", ZUSTAND_MAX_MS = 3 * 3600 * 1000;
+function zustandSpeichern() {
+  try {
+    const dtab = document.querySelector("#detailBody .dtab.on");
+    const z = {
+      t: Date.now(), hash: location.hash, y: Math.round(window.scrollY),
+      view: document.getElementById("mapView").hidden ? "list" : "map",
+      day: searchDay, origin: lastOrigin ? { lat: lastOrigin.lat, lon: lastOrigin.lon, label: lastOrigin.label } : null,
+      karte: mapInstance ? { center: [mapInstance.getCenter().lng, mapInstance.getCenter().lat], zoom: mapInstance.getZoom() } : null,
+      detail: currentDetailSpot && !document.getElementById("detailModal").hidden ? { id: currentDetailSpot.id, tab: dtab ? dtab.dataset.tab : "wetter" } : null,
+      profil: typeof profileModal !== "undefined" && !profileModal.hidden ? { tab: profileModal.dataset.tab || "profil" } : null,
+      settings: typeof settingsModal !== "undefined" && !settingsModal.hidden,
+    };
+    sessionStorage.setItem(ZUSTAND_KEY, JSON.stringify(z));
+  } catch {}
+}
+window.addEventListener("pagehide", zustandSpeichern);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") zustandSpeichern(); });
+function zustandLaden() {
+  try {
+    const z = JSON.parse(sessionStorage.getItem(ZUSTAND_KEY));
+    if (!z || Date.now() - z.t > ZUSTAND_MAX_MS || z.hash !== location.hash) return null;
+    // Nur beim Neuladen (nicht beim ersten Start in einem neuen Tab)
+    const nav = performance.getEntriesByType("navigation")[0];
+    return nav && nav.type !== "reload" && nav.type !== "back_forward" ? null : z;
+  } catch { return null; }
+}
+async function zustandAnwenden(z) {
+  try {
+    const home = !z.hash || z.hash === "#/home" || z.hash === "#/";
+    if (home && z.origin) {
+      searchDay = z.day === 1 ? 1 : 0;
+      document.querySelectorAll("#dayToggle .rpill").forEach(x => x.classList.toggle("on", parseInt(x.dataset.day, 10) === searchDay));
+      updateGreeting();
+      await runFlySearch(z.origin.lat, z.origin.lon, z.origin.label, { keepView: true });
+      if (z.view === "list") document.querySelector('#viewToggle [data-view="list"]').click();
+      else if (z.karte) { await ensureMap(); mapInstance.jumpTo({ center: z.karte.center, zoom: z.karte.zoom }); }
+    }
+    if (z.detail) {
+      await openDetail(z.detail.id);
+      if (z.detail.tab && z.detail.tab !== "wetter") { const tb = document.querySelector(`#detailBody .dtab[data-tab="${z.detail.tab}"]`); if (tb) tb.click(); }
+    }
+    if (z.profil) profilOeffnen(z.profil.tab);
+    if (z.settings) openSettings();
+    if (z.y) setTimeout(() => window.scrollTo(0, z.y), 150);
+  } catch {}
+}
 
 // ---------------- Events ----------------
 // (Der „Wo kann ich fliegen?"-Button und die PLZ-Suche sind oben registriert.)
@@ -5035,14 +5088,19 @@ document.getElementById("hintClose").addEventListener("click", () => {
   applyFavSegUI();
   profilUi();   // Punkt am Profil-Knopf, solange das Profil leer ist
   remBannerZeigen();
+  // Neuladen (Runterziehen): dort weitermachen, wo man war - s. zustandSpeichern
+  const zs = zustandLaden();
+  if (zs && zs.origin && /^#?\/?(home)?$|^#\/home$/.test(location.hash)) lastOrigin = zs.origin;   // verhindert den Standard-Start (GPS / Heimat / Einstieg)
   route();
   // Geteilter Link: goflytoday.de/?spot=db_123 -> Detailfenster dieses Platzes direkt oeffnen
+  let teilLink = false;
   try {
     const q = new URLSearchParams(location.search).get("spot");
     if (q) {
       history.replaceState(history.state, "", location.pathname + location.hash);   // Parameter weg, sonst bleibt er in der Leiste
-      if (getSpot(q)) openDetail(q);
+      if (getSpot(q)) { teilLink = true; openDetail(q); }
     }
   } catch {}
+  if (zs && !teilLink) zustandAnwenden(zs);
 })();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
