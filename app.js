@@ -1838,8 +1838,8 @@ const LP_IC = {
 };
 const lpSvg = k => `<svg class="lp-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${LP_IC[k]}</svg>`;
 function lpRows(rows) {
-  return `<div class="lp-rows">${rows.map(([ic, label, val]) => `
-    <div class="lp-row">${lpSvg(ic)}<span class="lp-label">${escHtml(label)}</span><span class="lp-val">${escHtml(val)}</span></div>`).join("")}</div>`;
+  return `<div class="lp-rows">${rows.map(([ic, label, val, ok]) => `
+    <div class="lp-row">${lpSvg(ic)}<span class="lp-label">${escHtml(label)}</span><span class="lp-val">${escHtml(val)}</span>${ok ? `<span class="lp-ok" title="passt">${FC_CHECK}</span>` : ""}</div>`).join("")}</div>`;
 }
 // Landeplätze als Reiter (nur ab zwei Plätzen). Gezeigt wird ausschliesslich, was in den
 // Daten steht: Höhe, Entfernung zum Start, Höhendifferenz und die dafür nötige Gleitzahl.
@@ -1878,18 +1878,24 @@ function kurzueberblickHtml(spot, day, ts, tagW) {
   // Unter ~5 km/h ist die gemeldete Richtung Zufall - dann lieber "wechselnd" schreiben,
   // als aus einem Nullwind-Tag eine scheinbar klare Richtungsangabe zu machen.
   const richtHrs = hrs.filter(h => h.ws >= 5);
+  // Haken, wenn es passt (nur mit fliegbarem Fenster): dieselben Grenzen wie die Ampel
+  // ("gut"-Stunde) - Richtung im Startsektor, Wind und Boeen unter der gruenen Schwelle.
+  const pr = activeProfile(), mitFenster = fenster.length > 0;
+  const richtOk = mitFenster && richtHrs.length > 0 && richtHrs.every(h => sectorAngleDist(h.wd, spot.sectors) <= pr.dirTol);
+  const windOk = mitFenster && Math.max(...hrs.map(h => h.ws)) <= pr.windMax * pr.gruen;
+  const boeOk = mitFenster && Math.max(...hrs.map(h => h.wg)) <= pr.gustMax * pr.gruen;
   if (!richtHrs.length) rows.push(["richtung", "Windrichtung", "wechselnd (kaum Wind)"]);
   else {
     const richt = [];
     richtHrs.forEach(h => { const c = degToCompass(h.wd); if (richt[richt.length - 1] !== c) richt.push(c); });
     const uniq = [...new Set(richt)];
     const a = richt[0], b = richt[richt.length - 1];
-    rows.push(["richtung", "Windrichtung", uniq.length === 1 ? uniq[0] : a === b ? uniq.slice(0, 3).join(" / ") : `${a}–${b}`]);
+    rows.push(["richtung", "Windrichtung", uniq.length === 1 ? uniq[0] : a === b ? uniq.slice(0, 3).join(" / ") : `${a}–${b}`, richtOk]);
   }
   const ws = hrs.map(h => Math.round(h.ws));
-  rows.push(["wind", "Wind", `${Math.min(...ws)} – ${Math.max(...ws)} km/h`]);
+  rows.push(["wind", "Wind", `${Math.min(...ws)} – ${Math.max(...ws)} km/h`, windOk]);
   const wg = hrs.map(h => Math.round(h.wg));
-  rows.push(["boe", "Böen", `bis ${Math.max(...wg)} km/h`]);
+  rows.push(["boe", "Böen", `bis ${Math.max(...wg)} km/h`, boeOk]);
   if (day.wx && day.wx.tmin != null && day.wx.tmax != null) rows.push(["temp", "Temperatur", `${day.wx.tmin} – ${day.wx.tmax} °C`]);
   const th = thermikStartHour(day, ts.win);
   if (th != null) rows.push(["sonne", "Thermik", `ab ca. ${th} Uhr`]);
@@ -4456,6 +4462,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 166, date: "28.10.", text: "Briefing „Heute im Überblick“: grüner Haken bei Windrichtung, Wind und Böen, wenn sie zu deinem Startplatz und deiner Ampel passen" },
   { v: 165, date: "28.10.", text: "Detailfenster: der Reiter „Details“ ist ins Briefing gewandert und logisch geordnet (Urteil, Hinweise, Überblick, Flug-Check, Hinweise, Notizen). Doppelte Angaben entfernt: Ort, Höhen, Schwierigkeit, Bemerkung, Zulassung, Bergbahn, Beste Zeit" },
   { v: 164, date: "28.10.", text: "Heimat-Startplatz pulsiert als lila Herz statt als Kreis" },
   { v: 163, date: "28.10.", text: "Heimat-Startplatz aus dem Profil pulsiert auf der Karte lila (liegt er außerhalb der Treffer oder ist es ein Ort: lila Punkt)" },
