@@ -2141,9 +2141,6 @@ function renderCard(spot, days, opts = {}) {
             <div class="dt-menu" hidden>
               <button type="button" class="dt-mi disabled" disabled>🔔 Flugwetter-Alarm<span class="dt-soon">bald</span></button>
               <button type="button" class="dt-mi" data-umgebung="${spot.id}">🗺️ Umgebung auf der Karte</button>
-              <button type="button" class="dt-mi" data-ort="geflogen:${spot.id}">${ortStatus(spot.id) === "geflogen" ? "✅ Schon geflogen" : "✔️ Als geflogen markieren"}</button>
-              <button type="button" class="dt-mi" data-ort="will:${spot.id}">${ortStatus(spot.id) === "will" ? "🎯 Steht auf der Liste" : "🎯 Will ich fliegen"}</button>
-              <button type="button" class="dt-mi" data-flugbuch="${spot.id}">📖 Ins Flugbuch</button>
               <button type="button" class="dt-mi" data-share="${spot.id}">📤 Teilen</button>
             </div>
           </div>
@@ -2570,7 +2567,6 @@ function updateMapMarkers(rows, opts = {}) {
   rows.forEach(r => {
     const el = document.createElement("div");
     el.className = "map-marker" + (searchFocus && searchFocus.type === "spot" && searchFocus.id === r.spot.id ? " map-marker-pulse" : "")
-      + (ortStatus(r.spot.id) === "geflogen" ? " mk-flown" : ortStatus(r.spot.id) === "will" ? " mk-will" : "")
       + (istHeimat(r.spot) ? " mk-home" : "");
     el.title = r.spot.name;
     el.innerHTML = `<img src="${START_ICON_BY_STATUS[r.ts.status] || START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label ml-${r.ts.status}">${r.spot.name}</span>`;
@@ -3754,20 +3750,16 @@ settingsModal.addEventListener("click", e => { if (e.target === settingsModal) c
 // ---------------- Mein Profil ----------------
 // Alles nur auf diesem Geraet (localStorage). Das Level stellt die Ampel ein (STUFEN), der Rest
 // gibt persoenliche Hinweise (profilHinweise), ein Heimatgebiet fuer den Start und den Namen
-// in der Begruessung. Reiter: Profil (Statistik, Ausruestung), Flugbuch, Erinnerungen.
+// in der Begruessung. Reiter: Profil (Ausruestung), Erinnerungen.
 const profileModal = document.getElementById("profileModal");
 let profileHistoryPushed = false, profilStufeBeimOeffnen = null;
 const lsGet = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch { return fb; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-const FB_KEY = "flugwetter_flugbuch", ORTE_KEY = "flugwetter_orte", REM_KEY = "flugwetter_erinnerungen", REM_EIGENE_KEY = "flugwetter_rem_eigene", DOK_KEY = "flugwetter_dokumente";
-let flugbuch = lsGet(FB_KEY, []);       // [{ id, datum "JJJJ-MM-TT", spotId?, ort, dauer (Min.), km?, notiz }]
-let orte = lsGet(ORTE_KEY, {});         // { spotId: "geflogen" | "will" }
+const REM_KEY = "flugwetter_erinnerungen", REM_EIGENE_KEY = "flugwetter_rem_eigene", DOK_KEY = "flugwetter_dokumente";
 let remData = lsGet(REM_KEY, {});       // { schluessel: { datum, monate } }
 let remEigene = lsGet(REM_EIGENE_KEY, []);   // eigene Erinnerungen [{ k, t, monate }] (Datum in remData)
 const heuteIso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 const fmtDatum = iso => iso ? iso.split("-").reverse().join(".") : "";
-const spotName = id => { const sp = getSpot(id); return sp ? sp.name : ""; };
-const hmm = min => `${Math.floor(min / 60)}:${String(min % 60).padStart(2, "0")}`;
 
 function speichereProfil() {
   try { localStorage.setItem(PROFIL_KEY, JSON.stringify(profil)); } catch {}
@@ -3789,12 +3781,6 @@ const ILL = {
   schild: `<svg viewBox="0 0 64 64"><path d="M32 8 12 16v14c0 14 8 22 20 26 12-4 20-12 20-26V16z" fill="#22c55e"/><path d="m22 32 7 7 14-15" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   dhv: `<svg viewBox="0 0 64 64"><defs><linearGradient id="gD" x1="0" x2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs><rect x="8" y="14" width="48" height="36" rx="6" fill="#0f1b2a" stroke="url(#gD)" stroke-width="3"/><path d="M16 32c3-9 17-9 20 0-7-3-13-3-20 0z" fill="url(#gD)"/><path d="M18 33l9 8M34 33l-7 8" stroke="#cbd5e1" stroke-width="1"/><path d="M40 24h10M40 31h10M40 38h7" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/></svg>`,
   glocke: `<svg viewBox="0 0 64 64"><path d="M32 10c-10 0-16 8-16 18 0 10-4 12-6 16h44c-2-4-6-6-6-16 0-10-6-18-16-18z" fill="#f59e0b"/><circle cx="32" cy="52" r="5" fill="#fbbf24"/></svg>`,
-};
-const IC_ST = {
-  plane: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3 2.5 10.5l7 3 3 7z"/><path d="m9.5 13.5 5-5"/></svg>`,
-  uhr: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
-  berg: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 20 9 7l4 7 3-4 6 10z"/></svg>`,
-  strecke: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="19" r="2"/><circle cx="19" cy="5" r="2"/><path d="M7 19c8 0 2-14 10-14" stroke-dasharray="3 3"/></svg>`,
 };
 
 // --- Ausruestung: Schirm, Gurtzeug, Retter ---
@@ -3886,7 +3872,6 @@ function profilUi() {
   document.getElementById("pfHomeAnzeige").innerHTML = profil.home ? `📍 ${escHtml(profil.home.name)}` : `<span class="pf-home-leer">Noch nicht gesetzt</span>`;
   pfEnWarnen();
   GEAR.forEach(gearTexte);
-  document.getElementById("pfStats").innerHTML = statHtml(fbEintraege());
   // Punkt am Knopf: Profil noch leer, oder eine Erinnerung ist bald/ueberfaellig (rot)
   const alarm = remAlarm();
   const dot = document.getElementById("profileDot");
@@ -4012,7 +3997,7 @@ document.getElementById("pfSave").addEventListener("click", () => {
   setTimeout(() => { b.textContent = "Speichern"; profilSchliessen(); }, 700);
 });
 document.getElementById("pfLoeschen").addEventListener("click", () => {
-  if (!confirm("Profil wirklich löschen? Name, Fotos, Ausrüstung, Level und Heimatgebiet gehen verloren (Flugbuch bleibt).")) return;
+  if (!confirm("Profil wirklich löschen? Name, Fotos, Ausrüstung, Level und Heimatgebiet gehen verloren.")) return;
   profil = {}; try { localStorage.removeItem(PROFIL_KEY); } catch {}
   gearOffen.clear(); profilFuellen(); updateGreeting(); homeMarkerErneuern();
   document.getElementById("pfEditMeBox").hidden = false;
@@ -4023,162 +4008,29 @@ function pfTab(tab) {
   profileModal.dataset.tab = tab;
   document.querySelectorAll("#profileModal [data-pftab]").forEach(b => b.classList.toggle("on", b.dataset.pftab === tab));
   document.querySelectorAll(".pf-pane").forEach(p => { p.hidden = p.dataset.pfpane !== tab; });
-  if (tab === "buch") fbRender();
   if (tab === "rem") remRender();
 }
 profileModal.addEventListener("click", e => { const b = e.target.closest("[data-pftab]"); if (b) { pfTab(b.dataset.pftab); profileModal.querySelector(".pf-root").scrollTop = 0; } });
 
-// --- Meine Plaetze: geflogen (auch automatisch aus dem Flugbuch) / will ich ---
-function ortStatus(id) {
-  if (orte[id] === "geflogen" || flugbuch.some(f => f.spotId === id)) return "geflogen";
-  return orte[id] || "";
-}
-function ortSetzen(id, art) {
-  if (art) orte[id] = art; else delete orte[id];
-  lsSet(ORTE_KEY, orte);
-  if (mapInstance && lastRows.length) updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
-  if (currentDetailSpot && currentDetailSpot.id === id) { const m = document.querySelector("#detailModal .dt-menu"); if (m) { const btns = m.querySelectorAll("[data-ort]");
-    btns[0].textContent = ortStatus(id) === "geflogen" ? "✅ Schon geflogen" : "✔️ Als geflogen markieren";
-    btns[1].textContent = ortStatus(id) === "will" ? "🎯 Steht auf der Liste" : "🎯 Will ich fliegen"; } }
-  if (!profileModal.hidden) fbRender();
-}
-
-// --- Flugbuch ---
-let statZeit = "jahr", fbOrteArt = "geflogen", fbSpotId = "", fbAlleZeigen = false;
-function fbEintraege() {
-  const jahr = new Date().getFullYear();
-  const passt = f => statZeit === "alle" || f.datum.startsWith(String(statZeit === "vorjahr" ? jahr - 1 : jahr));
-  return flugbuch.filter(passt).sort((a, b) => b.datum.localeCompare(a.datum));
-}
-function fbOrtName(f) { return f.spotId ? (spotName(f.spotId) || f.ort) : f.ort; }
-const fbStunden = arr => arr.reduce((t, f) => t + (+f.dauer || 0), 0) / 60;
-const fmtStd = h => (Math.round(h * 10) / 10).toString().replace(".", ",");
-function statHtml(arr) {
-  const min = Math.round(arr.reduce((t, f) => t + (+f.dauer || 0), 0));
-  const plaetze = new Set(arr.map(f => f.spotId || foldText(f.ort)).filter(Boolean)).size;
-  const km = arr.reduce((m, f) => Math.max(m, +f.km || 0), 0);
-  const k = (ic, w, l) => `<div class="fb-tile"><span class="fb-ic">${IC_ST[ic]}</span><div><b>${w}</b><span>${l}</span></div></div>`;
-  return k("plane", arr.length, "Flüge") + k("uhr", hmm(min), "Stunden") + k("berg", plaetze, "Startplätze") + k("strecke", km ? `${fmtStd(km)} km` : "–", "längster Flug");
-}
-function fbBadges() {
-  const n = flugbuch.length, h = fbStunden(flugbuch);
-  const plaetze = new Set(flugbuch.map(f => f.spotId || foldText(f.ort)).filter(Boolean)).size;
-  const laender = new Set(flugbuch.map(f => (getSpot(f.spotId) || {}).country).filter(Boolean)).size;
-  return [
-    { k: "1", t: "Erster Flug", ok: n >= 1, fort: `${Math.min(n, 1)}/1` },
-    { k: "10", t: "10 Flüge", ok: n >= 10, fort: `${Math.min(n, 10)}/10` },
-    { k: "50", t: "50 Flüge", ok: n >= 50, fort: `${Math.min(n, 50)}/50` },
-    { k: "100", t: "100 Flüge", ok: n >= 100, fort: `${Math.min(n, 100)}/100` },
-    { k: "10h", t: "10 Stunden", ok: h >= 10, fort: `${fmtStd(Math.min(h, 10))}/10 h` },
-    { k: "50h", t: "50 Stunden", ok: h >= 50, fort: `${fmtStd(Math.min(h, 50))}/50 h` },
-    { k: "100h", t: "100 Stunden", ok: h >= 100, fort: `${fmtStd(Math.min(h, 100))}/100 h` },
-    { k: "5P", t: "5 Plätze", ok: plaetze >= 5, fort: `${Math.min(plaetze, 5)}/5` },
-    { k: "25P", t: "25 Plätze", ok: plaetze >= 25, fort: `${Math.min(plaetze, 25)}/25` },
-    { k: "2L", t: "2 Länder", ok: laender >= 2, fort: `${Math.min(laender, 2)}/2` },
-    { k: "3L", t: "3 Länder", ok: laender >= 3, fort: `${Math.min(laender, 3)}/3` },
-  ];
-}
-const MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
-function fbRender() {
-  document.getElementById("fbZeitJahr").textContent = `Dieses Jahr (${new Date().getFullYear()})`;
-  document.querySelectorAll("#fbZeit .apill").forEach(b => b.classList.toggle("on", b.dataset.fbzeit === statZeit));
-  document.getElementById("pfStatZeit").value = statZeit;
-  document.getElementById("fbStats").innerHTML = statHtml(fbEintraege());
-  document.getElementById("pfStats").innerHTML = statHtml(fbEintraege());
-  document.getElementById("fbBadges").innerHTML = fbBadges().map(b =>
-    `<div class="fb-badge${b.ok ? " ok" : ""}" title="${b.ok ? "Erreicht" : b.fort}"><span class="fb-badge-k">${b.k}</span><span class="fb-badge-t">${b.t}</span>${b.ok ? "" : `<span class="fb-badge-f">${b.fort}</span>`}</div>`).join("");
-  // Letzte Fluege
-  const alle = flugbuch.slice().sort((a, b) => b.datum.localeCompare(a.datum));
-  const zeig = fbAlleZeigen ? alle : alle.slice(0, 3);
-  document.getElementById("fbAlle").hidden = alle.length <= 3;
-  document.getElementById("fbAlle").textContent = fbAlleZeigen ? "Weniger ‹" : "Alle anzeigen ›";
-  document.getElementById("fbListe").innerHTML = zeig.length ? zeig.map(f => {
-    const [j, m, t] = f.datum.split("-");
-    return `<div class="fb-row" data-fbid="${f.id}">
-      <div class="fb-date"><b>${+t}</b><span>${MON[+m - 1] || ""}</span></div>
-      <div class="fb-row-main"${f.spotId ? ` data-fbspot="${f.spotId}"` : ""}><div class="fb-row-t">${escHtml(fbOrtName(f)) || "Ohne Ortsangabe"}</div>
-        <div class="fb-row-s">${f.dauer ? `<span>${IC_ST.uhr}${hmm(f.dauer)} h</span>` : ""}${f.km ? `<span>${IC_ST.strecke}${fmtStd(f.km)} km</span>` : ""}${f.notiz ? `<span class="fb-note">${escHtml(f.notiz)}</span>` : ""}</div></div>
-      ${f.spotId ? `<span class="fb-chev" data-fbspot="${f.spotId}">›</span>` : ""}
-      <button type="button" class="fb-x" data-fbdel="${f.id}" aria-label="Flug löschen">✕</button></div>`;
-  }).join("") : `<p class="pf-note">Noch kein Flug eingetragen.</p>`;
-  // Meine Plaetze
-  document.querySelectorAll("#fbOrteSeg .apill").forEach(b => b.classList.toggle("on", b.dataset.fbort === fbOrteArt));
-  const ids = new Set(Object.keys(orte).filter(id => orte[id] === fbOrteArt));
-  if (fbOrteArt === "geflogen") flugbuch.forEach(f => { if (f.spotId) ids.add(f.spotId); });
-  const liste = [...ids].map(id => getSpot(id)).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name, "de"));
-  document.getElementById("fbOrteListe").innerHTML = liste.length ? liste.map(sp => `<div class="fb-row"><div class="fb-row-main" data-fbspot="${sp.id}"><div class="fb-row-t">${escHtml(sp.name)}</div>
-      <div class="fb-row-s"><span>${escHtml([sp.gemeinde, sp.bundesland].filter(Boolean).join(", ") || sp.region || "")}</span></div></div>
-      ${orte[sp.id] === fbOrteArt ? `<button type="button" class="fb-x" data-fbortdel="${sp.id}" aria-label="Entfernen">✕</button>` : ""}</div>`).join("")
-    : `<p class="pf-note">${fbOrteArt === "geflogen" ? "Hier erscheinen Plätze aus deinem Flugbuch und alle, die du im Detailfenster (☰) als geflogen markierst." : "Markiere Plätze im Detailfenster (☰) mit „Will ich fliegen“."}</p>`;
-}
-document.getElementById("pfStatZeit").addEventListener("change", e => { statZeit = e.target.value; fbRender(); });
-document.getElementById("fbAlle").addEventListener("click", () => { fbAlleZeigen = !fbAlleZeigen; fbRender(); });
-// Platz-Vorschlaege beim Tippen
-document.getElementById("fbPlatz").addEventListener("input", e => {
-  fbSpotId = "";
-  const q = foldText(e.target.value.trim()), sug = document.getElementById("fbSug");
-  if (q.length < 2) { sug.hidden = true; return; }
-  const treffer = allKnownSpots().filter(sp => foldText(sp.name).includes(q) || foldText(sp.region || "").includes(q)).slice(0, 6);
-  sug.innerHTML = treffer.map(sp => `<button type="button" data-fbpick="${sp.id}">${escHtml(sp.name)}<span>${escHtml(sp.region || "")}</span></button>`).join("");
-  sug.hidden = !treffer.length;
-});
-function fbFormLeeren() {
-  ["fbPlatz", "fbDauer", "fbKm", "fbNotiz"].forEach(id => { document.getElementById(id).value = ""; });
-  document.getElementById("fbDatum").value = heuteIso(); fbSpotId = ""; document.getElementById("fbSug").hidden = true;
-}
-document.getElementById("fbAdd").addEventListener("click", () => {
-  const datum = document.getElementById("fbDatum").value || heuteIso();
-  const ortText = document.getElementById("fbPlatz").value.trim();
-  const dauer = Math.round(+document.getElementById("fbDauer").value) || 0;
-  const km = Math.round((+document.getElementById("fbKm").value || 0) * 10) / 10;
-  if (!ortText && !fbSpotId) { document.getElementById("fbPlatz").focus(); return; }
-  flugbuch.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), datum, spotId: fbSpotId || "", ort: ortText, dauer, km, notiz: document.getElementById("fbNotiz").value.trim() });
-  lsSet(FB_KEY, flugbuch);
-  fbFormLeeren(); fbRender(); profilUi();
-  if (mapInstance && lastRows.length) updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
-});
-// Aus dem Detailfenster: Flugbuch mit vorausgefuelltem Platz
-function flugbuchFuer(id) {
-  const sp = getSpot(id); if (!sp) return;
-  if (!document.getElementById("detailModal").hidden) closeDetail();
-  profilOeffnen("buch");
-  fbFormLeeren();
-  document.getElementById("fbPlatz").value = sp.name; fbSpotId = sp.id;
-  document.getElementById("fbDauer").focus();
-}
-profileModal.addEventListener("click", e => {
-  const pick = e.target.closest("[data-fbpick]");
-  if (pick) { const sp = getSpot(pick.dataset.fbpick); document.getElementById("fbPlatz").value = sp.name; fbSpotId = sp.id; document.getElementById("fbSug").hidden = true; return; }
-  const z = e.target.closest("[data-fbzeit]");
-  if (z) { statZeit = z.dataset.fbzeit; fbRender(); return; }
-  const o = e.target.closest("[data-fbort]");
-  if (o) { fbOrteArt = o.dataset.fbort; fbRender(); return; }
-  const del = e.target.closest("[data-fbdel]");
-  if (del) { if (confirm("Diesen Flug löschen?")) { flugbuch = flugbuch.filter(f => f.id !== del.dataset.fbdel); lsSet(FB_KEY, flugbuch); fbRender(); profilUi(); } return; }
-  const odel = e.target.closest("[data-fbortdel]");
-  if (odel) { ortSetzen(odel.dataset.fbortdel, ""); return; }
-  const sp = e.target.closest("[data-fbspot]");
-  if (sp) { profilSchliessen(); openDetail(sp.dataset.fbspot); return; }
-});
-// Backup (Profil inkl. Fotos, Flugbuch, Plaetze, Erinnerungen)
-document.getElementById("fbExport").addEventListener("click", () => {
-  const daten = { app: "GoFlyToday", v: 2, stand: heuteIso(), profil, flugbuch, orte, erinnerungen: remData, eigene: remEigene, dokumente: dokData };
+// Backup (Profil inkl. Fotos, Erinnerungen, Dokumente)
+document.getElementById("bkExport").addEventListener("click", () => {
+  const daten = { app: "GoFlyToday", v: 2, stand: heuteIso(), profil, erinnerungen: remData, eigene: remEigene, dokumente: dokData };
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([JSON.stringify(daten)], { type: "application/json" }));
   a.download = `goflytoday-backup-${heuteIso()}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 });
-document.getElementById("fbImport").addEventListener("change", async e => {
+document.getElementById("bkImport").addEventListener("change", async e => {
   const f = e.target.files[0]; e.target.value = "";
   if (!f) return;
   try {
     const d = JSON.parse(await f.text());
     if (d.app !== "GoFlyToday") throw new Error("falsche Datei");
-    if (!confirm("Backup laden? Profil, Flugbuch und Erinnerungen auf diesem Gerät werden ersetzt.")) return;
-    profil = d.profil || {}; flugbuch = Array.isArray(d.flugbuch) ? d.flugbuch : []; orte = d.orte || {}; remData = d.erinnerungen || {}; remEigene = d.eigene || []; dokData = d.dokumente || {};
-    lsSet(PROFIL_KEY, profil); lsSet(FB_KEY, flugbuch); lsSet(ORTE_KEY, orte); lsSet(REM_KEY, remData); lsSet(REM_EIGENE_KEY, remEigene); lsSet(DOK_KEY, dokData);
-    profilFuellen(); fbRender(); remRender(); updateGreeting(); remBannerZeigen();
+    if (!confirm("Backup laden? Profil und Erinnerungen auf diesem Gerät werden ersetzt.")) return;
+    profil = d.profil || {}; remData = d.erinnerungen || {}; remEigene = d.eigene || []; dokData = d.dokumente || {};
+    lsSet(PROFIL_KEY, profil); lsSet(REM_KEY, remData); lsSet(REM_EIGENE_KEY, remEigene); lsSet(DOK_KEY, dokData);
+    profilFuellen(); remRender(); updateGreeting(); remBannerZeigen();
   } catch { alert("Das ist keine gültige GoFlyToday-Backup-Datei."); }
 });
 
@@ -4446,6 +4298,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 170, date: "29.10.", text: "Flugbuch komplett entfernt (inkl. Statistik, Abzeichen und „Geflogen / Will ich fliegen“). Backup und Profil bleiben" },
   { v: 169, date: "29.10.", text: "Erinnerungen neu gestaltet: Zusammenfassung oben, Ausrüstung als Zeilen, Haftpflicht und DHV-Mitgliedschaft nur mit Haken, Eingaben gelten mit „Speichern“" },
   { v: 168, date: "29.10.", text: "Briefing: Block „Wichtige Hinweise“ entfernt (der Haftungstext bleibt)" },
   { v: 167, date: "29.10.", text: "Briefing „Anreise & Start“: Navigation, Parkplatz-Liste und Umgebungs-Kachel entfernt – das steht auf der Hauptkarte" },
@@ -4869,16 +4722,6 @@ document.body.addEventListener("click", e => {
     })();
     return;
   }
-  // Detailfenster-Menue: Meine Plaetze / Flugbuch
-  const ortBtn = e.target.closest("[data-ort]");
-  if (ortBtn) {
-    const [art, id] = ortBtn.dataset.ort.split(":");
-    ortSetzen(id, ortStatus(id) === art ? "" : art);
-    ortBtn.closest(".dt-menu").hidden = true;
-    return;
-  }
-  const fbBtn = e.target.closest("[data-flugbuch]");
-  if (fbBtn) { flugbuchFuer(fbBtn.dataset.flugbuch); return; }
   // Karte unten (nach Tipp auf einen Startplatz): Details oeffnen / schliessen
   const ucGo = e.target.closest("[data-ucgo]");
   if (ucGo) { openDetail(ucGo.dataset.ucgo); return; }
