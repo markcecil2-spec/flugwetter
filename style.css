@@ -1697,3 +1697,6 @@ main.wrap { padding-top: 12px; }
 .anr-link { color: var(--sky); font-weight: 700; text-decoration: none; white-space: nowrap; }
 .umg-teaser { margin: 14px 0 0; }
 .fc-body .lp-box { margin-bottom: 8px; }
+.lp-ok { flex: none; display: inline-flex; margin-left: 2px; }
+.lp-ok .fc-ok { width: 18px; height: 18px; color: var(--green-d, #22c55e); }
+#dtab-briefing .lp-box + .fc-head, #dtab-briefing .fc-head { margin-top: 20px; }
