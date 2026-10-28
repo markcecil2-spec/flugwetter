@@ -1856,14 +1856,6 @@ function kurzueberblickHtml(spot, day, ts, tagW) {
   return `<h3 class="fc-h4 ueb-h">${tagW || "Heute"} im Überblick</h3><div class="lp-box">${lpRows(rows)}
     <p class="lp-note">${fenster.length ? "Werte aus dem fliegbaren Fenster" : `Werte über den ganzen Tag – ${(tagW || "Heute").toLowerCase()} kein fliegbares Fenster`}</p></div>`;
 }
-// Gilt an jedem Platz gleich - deshalb fest hinterlegt und nicht pro Gelände gepflegt.
-const ALLG_HINWEISE_HTML = `<h3 class="dv-h3">Wichtige Hinweise</h3>
-  <ul class="fc-notes allg-notes">
-    <li class="fc-info">${FC_INFO}<span>Starte nur bei passenden Bedingungen und eigenem Können.</span></li>
-    <li class="fc-info">${FC_INFO}<span>Halte Abstand zu anderen Piloten.</span></li>
-    <li class="fc-info">${FC_INFO}<span>Respektiere Wildtiere, Weidetiere, Grundstücke und Sperrgebiete.</span></li>
-    <li class="fc-info">${FC_INFO}<span>Melde Unfälle oder Beinaheunfälle.</span></li>
-  </ul>`;
 // Eigene Notizen zum Platz - bleiben nur auf diesem Gerät (localStorage), gehen nirgends hin.
 function notizenHtml(spot) {
   const txt = localStorage.getItem("flugwetter_note_" + spot.id) || "";
@@ -1976,7 +1968,6 @@ function briefingPanelHtml(spot, ctx) {
     <h3 class="fc-head">Flug-Check</h3>
     <p class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</p>
     ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
-    ${ALLG_HINWEISE_HTML}
     <p class="bf-src bf-warn-note">Alle Angaben ohne Gewähr. Informiere dich vor dem Flug über die aktuellen
       Bedingungen und respektiere andere Piloten und die Natur.
       ${b ? `<span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span>` : ""}</p>
@@ -4383,6 +4374,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 168, date: "29.10.", text: "Briefing: Block „Wichtige Hinweise“ entfernt (der Haftungstext bleibt)" },
   { v: 167, date: "29.10.", text: "Briefing „Anreise & Start“: Navigation, Parkplatz-Liste und Umgebungs-Kachel entfernt – das steht auf der Hauptkarte" },
   { v: 166, date: "28.10.", text: "Briefing „Heute im Überblick“: grüner Haken bei Windrichtung, Wind und Böen, wenn sie zu deinem Startplatz und deiner Ampel passen" },
   { v: 165, date: "28.10.", text: "Detailfenster: der Reiter „Details“ ist ins Briefing gewandert und logisch geordnet (Urteil, Hinweise, Überblick, Flug-Check, Hinweise, Notizen). Doppelte Angaben entfernt: Ort, Höhen, Schwierigkeit, Bemerkung, Zulassung, Bergbahn, Beste Zeit" },
