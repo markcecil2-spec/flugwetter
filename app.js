@@ -4307,6 +4307,11 @@ document.getElementById("settingsFeedbackBtn").addEventListener("click", () => {
   fbHistoryPushed = true;
   history.replaceState({ fbOpen: true }, "", location.href);
 });
+document.getElementById("infoChangelogBtn").addEventListener("click", () => {
+  showChangelog();
+  changelogHistoryPushed = true;
+  history.pushState({ changelogOpen: true }, "", location.href);
+});
 document.getElementById("settingsVersionBtn").addEventListener("click", () => {
   // Gleiches Prinzip wie Einstellungen -> Feedback: History-Eintrag ersetzen statt stapeln.
   settingsModal.hidden = true;
@@ -4319,6 +4324,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 174, date: "29.10.", text: "Info & Recht komplett überarbeitet: neue Optik, aktuelle Funktionen, Datenquellen und Datenschutz in Kürze, aufklappbare Rechtstexte" },
   { v: 173, date: "29.10.", text: "Hauptkarte: deine Favoriten sind immer markiert – goldener Stern am Marker, und Favoriten außerhalb der Treffer stehen als Stern-Marker auf der Karte" },
   { v: 172, date: "29.10.", text: "Runterziehen zum Neuladen: die App bleibt auf dem Bildschirm, auf dem du gerade bist (Seite, Suche, Karte, geöffnetes Detail oder Profil, Scrollstelle)" },
   { v: 171, date: "29.10.", text: "Sicherheitsprofil (eigene Grenzwerte) ist von den Einstellungen ins Profil umgezogen" },

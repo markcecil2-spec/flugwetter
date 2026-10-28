@@ -37,7 +37,8 @@
     <p>GoFlyToday ist eine reine Web-App (Progressive Web App). Es gibt <b>keine Nutzerkonten, kein Login, keine Werbung, kein Tracking und keine Analyse-Cookies</b>. Wir betreiben keine eigene Datenbank mit deinen Daten.</p>
 
     <h2>Lokale Speicherung auf deinem Gerät</h2>
-    <p>Deine <b>Favoriten, selbst angelegten Startplätze und Einstellungen</b> (z. B. gewählter Umkreis) werden ausschließlich lokal in deinem Browser (localStorage) auf deinem Gerät gespeichert. Diese Daten werden <b>nicht an uns übertragen</b> und verlassen dein Gerät nicht. Du kannst sie jederzeit löschen (eigene Plätze entfernen bzw. Browserdaten der Seite löschen).</p>
+    <p>Folgende Angaben werden ausschließlich lokal in deinem Browser (localStorage) auf deinem Gerät gespeichert: deine <b>Favoriten, selbst angelegten Startplätze, Notizen und Einstellungen</b> (z. B. gewählter Umkreis, Filter) sowie, wenn du sie anlegst, die Angaben in <b>„Mein Profil“</b>: Name oder Pilotenname, Level, Schein, Schirm-, Gurtzeug- und Retter-Daten, Flugarten, Heimatgebiet, <b>selbst hochgeladene Fotos</b> (werden auf dem Gerät verkleinert und nicht hochgeladen) und deine <b>Erinnerungen</b> (z. B. Termine für Rettungsschirm, Nachprüfung, Versicherung). Diese Daten werden <b>nicht an uns übertragen</b> und verlassen dein Gerät nicht. Das optionale Backup erzeugst du selbst als Datei; was du damit machst, liegt bei dir. Du kannst alles jederzeit löschen (Profil löschen, eigene Plätze entfernen bzw. Browserdaten der Seite löschen).</p>
+    <p>Zusätzlich merkt sich die App beim Neuladen kurzzeitig, wo du gerade warst (Seite, Suche, Kartenausschnitt, geöffnetes Fenster). Das liegt im Sitzungsspeicher (sessionStorage) deines Browser-Tabs und wird beim Schließen des Tabs gelöscht.</p>
 
     <h2>Standort</h2>
     <p>Wenn du die Umkreissuche mit deinem Standort nutzt, wird dein Standort vom Gerät ermittelt – nur nach deiner ausdrücklichen Einwilligung im Browser. Die Koordinaten werden zur Berechnung von Umkreis, Wetter und Fahrzeit an die unten genannten Dienste gesendet. Ein <b>dauerhaftes Speichern deines GPS-Standorts findet nicht statt.</b></p>
@@ -50,6 +51,8 @@
       <li><b>Zippopotam.us</b> – nur bei der PLZ-Suche (Umwandlung Postleitzahl → Koordinaten).</li>
       <li><b>Nominatim / OpenStreetMap (nominatim.openstreetmap.org)</b> – Ortssuche per Suchfeld und Ortsname zu deinem Standort.</li>
       <li><b>Overpass-API / OpenStreetMap (overpass-api.de, ersatzweise overpass.private.coffee und overpass.kumi.systems)</b> – nur für selbst angelegte Plätze: Parkplätze, Seilbahnen, Unterkünfte, Einkehr, Supermärkte, Toiletten, Haltestellen und Tankstellen in der Umgebung. Übermittelt werden nur die Koordinaten von Start- und Landeplatz. Für die Plätze aus der Datenbank kommen diese Angaben vorberechnet von unserem eigenen Server (GitHub Pages), ohne Anfrage an Dritte.</li>
+      <li><b>Kartenkacheln (OpenFreeMap – tiles.openfreemap.org; auf Wunsch Satellit von Esri – server.arcgisonline.com; Gelände von OpenTopoMap – opentopomap.org)</b> – laden die Karte für den gerade sichtbaren Ausschnitt. Dabei wird der angefragte Kartenausschnitt übermittelt.</li>
+      <li><b>unpkg.com</b> – liefert die Karten-Bibliothek (MapLibre) aus.</li>
       <li><b>Photon / komoot (photon.komoot.io)</b> – Ortsvorschläge beim Tippen ins Suchfeld (z. B. „Bodensee“). Übermittelt wird nur der eingetippte Suchbegriff.</li>
     </ul>
     <p>Diese Dienste erhalten dabei technisch bedingt auch deine IP-Adresse. Es werden keine personenbezogenen Kennungen von uns mitgesendet.</p>
