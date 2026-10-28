@@ -13,7 +13,7 @@
   <!-- ?v=NN muss bei jedem Deploy mit der Versionsnummer/sw.js mitgezogen werden. Ohne das
        kann der Browser eine neue index.html mit einer alten app.js aus dem HTTP-Cache mischen
        (GitHub Pages liefert Assets mit max-age) - dann fehlen neue Funktionen kommentarlos. -->
-  <link rel="stylesheet" href="style.css?v=173" />
+  <link rel="stylesheet" href="style.css?v=174" />
 </head>
 <body>
   <header>
@@ -290,39 +290,43 @@
 
     <!-- SEITE: Info -->
     <section id="page-info" class="page" hidden>
-      <div class="fb-card card">
-        <div><b><svg class="inline-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Dein Feedback hilft!</b><br><span class="fb-sub">GoFlyToday ist noch jung – zwei Sätze von dir sind Gold wert.</span></div>
-        <button id="feedbackBtn" class="btn-primary"><svg class="inline-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Feedback senden</button>
+      <div class="info-hero">
+        <img class="ih-logo" src="icons/logo-glider.png" alt="">
+        <div class="ih-txt"><b>GoFlyToday</b><span>Wetter. Startplätze. Entscheidung.</span></div>
+        <div class="ih-chips">
+          <span>2800+ Startplätze</span><span>DE · AT · CH · FR · IT</span><span>kostenlos</span><span>ohne Konto</span>
+        </div>
       </div>
 
-      <h2 class="page-h">Wie funktioniert die App?</h2>
+      <h2 class="page-h">So funktioniert’s</h2>
+      <div class="info-steps">
+        <div class="is-step"><span class="is-n">1</span><div><b>Ort wählen</b><span>Die App nimmt deinen Standort (oder dein Heimatgebiet aus dem Profil) und prüft alle Startplätze im Umkreis gegen die Wettervorhersage. Auch ein anderer Ort, eine PLZ oder ein Startplatzname geht.</span></div></div>
+        <div class="is-step"><span class="is-n">2</span><div><b>Ampel lesen</b><span>Jeder Platz bekommt eine Farbe für Heute oder Morgen – auf der Karte und in der Liste.</span></div></div>
+        <div class="is-step"><span class="is-n">3</span><div><b>Platz antippen</b><span>Die Karte zoomt hinein und zeigt Parken, Seilbahn &amp; Co. Mit „Details“ siehst du Wetter, Briefing und Live-Daten.</span></div></div>
+      </div>
+
       <div class="card">
-        <p class="info-lead">Tippe auf <b>„Wo kann ich heute fliegen?"</b> – die App nimmt deinen Standort und prüft alle Startplätze im gewählten Umkreis gegen die Wettervorhersage.</p>
         <div class="ampel-cards">
-          <div class="ampel-card gut">
-            <span class="ac-dot">🟢</span>
-            <div><b>Gut</b> – Windrichtung passt<br><span>Wind &amp; Böen entspannt im Rahmen.</span></div>
-          </div>
-          <div class="ampel-card grenz">
-            <span class="ac-dot">🟡</span>
-            <div><b>Grenzwertig</b> – fliegbar, aber nah an den Grenzen<br><span>(zu schwach, recht stark, böig oder Böen weit über dem Mittelwind).</span></div>
-          </div>
-          <div class="ampel-card nein">
-            <span class="ac-dot">🔴</span>
-            <div><b>Nicht</b> – Richtung falsch, zu viel Wind/Böen, Regen o. Ä.<br><span>Angezeigt werden nur zusammenhängende Fenster ab 3 Stunden – einzelne gute Stunden werden bewusst ignoriert.</span></div>
-          </div>
-        </div>
-        <div class="info-tip-row">
-          <div class="info-tip"><span class="it-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.27 5.82.85-4.21 4.1.99 5.8L12 16.9l-5.2 2.72.99-5.8-4.21-4.1 5.82-.85z"/></svg></span><span>Unter <b>„Favoriten"</b> siehst du deine Plätze mit 7-Tage-Ansicht, Wettersymbol und Temperatur.</span></div>
-          <div class="info-tip"><span class="it-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/></svg></span><span>Favoriten legst du über <b>„＋ Neu"</b> an (aus der Datenbank oder selbst).</span></div>
-          <div class="info-tip"><span class="it-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></span><span>In der <b>Kartenansicht</b> zwischen Karte/Satellit/Gelände wechseln, den Umkreis direkt auf der Karte anklicken oder beim Rauszoomen weitere Plätze in der Umgebung entdecken.</span></div>
-          <div class="info-tip"><span class="it-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-6"/><path d="M8.5 17a5 5 0 0 1 7 0"/><path d="M5.5 14a9 9 0 0 1 13 0"/><path d="M2.5 11a13 13 0 0 1 19 0"/></svg></span><span>Im <b>„Live"</b>-Tab jedes Startplatzes: Live-Wetterstation und Live-Cam in der Nähe, wenn vorhanden.</span></div>
-          <div class="info-tip"><span class="it-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg></span><span><b>Wetter-Verlauf:</b> im Wetter-Tab ein vergangenes Datum wählen und nachträglich prüfen, wie der Tag war.</span></div>
+          <div class="ampel-card gut"><span class="ac-dot">🟢</span><div><b>Gut</b> – mindestens 3 passende Stunden am Stück<br><span>Windrichtung im Startsektor, Wind und Böen im grünen Bereich. Gelbe Randstunden (z. B. schwacher Wind am Morgen) stören nicht.</span></div></div>
+          <div class="ampel-card grenz"><span class="ac-dot">🟡</span><div><b>Grenzwertig</b> – fliegbar, aber nah an den Grenzen<br><span>Zu schwach, recht stark, böig, Richtung knapp daneben oder Böen weit über dem Mittelwind.</span></div></div>
+          <div class="ampel-card nein"><span class="ac-dot">🔴</span><div><b>Nicht</b> – Richtung falsch, zu viel Wind oder Böen, Regen, Gewitter<br><span>Angezeigt werden nur zusammenhängende Fenster ab 3 Stunden – einzelne gute Stunden zählen bewusst nicht.</span></div></div>
         </div>
         <div class="info-coverage">
-          <span class="ic-globe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/></svg></span>
-          <span><b>Abgedeckt sind aktuell:</b> Deutschland, Österreich, Schweiz, Frankreich und Italien – über <b>2800 Startplätze</b> aus der offiziellen DHV-Geländedatenbank, mit geprüften Windrichtungen direkt aus der Datenbank.</span>
+          <span class="ic-globe"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span>
+          <span><b>Dein Level stellt die Ampel ein:</b> Einsteiger bekommen engere Grenzen, Erfahrene weitere. Level und eigene Grenzwerte (Sicherheitsprofil) findest du unter <b>Mein Profil</b> (Symbol oben rechts). Eine grüne Ampel ist nie eine Startfreigabe.</span>
         </div>
+      </div>
+
+      <h2 class="page-h">Das kann die App</h2>
+      <div class="info-feats">
+        <div class="if-card"><span class="if-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg></span><div><b>Karte</b><span>Startplätze nach Bedingungen eingefärbt. Ansicht: Karte, Satellit oder Gelände. Filter für Umkreis, Favoriten, Zustieg und Höhendifferenz.</span></div></div>
+        <div class="if-card"><span class="if-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5s7-6.2 7-11.8a7 7 0 0 0-14 0c0 5.6 7 11.8 7 11.8z"/><circle cx="12" cy="9.5" r="2.6"/></svg></span><div><b>Umgebung</b><span>Beim Heranzoomen erscheinen Parken, Seilbahn, Camping, Stellplatz, Hotel, Essen, Supermarkt, Toilette, ÖPNV und Tankstelle – über den Pin-Knopf wählbar.</span></div></div>
+        <div class="if-card"><span class="if-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7.5a3.5 3.5 0 0 0 0-7h-7a3.5 3.5 0 0 1 0-7H16"/></svg></span><div><b>Entlang der Route</b><span>Startplätze auf deiner Fahrstrecke finden – bewertet für den Zeitpunkt, an dem du dort ankommst.</span></div></div>
+        <div class="if-card"><span class="if-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></span><div><b>Briefing</b><span>Urteil, Tageswerte mit Haken, Flug-Check (Anreise, Startplatz, Landeplatz, Notruf) und eigene Notizen zu jedem Platz.</span></div></div>
+        <div class="if-card"><span class="if-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><div><b>Wetter</b><span>7 Tage pro Platz, Live-Wetterstation, Live-Cam und Windy-Karte wo vorhanden, dazu der Wetter-Verlauf für vergangene Tage.</span></div></div>
+        <div class="if-card"><span class="if-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.27 5.82.85-4.21 4.1.99 5.8L12 16.9l-5.2 2.72.99-5.8-4.21-4.1 5.82-.85z"/></svg></span><div><b>Favoriten</b><span>Deine Plätze mit 7-Tage-Ansicht – auf der Karte immer mit goldenem Stern markiert. Eigene Plätze legst du unter „Neu“ an.</span></div></div>
+        <div class="if-card"><span class="if-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span><div><b>Mein Profil</b><span>Level, Schirm, Gurtzeug, Retter, Heimatgebiet und Erinnerungen (Rettungsschirm packen, Nachprüfung …) – alles nur auf deinem Gerät.</span></div></div>
+        <div class="if-card"><span class="if-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg></span><div><b>Teilen</b><span>Der Teilen-Knopf im Detailfenster schickt einen Link, der direkt dieses Fluggebiet öffnet.</span></div></div>
       </div>
 
       <h2 class="page-h">Für wen ist sie gedacht?</h2>
@@ -331,36 +335,55 @@
         <div class="aud-card"><span class="aud-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg></span>Wochenend- und Feierabendflieger</div>
         <div class="aud-card"><span class="aud-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.7-3"/><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.7 3"/><path d="M21 3v6h-6"/><path d="M3 21v-6h6"/></svg></span>Wiedereinsteiger, die wieder Lust aufs Fliegen haben</div>
         <div class="aud-card"><span class="aud-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.3"/><path d="M2.5 20c0-3.3 3-5.5 6.5-5.5s6.5 2.2 6.5 5.5"/><path d="M15.5 15c2.5.3 4 2.1 4 5"/></svg></span>Alle, die sich nicht erst lange in die Wetterkunde einlesen möchten</div>
-        <div class="aud-card"><span class="aud-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg></span>Piloten, die mehrere Startplätze in der Nähe vergleichen wollen</div>
+        <div class="aud-card"><span class="aud-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5s7-6.2 7-11.8a7 7 0 0 0-14 0c0 5.6 7 11.8 7 11.8z"/><circle cx="12" cy="9.5" r="2.6"/></svg></span>Piloten, die mehrere Startplätze in der Nähe vergleichen wollen</div>
       </div>
 
-      <div class="support card">
-        <div class="support-emoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h13"/><path d="M6 21V9h9v6a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3"/><path d="M15 10.5h2a2 2 0 0 1 0 4h-1.3"/><path d="M8 3c0 1-1 1-1 2M11.5 3c0 1-1 1-1 2"/></svg></div>
-        <div class="support-txt"><b>Spart dir die App Zeit oder eine unnötige Anfahrt?</b><br>Sie wird in meiner Freizeit entwickelt und bleibt kostenlos. Wenn du möchtest, kannst du die Weiterentwicklung mit einem Kaffee unterstützen.</div>
-        <a class="bmc-btn" href="https://buymeacoffee.com/GoFlyToday" target="_blank" rel="noopener"><svg class="inline-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h13"/><path d="M6 21V9h9v6a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3"/><path d="M15 10.5h2a2 2 0 0 1 0 4h-1.3"/><path d="M8 3c0 1-1 1-1 2M11.5 3c0 1-1 1-1 2"/></svg> Kaffee ausgeben</a>
-      </div>
-
-      <h2 class="page-h">Rechtliche Einordnung</h2>
-      <div class="card legal">
-        <div class="legal-head">
-          <span class="lg-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg></span>
-          <p><b>Nutzung auf eigene Gefahr und in Eigenverantwortung.</b> Unverbindliche Orientierungshilfe, <b>keine amtliche Flugwetter&shy;beratung</b>. Die App gibt nur eine <b>Tendenz</b> – prüfe vor dem Fliegen immer zusätzlich amtliche/spezialisierte Quellen (z. B. <b>Burnair</b>, <b>Windy</b>, <b>DWD</b>).</p>
+      <h2 class="page-h">Mitmachen &amp; unterstützen</h2>
+      <div class="info-help">
+        <div class="ih2-card">
+          <span class="ih2-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+          <div><b>Dein Feedback hilft</b><span>GoFlyToday ist noch jung – zwei Sätze von dir sind Gold wert: Fehler, Wünsche, Ideen.</span></div>
+          <button id="feedbackBtn" class="btn-primary">Feedback senden</button>
         </div>
-        <div class="legal-cols">
-          <ul>
-            <li>Werte aus <b>Wettermodell-Daten</b> (Open-Meteo / DWD-ICON), können abweichen. Keine Gewähr für Richtigkeit/Aktualität.</li>
-            <li>Modellwind = <b>10 m über Grund</b>, nicht zwingend der Wind am Hang.</li>
-            <li>Nicht geprüft werden: Luftraum, NOTAMs, Sperrungen, Naturschutz-/Wildschutz&shy;zonen, Gelände-/Vereins&shy;regeln, Thermik, Turbulenz, lokale Effekte.</li>
-          </ul>
-          <ul>
-            <li>Beurteilung &amp; Startentscheidung liegen <b>allein beim verantwortlichen Piloten</b>; Gelände&shy;regeln (DHV) und nötige Berechtigungen beachten.</li>
-            <li><b>Keine Haftung</b> für Schäden aus der Nutzung.</li>
-          </ul>
+        <div class="ih2-card">
+          <span class="ih2-ic kaffee"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h13"/><path d="M6 21V9h9v6a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3"/><path d="M15 10.5h2a2 2 0 0 1 0 4h-1.3"/><path d="M8 3c0 1-1 1-1 2M11.5 3c0 1-1 1-1 2"/></svg></span>
+          <div><b>Spart dir die App Zeit oder eine unnötige Anfahrt?</b><span>Sie wird in meiner Freizeit entwickelt und bleibt kostenlos. Mit einem Kaffee unterstützt du die Weiterentwicklung.</span></div>
+          <a class="bmc-btn" href="https://buymeacoffee.com/GoFlyToday" target="_blank" rel="noopener">Kaffee ausgeben</a>
         </div>
-        <p class="dp"><b>Datenschutz:</b> Läuft lokal im Browser. Favoriten/eigene Plätze bleiben auf dem Gerät. Für Vorhersage/Höhe/Umkreissuche werden Koordinaten an Open-Meteo übertragen; dein GPS-Standort bleibt auf dem Gerät. → <a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum</a></p>
       </div>
 
-      <p class="build">GoFlyToday · Version 173 · Oktober 2026</p>
+      <h2 class="page-h">Recht &amp; Daten</h2>
+      <div class="info-acc">
+        <details class="ia" open><summary><span class="ia-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg></span><span class="ia-t">Wichtiger Hinweis – Nutzung auf eigene Gefahr</span><span class="ia-chev">›</span></summary><div class="ia-body"><p><b>Unverbindliche Orientierungshilfe, keine amtliche Flugwetterberatung.</b> Die App zeigt nur eine <b>Tendenz</b>. Prüfe vor jedem Flug zusätzlich amtliche oder spezialisierte Quellen (z. B. <b>Burnair</b>, <b>Windy</b>, <b>DWD</b>) und beurteile die Lage vor Ort selbst.</p>
+          <ul>
+            <li>Die Werte stammen aus <b>Wettermodell-Daten</b> und können abweichen. Keine Gewähr für Richtigkeit und Aktualität.</li>
+            <li>Modellwind ist der Wind <b>10 m über Grund</b> – nicht zwingend der Wind am Hang oder am Startplatz.</li>
+            <li>Nicht geprüft werden: Luftraum, NOTAMs, Sperrungen, Natur- und Wildschutzzonen, Geländeregeln und Vereinsvorgaben, Thermik, Turbulenz und lokale Effekte.</li>
+            <li>Ampel, Level, persönliche Hinweise und Haken ersetzen nie deine eigene Entscheidung. <b>Beurteilung und Startentscheidung liegen allein beim verantwortlichen Piloten.</b> Geländeregeln (DHV) und nötige Berechtigungen sind einzuhalten.</li>
+            <li><b>Keine Haftung</b> für Schäden aus der Nutzung der App.</li>
+          </ul></div></details>
+        <details class="ia"><summary><span class="ia-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg></span><span class="ia-t">Woher die Daten kommen</span><span class="ia-chev">›</span></summary><div class="ia-body"><ul>
+            <li><b>Startplätze, Landeplätze, Windrichtungen:</b> DHV-Geländedatenbank (über 2800 Plätze in DE, AT, CH, FR, IT).</li>
+            <li><b>Wetter:</b> Open-Meteo (Wettermodelle, u. a. DWD ICON).</li>
+            <li><b>Umgebung</b> (Parken, Bahnen, Unterkünfte …): © OpenStreetMap-Mitwirkende, monatlich vorberechnet. Bahn-Höhen: Copernicus-Geländemodell.</li>
+            <li><b>Karten:</b> © OpenStreetMap-Mitwirkende (OpenFreeMap) · Satellit © Esri, Maxar, Earthstar Geographics · Gelände © OpenTopoMap (CC-BY-SA), SRTM.</li>
+            <li><b>Ortssuche, Fahrzeit und Route:</b> Photon (komoot), Nominatim/OpenStreetMap, OSRM, Zippopotam.us.</li>
+          </ul>
+          <p>Die Angaben in der Umgebung stammen aus OpenStreetMap und sind nur so vollständig, wie dort eingetragen.</p></div></details>
+        <details class="ia"><summary><span class="ia-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><span class="ia-t">Datenschutz in Kürze</span><span class="ia-chev">›</span></summary><div class="ia-body"><ul>
+            <li><b>Kein Konto, kein Tracking, keine Werbung.</b> Wir speichern keine Daten von dir auf einem Server.</li>
+            <li><b>Auf deinem Gerät bleiben:</b> Favoriten, eigene Plätze, Einstellungen, dein Profil (Name, Level, Schirm, Fotos, Heimatgebiet), Erinnerungen und Notizen. Ein Backup erzeugst du selbst als Datei.</li>
+            <li><b>Dein Standort</b> wird nur auf dein Okay ermittelt und nicht dauerhaft gespeichert.</li>
+            <li>Für Vorhersage, Karte, Suche und Route gehen <b>Koordinaten bzw. Suchbegriffe</b> (und technisch bedingt deine IP-Adresse) an die oben genannten Dienste.</li>
+          </ul>
+          <p><a href="datenschutz.html">Vollständige Datenschutzerklärung &amp; Impressum ›</a></p></div></details>
+      </div>
+
+      <div class="info-foot">
+        <a href="datenschutz.html">Datenschutz &amp; Impressum</a>
+        <button type="button" id="infoChangelogBtn">Was ist neu?</button>
+      </div>
+      <p class="build">GoFlyToday · Version 174 · Oktober 2026</p>
     </section>
   </main>
 
@@ -665,8 +688,8 @@
     <div class="fs-foot"><button type="button" class="fs-apply" id="fsApply">Filter anwenden</button></div>
   </div>
 
-  <script src="database.js?v=173"></script>
-  <script src="briefings.js?v=173"></script>
-  <script src="app.js?v=173"></script>
+  <script src="database.js?v=174"></script>
+  <script src="briefings.js?v=174"></script>
+  <script src="app.js?v=174"></script>
 </body>
 </html>
