@@ -1726,7 +1726,7 @@ function anreiseHtml(items) {
   return `<div class="anr-list">${items.map(i => `
     <div class="anr-row">
       <span class="anr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ZUSTIEG_IC[i.ic]}</svg></span>
-      <div class="anr-txt"><div class="anr-titel">${escHtml(i.titel)}</div><div class="anr-sub">${escHtml(i.sub)}</div></div>
+      <div class="anr-txt"><div class="anr-titel">${escHtml(i.titel)}</div><div class="anr-sub">${escHtml(i.sub)}${i.href ? ` · <a class="anr-link" href="${i.href}" target="_blank" rel="noopener">Preise &amp; Zeiten ›</a>` : ""}</div></div>
     </div>`).join("")}</div>`;
 }
 function fcList(items) {
@@ -1893,8 +1893,8 @@ function kurzueberblickHtml(spot, day, ts, tagW) {
   if (day.wx && day.wx.tmin != null && day.wx.tmax != null) rows.push(["temp", "Temperatur", `${day.wx.tmin} – ${day.wx.tmax} °C`]);
   const th = thermikStartHour(day, ts.win);
   if (th != null) rows.push(["sonne", "Thermik", `ab ca. ${th} Uhr`]);
-  if (ts.win) rows.push(["uhr", "Beste Zeit", windowLabel(ts.win) + " Uhr"]);
-  return `<h3 class="dv-h3">Kurzüberblick</h3><div class="lp-box">${lpRows(rows)}
+  // "Beste Zeit" steht schon als Flugfenster-Kachel oben im Briefing
+  return `<h3 class="fc-h4 ueb-h">${tagW || "Heute"} im Überblick</h3><div class="lp-box">${lpRows(rows)}
     <p class="lp-note">${fenster.length ? "Werte aus dem fliegbaren Fenster" : `Werte über den ganzen Tag – ${(tagW || "Heute").toLowerCase()} kein fliegbares Fenster`}</p></div>`;
 }
 // Gilt an jedem Platz gleich - deshalb fest hinterlegt und nicht pro Gelände gepflegt.
@@ -1950,7 +1950,11 @@ function briefingPanelHtml(spot, ctx) {
   const zustieg = [];
   const a = spot.acc || "";
   if (a.includes("a")) zustieg.push({ ic: "auto", titel: "Mit dem Auto", sub: driveSec != null ? `erreichbar · ${formatDur(driveSec)} Fahrt` : "erreichbar" });
-  if (a.includes("b")) zustieg.push({ ic: "bahn", titel: "Bergbahn", sub: "vorhanden" });
+  if (a.includes("b")) {
+    const base = (spot.name || "").replace(/\s*\([^)]*\)\s*$/, "").trim();   // Richtungs-Suffix "(N)" weg
+    const q = encodeURIComponent(`${base} ${spot.region || ""} Bergbahn Seilbahn`.replace(/\s+/g, " ").trim());
+    zustieg.push({ ic: "bahn", titel: "Bergbahn", sub: "vorhanden", href: `https://www.google.com/search?q=${q}` });
+  }
   if (a.includes("f")) zustieg.push({ ic: "fuss", titel: "Zu Fuß erreichbar", sub: "(Hike & Fly)" });
   const navKarten = [];
   // Ist der Startplatz nicht mit dem Auto erreichbar (reines Hike & Fly oder nur per
@@ -1981,29 +1985,23 @@ function briefingPanelHtml(spot, ctx) {
         <span class="fc-nav-name">${escHtml(c.label)}</span>
         <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="${c.sat ? "Satellitenbild von" : "Navigation zu"} ${escHtml(c.label)}">${c.sat ? IC_SAT : IC_CAR}</a>
       </div>`).join("")}</div>` : ""}
-    <div id="parkSection" class="park-sec"></div>`;
+    <div id="parkSection" class="park-sec"></div>
+    ${umgTeaserHtml(spot)}`;
 
   // --- Schritt 2: Startplatz ---
-  const check2 = [];
-  if (spot.sectorLabel) check2.push(`Windrichtung ${spot.sectorLabel} liegt optimal an`);
-  if (spot.elevation != null) check2.push(`Start auf ${spot.elevation} m ü. NN`);
-  if (spot.gleitschirm) check2.push(`Zugelassen: ${spot.gleitschirm}`);
-  if (spot.gemeinde) check2.push(`Gemeinde ${spot.gemeinde}`);
-  check2.push(...(S.startplatz || []));
-  // Kein "Bedingungen"-Block mehr: Wind stand dort mit den DHV-Werten des Platzes
-  // (bewertet wird aber nach den Einstellungen), und Thermik steht schon in den
-  // Flugart-Kacheln darueber.
-  const warn = diffWarn(spot);
-  const hinweise2 = [];
-  hinweise2.push(...profilHinweise(spot));
-  if (warn) hinweise2.push({ typ: "warn", text: warn.text });
-  // DHV-Bemerkung im Original (nur bei 21 % der Plätze hinterlegt)
-  if (spot.bemerkung) hinweise2.push({ typ: "info", text: spot.bemerkung });
+  // Jede Angabe steht nur noch an EINER Stelle: Ort im Fensterkopf, Hoehendifferenz als Kachel,
+  // Schwierigkeit als Hinweis oben, Landeplatz-Daten im Schritt 3, DHV-Bemerkung hier (mit "mehr").
+  const datenRows = [];
+  if (spot.sectorLabel) datenRows.push(["richtung", "Startrichtung", spot.sectorLabel]);
+  if (spot.elevation != null) datenRows.push(["hoehe", "Höhe Startplatz", `${spot.elevation} m ü. NN`]);
+  if (spot.gleitschirm) datenRows.push(["gleit", "Zugelassen", spot.gleitschirm]);
+  const check2 = [...(S.startplatz || [])];
+  const bemerkung = dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true });
   const schritt2 = `
+    ${datenRows.length ? `<div class="lp-box">${lpRows(datenRows)}</div>` : ""}
     ${check2.length ? `<h4 class="fc-h4">Checkliste Startplatz</h4>${fcList(check2)}` : ""}
     ${flugartenHtml(spot)}
-    ${hinweise2.length ? `<h4 class="fc-h4">Hinweise</h4><ul class="fc-notes">${hinweise2.map(h =>
-      `<li class="fc-${h.typ}">${h.typ === "warn" ? FC_WARN : FC_INFO}<span>${escHtml(h.text)}</span></li>`).join("")}</ul>` : ""}`;
+    ${bemerkung}`;
 
   // --- Schritt 3: Landeplatz ---
   // Mehrere Landeplätze bekommen je einen Reiter. Größe, Untergrund und bevorzugte
@@ -2015,7 +2013,11 @@ function briefingPanelHtml(spot, ctx) {
       `<li class="fc-warn">${FC_WARN}<span>${escHtml(t)}</span></li>`).join("")}</ul>` : ""}`;
 
   // --- Schritt 4: Kontakte & Notruf ---
-  const schritt4 = kontakteHtml(spot, { imBriefing: true });
+  const links = [];
+  if (spot.dhv) links.push({ icon: IC_CLIPBOARD, label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
+  if (spot.vereinUrl) links.push({ icon: IC_GLOBE, label: "Verein", href: spot.vereinUrl });
+  const schritt4 = kontakteHtml(spot, { imBriefing: true })
+    + (links.length ? `<div class="dv-actions">${links.map(a => `<a class="dv-act" href="${a.href}" target="_blank" rel="noopener"><span class="dv-act-ic">${a.icon}</span><span>${a.label}</span></a>`).join("")}</div>` : "");
 
   const schritte = [
     ["Anreise &amp; Start", schritt1],
@@ -2024,39 +2026,34 @@ function briefingPanelHtml(spot, ctx) {
     ["Kontakte &amp; Notruf", schritt4],
   ].filter(([, inhalt]) => inhalt.trim());
 
-  const teaserIcons = ["parken", "bahn", "camping", "hotel", "essen"].map(c => `<img src="${bfIconUrl(c)}" alt="">`).join("");
-  return `<button type="button" class="umg-teaser" data-umgebung="${spot.id}">
-      <span class="umg-teaser-ic">${teaserIcons}</span>
-      <span class="umg-teaser-txt"><b>Umgebung auf der Karte</b><span>Parken, Seilbahn, Camping, Hotel, Essen …</span></span>
-      <svg class="umg-teaser-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
-    </button>
-    ${kopf}
+  // Oben: Urteil + Hinweise fuer dich (Gelaende, Profil), dann die Tageswerte, dann der Flug-Check
+  const persoenlich = profilHinweise(spot), warn = diffWarn(spot);
+  const topHinweise = [...persoenlich, ...(warn && !persoenlich.length ? [{ typ: "warn", text: warn.text }] : [])];
+  const hinweiseHtml = topHinweise.length ? `<ul class="fc-notes top-notes">${topHinweise.map(h =>
+    `<li class="fc-${h.typ}">${h.typ === "warn" ? FC_WARN : FC_INFO}<span>${escHtml(h.text)}</span></li>`).join("")}</ul>` : "";
+  return `${kopf}
+    ${hinweiseHtml}
+    ${kurzueberblickHtml(spot, day, ts, tagW)}
     <h3 class="fc-head">Flug-Check</h3>
     <p class="fc-head-sub">Deine Vorbereitung in ${schritte.length} Schritten</p>
     ${schritte.map(([titel, inhalt], i) => fcStep(i + 1, titel, inhalt, false)).join("")}
+    ${ALLG_HINWEISE_HTML}
     <p class="bf-src bf-warn-note">Alle Angaben ohne Gewähr. Informiere dich vor dem Flug über die aktuellen
       Bedingungen und respektiere andere Piloten und die Natur.
-      ${b ? `<span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span>` : ""}</p>`;
+      ${b ? `<span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span>` : ""}</p>
+    ${notizenHtml(spot)}`;
+}
+// Umgebung auf der Karte (Schritt 1, Anreise)
+function umgTeaserHtml(spot) {
+  const icons = ["parken", "bahn", "camping", "hotel", "essen"].map(c => `<img src="${bfIconUrl(c)}" alt="">`).join("");
+  return `<button type="button" class="umg-teaser" data-umgebung="${spot.id}">
+      <span class="umg-teaser-ic">${icons}</span>
+      <span class="umg-teaser-txt"><b>Umgebung auf der Karte</b><span>Parken, Seilbahn, Camping, Hotel, Essen …</span></span>
+      <svg class="umg-teaser-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+    </button>`;
 }
 
 
-// Startplatz-Datentabelle (links im neuen Layout) – zeigt "nicht verfügbar" statt erfundener Werte
-function startplatzTableHtml(spot, diffL) {
-  const ort = [spot.gemeinde, spot.bundesland].filter(Boolean).join(", ");
-  const rows = [
-    ["Ort", ort || null],
-    ["Startrichtung", spot.sectorLabel || null],
-    ["Höhe Startplatz", spot.elevation != null ? spot.elevation + " m ü. NN" : null],
-    ["Höhe Landeplatz", spot.landeHoehe != null ? spot.landeHoehe + " m ü. NN" : null],
-    ["Höhendifferenz", spot.hoehendiff ? spot.hoehendiff + " m" : null],
-    // Windbereich/Böen standen hier mit den DHV-Werten des Platzes - bewertet wird aber
-    // nach den Grenzwerten aus den Einstellungen. "Gelände" war immer leer.
-    ["Schwierigkeit", diffL.text],
-    ["Gleitschirm", spot.gleitschirm || null],
-  ];
-  return `<div class="dv-table">${rows.map(([label, val]) => `
-    <div class="dv-row"><span class="dv-row-label">${label}</span><span class="dv-row-val">${val != null ? val : NA}</span></div>`).join("")}</div>`;
-}
 // "Live"-Tab: Live-Wetterstation + Live-Cam, jeweils nur falls fürs Gelände hinterlegt,
 // plus Übersichtskarte mit Start- und Landeplatz + Link auf ein Satellitenbild des Landeplatzes.
 // Station und Webcam als kompakte Chips - stehen oben im Wetter-Tab, nicht mehr
@@ -2174,24 +2171,6 @@ function renderCard(spot, days, opts = {}) {
   const del = spot.id.startsWith("user_")
     ? `<button class="ic0" data-del="${spot.id}" title="Eigenen Platz löschen">🗑</button>` : "";
 
-  // Aktionsleiste: Einstiegspunkte für den Flugtag (als Objekte -> zwei Anzeigeformen: Pillen & Badges)
-  // Windy steht als Chip oben im Wetter-Tab (bei den anderen Wetter-Quellen), nicht hier
-  const actList = [];
-  if (spot.acc && spot.acc.includes("b")) {
-    const base = (spot.name || "").replace(/\s*\([^)]*\)\s*$/, "").trim();  // Richtungs-Suffix „(N)" weg
-    const q = encodeURIComponent(`${base} ${spot.region || ""} Bergbahn Seilbahn`.replace(/\s+/g, " ").trim());
-    actList.push({ icon: IC_CABLECAR, label: "Bergbahn", href: `https://www.google.com/search?q=${q}` });
-  }
-  if (spot.landeLat != null && spot.landeLon != null) {
-    actList.push({ icon: IC_PIN, label: "Landeplatz", href: mapsUrl({ lat: spot.landeLat, lon: spot.landeLon }) });
-  }
-  if (spot.dhv) actList.push({ icon: IC_CLIPBOARD, label: "DHV Info", href: `https://service.dhv.de/db2/details.php?qi=glp_details&item=${spot.dhv}` });
-  if (spot.vereinUrl) actList.push({ icon: IC_GLOBE, label: "Verein", href: spot.vereinUrl });
-  // Landeplatz hat im Details-Tab schon einen eigenen Navigations-Button an der Karte -> hier redundant
-  const actionsBadges = `<div class="dv-actions">${actList.filter(a => a.label !== "Landeplatz").map(a => `<a class="dv-act" href="${a.href}" target="_blank" rel="noopener"><span class="dv-act-ic">${a.icon}</span><span>${a.label}</span></a>`).join("")}</div>`;
-
-  const diffHtml = (() => { const w = diffWarn(spot); return w ? `<div class="spot-warn d${w.d}">⚠️ ${w.text}</div>` : ""; })();
-
   const rt = todayRating(days, dayIdx);
   // Aktuelle Bedingungen stehen oben im Wetter-Tab (nicht mehr im Live-Tab). Nur beim
   // heutigen Tag - unter einer Morgen-Vorhersage waeren "jetzt"-Werte irrefuehrend.
@@ -2212,7 +2191,6 @@ function renderCard(spot, days, opts = {}) {
       <div class="dtabs" role="tablist">
         <button type="button" class="dtab on" data-tab="wetter" role="tab">Wetter</button>
         <button type="button" class="dtab" data-tab="briefing" role="tab">Briefing</button>
-        <button type="button" class="dtab" data-tab="details" role="tab">Details</button>
       </div>
       <div class="dtab-panels">
         <div class="dtab-panel" id="dtab-wetter">${statusCard}${liveChips}<div class="days">${daysHtml}</div>
@@ -2223,22 +2201,6 @@ function renderCard(spot, days, opts = {}) {
           </div>
         </div>
         <div class="dtab-panel" id="dtab-briefing" hidden>${briefingPanelHtml(spot, { days, dayIdx, ts, rt, driveSec: opts.driveSec })}</div>
-        <div class="dtab-panel" id="dtab-details" hidden>${(() => {
-          const diffL = diffLabelFull(spot);
-          // Die Zustiegs-/Thermik-Kacheln standen hier doppelt - dieselben Angaben
-          // stehen im Briefing unter "Anreise" bzw. bei "Grundsätzlich möglich".
-          // Kurzueberblick (Tageswerte) oben - danach die festen Geländedaten
-          return `
-            ${diffHtml}
-            ${kurzueberblickHtml(spot, days[dayIdx] || {}, ts, dayIdx === 1 ? "Morgen" : "Heute")}
-            <h3 class="dv-h3">Aktionen &amp; Tools</h3>
-            ${actionsBadges}
-            <h3 class="dv-h3">Daten zum Gelände</h3>
-            ${startplatzTableHtml(spot, diffL)}
-            ${dhvExtra(spot, { skipLande: true, skipHoehendiff: true, skipOrt: true, skipGleitschirm: true })}
-            ${ALLG_HINWEISE_HTML}
-            ${notizenHtml(spot)}`;
-        })()}</div>
       </div>`;
 
   const favOn = isFav(spot.id);
@@ -4494,6 +4456,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 165, date: "28.10.", text: "Detailfenster: der Reiter „Details“ ist ins Briefing gewandert und logisch geordnet (Urteil, Hinweise, Überblick, Flug-Check, Hinweise, Notizen). Doppelte Angaben entfernt: Ort, Höhen, Schwierigkeit, Bemerkung, Zulassung, Bergbahn, Beste Zeit" },
   { v: 164, date: "28.10.", text: "Heimat-Startplatz pulsiert als lila Herz statt als Kreis" },
   { v: 163, date: "28.10.", text: "Heimat-Startplatz aus dem Profil pulsiert auf der Karte lila (liegt er außerhalb der Treffer oder ist es ein Ort: lila Punkt)" },
   { v: 162, date: "28.10.", text: "Profil: neue Bilder für Schirm, Gurtzeug, Retter und Karabiner" },

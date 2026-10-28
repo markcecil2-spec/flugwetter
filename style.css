@@ -1690,3 +1690,10 @@ main.wrap { padding-top: 12px; }
 .focus-dot.home-dot .focus-dot-core { inset: 0; border: 0; border-radius: 0; box-shadow: none; background: #a855f7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.5S3 15.6 3 9.4A4.9 4.9 0 0 1 12 6.9a4.9 4.9 0 0 1 9 2.5c0 6.2-9 12.1-9 12.1z' fill='%23a855f7' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; background-color: transparent; filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
 .focus-dot.home-dot { width: 26px; height: 26px; }
 @media (prefers-reduced-motion: reduce) { .map-marker.mk-home::before, .focus-dot.home-dot .focus-dot-ring { animation: none; } }
+
+/* Briefing (v165): Details sind hier eingezogen */
+.ueb-h { margin: 16px 0 8px; }
+.top-notes { margin: 12px 0 0; }
+.anr-link { color: var(--sky); font-weight: 700; text-decoration: none; white-space: nowrap; }
+.umg-teaser { margin: 14px 0 0; }
+.fc-body .lp-box { margin-bottom: 8px; }
