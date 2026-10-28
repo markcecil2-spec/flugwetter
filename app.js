@@ -865,8 +865,6 @@ const PARK_RADIUS_M = 3000;     // Parken: nur was wirklich zum Platz gehört
 const CAMP_MAX = 25;
 const PARK_MAX = 4;   // je Gruppe (Startplatz / Landeplatz)
 let campMarkers = [];
-let lastCampList = [];   // damit die Marker auch ankommen, wenn die Karte spaeter fertig wird
-let lastParkList = [];
 
 // Schild-Icons (aus Marks Vorlage) - dieselbe Bildsprache wie auf der Karte.
 // Es gibt genau diese drei Arten; Hotels sind bewusst nicht dabei.
@@ -1633,15 +1631,6 @@ function bfUpdateChips() {
   const stand = (umgDaten.find(x => x.d.stand) || { d: {} }).d.stand;
   if (standEl) { if (stand) { const [j, mo] = stand.split("-"); standEl.textContent = ` · Stand ${mo}/${j}`; } else standEl.textContent = ""; }
 }
-// Parkplatz-Liste im Flug-Check (Briefing) - eigene Abfrage, auch fuer eigene Plaetze (live)
-async function loadCampsites(spot) {
-  lastCampList = []; lastParkList = [];   // Treffer des zuvor geoeffneten Platzes verwerfen
-  const umg = (await fetchVorberechnet(spot)) || (await fetchUmgebung(spot));
-  if (!umg || !currentDetailSpot || currentDetailSpot.id !== spot.id) return;   // Fenster inzwischen zu / anderer Platz
-  const d = bauUmgebung(spot, umg);
-  lastParkList = d.parken; lastCampList = d.camp;
-  renderParkplaetze();
-}
 const CAMP_AUS = {
   zelt:      { label: "Zelt",       ic: `<path d="M12 4 3 20h18z"/><path d="M12 4v16"/>` },
   wohnwagen: { label: "Wohnwagen",  ic: `<path d="M3 16V9a2 2 0 0 1 2-2h11a4 4 0 0 1 4 4v5"/><path d="M3 16h3M11 16h9"/><circle cx="8.5" cy="16" r="2"/>` },
@@ -1650,8 +1639,6 @@ const CAMP_AUS = {
   wc:        { label: "WC",         ic: `<circle cx="8" cy="4" r="2"/><path d="M6 22v-6H4l2.5-7h3L12 16h-2v6z"/><circle cx="17" cy="4" r="2"/><path d="M14.5 22 17 9l2.5 13"/>` },
   wasser:    { label: "Trinkwasser",ic: `<path d="M12 3s6 6.5 6 10.5a6 6 0 0 1-12 0C6 9.5 12 3 12 3z"/>` },
 };
-// Parkplätze gehören in Schritt 1 (Anreise), kommen aber erst mit der Overpass-Antwort.
-// Deshalb rendert loadCampsites sie nachträglich in den Platzhalter dort.
 // "Hohenneuffen - Nord Toplandeplatz" -> "Toplandeplatz": den Platznamen vorne abschneiden,
 // damit in der Parkplatz-Zeile steht, ZU WELCHEM Ziel die Entfernung gilt.
 function kurzOrt(name, spotName) {
@@ -1662,40 +1649,6 @@ function kurzOrt(name, spotName) {
   let zaehler = 0, i = 0;
   for (; i < name.length && zaehler < nSpot.length; i++) if (norm(name[i])) zaehler++;
   return name.slice(i).replace(/^[\s–-]+/, "").trim() || name;
-}
-function renderParkplaetze() {
-  const box = document.getElementById("parkSection");
-  if (!box) return;
-  if (!lastParkList.length) { box.innerHTML = ""; return; }
-  const amStart = lastParkList.filter(p => p.zielName === "Startplatz");
-  const amLande = lastParkList.filter(p => p.zielName !== "Startplatz");
-  const teile = [];
-  if (amStart.length) teile.push(`${amStart.length} am Startplatz`);
-  if (amLande.length) teile.push(`${amLande.length} am Landeplatz`);
-  const zeile = p => {
-    const km = p.dist < 1 ? Math.round(p.dist * 1000) + " m" : p.dist.toFixed(1).replace(".", ",") + " km";
-    const geb = p.gratis === true ? " · kostenlos" : p.gratis === false ? " · gebührenpflichtig" : "";
-    return `<div class="camp-row">
-      <img class="camp-pin" src="${PIN.parkplatz}" alt="">
-      <div class="camp-main">
-        <div class="camp-name">${escHtml(p.name)}</div>
-        <div class="camp-sub">${km} zu ${escHtml(p.zielName || "Landeplatz")}${geb}</div>
-      </div>
-      <a class="camp-act" href="${mapsUrl(p)}" target="_blank" rel="noopener" aria-label="Navigation">${NAV_ICON}</a>
-    </div>`;
-  };
-  const gruppe = (titel, arr) => arr.length
-    ? `<div class="park-gruppe">${titel}</div><div class="camp-list">${arr.map(zeile).join("")}</div>` : "";
-  box.innerHTML = `<details class="camp-box park-box">
-    <summary>
-      <img class="camp-head-pin" src="${PIN.parkplatz}" alt="">
-      <span class="camp-head-txt">Parken<span class="camp-sum">${escHtml(teile.join(" · "))}</span></span>
-    </summary>
-    <div class="park-inhalt">
-      ${gruppe("Am Startplatz", amStart)}
-      ${gruppe("Am Landeplatz", amLande)}
-    </div>
-  </details>`;
 }
 
 // ---------------- Briefing-Tab: Platzregeln, Fotos, Kontakte ----------------
@@ -1962,17 +1915,6 @@ function briefingPanelHtml(spot, ctx) {
     zustieg.push({ ic: "bahn", titel: "Bergbahn", sub: "vorhanden", href: `https://www.google.com/search?q=${q}` });
   }
   if (a.includes("f")) zustieg.push({ ic: "fuss", titel: "Zu Fuß erreichbar", sub: "(Hike & Fly)" });
-  const navKarten = [];
-  // Ist der Startplatz nicht mit dem Auto erreichbar (reines Hike & Fly oder nur per
-  // Bergbahn), waere eine Autoroute dorthin irrefuehrend - dann lieber das Satellitenbild.
-  const startMitAuto = a.includes("a");
-  // In der schmalen Spalte wird der Gebietsname vor jedem Ziel zu lang - er steht ohnehin
-  // in der Kopfzeile des Fensters. Also "Startplatz" bzw. "Landeplatz 1" statt "Gerlitzen …".
-  if (spot.lat != null) navKarten.push({
-    ic: "icons/pin-startplatz.png", label: "Startplatz",
-    href: startMitAuto ? mapsUrl(spot) : satMapsUrl(spot.lat, spot.lon),
-    sat: !startMitAuto,
-  });
   const landeAlle = [];
   if (spot.landeLat != null && spot.landeLon != null) landeAlle.push({ name: spot.landeName || "Landeplatz", lat: spot.landeLat, lon: spot.landeLon, hoehe: spot.landeHoehe });
   if (Array.isArray(spot.landeExtra)) landeAlle.push(...spot.landeExtra);
@@ -1980,19 +1922,10 @@ function briefingPanelHtml(spot, ctx) {
   // vor "Landeplatz 1") - natuerlich sortieren, damit die Reiter in der erwarteten Folge stehen.
   landeAlle.sort((a, b) => (a.name || "").localeCompare(b.name || "", "de", { numeric: true }));
   landeAlle.forEach(l => { l.kurz = kurzOrt(l.name, spot.name); });
-  landeAlle.forEach(l => navKarten.push({ ic: "icons/pin-landeplatz.png", label: l.kurz, href: mapsUrl({ lat: l.lat, lon: l.lon }) }));
   const schritt1 = `
     <h4 class="fc-h4">Anreise</h4>
     ${anreiseHtml(zustieg)}
-    ${(S.vorStart || []).length ? fcList(S.vorStart) : ""}
-    ${navKarten.length ? `<h4 class="fc-h4">Navigation</h4><div class="fc-navlist">${navKarten.map(c => `
-      <div class="fc-nav-row">
-        <img class="fc-nav-pin" src="${c.ic}" alt="">
-        <span class="fc-nav-name">${escHtml(c.label)}</span>
-        <a class="fc-nav-btn" href="${c.href}" target="_blank" rel="noopener" aria-label="${c.sat ? "Satellitenbild von" : "Navigation zu"} ${escHtml(c.label)}">${c.sat ? IC_SAT : IC_CAR}</a>
-      </div>`).join("")}</div>` : ""}
-    <div id="parkSection" class="park-sec"></div>
-    ${umgTeaserHtml(spot)}`;
+    ${(S.vorStart || []).length ? fcList(S.vorStart) : ""}`;
 
   // --- Schritt 2: Startplatz ---
   // Jede Angabe steht nur noch an EINER Stelle: Ort im Fensterkopf, Hoehendifferenz als Kachel,
@@ -2048,15 +1981,6 @@ function briefingPanelHtml(spot, ctx) {
       Bedingungen und respektiere andere Piloten und die Natur.
       ${b ? `<span class="bf-src-quelle">Quelle: ${escHtml(b.source)}${b.updated ? ` · Stand ${escHtml(b.updated)}` : ""}</span>` : ""}</p>
     ${notizenHtml(spot)}`;
-}
-// Umgebung auf der Karte (Schritt 1, Anreise)
-function umgTeaserHtml(spot) {
-  const icons = ["parken", "bahn", "camping", "hotel", "essen"].map(c => `<img src="${bfIconUrl(c)}" alt="">`).join("");
-  return `<button type="button" class="umg-teaser" data-umgebung="${spot.id}">
-      <span class="umg-teaser-ic">${icons}</span>
-      <span class="umg-teaser-txt"><b>Umgebung auf der Karte</b><span>Parken, Seilbahn, Camping, Hotel, Essen …</span></span>
-      <svg class="umg-teaser-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
-    </button>`;
 }
 
 
@@ -3552,9 +3476,6 @@ document.getElementById("plzInput").addEventListener("blur", () => {
 function mapsUrl(s) {
   return `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}&travelmode=driving`;
 }
-function satMapsUrl(lat, lon) {
-  return `https://www.google.com/maps/@?api=1&map_action=map&center=${lat},${lon}&zoom=18&basemap=satellite`;
-}
 // Kategorie-Illustration (dezente Postkarten-Grafik, kein echtes Foto des Orts – haben wir nicht).
 // Zuordnung nach Höhe: Alpen / Mittelgebirge / Hügelland; Bild-Index deterministisch aus dem Namen.
 function sceneImgFor(name, elevation) {
@@ -4462,6 +4383,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 167, date: "29.10.", text: "Briefing „Anreise & Start“: Navigation, Parkplatz-Liste und Umgebungs-Kachel entfernt – das steht auf der Hauptkarte" },
   { v: 166, date: "28.10.", text: "Briefing „Heute im Überblick“: grüner Haken bei Windrichtung, Wind und Böen, wenn sie zu deinem Startplatz und deiner Ampel passen" },
   { v: 165, date: "28.10.", text: "Detailfenster: der Reiter „Details“ ist ins Briefing gewandert und logisch geordnet (Urteil, Hinweise, Überblick, Flug-Check, Hinweise, Notizen). Doppelte Angaben entfernt: Ort, Höhen, Schwierigkeit, Bemerkung, Zulassung, Bergbahn, Beste Zeit" },
   { v: 164, date: "28.10.", text: "Heimat-Startplatz pulsiert als lila Herz statt als Kreis" },
@@ -4867,7 +4789,6 @@ document.body.addEventListener("click", e => {
     const wrap = tab.closest("#detailBody"); if (!wrap) return;
     wrap.querySelectorAll(".dtab").forEach(t => t.classList.toggle("on", t === tab));
     wrap.querySelectorAll(".dtab-panel").forEach(p => { p.hidden = p.id !== "dtab-" + tab.dataset.tab; });
-    if (tab.dataset.tab === "briefing" && currentDetailSpot) loadCampsites(currentDetailSpot);   // Parkplatz-Liste im Flug-Check
     return;
   }
   // Karte vergroessern/verkleinern - MapLibre muss die neue Groesse mitbekommen
