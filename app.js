@@ -836,7 +836,7 @@ const USER_KEY = "flugwetter_user_spots", FAV_KEY = "flugwetter_favorites";
 function loadUserSpots() { try { return JSON.parse(localStorage.getItem(USER_KEY)) || []; } catch { return []; } }
 function saveUserSpots(l) { localStorage.setItem(USER_KEY, JSON.stringify(l)); }
 function loadFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch { return []; } }
-function saveFavs(l) { localStorage.setItem(FAV_KEY, JSON.stringify(l)); }
+function saveFavs(l) { localStorage.setItem(FAV_KEY, JSON.stringify(l)); if (typeof favMarkerErneuern === "function") favMarkerErneuern(); }
 function isFav(id) { return loadFavs().includes(id); }
 function toggleFav(id) {
   const f = loadFavs(); const i = f.indexOf(id);
@@ -2567,7 +2567,7 @@ function updateMapMarkers(rows, opts = {}) {
   rows.forEach(r => {
     const el = document.createElement("div");
     el.className = "map-marker" + (searchFocus && searchFocus.type === "spot" && searchFocus.id === r.spot.id ? " map-marker-pulse" : "")
-      + (istHeimat(r.spot) ? " mk-home" : "");
+      + (istHeimat(r.spot) ? " mk-home" : "") + (isFav(r.spot.id) ? " mk-fav" : "");
     el.title = r.spot.name;
     el.innerHTML = `<img src="${START_ICON_BY_STATUS[r.ts.status] || START_ICON_BY_STATUS.nein}" alt=""><span class="map-marker-label ml-${r.ts.status}">${r.spot.name}</span>`;
     // stopPropagation: sonst bubbelt der Klick zum generischen Karten-Click-Handler durch (der
@@ -2605,6 +2605,7 @@ function updateMapMarkers(rows, opts = {}) {
   }
   updateFocusMarker(rows);
   updateHomeMarker(rows);
+  updateFavMarkers(rows);
   if (opts.flyTo === false) return;
   // Gesuchter Startplatz: nah ranzoomen, sonst geht er zwischen den Nachbarn im 100-km-Umkreis unter
   if (searchFocus && searchFocus.type === "spot") {
@@ -2634,6 +2635,26 @@ function updateHomeMarker(rows) {
   el.className = "focus-dot home-dot"; el.title = "Heimat: " + h.name;
   el.innerHTML = `<span class="focus-dot-ring"></span><span class="focus-dot-core"></span>`;
   homeMarker = new maplibregl.Marker({ element: el }).setLngLat([h.lon, h.lat]).addTo(mapInstance);
+}
+// Favoriten: goldener Stern am Marker; liegt ein Favorit nicht in den Treffern (zu weit weg,
+// anderer Ort gesucht), steht er trotzdem als Stern-Marker auf der Karte.
+let favMarkers = [];
+function updateFavMarkers(rows) {
+  favMarkers.forEach(m => m.remove()); favMarkers = [];
+  if (!mapInstance || typeof maplibregl === "undefined") return;
+  const gezeigt = new Set((rows || []).map(r => r.spot.id));
+  favoriteSpots().filter(sp => !gezeigt.has(sp.id) && sp.lat != null).forEach(sp => {
+    const el = document.createElement("div");
+    el.className = "fav-pin"; el.title = sp.name + " (Favorit)";
+    el.innerHTML = `<span>★</span><b class="fav-pin-name">${escHtml(sp.name)}</b>`;
+    el.addEventListener("click", e => { e.stopPropagation(); spotAntippen(sp.id); });
+    favMarkers.push(new maplibregl.Marker({ element: el }).setLngLat([sp.lon, sp.lat]).addTo(mapInstance));
+  });
+}
+function favMarkerErneuern() {
+  if (!mapInstance) return;
+  if (lastRows.length) updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
+  else updateFavMarkers([]);
 }
 function homeMarkerErneuern() {
   if (mapInstance && lastRows.length) updateMapMarkers(displayRowsFor(lastRows), { flyTo: false });
@@ -4298,6 +4319,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 173, date: "29.10.", text: "Hauptkarte: deine Favoriten sind immer markiert – goldener Stern am Marker, und Favoriten außerhalb der Treffer stehen als Stern-Marker auf der Karte" },
   { v: 172, date: "29.10.", text: "Runterziehen zum Neuladen: die App bleibt auf dem Bildschirm, auf dem du gerade bist (Seite, Suche, Karte, geöffnetes Detail oder Profil, Scrollstelle)" },
   { v: 171, date: "29.10.", text: "Sicherheitsprofil (eigene Grenzwerte) ist von den Einstellungen ins Profil umgezogen" },
   { v: 170, date: "29.10.", text: "Flugbuch komplett entfernt (inkl. Statistik, Abzeichen und „Geflogen / Will ich fliegen“). Backup und Profil bleiben" },
