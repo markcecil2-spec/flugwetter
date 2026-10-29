@@ -184,6 +184,11 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   table.imp tr { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 10px; border-bottom: 1px solid var(--line); padding: 10px 0 }
   table.imp td { border: 0; padding: 0 } table.imp td:last-child { grid-column: 1 / -1 }
 }
+.savebar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; background: var(--panel); border-top: 2px solid var(--accent); padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -6px 20px rgb(0 0 0 / .12) }
+.savebar .wrap { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding-block: 10px }
+.savebar .btn { padding: 9px 18px; font-size: .95rem }
+body.dirty main.wrap { padding-bottom: 120px }
+body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 .loading { padding: 60px 0; text-align: center; color: var(--muted) }
 @media (prefers-reduced-motion: no-preference) { .bar div { transition: width .25s ease } }
 </style>
@@ -202,6 +207,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 </header>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
 <div class="toast" id="toast" hidden></div>
+<div class="savebar" id="savebar" hidden>
+  <div class="wrap gutter"><span><strong>Nicht gespeichert</strong> <span class="note">Änderungen gehen sonst verloren</span></span>
+    <span class="btns"><button class="btn" data-act="discard">Verwerfen</button><button class="btn primary" data-act="save">Speichern</button></span></div>
+</div>
 
 <script>
 (() => {
@@ -315,7 +324,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       inflight++;
       chains[key] = (chains[key] || Promise.resolve()).then(fn).then(() => { if (--inflight === 0) setSync("ok"); })
         .catch(e => { inflight--; setSync("err"); toast(e && e.code === "quota_exceeded" ? "Speicher voll, lösche alte Artikel." : "Speichern fehlgeschlagen, versuch es gleich nochmal."); });
-    }, 600);
+    }, 50);
   }
   const saveSettings = () => persist("settings", () => store.saveSettings(S));
   const saveArticle = a => { a.updated = Date.now(); persist("a:" + a.id, () => store.saveArticle(a)); };
@@ -351,7 +360,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   }
 
   // ---------- Rechnung (reine Daten, kein DOM) ----------
-  const fixTotal = () => (S.fixed || []).reduce((a, r) => a + v(r.a), 0);
+  const fixTotal = (s = S) => (s.fixed || []).reduce((a, r) => a + v(r.a), 0);
   const salesPerMonth = a => Object.values(a.sales || {}).reduce((s, x) => s + (v(x.months) > 0 ? v(x.qty) / v(x.months) : 0), 0);
   function volume() {
     const imp = A.reduce((s, a) => s + salesPerMonth(a), 0);
@@ -440,7 +449,35 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 
   // ---------- Routing ----------
   let view = "", curId = null, sortKey = "profit", sortDir = -1, search = "";
+  // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
+  let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
+  function setDirty(x) {
+    dirty = x; $("savebar").hidden = !x; document.body.classList.toggle("dirty", x);
+    const b = $("saveTop"); if (b) b.disabled = !x;
+  }
+  function doSave() {
+    if (view === "artikel" && draft) {
+      delete draft.isNew; delete draft.example;
+      const a = clone(draft), i = A.findIndex(x => x.id === a.id);
+      if (i >= 0) A[i] = a; else A.push(a);
+      saveArticle(a); setDirty(false); renderEditor(draft); toast("Gespeichert");
+    } else if (view === "einstellungen" && draftS) {
+      S = clone(draftS); draftS = clone(S); renames.forEach(([k, o, n]) => renameRef(k, o, n)); renames = [];
+      saveSettings(); setDirty(false); renderSettings(); toast("Gespeichert");
+    }
+  }
+  function doDiscard() {
+    if (view === "artikel" && draft) {
+      if (draft.isNew) { A = A.filter(x => x.id !== draft.id); setDirty(false); return go("uebersicht"); }
+      draft = clone(A.find(x => x.id === draft.id)); setDirty(false); renderEditor(draft);
+    } else if (view === "einstellungen") { draftS = clone(S); renames = []; setDirty(false); renderSettings(); }
+    toast("Änderungen verworfen");
+  }
+  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
   function route() {
+    if (skipHash) { skipHash = false; return; }
+    if (dirty && location.hash !== curHash) { skipHash = true; location.hash = curHash; toast("Erst speichern oder verwerfen"); return; }
+    curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen"].includes(h) ? h : "uebersicht";
@@ -451,9 +488,14 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   window.addEventListener("hashchange", route);
   const go = h => { if (location.hash === "#" + h) route(); else location.hash = h; };
   function render() {
-    if (view === "artikel") { const a = A.find(x => x.id === curId); if (!a) return go("uebersicht"); renderEditor(a); }
+    if (view === "artikel") {
+      const a = A.find(x => x.id === curId); if (!a) return go("uebersicht");
+      if (!draft || draft.id !== a.id) draft = clone(a);
+      renderEditor(draft);
+      if (draft.isNew) setDirty(true);
+    }
     else if (view === "import") renderImport();
-    else if (view === "einstellungen") renderSettings();
+    else if (view === "einstellungen") { if (!draftS) draftS = clone(S); renderSettings(); }
     else renderOverview();
   }
 
@@ -532,7 +574,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     $("view").innerHTML = `
       <div class="row">
         <a class="btn" href="#uebersicht">← Übersicht</a>
-        <div class="btns">${a.example ? '<span class="pill muted">Beispiel mit geschätzten Zahlen</span>' : ""}<button class="btn" data-act="dup">Duplizieren</button><button class="btn danger" data-act="del">Löschen</button></div>
+        <div class="btns">${a.example ? '<span class="pill muted">Beispiel mit geschätzten Zahlen</span>' : ""}<button class="btn" data-act="dup">Duplizieren</button><button class="btn danger" data-act="del">Löschen</button><button class="btn primary" id="saveTop" data-act="save" ${dirty ? "" : "disabled"}>Speichern</button></div>
       </div>
       <div class="banner" id="delConfirm" hidden><span>„${esc(a.name)}“ wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="delYes">Löschen</button><button class="btn" data-act="delNo">Abbrechen</button></span></div>
       <div class="cols">
@@ -671,7 +713,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     ship: { title: "Versandarten", cls: "c-ship", head: ["Versandart", "max g", "L cm", "B cm", "H cm", "€ netto"], cols: [["n", "text"], ["g", "number", "g"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"]], blank: { n: "", g: "", l: "", b: "", h: "", p: "" }, ref: "ship" }
   };
   function listHTML(k) {
-    const d = LISTS[k], arr = S[k] || [];
+    const T = draftS || S;
+    const d = LISTS[k], arr = T[k] || [];
     const phs = arr.filter(x => x.ph).map(x => x.n);
     return `<div class="rows" id="list-${k}">
         <div class="rowhead ${d.cls}">${d.head.map(h => `<span>${h}</span>`).join("")}<span></span></div>
@@ -683,28 +726,30 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <p class="ph" id="ph-${k}">${phs.length ? "Geschätzt, bitte prüfen: " + phs.map(esc).join(", ") : ""}</p>`;
   }
   function settingsField(id, label, unit, small) {
-    return `<div class="field"><label for="s-${id}">${label}</label>${numIn(`id="s-${id}" data-s="${id}"`, S[id], unit)}${small ? `<small>${small}</small>` : ""}</div>`;
+    const T = draftS || S;
+    return `<div class="field"><label for="s-${id}">${label}</label>${numIn(`id="s-${id}" data-s="${id}"`, T[id], unit)}${small ? `<small>${small}</small>` : ""}</div>`;
   }
   function renderSettings() {
+    const T = draftS || S;
     const ctx = volume();
     $("view").innerHTML = `
-      <h1>Einstellungen</h1>
-      <p class="note">Gilt für alle Artikel. Änderst du hier einen Preis, rechnet die App alle Artikel neu.</p>
+      <div class="row"><h1>Einstellungen</h1><button class="btn primary" id="saveTop" data-act="save" ${dirty ? "" : "disabled"}>Speichern</button></div>
+      <p class="note">Gilt für alle Artikel. Nach dem Speichern rechnet die App alle Artikel neu.</p>
       <div class="cols">
         <div class="stack">
           <section class="box">
             <h2>Betrieb</h2>
             <div class="field"><span class="label">Steuer</span>
-              <div class="seg">${[["regel", "Regelbesteuerung 19 %"], ["ku", "Kleinunternehmer"]].map(([k, l]) => `<button type="button" data-tax="${k}" aria-pressed="${S.tax === k}">${l}</button>`).join("")}</div>
-              <small>${S.tax === "ku" ? "Keine USt auf Verkäufe, aber kein Vorsteuerabzug: die App rechnet 19 % auf deine Einkaufspreise." : "19 % vom Bruttopreis gehen ans Finanzamt, Vorsteuer auf Einkäufe holst du zurück."}</small></div>
+              <div class="seg">${[["regel", "Regelbesteuerung 19 %"], ["ku", "Kleinunternehmer"]].map(([k, l]) => `<button type="button" data-tax="${k}" aria-pressed="${T.tax === k}">${l}</button>`).join("")}</div>
+              <small>${T.tax === "ku" ? "Keine USt auf Verkäufe, aber kein Vorsteuerabzug: die App rechnet 19 % auf deine Einkaufspreise." : "19 % vom Bruttopreis gehen ans Finanzamt, Vorsteuer auf Einkäufe holst du zurück."}</small></div>
             <div class="grid3 keep">
               ${settingsField("rate", "Dein Stundensatz", "€/h")}
               ${settingsField("target", "Ziel-Marge", "%")}
               ${settingsField("qtyManual", "Verkäufe/Monat (geschätzt)", "Stk", ctx.src === "import" ? "wird durch Import ersetzt" : "")}
             </div>
-            <label class="check"><input type="checkbox" data-s="alloc" ${S.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${S.alloc && ctx.vol > 0 ? eur(fixTotal() / ctx.vol) : "–"} pro Stück)</label>
+            <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück)</label>
           </section>
-          <section class="box"><h2>${LISTS.fixed.title}</h2>${listHTML("fixed")}<div class="sumline"><span>Summe</span><strong id="fixSum">${eur(fixTotal())}</strong></div></section>
+          <section class="box"><h2>${LISTS.fixed.title}</h2>${listHTML("fixed")}<div class="sumline"><span>Summe</span><strong id="fixSum">${eur(fixTotal(T))}</strong></div></section>
           <section class="box"><h2>${LISTS.order.title}</h2>${listHTML("order")}<p class="note">Billbee: 53 € ÷ 113 Bestellungen = 0,47 €</p></section>
           <section class="box"><h2>${LISTS.plates.title}</h2>${listHTML("plates")}</section>
           <section class="box"><h2>${LISTS.small.title}</h2>${listHTML("small")}</section>
@@ -716,12 +761,12 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
             <div class="grid3 keep">
               ${settingsField("eList", "Einstellgebühr", "€", "0,20 $")}${settingsField("eTrans", "Transaktion", "%")}${settingsField("ePayP", "Zahlung", "%")}
               ${settingsField("ePayF", "+ fix", "€")}
-              <div class="field"><label for="s-eOff">Offsite Ads</label><div class="inp"><select id="s-eOff" data-s="eOff">${[["0", "keine"], ["15", "15 %"], ["12", "12 %"]].map(([x, l]) => opt(x, l, String(S.eOff) === x)).join("")}</select></div></div>
+              <div class="field"><label for="s-eOff">Offsite Ads</label><div class="inp"><select id="s-eOff" data-s="eOff">${[["0", "keine"], ["15", "15 %"], ["12", "12 %"]].map(([x, l]) => opt(x, l, String(T.eOff) === x)).join("")}</select></div></div>
               ${settingsField("eAds", "Etsy Ads je Verkauf", "€")}
             </div>
             <h3>eBay</h3>
             <div class="grid3 keep">${settingsField("bPayP", "Verkaufsprovision", "%", "auf Preis + Versand")}${settingsField("bPayF", "+ fix je Bestellung", "€", "0,45 € ab 10 €")}${settingsField("bAds", "Anzeigen je Verkauf", "€")}</div>
-            <label class="check"><input type="checkbox" data-s="feeVat" ${S.feeVat ? "checked" : ""}> Etsy- und eBay-Gebühren + 19 % USt (Kleinunternehmer ohne USt-IdNr.)</label>
+            <label class="check"><input type="checkbox" data-s="feeVat" ${T.feeVat ? "checked" : ""}> Etsy- und eBay-Gebühren + 19 % USt (Kleinunternehmer ohne USt-IdNr.)</label>
             <h3>Shopify</h3>
             <div class="grid3 keep">${settingsField("sPayP", "Shopify Payments", "%")}${settingsField("sPayF", "+ fix", "€")}${settingsField("sAds", "Werbung je Verkauf", "€")}</div>
             <h3>Direktverkauf (Werkstatt, Markt)</h3>
@@ -771,22 +816,22 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // ---------- Eingaben ----------
   document.addEventListener("input", e => {
     const t = e.target, d = t.dataset, val = t.type === "checkbox" ? t.checked : t.value;
-    const a = view === "artikel" ? A.find(x => x.id === curId) : null;
-    if (a && d.a) { a[d.a] = val; delete a.example; saveArticle(a); updateEditor(a); }
-    else if (a && d.ap !== undefined) { a.parts[+d.ap][d.f] = val; saveArticle(a); updateEditor(a); }
-    else if (a && d.as !== undefined) { (a.small = a.small || {})[d.as] = val; saveArticle(a); updateEditor(a); }
-    else if (a && d.am !== undefined) { (a.mach = a.mach || {})[d.am] = val; saveArticle(a); updateEditor(a); }
-    else if (d.s) {
-      S[d.s] = val; saveSettings();
+    const a = view === "artikel" ? draft : null;
+    if (a && d.a) { a[d.a] = val; setDirty(true); updateEditor(a); }
+    else if (a && d.ap !== undefined) { a.parts[+d.ap][d.f] = val; setDirty(true); updateEditor(a); }
+    else if (a && d.as !== undefined) { (a.small = a.small || {})[d.as] = val; setDirty(true); updateEditor(a); }
+    else if (a && d.am !== undefined) { (a.mach = a.mach || {})[d.am] = val; setDirty(true); updateEditor(a); }
+    else if (draftS && d.s) {
+      draftS[d.s] = val; setDirty(true);
       if (t.type === "checkbox" || t.tagName === "SELECT") renderSettings();
     }
-    else if (d.sl) {
-      const row = S[d.sl][+d.i];
-      if (d.f === "n" && LISTS[d.sl].ref) renameRef(LISTS[d.sl].ref, row.n, val);
-      row[d.f] = val; delete row.ph; saveSettings();
-      const ph = $("ph-" + d.sl), phs = S[d.sl].filter(x => x.ph).map(x => x.n);
+    else if (draftS && d.sl) {
+      const row = draftS[d.sl][+d.i];
+      if (d.f === "n" && LISTS[d.sl].ref && row.n !== val) renames.push([LISTS[d.sl].ref, row.n, val]);
+      row[d.f] = val; delete row.ph; setDirty(true);
+      const ph = $("ph-" + d.sl), phs = draftS[d.sl].filter(x => x.ph).map(x => x.n);
       if (ph) ph.textContent = phs.length ? "Geschätzt, bitte prüfen: " + phs.join(", ") : "";
-      if ($("fixSum")) $("fixSum").textContent = eur(fixTotal());
+      if ($("fixSum")) $("fixSum").textContent = eur(fixTotal(draftS));
     }
   });
 
@@ -794,25 +839,27 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   document.addEventListener("click", e => {
     const t = e.target.closest("[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
     if (!t) return;
-    const d = t.dataset, a = view === "artikel" ? A.find(x => x.id === curId) : null;
+    const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.open) return go("artikel-" + d.open);
     if (d.sort) { sortDir = sortKey === d.sort ? -sortDir : (d.sort === "name" ? 1 : -1); sortKey = d.sort; return renderOverview(); }
-    if (d.tax) { S.tax = d.tax; S.feeVat = d.tax === "ku"; saveSettings(); return renderSettings(); }
-    if (d.addRow) { S[d.addRow].push({ ...LISTS[d.addRow].blank }); saveSettings(); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
-    if (d.delRow) { S[d.delRow].splice(+d.i, 1); saveSettings(); return renderSettings(); }
-    if (d.delPart !== undefined && a) { a.parts.splice(+d.delPart, 1); saveArticle(a); return renderEditor(a); }
+    if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
+    if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
+    if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
+    if (d.delPart !== undefined && a) { a.parts.splice(+d.delPart, 1); setDirty(true); return renderEditor(a); }
     switch (d.act) {
-      case "new": { const n = ARTICLE_BLANK(); A.push(n); saveArticle(n); return go("artikel-" + n.id); }
+      case "save": return doSave();
+      case "discard": return doDiscard();
+      case "new": { const n = { ...ARTICLE_BLANK(), isNew: true }; A.push(n); return go("artikel-" + n.id); }
       case "examples": { EXAMPLES().forEach(x => { A.push(x); saveArticle(x); }); toast("4 Beispielartikel hinzugefügt"); return go("uebersicht"); }
-      case "addPart": a.parts.push({ n: "Teil", plate: (S.plates[0] || {}).n || "", l: "", b: "", q: "1" }); saveArticle(a); renderEditor(a); return;
-      case "dup": { const c = { ...clone(a), id: uid(), name: a.name + " (Kopie)", sales: {}, aliases: [] }; A.push(c); saveArticle(c); toast("Kopie angelegt"); return go("artikel-" + c.id); }
+      case "addPart": a.parts.push({ n: "Teil", plate: (S.plates[0] || {}).n || "", l: "", b: "", q: "1" }); setDirty(true); renderEditor(a); return;
+      case "dup": { if (dirty) return toast("Erst speichern oder verwerfen"); const c = { ...clone(a), id: uid(), name: a.name + " (Kopie)", sales: {}, aliases: [] }; A.push(c); saveArticle(c); toast("Kopie angelegt"); return go("artikel-" + c.id); }
       case "del": $("delConfirm").hidden = false; return;
       case "delNo": $("delConfirm").hidden = true; return;
-      case "delYes": { const n = a.name; removeArticle(a.id); toast("Gelöscht: " + n); return go("uebersicht"); }
+      case "delYes": { const n = a.name; removeArticle(a.id); setDirty(false); toast("Gelöscht: " + n); return go("uebersicht"); }
       case "export": return exportData();
       case "wipe": $("wipeConfirm").hidden = false; return;
       case "wipeNo": $("wipeConfirm").hidden = true; return;
-      case "wipeYes": { A.slice().forEach(x => removeArticle(x.id)); S = SETTINGS_DEFAULT(); saveSettings(); toast("Alles gelöscht"); return go("uebersicht"); }
+      case "wipeYes": { A.slice().forEach(x => removeArticle(x.id)); S = SETTINGS_DEFAULT(); saveSettings(); setDirty(false); toast("Alles gelöscht"); return go("uebersicht"); }
       case "parse": return runImport();
       case "applyImport": return applyImport();
       case "cancelImport": imp = null; return renderImport();
@@ -844,7 +891,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         const d = JSON.parse(r.result);
         if (!d || !Array.isArray(d.articles) || !d.settings) throw 0;
         A.slice().forEach(x => removeArticle(x.id));
-        S = { ...SETTINGS_DEFAULT(), ...d.settings }; saveSettings();
+        S = { ...SETTINGS_DEFAULT(), ...d.settings }; saveSettings(); setDirty(false);
         A = d.articles.map(x => ({ ...x, id: x.id || uid() })); A.forEach(saveArticle);
         toast(`${A.length} Artikel eingespielt`); go("uebersicht");
       } catch (err) { toast("Das ist keine Sicherung aus dieser App."); }
