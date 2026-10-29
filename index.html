@@ -13,7 +13,7 @@
   <!-- ?v=NN muss bei jedem Deploy mit der Versionsnummer/sw.js mitgezogen werden. Ohne das
        kann der Browser eine neue index.html mit einer alten app.js aus dem HTTP-Cache mischen
        (GitHub Pages liefert Assets mit max-age) - dann fehlen neue Funktionen kommentarlos. -->
-  <link rel="stylesheet" href="style.css?v=177" />
+  <link rel="stylesheet" href="style.css?v=178" />
 </head>
 <body>
   <header>
@@ -203,49 +203,53 @@
 
     <!-- SEITE: Neu -->
     <section id="page-add" class="page" hidden>
-      <div class="card add-sec">
-        <div class="add-sec-head"><span class="ash-num gut"><svg class="ash-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span><h2>1. Aus Datenbank hinzufügen</h2></div>
-        <div class="add-db-row">
-          <div class="add-db-search">
-            <input id="dbSearch" class="db-search" placeholder="🔎 Startplatz suchen (Name/Ort) …" />
-            <div id="dbResults" class="db-results"></div>
-          </div>
-        </div>
+      <div class="info-hero add-hero">
+        <div class="ih-txt"><b>Dein Startplatz fehlt?</b><span>Erst in der Datenbank suchen – sonst legst du ihn in einer Minute selbst an.</span></div>
+        <div class="ih-chips"><span>2800+ Startplätze</span><span>eigene Plätze nur auf deinem Gerät</span></div>
       </div>
 
       <div class="card add-sec">
-        <div class="add-sec-head"><span class="ash-num"><svg class="ash-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span><h2 id="addFormTitle">2. Eigenen Platz anlegen</h2></div>
+        <div class="add-sec-head"><span class="ash-num">1</span><div><h2>Startplatz suchen</h2><p>Name oder Ort eintippen, Stern antippen – fertig.</p></div></div>
+        <input id="dbSearch" class="db-search" placeholder="z. B. Tegelberg, Alb, Brauneck …" autocomplete="off" />
+        <div id="dbResults" class="db-results"></div>
+      </div>
+
+      <div class="card add-sec">
+        <div class="add-sec-head"><span class="ash-num">2</span><div><h2 id="addFormTitle">Eigenen Platz anlegen</h2><p>Nicht in der Datenbank? Dann trag ihn selbst ein.</p></div></div>
         <form id="spotForm">
-          <label><span class="fl-row"><span class="fl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-10 4 6 2-3 6 7z"/></svg></span>Name <span class="req">*</span></span><input name="name" required placeholder="z. B. Hausberg" /></label>
-          <label><span class="fl-row"><span class="fl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg></span>Region / Ort</span><input name="region" placeholder="z. B. Allgäu" /></label>
+          <label><span>Name <span class="req">*</span></span><input name="name" required placeholder="z. B. Hausberg Südstart" /></label>
+          <label><span>Region / Ort</span><input name="region" placeholder="z. B. Allgäu" /></label>
+
+          <div class="add-sub">Wo liegt der Startplatz?</div>
+          <button type="button" id="geoBtn" class="pf-outline"><svg class="inline-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg> Meinen Standort übernehmen</button>
           <div class="row">
-            <label><span class="fl-row"><span class="fl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></span>Breitengrad <span class="req">*</span></span><input name="lat" required inputmode="decimal" placeholder="47.5446" /></label>
-            <label><span class="fl-row"><span class="fl-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></span>Längengrad <span class="req">*</span></span><input name="lon" required inputmode="decimal" placeholder="10.0528" /></label>
+            <label><span>Breitengrad <span class="req">*</span></span><input name="lat" required inputmode="decimal" placeholder="47.5446" /></label>
+            <label><span>Längengrad <span class="req">*</span></span><input name="lon" required inputmode="decimal" placeholder="10.0528" /></label>
           </div>
-          <button type="button" id="geoBtn" class="btn-soft"><svg class="inline-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg> Mein Standort verwenden</button>
-          <p class="tip">Koordinaten z. B. aus Google Maps: lange auf den Platz tippen → Zahlen erscheinen oben.</p>
-          <label>Startplatzhöhe (m)
-            <div class="hrow"><input name="elevation" inputmode="numeric" placeholder="wird automatisch ermittelt" /><button type="button" id="elevBtn" class="btn-soft"><svg class="inline-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-10 4 6 2-3 6 7z"/></svg> ermitteln</button></div>
+          <p class="tip">Oder aus Google Maps: lange auf den Platz tippen, die Zahlen erscheinen oben.</p>
+          <label><span>Höhe des Startplatzes (m)</span>
+            <div class="hrow"><input name="elevation" inputmode="numeric" placeholder="wird automatisch ermittelt" /><button type="button" id="elevBtn" class="pf-outline">Ermitteln</button></div>
           </label>
-          <fieldset><legend>Erlaubte Windrichtung(en) <span class="req">*</span></legend><div id="compass" class="compass"></div></fieldset>
-          <details class="adv"><summary>Erweiterte Grenzwerte</summary>
-            <div class="row">
-              <label>Wind min<input name="windMin" type="number" value="3" /></label>
-              <label>Wind max<input name="windMax" type="number" value="26" /></label>
-              <label>Böen max<input name="gustMax" type="number" value="30" /></label>
-            </div>
+
+          <div class="add-sub">Welche Windrichtung passt? <span class="req">*</span></div>
+          <div id="compass" class="compass"></div>
+          <p class="tip">Tippe alle Richtungen, in die der Hang offen ist.</p>
+
+          <details class="adv"><summary>Mindestwind</summary>
+            <label><span>Ab wie viel Wind lohnt sich der Start (km/h)?</span><input name="windMin" type="number" value="3" /></label>
+            <p class="tip">Die Obergrenzen für Wind und Böen kommen aus deinem Level (Mein Profil) – hier musst du nichts einstellen.</p>
           </details>
-          <div class="add-hint"><span class="ah-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.5.4.8 1 .8 1.6V17h6.4v-.7c0-.6.3-1.2.8-1.6A7 7 0 0 0 12 2z"/></svg></span><span><b>Tipp</b><br>Je genauer die Daten, desto besser sind die Wetterprognosen für deinen Platz.</span></div>
+
           <p id="formErr" class="form-err" hidden></p>
-          <div class="modal-actions">
-            <button type="button" id="resetBtn" class="btn-soft">Leeren</button>
-            <button type="submit" id="saveSpotBtn" class="btn-primary">Speichern &amp; favorisieren</button>
+          <div class="add-actions">
+            <button type="button" id="resetBtn" class="pf-btn pf-btn-ghost">Leeren</button>
+            <button type="submit" id="saveSpotBtn" class="pf-btn">Speichern &amp; favorisieren</button>
           </div>
         </form>
       </div>
 
       <div class="card add-sec">
-        <div class="add-sec-head"><span class="ash-num"><svg class="ash-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l6-10 4 6 2-3 6 7z"/></svg></span><h2>3. Meine eigenen Plätze</h2></div>
+        <div class="add-sec-head"><span class="ash-num">3</span><div><h2>Meine Plätze</h2><p>Deine eigenen Startplätze – zum Bearbeiten oder Löschen.</p></div></div>
         <div id="userSpotList" class="user-spot-list"></div>
       </div>
     </section>
@@ -383,7 +387,7 @@
         <a href="datenschutz.html">Datenschutz &amp; Impressum</a>
         <button type="button" id="infoChangelogBtn">Was ist neu?</button>
       </div>
-      <p class="build">GoFlyToday · Version 177 · Oktober 2026</p>
+      <p class="build">GoFlyToday · Version 178 · Oktober 2026</p>
     </section>
   </main>
 
@@ -688,8 +692,8 @@
     <div class="fs-foot"><button type="button" class="fs-apply" id="fsApply">Filter anwenden</button></div>
   </div>
 
-  <script src="database.js?v=177"></script>
-  <script src="briefings.js?v=177"></script>
-  <script src="app.js?v=177"></script>
+  <script src="database.js?v=178"></script>
+  <script src="briefings.js?v=178"></script>
+  <script src="app.js?v=178"></script>
 </body>
 </html>

@@ -4310,6 +4310,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 178, date: "29.10.", text: "Neu-Seite im neuen Design: Intro, Schritte 1–3, aufgeräumtes Formular (Wind-Obergrenzen kommen aus dem Level)" },
   { v: 177, date: "29.10.", text: "Detailfenster: Stern, ☰ und ✕ sitzen sauber in einer Zeile oben rechts; Favorit nur noch über den Stern" },
   { v: 176, date: "29.10.", text: "Detailmenü: „Umgebung auf der Karte“ entfernt" },
   { v: 175, date: "29.10.", text: "Hauptkarte: Legende, Knöpfe und Zoom liegen jetzt immer über den Markern (Favoriten- und Heimat-Marker überdeckten sie)" },
@@ -4480,7 +4481,7 @@ function renderDbSearch(query = "", wrapId = "dbResults") {
   const wrap = document.getElementById(wrapId);
   const q = query.trim().toLowerCase();
   if (!q) {
-    wrap.innerHTML = `<p class="db-hint">🔎 Tippe einen Namen oder Ort (z. B. „Tegelberg", „Alb"), um in ${SPOT_DB.length} Startplätzen zu suchen.</p>`;
+    wrap.innerHTML = `<p class="db-hint">Tippe einen Namen oder Ort – durchsucht werden ${SPOT_DB.length} Startplätze.</p>`;
     return;
   }
   const list = SPOT_DB.concat(loadUserSpots())
@@ -4506,7 +4507,7 @@ function renderUserSpots() {
   if (!wrap) return;
   const list = loadUserSpots();
   if (!list.length) {
-    wrap.innerHTML = `<p class="db-hint">Hier erscheinen die Plätze, die du oben selbst anlegst – zum Bearbeiten oder Löschen.</p>`;
+    wrap.innerHTML = `<p class="db-hint">Noch keine eigenen Plätze. Was du oben anlegst, erscheint hier.</p>`;
     return;
   }
   wrap.innerHTML = list.map(s => {
@@ -4635,7 +4636,7 @@ async function volteOpenSpot(id) {
 const PAGES = {
   home:      { title: "GoFlyToday", sub: "Wetter. Startplätze. Entscheidung." },
   favorites: { title: "Favoriten", sub: "Deine Plätze · 5-Tage-Ansicht" },
-  add:       { title: "Fluggebiet hinzufügen", sub: "Aus Datenbank oder eigenen Platz" },
+  add:       { title: "Neuer Startplatz", sub: "Suchen oder selbst anlegen" },
   volte:     { title: "Landevolte zeichnen", sub: "Punkte antippen, Text schicken" },
   info:      { title: "Info & Recht", sub: "Wie die App funktioniert" },
 };
@@ -4979,7 +4980,7 @@ COMPASS_16.forEach((label, i) => {
 let editingSpotId = null;
 function applyEditUI() {
   const editing = !!editingSpotId;
-  document.getElementById("addFormTitle").textContent = editing ? "2. Eigenen Platz bearbeiten" : "2. Eigenen Platz anlegen";
+  document.getElementById("addFormTitle").textContent = editing ? "Eigenen Platz bearbeiten" : "Eigenen Platz anlegen";
   document.getElementById("saveSpotBtn").textContent = editing ? "Änderungen speichern" : "Speichern & favorisieren";
   document.getElementById("resetBtn").textContent = editing ? "Abbrechen" : "Leeren";
 }
@@ -4992,8 +4993,6 @@ function startEditSpot(id) {
   form.lat.value = s.lat; form.lon.value = s.lon;
   form.elevation.value = s.elevation != null ? s.elevation : "";
   form.windMin.value = s.windMin != null ? s.windMin : 3;
-  form.windMax.value = s.windMax != null ? s.windMax : 26;
-  form.gustMax.value = s.gustMax != null ? s.gustMax : 30;
   // Kompass-Auswahl aus dem gespeicherten sectorLabel zurueckholen (dort stehen genau
   // die COMPASS_16-Kuerzel, mit denen das Label beim Anlegen gebaut wurde).
   selectedDirs.clear();
@@ -5048,8 +5047,6 @@ form.addEventListener("submit", async e => {
     lat, lon, elevation, sectors: dirsToSectors(selectedDirs),
     sectorLabel: dirs.map(i => COMPASS_16[i]).join(", "),
     windMin: parseFloat(form.windMin.value) || 0,
-    windMax: parseFloat(form.windMax.value) || 30,
-    gustMax: parseFloat(form.gustMax.value) || 35,
   };
   const list = loadUserSpots();
   if (editingSpotId) {
@@ -5060,7 +5057,7 @@ form.addEventListener("submit", async e => {
     document.getElementById("userSpotList").scrollIntoView({ behavior: "smooth", block: "center" });
     return;
   }
-  const spot = { id: "user_" + Date.now(), ...data };
+  const spot = { id: "user_" + Date.now(), windMax: 26, gustMax: 30, ...data };
   list.push(spot); saveUserSpots(list);
   const f = loadFavs(); f.push(spot.id); saveFavs(f);   // eigener Platz ist automatisch Favorit
   resetForm();
