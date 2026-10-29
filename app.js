@@ -2118,15 +2118,15 @@ function renderCard(spot, days, opts = {}) {
       </div>`
     : `<div class="detail-topbar">
         <div class="dt-left">
-          <div class="spot-name-row"><div class="spot-name">${spot.name}</div><button type="button" class="ic0 dt-star${favOn ? " on" : ""}" data-fav="${spot.id}" title="${favOn ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen"}">${favOn ? "★" : "☆"}</button></div>
+          <div class="spot-name">${spot.name}</div>
           <div class="spot-region">📍 ${[spot.gemeinde, spot.bundesland].filter(Boolean).join(", ") || spot.region || ""}</div>
         </div>
         <div class="dt-right">
+          <button type="button" class="ic0 dt-star${favOn ? " on" : ""}" data-fav="${spot.id}" title="${favOn ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen"}">${favOn ? "★" : "☆"}</button>
           <div class="dt-menu-wrap">
             <button type="button" class="ic0 dt-menu-btn" aria-haspopup="true" aria-expanded="false" title="Mehr">☰</button>
             <div class="dt-menu" hidden>
               <button type="button" class="dt-mi disabled" disabled>🔔 Flugwetter-Alarm<span class="dt-soon">bald</span></button>
-              <button type="button" class="dt-mi" data-favmenu="${spot.id}">${favOn ? "★ Aus Favoriten entfernen" : "☆ Zu Favoriten hinzufügen"}</button>
               <button type="button" class="dt-mi" data-share="${spot.id}">📤 Teilen</button>
             </div>
           </div>
@@ -4310,7 +4310,8 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
-  { v: 176, date: "29.10.", text: "Detailmenü: „Umgebung auf der Karte“ entfernt, dafür „Zu Favoriten hinzufügen / Aus Favoriten entfernen“" },
+  { v: 177, date: "29.10.", text: "Detailfenster: Stern, ☰ und ✕ sitzen sauber in einer Zeile oben rechts; Favorit nur noch über den Stern" },
+  { v: 176, date: "29.10.", text: "Detailmenü: „Umgebung auf der Karte“ entfernt" },
   { v: 175, date: "29.10.", text: "Hauptkarte: Legende, Knöpfe und Zoom liegen jetzt immer über den Markern (Favoriten- und Heimat-Marker überdeckten sie)" },
   { v: 174, date: "29.10.", text: "Info & Recht komplett überarbeitet: neue Optik, aktuelle Funktionen, Datenquellen und Datenschutz in Kürze, aufklappbare Rechtstexte" },
   { v: 173, date: "29.10.", text: "Hauptkarte: deine Favoriten sind immer markiert – goldener Stern am Marker, und Favoriten außerhalb der Treffer stehen als Stern-Marker auf der Karte" },
@@ -4796,18 +4797,6 @@ document.body.addEventListener("click", e => {
   const ucGo = e.target.closest("[data-ucgo]");
   if (ucGo) { openDetail(ucGo.dataset.ucgo); return; }
   if (e.target.closest("[data-ucx]")) { umgKarteZu(); return; }
-  // Detailmenue: Favorit hinzufuegen / entfernen (wie der Stern oben)
-  const favMenu = e.target.closest("[data-favmenu]");
-  if (favMenu) {
-    const id = favMenu.dataset.favmenu;
-    toggleFav(id);
-    const an = isFav(id);
-    favMenu.textContent = an ? "★ Aus Favoriten entfernen" : "☆ Zu Favoriten hinzufügen";
-    document.querySelectorAll(`#detailBody .dt-star[data-fav="${id}"]`).forEach(st => { st.classList.toggle("on", an); st.textContent = an ? "★" : "☆"; st.title = an ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen"; });
-    if (!document.getElementById("page-favorites").hidden) { renderFavorites(); renderDbSearch(document.getElementById("favDbSearch").value, "favDbResults"); }
-    favMenu.closest(".dt-menu").hidden = true;
-    return;
-  }
   // Filter-Feld, Umgebung: Zeile an-/abhaken (gilt erst mit "Filter anwenden")
   const fsRow = e.target.closest("[data-fscat]");
   if (fsRow) {
@@ -4916,8 +4905,6 @@ document.body.addEventListener("click", e => {
     if (favOnlyFilter && favBtn.closest("#flyResults")) { renderFlyResults(lastRows, lastHeadline, lastTruncated); return; }
     // Fly-Ergebnisse-Stern sofort umschalten
     const s = favBtn.classList.toggle("on"); favBtn.textContent = favBtn.classList.contains("on") ? "★" : "☆";
-    // Menüeintrag im Detailfenster (☰) mitziehen
-    document.querySelectorAll(`#detailBody [data-favmenu="${favBtn.dataset.fav}"]`).forEach(m => { m.textContent = s ? "★ Aus Favoriten entfernen" : "☆ Zu Favoriten hinzufügen"; });
     return;
   }
   const volteRow = e.target.closest("[data-volte-spot]");
