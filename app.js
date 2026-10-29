@@ -1594,20 +1594,6 @@ function umgKarteZu() {
   umgKarteId = null;
   const card = document.getElementById("umgCard"); if (card) card.hidden = true;
 }
-// Aus dem Briefing: Karte auf Start und Landung zoomen - die Umgebung kommt dann von selbst
-async function umgebungZeigen(id) {
-  const spot = getSpot(id); if (!spot) return;
-  if (!document.getElementById("detailModal").hidden) closeDetail();
-  routeAufraeumen();
-  if (!/^#\/(home)?$/.test(location.hash)) { location.hash = "#/home"; await new Promise(r => setTimeout(r, 60)); }
-  await switchToMapView();
-  const m = mapInstance; if (!m) return;
-  if (!BF_ORDER.some(c => bfFilter()[c])) bfSaveFilter({ ...BF_DEFAULT });   // alles aus -> sonst sieht man nichts
-  fsUpdateCount();
-  umgKarteZu();
-  umgZoomAuf(spot);
-  document.getElementById("mapView").scrollIntoView({ block: "start" });
-}
 // Meldung unten auf der Karte (laedt / Hinweis) und Zaehler im Umgebungs-Filter
 let umgHinweis = "";
 function bfUpdateChips() {
@@ -2140,7 +2126,7 @@ function renderCard(spot, days, opts = {}) {
             <button type="button" class="ic0 dt-menu-btn" aria-haspopup="true" aria-expanded="false" title="Mehr">☰</button>
             <div class="dt-menu" hidden>
               <button type="button" class="dt-mi disabled" disabled>🔔 Flugwetter-Alarm<span class="dt-soon">bald</span></button>
-              <button type="button" class="dt-mi" data-umgebung="${spot.id}">🗺️ Umgebung auf der Karte</button>
+              <button type="button" class="dt-mi" data-favmenu="${spot.id}">${favOn ? "★ Aus Favoriten entfernen" : "☆ Zu Favoriten hinzufügen"}</button>
               <button type="button" class="dt-mi" data-share="${spot.id}">📤 Teilen</button>
             </div>
           </div>
@@ -4324,6 +4310,7 @@ document.getElementById("settingsVersionBtn").addEventListener("click", () => {
 // ---------------- Changelog ("Was ist neu?") ----------------
 // Sehr kurze, laienverstaendliche Ein-Zeiler pro Version - keine Commit-Messages 1:1 uebernehmen.
 const CHANGELOG = [
+  { v: 176, date: "29.10.", text: "Detailmenü: „Umgebung auf der Karte“ entfernt, dafür „Zu Favoriten hinzufügen / Aus Favoriten entfernen“" },
   { v: 175, date: "29.10.", text: "Hauptkarte: Legende, Knöpfe und Zoom liegen jetzt immer über den Markern (Favoriten- und Heimat-Marker überdeckten sie)" },
   { v: 174, date: "29.10.", text: "Info & Recht komplett überarbeitet: neue Optik, aktuelle Funktionen, Datenquellen und Datenschutz in Kürze, aufklappbare Rechtstexte" },
   { v: 173, date: "29.10.", text: "Hauptkarte: deine Favoriten sind immer markiert – goldener Stern am Marker, und Favoriten außerhalb der Treffer stehen als Stern-Marker auf der Karte" },
@@ -4809,9 +4796,18 @@ document.body.addEventListener("click", e => {
   const ucGo = e.target.closest("[data-ucgo]");
   if (ucGo) { openDetail(ucGo.dataset.ucgo); return; }
   if (e.target.closest("[data-ucx]")) { umgKarteZu(); return; }
-  // Briefing: Umgebung auf der Karte zeigen (zoomt auf Start und Landung)
-  const umgBtn = e.target.closest("[data-umgebung]");
-  if (umgBtn) { umgebungZeigen(umgBtn.dataset.umgebung); return; }
+  // Detailmenue: Favorit hinzufuegen / entfernen (wie der Stern oben)
+  const favMenu = e.target.closest("[data-favmenu]");
+  if (favMenu) {
+    const id = favMenu.dataset.favmenu;
+    toggleFav(id);
+    const an = isFav(id);
+    favMenu.textContent = an ? "★ Aus Favoriten entfernen" : "☆ Zu Favoriten hinzufügen";
+    document.querySelectorAll(`#detailBody .dt-star[data-fav="${id}"]`).forEach(st => { st.classList.toggle("on", an); st.textContent = an ? "★" : "☆"; st.title = an ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen"; });
+    if (!document.getElementById("page-favorites").hidden) { renderFavorites(); renderDbSearch(document.getElementById("favDbSearch").value, "favDbResults"); }
+    favMenu.closest(".dt-menu").hidden = true;
+    return;
+  }
   // Filter-Feld, Umgebung: Zeile an-/abhaken (gilt erst mit "Filter anwenden")
   const fsRow = e.target.closest("[data-fscat]");
   if (fsRow) {
@@ -4920,6 +4916,8 @@ document.body.addEventListener("click", e => {
     if (favOnlyFilter && favBtn.closest("#flyResults")) { renderFlyResults(lastRows, lastHeadline, lastTruncated); return; }
     // Fly-Ergebnisse-Stern sofort umschalten
     const s = favBtn.classList.toggle("on"); favBtn.textContent = favBtn.classList.contains("on") ? "★" : "☆";
+    // Menüeintrag im Detailfenster (☰) mitziehen
+    document.querySelectorAll(`#detailBody [data-favmenu="${favBtn.dataset.fav}"]`).forEach(m => { m.textContent = s ? "★ Aus Favoriten entfernen" : "☆ Zu Favoriten hinzufügen"; });
     return;
   }
   const volteRow = e.target.closest("[data-volte-spot]");
