@@ -233,7 +233,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // ---------- Vorgaben (ph = Platzhalter, noch nicht durch echte Werte ersetzt) ----------
   const SETTINGS_DEFAULT = () => ({
-    tax: "regel", rate: "20", target: "35", qtyManual: "40", alloc: true,
+    tax: "regel", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90",
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
     bPayP: "12", bPayF: "0.45", bAds: "0",
@@ -261,7 +261,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     ]
   });
   const ARTICLE_BLANK = () => ({
-    id: uid(), name: "Neuer Artikel", chan: "etsy", price: "", shipIn: "0", waste: "15",
+    id: uid(), name: "Neuer Artikel", chan: "etsy", price: "", shipIn: String(S.shipInDefault ?? "0"), waste: "15",
     parts: [{ n: "Teil", plate: (S.plates[0] || {}).n || "", l: "", b: "", q: "1" }],
     small: {}, mach: {}, weight: "", pkL: "", pkB: "", pkH: "", shipMode: "auto",
     pack: "", outer: "", ext: "0", mins: "", aliases: [], sales: {}
@@ -305,6 +305,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       return { settings: s.exists ? s.data() : null, articles: q.docs.map(d => clone(d.data())) };
     },
     saveSettings: s => db.doc("hlz/settings").set(clone(s)),
+    // Änderungen von anderen Geräten (oder von Claude) live übernehmen
+    subscribe(onArticles, onSettings) {
+      db.collection("articles").onSnapshot(snap => onArticles(snap.docChanges()), () => {});
+      db.doc("hlz/settings").onSnapshot(d => onSettings(d.exists ? d.data() : null), () => {});
+    },
     saveArticle: a => db.collection("articles").doc(a.id).set(clone(a)),
     deleteArticle: id => db.collection("articles").doc(id).delete()
   });
@@ -746,6 +751,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               ${settingsField("rate", "Dein Stundensatz", "€/h")}
               ${settingsField("target", "Ziel-Marge", "%")}
               ${settingsField("qtyManual", "Verkäufe/Monat (geschätzt)", "Stk", ctx.src === "import" ? "wird durch Import ersetzt" : "")}
+              ${settingsField("shipInDefault", "Versand vom Kunden", "€", "Standard für neue Artikel")}
             </div>
             <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück)</label>
           </section>
@@ -1120,6 +1126,32 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     go("uebersicht");
   }
 
+  // ---------- Live-Abgleich ----------
+  function liveArticles(changes) {
+    if (!changes.length) return;
+    changes.forEach(ch => {
+      const id = ch.doc.id;
+      if (ch.type === "removed") { A = A.filter(a => a.id !== id); return; }
+      const d = clone(ch.doc.data() || {}), i = A.findIndex(a => a.id === id);
+      if (i >= 0) A[i] = d; else A.push(d);
+    });
+    liveRefresh();
+  }
+  function liveSettings(data) {
+    if (!data) return;
+    const next = { ...SETTINGS_DEFAULT(), ...clone(data) };
+    if (JSON.stringify(next) === JSON.stringify(S)) return;
+    S = next; liveRefresh();
+  }
+  function liveRefresh() {
+    if (view === "uebersicht" && document.activeElement?.id !== "search") renderOverview();
+    else if (view === "artikel" && !dirty) {
+      const a = A.find(x => x.id === curId);
+      if (a && JSON.stringify(a) !== JSON.stringify(draft)) { draft = clone(a); renderEditor(draft); }
+    }
+    else if (view === "einstellungen" && !dirty && JSON.stringify(S) !== JSON.stringify(draftS)) { draftS = clone(S); renderSettings(); }
+  }
+
   // ---------- Start ----------
   async function boot() {
     store = Local; mode = "local";
@@ -1146,6 +1178,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
     setSync("ok");
     route();
+    if (store.subscribe) store.subscribe(liveArticles, liveSettings);
   }
   if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && !(window.claude)) {
     navigator.serviceWorker.register("sw.js").catch(() => {});
