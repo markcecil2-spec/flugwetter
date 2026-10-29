@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>HLZ Margenrechner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: Werkbank – links Eingaben (Werkstück), rechts Ergebnis-Zettel (sticky), darunter Kanalvergleich + Monat + Produktliste */
+:root {
+  --bg: #f3f1ec;          /* Birkensperrholz */
+  --panel: #fbfaf7;
+  --line: #ddd8cd;
+  --fg: #23201b;
+  --muted: #6c665b;
+  --accent: #2f5a46;      /* Werkstattgrün */
+  --accent-soft: #dfe9e2;
+  --walnut: #7a4b2a;
+  --good: #2e7d4f; --warn: #b7791f; --bad: #b3412f;
+  --seg-vat: #a8a195; --seg-fee: #c9813f; --seg-make: #7a4b2a; --seg-ship: #4f7896; --seg-pack: #9c8a6b; --seg-time: #8a6fa3; --seg-other: #7d7d7d; --seg-profit: #2e7d4f;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #1a1916; --panel: #23221e; --line: #3a372f; --fg: #ece8df; --muted: #a39d90;
+  --accent: #7fb89a; --accent-soft: #24342b; --walnut: #c99467;
+  --good: #5cbf85; --warn: #e0a84a; --bad: #e07a66;
+  --seg-vat: #6f6a60; --seg-fee: #d89452; --seg-make: #b07a4f; --seg-ship: #6d9cc0; --seg-pack: #b3a17f; --seg-time: #a68cc0; --seg-other: #8f8f8f; --seg-profit: #5cbf85;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #1a1916; --panel: #23221e; --line: #3a372f; --fg: #ece8df; --muted: #a39d90;
+  --accent: #7fb89a; --accent-soft: #24342b; --walnut: #c99467;
+  --good: #5cbf85; --warn: #e0a84a; --bad: #e07a66;
+  --seg-vat: #6f6a60; --seg-fee: #d89452; --seg-make: #b07a4f; --seg-ship: #6d9cc0; --seg-pack: #b3a17f; --seg-time: #a68cc0; --seg-other: #8f8f8f; --seg-profit: #5cbf85;
+  color-scheme: dark }
+
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 48px }
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 24px }
+h1, h2 { font-family: var(--font-display); font-weight: 700; text-wrap: balance; margin: 0 }
+h1 { font-size: 1.9rem; letter-spacing: -0.01em }
+h2 { font-size: 1.15rem }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 65ch }
+.label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600 }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
+
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px }
+.brand { display: flex; gap: 12px; align-items: center }
+.logo { width: 44px; height: 44px; border-radius: 10px; background: var(--walnut); color: var(--panel); display: grid; place-items: center; font: 700 1rem var(--font-display) }
+
+.main { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 24px; align-items: start }
+@media (max-width: 860px) { .main { grid-template-columns: minmax(0, 1fr) } }
+
+section.block { display: grid; gap: 14px }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 16px; min-width: 0 }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 14px }
+@media (max-width: 520px) { .grid2, .grid3 { grid-template-columns: minmax(0, 1fr) } }
+.field { display: grid; gap: 4px; min-width: 0 }
+.field label { font-size: .82rem; color: var(--muted) }
+.field small { color: var(--muted); font-size: .74rem }
+.inp { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); overflow: hidden }
+.inp:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft) }
+.inp input, .inp select { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); padding: 9px 10px; font: 500 .95rem var(--font-mono); outline: none }
+.inp input[type=text] { font-family: var(--font-body) }
+.inp span { padding: 0 10px; color: var(--muted); font-size: .85rem }
+
+.seg { display: flex; flex-wrap: wrap; gap: 6px }
+.seg button, .btn { font: 500 .85rem var(--font-body); border: 1px solid var(--line); background: var(--bg); color: var(--fg); padding: 7px 12px; border-radius: 999px; cursor: pointer }
+.seg button[aria-pressed=true] { background: var(--accent); border-color: var(--accent); color: var(--panel) }
+.btn:hover, .seg button:hover { border-color: var(--accent) }
+.btn.primary { background: var(--accent); color: var(--panel); border-color: var(--accent) }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.check { display: flex; gap: 8px; align-items: center; font-size: .88rem }
+.check input { accent-color: var(--accent); width: 16px; height: 16px }
+
+/* Ergebnis-Zettel */
+.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
+.big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap }
+.big .num { font-size: 2.4rem; font-weight: 500; line-height: 1 }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 600; border: 1px solid currentColor }
+.pill.good { color: var(--good) } .pill.warn { color: var(--warn) } .pill.bad { color: var(--bad) }
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px }
+.kpi { border-top: 1px solid var(--line); padding-top: 8px; display: grid; gap: 2px }
+.kpi .num { font-size: 1.15rem }
+.bar { display: flex; height: 18px; border-radius: 5px; overflow: hidden; background: var(--line) }
+.bar div { height: 100% }
+.legend { display: grid; gap: 4px; font-size: .84rem }
+.legend .row { display: grid; grid-template-columns: 12px 1fr auto auto; gap: 8px; align-items: center }
+.legend .sw { width: 10px; height: 10px; border-radius: 2px }
+.legend .pct { color: var(--muted); width: 3.6em; text-align: right }
+.note { font-size: .78rem; color: var(--muted) }
+
+.tablewrap { overflow-x: auto }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 520px }
+th, td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap }
+th:first-child, td:first-child { text-align: left }
+th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600 }
+tr.best td:first-child::after { content: " · bester"; color: var(--good); font-size: .75rem; font-weight: 600 }
+td.prod { font-family: var(--font-body); white-space: normal }
+.rowbtns { display: flex; gap: 6px; justify-content: flex-end }
+.rowbtns button { font-size: .78rem; padding: 4px 9px }
+.tag { font-size: .7rem; color: var(--walnut); border: 1px solid var(--walnut); border-radius: 4px; padding: 0 4px; margin-left: 6px }
+.toast { min-height: 1.2em; font-size: .82rem; color: var(--good) }
+details summary { cursor: pointer; color: var(--muted); font-size: .85rem }
+details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: .84rem; display: grid; gap: 4px }
+@media (prefers-reduced-motion: no-preference) { .bar div { transition: width .25s ease } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">HLZ</div>
+      <div>
+        <h1>HLZ Margenrechner</h1>
+        <p class="sub">Was bleibt pro Schlüsselbrett, Regal oder Garderobe wirklich hängen – nach MwSt, Etsy/Shopify-Gebühren, Schreinerei und Versand.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="block" style="display:grid;gap:18px">
+      <!-- Produkt & Preis -->
+      <div class="box">
+        <h2>Produkt &amp; Preis</h2>
+        <div class="field">
+          <label for="name">Produkt</label>
+          <div class="inp"><input id="name" type="text" value="Schlüsselbrett Eiche, 4 Haken"></div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="price">Verkaufspreis (brutto)</label>
+            <div class="inp"><input id="price" type="number" step="0.01" min="0" inputmode="decimal" value="49.90"><span>€</span></div>
+          </div>
+          <div class="field">
+            <label for="shipIn">Versand, den der Kunde zahlt</label>
+            <div class="inp"><input id="shipIn" type="number" step="0.01" min="0" inputmode="decimal" value="0"><span>€</span></div>
+            <small>0 = „kostenloser Versand“</small>
+          </div>
+        </div>
+        <div class="field">
+          <span class="label">Steuer</span>
+          <div class="seg" id="taxSeg">
+            <button type="button" data-v="regel" aria-pressed="true">Regelbesteuerung 19 %</button>
+            <button type="button" data-v="ku" aria-pressed="false">Kleinunternehmer</button>
+          </div>
+          <small id="taxHint"></small>
+        </div>
+      </div>
+
+      <!-- Kosten -->
+      <div class="box">
+        <h2>Kosten pro Stück</h2>
+        <div class="grid2">
+          <div class="field">
+            <label for="make">Herstellung (Schreinerei / Material)</label>
+            <div class="inp"><input id="make" type="number" step="0.01" min="0" inputmode="decimal" value="14.50"><span>€</span></div>
+          </div>
+          <div class="field">
+            <label for="shipOut">Versand real (DHL etc.)</label>
+            <div class="inp"><input id="shipOut" type="number" step="0.01" min="0" inputmode="decimal" value="5.49"><span>€</span></div>
+          </div>
+          <div class="field">
+            <label for="pack">Verpackung</label>
+            <div class="inp"><input id="pack" type="number" step="0.01" min="0" inputmode="decimal" value="1.20"><span>€</span></div>
+          </div>
+          <div class="field">
+            <label for="other">Sonstiges (Haken, Schrauben, Gravur …)</label>
+            <div class="inp"><input id="other" type="number" step="0.01" min="0" inputmode="decimal" value="1.80"><span>€</span></div>
+          </div>
+          <div class="field">
+            <label for="mins">Deine Arbeitszeit</label>
+            <div class="inp"><input id="mins" type="number" step="1" min="0" inputmode="numeric" value="15"><span>Min</span></div>
+            <small>Verpacken, Nachrichten, Etikett</small>
+          </div>
+          <div class="field">
+            <label for="rate">Dein Stundensatz</label>
+            <div class="inp"><input id="rate" type="number" step="0.5" min="0" inputmode="decimal" value="20"><span>€/h</span></div>
+            <small>0 setzen, wenn du deine Zeit nicht rechnen willst</small>
+          </div>
+        </div>
+        <small class="note" id="costHint"></small>
+      </div>
+
+      <!-- Kanal -->
+      <div class="box">
+        <h2>Verkaufskanal</h2>
+        <div class="seg" id="chanSeg">
+          <button type="button" data-v="etsy" aria-pressed="true">Etsy</button>
+          <button type="button" data-v="shopify" aria-pressed="false">Shopify</button>
+          <button type="button" data-v="direkt" aria-pressed="false">Direkt / Kleinanzeigen</button>
+        </div>
+
+        <div id="cfg-etsy" class="grid3">
+          <div class="field"><label for="eList">Einstellgebühr</label><div class="inp"><input id="eList" type="number" step="0.01" value="0.19"><span>€</span></div><small>0,20 $ umgerechnet</small></div>
+          <div class="field"><label for="eTrans">Transaktionsgebühr</label><div class="inp"><input id="eTrans" type="number" step="0.1" value="6.5"><span>%</span></div><small>auf Preis + Versand</small></div>
+          <div class="field"><label for="ePayP">Zahlungsabwicklung</label><div class="inp"><input id="ePayP" type="number" step="0.1" value="4"><span>%</span></div></div>
+          <div class="field"><label for="ePayF">+ fix je Bestellung</label><div class="inp"><input id="ePayF" type="number" step="0.01" value="0.30"><span>€</span></div></div>
+          <div class="field"><label for="eOff">Offsite Ads</label><div class="inp"><select id="eOff"><option value="0">kein Offsite-Verkauf</option><option value="15">15 % (unter 10.000 $ Umsatz)</option><option value="12">12 % (Pflicht ab 10.000 $)</option></select></div></div>
+          <div class="field"><label for="eAds">Etsy Ads je Verkauf</label><div class="inp"><input id="eAds" type="number" step="0.1" min="0" value="2.00"><span>€</span></div><small>Werbebudget ÷ Verkäufe</small></div>
+        </div>
+        <div id="cfg-shopify" class="grid3" hidden>
+          <div class="field"><label for="sPayP">Shopify Payments</label><div class="inp"><input id="sPayP" type="number" step="0.1" value="2.1"><span>%</span></div><small>Basic, EU-Karten</small></div>
+          <div class="field"><label for="sPayF">+ fix je Bestellung</label><div class="inp"><input id="sPayF" type="number" step="0.01" value="0.30"><span>€</span></div></div>
+          <div class="field"><label for="sAds">Werbung je Verkauf</label><div class="inp"><input id="sAds" type="number" step="0.1" min="0" value="6.00"><span>€</span></div><small>Meta/Google/Pinterest ÷ Verkäufe</small></div>
+        </div>
+        <div id="cfg-direkt" class="grid3" hidden>
+          <div class="field"><label for="dPayP">Zahlungsgebühr</label><div class="inp"><input id="dPayP" type="number" step="0.1" value="0"><span>%</span></div><small>z. B. PayPal 2,49</small></div>
+          <div class="field"><label for="dPayF">+ fix je Bestellung</label><div class="inp"><input id="dPayF" type="number" step="0.01" value="0"><span>€</span></div><small>z. B. PayPal 0,35</small></div>
+          <div class="field"><label for="dAds">Werbung je Verkauf</label><div class="inp"><input id="dAds" type="number" step="0.1" min="0" value="0"><span>€</span></div></div>
+        </div>
+        <label class="check" id="feeVatWrap"><input type="checkbox" id="feeVat"> Etsy-Gebühren + 19 % USt (Kleinunternehmer ohne Vorsteuerabzug)</label>
+        <details>
+          <summary>Woher kommen die Gebührensätze?</summary>
+          <ul>
+            <li>Etsy: 0,20 $ Einstellgebühr, 6,5 % Transaktionsgebühr auf Artikel + Versand, Zahlungsabwicklung Deutschland 4 % + 0,30 €. Offsite Ads 15 % bzw. 12 %.</li>
+            <li>Shopify Payments Basic: ca. 2,1 % + 0,30 € für EU-Karten. Mit PayPal/Mollie statt Shopify Payments kommen 2 % Zusatzgebühr dazu.</li>
+            <li>Alle Sätze sind Stand Oktober 2026 nach Recherche und lassen sich hier überschreiben. Prüf sie einmal in deiner Etsy-Abrechnung bzw. im Shopify-Admin.</li>
+          </ul>
+        </details>
+      </div>
+    </div>
+
+    <!-- Ergebnis -->
+    <aside class="box result" aria-live="polite">
+      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">
+        <span class="label">Gewinn pro Stück · <span id="rChan">Etsy</span></span>
+        <span class="pill" id="rPill">–</span>
+      </div>
+      <div class="big"><span class="num" id="rProfit">–</span><span class="num" id="rMargin" style="color:var(--muted)">–</span></div>
+      <div class="bar" id="rBar" role="img" aria-label="Aufteilung des Verkaufspreises"></div>
+      <div class="legend" id="rLegend"></div>
+      <div class="kpis">
+        <div class="kpi"><span class="label">Netto-Umsatz</span><span class="num" id="kNet">–</span></div>
+        <div class="kpi"><span class="label">Gebühren gesamt</span><span class="num" id="kFees">–</span></div>
+        <div class="kpi"><span class="label">Mindestpreis (0 € Gewinn)</span><span class="num" id="kMin">–</span></div>
+        <div class="kpi"><span class="label">Aufschlag auf Kosten</span><span class="num" id="kMarkup">–</span></div>
+      </div>
+      <div class="grid2" style="align-items:end">
+        <div class="field">
+          <label for="target">Ziel-Marge</label>
+          <div class="inp"><input id="target" type="number" step="1" min="0" max="90" value="35"><span>%</span></div>
+        </div>
+        <div class="kpi" style="border:0;padding:0"><span class="label">Dafür nötiger Preis</span><span class="num" id="kTarget" style="font-size:1.4rem;color:var(--accent)">–</span></div>
+      </div>
+      <p class="note">Marge = Gewinn ÷ Netto-Umsatz. Ampel: ab 30 % grün, 15–30 % gelb, darunter rot. Das ist der Deckungsbeitrag vor Fixkosten und vor Einkommensteuer.</p>
+    </aside>
+  </div>
+
+  <!-- Kanalvergleich -->
+  <section class="box">
+    <h2>Gleiches Produkt, anderer Kanal</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Kanal</th><th>Gebühren</th><th>Werbung</th><th>Gewinn</th><th>Marge</th><th>Preis für Ziel</th></tr></thead>
+        <tbody id="cmpBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Monat -->
+  <section class="box">
+    <h2>Hochrechnung pro Monat</h2>
+    <div class="grid3">
+      <div class="field"><label for="qty">Verkäufe pro Monat</label><div class="inp"><input id="qty" type="number" step="1" min="0" value="25"><span>Stk</span></div></div>
+      <div class="field"><label for="fix">Fixkosten pro Monat</label><div class="inp"><input id="fix" type="number" step="1" min="0" value="80"><span>€</span></div><small>Shopify-Abo, Billbee, Lexware, Etsy Plus …</small></div>
+      <div class="kpi" style="border:0;padding:0"><span class="label">Break-even</span><span class="num" id="mBreak" style="font-size:1.15rem">–</span></div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th></th><th>Schlechter Monat (−40 %)</th><th>Normal</th><th>Guter Monat (+40 %)</th></tr></thead>
+        <tbody id="monBody"></tbody>
+      </table>
+    </div>
+    <p class="note">Gewinn vor Einkommensteuer. Davon gehen je nach Steuersatz grob 20–35 % ans Finanzamt, wenn du sonst noch Einkommen hast.</p>
+  </section>
+
+  <!-- Produktliste -->
+  <section class="box">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+      <h2>Deine Produkte</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn primary" type="button" id="saveBtn">Aktuelles Produkt speichern</button>
+        <button class="btn" type="button" id="csvBtn">Als CSV kopieren</button>
+      </div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Produkt</th><th>Kanal</th><th>Preis</th><th>Gewinn</th><th>Marge</th><th></th></tr></thead>
+        <tbody id="listBody"></tbody>
+      </table>
+    </div>
+    <p class="note">Die Liste wird nur in diesem Browser gespeichert. Einträge mit „Beispiel“ sind Platzhalter mit geschätzten Zahlen, ersetze sie durch deine echten Kosten.</p>
+    <textarea id="csvOut" hidden readonly style="width:100%;min-height:120px;font:12px var(--font-mono);background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px"></textarea>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const n = id => { const v = parseFloat(String($(id).value).replace(",", ".")); return isFinite(v) ? v : 0; };
+  const eur = v => (v < 0 ? "−" : "") + Math.abs(v).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+  const pct = v => isFinite(v) ? v.toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %" : "–";
+  const CH_NAMES = { etsy: "Etsy", etsyOff: "Etsy + Offsite Ads 15 %", shopify: "Shopify", direkt: "Direkt / Kleinanzeigen" };
+
+  let tax = "regel", chan = "etsy";
+  const INPUT_IDS = ["name","price","shipIn","make","shipOut","pack","other","mins","rate","eList","eTrans","ePayP","ePayF","eOff","eAds","sPayP","sPayF","sAds","dPayP","dPayF","dAds","feeVat","target","qty","fix"];
+
+  function readState() {
+    const s = { tax, chan };
+    INPUT_IDS.forEach(id => s[id] = $(id).type === "checkbox" ? $(id).checked : $(id).value);
+    return s;
+  }
+  function applyState(s) {
+    INPUT_IDS.forEach(id => { if (s[id] === undefined) return; if ($(id).type === "checkbox") $(id).checked = !!s[id]; else $(id).value = s[id]; });
+    setTax(s.tax || "regel", false); setChan(s.chan || "etsy");
+  }
+
+  // Ergebnis für einen Kanal; price überschreibbar, damit Ziel- und Mindestpreis linear gelöst werden können
+  function calc(ch, price) {
+    const P = price ?? n("price"), S = n("shipIn");
+    const vat = tax === "regel" ? 0.19 : 0;
+    const gross = P + S, net = gross / (1 + vat);
+    let fees = 0, ads = 0;
+    if (ch === "etsy" || ch === "etsyOff") {
+      const off = ch === "etsyOff" ? 15 : n("eOff");
+      const etsyFees = n("eList") + gross * (n("eTrans") + off) / 100;
+      const pay = gross * n("ePayP") / 100 + n("ePayF");
+      fees = (etsyFees + pay) * ($("feeVat").checked ? 1.19 : 1);
+      ads = n("eAds");
+    } else if (ch === "shopify") {
+      fees = gross * n("sPayP") / 100 + n("sPayF"); ads = n("sAds");
+    } else {
+      fees = gross * n("dPayP") / 100 + n("dPayF"); ads = n("dAds");
+    }
+    const time = n("mins") / 60 * n("rate");
+    const make = n("make"), ship = n("shipOut"), pack = n("pack"), other = n("other");
+    const costs = make + ship + pack + other + time;
+    const profit = net - fees - ads - costs;
+    return { P, gross, net, vatAmt: gross - net, fees, ads, make, ship, pack, other, time, costs, profit, margin: net > 0 ? profit / net * 100 : NaN };
+  }
+  // Gewinn und Netto sind linear im Preis → Zielpreis aus zwei Stützstellen
+  function solvePrice(ch, m) {
+    const g = p => { const r = calc(ch, p); return r.profit - m / 100 * r.net; };
+    const g0 = g(0), g1 = g(100), slope = (g1 - g0) / 100;
+    if (slope <= 0) return NaN;
+    return Math.max(0, -g0 / slope);
+  }
+  const status = m => !isFinite(m) ? ["", "–"] : m >= 30 ? ["good", "läuft"] : m >= 15 ? ["warn", "knapp"] : ["bad", m < 0 ? "Verlust" : "zu wenig"];
+
+  function render() {
+    const vatOn = tax === "regel";
+    $("taxHint").textContent = vatOn ? "19 % vom Bruttopreis gehen ans Finanzamt. Kosten unten netto eintragen." : "Keine USt auf Verkäufe, aber auch kein Vorsteuerabzug. Kosten unten brutto eintragen.";
+    $("costHint").textContent = vatOn ? "Beträge netto, also ohne MwSt, die holst du dir als Vorsteuer zurück." : "Beträge brutto, so wie du sie bezahlst.";
+
+    const r = calc(chan);
+    const [cls, word] = status(r.margin);
+    $("rChan").textContent = CH_NAMES[chan];
+    $("rPill").className = "pill " + cls; $("rPill").textContent = word;
+    $("rProfit").textContent = eur(r.profit);
+    $("rProfit").style.color = r.profit < 0 ? "var(--bad)" : "";
+    $("rMargin").textContent = pct(r.margin) + " Marge";
+    $("kNet").textContent = eur(r.net);
+    $("kFees").textContent = eur(r.fees) + (r.gross > 0 ? " · " + pct(r.fees / r.gross * 100) : "");
+    $("kMin").textContent = eur(solvePrice(chan, 0));
+    $("kMarkup").textContent = r.costs > 0 ? pct(r.profit / r.costs * 100) : "–";
+    $("kTarget").textContent = isFinite(solvePrice(chan, n("target"))) ? eur(solvePrice(chan, n("target"))) : "nicht erreichbar";
+
+    const segs = [
+      ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Werbung", r.ads, "--seg-fee"],
+      ["Herstellung", r.make, "--seg-make"], ["Versand", r.ship, "--seg-ship"], ["Verpackung", r.pack, "--seg-pack"],
+      ["Sonstiges", r.other, "--seg-other"], ["Deine Zeit", r.time, "--seg-time"], ["Gewinn", Math.max(0, r.profit), "--seg-profit"]
+    ].filter(s => s[1] > 0.004);
+    const total = segs.reduce((a, s) => a + s[1], 0) || 1;
+    $("rBar").innerHTML = segs.map((s, i) => `<div style="width:${s[1] / total * 100}%;background:var(${s[2]});${s[0] === "Werbung" ? "opacity:.6" : ""}" title="${s[0]}: ${eur(s[1])}"></div>`).join("");
+    $("rLegend").innerHTML = segs.map(s => `<div class="row"><span class="sw" style="background:var(${s[2]});${s[0] === "Werbung" ? "opacity:.6" : ""}"></span><span>${s[0]}</span><span class="num">${eur(s[1])}</span><span class="num pct">${pct(s[1] / r.gross * 100)}</span></div>`).join("")
+      + (r.profit < 0 ? `<div class="row"><span class="sw" style="background:var(--bad)"></span><span>Verlust</span><span class="num" style="color:var(--bad)">${eur(r.profit)}</span><span></span></div>` : "");
+
+    // Kanalvergleich
+    const rows = ["etsy", "etsyOff", "shopify", "direkt"].map(ch => ({ ch, r: calc(ch), t: solvePrice(ch, n("target")) }));
+    const best = rows.reduce((a, b) => b.r.profit > a.r.profit ? b : a);
+    $("cmpBody").innerHTML = rows.map(({ ch, r, t }) => {
+      const [c] = status(r.margin);
+      return `<tr class="${ch === best.ch ? "best" : ""}"><td>${CH_NAMES[ch]}</td><td class="num">${eur(r.fees)}</td><td class="num">${eur(r.ads)}</td><td class="num" style="color:var(--${c || "fg"})">${eur(r.profit)}</td><td class="num">${pct(r.margin)}</td><td class="num">${isFinite(t) ? eur(t) : "–"}</td></tr>`;
+    }).join("");
+
+    // Monat
+    const q = n("qty"), fix = n("fix");
+    const cases = [0.6, 1, 1.4].map(f => { const qq = Math.round(q * f); return { qq, rev: qq * r.gross, db: qq * r.profit, res: qq * r.profit - fix }; });
+    $("monBody").innerHTML = [
+      ["Verkäufe", c => c.qq + " Stk"], ["Umsatz brutto", c => eur(c.rev)], ["Deckungsbeitrag", c => eur(c.db)],
+      ["− Fixkosten", () => eur(-fix)], ["Gewinn / Monat", c => `<strong style="color:var(--${c.res >= 0 ? "good" : "bad"})">${eur(c.res)}</strong>`], ["Gewinn / Jahr", c => eur(c.res * 12)]
+    ].map(([l, f]) => `<tr><td>${l}</td>${cases.map(c => `<td class="num">${f(c)}</td>`).join("")}</tr>`).join("");
+    $("mBreak").textContent = r.profit > 0 ? Math.ceil(fix / r.profit) + " Stk / Monat" : "nie (Verlust pro Stück)";
+
+    try { localStorage.setItem("hlz-marge-current", JSON.stringify(readState())); } catch (e) {}
+  }
+
+  function setTax(v, autoFee = true) {
+    tax = v;
+    document.querySelectorAll("#taxSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v));
+    if (autoFee) $("feeVat").checked = v === "ku";
+  }
+  function setChan(v) {
+    chan = v;
+    document.querySelectorAll("#chanSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v));
+    ["etsy", "shopify", "direkt"].forEach(c => $("cfg-" + c).hidden = c !== v);
+    $("feeVatWrap").hidden = v !== "etsy";
+  }
+  $("taxSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setTax(b.dataset.v); render(); } });
+  $("chanSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { setChan(b.dataset.v); render(); } });
+  document.addEventListener("input", render);
+  document.addEventListener("change", render);
+
+  // Produktliste
+  const EXAMPLES = [
+    { example: true, tax: "regel", chan: "etsy", name: "Schlüsselbrett Eiche, 4 Haken", price: "49.90", shipIn: "0", make: "14.50", shipOut: "5.49", pack: "1.20", other: "1.80", mins: "15" },
+    { example: true, tax: "regel", chan: "etsy", name: "Wandregal Eiche 60 cm", price: "89.00", shipIn: "0", make: "32.00", shipOut: "7.69", pack: "2.50", other: "3.00", mins: "20" },
+    { example: true, tax: "regel", chan: "shopify", name: "Pflanzenregal 3 Ebenen", price: "149.00", shipIn: "0", make: "58.00", shipOut: "11.49", pack: "4.00", other: "4.50", mins: "25" }
+  ];
+  let list;
+  try { list = JSON.parse(localStorage.getItem("hlz-marge-list")); } catch (e) {}
+  if (!Array.isArray(list)) list = EXAMPLES.map(x => ({ ...readState(), ...x }));
+  const saveList = () => { try { localStorage.setItem("hlz-marge-list", JSON.stringify(list)); } catch (e) {} };
+  const toast = t => { $("toast").textContent = t; clearTimeout(toast.t); toast.t = setTimeout(() => $("toast").textContent = "", 2500); };
+
+  function evalSaved(s) {
+    const cur = readState(); applyState(s); const r = calc(chan); applyState(cur); return r;
+  }
+  function renderList() {
+    $("listBody").innerHTML = list.length ? list.map((s, i) => {
+      const r = evalSaved(s); const [c] = status(r.margin);
+      return `<tr><td class="prod">${s.name.replace(/</g, "&lt;")}${s.example ? '<span class="tag">Beispiel</span>' : ""}</td><td>${CH_NAMES[s.chan]}</td><td class="num">${eur(r.P)}</td><td class="num" style="color:var(--${c || "fg"})">${eur(r.profit)}</td><td class="num">${pct(r.margin)}</td><td><div class="rowbtns"><button class="btn" data-load="${i}">Laden</button><button class="btn" data-del="${i}">Löschen</button></div></td></tr>`;
+    }).join("") : `<tr><td colspan="6" class="prod" style="color:var(--muted)">Noch nichts gespeichert. Trag oben ein Produkt ein und tipp auf „Aktuelles Produkt speichern“.</td></tr>`;
+    render();
+  }
+  $("listBody").addEventListener("click", e => {
+    const l = e.target.closest("[data-load]"), d = e.target.closest("[data-del]");
+    if (l) { applyState(list[+l.dataset.load]); render(); toast("Geladen: " + list[+l.dataset.load].name); window.scrollTo({ top: 0, behavior: "smooth" }); }
+    if (d) { const [x] = list.splice(+d.dataset.del, 1); saveList(); renderList(); toast("Gelöscht: " + x.name); }
+  });
+  $("saveBtn").addEventListener("click", () => {
+    const s = readState(); s.name = s.name.trim() || "Ohne Namen";
+    const i = list.findIndex(x => x.name === s.name);
+    if (i >= 0) list[i] = s; else list.push(s);
+    saveList(); renderList(); toast(i >= 0 ? "Aktualisiert: " + s.name : "Gespeichert: " + s.name);
+  });
+  $("csvBtn").addEventListener("click", () => {
+    const head = "Produkt;Kanal;Preis brutto;Netto-Umsatz;Gebuehren;Werbung;Kosten;Gewinn;Marge %";
+    const f = v => v.toFixed(2).replace(".", ",");
+    const csv = [head, ...list.map(s => { const r = evalSaved(s); return [s.name, CH_NAMES[s.chan], f(r.P), f(r.net), f(r.fees), f(r.ads), f(r.costs), f(r.profit), f(r.margin)].join(";"); })].join("\n");
+    const out = $("csvOut"); out.value = csv; out.hidden = false;
+    const fallback = () => { out.select(); toast("Text markiert, jetzt kopieren."); };
+    try { navigator.clipboard.writeText(csv).then(() => toast("CSV kopiert, in Excel/Sheets einfügen."), fallback); } catch (e) { fallback(); }
+  });
+
+  try { const cur = JSON.parse(localStorage.getItem("hlz-marge-current")); if (cur) applyState(cur); } catch (e) {}
+  renderList();
+})();
+</script>
+</body>
+</html>
