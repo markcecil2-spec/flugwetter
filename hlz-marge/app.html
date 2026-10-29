@@ -171,7 +171,7 @@ tbody tr.click { cursor: pointer } tbody tr.click:hover td { background: var(--a
 td.name { white-space: normal; min-width: 180px }
 td.name strong { font-weight: 600 }
 .chip { display: inline-block; font-size: .68rem; border-radius: 4px; padding: 0 5px; margin: 2px 4px 0 0; border: 1px solid currentColor }
-.chip.ex { color: var(--walnut) } .chip.miss { color: var(--warn) }
+.chip.ex { color: var(--walnut) } .chip.miss { color: var(--warn); cursor: pointer }
 tr.best td:first-child::after { content: " · bester"; color: var(--good); font-size: .75rem; font-weight: 600 }
 .empty { text-align: center; padding: 36px 16px; display: grid; gap: 12px; justify-items: center }
 .empty p { max-width: 46ch; color: var(--muted); margin: 0 }
@@ -438,12 +438,31 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   const status = m => !isFinite(m) ? ["muted", "–"] : m >= 30 ? ["good", "läuft"] : m >= 15 ? ["warn", "knapp"] : ["bad", m < 0 ? "Verlust" : "zu wenig"];
   function missing(a) {
     const m = [];
-    if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0) && v(a.ext) === 0) m.push("Holz");
-    if (!v(a.weight) || !v(a.pkL)) m.push("Versandmaße");
-    if (!v(a.mins)) m.push("Arbeitszeit");
     if (!v(a.price)) m.push("Preis");
+    if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0) && v(a.ext) === 0) m.push("Holz");
+    if (!v(a.weight) || !v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
+    if (!v(a.mins)) m.push("Arbeitszeit");
     return m;
   }
+  // Zum ersten leeren Feld der fehlenden Angabe springen
+  function focusMissing(a, which) {
+    const what = which || missing(a)[0]; if (!what) return;
+    let el = null;
+    if (what === "Preis") el = $("a-price");
+    if (what === "Holz") {
+      const i = Math.max(0, (a.parts || []).findIndex(r => !(v(r.l) * v(r.b) * v(r.q) > 0)));
+      el = ["l", "b", "q"].map(f => document.querySelector(`[data-ap="${i}"][data-f="${f}"]`)).find(x => x && !v(x.value))
+        || document.querySelector('[data-act="addPart"]');
+    }
+    if (what === "Versandmaße") el = ["a-weight", "a-pkL", "a-pkB", "a-pkH"].map($).find(x => x && !v(x.value));
+    if (what === "Arbeitszeit") el = $("a-mins");
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.focus({ preventScroll: true });
+    const box = el.closest(".inp") || el;
+    box.style.boxShadow = "0 0 0 3px var(--warn)"; setTimeout(() => box.style.boxShadow = "", 1800);
+  }
+  let pendingFocus = null;
   // Monatsergebnis aus echten Verkäufen (Import), je Kanal mit Ø-Preis
   function monthly(ctx) {
     let db = 0, rev = 0, qty = 0;
@@ -493,6 +512,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === view) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
+    if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
+    pendingFocus = null;
   }
   window.addEventListener("hashchange", route);
   const go = h => { if (location.hash === "#" + h) route(); else location.hash = h; };
@@ -552,7 +573,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           <tbody>${shown.map(({ a, r, pm, t, miss }) => {
             const [c, w] = status(r.margin);
             return `<tr class="click" data-open="${a.id}" tabindex="0">
-              <td class="name"><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss">${x} fehlt</span>`).join("")}</td>
+              <td class="name"><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}</td>
               <td class="hide-sm">${CH_NAMES[a.chan] || a.chan}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
@@ -854,7 +875,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const t = e.target.closest("[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
-    if (d.open) return go("artikel-" + d.open);
+    if (d.open) { pendingFocus = d.focus || "auto"; return go("artikel-" + d.open); }
     if (d.sort) { sortDir = sortKey === d.sort ? -sortDir : (d.sort === "name" ? 1 : -1); sortKey = d.sort; return renderOverview(); }
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
     if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
