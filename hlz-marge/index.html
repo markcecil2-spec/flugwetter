@@ -117,7 +117,14 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 .rowhead, .rowline { display: grid; gap: 8px; align-items: center }
 .rows.parts .rowhead, .rows.parts .rowline { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr) 32px }
 .rows.small .rowhead, .rows.small .rowline { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, .8fr) minmax(0, 1fr) 32px }
-.rows.fixed .rowhead, .rows.fixed .rowline { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
+.rows.fixed .rowhead, .rows.fixed .rowline, .rows.mach .rowhead, .rows.mach .rowline { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
+.rows.ship .rowhead, .rows.ship .rowline { grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)) 32px }
+.rows.ship .inp span { padding: 0 6px 0 0; font-size: .75rem }
+.rowline.chosen .inp:first-child { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft) }
+.shipinfo { display: grid; gap: 4px; font-size: .88rem; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft) }
+.shipinfo .tip { color: var(--walnut) }
+.shipinfo .warn { color: var(--bad) }
+.ph { color: var(--warn); font-size: .8rem }
 .rowhead { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600 }
 .rowline .inp input { padding: 7px 8px; font-size: .88rem }
 .rowline .out { font-family: var(--font-mono); font-size: .85rem; text-align: right; color: var(--muted) }
@@ -131,6 +138,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   .rows.parts .rowline > :first-child, .rows.parts .rowhead > :first-child { grid-column: 1 / -1 }
   .rows.small .rowhead, .rows.small .rowline { grid-template-columns: minmax(0, 1fr) minmax(0, .8fr) minmax(0, 1fr) 32px }
   .rows.small .rowline > :first-child, .rows.small .rowhead > :first-child { grid-column: 1 / -1 }
+  .rows.ship .rowhead { display: none }
+  .rows.ship .rowline { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
+  .rows.ship .rowline > :first-child { grid-column: 1 / -1 }
+  .rows.ship .x { justify-self: end }
 }
 </style>
 </head>
@@ -214,15 +225,40 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         <div class="sumline"><span class="note">Stückpreise netto. Vorgaben sind Schätzwerte, trag deine Einkaufspreise ein.</span><span>Kleinteile pro Stück <strong id="smallSum">–</strong></span></div>
       </div>
 
+      <!-- Maschinen -->
+      <div class="box">
+        <h2>Maschinenzeit</h2>
+        <div class="grid3" id="machMin"></div>
+        <div class="sumline"><span class="note">Stundensätze stellst du unten bei „Werkstatt &amp; Fixkosten“ ein.</span><span>Maschinen pro Stück <strong id="machSum">–</strong></span></div>
+      </div>
+
       <!-- Versand & Arbeit -->
       <div class="box">
         <h2>Versand, Verpackung &amp; Arbeit</h2>
         <div class="grid3">
           <div class="field">
-            <label for="porto">Versand (Porto)</label>
-            <div class="inp"><input id="porto" type="number" step="0.01" min="0" inputmode="decimal"><span>€</span></div>
-            <small>DHL, Hermes …</small>
+            <label for="weight">Gewicht verpackt</label>
+            <div class="inp"><input id="weight" type="number" step="10" min="0" inputmode="numeric"><span>g</span></div>
           </div>
+          <div class="field">
+            <label for="shipMode">Versandart</label>
+            <div class="inp"><select id="shipMode"></select></div>
+          </div>
+          <div class="field">
+            <label for="pkL">Packmaß Länge</label>
+            <div class="inp"><input id="pkL" type="number" step="0.5" min="0" inputmode="decimal"><span>cm</span></div>
+          </div>
+          <div class="field">
+            <label for="pkB">Packmaß Breite</label>
+            <div class="inp"><input id="pkB" type="number" step="0.5" min="0" inputmode="decimal"><span>cm</span></div>
+          </div>
+          <div class="field">
+            <label for="pkH">Packmaß Höhe</label>
+            <div class="inp"><input id="pkH" type="number" step="0.5" min="0" inputmode="decimal"><span>cm</span></div>
+          </div>
+        </div>
+        <div class="shipinfo" id="shipInfo"></div>
+        <div class="grid3">
           <div class="field">
             <label for="pack">Verpackung</label>
             <div class="inp"><input id="pack" type="number" step="0.01" min="0" inputmode="decimal"><span>€</span></div>
@@ -342,6 +378,32 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <p class="note">Die Hochrechnung tut so, als würdest du nur dieses Produkt verkaufen. Gewinn vor Einkommensteuer, davon gehen grob 20–35 % ans Finanzamt, wenn du sonst noch Einkommen hast.</p>
   </section>
 
+  <!-- Maschinen & Versandarten -->
+  <div class="grid2" style="gap:24px;align-items:start">
+    <section class="box">
+      <h2>Maschinen-Stundensätze</h2>
+      <div class="rows mach" id="machRows"></div>
+      <button class="btn add" type="button" data-add="mach">+ Maschine</button>
+      <details>
+        <summary>So rechnest du den Stundensatz</summary>
+        <ul>
+          <li>(Kaufpreis ÷ Nutzungsjahre + Wartung, Sägeblätter, Fräser, Schleifmittel pro Jahr) ÷ Laufstunden pro Jahr</li>
+          <li>plus Strom: Leistung in kW × Strompreis pro kWh</li>
+          <li>Beispiel CNC: 8.000 € ÷ 5 Jahre = 1.600 € + 400 € Verschleiß = 2.000 € ÷ 300 h = 6,67 €/h + 3 kW × 0,30 € = 7,57 €/h</li>
+          <li>Die Werkstattmiete gehört nicht hier rein, die steckt schon in den Fixkosten.</li>
+        </ul>
+      </details>
+      <p class="ph" id="machPh"></p>
+    </section>
+    <section class="box">
+      <h2>Versandarten</h2>
+      <div class="rows ship" id="shipRows"></div>
+      <button class="btn add" type="button" data-add="ship">+ Versandart</button>
+      <p class="note">Max. Gewicht in g, Maße in cm (L × B × H), Preis netto. „Automatisch“ nimmt die günstigste Versandart, in die das Paket passt. Das Packmaß wird dabei gedreht, es zählt also nicht, wie herum du L, B und H einträgst.</p>
+      <p class="ph" id="shipPh"></p>
+    </section>
+  </div>
+
   <!-- Kanalvergleich -->
   <section class="box">
     <h2>Gleiches Produkt, anderer Kanal</h2>
@@ -384,7 +446,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const CH_NAMES = { etsy: "Etsy", etsyOff: "Etsy + Offsite Ads 15 %", shopify: "Shopify", direkt: "Direkt / Kleinanzeigen" };
 
   // Produktdaten (werden pro Produkt gespeichert) vs. Betriebsdaten (gelten für alle)
-  const PRODUCT_INPUTS = ["name", "price", "shipIn", "plPrice", "plL", "plB", "waste", "porto", "pack", "outer", "ext", "mins"];
+  const PRODUCT_INPUTS = ["name", "price", "shipIn", "plPrice", "plL", "plB", "waste", "weight", "pkL", "pkB", "pkH", "shipMode", "pack", "outer", "ext", "mins"];
   const BUSINESS_INPUTS = ["rate", "eList", "eTrans", "ePayP", "ePayF", "eOff", "eAds", "sPayP", "sPayF", "sAds", "dPayP", "dPayF", "dAds", "feeVat", "target", "qty", "alloc"];
 
   const SMALL_DEFAULT = () => [
@@ -397,13 +459,24 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     name: "Schlüsselbrett Eiche, 4 Haken", chan: "etsy", price: "49.90", shipIn: "0",
     plPrice: "82", plL: "120", plB: "120", waste: "15",
     parts: [{ n: "Brett", l: "40", b: "12", q: "1" }], small: SMALL_DEFAULT(),
-    porto: "5.49", pack: "0.60", outer: "1.10", ext: "0", mins: "30"
+    weight: "600", pkL: "44", pkB: "16", pkH: "5", shipMode: "auto",
+    pack: "0.60", outer: "1.10", ext: "0", mins: "30",
+    mach: { "Formatkreissäge": "3", "CNC-Fräse": "6", "Schleifer": "5" }
   });
   const BUSINESS_DEFAULT = () => ({
     tax: "regel", rate: "20", eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2",
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0", feeVat: false, target: "35",
     qty: "40", alloc: true,
-    fixed: [{ n: "Werkstattmiete", a: "585" }, { n: "Software & Abos (Shopify, Billbee, Lexware)", a: "80" }]
+    fixed: [{ n: "Werkstattmiete", a: "585" }, { n: "Software & Abos (Shopify, Billbee, Lexware)", a: "80" }],
+    // ph = Platzhalter, noch nicht durch echte Preise ersetzt
+    mach: [{ n: "Formatkreissäge", r: "3.00", ph: true }, { n: "CNC-Fräse", r: "7.60", ph: true }, { n: "Schleifer", r: "1.50", ph: true }],
+    ship: [
+      { n: "DHL Kleinpaket", g: "1000", l: "35.3", b: "25", h: "8", p: "3.50", ph: true },
+      { n: "DHL Paket bis 2 kg", g: "2000", l: "120", b: "60", h: "60", p: "4.60", ph: true },
+      { n: "DHL Paket bis 5 kg", g: "5000", l: "120", b: "60", h: "60", p: "5.50", ph: true },
+      { n: "DHL Paket bis 10 kg", g: "10000", l: "120", b: "60", h: "60", p: "6.90", ph: true },
+      { n: "DHL Paket bis 31,5 kg", g: "31500", l: "120", b: "60", h: "60", p: "10.50", ph: true }
+    ]
   });
 
   const load = (k, d) => { try { const x = JSON.parse(localStorage.getItem(k)); return x && typeof x === "object" ? { ...d, ...x } : d; } catch (e) { return d; } };
@@ -412,6 +485,24 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   let biz = load("hlz-marge2-biz", BUSINESS_DEFAULT());
 
   // ---------- Rechnung (rein auf Daten, kein DOM) ----------
+  const cm = x => x.toLocaleString("de-DE", { maximumFractionDigits: 1 });
+  const kg = g => (g / 1000).toLocaleString("de-DE", { maximumFractionDigits: 2 }) + " kg";
+  // Versandart wählen: Packmaß wird sortiert (gedreht) gegen die sortierten Grenzmaße geprüft
+  function pickShip(p, b) {
+    const pk = [v(p.pkL), v(p.pkB), v(p.pkH)].sort((x, y) => y - x), w = v(p.weight);
+    const names = ["längste Seite", "zweite Seite", "Höhe"];
+    const opts = (b.ship || []).map(o => {
+      const lim = [v(o.l), v(o.b), v(o.h)].sort((x, y) => y - x), why = [];
+      if (w > v(o.g)) why.push(`${kg(w)} statt max. ${kg(v(o.g))}`);
+      pk.forEach((d, k) => { if (d > lim[k]) why.push(`${names[k]} ${cm(d)} cm statt max. ${cm(lim[k])} cm`); });
+      return { o, fits: !why.length, why, price: v(o.p) };
+    });
+    const fitting = opts.filter(x => x.fits).sort((x, y) => x.price - y.price);
+    const manual = p.shipMode && p.shipMode !== "auto" ? opts.find(x => x.o.n === p.shipMode) : null;
+    const chosen = manual || fitting[0] || null;
+    const cheaper = chosen ? opts.filter(x => !x.fits && x.price < chosen.price).sort((x, y) => x.price - y.price)[0] : null;
+    return { chosen, manual: !!manual, best: fitting[0] || null, cheaper };
+  }
   function calc(p, b, ch, price) {
     const P = price ?? v(p.price), S = v(p.shipIn);
     const ku = b.tax === "ku", inK = ku ? 1.19 : 1;   // Kleinunternehmer: Vorsteuer ist echter Kostenanteil
@@ -431,14 +522,16 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const wood = partsM2 * wasteF * m2Price * inK;
     const perPlate = partsM2 > 0 ? Math.floor(plateM2 / (partsM2 * wasteF)) : 0;
     const small = (p.small || []).reduce((a, r) => a + v(r.p) * v(r.q), 0) * inK;
-    const porto = v(p.porto) * inK, pack = v(p.pack) * inK, outer = v(p.outer) * inK, ext = v(p.ext) * inK;
+    const ship = pickShip(p, b);
+    const porto = (ship.chosen ? ship.chosen.price : 0) * inK, pack = v(p.pack) * inK, outer = v(p.outer) * inK, ext = v(p.ext) * inK;
     const time = v(p.mins) / 60 * v(b.rate);
+    const mach = (b.mach || []).reduce((a, m) => a + v(m.r) * v((p.mach || {})[m.n]) / 60, 0);
     const fixTotal = (b.fixed || []).reduce((a, r) => a + v(r.a), 0);
     const fixShare = b.alloc && v(b.qty) > 0 ? fixTotal / v(b.qty) : 0;
-    const varCosts = wood + small + ext + porto + pack + outer + time;
+    const varCosts = wood + small + ext + porto + pack + outer + time + mach;
     const db = net - fees - ads - varCosts;           // Deckungsbeitrag vor Fixkosten
     const profit = db - fixShare;
-    return { P, gross, net, vatAmt: gross - net, fees, ads, wood, small, ext, porto, pack, outer, time, fixShare, fixTotal,
+    return { P, gross, net, vatAmt: gross - net, fees, ads, wood, small, ext, porto, pack, outer, time, mach, ship, fixShare, fixTotal,
       m2Price, partsM2, perPlate, varCosts, db, profit, margin: net > 0 ? profit / net * 100 : NaN };
   }
   // Gewinn und Netto sind linear im Preis → Zielpreis aus zwei Stützstellen
@@ -453,26 +546,41 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const ROWDEF = {
     parts: { el: "partsRows", head: ["Teil", "Länge cm", "Breite cm", "Stk"], cols: [["n", "text"], ["l", "number"], ["b", "number"], ["q", "number"]], blank: { n: "", l: "", b: "", q: "1" }, src: () => prod },
     small: { el: "smallRows", head: ["Kleinteil", "€/Stk netto", "Anzahl", "Summe"], cols: [["n", "text"], ["p", "number"], ["q", "number"]], out: r => eur(v(r.p) * v(r.q)), blank: { n: "", p: "", q: "1" }, src: () => prod },
-    fixed: { el: "fixedRows", head: ["Posten", "€ / Monat"], cols: [["n", "text"], ["a", "number"]], blank: { n: "", a: "" }, src: () => biz }
+    fixed: { el: "fixedRows", head: ["Posten", "€ / Monat"], cols: [["n", "text"], ["a", "number"]], blank: { n: "", a: "" }, src: () => biz },
+    mach: { el: "machRows", head: ["Maschine", "€ / Stunde"], cols: [["n", "text"], ["r", "number"]], blank: { n: "", r: "" }, src: () => biz },
+    ship: { el: "shipRows", head: ["Versandart", "max g", "L", "B", "H", "€ netto"], cols: [["n", "text"], ["g", "number", "g"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"]], blank: { n: "", g: "", l: "", b: "", h: "", p: "" }, src: () => biz }
   };
+  function renderMachMin() {
+    $("machMin").innerHTML = (biz.mach || []).length ? biz.mach.map((m, i) => `<div class="field"><label for="mm-${i}">${esc(m.n || "Maschine")}</label><div class="inp"><input id="mm-${i}" type="number" step="any" min="0" inputmode="decimal" data-mm="${esc(m.n)}" value="${esc((prod.mach || {})[m.n] ?? "")}"><span>Min</span></div></div>`).join("")
+      : `<p class="note">Noch keine Maschinen angelegt. Leg sie unten bei „Maschinen-Stundensätze“ an.</p>`;
+  }
+  function renderShipSelect() {
+    const names = (biz.ship || []).map(o => o.n);
+    if (prod.shipMode && prod.shipMode !== "auto" && !names.includes(prod.shipMode)) prod.shipMode = "auto";
+    $("shipMode").innerHTML = `<option value="auto">Automatisch (günstigste)</option>` + names.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    $("shipMode").value = prod.shipMode || "auto";
+  }
   function renderRows(kind) {
     const d = ROWDEF[kind], arr = d.src()[kind] || [];
     $(d.el).innerHTML = `<div class="rowhead">${d.head.map(h => `<span>${h}</span>`).join("")}<span></span></div>` +
-      arr.map((r, i) => `<div class="rowline">${d.cols.map(([f, t]) =>
-        `<div class="inp"><input id="${kind}-${i}-${f}" type="${t}" ${t === "number" ? 'step="any" min="0" inputmode="decimal"' : ""} data-k="${kind}" data-i="${i}" data-f="${f}" value="${esc(r[f])}" aria-label="${d.head[d.cols.findIndex(c => c[0] === f)]}"></div>`).join("")}${d.out ? `<span class="out" data-out="${kind}-${i}">${d.out(r)}</span>` : ""}<button type="button" class="x" data-del-row="${kind}" data-i="${i}" aria-label="Zeile entfernen">×</button></div>`).join("");
+      arr.map((r, i) => `<div class="rowline">${d.cols.map(([f, t, unit]) =>
+        `<div class="inp"><input id="${kind}-${i}-${f}" type="${t}" ${t === "number" ? 'step="any" min="0" inputmode="decimal"' : ""} data-k="${kind}" data-i="${i}" data-f="${f}" value="${esc(r[f])}" aria-label="${d.head[d.cols.findIndex(c => c[0] === f)]}">${unit ? `<span>${unit}</span>` : ""}</div>`).join("")}${d.out ? `<span class="out" data-out="${kind}-${i}">${d.out(r)}</span>` : ""}<button type="button" class="x" data-del-row="${kind}" data-i="${i}" aria-label="Zeile entfernen">×</button></div>`).join("");
   }
   document.addEventListener("click", e => {
     const a = e.target.closest("[data-add]");
-    if (a) { const k = a.dataset.add, src = ROWDEF[k].src(); (src[k] = src[k] || []).push({ ...ROWDEF[k].blank }); renderRows(k); render(); }
+    if (a) { const k = a.dataset.add, src = ROWDEF[k].src(); (src[k] = src[k] || []).push({ ...ROWDEF[k].blank }); renderRows(k); afterRowsChange(k); render(); }
     const x = e.target.closest("[data-del-row]");
-    if (x) { const k = x.dataset.delRow; ROWDEF[k].src()[k].splice(+x.dataset.i, 1); renderRows(k); render(); }
+    if (x) { const k = x.dataset.delRow; ROWDEF[k].src()[k].splice(+x.dataset.i, 1); renderRows(k); afterRowsChange(k); render(); }
   });
+
+  function afterRowsChange(k) { if (k === "mach") renderMachMin(); if (k === "ship") renderShipSelect(); }
 
   // ---------- Formular <-> Daten ----------
   function fillForm() {
+    renderShipSelect(); renderMachMin();
     PRODUCT_INPUTS.forEach(id => $(id).value = prod[id] ?? "");
     BUSINESS_INPUTS.forEach(id => { if ($(id).type === "checkbox") $(id).checked = !!biz[id]; else $(id).value = biz[id] ?? ""; });
-    ["parts", "small", "fixed"].forEach(renderRows);
+    ["parts", "small", "fixed", "mach", "ship"].forEach(renderRows);
     syncSegs();
   }
   function syncSegs() {
@@ -483,7 +591,14 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   }
   function onInput(e) {
     const t = e.target;
-    if (t.dataset.k) { const src = ROWDEF[t.dataset.k].src(); src[t.dataset.k][+t.dataset.i][t.dataset.f] = t.value; }
+    if (t.dataset.k) {
+      const k = t.dataset.k, row = ROWDEF[k].src()[k][+t.dataset.i];
+      // Maschine umbenannt: Minuten des aktuellen Produkts mitnehmen
+      if (k === "mach" && t.dataset.f === "n" && prod.mach && row.n in prod.mach) { prod.mach[t.value] = prod.mach[row.n]; delete prod.mach[row.n]; }
+      row[t.dataset.f] = t.value; row.ph = false;
+      afterRowsChange(k);
+    }
+    else if (t.dataset.mm !== undefined) (prod.mach = prod.mach || {})[t.dataset.mm] = t.value;
     else if (PRODUCT_INPUTS.includes(t.id)) prod[t.id] = t.value;
     else if (BUSINESS_INPUTS.includes(t.id)) biz[t.id] = t.type === "checkbox" ? t.checked : t.value;
     render();
@@ -508,6 +623,23 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     $("smallSum").textContent = eur(r.small);
     (prod.small || []).forEach((row, i) => { const o = document.querySelector(`[data-out="small-${i}"]`); if (o) o.textContent = eur(v(row.p) * v(row.q)); });
 
+    // Maschinen & Versand
+    $("machSum").textContent = eur(r.mach);
+    const s = r.ship, lines = [];
+    if (!s.chosen) lines.push(`<span class="warn">Keine Versandart passt, Gewicht oder Maße sind zu groß. Leg unten eine passende an.</span>`);
+    else {
+      lines.push(`<span>→ <strong>${esc(s.chosen.o.n)}</strong> · ${eur(r.porto)}${s.manual ? "" : " (automatisch günstigste)"}</span>`);
+      if (s.manual && !s.chosen.fits) lines.push(`<span class="warn">Passt nicht: ${s.chosen.why.join(", ")}</span>`);
+      if (s.manual && s.best && s.best.price < s.chosen.price) lines.push(`<span class="tip">${esc(s.best.o.n)} würde passen und ist ${eur(s.chosen.price - s.best.price)} billiger.</span>`);
+      if (s.cheaper) lines.push(`<span class="tip">Tipp: ${esc(s.cheaper.o.n)} wäre ${eur(s.chosen.price - s.cheaper.price)} billiger, scheitert aber an: ${s.cheaper.why.join(", ")}.</span>`);
+    }
+    $("shipInfo").innerHTML = lines.join("");
+    document.querySelectorAll("#shipRows .rowline").forEach((el, i) => el.classList.toggle("chosen", !!s.chosen && biz.ship[i] === s.chosen.o));
+    const phList = arr => (arr || []).filter(x => x.ph).map(x => x.n);
+    const mp = phList(biz.mach), sp = phList(biz.ship);
+    $("machPh").textContent = mp.length ? "Geschätzte Platzhalter, bitte prüfen: " + mp.join(", ") : "";
+    $("shipPh").textContent = sp.length ? "Platzhalter-Preise, trag deine DHL-Vertragspreise ein: " + sp.join(", ") : "";
+
     // Ergebnis
     const [cls, word] = status(r.margin);
     $("rChan").textContent = CH_NAMES[ch];
@@ -527,7 +659,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Werbung", r.ads, "--seg-fee", .6],
       ["Holz", r.wood, "--seg-make"], ["Kleinteile", r.small, "--seg-make", .65], ["Fremdleistung", r.ext, "--seg-other"],
       ["Versand", r.porto, "--seg-ship"], ["Verpackung", r.pack, "--seg-pack"], ["Umverpackung", r.outer, "--seg-pack", .65],
-      ["Deine Zeit", r.time, "--seg-time"], ["Werkstatt & Fixkosten", r.fixShare, "--seg-other", .6], ["Gewinn", Math.max(0, r.profit), "--seg-profit"]
+      ["Maschinen", r.mach, "--seg-time", .6], ["Deine Zeit", r.time, "--seg-time"], ["Werkstatt & Fixkosten", r.fixShare, "--seg-other", .6], ["Gewinn", Math.max(0, r.profit), "--seg-profit"]
     ].filter(s => s[1] > 0.004);
     const total = segs.reduce((a, s) => a + s[1], 0) || 1;
     const sw = s => `background:var(${s[2]});opacity:${s[3] || 1}`;
@@ -565,11 +697,17 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const EXAMPLES = [
     ex({}),
     ex({ name: "Wandregal Eiche 60 cm", price: "89.00", parts: [{ n: "Boden", l: "60", b: "20", q: "1" }, { n: "Rückwand", l: "60", b: "10", q: "1" }],
-      small: smallWith({ "Schrauben": 6, "Dübel": 2, "Ösenschrauben": 2, "Öl / Wachs (anteilig)": 1 }), porto: "7.69", pack: "1.20", outer: "2.20", mins: "45" }),
+      small: smallWith({ "Schrauben": 6, "Dübel": 2, "Ösenschrauben": 2, "Öl / Wachs (anteilig)": 1 }), weight: "2400", pkL: "66", pkB: "26", pkH: "14", pack: "1.20", outer: "2.20", mins: "45",
+      mach: { "Formatkreissäge": "5", "CNC-Fräse": "4", "Schleifer": "10" } }),
     ex({ name: "Pflanzenregal 3 Ebenen", chan: "shopify", price: "149.00", parts: [{ n: "Ebene", l: "50", b: "25", q: "3" }, { n: "Seite", l: "90", b: "8", q: "2" }],
-      small: smallWith({ "Schrauben": 12, "Stockschrauben": 4, "Öl / Wachs (anteilig)": 2 }), porto: "11.49", pack: "2.00", outer: "4.00", mins: "75" }),
+      small: smallWith({ "Schrauben": 12, "Stockschrauben": 4, "Öl / Wachs (anteilig)": 2 }), weight: "6000", pkL: "95", pkB: "55", pkH: "12", pack: "2.00", outer: "4.00", mins: "75",
+      mach: { "Formatkreissäge": "10", "CNC-Fräse": "12", "Schleifer": "20" } }),
     ex({ name: "Garderobe mit Ringschrauben", price: "69.00", parts: [{ n: "Leiste", l: "80", b: "10", q: "1" }],
-      small: smallWith({ "Schrauben": 2, "Dübel": 2, "Ringschrauben": 5, "Öl / Wachs (anteilig)": 1 }), porto: "6.19", pack: "0.80", outer: "1.60", mins: "35" })
+      small: smallWith({ "Schrauben": 2, "Dübel": 2, "Ringschrauben": 5, "Öl / Wachs (anteilig)": 1 }), weight: "1400", pkL: "86", pkB: "14", pkH: "8", pack: "0.80", outer: "1.60", mins: "35",
+      mach: { "Formatkreissäge": "3", "CNC-Fräse": "0", "Schleifer": "6" } }),
+    ex({ name: "Untersetzer-Set Eiche, 4 Stück", price: "24.90", parts: [{ n: "Untersetzer", l: "10", b: "10", q: "4" }],
+      small: smallWith({ "Öl / Wachs (anteilig)": 1 }), weight: "350", pkL: "22", pkB: "12", pkH: "5", pack: "0.30", outer: "0.60", mins: "15",
+      mach: { "Formatkreissäge": "2", "CNC-Fräse": "8", "Schleifer": "6" } })
   ];
   let list;
   try { list = JSON.parse(localStorage.getItem("hlz-marge2-list")); } catch (e) {}
@@ -596,8 +734,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   });
   $("csvBtn").addEventListener("click", () => {
     const f = x => (isFinite(x) ? x : 0).toFixed(2).replace(".", ",");
-    const head = "Produkt;Kanal;Preis brutto;Netto-Umsatz;Holz;Kleinteile;Versand+Verpackung;Gebuehren;Werbung;Werkstattanteil;Gewinn;Marge %";
-    const csv = [head, ...list.map(p => { const r = calc(p, biz, p.chan); return [p.name, CH_NAMES[p.chan], f(r.P), f(r.net), f(r.wood), f(r.small), f(r.porto + r.pack + r.outer), f(r.fees), f(r.ads), f(r.fixShare), f(r.profit), f(r.margin)].join(";"); })].join("\n");
+    const head = "Produkt;Kanal;Preis brutto;Netto-Umsatz;Holz;Kleinteile;Maschinen;Versandart;Versand+Verpackung;Gebuehren;Werbung;Werkstattanteil;Gewinn;Marge %";
+    const csv = [head, ...list.map(p => { const r = calc(p, biz, p.chan); return [p.name, CH_NAMES[p.chan], f(r.P), f(r.net), f(r.wood), f(r.small), f(r.mach), r.ship.chosen ? r.ship.chosen.o.n : "keine passt", f(r.porto + r.pack + r.outer), f(r.fees), f(r.ads), f(r.fixShare), f(r.profit), f(r.margin)].join(";"); })].join("\n");
     const out = $("csvOut"); out.value = csv; out.hidden = false;
     const fallback = () => { out.select(); toast("Text markiert, jetzt kopieren."); };
     try { navigator.clipboard.writeText(csv).then(() => toast("CSV kopiert, in Excel/Sheets einfügen."), fallback); } catch (e) { fallback(); }
