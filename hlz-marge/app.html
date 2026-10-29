@@ -125,8 +125,12 @@ main.wrap { padding-block: 20px 48px }
 @media (max-width: 520px) {
   .rowhead.c-parts, .rowhead.c-ship, .rowhead.c-plates { display: none }
   .rowline.c-parts, .rowline.c-ship, .rowline.c-plates { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
-  .rowline.c-parts > :first-child, .rowline.c-ship > :first-child, .rowline.c-plates > :first-child { grid-column: 1 / -1 }
-  .rowline.c-parts > :nth-child(2) { grid-column: 1 / -1 }
+  .rowline.c-ship > :first-child, .rowline.c-plates > :first-child { grid-column: 1 / -1 }
+  /* Zuschnitt am Handy: Name + Entfernen, darunter Platte, darunter Maße */
+  .rowline.c-parts { grid-template-areas: "n n x" "p p p" "l b q" }
+  .rowline.c-parts > :nth-child(1) { grid-area: n } .rowline.c-parts > :nth-child(2) { grid-area: p }
+  .rowline.c-parts > :nth-child(3) { grid-area: l } .rowline.c-parts > :nth-child(4) { grid-area: b }
+  .rowline.c-parts > :nth-child(5) { grid-area: q } .rowline.c-parts > :nth-child(6) { grid-area: x }
   .rowline .x { justify-self: end }
 }
 
@@ -233,7 +237,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // ---------- Vorgaben (ph = Platzhalter, noch nicht durch echte Werte ersetzt) ----------
   const SETTINGS_DEFAULT = () => ({
-    tax: "regel", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90",
+    tax: "regel", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90", wasteDefault: "7",
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
     bPayP: "12", bPayF: "0.45", bAds: "0",
@@ -261,7 +265,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     ]
   });
   const ARTICLE_BLANK = () => ({
-    id: uid(), name: "Neuer Artikel", chan: "etsy", price: "", shipIn: String(S.shipInDefault ?? "0"), waste: "15",
+    id: uid(), name: "Neuer Artikel", chan: "etsy", price: "", shipIn: String(S.shipInDefault ?? "0"), waste: String(S.wasteDefault ?? "7"),
     parts: [{ n: "Teil", plate: (S.plates[0] || {}).n || "", l: "", b: "", q: "1" }],
     small: {}, mach: {}, weight: "", pkL: "", pkB: "", pkH: "", shipMode: "auto",
     pack: "", outer: "", ext: "0", mins: "", aliases: [], sales: {}, sku: ""
@@ -568,9 +572,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const partsRows = (a.parts || []).map((r, i) => `<div class="rowline c-parts">
         <div class="inp"><input type="text" data-ap="${i}" data-f="n" value="${esc(r.n)}" aria-label="Teil"></div>
         <div class="inp"><select data-ap="${i}" data-f="plate" aria-label="Platte">${S.plates.map(p => opt(p.n, p.n, p.n === r.plate)).join("")}</select></div>
-        ${numIn(`data-ap="${i}" data-f="l" aria-label="Länge in cm"`, r.l, "L")}
-        ${numIn(`data-ap="${i}" data-f="b" aria-label="Breite in cm"`, r.b, "B")}
-        ${numIn(`data-ap="${i}" data-f="q" aria-label="Stück"`, r.q, "×")}
+        ${numIn(`data-ap="${i}" data-f="l" aria-label="Länge in cm" placeholder="Länge"`, r.l, "cm")}
+        ${numIn(`data-ap="${i}" data-f="b" aria-label="Breite in cm" placeholder="Breite"`, r.b, "cm")}
+        ${numIn(`data-ap="${i}" data-f="q" aria-label="Stück"`, r.q, "Stk")}
         <button type="button" class="x" data-del-part="${i}" aria-label="Teil entfernen">×</button></div>`).join("");
     const sm = a.small || {};
     const smallFields = S.small.map((x, i) => `<div class="field"><label for="sm-${i}">${esc(x.n)} <span class="num">· ${eur(v(x.p))}</span></label>${numIn(`id="sm-${i}" data-as="${esc(x.n)}"`, sm[x.n] ?? "", "Stk")}</div>`).join("");
@@ -755,6 +759,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               ${settingsField("target", "Ziel-Marge", "%")}
               ${settingsField("qtyManual", "Verkäufe/Monat (geschätzt)", "Stk", ctx.src === "import" ? "wird durch Import ersetzt" : "")}
               ${settingsField("shipInDefault", "Versand vom Kunden", "€", "Standard für neue Artikel")}
+              ${settingsField("wasteDefault", "Holz-Verschnitt", "%", "Standard für neue Artikel")}
             </div>
             <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück)</label>
           </section>
