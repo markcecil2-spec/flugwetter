@@ -117,7 +117,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 .rowhead, .rowline { display: grid; gap: 8px; align-items: center }
 .rows.parts .rowhead, .rows.parts .rowline { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr) 32px }
 .rows.small .rowhead, .rows.small .rowline { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, .8fr) minmax(0, 1fr) 32px }
-.rows.fixed .rowhead, .rows.fixed .rowline, .rows.mach .rowhead, .rows.mach .rowline { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
+.rows.fixed .rowhead, .rows.fixed .rowline, .rows.mach .rowhead, .rows.mach .rowline, .rows.order .rowhead, .rows.order .rowline { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
 .rows.ship .rowhead, .rows.ship .rowline { grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)) 32px }
 .rows.ship .inp span { padding: 0 6px 0 0; font-size: .75rem }
 .rowline.chosen .inp:first-child { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft) }
@@ -361,6 +361,11 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         <div class="rows fixed" id="fixedRows"></div>
         <button class="btn add" type="button" data-add="fixed">+ Fixkosten</button>
         <div class="sumline"><span>Summe pro Monat</span><strong id="fixSum">–</strong></div>
+        <p class="ph" id="fixPh"></p>
+        <span class="label" style="margin-top:8px">Kosten pro Bestellung</span>
+        <div class="rows order" id="orderRows"></div>
+        <button class="btn add" type="button" data-add="order">+ Kosten pro Bestellung</button>
+        <div class="sumline"><span class="note">Billbee: 53 € ÷ 113 Bestellungen = 0,47 €</span><strong id="orderSum">–</strong></div>
       </div>
       <div style="display:grid;gap:12px;min-width:0">
         <div class="field"><label for="qty">Verkäufe pro Monat (alle Produkte)</label><div class="inp"><input id="qty" type="number" step="1" min="0"><span>Stk</span></div></div>
@@ -463,11 +468,18 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     pack: "0.60", outer: "1.10", ext: "0", mins: "30",
     mach: { "Formatkreissäge": "3", "CNC-Fräse": "6", "Schleifer": "5" }
   });
+  const FIXED_DEFAULT = () => [
+    { n: "Werkstattmiete", a: "585" },
+    { n: "Lexware Office", a: "12.90", ph: true },
+    { n: "kassenklingeln (Lexware-Anbindung)", a: "0", ph: true },
+    { n: "Shopify Basic", a: "27", ph: true }
+  ];
   const BUSINESS_DEFAULT = () => ({
     tax: "regel", rate: "20", eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2",
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0", feeVat: false, target: "35",
     qty: "40", alloc: true,
-    fixed: [{ n: "Werkstattmiete", a: "585" }, { n: "Software & Abos (Shopify, Billbee, Lexware)", a: "80" }],
+    fixed: FIXED_DEFAULT(),
+    order: [{ n: "Billbee", a: "0.47" }],
     // ph = Platzhalter, noch nicht durch echte Preise ersetzt
     mach: [{ n: "Formatkreissäge", r: "3.00", ph: true }, { n: "CNC-Fräse", r: "7.60", ph: true }, { n: "Schleifer", r: "1.50", ph: true }],
     ship: [
@@ -483,6 +495,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const store = (k, x) => { try { localStorage.setItem(k, JSON.stringify(x)); } catch (e) {} };
   let prod = load("hlz-marge2-prod", PRODUCT_DEFAULT());
   let biz = load("hlz-marge2-biz", BUSINESS_DEFAULT());
+  // alte Pauschale „Software & Abos“ durch einzelne Posten ersetzen
+  const oldIdx = (biz.fixed || []).findIndex(r => String(r.n).startsWith("Software & Abos") && v(r.a) === 80);
+  if (oldIdx >= 0) biz.fixed.splice(oldIdx, 1, ...FIXED_DEFAULT().slice(1));
 
   // ---------- Rechnung (rein auf Daten, kein DOM) ----------
   const cm = x => x.toLocaleString("de-DE", { maximumFractionDigits: 1 });
@@ -526,12 +541,13 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const porto = (ship.chosen ? ship.chosen.price : 0) * inK, pack = v(p.pack) * inK, outer = v(p.outer) * inK, ext = v(p.ext) * inK;
     const time = v(p.mins) / 60 * v(b.rate);
     const mach = (b.mach || []).reduce((a, m) => a + v(m.r) * v((p.mach || {})[m.n]) / 60, 0);
+    const order = (b.order || []).reduce((a, r) => a + v(r.a), 0) * inK;
     const fixTotal = (b.fixed || []).reduce((a, r) => a + v(r.a), 0);
     const fixShare = b.alloc && v(b.qty) > 0 ? fixTotal / v(b.qty) : 0;
-    const varCosts = wood + small + ext + porto + pack + outer + time + mach;
+    const varCosts = wood + small + ext + porto + pack + outer + time + mach + order;
     const db = net - fees - ads - varCosts;           // Deckungsbeitrag vor Fixkosten
     const profit = db - fixShare;
-    return { P, gross, net, vatAmt: gross - net, fees, ads, wood, small, ext, porto, pack, outer, time, mach, ship, fixShare, fixTotal,
+    return { P, gross, net, vatAmt: gross - net, fees, ads, wood, small, ext, porto, pack, outer, time, mach, order, ship, fixShare, fixTotal,
       m2Price, partsM2, perPlate, varCosts, db, profit, margin: net > 0 ? profit / net * 100 : NaN };
   }
   // Gewinn und Netto sind linear im Preis → Zielpreis aus zwei Stützstellen
@@ -547,6 +563,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     parts: { el: "partsRows", head: ["Teil", "Länge cm", "Breite cm", "Stk"], cols: [["n", "text"], ["l", "number"], ["b", "number"], ["q", "number"]], blank: { n: "", l: "", b: "", q: "1" }, src: () => prod },
     small: { el: "smallRows", head: ["Kleinteil", "€/Stk netto", "Anzahl", "Summe"], cols: [["n", "text"], ["p", "number"], ["q", "number"]], out: r => eur(v(r.p) * v(r.q)), blank: { n: "", p: "", q: "1" }, src: () => prod },
     fixed: { el: "fixedRows", head: ["Posten", "€ / Monat"], cols: [["n", "text"], ["a", "number"]], blank: { n: "", a: "" }, src: () => biz },
+    order: { el: "orderRows", head: ["Posten", "€ / Bestellung"], cols: [["n", "text"], ["a", "number"]], blank: { n: "", a: "" }, src: () => biz },
     mach: { el: "machRows", head: ["Maschine", "€ / Stunde"], cols: [["n", "text"], ["r", "number"]], blank: { n: "", r: "" }, src: () => biz },
     ship: { el: "shipRows", head: ["Versandart", "max g", "L", "B", "H", "€ netto"], cols: [["n", "text"], ["g", "number", "g"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"]], blank: { n: "", g: "", l: "", b: "", h: "", p: "" }, src: () => biz }
   };
@@ -580,7 +597,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     renderShipSelect(); renderMachMin();
     PRODUCT_INPUTS.forEach(id => $(id).value = prod[id] ?? "");
     BUSINESS_INPUTS.forEach(id => { if ($(id).type === "checkbox") $(id).checked = !!biz[id]; else $(id).value = biz[id] ?? ""; });
-    ["parts", "small", "fixed", "mach", "ship"].forEach(renderRows);
+    ["parts", "small", "fixed", "order", "mach", "ship"].forEach(renderRows);
     syncSegs();
   }
   function syncSegs() {
@@ -656,7 +673,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     $("kTarget").textContent = isFinite(tp) ? eur(tp) : "nicht erreichbar";
 
     const segs = [
-      ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Werbung", r.ads, "--seg-fee", .6],
+      ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Billbee & Co.", r.order, "--seg-fee", .8], ["Werbung", r.ads, "--seg-fee", .6],
       ["Holz", r.wood, "--seg-make"], ["Kleinteile", r.small, "--seg-make", .65], ["Fremdleistung", r.ext, "--seg-other"],
       ["Versand", r.porto, "--seg-ship"], ["Verpackung", r.pack, "--seg-pack"], ["Umverpackung", r.outer, "--seg-pack", .65],
       ["Maschinen", r.mach, "--seg-time", .6], ["Deine Zeit", r.time, "--seg-time"], ["Werkstatt & Fixkosten", r.fixShare, "--seg-other", .6], ["Gewinn", Math.max(0, r.profit), "--seg-profit"]
@@ -669,6 +686,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 
     // Fixkosten & Monat
     $("fixSum").textContent = eur(r.fixTotal);
+    $("orderSum").textContent = eur(r.order) + " pro Stück";
+    const fp = (biz.fixed || []).filter(x => x.ph).map(x => x.n);
+    $("fixPh").textContent = fp.length ? "Geschätzt bzw. Preis fehlt, bitte prüfen: " + fp.join(", ") : "";
     $("fixShare").textContent = v(biz.qty) > 0 ? eur(r.fixTotal / v(biz.qty)) + (biz.alloc ? "" : " (nicht umgelegt)") : "–";
     $("mBreak").textContent = r.db > 0 ? Math.ceil(r.fixTotal / r.db) + " Stk / Monat" : "nie (Verlust schon vor Miete)";
     const q = v(biz.qty);
