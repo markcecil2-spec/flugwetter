@@ -264,7 +264,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     id: uid(), name: "Neuer Artikel", chan: "etsy", price: "", shipIn: String(S.shipInDefault ?? "0"), waste: "15",
     parts: [{ n: "Teil", plate: (S.plates[0] || {}).n || "", l: "", b: "", q: "1" }],
     small: {}, mach: {}, weight: "", pkL: "", pkB: "", pkH: "", shipMode: "auto",
-    pack: "", outer: "", ext: "0", mins: "", aliases: [], sales: {}
+    pack: "", outer: "", ext: "0", mins: "", aliases: [], sales: {}, sku: ""
   });
   const EXAMPLES = () => {
     const plate = (S.plates[0] || {}).n || "";
@@ -523,7 +523,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     });
     const key = { name: x => norm(x.a.name), price: x => x.r.P, pm: x => x.pm, profit: x => x.r.profit, margin: x => isFinite(x.r.margin) ? x.r.margin : -1e9 }[sortKey];
     rows.sort((x, y) => { const p = key(x), q = key(y); return (p < q ? -1 : p > q ? 1 : 0) * sortDir; });
-    const shown = rows.filter(x => !search || norm(x.a.name).includes(norm(search)));
+    const shown = rows.filter(x => !search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)));
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}">${l}${sortKey === k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
     const hasSales = m.qty > 0;
     $("view").innerHTML = `
@@ -538,7 +538,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         <div class="row">
           <h1>Deine Artikel <span class="note num" style="font-size:.9rem">${A.length}</span></h1>
           <div class="btns">
-            <div class="inp" style="min-width:0;width:200px"><input id="search" type="search" placeholder="Suchen" value="${esc(search)}" aria-label="Artikel suchen"></div>
+            <div class="inp" style="min-width:0;width:200px"><input id="search" type="search" placeholder="Name oder SKU" value="${esc(search)}" aria-label="Artikel suchen"></div>
             <button class="btn primary" data-act="new">+ Artikel</button>
             <a class="btn" href="#import">Import</a>
           </div>
@@ -548,7 +548,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           <tbody>${shown.map(({ a, r, pm, t, miss }) => {
             const [c, w] = status(r.margin);
             return `<tr class="click" data-open="${a.id}" tabindex="0">
-              <td class="name"><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss">${x} fehlt</span>`).join("")}</td>
+              <td class="name"><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss">${x} fehlt</span>`).join("")}</td>
               <td class="hide-sm">${CH_NAMES[a.chan] || a.chan}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
@@ -585,7 +585,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       <div class="cols">
         <div class="stack">
           <section class="box">
-            <div class="field"><label for="a-name">Artikel</label><div class="inp"><input id="a-name" type="text" data-a="name" value="${esc(a.name)}"></div></div>
+            <div class="grid3 keep">
+              <div class="field" style="grid-column: span 2"><label for="a-name">Artikel</label><div class="inp"><input id="a-name" type="text" data-a="name" value="${esc(a.name)}"></div></div>
+              <div class="field"><label for="a-sku">SKU</label><div class="inp"><input id="a-sku" type="text" data-a="sku" value="${esc(a.sku || "")}" autocapitalize="characters" spellcheck="false"></div></div>
+            </div>
             <div class="grid3 keep">
               <div class="field"><label for="a-price">Verkaufspreis brutto</label>${numIn(`id="a-price" data-a="price"`, a.price, "€")}</div>
               <div class="field"><label for="a-shipIn">Versand vom Kunden</label>${numIn(`id="a-shipIn" data-a="shipIn"`, a.shipIn, "€")}</div>
@@ -943,6 +946,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     price: ["price", "lineitem price", "sold for", "verkauft für", "preis", "artikelpreis", "einzelpreis"],
     date: ["sale date", "created at", "paid at", "verkaufsdatum", "datum", "bestelldatum", "order date"],
     variation: ["variations", "variationen", "variante"],
+    sku: ["sku", "lineitem sku", "variant sku", "bestandseinheit", "custom label", "artikelnummer (sku)"],
     order: ["order id", "name", "bestellnummer", "order"],
     status: ["financial status"]
   };
@@ -992,7 +996,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         if (hi > 0) rows = rows.slice(hi);
         const hdr = (rows[0] || []).map(h => norm(h));
         const fmt = detect(hdr);
-        const map = { name: findCol(hdr, COLS.name), qty: findCol(hdr, COLS.qty), price: findCol(hdr, COLS.price), date: findCol(hdr, COLS.date), variation: findCol(hdr, COLS.variation) };
+        const map = { name: findCol(hdr, COLS.name), qty: findCol(hdr, COLS.qty), price: findCol(hdr, COLS.price), date: findCol(hdr, COLS.date), variation: findCol(hdr, COLS.variation), sku: findCol(hdr, COLS.sku) };
         if (fmt.type === "shopifyOrders") Object.assign(map, { name: hdr.indexOf("lineitem name"), qty: hdr.indexOf("lineitem quantity"), price: hdr.indexOf("lineitem price"), date: findCol(hdr, ["created at", "paid at"]) });
         if (fmt.type === "etsyListings") map.name = hdr.indexOf("title");
         return { file, rows, hdr, rawHdr: rows[0] || [], fmt, ch: fmt.ch, map, months: null };
@@ -1007,11 +1011,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       const { rows, hdr, map, fmt } = F;
       if (fmt.type === "etsyOrders") { F.error = "Diese Datei enthält nur Bestellungen ohne Artikelnamen. Lade bei Etsy „Bestellte Artikel“ herunter."; return; }
       if (fmt.type === "shopifyProducts") {
-        const iT = hdr.indexOf("title"), iH = hdr.indexOf("handle"), iP = hdr.indexOf("variant price"), iG = hdr.indexOf("variant grams");
+        const iT = hdr.indexOf("title"), iH = hdr.indexOf("handle"), iP = hdr.indexOf("variant price"), iG = hdr.indexOf("variant grams"), iS = hdr.indexOf("variant sku");
         const seen = {};
-        rows.slice(1).forEach(r => { const h = r[iH]; if (!seen[h] && r[iT]) seen[h] = { name: r[iT].trim(), price: money(r[iP]), grams: iG >= 0 ? money(r[iG]) : NaN }; });
+        rows.slice(1).forEach(r => { const h = r[iH]; if (!seen[h] && r[iT]) seen[h] = { name: r[iT].trim(), price: money(r[iP]), grams: iG >= 0 ? money(r[iG]) : NaN, sku: iS >= 0 ? (r[iS] || "").trim() : "" }; });
         F.products = Object.values(seen);
-        F.groups = F.products.map(p => ({ key: norm(p.name), name: p.name, qty: 0, revenue: 0, avg: p.price, grams: p.grams, product: true }));
+        F.groups = F.products.map(p => ({ key: norm(p.name), name: p.name, qty: 0, revenue: 0, avg: p.price, grams: p.grams, sku: p.sku, product: true }));
         return;
       }
       if (fmt.type === "etsyListings") {
@@ -1034,6 +1038,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         const varn = imp.split && map.variation >= 0 ? (r[map.variation] || "").trim() : "";
         const full = varn ? `${name} · ${varn}` : name, key = norm(full);
         const x = g[key] || (g[key] = { key, name: full, qty: 0, revenue: 0, priced: 0 });
+        if (!x.sku && map.sku >= 0 && r[map.sku]) x.sku = r[map.sku].trim();
         x.qty += q; if (isFinite(p)) { x.revenue += p * q; x.priced += q; }
         const d = map.date >= 0 ? pdate(r[map.date]) : null;
         if (d) { if (!from || d < from) from = d; if (!to || d > to) to = d; }
@@ -1047,7 +1052,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     imp.files.forEach(F => F.groups.forEach(gr => {
       if (gr.target) return;
       const k = loose(gr.name);
+      const bySku = gr.sku ? A.filter(a => norm(a.sku) === norm(gr.sku)) : [];
       const hit = A.find(a => loose(a.name) === k || (a.aliases || []).some(al => loose(al) === k))
+        || (bySku.length === 1 ? bySku[0] : null)
         // ähnlicher Name: einer steckt im anderen („Untersetzer-Set Eiche“ ↔ „Untersetzer-Set Eiche, 4 Stück“)
         || A.find(a => { const n = loose(a.name); return n.length > 5 && k.length > 5 && (n.includes(k) || k.includes(n)); });
       gr.target = hit ? hit.id : "new";
@@ -1091,13 +1098,14 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         if (g.target === "new") {
           a = newByKey[g.key];
           if (!a) {
-            a = { ...ARTICLE_BLANK(), name: g.name, chan: F.ch, price: isFinite(g.avg) ? g.avg.toFixed(2) : "", aliases: [g.name] };
+            a = { ...ARTICLE_BLANK(), name: g.name, chan: F.ch, price: isFinite(g.avg) ? g.avg.toFixed(2) : "", aliases: [g.name], sku: g.sku || "" };
             if (isFinite(g.grams) && g.grams > 0) a.weight = String(Math.round(g.grams));
             A.push(a); newByKey[g.key] = a; created++;
           }
         } else {
           a = A.find(x => x.id === g.target); if (!a) return;
           if (norm(a.name) !== g.key && !(a.aliases || []).some(al => norm(al) === g.key)) (a.aliases = a.aliases || []).push(g.name);
+          if (g.sku && !a.sku) a.sku = g.sku;
           if (g.product) { if (isFinite(g.avg)) a.price = g.avg.toFixed(2); if (isFinite(g.grams) && g.grams > 0 && !v(a.weight)) a.weight = String(Math.round(g.grams)); }
           updated.add(a.id);
         }
