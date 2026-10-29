@@ -217,7 +217,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const clone = x => JSON.parse(JSON.stringify(x));
   const norm = s => String(s || "").trim().toLowerCase().replace(/\s+/g, " ");
-  const CH_NAMES = { etsy: "Etsy", etsyOff: "Etsy + Offsite Ads 15 %", shopify: "Shopify", direkt: "Direkt / Kleinanzeigen" };
+  const loose = s => norm(s).replace(/[^a-z0-9äöüß]/g, "");   // Abgleich ohne Satz- und Leerzeichen
+  const CH_NAMES = { etsy: "Etsy", etsyOff: "Etsy + Offsite Ads 15 %", shopify: "Shopify", ebay: "eBay", direkt: "Direktverkauf" };
+  const CHANNELS = ["etsy", "shopify", "ebay", "direkt"];
   const toast = t => { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2600); };
 
   // ---------- Vorgaben (ph = Platzhalter, noch nicht durch echte Werte ersetzt) ----------
@@ -225,6 +227,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     tax: "regel", rate: "20", target: "35", qtyManual: "40", alloc: true,
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
+    bPayP: "12", bPayF: "0.45", bAds: "0",
     fixed: [
       { n: "Werkstattmiete", a: "585" },
       { n: "Lexware Office", a: "12.90", ph: true },
@@ -381,6 +384,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       fees = (v(S.eList) + gross * (v(S.eTrans) + off) / 100 + gross * v(S.ePayP) / 100 + v(S.ePayF)) * (S.feeVat ? 1.19 : 1);
       ads = v(S.eAds);
     } else if (ch === "shopify") { fees = gross * v(S.sPayP) / 100 + v(S.sPayF); ads = v(S.sAds); }
+    else if (ch === "ebay") { fees = (gross * v(S.bPayP) / 100 + v(S.bPayF)) * (S.feeVat ? 1.19 : 1); ads = v(S.bAds); }
     else { fees = gross * v(S.dPayP) / 100 + v(S.dPayF); ads = v(S.dAds); }
 
     const wasteF = 1 + v(a.waste) / 100;
@@ -428,7 +432,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     A.forEach(a => Object.entries(a.sales || {}).forEach(([ch, x]) => {
       const pm = v(x.months) > 0 ? v(x.qty) / v(x.months) : 0;
       if (!pm) return;
-      const r = calc(a, ch === "shopify" ? "shopify" : ch === "direkt" ? "direkt" : "etsy", v(x.avg) || v(a.price), ctx);
+      const r = calc(a, CHANNELS.includes(ch) ? ch : "etsy", v(x.avg) || v(a.price), ctx);
       db += pm * r.db; rev += pm * r.gross; qty += pm;
     }));
     return { db, rev, qty, result: db - fixTotal() };
@@ -538,7 +542,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
             <div class="grid3 keep">
               <div class="field"><label for="a-price">Verkaufspreis brutto</label>${numIn(`id="a-price" data-a="price"`, a.price, "€")}</div>
               <div class="field"><label for="a-shipIn">Versand vom Kunden</label>${numIn(`id="a-shipIn" data-a="shipIn"`, a.shipIn, "€")}</div>
-              <div class="field"><label for="a-chan">Kanal</label><div class="inp"><select id="a-chan" data-a="chan">${["etsy", "shopify", "direkt"].map(c => opt(c, CH_NAMES[c], a.chan === c)).join("")}</select></div></div>
+              <div class="field"><label for="a-chan">Kanal</label><div class="inp"><select id="a-chan" data-a="chan">${CHANNELS.map(c => opt(c, CH_NAMES[c], a.chan === c)).join("")}</select></div></div>
             </div>
           </section>
 
@@ -652,7 +656,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     $("rLegend").innerHTML = segs.map(x => `<div class="lrow"><span class="sw" style="${sw(x)}"></span><span>${x[0]}</span><span class="num">${eur(x[1])}</span><span class="num pct">${r.gross > 0 ? pct(x[1] / r.gross * 100) : ""}</span></div>`).join("")
       + (r.profit < 0 ? `<div class="lrow"><span class="sw" style="background:var(--bad)"></span><span>Verlust</span><span class="num" style="color:var(--bad)">${eur(r.profit)}</span><span></span></div>` : "");
 
-    const rows = ["etsy", "etsyOff", "shopify", "direkt"].map(c => ({ c, r: calc(a, c, undefined, ctx) }));
+    const rows = ["etsy", "etsyOff", "shopify", "ebay", "direkt"].map(c => ({ c, r: calc(a, c, undefined, ctx) }));
     const best = rows.reduce((x, y) => y.r.profit > x.r.profit ? y : x);
     $("cmpBody").innerHTML = rows.map(({ c, r }) => { const [k] = status(r.margin); return `<tr class="${c === best.c ? "best" : ""}"><td style="white-space:normal">${CH_NAMES[c]}</td><td class="num" style="color:var(--${k === "muted" ? "fg" : k})">${eur(r.profit)}</td><td class="num">${pct(r.margin)}</td></tr>`; }).join("");
   }
@@ -715,14 +719,17 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
               <div class="field"><label for="s-eOff">Offsite Ads</label><div class="inp"><select id="s-eOff" data-s="eOff">${[["0", "keine"], ["15", "15 %"], ["12", "12 %"]].map(([x, l]) => opt(x, l, String(S.eOff) === x)).join("")}</select></div></div>
               ${settingsField("eAds", "Etsy Ads je Verkauf", "€")}
             </div>
-            <label class="check"><input type="checkbox" data-s="feeVat" ${S.feeVat ? "checked" : ""}> Etsy-Gebühren + 19 % USt (Kleinunternehmer)</label>
+            <h3>eBay</h3>
+            <div class="grid3 keep">${settingsField("bPayP", "Verkaufsprovision", "%", "auf Preis + Versand")}${settingsField("bPayF", "+ fix je Bestellung", "€", "0,45 € ab 10 €")}${settingsField("bAds", "Anzeigen je Verkauf", "€")}</div>
+            <label class="check"><input type="checkbox" data-s="feeVat" ${S.feeVat ? "checked" : ""}> Etsy- und eBay-Gebühren + 19 % USt (Kleinunternehmer ohne USt-IdNr.)</label>
             <h3>Shopify</h3>
             <div class="grid3 keep">${settingsField("sPayP", "Shopify Payments", "%")}${settingsField("sPayF", "+ fix", "€")}${settingsField("sAds", "Werbung je Verkauf", "€")}</div>
-            <h3>Direkt / Kleinanzeigen</h3>
+            <h3>Direktverkauf (Werkstatt, Markt)</h3>
             <div class="grid3 keep">${settingsField("dPayP", "Zahlungsgebühr", "%", "PayPal 2,49")}${settingsField("dPayF", "+ fix", "€", "PayPal 0,35")}${settingsField("dAds", "Werbung je Verkauf", "€")}</div>
             <details><summary>Woher kommen die Sätze?</summary><ul>
               <li>Etsy: 6,5 % Transaktion auf Artikel + Versand, 0,20 $ Einstellgebühr, Zahlungsabwicklung Deutschland 4 % + 0,30 €.</li>
               <li>Shopify Payments Basic: ca. 2,1 % + 0,30 € (EU-Karten). Mit PayPal/Mollie statt Shopify Payments + 2 %.</li>
+              <li>eBay gewerblich: seit 1.7.2026 einheitliche Provision je Kategorie (7–14 %) auf Preis + Versand, plus 0,35 € (bis 10 €) bzw. 0,45 € pro Bestellung. Den genauen Satz deiner Kategorie findest du in deiner eBay-Rechnung.</li>
               <li>Stand Oktober 2026, bitte mit deinen Abrechnungen abgleichen.</li></ul></details>
           </section>
           <section class="box"><h2>${LISTS.mach.title}</h2>${listHTML("mach")}
@@ -878,9 +885,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   }
   // Spaltennamen der Exporte (klein geschrieben), mit deutschen Varianten
   const COLS = {
-    name: ["item name", "lineitem name", "artikelname", "artikel", "produkt", "produktname", "title", "titel"],
+    name: ["item name", "lineitem name", "item title", "artikelbezeichnung", "artikelname", "artikel", "produkt", "produktname", "title", "titel"],
     qty: ["quantity", "lineitem quantity", "menge", "anzahl", "stückzahl"],
-    price: ["price", "lineitem price", "preis", "artikelpreis", "einzelpreis"],
+    price: ["price", "lineitem price", "sold for", "verkauft für", "preis", "artikelpreis", "einzelpreis"],
     date: ["sale date", "created at", "paid at", "verkaufsdatum", "datum", "bestelldatum", "order date"],
     variation: ["variations", "variationen", "variante"],
     order: ["order id", "name", "bestellnummer", "order"],
@@ -892,6 +899,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (has("lineitem name") && has("lineitem quantity")) return { type: "shopifyOrders", ch: "shopify", label: "Shopify Bestellungen" };
     if (has("handle") && has("variant price")) return { type: "shopifyProducts", ch: "shopify", label: "Shopify Produkte" };
     if (has("item name") && has("quantity")) return { type: "etsyItems", ch: "etsy", label: "Etsy verkaufte Artikel" };
+    if ((has("item title") && has("quantity")) || (has("artikelbezeichnung") && has("anzahl"))) return { type: "ebayOrders", ch: "ebay", label: "eBay Bestellungen" };
     if (has("title") && has("tags") && has("price")) return { type: "etsyListings", ch: "etsy", label: "Etsy Angebote" };
     if (has("number of items") || has("order value")) return { type: "etsyOrders", ch: "etsy", label: "Etsy Bestellungen (ohne Artikel)" };
     return { type: "generic", ch: "etsy", label: "Unbekanntes Format" };
@@ -909,6 +917,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         </div>
         <details open><summary>Welche Dateien?</summary><ul>
           <li><strong>Etsy:</strong> Shop-Manager → Einstellungen → Optionen → Daten herunterladen → Art: <em>Bestellte Artikel</em> (EtsySoldOrderItems). Die Datei „Bestellungen“ enthält keine Artikelnamen.</li>
+          <li><strong>eBay:</strong> Verkäufer-Cockpit → Bestellungen → Berichte herunterladen → Bestellungen (CSV).</li>
           <li><strong>Shopify:</strong> Bestellungen → Exportieren → alle Bestellungen als CSV. Optional zusätzlich Produkte → Exportieren für Preise und Gewichte.</li>
           <li>Mehrere Dateien gleichzeitig gehen. Ein neuer Import ersetzt die Verkaufszahlen des jeweiligen Kanals.</li>
           <li>Gespeichert werden nur Artikelnamen, Stückzahlen, Durchschnittspreise und Zeitraum, keine Kundendaten.</li>
@@ -924,7 +933,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const files = [...list]; if (!files.length) return;
     Promise.all(files.map(f => f.text().then(text => ({ file: f.name, text })))).then(res => {
       imp = { split: false, files: res.map(({ file, text }) => {
-        const rows = parseCSV(text);
+        let rows = parseCSV(text);
+        // Kopfzeile suchen: eBay-Berichte haben vorab Leer- oder Infozeilen
+        const hi = rows.slice(0, 15).findIndex(r => r.some(c => COLS.name.includes(norm(c)) || ["lineitem name", "handle", "title"].includes(norm(c))));
+        if (hi > 0) rows = rows.slice(hi);
         const hdr = (rows[0] || []).map(h => norm(h));
         const fmt = detect(hdr);
         const map = { name: findCol(hdr, COLS.name), qty: findCol(hdr, COLS.qty), price: findCol(hdr, COLS.price), date: findCol(hdr, COLS.date), variation: findCol(hdr, COLS.variation) };
@@ -981,9 +993,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     // Zuordnung: vorhandener Artikel per Name/Alias, sonst neu
     imp.files.forEach(F => F.groups.forEach(gr => {
       if (gr.target) return;
-      const hit = A.find(a => norm(a.name) === gr.key || (a.aliases || []).some(al => norm(al) === gr.key))
+      const k = loose(gr.name);
+      const hit = A.find(a => loose(a.name) === k || (a.aliases || []).some(al => loose(al) === k))
         // ähnlicher Name: einer steckt im anderen („Untersetzer-Set Eiche“ ↔ „Untersetzer-Set Eiche, 4 Stück“)
-        || A.find(a => { const n = norm(a.name); return n.length > 5 && gr.key.length > 5 && (n.includes(gr.key) || gr.key.includes(n)); });
+        || A.find(a => { const n = loose(a.name); return n.length > 5 && k.length > 5 && (n.includes(k) || k.includes(n)); });
       gr.target = hit ? hit.id : "new";
     }));
   }
@@ -996,7 +1009,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       ${imp.files.map((F, fi) => `<section class="box">
         <div class="row"><h2>${esc(F.file)}</h2><span class="pill ${F.error ? "bad" : "good"}">${esc(F.fmt.label)}</span></div>
         ${F.fmt.type === "generic" || (F.error && F.fmt.type !== "etsyOrders") ? `<div class="grid3 keep">${["name", "qty", "price", "date"].map(k => `<div class="field"><label>${{ name: "Artikelname", qty: "Menge", price: "Preis pro Stück", date: "Datum" }[k]}</label><div class="inp"><select data-imap="${fi}" data-k="${k}">${opt("-1", "–", F.map[k] < 0)}${F.rawHdr.map((h, i) => opt(String(i), h, F.map[k] === i)).join("")}</select></div></div>`).join("")}
-          <div class="field"><label>Kanal</label><div class="inp"><select data-ich="${fi}">${["etsy", "shopify", "direkt"].map(c => opt(c, CH_NAMES[c], F.ch === c)).join("")}</select></div></div></div>` : ""}
+          <div class="field"><label>Kanal</label><div class="inp"><select data-ich="${fi}">${CHANNELS.map(c => opt(c, CH_NAMES[c], F.ch === c)).join("")}</select></div></div></div>` : ""}
         ${F.error ? `<p class="warn">${esc(F.error)}</p>` : `
           ${F.groups[0] && !F.groups[0].product ? `<div class="grid3 keep" style="align-items:end"><div class="field"><span class="label">Zeitraum</span><span class="num">${fd(F.from)} – ${fd(F.to)}</span></div>
             <div class="field"><label for="imon-${fi}">Entspricht Monaten</label>${numIn(`id="imon-${fi}" data-imon="${fi}"`, F.months, "Mon.")}</div>
