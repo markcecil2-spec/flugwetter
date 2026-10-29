@@ -1,6 +1,6 @@
 // Service Worker des HLZ Margenrechners – macht die App installierbar und offline nutzbar.
-const CACHE = "hlz-marge-v1";
-const ASSETS = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
+const CACHE = "hlz-marge-v2";
+const ASSETS = ["./", "index.html", "app.html", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
