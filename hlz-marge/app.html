@@ -166,6 +166,9 @@ table.imp { min-width: 520px }
 th, td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--line); white-space: nowrap }
 th:first-child, td:first-child { text-align: left }
 th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600 }
+.star { background: none; border: 0; padding: 0 6px 0 0; font-size: 1.15rem; line-height: 1; color: var(--line); cursor: pointer; vertical-align: -1px }
+.star[aria-pressed=true] { color: var(--warn) } .star:hover { color: var(--warn) }
+.btn.star-btn[aria-pressed=true] { color: var(--warn); border-color: var(--warn) }
 th button { all: unset; cursor: pointer } th button:hover, th button[aria-pressed=true] { color: var(--accent) }
 tbody tr.click { cursor: pointer } tbody tr.click:hover td { background: var(--accent-soft) }
 td.name { white-space: normal; min-width: 180px }
@@ -547,7 +550,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       return { a, r, pm: salesPerMonth(a), t: solvePrice(a, a.chan, v(S.target), ctx), miss: missing(a) };
     });
     const key = { name: x => norm(x.a.name), price: x => x.r.P, pm: x => x.pm, profit: x => x.r.profit, margin: x => isFinite(x.r.margin) ? x.r.margin : -1e9 }[sortKey];
-    rows.sort((x, y) => { const p = key(x), q = key(y); return (p < q ? -1 : p > q ? 1 : 0) * sortDir; });
+    // Markierte Artikel immer zuerst, danach die gewählte Sortierung
+    rows.sort((x, y) => { const f = (y.a.fav ? 1 : 0) - (x.a.fav ? 1 : 0); if (f) return f; const p = key(x), q = key(y); return (p < q ? -1 : p > q ? 1 : 0) * sortDir; });
     const shown = rows.filter(x => !search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)));
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}">${l}${sortKey === k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
     const hasSales = m.qty > 0;
@@ -573,7 +577,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           <tbody>${shown.map(({ a, r, pm, t, miss }) => {
             const [c, w] = status(r.margin);
             return `<tr class="click" data-open="${a.id}" tabindex="0">
-              <td class="name"><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}</td>
+              <td class="name"><button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}</td>
               <td class="hide-sm">${CH_NAMES[a.chan] || a.chan}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
@@ -603,7 +607,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const sales = Object.entries(a.sales || {});
     $("view").innerHTML = `
       <div class="row">
-        <a class="btn" href="#uebersicht">← Übersicht</a>
+        <span class="btns"><a class="btn" href="#uebersicht">← Übersicht</a><button class="btn star-btn" data-star="${a.id}" aria-pressed="${!!a.fav}">${a.fav ? "★ Markiert" : "☆ Markieren"}</button></span>
         <div class="btns">${a.example ? '<span class="pill muted">Beispiel mit geschätzten Zahlen</span>' : ""}<button class="btn" data-act="dup">Duplizieren</button><button class="btn danger" data-act="del">Löschen</button><button class="btn primary" id="saveTop" data-act="save" ${dirty ? "" : "disabled"}>Speichern</button></div>
       </div>
       <div class="banner" id="delConfirm" hidden><span>„${esc(a.name)}“ wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="delYes">Löschen</button><button class="btn" data-act="delNo">Abbrechen</button></span></div>
@@ -872,9 +876,18 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
-    const t = e.target.closest("[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
+    const t = e.target.closest("[data-star],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
+    if (d.star) {
+      // Markieren speichert sofort, auch während ein Entwurf offen ist
+      const stored = A.find(x => x.id === d.star); if (!stored) return;
+      stored.fav = !stored.fav; if (draft && draft.id === stored.id) draft.fav = stored.fav;
+      if (!stored.isNew) saveArticle(stored);
+      if (view === "artikel") { t.setAttribute("aria-pressed", stored.fav); t.textContent = stored.fav ? "★ Markiert" : "☆ Markieren"; }
+      else renderOverview();
+      return toast(stored.fav ? "Markiert, steht jetzt oben" : "Markierung entfernt");
+    }
     if (d.open) { pendingFocus = d.focus || "auto"; return go("artikel-" + d.open); }
     if (d.sort) { sortDir = sortKey === d.sort ? -sortDir : (d.sort === "name" ? 1 : -1); sortKey = d.sort; return renderOverview(); }
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
