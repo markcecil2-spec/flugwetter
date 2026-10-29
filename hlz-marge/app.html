@@ -480,6 +480,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // ---------- Routing ----------
   let view = "", curId = null, sortKey = "profit", sortDir = -1, search = "";
+  // Ordner in der Übersicht: "open" = Daten fehlen, "done" = fertig, "all" = alle (pro Gerät gemerkt)
+  let folder = LS.get("hlz-app-folder") || null;
   // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
   function setDirty(x) {
@@ -552,7 +554,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const key = { name: x => norm(x.a.name), price: x => x.r.P, pm: x => x.pm, profit: x => x.r.profit, margin: x => isFinite(x.r.margin) ? x.r.margin : -1e9 }[sortKey];
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
     rows.sort((x, y) => { const f = (y.a.fav ? 1 : 0) - (x.a.fav ? 1 : 0); if (f) return f; const p = key(x), q = key(y); return (p < q ? -1 : p > q ? 1 : 0) * sortDir; });
-    const shown = rows.filter(x => !search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)));
+    const nOpen = rows.filter(x => x.miss.length).length, nDone = rows.length - nOpen;
+    const f = folder || (nOpen ? "open" : "done");
+    const shown = rows.filter(x => (f === "all" || (f === "open") === (x.miss.length > 0))
+      && (!search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search))));
+    const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["all", "Alle", rows.length]];
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}">${l}${sortKey === k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
     const hasSales = m.qty > 0;
     $("view").innerHTML = `
@@ -572,6 +578,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <a class="btn" href="#import">Import</a>
           </div>
         </div>
+        <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
         <div class="tablewrap"><table class="ov">
           <thead><tr>${th("name", "Artikel")}<th class="hide-sm">Kanal</th><th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
           <tbody>${shown.map(({ a, r, pm, t, miss }) => {
@@ -582,7 +589,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
               <td><span class="pill ${c}">${pct(r.margin)}</span></td><td class="num hide-sm">${eur(t)}</td></tr>`;
-          }).join("") || `<tr><td colspan="8" class="note">Kein Artikel passt zur Suche.</td></tr>`}</tbody>
+          }).join("") || `<tr><td colspan="8" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
         <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab 30 % grün, 15–30 % gelb, darunter rot.</p>
       </section>`;
@@ -876,7 +883,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
-    const t = e.target.closest("[data-star],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
+    const t = e.target.closest("[data-star],[data-folder],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.star) {
@@ -889,6 +896,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       return toast(stored.fav ? "Markiert, steht jetzt oben" : "Markierung entfernt");
     }
     if (d.open) { pendingFocus = d.focus || "auto"; return go("artikel-" + d.open); }
+    if (d.folder) { folder = d.folder; LS.set("hlz-app-folder", folder); return renderOverview(); }
     if (d.sort) { sortDir = sortKey === d.sort ? -sortDir : (d.sort === "name" ? 1 : -1); sortKey = d.sort; return renderOverview(); }
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
     if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
