@@ -60,6 +60,9 @@ h3 { font-size: 1rem }
 .note { font-size: .8rem; color: var(--muted); margin: 0 }
 .ph { color: var(--warn); font-size: .8rem; margin: 0 }
 .inp.est, .inp.need { box-shadow: 0 0 0 2px var(--warn) }
+.inp textarea { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); padding: 9px 10px; font: .95rem var(--font-body); outline: none; resize: vertical }
+.todo-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line) }
+.todo-note { margin-top: 4px; font-size: .82rem; color: var(--warn); white-space: normal }
 .stabs { margin: 4px 0 14px } .stackset { max-width: 760px }
 .inp.chsel { display: inline-flex; width: auto; max-width: 100%; margin-bottom: 10px }
 .savenear { display: block; margin: 12px 0 0 auto; padding: 7px 16px; font-size: .88rem }
@@ -666,11 +669,12 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const key = { name: x => norm(x.a.name), price: x => x.r.P, pm: x => x.pm, profit: x => x.r.profit, margin: x => isFinite(x.r.margin) ? x.r.margin : -1e9 }[sortKey];
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
     rows.sort((x, y) => { const f = (y.a.fav ? 1 : 0) - (x.a.fav ? 1 : 0); if (f) return f; const p = key(x), q = key(y); return (p < q ? -1 : p > q ? 1 : 0) * sortDir; });
-    const nOpen = rows.filter(x => x.miss.length).length, nDone = rows.length - nOpen;
-    const f = folder || (nOpen ? "open" : "done");
-    const shown = rows.filter(x => (f === "all" || (f === "open") === (x.miss.length > 0))
-      && (!search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search))));
-    const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["all", "Alle", rows.length]];
+    const nOpen = rows.filter(x => x.miss.length).length, nDone = rows.length - nOpen, nTodo = rows.filter(x => x.a.todo).length;
+    const f = folder === "todo" && !nTodo ? "all" : folder || (nOpen ? "open" : "done");
+    const inFolder = x => f === "all" || (f === "todo" ? !!x.a.todo : (f === "open") === (x.miss.length > 0));
+    const shown = rows.filter(x => inFolder(x)
+      && (!search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)) || norm(x.a.note).includes(norm(search))));
+    const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["todo", "Nochmal ran", nTodo], ["all", "Alle", rows.length]];
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}">${l}${sortKey === k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
     const hasSales = m.qty > 0;
     $("view").innerHTML = `
@@ -691,13 +695,13 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           </div>
         </div>
         <div class="inp chsel"><select id="fCh" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div>
-        <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
+        <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
         <div class="tablewrap"><table class="ov">
           <thead><tr>${th("name", "Artikel")}<th class="hide-sm">Kanal</th><th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
           <tbody>${shown.map(({ a, ch, r, pm, t, miss }) => {
             const [c, w] = status(r.margin);
             return `<tr class="click" data-open="${a.id}" tabindex="0">
-              <td class="name"><button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}</td>
+              <td class="name"><button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
               <td class="hide-sm">${CH_NAMES[ch] || ch}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
@@ -750,6 +754,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <div class="field"><label for="a-disc">Shop-Rabatt</label>${numIn(`id="a-disc" data-a="disc"`, a.disc || "", "%")}</div>
               <div class="field"><label for="a-adsEtsy">Etsy Ads je Verkauf</label>${numIn(`id="a-adsEtsy" data-a="adsEtsy"`, a.adsEtsy ?? "", "€")}<small>leer = Wert aus Einstellungen</small></div>
               <div class="field"><span class="label">Kunde zahlt</span><div class="note" id="discInfo" style="padding-top:10px"></div></div>
+            </div>
+            <div class="todo-box">
+              <label class="check"><input type="checkbox" id="a-todo" data-a="todo" ${a.todo ? "checked" : ""}> 📝 Nochmal dran arbeiten</label>
+              <div class="field" style="margin-top:8px"><label for="a-note">Notiz</label><div class="inp"><textarea id="a-note" data-a="note" rows="2" placeholder="Was ist noch zu tun? z. B. Karton bestellen, Laserzeit messen …">${esc(a.note || "")}</textarea></div></div>
             </div>
             <label class="check"><input type="checkbox" id="a-fremd" data-a="fremd" ${a.fremd ? "checked" : ""}> Fertigt eine andere Schreinerei <small>(kein Holz, keine Maschinen, dafür Einkaufspreis)</small></label>
             <div class="grid3 keep" id="extBox" style="margin-top:10px">
