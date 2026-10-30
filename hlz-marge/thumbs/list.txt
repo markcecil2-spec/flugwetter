@@ -1,3 +1,4 @@
+# Liste: Shopify-Produktfotos je SKU (siehe .github/workflows/hlz-thumbs.yml)
 t00.jpg https://cdn.shopify.com/s/files/1/0631/3734/9881/files/MG_4198.jpg
 t01.jpg https://cdn.shopify.com/s/files/1/0631/3734/9881/files/MG_4197.jpg
 t02.jpg https://cdn.shopify.com/s/files/1/0631/3734/9881/files/MG_4196.jpg

@@ -17,14 +17,14 @@ jobs:
       - name: Laden und verkleinern
         run: |
           cd hlz-marge/thumbs
-          while read -r f u; do
+          grep -v "^#" list.txt | while read -r f u; do
             [ -z "$f" ] && continue
-            curl -sSfL "$u&width=240" -o "/tmp/$f.src" || { echo "FEHLT $f $u"; continue; }
+            curl -sSfL "$u?width=240" -o "/tmp/$f.src" || { echo "FEHLT $f $u"; continue; }
             python3 -c "
           from PIL import Image, ImageOps; import sys
           im = Image.open(sys.argv[1]).convert('RGB')
           ImageOps.fit(im, (96, 96), Image.LANCZOS).save(sys.argv[2], 'JPEG', quality=80, optimize=True)" "/tmp/$f.src" "$f"
-          done < list.txt
+          done
           ls -la | head -100
       - name: Ablegen
         run: |
