@@ -467,6 +467,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (!v(a.price)) m.push("Preis");
     if (a.fremd) { if (v(a.ext) === 0) m.push("Einkaufspreis"); }
     else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0)) m.push("Holz");
+    if (!a.fremd && !Object.values(a.small || {}).some(x => v(x) > 0)) m.push("Kleinteile");
     if (!v(a.weight) || !v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
     if (!v(a.mins) && !a.fremd) m.push("Arbeitszeit");
     return m;
@@ -482,6 +483,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         || document.querySelector('[data-act="addPart"]');
     }
     if (what === "Einkaufspreis") el = $("a-ext");
+    if (what === "Kleinteile") el = $("sm-0");
     if (what === "Versandmaße") el = ["a-weight", "a-pkL", "a-pkB", "a-pkH"].map($).find(x => x && !v(x.value));
     if (what === "Arbeitszeit") el = $("a-mins");
     if (!el) return;
