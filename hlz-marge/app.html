@@ -301,7 +301,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     id: uid(), name: "Neuer Artikel", chan: "etsy", price: "", shipIn: String(S.shipInDefault ?? "0"), waste: String(S.wasteDefault ?? "7"),
     parts: [{ n: "Teil", plate: (S.plates[0] || {}).n || "", l: "", b: "", q: "1" }],
     small: {}, mach: {}, weight: "", pkL: "", pkB: "", pkH: "", shipMode: "auto",
-    pack: "0.50", outer: "1.00", ext: "0", mins: "", aliases: [], sales: {}, sku: ""
+    pack: "0.11", outer: "1.00", ext: "0", mins: "", aliases: [], sales: {}, sku: ""
   });
   const EXAMPLES = () => {
     const plate = (S.plates[0] || {}).n || "";
@@ -735,7 +735,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="shipinfo" id="boxTip" hidden></div>
             <div class="shipinfo" id="shipInfo"></div>
             <div class="grid3 keep">
-              <div class="field"><label for="a-pack">Verpackung</label>${numIn(`id="a-pack" data-a="pack"`, a.pack, "€")}<small>Polster, Folie, Kantenschutz</small></div>
+              <div class="field"><label for="a-pack">Verpackung</label>${numIn(`id="a-pack" data-a="pack"`, a.pack, "€")}<small>Schrenzpapier ca. 4,5 ct/m · 2,5 m ≈ 0,11 €</small></div>
               <div class="field"><label for="a-outer">Umverpackung</label>${numIn(`id="a-outer" data-a="outer"`, a.outer, "€")}<small>Karton, Klebeband, Etikett</small></div>
             </div>
             <p class="note">Alle Einkaufspreise netto. ${S.tax === "ku" ? "Als Kleinunternehmer schlägt die App 19 % drauf." : ""}</p>
