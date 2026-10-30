@@ -59,7 +59,10 @@ h3 { font-size: 1rem }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
 .note { font-size: .8rem; color: var(--muted); margin: 0 }
 .ph { color: var(--warn); font-size: .8rem; margin: 0 }
+.reco { font-size: .78rem; color: var(--muted); margin-top: 4px; white-space: nowrap }
+.reco-big { margin: 4px 0 0; font-size: .95rem } .reco-big strong { color: var(--accent); font-size: 1.1rem }
 .inp.est, .inp.need, .inp.changed { box-shadow: 0 0 0 2px var(--warn) }
+table.ov td.name, table.ov th.selcol + th { text-align: left }
 .selcol { width: 34px; padding-right: 0 } .selcol input { width: 18px; height: 18px; accent-color: var(--accent) }
 tr.selected td { background: var(--accent-soft) }
 .selbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
@@ -698,6 +701,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     </section>`;
   }
 
+  // Preisempfehlung: Preis für die Ziel-Marge, aufgerundet auf eine glatte Endung (…,90 bzw. …9,00 ab 100 €)
+  const nicePrice = x => !isFinite(x) || x <= 0 ? NaN : x < 100 ? Math.ceil(x - 0.9) + 0.9 : Math.ceil((x + 1) / 10) * 10 - 1;
+
   // ---------- Übersicht ----------
   function phCount() { return ["fixed", "small", "mach", "ship"].reduce((s, k) => s + (S[k] || []).filter(x => x.ph).length, 0); }
   function renderOverview() {
@@ -759,7 +765,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <td class="hide-sm">${ch === "mix" ? (r.mixLabel || CH_NAMES[a.chan]) : CH_NAMES[ch] || ch}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
-              <td><span class="pill ${c}">${pct(r.margin)}</span></td><td class="num hide-sm">${eur(t)}</td></tr>`;
+              <td><span class="pill ${c}">${pct(r.margin)}</span>${isFinite(t) ? `<div class="reco num" title="Preisempfehlung für ${esc(S.target)} % Marge">→ ${eur(nicePrice(t))}</div>` : ""}</td><td class="num hide-sm">${eur(t)}</td></tr>`;
           }).join("") || `<tr><td colspan="9" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
         <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab 30 % grün, 15–30 % gelb, darunter rot.</p>
@@ -883,6 +889,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         <aside class="box result" aria-live="polite">
           <div class="row"><span class="label">Gewinn pro Stück · <span id="rChan"></span></span><span class="pill" id="rPill"></span></div>
           <div class="big"><span class="num" id="rProfit"></span><span class="num" id="rMargin" style="color:var(--muted)"></span></div>
+          <p class="reco-big" id="rReco"></p>
           <p class="note" id="rSub"></p>
           <div class="bar" id="rBar" role="img" aria-label="Aufteilung des Verkaufspreises"></div>
           <div class="legend" id="rLegend"></div>
@@ -997,6 +1004,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     $("kFees").textContent = eur(r.fees) + (r.gross > 0 ? " · " + pct(r.fees / r.gross * 100) : "");
     $("kMin").textContent = eur(solvePrice(a, a.chan, 0, ctx));
     const tp = solvePrice(a, a.chan, v(S.target), ctx); $("kTarget").textContent = isFinite(tp) ? eur(tp) : "nicht erreichbar";
+    const np = nicePrice(tp);
+    $("rReco").innerHTML = isFinite(np) ? `Preisempfehlung für ${esc(S.target)} % Marge: <strong class="num">${eur(np)}</strong>${v(a.price) ? ` <span class="note">(${v(a.price) >= np ? "dein Preis passt" : eur(np - v(a.price)) + " mehr als jetzt"})</span>` : ""}` : "";
 
     const segs = [
       ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Billbee & Co.", r.order, "--seg-fee", .8], ["Werbung", r.ads, "--seg-fee", .6],
