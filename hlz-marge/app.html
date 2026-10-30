@@ -140,7 +140,14 @@ main.wrap { padding-block: 20px 48px }
 }
 
 /* Ergebnis-Zettel */
-.result { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px) }
+.result { position: sticky; top: calc(var(--toph, 60px) + 64px) }
+/* Artikelname bleibt beim Scrollen oben stehen */
+.arthead { position: sticky; top: var(--toph, 60px); z-index: 4; display: flex; min-width: 0; align-items: center; gap: 10px; margin: 0 -16px; padding: 8px 16px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line) }
+.arthead strong { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1rem }
+.arthead .sku { color: var(--muted); font: .78rem var(--font-mono); white-space: nowrap }
+.arthead .num { font-family: var(--font-mono); font-size: .9rem; white-space: nowrap }
+@media (max-width: 520px) { .arthead .sku { display: none } .arthead strong { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: .92rem } .arthead .num { font-size: .8rem } }
 @media (max-width: 860px) { .result { position: static } }
 .big { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap }
 .big .num { font-size: 2.3rem; font-weight: 500; line-height: 1 }
@@ -220,6 +227,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
   </div>
 </header>
+<script>
+  // Höhe der Kopfzeile für die einrastende Artikelzeile
+  new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
+</script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
 <div class="toast" id="toast" hidden></div>
 <div class="savebar" id="savebar" hidden>
@@ -629,6 +640,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         <span class="btns"><a class="btn" href="#uebersicht">← Übersicht</a><button class="btn star-btn" data-star="${a.id}" aria-pressed="${!!a.fav}">${a.fav ? "★ Markiert" : "☆ Markieren"}</button></span>
         <div class="btns">${a.example ? '<span class="pill muted">Beispiel mit geschätzten Zahlen</span>' : ""}<button class="btn" data-act="dup">Duplizieren</button><button class="btn danger" data-act="del">Löschen</button><button class="btn primary" id="saveTop" data-act="save" ${dirty ? "" : "disabled"}>Speichern</button></div>
       </div>
+      <div class="arthead" id="artHead"><strong id="ahName"></strong><span class="sku" id="ahSku"></span><span class="num" id="ahProfit"></span></div>
       <div class="status" id="missBox"></div>
       <div class="banner" id="delConfirm" hidden><span>„${esc(a.name)}“ wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="delYes">Löschen</button><button class="btn" data-act="delNo">Abbrechen</button></span></div>
       <div class="cols">
@@ -717,6 +729,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   function updateEditor(a) {
     const ctx = volume(), r = calc(a, a.chan, undefined, ctx);
     const miss = missing(a), mb = $("missBox");
+    $("ahName").textContent = a.name || "Ohne Namen"; $("ahSku").textContent = a.sku || "";
+    $("ahProfit").textContent = isFinite(r.profit) ? eur(r.profit) + " · " + pct(r.margin) : "";
+    $("ahProfit").style.color = r.profit < 0 ? "var(--bad)" : "";
     $("secWood").hidden = $("secMach").hidden = !!a.fremd;
     $("extLabel").textContent = a.fremd ? "Einkaufspreis Schreinerei" : "Fremdleistung";
     $("extNote").textContent = a.fremd ? "pro Stück netto, was du der Schreinerei zahlst" : "Schreinerei, Laser, Gravur";
