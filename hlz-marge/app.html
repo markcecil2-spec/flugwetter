@@ -117,7 +117,7 @@ main.wrap { padding-block: 20px 48px }
 .rowhead { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600 }
 .rowline .inp input, .rowline .inp select { padding: 7px 8px; font-size: .88rem }
 .rowline .out { font-family: var(--font-mono); font-size: .85rem; text-align: right; color: var(--muted) }
-.c-parts { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.6fr) minmax(0, .9fr) minmax(0, .9fr) minmax(0, .7fr) 32px }
+.c-parts { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr) 32px }
 .c-2 { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
 .c-plates { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, .8fr) minmax(0, .8fr) 32px }
 .c-ship { grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)) 32px }
@@ -146,10 +146,9 @@ main.wrap { padding-block: 20px 48px }
   .rowline.c-box > :nth-child(1) { grid-area: n } .rowline.c-box > :nth-child(2) { grid-area: l } .rowline.c-box > :nth-child(3) { grid-area: b }
   .rowline.c-box > :nth-child(4) { grid-area: h } .rowline.c-box > :nth-child(5) { grid-area: g } .rowline.c-box > :nth-child(6) { grid-area: p } .rowline.c-box > :nth-child(7) { grid-area: x; justify-self: end }
   /* Zuschnitt am Handy: Name + Entfernen, darunter Platte, darunter Maße */
-  .rowline.c-parts { grid-template-areas: "n n x" "p p p" "l b q" }
-  .rowline.c-parts > :nth-child(1) { grid-area: n } .rowline.c-parts > :nth-child(2) { grid-area: p }
-  .rowline.c-parts > :nth-child(3) { grid-area: l } .rowline.c-parts > :nth-child(4) { grid-area: b }
-  .rowline.c-parts > :nth-child(5) { grid-area: q } .rowline.c-parts > :nth-child(6) { grid-area: x }
+  .rowline.c-parts { grid-template-areas: "n n x" "l b q" }
+  .rowline.c-parts > :nth-child(1) { grid-area: n } .rowline.c-parts > :nth-child(2) { grid-area: l }
+  .rowline.c-parts > :nth-child(3) { grid-area: b } .rowline.c-parts > :nth-child(4) { grid-area: q } .rowline.c-parts > :nth-child(5) { grid-area: x }
   .rowline .x { justify-self: end }
 }
 
@@ -444,10 +443,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     else if (ch === "ebay") { fees = (gross * v(S.bPayP) / 100 + v(S.bPayF)) * (S.feeVat ? 1.19 : 1); ads = v(S.bAds); }
     else { fees = gross * v(S.dPayP) / 100 + v(S.dPayF); ads = v(S.dAds); }
 
-    const wasteF = 1 + v(a.waste) / 100;
+    // Verschnitt und Platte gelten für alle Artikel (Einstellungen → Material)
+    const wasteF = 1 + v(S.wasteDefault) / 100;
     let partsM2 = 0, wood = 0;
     (a.parts || []).forEach(r => {
-      const pl = S.plates.find(x => x.n === r.plate) || S.plates[0];
+      const pl = S.plates[0];
       const m2 = v(r.l) * v(r.b) * v(r.q) / 10000;
       const plM2 = pl ? v(pl.l) * v(pl.b) / 10000 : 0;
       partsM2 += m2;
@@ -669,7 +669,6 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const partsRows = (a.parts || []).map((r, i) => `<div class="rowline c-parts">
         ${(S.blanks || []).some(b => b.n) ? `<div class="inp"><select data-ap="${i}" data-f="blank" aria-label="Rohling">${opt("", "Freies Teil", !r.blank)}${S.blanks.filter(b => b.n).map(b => opt(b.n, b.n, r.blank === b.n)).join("")}</select></div>`
           : `<div class="inp"><input type="text" data-ap="${i}" data-f="n" value="${esc(r.n)}" aria-label="Teil"></div>`}
-        <div class="inp"><select data-ap="${i}" data-f="plate" aria-label="Platte">${S.plates.map(p => opt(p.n, p.n, p.n === r.plate)).join("")}</select></div>
         ${numIn(`data-ap="${i}" data-f="l" aria-label="Länge in cm" placeholder="Länge"`, r.l, "cm")}
         ${numIn(`data-ap="${i}" data-f="b" aria-label="Breite in cm" placeholder="Breite"`, r.b, "cm")}
         ${numIn(`data-ap="${i}" data-f="q" aria-label="Stück"`, r.q, "Stk")}
@@ -705,9 +704,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           </section>
 
           <section class="box" id="secWood">
-            <div class="row"><h2>Holz</h2><div class="field" style="width:130px"><label for="a-waste">Verschnitt</label>${numIn(`id="a-waste" data-a="waste"`, a.waste, "%")}</div></div>
+            <h2>Holz</h2>
             <div class="rows">
-              <div class="rowhead c-parts"><span>Teil</span><span>Platte</span><span>Länge cm</span><span>Breite cm</span><span>Stk</span><span></span></div>
+              <div class="rowhead c-parts"><span>Teil</span><span>Länge cm</span><span>Breite cm</span><span>Stk</span><span></span></div>
               ${partsRows}
             </div>
             <button class="btn add" data-act="addPart">+ Teil</button>
@@ -802,9 +801,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     mb.innerHTML = miss.length
       ? `<span>⚠ Noch offen:</span> ${miss.map(x => `<button type="button" class="chip miss" data-jump="${x}">${x}</button>`).join("")}<span class="note">Sind alle Punkte erledigt, kommt der Artikel beim Speichern nach ✓ Fertig.</span>`
       : `<span>✓ Vollständig</span><span class="note">${dirty ? "Beim Speichern kommt der Artikel nach ✓ Fertig." : "Liegt im Ordner ✓ Fertig."}</span>`;
-    const pl = S.plates.find(x => x.n === ((a.parts || [])[0] || {}).plate) || S.plates[0];
+    const pl = S.plates[0];
     const m2 = pl && v(pl.l) * v(pl.b) > 0 ? v(pl.p) / (v(pl.l) * v(pl.b) / 10000) : 0;
-    const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(a.waste) / 100))) : 0;
+    const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(S.wasteDefault) / 100))) : 0;
     $("woodInfo").textContent = r.partsM2 > 0 ? `${dec(r.partsM2, 3)} m² · ${eur(m2)}/m² · ca. ${perPlate} Stück pro Platte` : "Zuschnitt eintragen";
     $("woodSum").textContent = eur(r.wood); $("smallSum").textContent = eur(r.small); $("machSum").textContent = eur(r.mach); $("timeSum").textContent = eur(r.time);
 
@@ -899,13 +898,14 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               ${settingsField("target", "Ziel-Marge", "%")}
               ${settingsField("qtyReal", "Verkäufe/Monat, alle Kanäle", "Stk", "für den Werkstattanteil, leer = aus Import")}
               ${settingsField("shipInDefault", "Versand vom Kunden", "€", "Standard für neue Artikel")}
-              ${settingsField("wasteDefault", "Holz-Verschnitt", "%", "Standard für neue Artikel")}
             </div>
             <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück)</label>
           </section>
           <section class="box" data-sec="betrieb"><h2>${LISTS.fixed.title}</h2>${listHTML("fixed")}<div class="sumline"><span>Summe</span><strong id="fixSum">${eur(fixTotal(T))}</strong></div></section>
           <section class="box" data-sec="betrieb"><h2>${LISTS.order.title}</h2>${listHTML("order")}<p class="note">Billbee: 53 € ÷ 113 Bestellungen = 0,47 €</p></section>
-          <section class="box" data-sec="material"><h2>${LISTS.plates.title}</h2>${listHTML("plates")}</section>
+          <section class="box" data-sec="material"><h2>${LISTS.plates.title}</h2>${listHTML("plates")}
+            <div class="grid3 keep" style="margin-top:12px">${settingsField("wasteDefault", "Holz-Verschnitt", "%", "gilt für alle Artikel")}</div>
+            <p class="note">Gerechnet wird mit der ersten Platte, Preis netto inklusive Lieferzuschlägen.</p></section>
           <section class="box" data-sec="material"><h2>${LISTS.blanks.title}</h2>${listHTML("blanks")}
             <p class="note">Deine vorproduzierten Rohlinge. Im Artikel wählst du beim Holz nur noch den Rohling aus, Länge und Höhe werden übernommen, und die App schlägt den passenden Karton vor.</p></section>
           <section class="box" data-sec="material"><h2>${LISTS.small.title}</h2>${listHTML("small")}</section>
