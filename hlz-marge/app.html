@@ -276,7 +276,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
     bPayP: "12", bPayF: "0.45", bAds: "0",
-    boxes: [], blanks: [],
+    boxes: [], blanks: [], oilM2: "1.58",
     fixed: [
       { n: "Werkstattmiete", a: "585" },
       { n: "Lexware Office", a: "12.90", ph: true },
@@ -445,8 +445,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
     // Verschnitt und Platte gelten für alle Artikel (Einstellungen → Material)
     const wasteF = 1 + v(S.wasteDefault) / 100;
-    let partsM2 = 0, wood = 0;
+    let partsM2 = 0, wood = 0, surf = 0;
     (a.parts || []).forEach(r => {
+      // Ölfläche: alle Seiten des Teils, Stärke vom Rohling (sonst 2 cm)
+      const t = v(((S.blanks || []).find(b => b.n === r.blank) || {}).t) || 2;
+      surf += 2 * (v(r.l) * v(r.b) + (v(r.l) + v(r.b)) * t) * v(r.q) / 10000;
       const pl = S.plates[0];
       const m2 = v(r.l) * v(r.b) * v(r.q) / 10000;
       const plM2 = pl ? v(pl.l) * v(pl.b) / 10000 : 0;
@@ -454,6 +457,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       if (plM2 > 0) wood += m2 * wasteF * v(pl.p) / plM2;
     });
     wood *= a.fremd ? 0 : inK;
+    const oil = a.fremd ? 0 : surf * v(S.oilM2) * inK;
     const small = (S.small || []).reduce((s, x) => s + v(x.p) * v((a.small || {})[x.n]), 0) * inK;
     const mach = a.fremd ? 0 : (S.mach || []).reduce((s, m) => s + v(m.r) * v((a.mach || {})[m.n]) / 60, 0);
     const order = (S.order || []).reduce((s, r) => s + v(r.a), 0) * inK;
@@ -462,10 +466,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const pack = v(a.pack) * inK, outer = v(a.outer) * inK, ext = a.fremd ? v(a.ext) * inK : 0;
     const time = v(a.mins) / 60 * v(S.rate);
     const fixShare = S.alloc && ctx.vol > 0 ? fixTotal() / ctx.vol : 0;
-    const varCosts = wood + small + ext + porto + pack + outer + time + mach + order;
+    const varCosts = wood + oil + small + ext + porto + pack + outer + time + mach + order;
     const db = net - fees - ads - varCosts;          // Deckungsbeitrag vor Fixkosten
     const profit = db - fixShare;
-    return { P, gross, net, vatAmt: gross - net, fees, ads, wood, small, mach, order, ext, porto, pack, outer, time, fixShare,
+    return { P, gross, net, vatAmt: gross - net, fees, ads, wood, oil, surf, small, mach, order, ext, porto, pack, outer, time, fixShare,
       partsM2, ship, varCosts, db, profit, margin: net > 0 ? profit / net * 100 : NaN };
   }
   // Gewinn und Netto sind linear im Preis → Preis aus zwei Stützstellen
@@ -710,7 +714,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               ${partsRows}
             </div>
             <button class="btn add" data-act="addPart">+ Teil</button>
-            <div class="sumline"><span id="woodInfo"></span><span>Holz pro Stück <strong id="woodSum"></strong></span></div>
+            <div class="sumline"><span id="woodInfo"></span><span>Holz <strong id="woodSum"></strong> · Öl <strong id="oilSum"></strong></span></div>
           </section>
 
           <section class="box">
@@ -805,7 +809,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const m2 = pl && v(pl.l) * v(pl.b) > 0 ? v(pl.p) / (v(pl.l) * v(pl.b) / 10000) : 0;
     const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(S.wasteDefault) / 100))) : 0;
     $("woodInfo").textContent = r.partsM2 > 0 ? `${dec(r.partsM2, 3)} m² · ${eur(m2)}/m² · ca. ${perPlate} Stück pro Platte` : "Zuschnitt eintragen";
-    $("woodSum").textContent = eur(r.wood); $("smallSum").textContent = eur(r.small); $("machSum").textContent = eur(r.mach); $("timeSum").textContent = eur(r.time);
+    $("woodSum").textContent = eur(r.wood); $("oilSum").textContent = eur(r.oil); $("smallSum").textContent = eur(r.small); $("machSum").textContent = eur(r.mach); $("timeSum").textContent = eur(r.time);
 
     const s = r.ship, lines = [];
     if (!s.chosen) lines.push(`<span class="warn">Keine Versandart passt, Gewicht oder Maße sind zu groß. Leg unter Einstellungen eine passende an.</span>`);
@@ -833,7 +837,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
     const segs = [
       ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Billbee & Co.", r.order, "--seg-fee", .8], ["Werbung", r.ads, "--seg-fee", .6],
-      ["Holz", r.wood, "--seg-make"], ["Kleinteile", r.small, "--seg-make", .65], ["Einkauf Schreinerei", r.ext, "--seg-other"],
+      ["Holz", r.wood, "--seg-make"], ["Öl", r.oil, "--seg-make", .8], ["Kleinteile", r.small, "--seg-make", .65], ["Einkauf Schreinerei", r.ext, "--seg-other"],
       ["Versand", r.porto, "--seg-ship"], ["Verpackung", r.pack, "--seg-pack"], ["Umverpackung", r.outer, "--seg-pack", .65],
       ["Maschinen", r.mach, "--seg-time", .6], ["Deine Zeit", r.time, "--seg-time"], ["Werkstatt & Fixkosten", r.fixShare, "--seg-other", .6],
       ["Gewinn", Math.max(0, r.profit), "--seg-profit"]
@@ -904,7 +908,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           <section class="box" data-sec="betrieb"><h2>${LISTS.fixed.title}</h2>${listHTML("fixed")}<div class="sumline"><span>Summe</span><strong id="fixSum">${eur(fixTotal(T))}</strong></div></section>
           <section class="box" data-sec="betrieb"><h2>${LISTS.order.title}</h2>${listHTML("order")}<p class="note">Billbee: 53 € ÷ 113 Bestellungen = 0,47 €</p></section>
           <section class="box" data-sec="material"><h2>${LISTS.plates.title}</h2>${listHTML("plates")}
-            <div class="grid3 keep" style="margin-top:12px">${settingsField("wasteDefault", "Holz-Verschnitt", "%", "gilt für alle Artikel")}</div>
+            <div class="grid3 keep" style="margin-top:12px">${settingsField("wasteDefault", "Holz-Verschnitt", "%", "gilt für alle Artikel")}${settingsField("oilM2", "Öl pro m² Oberfläche", "€", "wird aus den Holzmaßen berechnet")}</div>
             <p class="note">Gerechnet wird mit der ersten Platte, Preis netto inklusive Lieferzuschlägen.</p></section>
           <section class="box" data-sec="material"><h2>${LISTS.blanks.title}</h2>${listHTML("blanks")}
             <p class="note">Deine vorproduzierten Rohlinge. Im Artikel wählst du beim Holz nur noch den Rohling aus, Länge und Höhe werden übernommen, und die App schlägt den passenden Karton vor.</p></section>
