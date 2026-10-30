@@ -440,7 +440,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (ch === "etsy" || ch === "etsyOff") {
       const off = ch === "etsyOff" ? 15 : v(S.eOff);
       fees = (v(S.eList) + gross * (v(S.eTrans) + off) / 100 + gross * v(S.ePayP) / 100 + v(S.ePayF)) * (S.feeVat ? 1.19 : 1);
-      ads = v(S.eAds);
+      ads = a.adsEtsy !== undefined && a.adsEtsy !== "" ? v(a.adsEtsy) : v(S.eAds);
     } else if (ch === "shopify") { fees = gross * v(S.sPayP) / 100 + v(S.sPayF); ads = v(S.sAds); }
     else if (ch === "ebay") { fees = (gross * v(S.bPayP) / 100 + v(S.bPayF)) * (S.feeVat ? 1.19 : 1); ads = v(S.bAds); }
     else { fees = gross * v(S.dPayP) / 100 + v(S.dPayF); ads = v(S.dAds); }
@@ -705,7 +705,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             </div>
             <div class="grid3 keep" style="margin-top:12px">
               <div class="field"><label for="a-disc">Shop-Rabatt</label>${numIn(`id="a-disc" data-a="disc"`, a.disc || "", "%")}</div>
-              <div class="field" style="grid-column: span 2"><span class="label">Kunde zahlt</span><div class="note" id="discInfo" style="padding-top:10px"></div></div>
+              <div class="field"><label for="a-adsEtsy">Etsy Ads je Verkauf</label>${numIn(`id="a-adsEtsy" data-a="adsEtsy"`, a.adsEtsy ?? "", "€")}<small>leer = Wert aus Einstellungen</small></div>
+              <div class="field"><span class="label">Kunde zahlt</span><div class="note" id="discInfo" style="padding-top:10px"></div></div>
             </div>
             <label class="check"><input type="checkbox" id="a-fremd" data-a="fremd" ${a.fremd ? "checked" : ""}> Fertigt eine andere Schreinerei <small>(kein Holz, keine Maschinen, dafür Einkaufspreis)</small></label>
             <div class="grid3 keep" id="extBox" style="margin-top:10px">
