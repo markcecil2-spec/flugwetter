@@ -59,7 +59,7 @@ h3 { font-size: 1rem }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
 .note { font-size: .8rem; color: var(--muted); margin: 0 }
 .ph { color: var(--warn); font-size: .8rem; margin: 0 }
-.inp.est { box-shadow: 0 0 0 2px var(--warn) }
+.inp.est, .inp.need { box-shadow: 0 0 0 2px var(--warn) }
 .stabs { margin: 4px 0 14px } .stackset { max-width: 760px }
 .inp.chsel { display: inline-flex; width: auto; max-width: 100%; margin-bottom: 10px }
 .savenear { display: block; margin: 12px 0 0 auto; padding: 7px 16px; font-size: .88rem }
@@ -846,9 +846,24 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const cost = b => { const r = pickShip({ ...a, pkL: b.l, pkB: b.b, pkH: b.h, shipMode: "auto" }); return v(b.p) + (r.best ? r.best.price : 99); };
     return fits.sort((x, y) => cost(x) - cost(y))[0] || null;
   }
+  // Leere Pflichtfelder orange umranden
+  function markNeeded(a, miss) {
+    document.querySelectorAll("#view .inp.need").forEach(x => x.classList.remove("need"));
+    const els = [];
+    const add = id => { const el = typeof id === "string" ? $(id) : id; if (el && !v(el.value)) els.push(el); };
+    if (miss.includes("Preis")) add("a-price");
+    if (miss.includes("Einkaufspreis")) add("a-ext");
+    if (miss.includes("Holz")) document.querySelectorAll('[data-ap][data-f="l"], [data-ap][data-f="b"], [data-ap][data-f="q"]').forEach(add);
+    if (miss.includes("Versandmaße")) { ["a-pkL", "a-pkB", "a-pkH"].forEach(add); if (!autoWeight(a)) add("a-weight"); }
+    if (miss.includes("Arbeitszeit")) add("a-mins");
+    if (miss.includes("Kleinteile")) add("sm-0");
+    if (miss.includes("Maschinenzeit")) add("mm-0");
+    els.forEach(el => el.closest(".inp")?.classList.add("need"));
+  }
   function updateEditor(a) {
     const ctx = volume(), r = calc(a, a.chan, undefined, ctx);
     const miss = missing(a), mb = $("missBox");
+    markNeeded(a, miss);
     const aw = autoWeight(a);
     $("wAuto").textContent = aw ? (v(a.weight) > 0 ? `berechnet wären ${dec(aw / 1000, 2)} kg` : `automatisch: ${dec(aw / 1000, 2)} kg (Holz, Teile, Karton, Papier)`) : "leer = automatisch, sobald Holzmaße da sind";
     $("discInfo").textContent = v(a.disc) > 0 ? `${eur(r.P)} statt ${eur(v(a.price))} (−${eur(v(a.price) - r.P)}) + ${eur(v(a.shipIn))} Versand` : `${eur(r.P)} + ${eur(v(a.shipIn))} Versand`;
