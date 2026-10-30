@@ -744,8 +744,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="kpi"><span class="label">Mindestpreis</span><span class="num" id="kMin"></span></div>
             <div class="kpi"><span class="label">Preis für ${esc(S.target)} % Marge</span><span class="num" id="kTarget" style="color:var(--accent)"></span></div>
           </div>
-          <h3 style="margin-top:6px">Anderer Kanal</h3>
-          <div class="tablewrap"><table style="min-width:0"><tbody id="cmpBody"></tbody></table></div>
+          <h3 style="margin-top:6px">Andere Kanäle</h3>
+          <div class="tablewrap"><table style="min-width:0"><thead><tr><th>Kanal</th><th class="num">Gewinn</th><th class="num">Marge</th></tr></thead><tbody id="cmpBody"></tbody></table></div>
         </aside>
       </div>`;
     updateEditor(a);
