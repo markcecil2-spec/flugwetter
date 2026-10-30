@@ -397,6 +397,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   const salesPerMonth = a => Object.values(a.sales || {}).reduce((s, x) => s + (v(x.months) > 0 ? v(x.qty) / v(x.months) : 0), 0);
   function volume() {
     const imp = A.reduce((s, a) => s + salesPerMonth(a), 0);
+    // Eigene Angabe (alle Kanäle) geht vor, sonst Importzahlen, sonst Schätzung
+    if (v(S.qtyReal) > 0) return { vol: v(S.qtyReal), src: "real" };
     return imp > 0 ? { vol: imp, src: "import" } : { vol: v(S.qtyManual), src: "manual" };
   }
   function pickShip(a) {
@@ -609,7 +611,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         <div class="tile hero"><span class="label">Ergebnis pro Monat</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
         <div class="tile"><span class="label">Deckungsbeitrag</span><span class="num">${hasSales ? eur0(m.db) : "–"}</span><span class="note">${hasSales ? "aus " + dec(m.qty) + " Verkäufen/Monat" : "noch keine Verkaufszahlen"}</span></div>
         <div class="tile"><span class="label">Fixkosten</span><span class="num">${eur0(fix)}</span><span class="note">Miete, Software, Abos</span></div>
-        <div class="tile"><span class="label">Werkstattanteil</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${ctx.src === "import" ? "laut Import" : "geschätzt"}</span></div>
+        <div class="tile"><span class="label">Werkstattanteil</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${{ real: "laut deiner Angabe", import: "laut Import" }[ctx.src] || "geschätzt"}</span></div>
       </div>
       <section class="box">
         <div class="row">
@@ -855,7 +857,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="grid3 keep">
               ${settingsField("rate", "Dein Stundensatz", "€/h")}
               ${settingsField("target", "Ziel-Marge", "%")}
-              ${settingsField("qtyManual", "Verkäufe/Monat (geschätzt)", "Stk", ctx.src === "import" ? "wird durch Import ersetzt" : "")}
+              ${settingsField("qtyReal", "Verkäufe/Monat, alle Kanäle", "Stk", "für den Werkstattanteil, leer = aus Import")}
               ${settingsField("shipInDefault", "Versand vom Kunden", "€", "Standard für neue Artikel")}
               ${settingsField("wasteDefault", "Holz-Verschnitt", "%", "Standard für neue Artikel")}
             </div>
