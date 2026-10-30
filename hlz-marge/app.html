@@ -937,7 +937,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       return opts.some(need => need.every((n, i) => n <= inner[i]));
     });
     const cost = b => { const r = pickShip({ ...a, pkL: b.l, pkB: b.b, pkH: b.h, shipMode: "auto" }); return v(b.p) + (r.best ? r.best.price : 99); };
-    return fits.sort((x, y) => cost(x) - cost(y))[0] || null;
+    // Günstigster Karton; bei weniger als 10 Cent Unterschied lieber der kleinere
+    const vol = b => v(b.l) * v(b.b) * v(b.h);
+    return fits.sort((x, y) => Math.abs(cost(x) - cost(y)) < 0.10 ? vol(x) - vol(y) : cost(x) - cost(y))[0] || null;
   }
   // Leere Pflichtfelder orange umranden
   function markNeeded(a, miss) {
