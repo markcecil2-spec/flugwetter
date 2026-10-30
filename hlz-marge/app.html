@@ -926,7 +926,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="grid3 keep">
               ${settingsField("eList", "Einstellgebühr", "€", "0,20 $")}${settingsField("eTrans", "Transaktion", "%")}${settingsField("ePayP", "Zahlung", "%")}
               ${settingsField("ePayF", "+ fix", "€")}
-              <div class="field"><label for="s-eOff">Offsite Ads</label><div class="inp"><select id="s-eOff" data-s="eOff">${[["0", "keine"], ["15", "15 %"], ["12", "12 %"]].map(([x, l]) => opt(x, l, String(T.eOff) === x)).join("")}</select></div></div>
+              ${settingsField("eOff", "Offsite Ads im Schnitt", "%", "Anteil Offsite-Verkäufe × 12 %, z. B. 15 % × 12 = 1,8")}
               ${settingsField("eAds", "Etsy Ads je Verkauf", "€")}
             </div>
             <h3>eBay</h3>
