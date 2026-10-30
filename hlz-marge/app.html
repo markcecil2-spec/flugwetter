@@ -690,9 +690,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   function mixCalc(a, ctx) {
     const w = Object.entries(a.sales || {}).map(([ch, x]) => [CHANNELS.includes(ch) ? ch : "etsy", v(x.qty) / Math.max(v(x.months), 0.1)]).filter(x => x[1] > 0);
     if (!w.length) return calc(a, "etsy", undefined, ctx);
-    const tot = w.reduce((s, x) => s + x[1], 0), keys = ["P", "net", "gross", "fees", "ads", "varCosts", "fixShare", "profit"];
-    const r = Object.fromEntries(keys.map(k => [k, 0]));
-    w.forEach(([ch, q]) => { const c = calc(a, ch, undefined, ctx); keys.forEach(k => r[k] += c[k] * q / tot); });
+    // alle Zahlen gewichtet mitteln, der Rest (z. B. Versandart) kommt vom meistverkauften Kanal
+    const tot = w.reduce((s, x) => s + x[1], 0), cs = w.map(([ch, q]) => [calc(a, ch, undefined, ctx), q / tot]);
+    const top = cs.reduce((x, y) => y[1] > x[1] ? y : x)[0], r = { ...top };
+    Object.keys(top).filter(k => typeof top[k] === "number").forEach(k => r[k] = cs.reduce((s, [c, f]) => s + (v(c[k]) || 0) * f, 0));
     r.margin = r.net > 0 ? r.profit / r.net * 100 : NaN;
     r.mixLabel = w.map(([ch, q]) => `${CH_NAMES[ch]} ${Math.round(q / tot * 100)} %`).join(", ");
     return r;
