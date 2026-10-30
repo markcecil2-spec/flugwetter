@@ -120,6 +120,7 @@ main.wrap { padding-block: 20px 48px }
 .c-2 { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
 .c-plates { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, .8fr) minmax(0, .8fr) 32px }
 .c-ship { grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)) 32px }
+.c-box { grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr)) 32px }
 .rowline.chosen .inp:first-child { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft) }
 .rows .inp span { padding: 0 6px 0 0; font-size: .75rem }
 .x { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; font-size: 1rem }
@@ -130,9 +131,12 @@ main.wrap { padding-block: 20px 48px }
 /* Listen stapeln, sobald ihre Box schmal ist (Handy, aber auch die halbe Desktop-Spalte) */
 .rows { container-type: inline-size }
 @container (max-width: 640px) {
-  .rowhead.c-parts, .rowhead.c-ship, .rowhead.c-plates { display: none }
-  .rowline.c-parts, .rowline.c-ship, .rowline.c-plates { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
-  .rowline.c-ship > :first-child, .rowline.c-plates > :first-child { grid-column: 1 / -1 }
+  .rowhead.c-parts, .rowhead.c-ship, .rowhead.c-plates, .rowhead.c-box { display: none }
+  .rowline.c-parts, .rowline.c-ship, .rowline.c-plates, .rowline.c-box { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
+  .rowline.c-ship > :first-child, .rowline.c-plates > :first-child, .rowline.c-box > :first-child { grid-column: 1 / -1 }
+  .rowline.c-box { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-areas: "n n n x" "l b h p" }
+  .rowline.c-box > :nth-child(1) { grid-area: n } .rowline.c-box > :nth-child(2) { grid-area: l } .rowline.c-box > :nth-child(3) { grid-area: b }
+  .rowline.c-box > :nth-child(4) { grid-area: h } .rowline.c-box > :nth-child(5) { grid-area: p } .rowline.c-box > :nth-child(6) { grid-area: x; justify-self: end }
   /* Zuschnitt am Handy: Name + Entfernen, darunter Platte, darunter Maße */
   .rowline.c-parts { grid-template-areas: "n n x" "p p p" "l b q" }
   .rowline.c-parts > :nth-child(1) { grid-area: n } .rowline.c-parts > :nth-child(2) { grid-area: p }
@@ -265,6 +269,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
     bPayP: "12", bPayF: "0.45", bAds: "0",
+    boxes: [],
     fixed: [
       { n: "Werkstattmiete", a: "585" },
       { n: "Lexware Office", a: "12.90", ph: true },
@@ -717,6 +722,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="grid3 keep">
               <div class="field"><label for="a-weight">Gewicht verpackt</label>${numIn(`id="a-weight" data-a="weight"`, a.weight, "g")}</div>
               <div class="field" style="grid-column: span 2"><label for="a-shipMode">Versandart</label><div class="inp"><select id="a-shipMode" data-a="shipMode">${opt("auto", "Automatisch (günstigste passende)", a.shipMode === "auto")}${S.ship.map(o => opt(o.n, o.n, a.shipMode === o.n)).join("")}</select></div></div>
+              <div class="field" style="grid-column: 1 / -1"><label for="a-box">Karton</label><div class="inp"><select id="a-box" data-a="box">${opt("", (S.boxes || []).length ? "Eigene Maße (unten eintragen)" : "Noch keine Kartons, unter Einstellungen anlegen", !a.box)}${(S.boxes || []).filter(b => b.n).map(b => opt(b.n, `${b.n} · ${b.l} × ${b.b} × ${b.h} cm${v(b.p) ? " · " + eur(v(b.p)) : ""}`, a.box === b.n)).join("")}</select></div></div>
               <div class="field"><label for="a-pkL">Packmaß L</label>${numIn(`id="a-pkL" data-a="pkL"`, a.pkL, "cm")}</div>
               <div class="field"><label for="a-pkB">Packmaß B</label>${numIn(`id="a-pkB" data-a="pkB"`, a.pkB, "cm")}</div>
               <div class="field"><label for="a-pkH">Packmaß H</label>${numIn(`id="a-pkH" data-a="pkH"`, a.pkH, "cm")}</div>
@@ -828,7 +834,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     plates: { title: "Holzplatten", cls: "c-plates", head: ["Platte", "Preis netto", "Länge cm", "Breite cm"], cols: [["n", "text"], ["p", "number", "€"], ["l", "number", "L"], ["b", "number", "B"]], blank: { n: "", p: "", l: "", b: "" }, ref: "plate" },
     small: { title: "Beschläge & Kleinteile", cls: "c-2", head: ["Teil", "€ / Stk netto"], cols: [["n", "text"], ["p", "number", "€"]], blank: { n: "", p: "" }, ref: "small" },
     mach: { title: "Maschinen", cls: "c-2", head: ["Maschine", "€ / Stunde"], cols: [["n", "text"], ["r", "number", "€/h"]], blank: { n: "", r: "" }, ref: "mach" },
-    ship: { title: "Versandarten", cls: "c-ship", head: ["Versandart", "max g", "L cm", "B cm", "H cm", "€ netto"], cols: [["n", "text"], ["g", "number", "g"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"]], blank: { n: "", g: "", l: "", b: "", h: "", p: "" }, ref: "ship" }
+    ship: { title: "Versandarten", cls: "c-ship", head: ["Versandart", "max g", "L cm", "B cm", "H cm", "€ netto"], cols: [["n", "text"], ["g", "number", "g"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"]], blank: { n: "", g: "", l: "", b: "", h: "", p: "" }, ref: "ship" },
+    boxes: { title: "Kartons", cls: "c-box", head: ["Karton", "L cm", "B cm", "H cm", "€ netto"], cols: [["n", "text"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"]], blank: { n: "", l: "", b: "", h: "", p: "" }, ref: "box" }
   };
   function listHTML(k) {
     const T = draftS || S;
@@ -904,6 +911,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <li>Die Miete gehört nicht hier rein, die steckt in den Fixkosten.</li></ul></details></section>
           <section class="box"><h2>${LISTS.ship.title}</h2>${listHTML("ship")}
             <p class="note">DHL Kleinpaket: nur Geschäftskunden, max. 1 kg und 35,3 × 25 × 8 cm. Preise aus deinem DHL-Vertrag eintragen.</p></section>
+          <section class="box"><h2>${LISTS.boxes.title}</h2>${listHTML("boxes")}
+            <p class="note">Außenmaße deiner Kartons und was einer kostet. Im Artikel wählst du dann nur noch den Karton aus, Packmaße und Umverpackung werden übernommen.</p></section>
           <section class="box">
             <h2>Daten</h2>
             <p class="note">${mode === "cloud" ? "Deine Daten liegen online und sind auf Handy und PC gleich, wenn du diesen Link öffnest." : "Deine Daten liegen nur in diesem Browser. Mach ab und zu eine Sicherung."}</p>
@@ -929,6 +938,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       if (kind === "plate") (a.parts || []).forEach(p => { if (p.plate === oldN) { p.plate = newN; ch = true; } });
       if ((kind === "small" || kind === "mach") && a[kind] && oldN in a[kind]) { a[kind][newN] = a[kind][oldN]; delete a[kind][oldN]; ch = true; }
       if (kind === "ship" && a.shipMode === oldN) { a.shipMode = newN; ch = true; }
+      if (kind === "box" && a.box === oldN) { a.box = newN; ch = true; }
       if (ch) saveArticle(a);
     });
   }
@@ -951,7 +961,16 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   document.addEventListener("input", e => {
     const t = e.target, d = t.dataset, val = t.type === "checkbox" ? t.checked : t.value;
     const a = view === "artikel" ? draft : null;
-    if (a && d.a) { a[d.a] = val; setDirty(true); updateEditor(a); }
+    if (a && d.a) {
+      a[d.a] = val;
+      // Karton gewählt: Packmaße und Umverpackung übernehmen
+      const bx = d.a === "box" && (S.boxes || []).find(b => b.n === val);
+      if (bx) {
+        const set = { pkL: bx.l, pkB: bx.b, pkH: bx.h, ...(bx.p !== "" && bx.p != null ? { outer: bx.p } : {}) };
+        Object.entries(set).forEach(([k, x]) => { a[k] = x; const el = $("a-" + k); if (el) el.value = x; });
+      }
+      setDirty(true); updateEditor(a);
+    }
     else if (a && d.ap !== undefined) { a.parts[+d.ap][d.f] = val; setDirty(true); updateEditor(a); }
     else if (a && d.as !== undefined) { (a.small = a.small || {})[d.as] = val; setDirty(true); updateEditor(a); }
     else if (a && d.am !== undefined) { (a.mach = a.mach || {})[d.am] = val; setDirty(true); updateEditor(a); }
