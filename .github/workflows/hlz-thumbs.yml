@@ -1,0 +1,34 @@
+# Vorschaubilder fuer den HLZ Margenrechner: laedt die Shopify-Produktfotos aus
+# hlz-marge/thumbs/list.txt ("datei url" je Zeile), schneidet sie quadratisch auf 96 px
+# und legt sie daneben ab. Die App darf selbst keine fremden Bilder laden.
+name: hlz-thumbs
+on:
+  push:
+    paths: ["hlz-marge/thumbs/list.txt"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  bilder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q pillow
+      - name: Laden und verkleinern
+        run: |
+          cd hlz-marge/thumbs
+          grep -v "^#" list.txt | while read -r f u; do
+            [ -z "$f" ] && continue
+            curl -sSfL "$u?width=240" -o "/tmp/$f.src" || { echo "FEHLT $f $u"; continue; }
+            python3 -c "
+          from PIL import Image, ImageOps; import sys
+          im = Image.open(sys.argv[1]).convert('RGB')
+          ImageOps.fit(im, (96, 96), Image.LANCZOS).save(sys.argv[2], 'JPEG', quality=80, optimize=True)" "/tmp/$f.src" "$f"
+          done
+          ls -la | head -100
+      - name: Ablegen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add hlz-marge/thumbs
+          git diff --cached --quiet || { git commit -m "HLZ Vorschaubilder aktualisiert"; git push; }
