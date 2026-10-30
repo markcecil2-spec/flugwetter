@@ -1016,7 +1016,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (has("handle") && has("variant price")) return { type: "shopifyProducts", ch: "shopify", label: "Shopify Produkte" };
     if (has("item name") && has("quantity")) return { type: "etsyItems", ch: "etsy", label: "Etsy verkaufte Artikel" };
     if ((has("item title") && has("quantity")) || (has("artikelbezeichnung") && has("anzahl"))) return { type: "ebayOrders", ch: "ebay", label: "eBay Bestellungen" };
-    if (has("title") && has("tags") && has("price")) return { type: "etsyListings", ch: "etsy", label: "Etsy Angebote" };
+    if ((has("title") && has("tags") && has("price")) || (has("titel") && has("tags") && has("preis"))) return { type: "etsyListings", ch: "etsy", label: "Etsy Angebote" };
     if (has("number of items") || has("order value")) return { type: "etsyOrders", ch: "etsy", label: "Etsy Bestellungen (ohne Artikel)" };
     return { type: "generic", ch: "etsy", label: "Unbekanntes Format" };
   }
@@ -1057,7 +1057,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         const fmt = detect(hdr);
         const map = { name: findCol(hdr, COLS.name), qty: findCol(hdr, COLS.qty), price: findCol(hdr, COLS.price), date: findCol(hdr, COLS.date), variation: findCol(hdr, COLS.variation), sku: findCol(hdr, COLS.sku) };
         if (fmt.type === "shopifyOrders") Object.assign(map, { name: hdr.indexOf("lineitem name"), qty: hdr.indexOf("lineitem quantity"), price: hdr.indexOf("lineitem price"), date: findCol(hdr, ["created at", "paid at"]) });
-        if (fmt.type === "etsyListings") map.name = hdr.indexOf("title");
+        if (fmt.type === "etsyListings") map.name = hdr.indexOf("title") >= 0 ? hdr.indexOf("title") : hdr.indexOf("titel");
         return { file, rows, hdr, rawHdr: rows[0] || [], fmt, ch: fmt.ch, map, months: null };
       }) };
       analyze(); renderImportPreview();
@@ -1078,7 +1078,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         return;
       }
       if (fmt.type === "etsyListings") {
-        const iP = hdr.indexOf("price");
+        const iP = hdr.indexOf("price") >= 0 ? hdr.indexOf("price") : hdr.indexOf("preis");
         F.groups = rows.slice(1).filter(r => r[map.name]).map(r => ({ key: norm(r[map.name]), name: r[map.name].trim(), qty: 0, revenue: 0, avg: money(r[iP]), product: true }));
         return;
       }
@@ -1095,7 +1095,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         const q = money(r[map.qty]); if (!(q > 0)) return;
         const p = map.price >= 0 ? money(r[map.price]) : NaN;
         const varn = imp.split && map.variation >= 0 ? (r[map.variation] || "").trim() : "";
-        const full = varn ? `${name} · ${varn}` : name, key = norm(full);
+        const rowSku = map.sku >= 0 ? (r[map.sku] || "").trim() : "";
+        const full = rowSku ? `${name} · ${rowSku}` : varn ? `${name} · ${varn}` : name, key = rowSku ? "sku:" + norm(rowSku) : norm(full);
         const x = g[key] || (g[key] = { key, name: full, qty: 0, revenue: 0, priced: 0 });
         if (!x.sku && map.sku >= 0 && r[map.sku]) x.sku = r[map.sku].trim();
         x.qty += q; if (isFinite(p)) { x.revenue += p * q; x.priced += q; }
@@ -1112,8 +1113,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       if (gr.target) return;
       const k = loose(gr.name);
       const bySku = gr.sku ? A.filter(a => norm(a.sku) === norm(gr.sku)) : [];
-      const hit = A.find(a => loose(a.name) === k || (a.aliases || []).some(al => loose(al) === k))
-        || (bySku.length === 1 ? bySku[0] : null)
+      const hit = (bySku.length === 1 ? bySku[0] : null)
+        || A.find(a => loose(a.name) === k || (a.aliases || []).some(al => loose(al) === k))
         // ähnlicher Name: einer steckt im anderen („Untersetzer-Set Eiche“ ↔ „Untersetzer-Set Eiche, 4 Stück“)
         || A.find(a => { const n = loose(a.name); return n.length > 5 && k.length > 5 && (n.includes(k) || k.includes(n)); });
       gr.target = hit ? hit.id : "new";
