@@ -837,11 +837,16 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     updateEditor(a);
   }
   // Günstigster Karton, in den der größte Rohling passt (1 cm Luft je Maß)
-  function suggestBox(a) {
+  function needDims(a) {
     const parts = (a.parts || []).filter(p => v(p.l) * v(p.b) > 0);
     if (!parts.length) return null;
-    const t = parts.reduce((s, p) => Math.max(s, v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2), 0);
-    const need = [Math.max(...parts.map(p => v(p.l))), Math.max(...parts.map(p => v(p.b))), t].sort((x, y) => y - x);
+    // Teile werden gestapelt: Höhe = Summe aus Stärke × Stückzahl
+    const t = parts.reduce((s, p) => s + (v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2) * Math.max(1, v(p.q)), 0);
+    return [Math.max(...parts.map(p => v(p.l))), Math.max(...parts.map(p => v(p.b))), t].sort((x, y) => y - x);
+  }
+  function suggestBox(a) {
+    const need = needDims(a);
+    if (!need) return null;
     const fits = (S.boxes || []).filter(b => b.n).filter(b => { const inner = [v(b.l), v(b.b), v(b.h)].sort((x, y) => y - x).map(x => x - 1); return need.every((n, i) => n <= inner[i]); });
     const cost = b => { const r = pickShip({ ...a, pkL: b.l, pkB: b.b, pkH: b.h, shipMode: "auto" }); return v(b.p) + (r.best ? r.best.price : 99); };
     return fits.sort((x, y) => cost(x) - cost(y))[0] || null;
@@ -896,8 +901,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
     $("shipInfo").innerHTML = lines.join("");
     const sb = suggestBox(a), tip = $("boxTip");
-    tip.hidden = !sb || a.box === sb.n;
-    if (sb) tip.innerHTML = `<span class="tip">Passender Karton für den größten Rohling: <strong>${esc(sb.n)}</strong>${v(sb.p) ? " · " + eur(v(sb.p)) : ""}</span> <button type="button" class="btn" data-act="useBox">Übernehmen</button>`;
+    const nd = needDims(a);
+    tip.hidden = sb ? a.box === sb.n : !(nd && !a.fremd);
+    if (!sb && nd) tip.innerHTML = `<span class="warn">Kein Karton aus deiner Liste passt. Gebraucht wird innen ca. ${nd.map(x => dec(x)).join(" × ")} cm, außen also ca. ${nd.map(x => dec(x + 1)).join(" × ")} cm.</span>`;
+    if (sb) tip.innerHTML = `<span class="tip">Passender Karton für die Holzteile: <strong>${esc(sb.n)}</strong>${v(sb.p) ? " · " + eur(v(sb.p)) : ""}</span> <button type="button" class="btn" data-act="useBox">Übernehmen</button>`;
 
     const [cls, word] = status(r.margin);
     $("rChan").textContent = CH_NAMES[a.chan];
