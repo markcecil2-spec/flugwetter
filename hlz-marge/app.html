@@ -60,9 +60,7 @@ h3 { font-size: 1rem }
 .note { font-size: .8rem; color: var(--muted); margin: 0 }
 .ph { color: var(--warn); font-size: .8rem; margin: 0 }
 .inp.est { box-shadow: 0 0 0 2px var(--warn) }
-.filter { margin-bottom: 10px } .filter summary { list-style: none; cursor: pointer; display: inline-flex } .filter summary::-webkit-details-marker { display: none }
-.filter[open] summary { margin-bottom: 10px; border-color: var(--accent) } .filter .grid3 { max-width: 560px }
-@media (max-width: 520px) { .filter .grid3.keep { grid-template-columns: minmax(0, 1fr) } }
+.inp.chsel { display: inline-flex; width: auto; max-width: 100%; margin-bottom: 10px }
 .savenear { display: block; margin: 12px 0 0 auto; padding: 7px 16px; font-size: .88rem }
 label.check { margin-top: 10px; font-weight: 600 }
 label.check small { font-weight: 400; color: var(--muted) }
@@ -508,8 +506,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   // Ordner in der Übersicht: "open" = Daten fehlen, "done" = fertig, "all" = alle (pro Gerät gemerkt)
   let folder = LS.get("hlz-app-folder") || null;
   // Kanal, für den die Artikelliste rechnet: "" = Kanal des Artikels
-  let viewCh = LS.get("hlz-app-viewch") || "", filterOpen = false;
-  const VIEW_CH = [["", "Eigener Kanal"], ["etsy", "Etsy"], ["etsyOff", "Etsy + Offsite Ads"], ["shopify", "Shopify"], ["ebay", "eBay"], ["direkt", "Direktverkauf"]];
+  let viewCh = LS.get("hlz-app-viewch") || "";
+  const VIEW_CH = [["", "Kanal: wie beim Artikel"], ["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
   // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
   function setDirty(x) {
@@ -622,12 +620,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <a class="btn" href="#import">Import</a>
           </div>
         </div>
-        <details class="filter" id="filterBox" ${filterOpen ? "open" : ""}>
-          <summary class="btn">⚙ Filter <span class="note">${esc(VIEW_CH.find(x => x[0] === viewCh)[1])}</span></summary>
-          <div class="grid3 keep">
-            <div class="field"><label for="fCh">Rechnen für Kanal</label><div class="inp"><select id="fCh">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div></div>
-          </div>
-        </details>
+        <div class="inp chsel"><select id="fCh" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div>
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
         <div class="tablewrap"><table class="ov">
           <thead><tr>${th("name", "Artikel")}<th class="hide-sm">Kanal</th><th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
@@ -643,7 +636,6 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         </table></div>
         <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab 30 % grün, 15–30 % gelb, darunter rot.</p>
       </section>`;
-    $("filterBox").addEventListener("toggle", e => { filterOpen = e.target.open; });
     $("fCh").addEventListener("change", e => { viewCh = e.target.value; LS.set("hlz-app-viewch", viewCh); renderOverview(); });
     const sEl = $("search");
     sEl.addEventListener("input", () => { search = sEl.value; const pos = sEl.selectionStart; renderOverview(); const n = $("search"); n.focus(); n.setSelectionRange(pos, pos); });
