@@ -121,6 +121,7 @@ main.wrap { padding-block: 20px 48px }
 .c-2 { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
 .c-plates { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, .8fr) minmax(0, .8fr) 32px }
 .c-ship { grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)) 32px }
+.c-mach { grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)) 32px }
 .c-blank { grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr)) 32px }
 .c-box { grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)) 32px }
 .rowline.chosen .inp:first-child { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft) }
@@ -136,6 +137,10 @@ main.wrap { padding-block: 20px 48px }
   .rowhead.c-parts, .rowhead.c-ship, .rowhead.c-plates, .rowhead.c-box, .rowhead.c-blank { display: none }
   .rowline.c-parts, .rowline.c-ship, .rowline.c-plates, .rowline.c-box, .rowline.c-blank { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
   .rowline.c-ship > :first-child, .rowline.c-plates > :first-child, .rowline.c-box > :first-child { grid-column: 1 / -1 }
+  .rowhead.c-mach { display: none }
+  .rowline.c-mach { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-areas: "n n x" "r a s"; padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
+  .rowline.c-mach > :nth-child(1) { grid-area: n } .rowline.c-mach > :nth-child(2) { grid-area: r } .rowline.c-mach > :nth-child(3) { grid-area: a }
+  .rowline.c-mach > :nth-child(4) { grid-area: s } .rowline.c-mach > :nth-child(5) { grid-area: x; justify-self: end }
   .rowline.c-plates { grid-template-areas: "n n x" "p l b" }
   .rowline.c-plates > :nth-child(1) { grid-area: n } .rowline.c-plates > :nth-child(2) { grid-area: p } .rowline.c-plates > :nth-child(3) { grid-area: l }
   .rowline.c-plates > :nth-child(4) { grid-area: b } .rowline.c-plates > :nth-child(5) { grid-area: x; justify-self: end }
@@ -474,20 +479,23 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const oil = a.fremd ? 0 : surf * v(S.oilM2) * inK;
     // Kleinkram (Schrauben, Dübel, Scheiben) als Pauschale, teurere Teile einzeln
     const small = ((S.small || []).reduce((s, x) => s + v(x.p) * v((a.small || {})[x.n]), 0) + (a.fremd ? 0 : v(S.smallFlat))) * inK;
-    const mach = a.fremd ? 0 : (S.mach || []).reduce((s, m) => s + v(m.r) * v((a.mach || {})[m.n]) / 60, 0);
+    const rohMin = a.fremd ? 0 : (a.parts || []).reduce((s, p) => s + blankMin(p) * v(p.q), 0);
+    // Maschinenminuten: eigene Eingabe + feste Minuten je Artikel + Anteil an der Rohling-Vorfertigung
+    const machMin = m => a.fremd ? 0 : v((a.mach || {})[m.n]) + v(m.a) + v(m.s) / 100 * rohMin;
+    const mach = (S.mach || []).reduce((s, m) => s + v(m.r) * machMin(m) / 60, 0);
+    const machAuto = a.fremd ? 0 : (S.mach || []).reduce((s, m) => s + v(m.a) + v(m.s) / 100 * rohMin, 0);
     const order = (S.order || []).reduce((s, r) => s + v(r.a), 0) * inK;
     const ship = pickShip(a);
     const porto = (ship.chosen ? ship.chosen.price : 0) * inK;
     const pack = v(a.pack) * inK, outer = v(a.outer) * inK, ext = a.fremd ? v(a.ext) * inK : 0;
     // Arbeitszeit = Vorfertigung der Rohlinge + Verpacken + eigene Eingabe (Bohren, Lasern, Schleifen, Ölen …)
-    const rohMin = a.fremd ? 0 : (a.parts || []).reduce((s, p) => s + blankMin(p) * v(p.q), 0);
     const packMin = a.fremd ? 0 : v(S.packMins);
     const time = (v(a.mins) + rohMin + packMin) / 60 * v(S.rate);
     const fixShare = S.alloc && ctx.vol > 0 ? fixTotal() / ctx.vol : 0;
     const varCosts = wood + oil + small + ext + porto + pack + outer + time + mach + order;
     const db = net - fees - ads - varCosts;          // Deckungsbeitrag vor Fixkosten
     const profit = db - fixShare;
-    return { P, gross, net, vatAmt: gross - net, fees, ads, wood, oil, surf, rohMin, packMin, small, mach, order, ext, porto, pack, outer, time, fixShare,
+    return { P, gross, net, vatAmt: gross - net, fees, ads, wood, oil, surf, rohMin, packMin, machAuto, small, mach, order, ext, porto, pack, outer, time, fixShare,
       partsM2, ship, varCosts, db, profit, margin: net > 0 ? profit / net * 100 : NaN };
   }
   // Gewinn und Netto sind linear im Preis → Preis aus zwei Stützstellen
@@ -503,7 +511,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (a.fremd) { if (v(a.ext) === 0) m.push("Einkaufspreis"); }
     else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0)) m.push("Holz");
     if (!a.fremd && !v(S.smallFlat) && !Object.values(a.small || {}).some(x => v(x) > 0)) m.push("Kleinteile");
-    if (!a.fremd && !Object.values(a.mach || {}).some(x => v(x) > 0)) m.push("Maschinenzeit");
+    if (!a.fremd && !Object.values(a.mach || {}).some(x => v(x) > 0) && !(S.mach || []).some(x => v(x.a) > 0 || v(x.s) > 0)) m.push("Maschinenzeit");
     if (!v(a.weight) || !v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
     if (!v(a.mins) && !a.fremd) m.push("Arbeitszeit");
     return m;
@@ -751,6 +759,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <h2>Maschinenzeit</h2>
             <div class="grid3 keep">${machFields || '<p class="note">Noch keine Maschinen angelegt.</p>'}</div>
             <div class="sumline"><a class="note" href="#einstellungen">Stundensätze unter Einstellungen pflegen</a><span>pro Stück <strong id="machSum"></strong></span></div>
+            <p class="note" id="machNote"></p>
           </section>
 
           <section class="box">
@@ -836,7 +845,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(S.wasteDefault) / 100))) : 0;
     $("woodInfo").textContent = r.partsM2 > 0 ? `${dec(r.partsM2, 3)} m² · ${eur(m2)}/m² · ca. ${perPlate} Stück pro Platte` : "Zuschnitt eintragen";
     $("woodSum").textContent = eur(r.wood); $("oilSum").textContent = eur(r.oil); $("smallSum").textContent = eur(r.small);
-    $("smallFlatNote").textContent = !a.fremd && v(S.smallFlat) > 0 ? `inkl. ${eur(v(S.smallFlat))} Pauschale für Schrauben, Dübel und Scheiben` : ""; $("machSum").textContent = eur(r.mach); $("timeSum").textContent = eur(r.time);
+    $("smallFlatNote").textContent = !a.fremd && v(S.smallFlat) > 0 ? `inkl. ${eur(v(S.smallFlat))} Pauschale für Schrauben, Dübel und Scheiben` : ""; $("machSum").textContent = eur(r.mach);
+    $("machNote").textContent = r.machAuto > 0 ? `inkl. ${dec(r.machAuto)} Min automatisch (Rohling-Vorfertigung, Schleifen, Bohren). Hier nur Zusätzliches eintragen, z. B. CNC oder Laser.` : ""; $("timeSum").textContent = eur(r.time);
     $("timeAuto").textContent = `${dec(r.rohMin)} Min Rohlinge + ${dec(r.packMin)} Min Verpacken · gesamt ${dec(r.rohMin + r.packMin + v(a.mins))} Min zu ${eur(v(S.rate))}/h`
       + (!a.fremd && !r.rohMin && r.partsM2 > 0 ? " · Kein passender Rohling, beim Holz einen Rohling wählen" : "");
 
@@ -888,7 +898,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     order: { title: "Kosten pro Bestellung", cls: "c-2", head: ["Posten", "€ / Bestellung"], cols: [["n", "text"], ["a", "number", "€"]], blank: { n: "", a: "" } },
     plates: { title: "Holzplatten", cls: "c-plates", head: ["Platte", "Preis netto", "Länge cm", "Breite cm"], cols: [["n", "text"], ["p", "number", "€"], ["l", "number", "L"], ["b", "number", "B"]], blank: { n: "", p: "", l: "", b: "" }, ref: "plate" },
     small: { title: "Beschläge & Kleinteile", cls: "c-2", head: ["Teil", "€ / Stk netto"], cols: [["n", "text"], ["p", "number", "€"]], blank: { n: "", p: "" }, ref: "small" },
-    mach: { title: "Maschinen", cls: "c-2", head: ["Maschine", "€ / Stunde"], cols: [["n", "text"], ["r", "number", "€/h"]], blank: { n: "", r: "" }, ref: "mach" },
+    mach: { title: "Maschinen", cls: "c-mach", head: ["Maschine", "€ / Stunde", "Min je Artikel", "% der Rohling-Zeit"], cols: [["n", "text"], ["r", "number", "€/h"], ["a", "number", "Min"], ["s", "number", "%"]], blank: { n: "", r: "", a: "", s: "" }, ref: "mach" },
     ship: { title: "Versandarten", cls: "c-ship", head: ["Versandart", "max g", "L cm", "B cm", "H cm", "€ netto"], cols: [["n", "text"], ["g", "number", "g"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"]], blank: { n: "", g: "", l: "", b: "", h: "", p: "" }, ref: "ship" },
     blanks: { title: "Holzrohlinge", cls: "c-blank", head: ["Rohling", "Länge cm", "Höhe cm", "Stärke cm", "Vorfertigung"], cols: [["n", "text"], ["l", "number", "L"], ["h", "number", "H"], ["t", "number", "T"], ["m", "number", "Min"]], blank: { n: "", l: "", h: "", t: "", m: "" }, ref: "blank" },
     boxes: { title: "Kartons", cls: "c-box", head: ["Karton", "L cm", "B cm", "H cm", "Gewicht", "€ netto"], cols: [["n", "text"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["g", "number", "g"], ["p", "number", "€"]], blank: { n: "", l: "", b: "", h: "", g: "", p: "" }, ref: "box" }
@@ -968,6 +978,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <li>Stand Oktober 2026, bitte mit deinen Abrechnungen abgleichen.</li></ul></details>
           </section>
           <section class="box" data-sec="material"><h2>${LISTS.mach.title}</h2>${listHTML("mach")}
+            <p class="note">„Min je Artikel“ kommt bei jedem eigenen Artikel automatisch dazu (z. B. Schleifen). „% der Rohling-Zeit“ verteilt die Vorfertigungszeit der Rohlinge auf die Maschinen. Im Artikel trägst du dann nur noch Extras wie CNC oder Laser ein.</p>
             <details><summary>Stundensatz ausrechnen</summary><ul>
               <li>(Kaufpreis ÷ Nutzungsjahre + Verschleiß pro Jahr) ÷ Laufstunden pro Jahr + kW × Strompreis</li>
               <li>CNC: 8.000 € ÷ 5 J. + 400 € = 2.000 € ÷ 300 h = 6,67 €/h + 3 kW × 0,30 € = 7,57 €/h</li>
