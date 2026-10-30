@@ -62,6 +62,7 @@ h3 { font-size: 1rem }
 .inp.est { box-shadow: 0 0 0 2px var(--warn) }
 .filter { margin-bottom: 10px } .filter summary { list-style: none; cursor: pointer; display: inline-flex } .filter summary::-webkit-details-marker { display: none }
 .filter[open] summary { margin-bottom: 10px; border-color: var(--accent) } .filter .grid3 { max-width: 560px }
+.sortrow { display: flex; gap: 8px } .sortrow .inp { flex: 1 } .sortrow .btn { font-size: 1.1rem; padding: 6px 14px }
 @media (max-width: 520px) { .filter .grid3.keep { grid-template-columns: minmax(0, 1fr) } }
 .savenear { display: block; margin: 12px 0 0 auto; padding: 7px 16px; font-size: .88rem }
 label.check { margin-top: 10px; font-weight: 600 }
@@ -510,8 +511,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   // Kanal, für den die Artikelliste rechnet: "" = Kanal des Artikels
   let viewCh = LS.get("hlz-app-viewch") || "", filterOpen = false;
   const VIEW_CH = [["", "Eigener Kanal"], ["etsy", "Etsy"], ["etsyOff", "Etsy + Offsite Ads"], ["shopify", "Shopify"], ["ebay", "eBay"], ["direkt", "Direktverkauf"]];
-  const SORTS = [["profit:-1", "Gewinn absteigend"], ["profit:1", "Gewinn aufsteigend"], ["margin:-1", "Marge absteigend"], ["margin:1", "Marge aufsteigend"],
-    ["price:-1", "Preis absteigend"], ["price:1", "Preis aufsteigend"], ["pm:-1", "Meistverkauft zuerst"], ["name:1", "Name A–Z"]];
+  const SORTS = [["profit", "Gewinn"], ["margin", "Marge"], ["price", "Preis"], ["pm", "Verkäufe"], ["name", "Name"]];
   // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
   function setDirty(x) {
@@ -625,10 +625,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           </div>
         </div>
         <details class="filter" id="filterBox" ${filterOpen ? "open" : ""}>
-          <summary class="btn">⚙ Filter <span class="note">${esc(VIEW_CH.find(x => x[0] === viewCh)[1])} · ${esc(SORTS.find(x => x[0] === sortKey + ":" + sortDir)?.[1] || "")}</span></summary>
+          <summary class="btn">⚙ Filter <span class="note">${esc(VIEW_CH.find(x => x[0] === viewCh)[1])} · ${esc(SORTS.find(x => x[0] === sortKey)?.[1] || "")} ${sortDir < 0 ? "↓" : "↑"}</span></summary>
           <div class="grid3 keep">
             <div class="field"><label for="fCh">Rechnen für Kanal</label><div class="inp"><select id="fCh">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div></div>
-            <div class="field"><label for="fSort">Sortieren nach</label><div class="inp"><select id="fSort">${SORTS.map(([k, l]) => opt(k, l, k === sortKey + ":" + sortDir)).join("")}</select></div></div>
+            <div class="field"><label for="fSort">Sortieren nach</label><div class="sortrow"><div class="inp"><select id="fSort">${SORTS.map(([k, l]) => opt(k, l, k === sortKey)).join("")}</select></div><button type="button" class="btn" id="fDir" aria-label="Reihenfolge umdrehen" title="Reihenfolge umdrehen">${sortDir < 0 ? "↓" : "↑"}</button></div></div>
           </div>
         </details>
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
@@ -648,7 +648,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       </section>`;
     $("filterBox").addEventListener("toggle", e => { filterOpen = e.target.open; });
     $("fCh").addEventListener("change", e => { viewCh = e.target.value; LS.set("hlz-app-viewch", viewCh); renderOverview(); });
-    $("fSort").addEventListener("change", e => { const [k, d] = e.target.value.split(":"); sortKey = k; sortDir = +d; renderOverview(); });
+    $("fSort").addEventListener("change", e => { sortKey = e.target.value; sortDir = sortKey === "name" ? 1 : -1; renderOverview(); });
+    $("fDir").addEventListener("click", () => { sortDir = -sortDir; renderOverview(); });
     const sEl = $("search");
     sEl.addEventListener("input", () => { search = sEl.value; const pos = sEl.selectionStart; renderOverview(); const n = $("search"); n.focus(); n.setSelectionRange(pos, pos); });
   }
