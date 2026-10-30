@@ -464,7 +464,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (a.fremd) { if (v(a.ext) === 0) m.push("Einkaufspreis"); }
     else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0) && v(a.ext) === 0) m.push("Holz");
     if (!v(a.weight) || !v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
-    if (!v(a.mins)) m.push("Arbeitszeit");
+    if (!v(a.mins) && !a.fremd) m.push("Arbeitszeit");
     return m;
   }
   // Zum ersten leeren Feld der fehlenden Angabe springen
