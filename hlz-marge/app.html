@@ -60,7 +60,9 @@ h3 { font-size: 1rem }
 .note { font-size: .8rem; color: var(--muted); margin: 0 }
 .ph { color: var(--warn); font-size: .8rem; margin: 0 }
 .inp.est { box-shadow: 0 0 0 2px var(--warn) }
-.seg.chsel { align-items: center; margin-bottom: 6px } .seg.chsel .note { margin-right: 4px }
+.filter { margin-bottom: 10px } .filter summary { list-style: none; cursor: pointer; display: inline-flex } .filter summary::-webkit-details-marker { display: none }
+.filter[open] summary { margin-bottom: 10px; border-color: var(--accent) } .filter .grid3 { max-width: 560px }
+@media (max-width: 520px) { .filter .grid3.keep { grid-template-columns: minmax(0, 1fr) } }
 .savenear { display: block; margin: 12px 0 0 auto; padding: 7px 16px; font-size: .88rem }
 label.check { margin-top: 10px; font-weight: 600 }
 label.check small { font-weight: 400; color: var(--muted) }
@@ -506,7 +508,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   // Ordner in der Übersicht: "open" = Daten fehlen, "done" = fertig, "all" = alle (pro Gerät gemerkt)
   let folder = LS.get("hlz-app-folder") || null;
   // Kanal, für den die Artikelliste rechnet: "" = Kanal des Artikels
-  let viewCh = LS.get("hlz-app-viewch") || "";
+  let viewCh = LS.get("hlz-app-viewch") || "", filterOpen = false;
+  const VIEW_CH = [["", "Eigener Kanal"], ["etsy", "Etsy"], ["etsyOff", "Etsy + Offsite Ads"], ["shopify", "Shopify"], ["ebay", "eBay"], ["direkt", "Direktverkauf"]];
+  const SORTS = [["profit:-1", "Gewinn absteigend"], ["profit:1", "Gewinn aufsteigend"], ["margin:-1", "Marge absteigend"], ["margin:1", "Marge aufsteigend"],
+    ["price:-1", "Preis absteigend"], ["price:1", "Preis aufsteigend"], ["pm:-1", "Meistverkauft zuerst"], ["name:1", "Name A–Z"]];
   // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
   function setDirty(x) {
@@ -619,7 +624,13 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <a class="btn" href="#import">Import</a>
           </div>
         </div>
-        <div class="seg chsel" aria-label="Rechnen für Kanal"><span class="note">Rechnen für:</span>${[["", "Eigener Kanal"], ["etsy", "Etsy"], ["etsyOff", "Etsy + Ads"], ["shopify", "Shopify"], ["ebay", "eBay"], ["direkt", "Direkt"]].map(([k, l]) => `<button type="button" data-viewch="${k}" aria-pressed="${viewCh === k}">${l}</button>`).join("")}</div>
+        <details class="filter" id="filterBox" ${filterOpen ? "open" : ""}>
+          <summary class="btn">⚙ Filter <span class="note">${esc(VIEW_CH.find(x => x[0] === viewCh)[1])} · ${esc(SORTS.find(x => x[0] === sortKey + ":" + sortDir)?.[1] || "")}</span></summary>
+          <div class="grid3 keep">
+            <div class="field"><label for="fCh">Rechnen für Kanal</label><div class="inp"><select id="fCh">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div></div>
+            <div class="field"><label for="fSort">Sortieren nach</label><div class="inp"><select id="fSort">${SORTS.map(([k, l]) => opt(k, l, k === sortKey + ":" + sortDir)).join("")}</select></div></div>
+          </div>
+        </details>
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
         <div class="tablewrap"><table class="ov">
           <thead><tr>${th("name", "Artikel")}<th class="hide-sm">Kanal</th><th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
@@ -635,6 +646,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         </table></div>
         <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab 30 % grün, 15–30 % gelb, darunter rot.</p>
       </section>`;
+    $("filterBox").addEventListener("toggle", e => { filterOpen = e.target.open; });
+    $("fCh").addEventListener("change", e => { viewCh = e.target.value; LS.set("hlz-app-viewch", viewCh); renderOverview(); });
+    $("fSort").addEventListener("change", e => { const [k, d] = e.target.value.split(":"); sortKey = k; sortDir = +d; renderOverview(); });
     const sEl = $("search");
     sEl.addEventListener("input", () => { search = sEl.value; const pos = sEl.selectionStart; renderOverview(); const n = $("search"); n.focus(); n.setSelectionRange(pos, pos); });
   }
@@ -959,7 +973,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
-    const t = e.target.closest("[data-jump],[data-star],[data-folder],[data-viewch],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
+    const t = e.target.closest("[data-jump],[data-star],[data-folder],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.star) {
@@ -974,7 +988,6 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (d.open) { pendingFocus = d.focus || "auto"; return go("artikel-" + d.open); }
     if (d.jump && draft) return focusMissing(draft, d.jump);
     if (d.folder) { folder = d.folder; LS.set("hlz-app-folder", folder); return renderOverview(); }
-    if (d.viewch !== undefined) { viewCh = d.viewch; LS.set("hlz-app-viewch", viewCh); return renderOverview(); }
     if (d.sort) { sortDir = sortKey === d.sort ? -sortDir : (d.sort === "name" ? 1 : -1); sortKey = d.sort; return renderOverview(); }
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
     if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
