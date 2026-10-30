@@ -748,11 +748,12 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="inp" style="min-width:0;width:200px"><input id="search" type="search" placeholder="Name oder SKU" value="${esc(search)}" aria-label="Artikel suchen"></div>
             <button class="btn primary" data-act="new">+ Artikel</button>
             <a class="btn" href="#import">Import</a>
+            <button class="btn" data-act="exportCsv">Export</button>
           </div>
         </div>
         <div class="inp chsel"><select id="fCh" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div>
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
-        ${sel.size ? `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>` : ""}
+        ${sel.size ? `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>` : ""}
         ${bulkDelAsk ? `<div class="banner"><span>${sel.size} Artikel wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : ""}
         ${bulk && sel.size ? bulkPanel(A.filter(x => sel.has(x.id))) : ""}
         <div class="tablewrap"><table class="ov">
@@ -1128,6 +1129,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <p class="note">${mode === "cloud" ? "Deine Daten liegen online und sind auf Handy und PC gleich, wenn du diesen Link öffnest." : "Deine Daten liegen nur in diesem Browser. Mach ab und zu eine Sicherung."}</p>
             <div class="btns">
               <button class="btn" data-act="export">Sicherung herunterladen</button>
+              <button class="btn" data-act="exportCsv">Artikelliste als CSV</button>
+              <button class="btn" data-act="exportBillbee">CSV für Billbee (SKU, Gewicht, Maße)</button>
               <label class="btn" for="restoreFile">Sicherung einspielen</label><input type="file" id="restoreFile" accept=".json,application/json" hidden>
               <button class="btn" data-act="examples">Beispiele hinzufügen</button>
               <button class="btn danger" data-act="wipe">Alles löschen</button>
@@ -1229,6 +1232,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
     if (d.delPart !== undefined && a) { a.parts.splice(+d.delPart, 1); setDirty(true); return renderEditor(a); }
     switch (d.act) {
+      case "exportCsv": return exportCSV("list", false);
+      case "exportSel": return exportCSV("list", true);
+      case "exportBillbee": return exportCSV("billbee", false);
       case "selNone": sel.clear(); bulk = null; bulkDelAsk = false; return renderOverview();
       case "bulkEdit": bulk = {}; bulkDelAsk = false; return renderOverview();
       case "bulkCancel": bulk = null; return renderOverview();
@@ -1273,6 +1279,41 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.open) go("artikel-" + e.target.dataset.open); });
 
   // ---------- Sicherung ----------
+  // Datei anbieten: erst über die Download-Funktion von Claude, sonst normaler Browser-Download
+  async function offerFile(name, data, type) {
+    try {
+      const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+      if (dl) { await dl.save({ filename: name, data }); return toast("Datei gespeichert"); }
+    } catch (e) { /* abgelehnt oder nicht verfügbar → Fallback */ }
+    try {
+      const url = URL.createObjectURL(new Blob([data], { type }));
+      const l = document.createElement("a"); l.href = url; l.download = name; document.body.appendChild(l); l.click(); l.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      toast("Export erstellt");
+    } catch (e) { toast("Download nicht möglich"); }
+  }
+  // CSV für Excel: Semikolon, Dezimalkomma, BOM
+  function exportCSV(kind, onlySel) {
+    const ctx = volume(), list = A.filter(a => !onlySel || sel.has(a.id));
+    const num = x => isFinite(x) ? String(Math.round(x * 100) / 100).replace(".", ",") : "";
+    const cell = x => { const t = String(x ?? ""); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+    let head, rows;
+    if (kind === "billbee") {
+      head = ["SKU", "Artikel", "Gewicht g", "Länge cm", "Breite cm", "Höhe cm", "Karton", "Versandart"];
+      rows = list.filter(a => a.sku).map(a => { const sh = pickShip(a); return [a.sku, a.name, Math.round(shipWeight(a)) || "", num(v(a.pkL)), num(v(a.pkB)), num(v(a.pkH)), a.box || "", sh.chosen ? sh.chosen.o.n : ""]; });
+    } else {
+      head = ["Artikel", "SKU", "Kanal", "Preis brutto", "Rabatt %", "Gewinn", "Marge %", "Preisempfehlung", "Mindestpreis", "Holz", "Öl", "Kleinteile", "Einkauf Schreinerei", "Porto", "Versandart", "Karton", "Gewicht g", "Arbeitszeit Min", "Verkäufe/Monat", "Status", "Nochmal ran", "Notiz"];
+      rows = list.map(a => {
+        const ch = viewCh === "mix" ? "mix" : viewCh || a.chan, r = ch === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx), c = calc(a, ch === "mix" ? a.chan : ch, undefined, ctx);
+        const tp = solvePrice(a, ch === "mix" ? a.chan : ch, v(S.target), ctx), miss = missing(a);
+        return [a.name, a.sku || "", ch === "mix" ? (r.mixLabel || CH_NAMES[a.chan]) : CH_NAMES[ch], num(v(a.price)), num(v(a.disc)), num(r.profit), num(r.margin), num(nicePrice(tp)), num(solvePrice(a, ch === "mix" ? a.chan : ch, 0, ctx)),
+          num(c.wood), num(c.oil), num(c.small), num(c.ext), num(c.porto), c.ship.chosen ? c.ship.chosen.o.n : "", a.box || "", Math.round(shipWeight(a)) || "",
+          num(v(a.mins) + c.rohMin + c.packMin), num(salesPerMonth(a)), miss.length ? "fehlt: " + miss.join(", ") : "fertig", a.todo ? "ja" : "", a.note || ""];
+      });
+    }
+    const csv = "\ufeff" + [head, ...rows].map(r => r.map(cell).join(";")).join("\r\n");
+    offerFile(`hlz-${kind === "billbee" ? "billbee" : "artikel"}-${new Date().toISOString().slice(0, 10)}.csv`, csv, "text/csv");
+  }
   async function exportData() {
     const json = JSON.stringify({ app: "hlz-margenrechner", version: 3, saved: new Date().toISOString(), settings: S, articles: A }, null, 1);
     const name = "hlz-margen-" + new Date().toISOString().slice(0, 10) + ".json";
