@@ -429,9 +429,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     return { chosen, manual: !!manual, best: fitting[0] || null, cheaper };
   }
   // ctx.vol = Verkäufe pro Monat gesamt (für den Werkstattanteil)
-  function calc(a, ch, price, ctx) {
+  // raw = Preis ist schon der tatsächlich bezahlte (z. B. Ø aus dem Import), Shop-Rabatt nicht nochmal abziehen
+  function calc(a, ch, price, ctx, raw) {
     ctx = ctx || volume();
-    const P = price ?? v(a.price), Sh = v(a.shipIn);
+    const list = price ?? v(a.price), disc = raw ? 0 : Math.min(100, v(a.disc));
+    const P = list * (1 - disc / 100), Sh = v(a.shipIn);
     const ku = S.tax === "ku", inK = ku ? 1.19 : 1;   // Kleinunternehmer: Vorsteuer ist echter Kostenanteil
     const gross = P + Sh, net = gross / (ku ? 1 : 1.19);
     let fees = 0, ads = 0;
@@ -518,7 +520,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     A.forEach(a => Object.entries(a.sales || {}).forEach(([ch, x]) => {
       const pm = v(x.months) > 0 ? v(x.qty) / v(x.months) : 0;
       if (!pm) return;
-      const r = calc(a, CHANNELS.includes(ch) ? ch : "etsy", v(x.avg) || v(a.price), ctx);
+      const r = calc(a, CHANNELS.includes(ch) ? ch : "etsy", v(x.avg) || v(a.price), ctx, v(x.avg) > 0);
       db += pm * r.db; rev += pm * r.gross; qty += pm;
     }));
     return { db, rev, qty, result: db - fixTotal() };
@@ -701,6 +703,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <div class="field"><label for="a-shipIn">Versand vom Kunden</label>${numIn(`id="a-shipIn" data-a="shipIn"`, a.shipIn, "€")}</div>
               <div class="field"><label for="a-chan">Kanal</label><div class="inp"><select id="a-chan" data-a="chan">${CHANNELS.map(c => opt(c, CH_NAMES[c], a.chan === c)).join("")}</select></div></div>
             </div>
+            <div class="grid3 keep" style="margin-top:12px">
+              <div class="field"><label for="a-disc">Shop-Rabatt</label>${numIn(`id="a-disc" data-a="disc"`, a.disc || "", "%")}</div>
+              <div class="field" style="grid-column: span 2"><span class="label">Kunde zahlt</span><div class="note" id="discInfo" style="padding-top:10px"></div></div>
+            </div>
             <label class="check"><input type="checkbox" id="a-fremd" data-a="fremd" ${a.fremd ? "checked" : ""}> Fertigt eine andere Schreinerei <small>(kein Holz, keine Maschinen, dafür Einkaufspreis)</small></label>
             <div class="grid3 keep" id="extBox" style="margin-top:10px">
               <div class="field"><label for="a-ext">Einkaufspreis Schreinerei</label>${numIn(`id="a-ext" data-a="ext"`, a.ext, "€")}<small>pro Stück netto</small></div>
@@ -796,6 +802,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   function updateEditor(a) {
     const ctx = volume(), r = calc(a, a.chan, undefined, ctx);
     const miss = missing(a), mb = $("missBox");
+    $("discInfo").textContent = v(a.disc) > 0 ? `${eur(r.P)} statt ${eur(v(a.price))} (−${eur(v(a.price) - r.P)}) + ${eur(v(a.shipIn))} Versand` : `${eur(r.P)} + ${eur(v(a.shipIn))} Versand`;
     $("ahName").textContent = a.name || "Ohne Namen"; $("ahSku").textContent = a.sku || "";
     $("ahProfit").textContent = isFinite(r.profit) ? eur(r.profit) + " · " + pct(r.margin) : "";
     $("ahProfit").style.color = r.profit < 0 ? "var(--bad)" : "";
