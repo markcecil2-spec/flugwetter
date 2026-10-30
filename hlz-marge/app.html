@@ -255,6 +255,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
+      <a href="#preise" data-tab="preise">Preise</a>
       <a href="#import" data-tab="import">Import</a>
     </nav>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
@@ -296,7 +297,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
     bPayP: "12", bPayF: "0.45", bAds: "0",
-    boxes: [], blanks: [], oilM2: "1.58", woodDensity: "0.75", paperG: "100",
+    boxes: [], blanks: [], shopDisc: "10", oilM2: "1.58", woodDensity: "0.75", paperG: "100",
     fixed: [
       { n: "Werkstattmiete", a: "585" },
       { n: "Lexware Office", a: "12.90", ph: true },
@@ -475,10 +476,14 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const near = same.reduce((x, y) => Math.abs(v(y.l) - l) < Math.abs(v(x.l) - l) ? y : x);
     return v(near.m) * l / v(near.l);
   }
+  const ceil90 = x => x > 0 ? Math.ceil(x - 0.9 - 1e-9) + 0.9 : 0;
+  const shopPrice = a => v(S.shopDisc) > 0 ? ceil90(v(a.price) * (1 - v(S.shopDisc) / 100)) : v(a.price);
   // raw = Preis ist schon der tatsächlich bezahlte (z. B. Ø aus dem Import), Shop-Rabatt nicht nochmal abziehen
   function calc(a, ch, price, ctx, raw) {
     ctx = ctx || volume();
-    const list = price ?? v(a.price), disc = raw ? 0 : Math.min(100, v(a.disc));
+    // Verkaufspreis = Etsy-Listenpreis; Shopify/eBay bekommen den Shop-Rabatt (eigener Preis: auf ,90 aufgerundet)
+    const sd = !raw && (ch === "shopify" || ch === "ebay") ? Math.min(100, v(S.shopDisc)) : 0;
+    const list = price !== undefined ? price * (1 - sd / 100) : sd ? shopPrice(a) : v(a.price), disc = raw ? 0 : Math.min(100, v(a.disc));
     const P = list * (1 - disc / 100), Sh = v(a.shipIn);
     const ku = S.tax === "ku", inK = ku ? 1.19 : 1;   // Kleinunternehmer: Vorsteuer ist echter Kostenanteil
     const gross = P + Sh, net = gross / (ku ? 1 : 1.19);
@@ -613,6 +618,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       delete draft.isNew; delete draft.example;
       const a = clone(draft), i = A.findIndex(x => x.id === a.id);
       const wasOpen = i < 0 || missing(A[i]).length > 0, nowOpen = missing(a).length > 0;
+      // Preis geändert: bisherigen Etsy-Preis für die Etsy-Änderungsliste merken
+      if (i >= 0 && v(A[i].price) !== v(a.price) && a.priceAtEtsy == null) a.priceAtEtsy = A[i].price;
+      if (a.priceAtEtsy != null && v(a.priceAtEtsy) === v(a.price)) delete a.priceAtEtsy;
       if (i >= 0) A[i] = a; else A.push(a);
       saveArticle(a); setDirty(false); renderEditor(draft);
       toast(wasOpen && !nowOpen ? "Gespeichert · verschoben nach ✓ Fertig" : !wasOpen && nowOpen ? "Gespeichert · zurück in ⚠ Daten fehlen" : "Gespeichert");
@@ -637,7 +645,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === view) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -655,6 +663,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
     else if (view === "import") renderImport();
     else if (view === "einstellungen") { if (!draftS) draftS = clone(S); renderSettings(); }
+    else if (view === "preise") renderPrices();
     else renderOverview();
   }
 
@@ -703,6 +712,100 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // Preisempfehlung: Preis für die Ziel-Marge, aufgerundet auf eine glatte Endung (…,90 bzw. …9,00 ab 100 €)
   const nicePrice = x => !isFinite(x) || x <= 0 ? NaN : x < 100 ? Math.ceil(x - 0.9) + 0.9 : Math.ceil((x + 1) / 10) * 10 - 1;
+
+  // ---------- Preise: Shopify-Sync und Etsy-Änderungsliste ----------
+  let sync = { state: "idle", rows: [], unmatched: [], msg: "", pick: new Set() };
+  const etsyChanges = () => A.filter(a => a.priceAtEtsy != null && v(a.priceAtEtsy) !== v(a.price));
+  const normTitle = t => norm(t).replace(/\(alte variante\)/g, "").replace(/[^a-z0-9äöüß]/g, "");
+  function renderPrices() {
+    const ch = etsyChanges(), d = v(S.shopDisc);
+    const rowsHTML = sync.rows.map((x, i) => `<tr><td class="selcol"><input type="checkbox" data-syncpick="${i}" ${sync.pick.has(i) ? "checked" : ""}></td><td class="name"><strong>${esc(x.a.name)}</strong><br><span class="note num">${esc(x.a.sku)}</span></td><td class="num">${eur(x.old)}</td><td class="num"><strong>${eur(x.neu)}</strong></td><td class="num" style="color:var(--${x.neu < x.old ? "bad" : "good"})">${x.neu > x.old ? "+" : ""}${eur(x.neu - x.old)}</td></tr>`).join("");
+    $("view").innerHTML = `
+      <div class="row"><h1>Preise</h1></div>
+      <p class="note">Der Verkaufspreis im Artikel ist dein <strong>Etsy-Preis</strong>. Shopify und eBay bekommen davon den Shop-Rabatt, auf …,90 € aufgerundet.</p>
+      <div class="stack stackset">
+        <section class="box">
+          <h2>Shopify-Rabatt</h2>
+          <div class="grid3 keep"><div class="field"><label for="p-disc">Rabatt auf den Etsy-Preis</label>${numIn(`id="p-disc"`, S.shopDisc ?? "", "%")}<small>z. B. 49,00 € auf Etsy → ${eur(ceil90(49 * (1 - d / 100)))} in Shopify</small></div></div>
+        </section>
+        <section class="box">
+          <h2>Preise zu Shopify übertragen</h2>
+          <p class="note">Lädt die aktuellen Preise aus Shopify, sucht jeden Artikel über die SKU und zeigt, was sich ändern würde. Geändert wird erst, wenn du auf „Übernehmen“ drückst. eBay hängt an Shopify und zieht automatisch nach.</p>
+          <div class="btns"><button class="btn primary" data-act="syncLoad" ${sync.state === "loading" || sync.state === "saving" ? "disabled" : ""}>${sync.state === "loading" ? "Lade Shopify …" : "Shopify-Preise vergleichen"}</button></div>
+          ${sync.msg ? `<p class="note" style="margin-top:10px">${sync.msg}</p>` : ""}
+          ${sync.rows.length ? `<div class="tablewrap" style="margin-top:10px"><table><thead><tr><th class="selcol"><input type="checkbox" data-syncall="1" ${sync.pick.size === sync.rows.length ? "checked" : ""}></th><th>Artikel</th><th>Shopify jetzt</th><th>Neu</th><th>Differenz</th></tr></thead><tbody>${rowsHTML}</tbody></table></div>
+            <div class="btns" style="margin-top:10px"><button class="btn primary" data-act="syncApply" ${!sync.pick.size || sync.state === "saving" ? "disabled" : ""}>${sync.state === "saving" ? "Speichere in Shopify …" : `${sync.pick.size} Preise in Shopify übernehmen`}</button></div>` : ""}
+          ${sync.unmatched.length ? `<details style="margin-top:10px"><summary>${sync.unmatched.length} Artikel nicht in Shopify gefunden</summary><ul>${sync.unmatched.map(a => `<li>${esc(a.name)} <span class="note num">${esc(a.sku || "ohne SKU")}</span></li>`).join("")}</ul></details>` : ""}
+        </section>
+        <section class="box">
+          <h2>Etsy-Änderungsliste</h2>
+          <p class="note">Alle Artikel, deren Preis du in der App geändert hast, seit er zuletzt auf Etsy angepasst wurde. Arbeite die Liste auf Etsy ab und markiere sie dann als erledigt.</p>
+          ${ch.length ? `<div class="tablewrap"><table><thead><tr><th>Artikel</th><th>Etsy bisher</th><th>Neu</th></tr></thead><tbody>${ch.map(a => `<tr><td class="name"><strong>${esc(a.name)}</strong><br><span class="note num">${esc(a.sku || "")}</span></td><td class="num">${eur(v(a.priceAtEtsy))}</td><td class="num"><strong>${eur(v(a.price))}</strong></td></tr>`).join("")}</tbody></table></div>
+            <div class="btns" style="margin-top:10px"><button class="btn" data-act="etsyCsv">Als CSV exportieren</button><button class="btn primary" data-act="etsyDone">Alle als auf Etsy erledigt markieren</button></div>`
+          : `<p class="note">Keine offenen Preisänderungen.</p>`}
+        </section>
+      </div>`;
+    $("p-disc").addEventListener("change", e => { S.shopDisc = e.target.value; saveSettings(); sync.rows = []; sync.msg = ""; renderPrices(); toast("Rabatt gespeichert"); });
+  }
+  // Shopify über den Connector der App ansprechen
+  async function shopify(tool, input) {
+    const mcp = window.claude && window.claude.use ? await window.claude.use("mcp") : null;
+    if (!mcp) throw { code: "no_mcp" };
+    const res = await mcp.callTool("Shopify", tool, input, { cache: false });
+    const p = res.payload && typeof res.payload === "object" ? res.payload : {};
+    return p.data || p;
+  }
+  const syncErr = e => ({
+    no_mcp: "Die Shopify-Verbindung geht nur in der App auf claude.ai.",
+    server_not_connected: "Shopify ist nicht verbunden: in claude.ai unter Einstellungen → Connectors hinzufügen.",
+    needs_reauth: "Shopify neu verbinden: claude.ai → Einstellungen → Connectors.",
+    not_in_manifest: "Du hast den Zugriff auf Shopify für diese App abgelehnt.",
+    approval_required: "Der Zugriff auf Shopify braucht deine Freigabe. Nochmal klicken und erlauben.",
+    tool_error: "Shopify hat einen Fehler gemeldet: " + (e && e.message || ""),
+    server_unavailable: "Shopify ist gerade nicht erreichbar, bitte gleich nochmal versuchen."
+  }[e && e.code] || "Fehler bei Shopify: " + (e && (e.message || e.code) || "unbekannt"));
+  async function syncLoad() {
+    sync = { state: "loading", rows: [], unmatched: [], msg: "", pick: new Set() }; renderPrices();
+    try {
+      const vars = []; let after = null;
+      for (let page = 0; page < 40; page++) {
+        const d = await shopify("graphql_query", { query: "query($first:Int!,$after:String){ productVariants(first:$first, after:$after){ pageInfo{ hasNextPage endCursor } nodes{ id sku price title product{ id title status } } } }", first: 50, variables: { first: 50, after } });
+        const pv = d.productVariants; if (!pv) throw { code: "tool_error", message: "Unerwartete Antwort" };
+        vars.push(...pv.nodes); if (!pv.pageInfo.hasNextPage) break; after = pv.pageInfo.endCursor;
+      }
+      const bySku = {};
+      vars.forEach(x => { const k = norm(x.sku); if (k) (bySku[k] = bySku[k] || []).push(x); });
+      const rows = [], unmatched = [];
+      A.filter(a => v(a.price) > 0).forEach(a => {
+        let c = bySku[norm(a.sku)] || [];
+        if (c.length > 1) { const lab = normTitle(a.name.split(" · ").slice(1).join(" ")); const hit = c.filter(x => normTitle(x.title) === lab); c = hit.length === 1 ? hit : c.filter(x => lab && normTitle(x.title).includes(lab)); }
+        if (c.length !== 1) { if (a.sku || (a.source === "shopify")) unmatched.push(a); return; }
+        const vt = c[0], neu = shopPrice(a), old = v(vt.price);
+        if (Math.abs(neu - old) > 0.004) rows.push({ a, vid: vt.id, pid: vt.product.id, old, neu });
+      });
+      rows.sort((x, y) => norm(x.a.name) < norm(y.a.name) ? -1 : 1);
+      sync = { state: "idle", rows, unmatched, pick: new Set(rows.map((_, i) => i)), msg: `${vars.length} Varianten aus Shopify geladen. ${rows.length ? rows.length + " Preise weichen ab." : "Alle gefundenen Preise stimmen schon."}` };
+    } catch (e) { sync = { state: "idle", rows: [], unmatched: [], pick: new Set(), msg: syncErr(e) }; }
+    renderPrices();
+  }
+  async function syncApply() {
+    const picked = sync.rows.filter((_, i) => sync.pick.has(i)); if (!picked.length) return;
+    sync.state = "saving"; renderPrices();
+    const byProduct = {}; picked.forEach(x => (byProduct[x.pid] = byProduct[x.pid] || []).push(x));
+    let ok = 0; const errs = [];
+    for (const [pid, list] of Object.entries(byProduct)) {
+      try {
+        const d = await shopify("graphql_mutation", { query: "mutation($pid:ID!,$v:[ProductVariantsBulkInput!]!){ productVariantsBulkUpdate(productId:$pid, variants:$v){ productVariants{ id price } userErrors{ field message } } }", variables: { pid, v: list.map(x => ({ id: x.vid, price: x.neu.toFixed(2) })) } });
+        const ue = d.productVariantsBulkUpdate && d.productVariantsBulkUpdate.userErrors || [];
+        if (ue.length) errs.push(list[0].a.name + ": " + ue.map(u => u.message).join(", ")); else ok += list.length;
+      } catch (e) { errs.push(list[0].a.name + ": " + syncErr(e)); if (e && ["no_mcp", "server_not_connected", "needs_reauth", "not_in_manifest"].includes(e.code)) break; }
+    }
+    sync.state = "idle";
+    sync.msg = `${ok} Preise in Shopify geändert.` + (errs.length ? " Nicht geklappt: " + errs.map(esc).join(" · ") : "");
+    sync.rows = sync.rows.filter((x, i) => !sync.pick.has(i) || errs.some(t => t.startsWith(x.a.name)));
+    sync.pick = new Set(sync.rows.map((_, i) => i));
+    renderPrices(); toast(`${ok} Preise in Shopify geändert`);
+  }
 
   // ---------- Übersicht ----------
   function phCount() { return ["fixed", "small", "mach", "ship"].reduce((s, k) => s + (S[k] || []).filter(x => x.ph).length, 0); }
@@ -807,7 +910,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <div class="field"><label for="a-sku">SKU</label><div class="inp"><input id="a-sku" type="text" data-a="sku" value="${esc(a.sku || "")}" autocapitalize="characters" spellcheck="false"></div></div>
             </div>
             <div class="grid3 keep">
-              <div class="field"><label for="a-price">Verkaufspreis brutto</label>${numIn(`id="a-price" data-a="price"`, a.price, "€")}</div>
+              <div class="field"><label for="a-price">Verkaufspreis brutto (Etsy)</label>${numIn(`id="a-price" data-a="price"`, a.price, "€")}</div>
               <div class="field"><label for="a-shipIn">Versand vom Kunden</label>${numIn(`id="a-shipIn" data-a="shipIn"`, a.shipIn, "€")}</div>
               <div class="field"><label for="a-chan">Kanal</label><div class="inp"><select id="a-chan" data-a="chan">${CHANNELS.map(c => opt(c, CH_NAMES[c], a.chan === c)).join("")}</select></div></div>
             </div>
@@ -962,7 +1065,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     markNeeded(a, miss);
     const aw = autoWeight(a);
     $("wAuto").textContent = aw ? (v(a.weight) > 0 ? `berechnet wären ${dec(aw / 1000, 2)} kg` : `automatisch: ${dec(aw / 1000, 2)} kg (Holz, Teile, Karton, Papier)`) : "leer = automatisch, sobald Holzmaße da sind";
-    $("discInfo").textContent = v(a.disc) > 0 ? `${eur(r.P)} statt ${eur(v(a.price))} (−${eur(v(a.price) - r.P)}) + ${eur(v(a.shipIn))} Versand` : `${eur(r.P)} + ${eur(v(a.shipIn))} Versand`;
+    $("discInfo").textContent = (v(a.disc) > 0 ? `${eur(r.P)} statt ${eur(v(a.price))} (−${eur(v(a.price) - r.P)}) + ${eur(v(a.shipIn))} Versand` : `${eur(r.P)} + ${eur(v(a.shipIn))} Versand`)
+      + (v(S.shopDisc) > 0 && v(a.price) > 0 ? ` · Shopify/eBay: ${eur(shopPrice(a))}` : "");
     $("ahName").textContent = a.name || "Ohne Namen"; $("ahSku").textContent = a.sku || "";
     $("ahProfit").textContent = isFinite(r.profit) ? eur(r.profit) + " · " + pct(r.margin) : "";
     $("ahProfit").style.color = r.profit < 0 ? "var(--bad)" : "";
@@ -1208,7 +1312,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
-    const t = e.target.closest("[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
+    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.star) {
@@ -1223,6 +1327,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (d.open) { pendingFocus = d.focus || "auto"; return go("artikel-" + d.open); }
     if (d.jump && draft) return focusMissing(draft, d.jump);
     if (d.stab) { stab = d.stab; LS.set("hlz-app-stab", stab); document.querySelectorAll("[data-stab]").forEach(b => b.setAttribute("aria-pressed", b.dataset.stab === stab)); document.querySelectorAll("#view [data-sec]").forEach(el => el.hidden = el.dataset.sec !== stab); return; }
+    if (d.syncpick !== undefined) { const i = +d.syncpick; sync.pick.has(i) ? sync.pick.delete(i) : sync.pick.add(i); return renderPrices(); }
+    if (d.syncall) { sync.pick = sync.pick.size === sync.rows.length ? new Set() : new Set(sync.rows.map((_, i) => i)); return renderPrices(); }
     if (d.sel) { sel.has(d.sel) ? sel.delete(d.sel) : sel.add(d.sel); bulkDelAsk = false; return renderOverview(); }
     if (d.selall) { const all = shownIds.length && shownIds.every(id => sel.has(id)); shownIds.forEach(id => all ? sel.delete(id) : sel.add(id)); bulkDelAsk = false; return renderOverview(); }
     if (d.folder) { folder = d.folder; LS.set("hlz-app-folder", folder); return renderOverview(); }
@@ -1232,6 +1338,14 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
     if (d.delPart !== undefined && a) { a.parts.splice(+d.delPart, 1); setDirty(true); return renderEditor(a); }
     switch (d.act) {
+      case "syncLoad": return syncLoad();
+      case "syncApply": return syncApply();
+      case "etsyDone": { const list = etsyChanges(); list.forEach(x => { delete x.priceAtEtsy; saveArticle(x); }); renderPrices(); return toast(`${list.length} Artikel als erledigt markiert`); }
+      case "etsyCsv": {
+        const num = x => String(Math.round(x * 100) / 100).replace(".", ",");
+        const csv = "\ufeff" + [["Artikel", "SKU", "Etsy bisher", "Etsy neu"], ...etsyChanges().map(a => [a.name, a.sku || "", num(v(a.priceAtEtsy)), num(v(a.price))])].map(r => r.map(x => /[;"]/.test(x) ? '"' + String(x).replace(/"/g, '""') + '"' : x).join(";")).join("\r\n");
+        return offerFile("etsy-preise-" + new Date().toISOString().slice(0, 10) + ".csv", csv, "text/csv");
+      }
       case "exportCsv": return exportCSV("list", false);
       case "exportSel": return exportCSV("list", true);
       case "exportBillbee": return exportCSV("billbee", false);
@@ -1251,7 +1365,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             else if (k === "box") {
               x.box = val; const bx = (S.boxes || []).find(b => b.n === val);
               if (bx) { x.pkL = bx.l; x.pkB = bx.b; x.pkH = bx.h; if (bx.p !== "" && bx.p != null && !keys.includes("outer")) x.outer = bx.p; }
-            } else x[k] = val;
+            } else { if (k === "price" && v(x.price) !== v(val) && x.priceAtEtsy == null) x.priceAtEtsy = x.price; x[k] = val; if (k === "price" && x.priceAtEtsy != null && v(x.priceAtEtsy) === v(x.price)) delete x.priceAtEtsy; }
           });
           saveArticle(x);
         });
