@@ -538,6 +538,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       if (i >= 0) A[i] = a; else A.push(a);
       saveArticle(a); setDirty(false); renderEditor(draft);
       toast(wasOpen && !nowOpen ? "Gespeichert · verschoben nach ✓ Fertig" : !wasOpen && nowOpen ? "Gespeichert · zurück in ⚠ Daten fehlen" : "Gespeichert");
+      // Noch etwas offen: gleich zum nächsten fehlenden Feld springen
+      if (nowOpen) setTimeout(() => focusMissing(draft), 60);
     } else if (view === "einstellungen" && draftS) {
       S = clone(draftS); draftS = clone(S); renames.forEach(([k, o, n]) => renameRef(k, o, n)); renames = [];
       saveSettings(); setDirty(false); renderSettings(); toast("Gespeichert");
