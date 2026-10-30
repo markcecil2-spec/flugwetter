@@ -429,6 +429,18 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     return { chosen, manual: !!manual, best: fitting[0] || null, cheaper };
   }
   // ctx.vol = Verkäufe pro Monat gesamt (für den Werkstattanteil)
+  // Vorfertigungs-Minuten eines Holzteils: gewählter Rohling, sonst Rohling mit gleicher Höhe (Zeit nach Länge umgerechnet)
+  function blankMin(p) {
+    const bs = (S.blanks || []).filter(b => b.n && v(b.l) > 0);
+    const bl = bs.find(b => b.n === p.blank);
+    if (bl) return v(bl.m);
+    const l = v(p.l), h = v(p.b);
+    if (!(l * h > 0)) return 0;
+    const same = bs.filter(b => Math.abs(v(b.h) - h) < 0.01 || Math.abs(v(b.l) - h) < 0.01 && Math.abs(v(b.h) - l) < 0.01);
+    if (!same.length) return 0;
+    const near = same.reduce((x, y) => Math.abs(v(y.l) - l) < Math.abs(v(x.l) - l) ? y : x);
+    return v(near.m) * l / v(near.l);
+  }
   // raw = Preis ist schon der tatsächlich bezahlte (z. B. Ø aus dem Import), Shop-Rabatt nicht nochmal abziehen
   function calc(a, ch, price, ctx, raw) {
     ctx = ctx || volume();
@@ -467,7 +479,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const porto = (ship.chosen ? ship.chosen.price : 0) * inK;
     const pack = v(a.pack) * inK, outer = v(a.outer) * inK, ext = a.fremd ? v(a.ext) * inK : 0;
     // Arbeitszeit = Vorfertigung der Rohlinge + Verpacken + eigene Eingabe (Bohren, Lasern, Schleifen, Ölen …)
-    const rohMin = a.fremd ? 0 : (a.parts || []).reduce((s, p) => s + v(((S.blanks || []).find(b => b.n === p.blank) || {}).m) * v(p.q), 0);
+    const rohMin = a.fremd ? 0 : (a.parts || []).reduce((s, p) => s + blankMin(p) * v(p.q), 0);
     const packMin = a.fremd ? 0 : v(S.packMins);
     const time = (v(a.mins) + rohMin + packMin) / 60 * v(S.rate);
     const fixShare = S.alloc && ctx.vol > 0 ? fixTotal() / ctx.vol : 0;
@@ -822,7 +834,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(S.wasteDefault) / 100))) : 0;
     $("woodInfo").textContent = r.partsM2 > 0 ? `${dec(r.partsM2, 3)} m² · ${eur(m2)}/m² · ca. ${perPlate} Stück pro Platte` : "Zuschnitt eintragen";
     $("woodSum").textContent = eur(r.wood); $("oilSum").textContent = eur(r.oil); $("smallSum").textContent = eur(r.small); $("machSum").textContent = eur(r.mach); $("timeSum").textContent = eur(r.time);
-    $("timeAuto").textContent = `${dec(r.rohMin)} Min Rohlinge + ${dec(r.packMin)} Min Verpacken · gesamt ${dec(r.rohMin + r.packMin + v(a.mins))} Min zu ${eur(v(S.rate))}/h`;
+    $("timeAuto").textContent = `${dec(r.rohMin)} Min Rohlinge + ${dec(r.packMin)} Min Verpacken · gesamt ${dec(r.rohMin + r.packMin + v(a.mins))} Min zu ${eur(v(S.rate))}/h`
+      + (!a.fremd && !r.rohMin && r.partsM2 > 0 ? " · Kein passender Rohling, beim Holz einen Rohling wählen" : "");
 
     const s = r.ship, lines = [];
     if (!s.chosen) lines.push(`<span class="warn">Keine Versandart passt, Gewicht oder Maße sind zu groß. Leg unter Einstellungen eine passende an.</span>`);
