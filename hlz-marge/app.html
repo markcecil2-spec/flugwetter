@@ -71,6 +71,7 @@ tr.selected td { background: var(--accent-soft) }
 .todo-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line) }
 .todo-note { margin-top: 4px; font-size: .82rem; color: var(--warn); white-space: normal }
 .stabs { margin: 4px 0 14px } .stackset { max-width: 760px }
+.chmini { font: inherit; font-size: .8rem; padding: 1px 4px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit }
 .inp.chsel { display: inline-flex; width: auto; max-width: 100%; margin-bottom: 10px }
 .savenear { display: block; margin: 12px 0 0 auto; padding: 7px 16px; font-size: .88rem }
 label.check { margin-top: 10px; font-weight: 600 }
@@ -588,11 +589,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   let view = "", curId = null, sortKey = "profit", sortDir = -1, search = "";
   // Ordner in der Übersicht: "open" = Daten fehlen, "done" = fertig, "all" = alle (pro Gerät gemerkt)
   let folder = LS.get("hlz-app-folder") || null;
-  // Kanal, für den die Artikelliste rechnet: "" = Kanal des Artikels
-  let viewCh = LS.get("hlz-app-viewch") || "";
+  // Kanal, für den Liste und Artikel rechnen (der eingetragene Preis ist immer der Etsy-Preis)
+  let viewCh = LS.get("hlz-app-viewch") || "etsy";
   // Mehrfachauswahl in der Artikelliste; bulk = geänderte Felder der gemeinsamen Bearbeitung (null = zu)
   let sel = new Set(), bulk = null, bulkDelAsk = false, shownIds = [];
-  const VIEW_CH = [["", "Kanal: wie beim Artikel"], ["mix", "Kanal: Alle (Mix nach Verkäufen)"], ["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
+  const VIEW_CH = [["mix", "Kanal: Alle (Mix nach Verkäufen)"], ["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
   // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
   function setDirty(x) {
@@ -670,7 +671,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   // Durchschnitt über alle Kanäle, gewichtet nach den echten Verkäufen (ohne Verkäufe: Kanal des Artikels)
   function mixCalc(a, ctx) {
     const w = Object.entries(a.sales || {}).map(([ch, x]) => [CHANNELS.includes(ch) ? ch : "etsy", v(x.qty) / Math.max(v(x.months), 0.1)]).filter(x => x[1] > 0);
-    if (!w.length) return calc(a, a.chan, undefined, ctx);
+    if (!w.length) return calc(a, "etsy", undefined, ctx);
     const tot = w.reduce((s, x) => s + x[1], 0), keys = ["P", "net", "gross", "fees", "ads", "varCosts", "fixShare", "profit"];
     const r = Object.fromEntries(keys.map(k => [k, 0]));
     w.forEach(([ch, q]) => { const c = calc(a, ch, undefined, ctx); keys.forEach(k => r[k] += c[k] * q / tot); });
@@ -683,7 +684,6 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   function bulkFields() {
     const yn = [["", "– unverändert –"], ["ja", "Ja"], ["nein", "Nein"]];
     return [
-      ["chan", "Kanal", "select", CHANNELS.map(c => [c, CH_NAMES[c]])],
       ["price", "Verkaufspreis brutto", "€"], ["shipIn", "Versand vom Kunden", "€"], ["disc", "Shop-Rabatt", "%"], ["adsEtsy", "Etsy Ads je Verkauf", "€"],
       ["box", "Karton", "select", [["", "Eigene Maße"], ...(S.boxes || []).filter(b => b.n).map(b => [b.n, b.n])]],
       ["pack", "Verpackung", "€"], ["outer", "Umverpackung", "€"], ["mins", "Weitere Minuten", "Min"],
@@ -821,8 +821,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
     const m = monthly(ctx), fix = fixTotal(), ph = phCount();
     const rows = A.map(a => {
-      const ch = viewCh === "mix" ? "mix" : viewCh || a.chan, r = ch === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx);
-      return { a, ch, r, pm: salesPerMonth(a), t: solvePrice(a, ch === "mix" ? a.chan : ch, v(S.target), ctx), miss: missing(a) };
+      const ch = viewCh, r = ch === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx);
+      return { a, ch, r, pm: salesPerMonth(a), t: solvePrice(a, ch === "mix" ? "etsy" : ch, v(S.target), ctx), miss: missing(a) };
     });
     const key = { name: x => norm(x.a.name), price: x => x.r.P, pm: x => x.pm, profit: x => x.r.profit, margin: x => isFinite(x.r.margin) ? x.r.margin : -1e9 }[sortKey];
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
@@ -866,7 +866,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             return `<tr class="click${sel.has(a.id) ? " selected" : ""}" data-open="${a.id}" tabindex="0">
               <td class="selcol"><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></td>
               <td class="name"><button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
-              <td class="hide-sm">${ch === "mix" ? (r.mixLabel || CH_NAMES[a.chan]) : CH_NAMES[ch] || ch}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
+              <td class="hide-sm">${ch === "mix" ? (r.mixLabel || "Etsy") : CH_NAMES[ch] || ch}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
               <td><span class="pill ${c}">${pct(r.margin)}</span>${isFinite(t) ? `<div class="reco num" title="Preisempfehlung für ${esc(S.target)} % Marge">→ ${eur(nicePrice(t))}</div>` : ""}</td><td class="num hide-sm">${eur(t)}</td></tr>`;
@@ -912,7 +912,6 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="grid3 keep">
               <div class="field"><label for="a-price">Verkaufspreis brutto (Etsy)</label>${numIn(`id="a-price" data-a="price"`, a.price, "€")}</div>
               <div class="field"><label for="a-shipIn">Versand vom Kunden</label>${numIn(`id="a-shipIn" data-a="shipIn"`, a.shipIn, "€")}</div>
-              <div class="field"><label for="a-chan">Kanal</label><div class="inp"><select id="a-chan" data-a="chan">${CHANNELS.map(c => opt(c, CH_NAMES[c], a.chan === c)).join("")}</select></div></div>
             </div>
             <div class="grid3 keep" style="margin-top:12px">
               <div class="field"><label for="a-disc">Shop-Rabatt</label>${numIn(`id="a-disc" data-a="disc"`, a.disc || "", "%")}</div>
@@ -991,7 +990,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         </div>
 
         <aside class="box result" aria-live="polite">
-          <div class="row"><span class="label">Gewinn pro Stück · <span id="rChan"></span></span><span class="pill" id="rPill"></span></div>
+          <div class="row"><span class="label">Gewinn pro Stück · <select id="rChan" class="chmini" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l.replace("Kanal: ", ""), viewCh === k)).join("")}</select></span><span class="pill" id="rPill"></span></div>
           <div class="big"><span class="num" id="rProfit"></span><span class="num" id="rMargin" style="color:var(--muted)"></span></div>
           <p class="reco-big" id="rReco"></p>
           <p class="note" id="rSub"></p>
@@ -1060,7 +1059,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     els.forEach(el => el.closest(".inp")?.classList.add("need"));
   }
   function updateEditor(a) {
-    const ctx = volume(), r = calc(a, a.chan, undefined, ctx);
+    const ctx = volume(), ch = viewCh === "mix" ? "etsy" : viewCh, r = viewCh === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx);
     const miss = missing(a), mb = $("missBox");
     markNeeded(a, miss);
     const aw = autoWeight(a);
@@ -1102,15 +1101,14 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (sb) tip.innerHTML = `<span class="tip">Passender Karton für die Holzteile: <strong>${esc(sb.n)}</strong>${v(sb.p) ? " · " + eur(v(sb.p)) : ""}</span> <button type="button" class="btn" data-act="useBox">Übernehmen</button>`;
 
     const [cls, word] = status(r.margin);
-    $("rChan").textContent = CH_NAMES[a.chan];
     $("rPill").className = "pill " + cls; $("rPill").textContent = word;
     $("rProfit").textContent = eur(r.profit); $("rProfit").style.color = r.profit < 0 ? "var(--bad)" : "";
     $("rMargin").textContent = pct(r.margin) + " Marge";
     $("rSub").textContent = S.alloc ? `Vor Werkstattanteil (${eur(r.fixShare)}): ${eur(r.db)}` : "Ohne Werkstattmiete und Fixkosten gerechnet";
     $("kNet").textContent = eur(r.net);
     $("kFees").textContent = eur(r.fees) + (r.gross > 0 ? " · " + pct(r.fees / r.gross * 100) : "");
-    $("kMin").textContent = eur(solvePrice(a, a.chan, 0, ctx));
-    const tp = solvePrice(a, a.chan, v(S.target), ctx); $("kTarget").textContent = isFinite(tp) ? eur(tp) : "nicht erreichbar";
+    $("kMin").textContent = eur(solvePrice(a, ch, 0, ctx));
+    const tp = solvePrice(a, ch, v(S.target), ctx); $("kTarget").textContent = isFinite(tp) ? eur(tp) : "nicht erreichbar";
     const np = nicePrice(tp);
     $("rReco").innerHTML = isFinite(np) ? `Preisempfehlung für ${esc(S.target)} % Marge: <strong class="num">${eur(np)}</strong>${v(a.price) ? ` <span class="note">(${v(a.price) >= np ? "dein Preis passt" : eur(np - v(a.price)) + " mehr als jetzt"})</span>` : ""}` : "";
 
@@ -1297,6 +1295,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
     else if (a && d.as !== undefined) { (a.small = a.small || {})[d.as] = val; setDirty(true); updateEditor(a); }
     else if (a && d.am !== undefined) { (a.mach = a.mach || {})[d.am] = val; setDirty(true); updateEditor(a); }
+    else if (t.id === "rChan") { viewCh = val; LS.set("hlz-app-viewch", viewCh); if (a) updateEditor(a); }
     else if (bulk && d.bulk !== undefined) { bulk[d.bulk] = val; t.closest(".inp")?.classList.add("changed"); }
     else if (draftS && d.s) {
       draftS[d.s] = val; setDirty(true);
@@ -1418,9 +1417,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     } else {
       head = ["Artikel", "SKU", "Kanal", "Preis brutto", "Rabatt %", "Gewinn", "Marge %", "Preisempfehlung", "Mindestpreis", "Holz", "Öl", "Kleinteile", "Einkauf Schreinerei", "Porto", "Versandart", "Karton", "Gewicht g", "Arbeitszeit Min", "Verkäufe/Monat", "Status", "Nochmal ran", "Notiz"];
       rows = list.map(a => {
-        const ch = viewCh === "mix" ? "mix" : viewCh || a.chan, r = ch === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx), c = calc(a, ch === "mix" ? a.chan : ch, undefined, ctx);
-        const tp = solvePrice(a, ch === "mix" ? a.chan : ch, v(S.target), ctx), miss = missing(a);
-        return [a.name, a.sku || "", ch === "mix" ? (r.mixLabel || CH_NAMES[a.chan]) : CH_NAMES[ch], num(v(a.price)), num(v(a.disc)), num(r.profit), num(r.margin), num(nicePrice(tp)), num(solvePrice(a, ch === "mix" ? a.chan : ch, 0, ctx)),
+        const ch = viewCh, r = ch === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx), c = calc(a, ch === "mix" ? "etsy" : ch, undefined, ctx);
+        const tp = solvePrice(a, ch === "mix" ? "etsy" : ch, v(S.target), ctx), miss = missing(a);
+        return [a.name, a.sku || "", ch === "mix" ? (r.mixLabel || "Etsy") : CH_NAMES[ch], num(v(a.price)), num(v(a.disc)), num(r.profit), num(r.margin), num(nicePrice(tp)), num(solvePrice(a, ch === "mix" ? "etsy" : ch, 0, ctx)),
           num(c.wood), num(c.oil), num(c.small), num(c.ext), num(c.porto), c.ship.chosen ? c.ship.chosen.o.n : "", a.box || "", Math.round(shipWeight(a)) || "",
           num(v(a.mins) + c.rohMin + c.packMin), num(salesPerMonth(a)), miss.length ? "fehlt: " + miss.join(", ") : "fertig", a.todo ? "ja" : "", a.note || ""];
       });
