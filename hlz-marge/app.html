@@ -472,7 +472,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     });
     wood *= a.fremd ? 0 : inK;
     const oil = a.fremd ? 0 : surf * v(S.oilM2) * inK;
-    const small = (S.small || []).reduce((s, x) => s + v(x.p) * v((a.small || {})[x.n]), 0) * inK;
+    // Kleinkram (Schrauben, Dübel, Scheiben) als Pauschale, teurere Teile einzeln
+    const small = ((S.small || []).reduce((s, x) => s + v(x.p) * v((a.small || {})[x.n]), 0) + (a.fremd ? 0 : v(S.smallFlat))) * inK;
     const mach = a.fremd ? 0 : (S.mach || []).reduce((s, m) => s + v(m.r) * v((a.mach || {})[m.n]) / 60, 0);
     const order = (S.order || []).reduce((s, r) => s + v(r.a), 0) * inK;
     const ship = pickShip(a);
@@ -501,7 +502,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (!v(a.price)) m.push("Preis");
     if (a.fremd) { if (v(a.ext) === 0) m.push("Einkaufspreis"); }
     else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0)) m.push("Holz");
-    if (!a.fremd && !Object.values(a.small || {}).some(x => v(x) > 0)) m.push("Kleinteile");
+    if (!a.fremd && !v(S.smallFlat) && !Object.values(a.small || {}).some(x => v(x) > 0)) m.push("Kleinteile");
     if (!a.fremd && !Object.values(a.mach || {}).some(x => v(x) > 0)) m.push("Maschinenzeit");
     if (!v(a.weight) || !v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
     if (!v(a.mins) && !a.fremd) m.push("Arbeitszeit");
@@ -743,6 +744,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <h2>Beschläge &amp; Kleinteile</h2>
             <div class="grid3 keep">${smallFields || '<p class="note">Noch keine Kleinteile angelegt.</p>'}</div>
             <div class="sumline"><a class="note" href="#einstellungen">Preise und Teile unter Einstellungen pflegen</a><span>pro Stück <strong id="smallSum"></strong></span></div>
+            <p class="note" id="smallFlatNote"></p>
           </section>
 
           <section class="box" id="secMach">
@@ -833,7 +835,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const m2 = pl && v(pl.l) * v(pl.b) > 0 ? v(pl.p) / (v(pl.l) * v(pl.b) / 10000) : 0;
     const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(S.wasteDefault) / 100))) : 0;
     $("woodInfo").textContent = r.partsM2 > 0 ? `${dec(r.partsM2, 3)} m² · ${eur(m2)}/m² · ca. ${perPlate} Stück pro Platte` : "Zuschnitt eintragen";
-    $("woodSum").textContent = eur(r.wood); $("oilSum").textContent = eur(r.oil); $("smallSum").textContent = eur(r.small); $("machSum").textContent = eur(r.mach); $("timeSum").textContent = eur(r.time);
+    $("woodSum").textContent = eur(r.wood); $("oilSum").textContent = eur(r.oil); $("smallSum").textContent = eur(r.small);
+    $("smallFlatNote").textContent = !a.fremd && v(S.smallFlat) > 0 ? `inkl. ${eur(v(S.smallFlat))} Pauschale für Schrauben, Dübel und Scheiben` : ""; $("machSum").textContent = eur(r.mach); $("timeSum").textContent = eur(r.time);
     $("timeAuto").textContent = `${dec(r.rohMin)} Min Rohlinge + ${dec(r.packMin)} Min Verpacken · gesamt ${dec(r.rohMin + r.packMin + v(a.mins))} Min zu ${eur(v(S.rate))}/h`
       + (!a.fremd && !r.rohMin && r.partsM2 > 0 ? " · Kein passender Rohling, beim Holz einen Rohling wählen" : "");
 
@@ -939,7 +942,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <p class="note">Gerechnet wird mit der ersten Platte, Preis netto inklusive Lieferzuschlägen.</p></section>
           <section class="box" data-sec="material"><h2>${LISTS.blanks.title}</h2>${listHTML("blanks")}
             <p class="note">Deine vorproduzierten Rohlinge. „Vorfertigung“ = deine Minuten pro Rohling für Zuschnitt, Hobeln, Ablängen und Fasen, zählt automatisch zur Arbeitszeit. Im Artikel wählst du beim Holz nur noch den Rohling aus, Länge und Höhe werden übernommen, und die App schlägt den passenden Karton vor.</p></section>
-          <section class="box" data-sec="material"><h2>${LISTS.small.title}</h2>${listHTML("small")}</section>
+          <section class="box" data-sec="material"><h2>${LISTS.small.title}</h2>${listHTML("small")}
+            <div class="grid3 keep" style="margin-top:12px">${settingsField("smallFlat", "Kleinteile-Pauschale", "€", "Schrauben, Dübel, Scheiben je Artikel")}</div>
+            <p class="note">Billiges Kleinzeug steckt in der Pauschale. In der Liste stehen nur Teile, die du pro Artikel zählst, z. B. Haken oder Bolzen.</p></section>
           <section class="box" data-sec="gebuehren">
             <h2>Gebühren</h2>
             <h3>Etsy</h3>
