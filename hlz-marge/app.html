@@ -59,6 +59,9 @@ h3 { font-size: 1rem }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
 .note { font-size: .8rem; color: var(--muted); margin: 0 }
 .ph { color: var(--warn); font-size: .8rem; margin: 0 }
+.inp.est { box-shadow: 0 0 0 2px var(--warn) }
+label.check { margin-top: 10px; font-weight: 600 }
+label.check small { font-weight: 400; color: var(--muted) }
 
 /* Kopfleiste */
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line) }
@@ -122,7 +125,9 @@ main.wrap { padding-block: 20px 48px }
 .add { justify-self: start; font-size: .82rem; padding: 5px 12px }
 .sumline { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-top: 1px dashed var(--line); padding-top: 10px; font-size: .88rem }
 .sumline strong { font-family: var(--font-mono); font-weight: 500 }
-@media (max-width: 520px) {
+/* Listen stapeln, sobald ihre Box schmal ist (Handy, aber auch die halbe Desktop-Spalte) */
+.rows { container-type: inline-size }
+@container (max-width: 640px) {
   .rowhead.c-parts, .rowhead.c-ship, .rowhead.c-plates { display: none }
   .rowline.c-parts, .rowline.c-ship, .rowline.c-plates { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
   .rowline.c-ship > :first-child, .rowline.c-plates > :first-child { grid-column: 1 / -1 }
@@ -420,9 +425,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       partsM2 += m2;
       if (plM2 > 0) wood += m2 * wasteF * v(pl.p) / plM2;
     });
-    wood *= inK;
+    wood *= a.fremd ? 0 : inK;
     const small = (S.small || []).reduce((s, x) => s + v(x.p) * v((a.small || {})[x.n]), 0) * inK;
-    const mach = (S.mach || []).reduce((s, m) => s + v(m.r) * v((a.mach || {})[m.n]) / 60, 0);
+    const mach = a.fremd ? 0 : (S.mach || []).reduce((s, m) => s + v(m.r) * v((a.mach || {})[m.n]) / 60, 0);
     const order = (S.order || []).reduce((s, r) => s + v(r.a), 0) * inK;
     const ship = pickShip(a);
     const porto = (ship.chosen ? ship.chosen.price : 0) * inK;
@@ -445,7 +450,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   function missing(a) {
     const m = [];
     if (!v(a.price)) m.push("Preis");
-    if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0) && v(a.ext) === 0) m.push("Holz");
+    if (a.fremd) { if (v(a.ext) === 0) m.push("Einkaufspreis"); }
+    else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0) && v(a.ext) === 0) m.push("Holz");
     if (!v(a.weight) || !v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
     if (!v(a.mins)) m.push("Arbeitszeit");
     return m;
@@ -460,6 +466,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       el = ["l", "b", "q"].map(f => document.querySelector(`[data-ap="${i}"][data-f="${f}"]`)).find(x => x && !v(x.value))
         || document.querySelector('[data-act="addPart"]');
     }
+    if (what === "Einkaufspreis") el = $("a-ext");
     if (what === "Versandmaße") el = ["a-weight", "a-pkL", "a-pkB", "a-pkH"].map($).find(x => x && !v(x.value));
     if (what === "Arbeitszeit") el = $("a-mins");
     if (!el) return;
@@ -636,9 +643,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <div class="field"><label for="a-shipIn">Versand vom Kunden</label>${numIn(`id="a-shipIn" data-a="shipIn"`, a.shipIn, "€")}</div>
               <div class="field"><label for="a-chan">Kanal</label><div class="inp"><select id="a-chan" data-a="chan">${CHANNELS.map(c => opt(c, CH_NAMES[c], a.chan === c)).join("")}</select></div></div>
             </div>
+            <label class="check"><input type="checkbox" id="a-fremd" data-a="fremd" ${a.fremd ? "checked" : ""}> Fertigt eine andere Schreinerei <small>(kein Holz, keine Maschinen, dafür Einkaufspreis)</small></label>
           </section>
 
-          <section class="box">
+          <section class="box" id="secWood">
             <div class="row"><h2>Holz</h2><div class="field" style="width:130px"><label for="a-waste">Verschnitt</label>${numIn(`id="a-waste" data-a="waste"`, a.waste, "%")}</div></div>
             <div class="rows">
               <div class="rowhead c-parts"><span>Teil</span><span>Platte</span><span>Länge cm</span><span>Breite cm</span><span>Stk</span><span></span></div>
@@ -654,7 +662,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="sumline"><a class="note" href="#einstellungen">Preise und Teile unter Einstellungen pflegen</a><span>pro Stück <strong id="smallSum"></strong></span></div>
           </section>
 
-          <section class="box">
+          <section class="box" id="secMach">
             <h2>Maschinenzeit</h2>
             <div class="grid3 keep">${machFields || '<p class="note">Noch keine Maschinen angelegt.</p>'}</div>
             <div class="sumline"><a class="note" href="#einstellungen">Stundensätze unter Einstellungen pflegen</a><span>pro Stück <strong id="machSum"></strong></span></div>
@@ -673,7 +681,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="grid3 keep">
               <div class="field"><label for="a-pack">Verpackung</label>${numIn(`id="a-pack" data-a="pack"`, a.pack, "€")}<small>Polster, Folie, Kantenschutz</small></div>
               <div class="field"><label for="a-outer">Umverpackung</label>${numIn(`id="a-outer" data-a="outer"`, a.outer, "€")}<small>Karton, Klebeband, Etikett</small></div>
-              <div class="field"><label for="a-ext">Fremdleistung</label>${numIn(`id="a-ext" data-a="ext"`, a.ext, "€")}<small>Schreinerei, Laser, Gravur</small></div>
+              <div class="field"><label for="a-ext" id="extLabel">Fremdleistung</label>${numIn(`id="a-ext" data-a="ext"`, a.ext, "€")}<small id="extNote">Schreinerei, Laser, Gravur</small></div>
               <div class="field"><label for="a-mins">Deine Arbeitszeit</label>${numIn(`id="a-mins" data-a="mins"`, a.mins, "Min")}<small>zu ${eur(v(S.rate))}/h</small></div>
             </div>
             <p class="note">Alle Einkaufspreise netto. ${S.tax === "ku" ? "Als Kleinunternehmer schlägt die App 19 % drauf." : ""}</p>
@@ -709,6 +717,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   function updateEditor(a) {
     const ctx = volume(), r = calc(a, a.chan, undefined, ctx);
     const miss = missing(a), mb = $("missBox");
+    $("secWood").hidden = $("secMach").hidden = !!a.fremd;
+    $("extLabel").textContent = a.fremd ? "Einkaufspreis Schreinerei" : "Fremdleistung";
+    $("extNote").textContent = a.fremd ? "pro Stück netto, was du der Schreinerei zahlst" : "Schreinerei, Laser, Gravur";
     mb.className = "status " + (miss.length ? "open" : "done");
     mb.innerHTML = miss.length
       ? `<span>⚠ Noch offen:</span> ${miss.map(x => `<button type="button" class="chip miss" data-jump="${x}">${x}</button>`).join("")}<span class="note">Sind alle Punkte erledigt, kommt der Artikel beim Speichern nach ✓ Fertig.</span>`
@@ -742,7 +753,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
     const segs = [
       ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Billbee & Co.", r.order, "--seg-fee", .8], ["Werbung", r.ads, "--seg-fee", .6],
-      ["Holz", r.wood, "--seg-make"], ["Kleinteile", r.small, "--seg-make", .65], ["Fremdleistung", r.ext, "--seg-other"],
+      ["Holz", r.wood, "--seg-make"], ["Kleinteile", r.small, "--seg-make", .65], [a.fremd ? "Einkauf Schreinerei" : "Fremdleistung", r.ext, "--seg-other"],
       ["Versand", r.porto, "--seg-ship"], ["Verpackung", r.pack, "--seg-pack"], ["Umverpackung", r.outer, "--seg-pack", .65],
       ["Maschinen", r.mach, "--seg-time", .6], ["Deine Zeit", r.time, "--seg-time"], ["Werkstatt & Fixkosten", r.fixShare, "--seg-other", .6],
       ["Gewinn", Math.max(0, r.profit), "--seg-profit"]
@@ -774,11 +785,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     return `<div class="rows" id="list-${k}">
         <div class="rowhead ${d.cls}">${d.head.map(h => `<span>${h}</span>`).join("")}<span></span></div>
         ${arr.map((r, i) => `<div class="rowline ${d.cls}">${d.cols.map(([f, t, unit], j) =>
-          `<div class="inp"><input type="${t}" ${t === "number" ? 'step="any" min="0" inputmode="decimal"' : ""} data-sl="${k}" data-i="${i}" data-f="${f}" value="${esc(r[f])}" aria-label="${d.head[j]}">${unit ? `<span>${unit}</span>` : ""}</div>`).join("")}
+          `<div class="inp${r.ph ? " est" : ""}"><input type="${t}" ${t === "number" ? 'step="any" min="0" inputmode="decimal"' : ""} data-sl="${k}" data-i="${i}" data-f="${f}" value="${esc(r[f])}" aria-label="${d.head[j]}">${unit ? `<span>${unit}</span>` : ""}</div>`).join("")}
           <button type="button" class="x" data-del-row="${k}" data-i="${i}" aria-label="Zeile entfernen">×</button></div>`).join("")}
       </div>
       <button class="btn add" data-add-row="${k}">+ Zeile</button>
-      <p class="ph" id="ph-${k}">${phs.length ? "Geschätzt, bitte prüfen: " + phs.map(esc).join(", ") : ""}</p>`;
+      <p class="ph" id="ph-${k}">${phs.length ? "Geschätzt, bitte prüfen: " + phs.map(esc).join(", ") + " · Antippen bestätigt den Wert" : ""}</p>`;
   }
   function settingsField(id, label, unit, small) {
     const T = draftS || S;
@@ -870,6 +881,20 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     });
   }
 
+  // Geschätzten Wert als geprüft markieren (Antippen oder Ändern)
+  function confirmPh(k, i) {
+    const row = draftS[k][i];
+    if (row.ph) delete row.ph;
+    setDirty(true);
+    document.querySelectorAll(`[data-sl="${k}"][data-i="${i}"]`).forEach(x => x.parentElement.classList.remove("est"));
+    const ph = $("ph-" + k), phs = draftS[k].filter(x => x.ph).map(x => x.n);
+    if (ph) ph.textContent = phs.length ? "Geschätzt, bitte prüfen: " + phs.join(", ") + " · Antippen bestätigt den Wert" : "";
+  }
+  document.addEventListener("focusin", e => {
+    const d = e.target.dataset;
+    if (draftS && d.sl && (draftS[d.sl][+d.i] || {}).ph) { confirmPh(d.sl, +d.i); toast("Als geprüft markiert, Speichern nicht vergessen"); }
+  });
+
   // ---------- Eingaben ----------
   document.addEventListener("input", e => {
     const t = e.target, d = t.dataset, val = t.type === "checkbox" ? t.checked : t.value;
@@ -885,9 +910,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     else if (draftS && d.sl) {
       const row = draftS[d.sl][+d.i];
       if (d.f === "n" && LISTS[d.sl].ref && row.n !== val) renames.push([LISTS[d.sl].ref, row.n, val]);
-      row[d.f] = val; delete row.ph; setDirty(true);
-      const ph = $("ph-" + d.sl), phs = draftS[d.sl].filter(x => x.ph).map(x => x.n);
-      if (ph) ph.textContent = phs.length ? "Geschätzt, bitte prüfen: " + phs.join(", ") : "";
+      row[d.f] = val; confirmPh(d.sl, +d.i);
       if ($("fixSum")) $("fixSum").textContent = eur(fixTotal(draftS));
     }
   });
