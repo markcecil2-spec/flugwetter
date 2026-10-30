@@ -59,7 +59,11 @@ h3 { font-size: 1rem }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums }
 .note { font-size: .8rem; color: var(--muted); margin: 0 }
 .ph { color: var(--warn); font-size: .8rem; margin: 0 }
-.inp.est, .inp.need { box-shadow: 0 0 0 2px var(--warn) }
+.inp.est, .inp.need, .inp.changed { box-shadow: 0 0 0 2px var(--warn) }
+.selcol { width: 34px; padding-right: 0 } .selcol input { width: 18px; height: 18px; accent-color: var(--accent) }
+tr.selected td { background: var(--accent-soft) }
+.selbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
+.bulkbox { margin: 10px 0; border-color: var(--accent) }
 .inp textarea { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); padding: 9px 10px; font: .95rem var(--font-body); outline: none; resize: vertical }
 .todo-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line) }
 .todo-note { margin-top: 4px; font-size: .82rem; color: var(--warn); white-space: normal }
@@ -578,6 +582,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   let folder = LS.get("hlz-app-folder") || null;
   // Kanal, für den die Artikelliste rechnet: "" = Kanal des Artikels
   let viewCh = LS.get("hlz-app-viewch") || "";
+  // Mehrfachauswahl in der Artikelliste; bulk = geänderte Felder der gemeinsamen Bearbeitung (null = zu)
+  let sel = new Set(), bulk = null, bulkDelAsk = false, shownIds = [];
   const VIEW_CH = [["", "Kanal: wie beim Artikel"], ["mix", "Kanal: Alle (Mix nach Verkäufen)"], ["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
   // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
@@ -661,6 +667,37 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     return r;
   }
 
+  // Gemeinsame Bearbeitung: Felder, die für alle Ausgewählten gesetzt werden können
+  function bulkFields() {
+    const yn = [["", "– unverändert –"], ["ja", "Ja"], ["nein", "Nein"]];
+    return [
+      ["chan", "Kanal", "select", CHANNELS.map(c => [c, CH_NAMES[c]])],
+      ["price", "Verkaufspreis brutto", "€"], ["shipIn", "Versand vom Kunden", "€"], ["disc", "Shop-Rabatt", "%"], ["adsEtsy", "Etsy Ads je Verkauf", "€"],
+      ["box", "Karton", "select", [["", "Eigene Maße"], ...(S.boxes || []).filter(b => b.n).map(b => [b.n, b.n])]],
+      ["pack", "Verpackung", "€"], ["outer", "Umverpackung", "€"], ["mins", "Weitere Minuten", "Min"],
+      ["fremd", "Fertigt andere Schreinerei", "yn", yn], ["todo", "📝 Nochmal ran", "yn", yn], ["note", "Notiz", "text"],
+      ...(S.small || []).filter(x => x.n).map(x => ["small:" + x.n, x.n, "Stk"])
+    ];
+  }
+  const bulkGet = (a, k) => k.startsWith("small:") ? (a.small || {})[k.slice(6)] ?? "" : k === "fremd" || k === "todo" ? (a[k] ? "ja" : "nein") : a[k] ?? "";
+  function bulkPanel(list) {
+    const fields = bulkFields().map(([k, l, type, opts]) => {
+      const vals = new Set(list.map(a => String(bulkGet(a, k))));
+      const same = vals.size === 1 ? [...vals][0] : null, cur = k in bulk ? bulk[k] : same ?? "";
+      const changed = k in bulk ? " changed" : "";
+      let input;
+      if (type === "select" || type === "yn") input = `<div class="inp${changed}"><select data-bulk="${esc(k)}">${same === null && !(k in bulk) ? opt("", "– verschieden –", true) : ""}${opts.map(([v_, l_]) => opt(v_, l_, String(cur) === v_ && (same !== null || k in bulk))).join("")}</select></div>`;
+      else if (type === "text") input = `<div class="inp${changed}"><input type="text" data-bulk="${esc(k)}" value="${esc(cur)}" placeholder="${same === null ? "verschieden" : ""}"></div>`;
+      else input = `<div class="inp${changed}"><input type="number" step="any" min="0" inputmode="decimal" data-bulk="${esc(k)}" value="${esc(cur)}" placeholder="${same === null ? "verschieden" : ""}"><span>${type}</span></div>`;
+      return `<div class="field"><label>${esc(l)}</label>${input}</div>`;
+    }).join("");
+    return `<section class="box bulkbox">
+      <div class="row"><h2>${list.length} Artikel gemeinsam bearbeiten</h2><span class="btns"><button class="btn" data-act="bulkCancel">Abbrechen</button><button class="btn primary" data-act="bulkApply">Übernehmen</button></span></div>
+      <p class="note">Steht ein Wert drin, ist er bei allen gleich. „verschieden“ heißt, die Artikel haben unterschiedliche Werte. Geändert wird nur, was du hier anfasst (orange Rahmen).</p>
+      <div class="grid3 keep">${fields}</div>
+    </section>`;
+  }
+
   // ---------- Übersicht ----------
   function phCount() { return ["fixed", "small", "mach", "ship"].reduce((s, k) => s + (S[k] || []).filter(x => x.ph).length, 0); }
   function renderOverview() {
@@ -686,6 +723,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const inFolder = x => f === "all" || (f === "todo" ? !!x.a.todo : (f === "open") === (x.miss.length > 0));
     const shown = rows.filter(x => inFolder(x)
       && (!search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)) || norm(x.a.note).includes(norm(search))));
+    shownIds = shown.map(x => x.a.id);
     const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["todo", "Nochmal ran", nTodo], ["all", "Alle", rows.length]];
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}">${l}${sortKey === k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
     const hasSales = m.qty > 0;
@@ -708,17 +746,21 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         </div>
         <div class="inp chsel"><select id="fCh" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div>
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
+        ${sel.size ? `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>` : ""}
+        ${bulkDelAsk ? `<div class="banner"><span>${sel.size} Artikel wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : ""}
+        ${bulk && sel.size ? bulkPanel(A.filter(x => sel.has(x.id))) : ""}
         <div class="tablewrap"><table class="ov">
-          <thead><tr>${th("name", "Artikel")}<th class="hide-sm">Kanal</th><th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
+          <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}<th class="hide-sm">Kanal</th><th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
           <tbody>${shown.map(({ a, ch, r, pm, t, miss }) => {
             const [c, w] = status(r.margin);
-            return `<tr class="click" data-open="${a.id}" tabindex="0">
+            return `<tr class="click${sel.has(a.id) ? " selected" : ""}" data-open="${a.id}" tabindex="0">
+              <td class="selcol"><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></td>
               <td class="name"><button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
               <td class="hide-sm">${ch === "mix" ? (r.mixLabel || CH_NAMES[a.chan]) : CH_NAMES[ch] || ch}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
               <td><span class="pill ${c}">${pct(r.margin)}</span></td><td class="num hide-sm">${eur(t)}</td></tr>`;
-          }).join("") || `<tr><td colspan="8" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
+          }).join("") || `<tr><td colspan="9" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
         <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab 30 % grün, 15–30 % gelb, darunter rot.</p>
       </section>`;
@@ -1137,6 +1179,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
     else if (a && d.as !== undefined) { (a.small = a.small || {})[d.as] = val; setDirty(true); updateEditor(a); }
     else if (a && d.am !== undefined) { (a.mach = a.mach || {})[d.am] = val; setDirty(true); updateEditor(a); }
+    else if (bulk && d.bulk !== undefined) { bulk[d.bulk] = val; t.closest(".inp")?.classList.add("changed"); }
     else if (draftS && d.s) {
       draftS[d.s] = val; setDirty(true);
       if (t.type === "checkbox" || t.tagName === "SELECT") renderSettings();
@@ -1151,7 +1194,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
-    const t = e.target.closest("[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
+    const t = e.target.closest("[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.star) {
@@ -1166,6 +1209,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (d.open) { pendingFocus = d.focus || "auto"; return go("artikel-" + d.open); }
     if (d.jump && draft) return focusMissing(draft, d.jump);
     if (d.stab) { stab = d.stab; LS.set("hlz-app-stab", stab); document.querySelectorAll("[data-stab]").forEach(b => b.setAttribute("aria-pressed", b.dataset.stab === stab)); document.querySelectorAll("#view [data-sec]").forEach(el => el.hidden = el.dataset.sec !== stab); return; }
+    if (d.sel) { sel.has(d.sel) ? sel.delete(d.sel) : sel.add(d.sel); bulkDelAsk = false; return renderOverview(); }
+    if (d.selall) { const all = shownIds.length && shownIds.every(id => sel.has(id)); shownIds.forEach(id => all ? sel.delete(id) : sel.add(id)); bulkDelAsk = false; return renderOverview(); }
     if (d.folder) { folder = d.folder; LS.set("hlz-app-folder", folder); return renderOverview(); }
     if (d.sort) { sortDir = sortKey === d.sort ? -sortDir : (d.sort === "name" ? 1 : -1); sortKey = d.sort; return renderOverview(); }
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
@@ -1173,6 +1218,28 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
     if (d.delPart !== undefined && a) { a.parts.splice(+d.delPart, 1); setDirty(true); return renderEditor(a); }
     switch (d.act) {
+      case "selNone": sel.clear(); bulk = null; bulkDelAsk = false; return renderOverview();
+      case "bulkEdit": bulk = {}; bulkDelAsk = false; return renderOverview();
+      case "bulkCancel": bulk = null; return renderOverview();
+      case "bulkDel": bulkDelAsk = true; bulk = null; return renderOverview();
+      case "bulkDelNo": bulkDelAsk = false; return renderOverview();
+      case "bulkDelYes": { const n = sel.size; [...sel].forEach(id => removeArticle(id)); sel.clear(); bulkDelAsk = false; renderOverview(); return toast(`${n} Artikel gelöscht`); }
+      case "bulkApply": {
+        const keys = Object.keys(bulk || {}); if (!keys.length) { bulk = null; return renderOverview(); }
+        A.filter(x => sel.has(x.id)).forEach(x => {
+          keys.forEach(k => {
+            const val = bulk[k];
+            if (k.startsWith("small:")) (x.small = x.small || {})[k.slice(6)] = val;
+            else if (k === "fremd" || k === "todo") { if (val) x[k] = val === "ja"; }
+            else if (k === "box") {
+              x.box = val; const bx = (S.boxes || []).find(b => b.n === val);
+              if (bx) { x.pkL = bx.l; x.pkB = bx.b; x.pkH = bx.h; if (bx.p !== "" && bx.p != null && !keys.includes("outer")) x.outer = bx.p; }
+            } else x[k] = val;
+          });
+          saveArticle(x);
+        });
+        const n = sel.size; bulk = null; renderOverview(); return toast(`${n} Artikel geändert`);
+      }
       case "save": return doSave();
       case "discard": return doDiscard();
       case "new": { const n = { ...ARTICLE_BLANK(), isNew: true }; A.push(n); return go("artikel-" + n.id); }
