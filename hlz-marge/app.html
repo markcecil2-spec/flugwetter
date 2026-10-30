@@ -60,6 +60,7 @@ h3 { font-size: 1rem }
 .note { font-size: .8rem; color: var(--muted); margin: 0 }
 .ph { color: var(--warn); font-size: .8rem; margin: 0 }
 .inp.est { box-shadow: 0 0 0 2px var(--warn) }
+.savenear { justify-self: start; align-self: start; margin-top: 6px; padding: 6px 14px; font-size: .85rem }
 label.check { margin-top: 10px; font-weight: 600 }
 label.check small { font-weight: 400; color: var(--muted) }
 
@@ -508,7 +509,22 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   function setDirty(x) {
     dirty = x; $("savebar").hidden = !x; document.body.classList.toggle("dirty", x);
     const b = $("saveTop"); if (b) b.disabled = !x;
+    placeSaveNear();
   }
+  // Speichern-Knopf direkt unter dem Feld, in dem man gerade tippt
+  let nearField = null;
+  const saveNear = Object.assign(document.createElement("button"), { type: "button", className: "btn primary savenear", textContent: "✓ Speichern" });
+  saveNear.dataset.act = "save";
+  saveNear.addEventListener("pointerdown", e => e.preventDefault());
+  function placeSaveNear() {
+    if (!dirty || !nearField || !nearField.isConnected) return saveNear.remove();
+    if (nearField.classList.contains("rowline")) { if (nearField.nextElementSibling !== saveNear) nearField.after(saveNear); }
+    else if (saveNear.parentElement !== nearField) nearField.append(saveNear);
+  }
+  document.addEventListener("focusin", e => {
+    const f = e.target.closest && e.target.closest("#view .field, #view .rowline");
+    if (f && (e.target.matches("input, select"))) { nearField = f; placeSaveNear(); }
+  });
   function doSave() {
     if (view === "artikel" && draft) {
       delete draft.isNew; delete draft.example;
