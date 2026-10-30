@@ -443,7 +443,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const order = (S.order || []).reduce((s, r) => s + v(r.a), 0) * inK;
     const ship = pickShip(a);
     const porto = (ship.chosen ? ship.chosen.price : 0) * inK;
-    const pack = v(a.pack) * inK, outer = v(a.outer) * inK, ext = v(a.ext) * inK;
+    const pack = v(a.pack) * inK, outer = v(a.outer) * inK, ext = a.fremd ? v(a.ext) * inK : 0;
     const time = v(a.mins) / 60 * v(S.rate);
     const fixShare = S.alloc && ctx.vol > 0 ? fixTotal() / ctx.vol : 0;
     const varCosts = wood + small + ext + porto + pack + outer + time + mach + order;
@@ -463,7 +463,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const m = [];
     if (!v(a.price)) m.push("Preis");
     if (a.fremd) { if (v(a.ext) === 0) m.push("Einkaufspreis"); }
-    else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0) && v(a.ext) === 0) m.push("Holz");
+    else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0)) m.push("Holz");
     if (!v(a.weight) || !v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
     if (!v(a.mins) && !a.fremd) m.push("Arbeitszeit");
     return m;
@@ -671,6 +671,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
               <div class="field"><label for="a-chan">Kanal</label><div class="inp"><select id="a-chan" data-a="chan">${CHANNELS.map(c => opt(c, CH_NAMES[c], a.chan === c)).join("")}</select></div></div>
             </div>
             <label class="check"><input type="checkbox" id="a-fremd" data-a="fremd" ${a.fremd ? "checked" : ""}> Fertigt eine andere Schreinerei <small>(kein Holz, keine Maschinen, dafür Einkaufspreis)</small></label>
+            <div class="grid3 keep" id="extBox" style="margin-top:10px">
+              <div class="field"><label for="a-ext">Einkaufspreis Schreinerei</label>${numIn(`id="a-ext" data-a="ext"`, a.ext, "€")}<small>pro Stück netto</small></div>
+            </div>
           </section>
 
           <section class="box" id="secWood">
@@ -696,7 +699,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           </section>
 
           <section class="box">
-            <h2>Versand, Verpackung &amp; Arbeit</h2>
+            <h2>Versand &amp; Verpackung</h2>
             <div class="grid3 keep">
               <div class="field"><label for="a-weight">Gewicht verpackt</label>${numIn(`id="a-weight" data-a="weight"`, a.weight, "g")}</div>
               <div class="field" style="grid-column: span 2"><label for="a-shipMode">Versandart</label><div class="inp"><select id="a-shipMode" data-a="shipMode">${opt("auto", "Automatisch (günstigste passende)", a.shipMode === "auto")}${S.ship.map(o => opt(o.n, o.n, a.shipMode === o.n)).join("")}</select></div></div>
@@ -708,10 +711,16 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             <div class="grid3 keep">
               <div class="field"><label for="a-pack">Verpackung</label>${numIn(`id="a-pack" data-a="pack"`, a.pack, "€")}<small>Polster, Folie, Kantenschutz</small></div>
               <div class="field"><label for="a-outer">Umverpackung</label>${numIn(`id="a-outer" data-a="outer"`, a.outer, "€")}<small>Karton, Klebeband, Etikett</small></div>
-              <div class="field"><label for="a-ext" id="extLabel">Fremdleistung</label>${numIn(`id="a-ext" data-a="ext"`, a.ext, "€")}<small id="extNote">Schreinerei, Laser, Gravur</small></div>
-              <div class="field"><label for="a-mins">Deine Arbeitszeit</label>${numIn(`id="a-mins" data-a="mins"`, a.mins, "Min")}<small>zu ${eur(v(S.rate))}/h</small></div>
             </div>
             <p class="note">Alle Einkaufspreise netto. ${S.tax === "ku" ? "Als Kleinunternehmer schlägt die App 19 % drauf." : ""}</p>
+          </section>
+
+          <section class="box">
+            <h2>Deine Arbeitszeit</h2>
+            <div class="grid3 keep">
+              <div class="field"><label for="a-mins">Minuten pro Stück</label>${numIn(`id="a-mins" data-a="mins"`, a.mins, "Min")}<small>zu ${eur(v(S.rate))}/h</small></div>
+            </div>
+            <div class="sumline"><a class="note" href="#einstellungen">Stundenlohn unter Einstellungen pflegen</a><span>pro Stück <strong id="timeSum"></strong></span></div>
           </section>
 
           <section class="box">
@@ -748,8 +757,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     $("ahProfit").textContent = isFinite(r.profit) ? eur(r.profit) + " · " + pct(r.margin) : "";
     $("ahProfit").style.color = r.profit < 0 ? "var(--bad)" : "";
     $("secWood").hidden = $("secMach").hidden = !!a.fremd;
-    $("extLabel").textContent = a.fremd ? "Einkaufspreis Schreinerei" : "Fremdleistung";
-    $("extNote").textContent = a.fremd ? "pro Stück netto, was du der Schreinerei zahlst" : "Schreinerei, Laser, Gravur";
+    $("extBox").hidden = !a.fremd;
     mb.className = "status " + (miss.length ? "open" : "done");
     mb.innerHTML = miss.length
       ? `<span>⚠ Noch offen:</span> ${miss.map(x => `<button type="button" class="chip miss" data-jump="${x}">${x}</button>`).join("")}<span class="note">Sind alle Punkte erledigt, kommt der Artikel beim Speichern nach ✓ Fertig.</span>`
@@ -758,7 +766,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const m2 = pl && v(pl.l) * v(pl.b) > 0 ? v(pl.p) / (v(pl.l) * v(pl.b) / 10000) : 0;
     const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(a.waste) / 100))) : 0;
     $("woodInfo").textContent = r.partsM2 > 0 ? `${dec(r.partsM2, 3)} m² · ${eur(m2)}/m² · ca. ${perPlate} Stück pro Platte` : "Zuschnitt eintragen";
-    $("woodSum").textContent = eur(r.wood); $("smallSum").textContent = eur(r.small); $("machSum").textContent = eur(r.mach);
+    $("woodSum").textContent = eur(r.wood); $("smallSum").textContent = eur(r.small); $("machSum").textContent = eur(r.mach); $("timeSum").textContent = eur(r.time);
 
     const s = r.ship, lines = [];
     if (!s.chosen) lines.push(`<span class="warn">Keine Versandart passt, Gewicht oder Maße sind zu groß. Leg unter Einstellungen eine passende an.</span>`);
@@ -783,7 +791,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 
     const segs = [
       ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Billbee & Co.", r.order, "--seg-fee", .8], ["Werbung", r.ads, "--seg-fee", .6],
-      ["Holz", r.wood, "--seg-make"], ["Kleinteile", r.small, "--seg-make", .65], [a.fremd ? "Einkauf Schreinerei" : "Fremdleistung", r.ext, "--seg-other"],
+      ["Holz", r.wood, "--seg-make"], ["Kleinteile", r.small, "--seg-make", .65], ["Einkauf Schreinerei", r.ext, "--seg-other"],
       ["Versand", r.porto, "--seg-ship"], ["Verpackung", r.pack, "--seg-pack"], ["Umverpackung", r.outer, "--seg-pack", .65],
       ["Maschinen", r.mach, "--seg-time", .6], ["Deine Zeit", r.time, "--seg-time"], ["Werkstatt & Fixkosten", r.fixShare, "--seg-other", .6],
       ["Gewinn", Math.max(0, r.profit), "--seg-profit"]
