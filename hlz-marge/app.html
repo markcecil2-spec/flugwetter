@@ -845,17 +845,36 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     updateEditor(a);
   }
   // Günstigster Karton, in den der größte Rohling passt (1 cm Luft je Maß)
-  function needDims(a) {
+  // Mögliche Packweisen der Holzteile als [L, B, H] (absteigend sortiert).
+  // Gleiche Teile dürfen nebeneinander liegen und gestapelt werden, verschiedene Teile werden gestapelt.
+  function packOptions(a) {
     const parts = (a.parts || []).filter(p => v(p.l) * v(p.b) > 0);
-    if (!parts.length) return null;
-    // Teile werden gestapelt: Höhe = Summe aus Stärke × Stückzahl
-    const t = parts.reduce((s, p) => s + (v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2) * Math.max(1, v(p.q)), 0);
-    return [Math.max(...parts.map(p => v(p.l))), Math.max(...parts.map(p => v(p.b))), t].sort((x, y) => y - x);
+    if (!parts.length) return [];
+    const th = p => v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2;
+    const sort = d => d.sort((x, y) => y - x);
+    if (parts.length === 1) {
+      const p = parts[0], n = Math.max(1, Math.round(v(p.q))), out = [];
+      for (let k = 1; k <= n; k++) {
+        const h = Math.ceil(n / k) * th(p);
+        out.push(sort([k * v(p.l), v(p.b), h]), sort([v(p.l), k * v(p.b), h]));
+      }
+      return out;
+    }
+    const t = parts.reduce((s, p) => s + th(p) * Math.max(1, v(p.q)), 0);
+    return [sort([Math.max(...parts.map(p => v(p.l))), Math.max(...parts.map(p => v(p.b))), t])];
+  }
+  // Kleinste Packweise (nach Volumen der Hülle) für den Hinweis
+  function needDims(a) {
+    const o = packOptions(a);
+    return o.length ? o.reduce((x, y) => x[0] * x[1] * x[2] <= y[0] * y[1] * y[2] ? x : y) : null;
   }
   function suggestBox(a) {
-    const need = needDims(a);
-    if (!need) return null;
-    const fits = (S.boxes || []).filter(b => b.n).filter(b => { const inner = [v(b.l), v(b.b), v(b.h)].sort((x, y) => y - x).map(x => x - 1); return need.every((n, i) => n <= inner[i]); });
+    const opts = packOptions(a);
+    if (!opts.length) return null;
+    const fits = (S.boxes || []).filter(b => b.n).filter(b => {
+      const inner = [v(b.l), v(b.b), v(b.h)].sort((x, y) => y - x).map(x => x - 1);
+      return opts.some(need => need.every((n, i) => n <= inner[i]));
+    });
     const cost = b => { const r = pickShip({ ...a, pkL: b.l, pkB: b.b, pkH: b.h, shipMode: "auto" }); return v(b.p) + (r.best ? r.best.price : 99); };
     return fits.sort((x, y) => cost(x) - cost(y))[0] || null;
   }
