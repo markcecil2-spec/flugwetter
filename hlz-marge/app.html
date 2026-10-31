@@ -101,6 +101,7 @@ table.ov td.name { white-space: normal; min-width: 260px }
 .prodtable .inp { max-width: 190px }
 .prodtable .inp.qprice { width: 112px }
 .prodtable .inp.qprice input { font-size: 1.05rem }
+.prodtable .inp.qprice input[type=number]::-webkit-inner-spin-button { opacity: 1; height: 26px; cursor: pointer }
 tr.prodon td { background: var(--accent-soft) }
 tr.prodon [data-q="prod"] { font-weight: 700 }
 #printArea { display: none }
@@ -974,8 +975,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
             <td>${thumbHTML(a) || '<span class="thumb"></span>'}</td>
             <td class="name"><strong class="num">${esc(a.sku || "ohne SKU")}</strong><br><span class="note">${esc(a.name)}</span>${a.fremd ? ' <span class="chip ex">Zukauf</span>' : ""}</td>
             <td><div class="inp"><input type="text" list="prodCats" data-q="cat" data-qid="${a.id}" value="${esc(cat)}" aria-label="Kategorie ${esc(a.name)}"></div></td>
-            <td><div class="inp qprice"><input type="text" inputmode="numeric" data-q="prod" data-qid="${a.id}" value="${a.prod ? esc(a.prod) : ""}" placeholder="0" aria-label="Zu produzieren ${esc(a.name)}"><span>Stk</span></div></td>
-            <td><div class="inp qprice"><input type="text" inputmode="numeric" data-q="stock" data-qid="${a.id}" value="${a.stock ? esc(a.stock) : ""}" placeholder="0" aria-label="Lagerbestand ${esc(a.name)}"><span>Stk</span></div></td>
+            <td><div class="inp qprice"><input type="number" min="0" step="1" inputmode="numeric" data-q="prod" data-qid="${a.id}" value="${a.prod ? esc(a.prod) : ""}" placeholder="0" aria-label="Zu produzieren ${esc(a.name)}"><span>Stk</span></div></td>
+            <td><div class="inp qprice"><input type="number" min="0" step="1" inputmode="numeric" data-q="stock" data-qid="${a.id}" value="${a.stock ? esc(a.stock) : ""}" placeholder="0" aria-label="Lagerbestand ${esc(a.name)}"><span>Stk</span></div></td>
             <td class="num">${esc(prodDims(a)) || '<span class="note">–</span>'}</td></tr>`).join("") || `<tr><td colspan="6" class="note">${prod.only ? "Noch nichts zu produzieren eingetragen." : "Kein Artikel passt."}</td></tr>`}</tbody>
         </table></div>
         <datalist id="prodCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
