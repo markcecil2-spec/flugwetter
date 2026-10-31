@@ -81,6 +81,18 @@ tr.selected td { background: var(--accent-soft) }
 .linkbtn { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
 .linkbtn:hover { text-decoration-color: currentColor }
 .suptable th, .suptable td { text-align: left; vertical-align: top }
+.colpick { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 10px 0; display: grid; gap: 10px; background: var(--bg) }
+.colpick-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap }
+.colpick-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 16px }
+.switch { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: .9rem }
+.switch input { position: absolute; opacity: 0; pointer-events: none }
+.switch .track { width: 38px; height: 22px; border-radius: 11px; background: var(--line); position: relative; flex: none; transition: background .15s }
+.switch .track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--panel); transition: transform .15s }
+.switch input:checked + .track { background: var(--accent) }
+.switch input:checked + .track::after { transform: translateX(16px) }
+.switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px }
+table.ov td, table.ov th { white-space: nowrap }
+table.ov td.name { white-space: normal; min-width: 260px }
 .supbars { display: grid; gap: 12px }
 .supbar { display: grid; gap: 4px }
 .supbar-head { display: flex; justify-content: space-between; gap: 10px; font-size: .9rem }
@@ -258,7 +270,7 @@ th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color:
 th button { all: unset; cursor: pointer } th button:hover, th button[aria-pressed=true] { color: var(--accent) }
 tbody tr.ovrow:hover td { background: var(--accent-soft) }
 /* nur Name und Bild öffnen den Artikel */
-.artlink { all: unset; font-weight: 600; cursor: pointer; border-radius: 4px }
+.artlink { color: inherit; text-decoration: none; font-weight: 600; cursor: pointer; border-radius: 4px }
 .artlink:hover { text-decoration: underline; text-underline-offset: 3px }
 .artlink:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
 td.name img.thumb[data-open] { cursor: pointer }
@@ -701,7 +713,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false, saveTimer = null;
   function setDirty(x) {
     dirty = x; clearTimeout(saveTimer);
-    if (x) saveTimer = setTimeout(doSave, 700);
+    if (x) saveTimer = setTimeout(doSave, 2000);
   }
   function doSave() {
     if (view === "artikel" && draft) {
@@ -713,7 +725,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       if (a.priceAtEtsy != null && v(a.priceAtEtsy) === v(a.price)) delete a.priceAtEtsy;
       if (i >= 0) A[i] = a; else A.push(a);
       if (draft.priceAtEtsy !== a.priceAtEtsy) { if (a.priceAtEtsy == null) delete draft.priceAtEtsy; else draft.priceAtEtsy = a.priceAtEtsy; }
-      saveArticle(a); setDirty(false);
+      saveArticle(a); draft.updated = a.updated; setDirty(false);
       if (wasOpen !== nowOpen) toast(nowOpen ? "Zurück in ⚠ Daten fehlen" : "Vollständig · liegt jetzt in ✓ Fertig");
     } else if (view === "einstellungen" && draftS) {
       S = clone(draftS); renames.forEach(([k, o, n]) => renameRef(k, o, n)); renames = [];
@@ -805,6 +817,37 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   }
 
   const machAutoOn = m => v(m.a) > 0 || v(m.s) > 0;
+
+  // Spalten der Artikelliste: ein- und ausblendbar, pro Gerät gemerkt
+  const pickWage = x => { const mins = v(x.a.mins) + x.r.rohMin + x.r.packMin; return mins > 0 ? (x.r.profit + x.r.time) / (mins / 60) : NaN; };
+  const dash = (val, f) => val ? f(val) : "–";
+  const OV_COLS = [
+    { k: "price", l: () => "Preis", def: true, hideSm: true, cls: "num", sort: x => x.r.P,
+      cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-qprice="${x.a.id}" value="${v(x.a.price) ? v(x.a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(x.a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>` },
+    { k: "pm", l: () => "Verk./Mon.", def: true, hideSm: true, cls: "num", sort: x => x.pm, cell: x => x.pm ? dec(x.pm) : "–" },
+    { k: "cost", l: () => "Kosten", def: true, hideSm: true, cls: "num", sort: x => x.r.varCosts + x.r.fees + x.r.ads + x.r.fixShare, cell: x => eur(x.r.varCosts + x.r.fees + x.r.ads + x.r.fixShare) },
+    { k: "profit", l: () => "Gewinn", def: true, cls: "num", sort: x => x.r.profit, style: x => { const [c] = status(x.r.margin); return `color:var(--${c === "muted" ? "fg" : c})`; }, cell: x => eur(x.r.profit) },
+    { k: "margin", l: () => "Marge", def: true, sort: x => isFinite(x.r.margin) ? x.r.margin : -1e9,
+      cell: x => { const [c] = status(x.r.margin); return `<span class="pill ${c}">${pct(x.r.margin)}</span>${isFinite(x.t) ? `<div class="reco num" title="Preisempfehlung für ${esc(S.target)} % Marge">→ ${eur(nicePrice(x.t))}</div>` : ""}`; } },
+    { k: "target", l: () => `Preis für ${S.target} %`, def: true, hideSm: true, cls: "num", sort: x => isFinite(x.t) ? x.t : 1e9, cell: x => eur(x.t) },
+    { k: "profitM", l: () => "Gewinn/Monat", hideSm: true, cls: "num", sort: x => x.r.profit * x.pm, cell: x => x.pm ? eur(x.r.profit * x.pm) : "–" },
+    { k: "revM", l: () => "Umsatz/Monat", hideSm: true, cls: "num", sort: x => x.r.gross * x.pm, cell: x => x.pm ? eur(x.r.gross * x.pm) : "–" },
+    { k: "wage", l: () => "Stundenlohn", hideSm: true, cls: "num", sort: x => isFinite(pickWage(x)) ? pickWage(x) : -1e9, cell: x => isFinite(pickWage(x)) ? eur(pickWage(x)) + "/h" : "–" },
+    { k: "mins", l: () => "Arbeitszeit", hideSm: true, cls: "num", sort: x => v(x.a.mins) + x.r.rohMin + x.r.packMin, cell: x => dash(v(x.a.mins) + x.r.rohMin + x.r.packMin, m => dec(m) + " Min") },
+    { k: "weight", l: () => "Gewicht", hideSm: true, cls: "num", sort: x => shipWeight(x.a), cell: x => dash(shipWeight(x.a), g => dec(g, 0) + " g") },
+    { k: "dims", l: () => "Packmaß", hideSm: true, cls: "num", sort: x => v(x.a.pkL) * v(x.a.pkB) * v(x.a.pkH), cell: x => v(x.a.pkL) ? `${dec(v(x.a.pkL))} × ${dec(v(x.a.pkB))} × ${dec(v(x.a.pkH))} cm` : "–" },
+    { k: "box", l: () => "Karton", hideSm: true, sort: x => norm(x.a.box), cell: x => esc(x.a.box || "–") },
+    { k: "ship", l: () => "Versandart", hideSm: true, sort: x => x.r.ship.chosen ? x.r.ship.chosen.o.n : "", cell: x => x.r.ship.chosen ? esc(x.r.ship.chosen.o.n) : "–" },
+    { k: "porto", l: () => "Porto", hideSm: true, cls: "num", sort: x => x.r.porto, cell: x => eur(x.r.porto) },
+    { k: "fees", l: () => "Gebühren", hideSm: true, cls: "num", sort: x => x.r.fees + x.r.ads, cell: x => eur(x.r.fees + x.r.ads) },
+    { k: "wood", l: () => "Holz", hideSm: true, cls: "num", sort: x => x.r.wood, cell: x => dash(x.r.wood, eur) },
+    { k: "small", l: () => "Kleinteile", hideSm: true, cls: "num", sort: x => x.r.small, cell: x => dash(x.r.small, eur) },
+    { k: "ext", l: () => "Einkauf", hideSm: true, cls: "num", sort: x => x.r.ext, cell: x => dash(x.r.ext, eur) },
+    { k: "supplier", l: () => "Lieferant", hideSm: true, sort: x => norm(x.a.supplier), cell: x => esc(x.a.supplier || "–") },
+    { k: "note", l: () => "Notiz", hideSm: true, sort: x => norm(x.a.note), cell: x => `<span class="note">${esc(x.a.note || "")}</span>` },
+  ];
+  let colsOpen = false;
+  const ovCols = () => { const on = LS.get("hlz-app-cols"); return OV_COLS.filter(c => Array.isArray(on) ? on.includes(c.k) : c.def); };
 
   function bulkPanel(list) {
     const fields = bulkFields().map(([k, l, type, opts]) => {
@@ -1135,7 +1178,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       const ch = "etsy", r = calc(a, ch, undefined, ctx);
       return { a, ch, r, pm: salesPerMonth(a), t: solvePrice(a, ch, v(S.target), ctx), miss: missing(a) };
     });
-    const key = { name: x => norm(x.a.name), price: x => x.r.P, pm: x => x.pm, profit: x => x.r.profit, margin: x => isFinite(x.r.margin) ? x.r.margin : -1e9 }[sortKey];
+    const visCols = ovCols();
+    const key = sortKey === "name" ? x => norm(x.a.name) : ((OV_COLS.find(c => c.k === sortKey) || {}).sort || (x => x.r.profit));
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
     rows.sort((x, y) => { const f = (y.a.fav ? 1 : 0) - (x.a.fav ? 1 : 0); if (f) return f; const p = key(x), q = key(y); return (p < q ? -1 : p > q ? 1 : 0) * sortDir; });
     const nOpen = rows.filter(x => x.miss.length).length, nDone = rows.length - nOpen, nTodo = rows.filter(x => x.a.todo).length;
@@ -1164,24 +1208,24 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <button class="btn primary" data-act="new">+ Artikel</button>
             <a class="btn" href="#import">Import</a>
             <button class="btn" data-act="exportCsv">Export</button>
+            <button class="btn${colsOpen ? " primary" : ""}" data-act="cols" aria-expanded="${colsOpen}">Spalten</button>
           </div>
         </div>
+        ${colsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-act="colsReset">Standard</button><button class="btn" data-act="cols">Fertig</button></span></div>
+          <div class="colpick-list">${OV_COLS.map(c => `<label class="switch"><input type="checkbox" data-col="${c.k}" ${visCols.includes(c) ? "checked" : ""}><span class="track"></span>${esc(c.l())}</label>`).join("")}</div></div>` : ""}
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
         ${sel.size ? (bulkDelAsk ? `<div class="selbar danger"><strong>${sel.size} Artikel wirklich löschen?</strong><span class="note">Lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn${cmp ? " primary" : ""}" data-act="cmpOpen" ${sel.size < 2 ? 'disabled title="Mindestens 2 Artikel auswählen"' : ""}>Vergleichen</button><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>`) : ""}
         ${bulk && sel.size ? bulkPanel(A.filter(x => sel.has(x.id))) : ""}
         ${cmp && sel.size >= 2 ? cmpPanel(shownIds.filter(id => sel.has(id)).concat([...sel].filter(id => !shownIds.includes(id))).map(id => A.find(x => x.id === id)).filter(Boolean)) : ""}
         <div class="tablewrap"><table class="ov">
-          <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}<th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
-          <tbody>${shown.map(({ a, ch, r, pm, t, miss }) => {
+          <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}${visCols.map(c => `<th class="${c.hideSm ? "hide-sm" : ""}">${c.sort ? `<button data-sort="${c.k}" aria-pressed="${sortKey === c.k}">${c.l()}${sortKey === c.k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button>` : c.l()}</th>`).join("")}</tr></thead>
+          <tbody>${shown.map(x => { const { a, ch, r, pm, t, miss } = x;
             const [c, w] = status(r.margin);
             return `<tr class="ovrow${sel.has(a.id) ? " selected" : ""}">
               <td class="selcol"><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></td>
-              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><button type="button" class="artlink" data-open="${a.id}">${esc(a.name)}</button> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
-              <td class="num hide-sm"><div class="inp qprice"><input type="text" inputmode="decimal" data-qprice="${a.id}" value="${v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>${Math.abs(r.P - v(a.price)) > 0.005 ? `<small class="note">Kunde zahlt ${eur(r.P)}</small>` : ""}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
-              <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
-              <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
-              <td><span class="pill ${c}">${pct(r.margin)}</span>${isFinite(t) ? `<div class="reco num" title="Preisempfehlung für ${esc(S.target)} % Marge">→ ${eur(nicePrice(t))}</div>` : ""}</td><td class="num hide-sm">${eur(t)}</td></tr>`;
-          }).join("") || `<tr><td colspan="9" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
+              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><a class="artlink" href="#artikel-${a.id}" data-open="${a.id}">${esc(a.name)}</a> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
+              ${visCols.map(c => `<td class="${c.cls || ""}${c.hideSm ? " hide-sm" : ""}"${c.style ? ` style="${c.style(x)}"` : ""}>${c.cell(x)}</td>`).join("")}</tr>`;
+          }).join("") || `<tr><td colspan="${visCols.length + 2}" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
         <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab ${esc(S.target)} % (dein Ziel) grün, ab ${esc(dec(v(S.target) / 2))} % gelb, darunter rot.</p>
       </section>`;
@@ -1613,6 +1657,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   document.addEventListener("input", e => {
     const t = e.target, d = t.dataset, val = t.type === "checkbox" ? t.checked : t.value;
     const a = view === "artikel" ? draft : null;
+    if (d.col) { const on = new Set(ovCols().map(c => c.k)); t.checked ? on.add(d.col) : on.delete(d.col); LS.set("hlz-app-cols", OV_COLS.filter(c => on.has(c.k)).map(c => c.k)); return renderOverview(); }
     if (view === "support") {
       if (d.sup && sup.f) sup.f[d.sup] = val;
       if (t.id === "supFacts") { S.supFacts = val; saveSettings(); }
@@ -1651,6 +1696,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     }
   });
 
+  let qNext = null;
   // Preis direkt in der Artikelliste ändern (Enter oder Feld verlassen = speichern)
   document.addEventListener("change", e => {
     const id = e.target.dataset && e.target.dataset.qprice; if (!id) return;
@@ -1658,9 +1704,20 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (!a || v(val) <= 0 || v(val) === v(a.price)) { if (a) e.target.value = v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : ""; return; }
     if (a.priceAtEtsy == null) a.priceAtEtsy = a.price;
     a.price = v(val).toFixed(2); if (v(a.priceAtEtsy) === v(a.price)) delete a.priceAtEtsy;
+    // mit Tab ins nächste Preisfeld gesprungen: dort weitermachen
+    const next = qNext || document.activeElement?.dataset?.qprice;
     saveArticle(a); renderOverview(); toast(`${a.name}: neuer Preis ${eur(v(val))}`);
+    if (next) { const el = document.querySelector(`[data-qprice="${next}"]`); if (el) { el.focus(); el.select(); } }
   });
-  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.qprice) e.target.blur(); });
+  // Preisspalte wie eine Tabelle: Tab/Enter springt ins nächste Preisfeld, Umschalt zurück
+  document.addEventListener("keydown", e => {
+    if (!(e.target.dataset && e.target.dataset.qprice) || !(e.key === "Enter" || e.key === "Tab")) return;
+    const all = [...document.querySelectorAll("[data-qprice]")], i = all.indexOf(e.target), to = all[i + (e.shiftKey ? -1 : 1)];
+    if (!to) { if (e.key === "Enter") e.target.blur(); return; }
+    e.preventDefault(); qNext = to.dataset.qprice; to.focus();
+    // das Speichern beim Verlassen zeichnet die Liste neu: Feld danach frisch suchen
+    const el = document.querySelector(`[data-qprice="${qNext}"]`); qNext = null; if (el) { el.focus(); el.select(); }
+  });
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
@@ -1732,6 +1789,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         const n = sel.size; bulk = null; renderOverview(); return toast(`${n} Artikel geändert`);
       }
       case "save": return doSave();
+      case "cols": colsOpen = !colsOpen; return renderOverview();
+      case "colsReset": try { localStorage.removeItem("hlz-app-cols"); } catch (e) {} return renderOverview();
       case "supAsk": return supAsk();
       case "supStop": sup.ctl?.abort(); return;
       case "supNew": sup.f = supBlank(); sup.err = ""; renderSupport(); return $("s-msg").focus();
@@ -1762,7 +1821,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       case "cancelImport": imp = null; return renderImport();
     }
   });
-  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName !== "BUTTON" && e.target.dataset && e.target.dataset.open) go("artikel-" + e.target.dataset.open); });
+  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName !== "BUTTON" && e.target.tagName !== "A" && e.target.dataset && e.target.dataset.open) go("artikel-" + e.target.dataset.open); });
 
   // ---------- Sicherung ----------
   // Datei anbieten: erst über die Download-Funktion von Claude, sonst normaler Browser-Download
@@ -2075,8 +2134,11 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (JSON.stringify(next) === JSON.stringify(S)) return;
     S = next; liveRefresh();
   }
+  // nie neu zeichnen, während jemand in ein Feld tippt (sonst springt der Cursor raus)
+  const typing = () => !!document.activeElement?.closest?.("#view") && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
   function liveRefresh() {
-    if (view === "uebersicht" && document.activeElement?.id !== "search") renderOverview();
+    if (typing()) return;
+    if (view === "uebersicht") renderOverview();
     else if (view === "artikel" && !dirty) {
       const a = A.find(x => x.id === curId);
       if (a && JSON.stringify(a) !== JSON.stringify(draft)) { draft = clone(a); renderEditor(draft); }
