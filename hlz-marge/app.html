@@ -95,6 +95,25 @@ tr.selected td { background: var(--accent-soft) }
 .switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px }
 table.ov td, table.ov th { white-space: nowrap }
 table.ov td.name { white-space: normal; min-width: 260px }
+.prodtable th, .prodtable td { text-align: left; vertical-align: middle; white-space: nowrap }
+.prodtable td.name { white-space: normal; min-width: 190px }
+.prodtable .thumb { float: none; display: block; width: 52px; height: 52px; margin: 0; border-radius: 8px }
+.prodtable .inp { max-width: 190px }
+.prodtable .inp.qprice { width: 112px }
+.prodtable .inp.qprice input { font-size: 1.05rem }
+tr.prodon td { background: var(--accent-soft) }
+tr.prodon [data-q="prod"] { font-weight: 700 }
+#printArea { display: none }
+@media print {
+  body > *:not(#printArea) { display: none !important }
+  #printArea { display: block !important; padding: 8px; color: #000; background: #fff }
+  #printArea h1 { font: 700 20px sans-serif; margin: 0 0 12px }
+  #printArea table { border-collapse: collapse; width: 100% }
+  #printArea th, #printArea td { border: 1px solid #888; padding: 6px 8px; font: 14px sans-serif; text-align: left; vertical-align: middle }
+  #printArea img { width: 56px; height: 56px; object-fit: cover; float: none; display: block }
+  #printArea .chk { font-size: 22px; text-align: center } #printArea .qty { font: 700 20px sans-serif; text-align: center }
+  #printArea tr { break-inside: avoid }
+}
 .supbars { display: grid; gap: 12px }
 .supbar { display: grid; gap: 4px }
 .supbar-head { display: flex; justify-content: space-between; gap: 10px; font-size: .9rem }
@@ -329,6 +348,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>Kalkulatte</strong></a>
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
+      <a href="#produktion" data-tab="produktion">Produktion</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
       <a href="#import" data-tab="import">Import</a>
@@ -766,7 +786,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === view) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -790,6 +810,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "einstellungen") { if (!draftS) draftS = clone(S); renderSettings(); }
     else if (view === "preise") renderPrices();
     else if (view === "support") renderSupport();
+    else if (view === "produktion") renderProduction();
     else renderOverview();
   }
 
@@ -909,6 +930,96 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   let sync = { state: "idle", rows: [], unmatched: [], msg: "", pick: new Set() };
   const etsyChanges = () => A.filter(a => a.priceAtEtsy != null && v(a.priceAtEtsy) !== v(a.price));
   const normTitle = t => norm(t).replace(/\(alte variante\)/g, "").replace(/[^a-z0-9äöüß]/g, "");
+  // ---------- Produktion: Pickingliste (was soll gebaut werden) ----------
+  const PROD_RULES = [[/knotenbrett/i, "Knotenbrett"], [/schlüsselbrett|schlüsselbalken/i, "Schlüsselbrett"], [/garderobe/i, "Garderobe"], [/haken/i, "Haken"],
+    [/regal|bilderleiste|ampel/i, "Regal"], [/teelicht|kartenhalter|stiftehalter|untersetzer|glöckchen|griff|wandbild|anhänger/i, "Deko & Zubehör"]];
+  const prodCat = a => (a.pcat || "").trim() || (PROD_RULES.find(([re]) => re.test(a.name || "")) || [0, "Sonstiges"])[1];
+  const prodDims = a => {
+    const ps = (a.parts || []).filter(p => v(p.l) * v(p.b) > 0); if (!ps.length) return "";
+    const p = ps[0], t = v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2;
+    return `${dec(v(p.l))} x ${dec(v(p.b))} x ${dec(t)} cm${v(p.q) > 1 ? " (" + dec(v(p.q), 0) + " Stk)" : ""}${ps.length > 1 ? " +" + (ps.length - 1) + " Teil" + (ps.length > 2 ? "e" : "") : ""}`;
+  };
+  let prod = { q: "", only: false, cat: "", ask: "", copy: "" };
+  const prodRows = () => A.map(a => ({ a, cat: prodCat(a) })).sort((x, y) => (norm(x.a.sku) || "~").localeCompare(norm(y.a.sku) || "~", "de", { numeric: true }));
+  const prodTodo = () => A.filter(a => v(a.prod) > 0);
+
+  function renderProduction() {
+    const all = prodRows(), cats = [...new Set(all.map(x => x.cat))].sort((a, b) => a.localeCompare(b, "de"));
+    const list = all.filter(x => (!prod.cat || x.cat === prod.cat) && (!prod.only || v(x.a.prod) > 0)
+      && (!prod.q || norm(x.a.name).includes(norm(prod.q)) || norm(x.a.sku).includes(norm(prod.q))));
+    const todo = prodTodo(), pcs = todo.reduce((n, a) => n + v(a.prod), 0);
+    $("view").innerHTML = `
+      <div class="row"><h1>Produktion</h1></div>
+      <p class="note">Trag bei „Zu produzieren“ ein, wie viele du bauen willst. Mit Tab oder Enter geht es in die nächste Zeile. Alles wird automatisch gespeichert.</p>
+      <section class="box">
+        <div class="row">
+          <strong id="prodSum">${todo.length ? `${dec(pcs, 0)} Stück · ${todo.length} Artikel zu produzieren` : "Noch nichts eingetragen"}</strong>
+          <div class="btns">
+            <div class="inp" style="min-width:0;width:170px"><input id="prodSearch" type="search" placeholder="Name oder SKU" value="${esc(prod.q)}" aria-label="Suchen"></div>
+            <div class="inp chsel" style="margin:0"><select id="prodCat" aria-label="Kategorie">${opt("", "Alle Kategorien", !prod.cat)}${cats.map(c => opt(c, c, prod.cat === c)).join("")}</select></div>
+          </div>
+        </div>
+        <div class="btns">
+          <button type="button" class="btn${prod.only ? " primary" : ""}" data-act="prodOnly" aria-pressed="${prod.only}">Nur zu produzieren${todo.length ? " (" + todo.length + ")" : ""}</button>
+          <button type="button" class="btn" data-act="prodPrint" ${todo.length ? "" : "disabled"}>🖨 Drucken</button>
+          <button type="button" class="btn" data-act="prodCopy" ${todo.length ? "" : "disabled"}>Als Text kopieren</button>
+          <button type="button" class="btn" data-act="prodBook" ${todo.length ? "" : "disabled"}>✓ Produziert → ins Lager</button>
+          <button type="button" class="btn" data-act="prodClear" ${todo.length ? "" : "disabled"}>Liste leeren</button>
+        </div>
+        ${prod.ask ? `<div class="selbar danger" style="position:static"><strong>${prod.ask === "book" ? `${dec(pcs, 0)} Stück ins Lager buchen und die Liste leeren?` : "Alle Mengen „Zu produzieren“ löschen?"}</strong><span class="btns"><button class="btn primary" data-act="prodYes">Ja</button><button class="btn" data-act="prodNo">Abbrechen</button></span></div>` : ""}
+        ${prod.copy ? `<div class="field"><label for="prodCopyBox">Konnte nicht automatisch kopieren. Text markieren und mit Strg+C kopieren:</label><div class="inp"><textarea id="prodCopyBox" rows="8" readonly>${esc(prod.copy)}</textarea></div></div>` : ""}
+        <div class="tablewrap"><table class="prodtable">
+          <thead><tr><th>Bild</th><th>SKU</th><th>Kategorie</th><th>Zu produzieren</th><th>Lagerbestand</th><th>Maße</th></tr></thead>
+          <tbody>${list.map(({ a, cat }) => `<tr class="prodrow${v(a.prod) > 0 ? " prodon" : ""}">
+            <td>${thumbHTML(a) || '<span class="thumb"></span>'}</td>
+            <td class="name"><strong class="num">${esc(a.sku || "ohne SKU")}</strong><br><span class="note">${esc(a.name)}</span>${a.fremd ? ' <span class="chip ex">Zukauf</span>' : ""}</td>
+            <td><div class="inp"><input type="text" list="prodCats" data-q="cat" data-qid="${a.id}" value="${esc(cat)}" aria-label="Kategorie ${esc(a.name)}"></div></td>
+            <td><div class="inp qprice"><input type="text" inputmode="numeric" data-q="prod" data-qid="${a.id}" value="${a.prod ? esc(a.prod) : ""}" placeholder="0" aria-label="Zu produzieren ${esc(a.name)}"><span>Stk</span></div></td>
+            <td><div class="inp qprice"><input type="text" inputmode="numeric" data-q="stock" data-qid="${a.id}" value="${a.stock ? esc(a.stock) : ""}" placeholder="0" aria-label="Lagerbestand ${esc(a.name)}"><span>Stk</span></div></td>
+            <td class="num">${esc(prodDims(a)) || '<span class="note">–</span>'}</td></tr>`).join("") || `<tr><td colspan="6" class="note">${prod.only ? "Noch nichts zu produzieren eingetragen." : "Kein Artikel passt."}</td></tr>`}</tbody>
+        </table></div>
+        <datalist id="prodCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
+      </section>`;
+    const sEl = $("prodSearch");
+    sEl.addEventListener("input", () => { prod.q = sEl.value; const pos = sEl.selectionStart; renderProduction(); const n = $("prodSearch"); n.focus(); n.setSelectionRange(pos, pos); });
+    $("prodCat").addEventListener("change", e => { prod.cat = e.target.value; renderProduction(); });
+  }
+
+  // Eingabe in einer Zeile: speichern, ohne die Tabelle neu zu zeichnen (Cursor bleibt)
+  function prodChange(el, f, id) {
+    const a = A.find(x => x.id === id); if (!a) return;
+    if (f === "cat") { const c = el.value.trim(); a.pcat = c === prodCat({ ...a, pcat: "" }) ? "" : c; }
+    else { const n = Math.max(0, Math.round(v(el.value))); a[f] = n ? String(n) : ""; el.value = n ? String(n) : ""; }
+    saveArticle(a);
+    el.closest("tr")?.classList.toggle("prodon", v(a.prod) > 0);
+    const todo = prodTodo(), pcs = todo.reduce((n, x) => n + v(x.prod), 0), sum = $("prodSum");
+    if (sum) sum.textContent = todo.length ? `${dec(pcs, 0)} Stück · ${todo.length} Artikel zu produzieren` : "Noch nichts eingetragen";
+    document.querySelectorAll('[data-act="prodPrint"],[data-act="prodCopy"],[data-act="prodBook"],[data-act="prodClear"]').forEach(b => b.disabled = !todo.length);
+    const ob = document.querySelector('[data-act="prodOnly"]'); if (ob) ob.textContent = "Nur zu produzieren" + (todo.length ? " (" + todo.length + ")" : "");
+  }
+
+  function prodText() {
+    const by = {}; prodRows().filter(x => v(x.a.prod) > 0).forEach(x => (by[x.cat] = by[x.cat] || []).push(x.a));
+    const d = prodDims;
+    return "Produktion " + new Date().toLocaleDateString("de-DE") + "\n" + Object.keys(by).sort((a, b) => a.localeCompare(b, "de")).map(c =>
+      "\n" + c + "\n" + by[c].map(a => `${dec(v(a.prod), 0)} × ${a.sku || a.name}${d(a) ? " · " + d(a) : ""}`).join("\n")).join("\n");
+  }
+  function prodPrint() {
+    const rows = prodRows().filter(x => v(x.a.prod) > 0), pcs = rows.reduce((n, x) => n + v(x.a.prod), 0);
+    let box = $("printArea"); if (!box) { box = document.createElement("div"); box.id = "printArea"; document.body.appendChild(box); }
+    box.innerHTML = `<h1>Produktionsliste · ${new Date().toLocaleDateString("de-DE")}</h1>
+      <table><thead><tr><th>✓</th><th>Bild</th><th>SKU / Artikel</th><th>Kategorie</th><th>Menge</th><th>Maße</th></tr></thead><tbody>${rows.map(({ a, cat }) =>
+      `<tr><td class="chk">☐</td><td>${thumbHTML(a)}</td><td><strong>${esc(a.sku || "")}</strong><br>${esc(a.name)}</td><td>${esc(cat)}</td><td class="qty">${dec(v(a.prod), 0)}</td><td>${esc(prodDims(a))}</td></tr>`).join("")}</tbody></table>
+      <p>${dec(pcs, 0)} Stück · ${rows.length} Artikel</p>`;
+    window.addEventListener("afterprint", () => { box.innerHTML = ""; }, { once: true });
+    try { window.print(); } catch (e) { toast("Drucken geht hier nicht, nimm „Als Text kopieren“"); }
+  }
+  function prodBook() {
+    prodTodo().forEach(a => { a.stock = String(v(a.stock) + v(a.prod)); a.prod = ""; saveArticle(a); });
+    prod.ask = ""; renderProduction(); toast("Ins Lager gebucht, Liste geleert");
+  }
+  function prodClearAll() { prodTodo().forEach(a => { a.prod = ""; saveArticle(a); }); prod.ask = ""; renderProduction(); toast("Liste geleert"); }
+
   // ---------- Support: Kundennachrichten beantworten und auswerten ----------
   const SUP_CATS = [["lieferzeit", "Lieferzeit / Wo ist mein Paket?"], ["reklamation", "Reklamation / Fehlteil / Defekt"], ["widerruf", "Widerruf / Rückgabe"],
     ["montage", "Montage / Wandeignung"], ["mass", "Sondermaß / Angebot"], ["versandkosten", "Versandkosten"], ["bewertung", "Bewertung / Beschwerde"],
@@ -1736,6 +1847,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   const qFmt = { price: a => v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : "", weight: a => v(a.weight) ? String(Math.round(v(a.weight))) : "", mins: a => v(a.mins) ? dec(v(a.mins)) : "" };
   document.addEventListener("change", e => {
     const f = e.target.dataset && e.target.dataset.q, id = f && e.target.dataset.qid; if (!id) return;
+    if (view === "produktion") return prodChange(e.target, f, id);
     const a = A.find(x => x.id === id), val = e.target.value.trim().replace(/\.(?=\d{3}\b)/g, "");
     if (!a) return;
     if (f === "price") {
@@ -1855,6 +1967,18 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       case "doneHome": clearTimeout(doneTimer); $("donePop").hidden = true; return go("uebersicht");
       case "doneClose": clearTimeout(doneTimer); $("donePop").hidden = true; return;
       case "doneNext": { clearTimeout(doneTimer); $("donePop").hidden = true; const id = $("doneNext").dataset.id; if (id) { pendingFocus = "auto"; go("artikel-" + id); } return; }
+      case "prodOnly": prod.only = !prod.only; return renderProduction();
+      case "prodPrint": return prodPrint();
+      case "prodCopy": {
+        const txt = prodText();
+        (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => { prod.copy = ""; toast("Liste kopiert"); })
+          .catch(() => { prod.copy = txt; renderProduction(); $("prodCopyBox")?.select(); });
+        return;
+      }
+      case "prodBook": prod.ask = "book"; return renderProduction();
+      case "prodClear": prod.ask = "clear"; return renderProduction();
+      case "prodNo": prod.ask = ""; return renderProduction();
+      case "prodYes": return prod.ask === "book" ? prodBook() : prodClearAll();
       case "supAsk": return supAsk();
       case "supStop": sup.ctl?.abort(); return;
       case "supNew": sup.f = supBlank(); sup.err = ""; renderSupport(); return $("s-msg").focus();
@@ -2203,6 +2327,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   function liveRefresh() {
     if (typing()) return;
     if (view === "uebersicht") renderOverview();
+    else if (view === "produktion") renderProduction();
     else if (view === "artikel" && !dirty) {
       const a = A.find(x => x.id === curId);
       if (a && JSON.stringify(a) !== JSON.stringify(draft)) { draft = clone(a); renderEditor(draft); }
