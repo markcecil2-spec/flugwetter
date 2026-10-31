@@ -151,12 +151,15 @@ label.check small { font-weight: 400; color: var(--muted) }
 nav.tabs { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center }
 nav.tabs a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: .9rem; padding: 6px 12px; border-radius: 999px }
 nav.tabs a[aria-current=page] { background: var(--accent-soft); color: var(--accent) }
+/* Kalkulator links, Betrieb (Bestellungen, Produktion, Support) rechts davon, durch einen Strich getrennt */
+.navsep { align-self: center; width: 1px; height: 20px; background: var(--line); margin: 0 14px }
 .sync { font-size: .75rem; color: var(--muted); display: flex; gap: 6px; align-items: center; white-space: nowrap }
 .sync .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good) }
 .sync.saving .dot { background: var(--warn) } .sync.err .dot { background: var(--bad) }
 @media (max-width: 720px) {
   .top .wrap { grid-template-columns: 1fr auto; row-gap: 6px }
   nav.tabs { grid-column: 1 / -1; justify-content: flex-start; order: 3 }
+  .navsep { display: none }
 }
 main.wrap { padding-block: 20px 48px }
 
@@ -358,11 +361,12 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>Kalkulatte</strong></a>
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
-      <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
-      <a href="#produktion" data-tab="produktion">Produktion</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
       <a href="#import" data-tab="import">Import</a>
+      <span class="navsep" aria-hidden="true"></span>
+      <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
+      <a href="#produktion" data-tab="produktion">Produktion</a>
       <a href="#support" data-tab="support">Support</a>
     </nav>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
