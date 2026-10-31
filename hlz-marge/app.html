@@ -80,6 +80,8 @@ tr.selected td { background: var(--accent-soft) }
 .cmptable td.best { color: var(--good); font-weight: 700 }
 .linkbtn { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
 .linkbtn:hover { text-decoration-color: currentColor }
+.addsmall { display: grid; gap: 10px; padding: 12px; border: 1px dashed var(--accent); border-radius: 10px }
+#newSmallBtn { justify-self: start }
 .selbar { position: sticky; top: calc(var(--toph, 60px) + 8px); z-index: 5; background: var(--panel); box-shadow: 0 4px 14px rgb(0 0 0 / .08); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
 .selbar.danger { border-color: var(--bad) }
 .selbar.danger .note { flex: 1 }
@@ -1034,6 +1036,16 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
           <section class="box">
             <h2>Beschläge &amp; Kleinteile</h2>
             <div class="grid3 keep">${smallFields || '<p class="note">Noch keine Kleinteile angelegt.</p>'}</div>
+            <button type="button" class="btn" data-act="newSmall" id="newSmallBtn">+ Neues Teil</button>
+            <div class="addsmall" id="addSmall" hidden>
+              <div class="grid3 keep">
+                <div class="field"><label for="ns-n">Teil</label><div class="inp"><input type="text" id="ns-n" placeholder="z. B. Messinghaken"></div></div>
+                <div class="field"><label for="ns-p">Preis pro Stück netto</label>${numIn('id="ns-p"', "", "€")}</div>
+                <div class="field"><label for="ns-g">Gewicht pro Stück</label>${numIn('id="ns-g"', "", "g")}</div>
+              </div>
+              <div class="btns"><button type="button" class="btn primary" data-act="addSmall">Hinzufügen</button><button type="button" class="btn" data-act="newSmallNo">Abbrechen</button></div>
+              <small class="note">Das Teil steht danach bei allen Artikeln zur Auswahl. Hier wird es gleich mit 1 Stück eingetragen.</small>
+            </div>
             <div class="sumline"><a class="note" href="#einstellungen">Preise und Teile unter Einstellungen pflegen</a><span>pro Stück <strong id="smallSum"></strong></span></div>
             <p class="note" id="smallFlatNote"></p>
           </section>
@@ -1438,6 +1450,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     saveArticle(a); renderOverview(); toast(`${a.name}: neuer Preis ${eur(v(val))}`);
   });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.qprice) e.target.blur(); });
+  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.closest && e.target.closest("#addSmall")) { e.preventDefault(); document.querySelector('[data-act="addSmall"]').click(); } });
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
@@ -1504,6 +1517,17 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         const n = sel.size; bulk = null; renderOverview(); return toast(`${n} Artikel geändert`);
       }
       case "save": return doSave();
+      case "newSmall": $("addSmall").hidden = false; $("newSmallBtn").hidden = true; return $("ns-n").focus();
+      case "newSmallNo": $("addSmall").hidden = true; $("newSmallBtn").hidden = false; return;
+      case "addSmall": {
+        const n = $("ns-n").value.trim(), pr = $("ns-p").value.trim(), g = $("ns-g").value.trim();
+        if (!n) { $("ns-n").focus(); return toast("Bitte einen Namen eingeben"); }
+        if ((S.small || []).some(x => norm(x.n) === norm(n))) return toast("Das Teil gibt es schon");
+        S.small = [...(S.small || []), { n, p: pr ? v(pr).toFixed(2) : "", g: g ? String(v(g)) : "" }]; saveSettings();
+        (a.small = a.small || {})[n] = "1"; setDirty(true); renderEditor(a);
+        setTimeout(() => $("sm-" + (S.small.length - 1))?.focus(), 30);
+        return toast(`${n} angelegt und eingetragen`);
+      }
       case "new": { const n = { ...ARTICLE_BLANK(), isNew: true }; A.push(n); return go("artikel-" + n.id); }
       case "examples": { EXAMPLES().forEach(x => { A.push(x); saveArticle(x); }); toast("4 Beispielartikel hinzugefügt"); return go("uebersicht"); }
       case "useBox": { const sb = suggestBox(a); if (!sb) return; $("a-box").value = sb.n; $("a-box").dispatchEvent(new Event("input", { bubbles: true })); return; }
