@@ -103,6 +103,14 @@ table.ov td.name { white-space: normal; min-width: 260px }
 .rmbtn.on { border-color: var(--bad); background: var(--bad); color: #fff }
 tr.rmrow td:not(:first-child) { opacity: .6 }
 .chip.rm { color: var(--bad); font-weight: 600 }
+.anatable th, .anatable td { text-align: left; vertical-align: top; padding: 6px 10px; white-space: normal }
+.anatable td.num, .anatable th.r { white-space: nowrap }
+.tiles.t3 { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+@media (max-width: 760px) { .tiles.t3 { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+.anatable th.r, .anatable td.r { text-align: right }
+.anabar { display: block; height: 8px; min-width: 90px; border-radius: 4px; background: var(--line); overflow: hidden }
+.anabar i { display: block; height: 100%; border-radius: 4px }
+.anagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
 .navbadge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: var(--warn); color: #fff; font-size: .72rem; font-weight: 700; line-height: 18px; text-align: center }
 .ordtable th, .ordtable td { text-align: left; vertical-align: top; padding-left: 8px; padding-right: 8px }
 .ordtable tr.orddone td { opacity: .55 }
@@ -372,6 +380,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>Kalkulatte</strong></a>
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
+      <a href="#auswertung" data-tab="auswertung">Auswertung</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
       <a href="#import" data-tab="import">Import</a>
@@ -819,7 +828,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === view) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -845,6 +854,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "support") renderSupport();
     else if (view === "produktion") renderProduction();
     else if (view === "bestellungen") renderOrders();
+    else if (view === "auswertung") renderAnalysis();
     else renderOverview();
   }
 
@@ -984,6 +994,147 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   let sync = { state: "idle", rows: [], unmatched: [], msg: "", pick: new Set() };
   const etsyChanges = () => A.filter(a => a.priceAtEtsy != null && v(a.priceAtEtsy) !== v(a.price));
   const normTitle = t => norm(t).replace(/\(alte variante\)/g, "").replace(/[^a-z0-9äöüß]/g, "");
+  // ---------- Auswertung: Gesamtbild und Hebel zum Skalieren (rechnet live aus deinen Daten) ----------
+  const anaBar = (x, max, color) => `<span class="anabar"><i style="width:${Math.max(2, Math.min(100, max > 0 ? x / max * 100 : 0))}%;background:var(${color || "--accent"})"></i></span>`;
+  const anaTable = (head, rows, right = []) => `<div class="tablewrap"><table class="anatable"><thead><tr>${head.map((h, i) => `<th class="${right.includes(i) ? "r" : ""}">${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td class="${right.includes(i) ? "r num" : ""}">${c}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${head.length}" class="note">Keine Daten.</td></tr>`}</tbody></table></div>`;
+  const anaName = a => esc(a.name.length > 46 ? a.name.slice(0, 45) + "…" : a.name);
+
+  function anaCalc() {
+    const ctx = volume(), T = { qty: 0, gross: 0, net: 0, fees: 0, ads: 0, porto: 0, mat: 0, pack: 0, time: 0, db: 0, byCh: {} }, rows = [];
+    A.forEach(a => {
+      Object.entries(a.sales || {}).forEach(([ch0, x]) => {
+        const q = v(x.months) > 0 ? v(x.qty) / v(x.months) : 0; if (!q) return;
+        const ch = CHANNELS.includes(ch0) ? ch0 : "etsy", r = calc(a, ch, v(x.avg) || v(a.price), ctx, v(x.avg) > 0);
+        T.qty += q; T.gross += q * r.gross; T.net += q * r.net; T.fees += q * r.fees; T.ads += q * r.ads; T.porto += q * r.porto; T.mat += q * (r.wood + r.oil + r.small + r.ext);
+        T.pack += q * (r.pack + r.outer + r.order); T.time += q * (r.time + r.mach); T.db += q * r.db; T.byCh[ch] = (T.byCh[ch] || 0) + q;
+      });
+      const pm = salesPerMonth(a); if (pm > 0 && v(a.price) > 0) { const r = calc(a, "etsy", undefined, ctx), mins = v(a.mins) + r.rohMin + r.packMin; rows.push({ a, pm, r, mins, wage: mins > 0 ? (r.profit + r.time) / (mins / 60) : NaN, cat: prodCat(a) }); }
+    });
+    return { ctx, T, rows, m: monthly(ctx), fix: fixTotal() };
+  }
+
+  function renderAnalysis() {
+    const { ctx, T, rows, m, fix } = anaCalc(), tx = afterTax(m), target = v(S.target) || 40, abc = abcInfo();
+    const noSales = A.filter(a => !(salesPerMonth(a) > 0)), hasSales = T.qty > 0;
+    if (!hasSales) { $("view").innerHTML = `<div class="row"><h1>Auswertung</h1></div><section class="box empty"><p>Noch keine Verkaufszahlen. Importier Bestellungen unter „Import“, dann rechnet die Auswertung los.</p></section>`; return; }
+    const perUnit = T.db / T.qty, breakEven = perUnit > 0 ? fix / perUnit : Infinity;
+    const minsMonth = rows.reduce((n, x) => n + x.pm * x.mins, 0), hours = minsMonth / 60, avgMin = rows.reduce((n, x) => n + x.pm, 0) > 0 ? minsMonth / rows.reduce((n, x) => n + x.pm, 0) : 0;
+    const realH = v(S.anaReal), minReal = realH > 0 && T.qty > 0 ? realH * 52 / 12 * 60 / T.qty : 0, realPerH = realH > 0 ? (m.result + m.labor) / (realH * 52 / 12) : 0;
+    const hoursWeek = v(S.anaHours) || 25, capMin = realH > 0 ? minReal : avgMin, capUnits = capMin > 0 ? hoursWeek * 52 / 12 * 60 / capMin : 0;
+    // Preise: Artikel mit Verkäufen unter Zielmarge
+    const priceRows = rows.filter(x => isFinite(x.r.margin) && x.r.margin < target).map(x => {
+      const p0 = v(x.a.price), soft = Math.max(p0 + 1, Math.round(p0 * 1.1)), tp = solvePrice(x.a, "etsy", target, ctx), full = isFinite(tp) ? nicePrice(tp) : 0;
+      const up = (p, loss) => (calc(x.a, "etsy", p, ctx).db * (1 - loss) - x.r.db) * x.pm;
+      return { ...x, p0, soft, full, gSoft: up(soft, 0), gSoft10: up(soft, 0.1), gFull: full > p0 ? up(full, 0) : 0, gFull15: full > p0 ? up(full, 0.15) : 0 };
+    }).sort((x, y) => y.gSoft - x.gSoft);
+    const sum = (arr, f) => arr.reduce((n, x) => n + f(x), 0), pS = sum(priceRows, x => x.gSoft), pS10 = sum(priceRows, x => x.gSoft10), pF = sum(priceRows, x => x.gFull), pF15 = sum(priceRows, x => x.gFull15);
+    // Versand: billigere Versandart, die knapp scheitert
+    const shipRows = rows.filter(x => x.r.ship && x.r.ship.chosen && x.r.ship.cheaper).map(x => ({ ...x, save: x.r.ship.chosen.price - x.r.ship.cheaper.price, alt: x.r.ship.cheaper.o.n, why: x.r.ship.cheaper.why || [] }))
+      .filter(x => x.save > 0.2).sort((x, y) => y.save * y.pm - x.save * x.pm);
+    // „knapp“ = jede Überschreitung höchstens 25 % über dem Limit (z. B. 1,01 kg statt max. 1 kg)
+    const ratio = w => { const q = String(w).match(/([\d.,]+)\s*(?:kg|cm)\s*statt max\.\s*([\d.,]+)/); return q ? deNum(q[1]) / deNum(q[2]) : 9; };
+    const shipNear = shipRows.filter(x => x.why.length && x.why.every(w => ratio(w) <= 1.25)), shipPot = sum(shipNear, x => x.save * x.pm);
+    const shipBy = {}; rows.forEach(x => { if (!x.r.ship || !x.r.ship.chosen) return; const k = x.r.ship.chosen.o.n, o = shipBy[k] = shipBy[k] || { pm: 0, cost: 0 }; o.pm += x.pm; o.cost += x.pm * x.r.porto; });
+    // Kanäle: Verschiebung von Etsy nach Shopify
+    const chRows = rows.filter(x => ((x.a.sales || {}).etsy || {}).qty).map(x => { const p = v(x.a.price); return { qE: v(x.a.sales.etsy.qty) / Math.max(v(x.a.sales.etsy.months), 0.1), d0: calc(x.a, "shopify", p, ctx, true).profit - x.r.profit, d10: calc(x.a, "shopify", p * 0.9, ctx, true).profit - x.r.profit }; });
+    const qE = sum(chRows, x => x.qE), dAvg = qE > 0 ? sum(chRows, x => x.qE * x.d0) / qE : 0, dAvg10 = qE > 0 ? sum(chRows, x => x.qE * x.d10) / qE : 0;
+    // Gruppen
+    const grp = (keyFn, order) => { const g = {}; rows.forEach(x => { const k = keyFn(x); const o = g[k] = g[k] || { n: 0, pm: 0, gross: 0, profit: 0, net: 0 }; o.n++; o.pm += x.pm; o.gross += x.pm * x.r.gross; o.profit += x.pm * x.r.profit; o.net += x.pm * x.r.net; }); return Object.entries(g).sort(order); };
+    const bands = grp(x => v(x.a.price) < 30 ? "unter 30 €" : v(x.a.price) < 60 ? "30 bis 59 €" : v(x.a.price) < 100 ? "60 bis 99 €" : "ab 100 €", (a, b) => parseInt(a[0].replace(/\D/g, "")) - parseInt(b[0].replace(/\D/g, "")) || (a[0].startsWith("unter") ? -1 : 1));
+    const cats = grp(x => x.cat, (a, b) => b[1].profit - a[1].profit);
+    const sortedC = rows.map(x => x.pm * x.r.profit).sort((a, b) => b - a), posTot = sum(sortedC, c => Math.max(0, c)), top10 = sum(sortedC.slice(0, 10), c => Math.max(0, c));
+    const nA = Object.values(abc).filter(x => x.abc === "A").length, nB = Object.values(abc).filter(x => x.abc === "B").length;
+    // Qualität / Service
+    const since = new Date(Date.now() - 31 * 864e5).toISOString().slice(0, 10), recl = SUP.filter(x => x.cat === "reklamation" && (x.at || "") >= since).length, reclAll = SUP.filter(x => x.cat === "reklamation").length;
+    const reclRate = T.qty > 0 ? recl / T.qty * 100 : 0, reclCost = recl * 12;
+    // Bestellungen im Verlauf
+    const live = ORD.filter(o => o.status !== "storniert");
+    const pace = [["etsy", "Etsy (aus Gmail)"], ["shopify", "Shopify"]].map(([ch, name]) => {
+      const os = live.filter(o => o.src === ch); if (!os.length) return null;
+      const from = os.map(o => o.at).sort()[0], days = Math.max(1, Math.round((Date.now() - new Date(from + "T00:00:00").getTime()) / 864e5) + 1), pcs = os.reduce((n, o) => n + ordPcs(o), 0);
+      return { ch, name, from, days, n: os.length, pcs, perMonth: pcs / days * 30 };
+    }).filter(Boolean);
+    const flops = rows.filter(x => isFinite(x.wage) && x.pm >= 0.5);
+    const best = [...flops].sort((x, y) => y.wage - x.wage).slice(0, 6), worst = [...flops].sort((x, y) => x.wage - y.wage).slice(0, 6);
+    const missN = rows.filter(x => missing(x.a).length).length;
+    const kost = [["Etsy-Gebühren", T.fees, "--seg-fee"], ["Werbung (Ads)", T.ads, "--seg-fee"], ["Versand", T.porto, "--seg-ship"], ["Material", T.mat, "--seg-make"], ["Verpackung & Billbee", T.pack, "--seg-pack"], ["Deine Zeit & Maschinen", T.time, "--seg-time"], ["Werkstatt & Fixkosten", fix, "--seg-other"], ["Bleibt (Ergebnis)", m.result, "--seg-profit"]];
+    // Hebel, nach Wirkung sortiert
+    const lever = [
+      { t: "Preise sanft anheben (+10 %) bei Artikeln unter Zielmarge", g: pS, g2: pS10, how: `${priceRows.length} Artikel mit Verkäufen liegen unter ${target} % Marge. Ergebnis, wenn alle gleich viel verkaufen (rechts: wenn 10 % weniger gekauft wird).` },
+      { t: "Mehr Verkäufe der A-Artikel (+20 % Menge)", g: 0.2 * sum(rows.filter(x => abc[x.a.id]?.abc === "A"), x => x.pm * x.r.db), how: `Deine ${nA} A-Artikel bringen den Großteil des Gewinns. Mehr Reichweite dort (Fotos, Pinterest, Ads nur dort) schlägt neue Produkte.` },
+      { t: "20 % der Etsy-Verkäufe über Shopify abwickeln (mit 10 % Rabatt)", g: 0.2 * qE * dAvg10, how: `Shopify lässt pro Stück im Schnitt ${eur(dAvg10)} ${dAvg10 >= 0 ? "mehr" : "weniger"} übrig als Etsy, auch wenn du dort 10 % Rabatt gibst (ohne Rabatt ${eur(dAvg)}). Setzt eigenen Traffic voraus.` },
+      { t: "Billigere Versandart, wo sie nur knapp scheitert", g: shipPot, how: shipNear.length ? `${shipNear.length} Artikel liegen nur wenig über dem Limit der günstigeren Versandart (z. B. 1,01 kg statt 1 kg). Etwas leichter oder kleiner packen.` : "Kein Artikel scheitert nur knapp: dein Versand ist durch Größe und Gewicht bestimmt." },
+      { t: "Reklamationen halbieren", g: reclCost / 2, how: `${recl} Reklamationen in 30 Tagen (${dec(reclRate, 1)} % der Bestellungen), grob 12 € pro Fall. Packliste und Schraubenqualität.` }
+    ].sort((a, b) => b.g - a.g);
+    const tile = (l, big, note, tip) => `<div class="tile"><span class="label">${l}${tip ? info(tip) : ""}</span><span class="num" style="font-size:1.25rem">${big}</span><span class="note">${note}</span></div>`;
+    $("view").innerHTML = `
+      <div class="row"><h1>Auswertung</h1></div>
+      <p class="note">Rechnet live aus deinen Artikeln, Verkaufszahlen und Einstellungen. Alle Zahlen pro Monat und mit dem Verhalten, das deine Kunden heute zeigen. Prognosen sind Schätzungen.${missN ? ` <strong>${missN} von ${rows.length} verkauften Artikeln haben noch fehlende Daten</strong> (Holz, Maße, Gewicht …): deren Kosten sind eher zu niedrig, der Gewinn also eher zu hoch.` : ""}</p>
+
+      <section class="box"><h2>Die größten Hebel</h2>
+        ${anaTable(["Maßnahme", "Wirkung pro Monat", "Warum und wie"], lever.map(l => [`<strong>${esc(l.t)}</strong>`, `<strong class="num" style="color:var(--${l.g > 0 ? "good" : "bad"})">${l.g > 0 ? "+" : ""}${eur(l.g)}</strong>${l.g2 !== undefined ? `<br><span class="note">bei −10 % Menge: ${l.g2 > 0 ? "+" : ""}${eur(l.g2)}</span>` : ""}`, `<span class="note">${esc(l.how)}</span>`]))}
+      </section>
+
+      <div class="tiles t3" style="margin-top:12px">
+        ${tile("Verkäufe", dec(T.qty, 0) + " Stk", "pro Monat")}
+        ${tile("Umsatz brutto", eur0(T.gross), `netto ${eur0(T.net)} · Ø ${eur(T.gross / T.qty)} pro Stück`)}
+        ${tile("Ergebnis", eur0(m.result), `nach Fixkosten ${eur0(fix)}, vor Steuer`)}
+        ${tile("Bleibt nach Steuer", eur0(tx.net), `Steuer ca. ${eur0(tx.taxM)}${tx.kv ? " · KV " + eur0(tx.kv) : ""} (inkl. deinem Stundenlohn)`)}
+        ${tile("Break-even", dec(breakEven, 0) + " Stk", `Du verkaufst ${dec(T.qty / breakEven, 1)}× so viel, wie die Fixkosten brauchen`, "Verkäufe pro Monat, ab denen die Fixkosten bezahlt sind.")}
+        ${tile("Gewinn pro Stunde", eur(hours > 0 ? (m.result + m.labor) / hours : 0), `bei ${dec(hours, 0)} Std/Monat Arbeit, inkl. Stundenlohn ${eur(v(S.rate))}`, "Ergebnis plus der Stundenlohn, den du dir schon als Kosten abziehst, geteilt durch deine Arbeitsstunden.")}
+      </div>
+
+      <section class="box" style="margin-top:12px"><h2>Wohin geht jeder Euro?</h2>
+        <p class="note">Anteil am Netto-Umsatz (${eur0(T.net)} pro Monat).</p>
+        ${anaTable(["Posten", "Euro/Monat", "Anteil", ""], kost.map(([l, x, c]) => [esc(l), eur0(x), pct(x / T.net * 100), anaBar(Math.abs(x), T.net, c)]), [1, 2])}
+      </section>
+
+      <section class="box" style="margin-top:12px"><h2>Sortiment: wo kommt der Gewinn her?</h2>
+        <p>Von <strong>${A.length}</strong> Artikeln verkaufen sich <strong>${rows.length}</strong>. <strong>${noSales.length}</strong> haben keinen Verkauf. Die <strong>${nA} A-Artikel</strong> bringen 80 % des Gewinns, die 10 besten ${pct(posTot > 0 ? top10 / posTot * 100 : 0)}.</p>
+        <h3>Nach Preisklasse</h3>
+        ${anaTable(["Preisklasse", "Artikel", "Stück/Monat", "Umsatz brutto", "Gewinn/Monat", "Gewinn pro Stück"], bands.map(([k, g]) => [esc(k), g.n, dec(g.pm, 0), eur0(g.gross), eur0(g.profit), eur(g.profit / g.pm)]), [1, 2, 3, 4, 5])}
+        <h3>Nach Kategorie</h3>
+        ${anaTable(["Kategorie", "Artikel", "Stück/Monat", "Umsatz brutto", "Gewinn/Monat", "Marge"], cats.map(([k, g]) => [esc(k), g.n, dec(g.pm, 0), eur0(g.gross), eur0(g.profit), pct(g.net > 0 ? g.profit / g.net * 100 : NaN)]), [1, 2, 3, 4, 5])}
+      </section>
+
+      <section class="box" style="margin-top:12px"><h2>Preise: wo liegst du unter deiner Zielmarge (${target} %)?</h2>
+        <p class="note">Sanft = +10 % auf volle Euro gerundet. Voll = Preis, bei dem die Zielmarge erreicht wird. „Gewinn mehr“ = zusätzlicher Deckungsbeitrag pro Monat. In Klammern, wenn danach 10 % (sanft) bzw. 15 % (voll) weniger gekauft wird.</p>
+        <p><strong>Alle ${priceRows.length} Artikel sanft: ${pS > 0 ? "+" : ""}${eur0(pS)}</strong> (bei −10 % Menge ${pS10 > 0 ? "+" : ""}${eur0(pS10)}) · <strong>voll auf Ziel: ${pF > 0 ? "+" : ""}${eur0(pF)}</strong> (bei −15 % Menge ${pF15 > 0 ? "+" : ""}${eur0(pF15)})</p>
+        ${anaTable(["Artikel", "Stück/Mon.", "Marge", "Preis jetzt", "sanft", "voll", "Gewinn mehr (sanft)"], priceRows.slice(0, 12).map(x => [anaName(x.a), dec(x.pm, 1), pct(x.r.margin), eur(x.p0), eur(x.soft), x.full > x.p0 ? eur(x.full) : "–", `<strong>+${eur0(x.gSoft)}</strong> <span class="note">(${eur0(x.gSoft10)})</span>`]), [1, 2, 3, 4, 5, 6])}
+        ${priceRows.length > 12 ? `<p class="note">Die 12 mit der größten Wirkung. Im Dashboard siehst du in der Spalte „Preis für ${target} %“ alle.</p>` : ""}
+      </section>
+
+      <section class="box" style="margin-top:12px"><h2>Versand: ${eur0(T.porto)} pro Monat (${pct(T.porto / T.net * 100)} vom Umsatz)</h2>
+        ${anaTable(["Versandart", "Stück/Monat", "Porto pro Stück", "Euro/Monat"], Object.entries(shipBy).sort((a, b) => b[1].cost - a[1].cost).map(([k, o]) => [esc(k), dec(o.pm, 0), eur(o.cost / o.pm), `<strong>${eur0(o.cost)}</strong>`]), [1, 2, 3])}
+        ${shipNear.length ? `<p class="note">Diese Artikel scheitern an der günstigeren Versandart nur knapp:</p>${anaTable(["Artikel", "Stück/Mon.", "Günstiger wäre", "Spart pro Stück", "Pro Monat", "Woran es scheitert"], shipNear.slice(0, 8).map(x => [anaName(x.a), dec(x.pm, 1), esc(x.alt), eur(x.save), `<strong>${eur0(x.save * x.pm)}</strong>`, `<span class="note">${esc(x.why.join(", "))}</span>`]), [1, 3, 4])}` : `<p class="note">Kein Artikel liegt nur knapp über dem Limit der günstigeren Versandart. Der Versand wird durch Länge und Gewicht deiner Leisten bestimmt, da hilft nur eine andere Preisgestaltung (Versand im Preis oder Staffel).</p>`}
+      </section>
+
+      <section class="box" style="margin-top:12px"><h2>Zeit und Kapazität</h2>
+        <p>Nach deinen Minutenwerten (Rohlinge, Schleifen, Bohren, Verpacken) brauchst du <strong>${dec(avgMin, 0)} Min pro Stück</strong>, zusammen <strong>${dec(hours, 0)} Std pro Monat</strong> (${dec(hours / (52 / 12), 1)} Std pro Woche). Das ist die Grundlage für „Gewinn pro Stunde“ oben.</p>
+        <div class="grid3 keep">
+          <div class="field"><label for="ana-real">Wie viele Stunden pro Woche arbeitest du wirklich an Produktion, Verpacken und Versand?</label>${numIn('id="ana-real" data-ana="anaReal"', S.anaReal ?? "", "Std")}<small>Ehrlich schätzen oder eine Woche stoppen.</small></div>
+          <div class="field"><label for="ana-hours">Wie viele Stunden pro Woche könntest du maximal bauen?</label>${numIn('id="ana-hours" data-ana="anaHours"', S.anaHours ?? "", "Std")}<small>Damit rechnet die App die Kapazität.</small></div>
+        </div>
+        ${realH > 0 ? `<p>Bei <strong>${dec(realH, 0)} Std pro Woche</strong> brauchst du in Wahrheit <strong>${dec(minReal, 0)} Min pro Stück</strong> (statt ${dec(avgMin, 0)}). Dein Gewinn pro Stunde ist dann <strong>${eur(realPerH)}</strong>${realPerH < v(S.rate) ? ", <strong>unter deinem Stundensatz von " + eur(v(S.rate)) + "</strong>" : ""}.</p>` : `<p class="note">Trag oben deine echten Wochenstunden ein: Dann siehst du, was du wirklich pro Stunde verdienst und wie viel Luft du hast.</p>`}
+        <p>Bei <strong>${dec(hoursWeek, 0)} Std pro Woche</strong> schaffst du ${realH > 0 ? "mit deinem echten Tempo" : "nach den Minutenwerten"} ca. <strong>${dec(capUnits, 0)} Stück pro Monat</strong>${capUnits > T.qty * 1.05 ? ` (${dec(capUnits / T.qty * 100 - 100, 0)} % mehr als heute: Platz zum Wachsen)` : ` (heute ${dec(T.qty, 0)}: du bist am Limit, mehr geht nur mit Hilfe oder schnelleren Abläufen)`}.</p>
+        <div class="anagrid">
+          <div><h3>Bester Stundenlohn</h3>${anaTable(["Artikel", "pro Std"], best.map(x => [anaName(x.a), eur0(x.wage)]), [1])}</div>
+          <div><h3>Schlechtester Stundenlohn</h3>${anaTable(["Artikel", "pro Std"], worst.map(x => [anaName(x.a), eur0(x.wage)]), [1])}</div>
+        </div>
+        <p class="note">Stundenlohn pro Artikel = (Gewinn + dein eingerechneter Stundenlohn) ÷ Arbeitsstunden pro Stück, nach deinen Minutenwerten. Zum Vergleichen der Artikel untereinander taugt das, auch wenn die Minuten zu knapp sein sollten. Wer unten steht, frisst Zeit.</p>
+      </section>
+
+      <section class="box" style="margin-top:12px"><h2>Kanäle</h2>
+        ${anaTable(["Kanal", "Stück/Monat", "Anteil"], Object.entries(T.byCh).sort((a, b) => b[1] - a[1]).map(([k, q]) => [esc(CH_NAMES[k] || k), dec(q, 0), pct(q / T.qty * 100)]), [1, 2])}
+        <p>Bei <strong>gleichem Preis</strong> bleiben dir über Shopify im Schnitt <strong>${eur(dAvg)}</strong> pro Stück mehr als über Etsy, mit <strong>10 % Rabatt</strong> noch <strong>${eur(dAvg10)}</strong>. Werden 10 % der Etsy-Verkäufe nach Shopify verschoben, sind das mit Rabatt ${dAvg10 >= 0 ? "+" : ""}${eur0(0.1 * qE * dAvg10)} pro Monat, bei 30 % ${dAvg10 >= 0 ? "+" : ""}${eur0(0.3 * qE * dAvg10)}. Auf Etsy hast du aber Bewertungen und Reichweite, auf Shopify musst du die Besucher selbst holen.</p>
+      </section>
+
+      <section class="box" style="margin-top:12px"><h2>Bestellungen und Service</h2>
+        ${pace.length ? `<p class="note">Aktuelles Tempo laut Reiter „Bestellungen“, hochgerechnet auf 30 Tage. Zum Vergleich der Schnitt aus deinem Import.</p>${anaTable(["Quelle", "Bestellungen seit", "Bestellungen", "Stück", "Stück pro Monat (hochgerechnet)", "Schnitt im Import"], pace.map(x => [esc(x.name), esc(x.from.split("-").reverse().join(".")) + ` (${x.days} Tage)`, x.n, x.pcs, `<strong>${dec(x.perMonth, 0)}</strong>`, dec(T.byCh[x.ch] || 0, 0)]), [2, 3, 4, 5])}${pace.some(x => x.days < 25) ? `<p class="note">Wo erst wenige Tage in der Liste stehen, ist die Hochrechnung grob.</p>` : ""}${pace.some(x => T.byCh[x.ch] && x.perMonth < T.byCh[x.ch] * 0.75) ? `<p style="color:var(--warn)"><strong>Achtung:</strong> Das aktuelle Tempo liegt bei mindestens einer Quelle deutlich unter dem Schnitt im Import. Dann ist das Monatsergebnis oben eher zu optimistisch. Prüf deine Etsy-Statistik der letzten Wochen.</p>` : ""}` : `<p class="note">Noch keine Bestellungen im Reiter „Bestellungen“.</p>`}
+        <p>Reklamationen: <strong>${recl}</strong> in den letzten 30 Tagen (${dec(reclRate, 1)} % der Verkäufe), insgesamt ${reclAll} erfasst, teils aus der Oktober-Auswertung. Mit grob 12 € pro Fall (Porto, Teile, Zeit) sind das <strong>${eur0(reclCost)} pro Monat</strong>. Häufigste Ursachen stehen im Reiter „Support“.</p>
+      </section>`;
+  }
+
   // ---------- Bestellungen: Shopify (direkt) und Etsy (aus den Bestätigungsmails in Gmail) ----------
   let ORD = [];
   let ord = { f: "open", busy: false, msg: "", err: "", ask: "" };
@@ -2131,6 +2282,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   // Preis und Gewicht direkt in der Artikelliste ändern (Enter, Tab oder Feld verlassen = speichern)
   const qFmt = { price: a => v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : "", weight: a => v(a.weight) ? String(Math.round(v(a.weight))) : "", mins: a => v(a.mins) ? dec(v(a.mins)) : "" };
   document.addEventListener("change", e => {
+    if (e.target.dataset && e.target.dataset.ana) { S[e.target.dataset.ana] = e.target.value; saveSettings(); return renderAnalysis(); }
     if (e.target.dataset && e.target.dataset.ordmap) {
       const [oid, li] = e.target.dataset.ordmap.split(":"), o = ORD.find(x => x.id === oid), a = ordArt(e.target.value);
       if (o && a && o.lines[+li]) { const l = o.lines[+li]; l.aid = a.id; l.sku = a.sku || ""; (S.ordMap = S.ordMap || {})[ordKey(l.title, l.variant)] = a.id; saveSettings(); saveOrder(o); ordBadge(); renderOrders(); toast("Zuordnung gemerkt"); }
