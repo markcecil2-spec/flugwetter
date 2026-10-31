@@ -282,6 +282,8 @@ td.name strong { font-weight: 600 }
 tr:hover .inp.qprice, .inp.qprice:focus-within { border-color: var(--line); background: var(--bg) }
 .inp.qprice:focus-within { border-color: var(--accent) }
 td .inp.qprice + .note { display: block; font-size: .75rem }
+.inp.qbox { width: 190px } .inp.qbox select { padding: 6px 8px; font: inherit; font-size: .85rem; min-width: 0; width: 100% }
+.qsub { display: block; font-size: .72rem; text-align: right; padding-right: 8px }
 .sellprice { margin: -4px 0 0; font-size: .95rem }
 .thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; float: left; margin: 0 10px 2px 0; background: var(--line) }
 .arthead .thumb { float: none; width: 36px; height: 36px; margin: 0; flex: none }
@@ -847,7 +849,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const dash = (val, f) => val ? f(val) : "–";
   const OV_COLS = [
     { k: "price", l: () => "Preis", def: true, hideSm: true, cls: "num", sort: x => x.r.P,
-      cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-qprice="${x.a.id}" value="${v(x.a.price) ? v(x.a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(x.a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>` },
+      cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="price" data-qid="${x.a.id}" value="${v(x.a.price) ? v(x.a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(x.a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>` },
     { k: "pm", l: () => "Verk./Mon.", def: true, hideSm: true, cls: "num", sort: x => x.pm, cell: x => x.pm ? dec(x.pm) : "–" },
     { k: "cost", l: () => "Kosten", def: true, hideSm: true, cls: "num", sort: x => x.r.varCosts + x.r.fees + x.r.ads + x.r.fixShare, cell: x => eur(x.r.varCosts + x.r.fees + x.r.ads + x.r.fixShare) },
     { k: "profit", l: () => "Gewinn", def: true, cls: "num", sort: x => x.r.profit, style: x => { const [c] = status(x.r.margin); return `color:var(--${c === "muted" ? "fg" : c})`; }, cell: x => eur(x.r.profit) },
@@ -857,10 +859,13 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     { k: "profitM", l: () => "Gewinn/Monat", hideSm: true, cls: "num", sort: x => x.r.profit * x.pm, cell: x => x.pm ? eur(x.r.profit * x.pm) : "–" },
     { k: "revM", l: () => "Umsatz/Monat", hideSm: true, cls: "num", sort: x => x.r.gross * x.pm, cell: x => x.pm ? eur(x.r.gross * x.pm) : "–" },
     { k: "wage", l: () => "Stundenlohn", hideSm: true, cls: "num", sort: x => isFinite(pickWage(x)) ? pickWage(x) : -1e9, cell: x => isFinite(pickWage(x)) ? eur(pickWage(x)) + "/h" : "–" },
-    { k: "mins", l: () => "Arbeitszeit", hideSm: true, cls: "num", sort: x => v(x.a.mins) + x.r.rohMin + x.r.packMin, cell: x => dash(v(x.a.mins) + x.r.rohMin + x.r.packMin, m => dec(m) + " Min") },
-    { k: "weight", l: () => "Gewicht", hideSm: true, cls: "num", sort: x => shipWeight(x.a), cell: x => dash(shipWeight(x.a), g => dec(g, 0) + " g") },
+    { k: "mins", l: () => "Arbeitszeit", hideSm: true, cls: "num", sort: x => v(x.a.mins) + x.r.rohMin + x.r.packMin,
+      cell: x => { const au = x.r.rohMin + x.r.packMin; return `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="mins" data-qid="${x.a.id}" value="${v(x.a.mins) ? dec(v(x.a.mins)) : ""}" placeholder="0" aria-label="Weitere Minuten ${esc(x.a.name)}" title="Deine Minuten für Bohren, Lasern, Schleifen, Ölen …"><span>Min</span></div>${au ? `<small class="note qsub">+ ${dec(au)} auto = ${dec(au + v(x.a.mins))} Min</small>` : ""}`; } },
+    { k: "weight", l: () => "Gewicht", hideSm: true, cls: "num", sort: x => shipWeight(x.a),
+      cell: x => { const aw = autoWeight(x.a); return `<div class="inp qprice${!v(x.a.weight) && !aw ? " need" : ""}"><input type="text" inputmode="numeric" data-q="weight" data-qid="${x.a.id}" value="${v(x.a.weight) ? dec(v(x.a.weight), 0).replace(".", "") : ""}" placeholder="${aw ? dec(aw, 0).replace(".", "") : ""}" aria-label="Gewicht verpackt ${esc(x.a.name)}" title="${aw ? "Berechnet " + dec(aw, 0) + " g, überschreiben durch Eingabe" : "Gewicht verpackt eintragen"}"><span>g</span></div>`; } },
     { k: "dims", l: () => "Packmaß", hideSm: true, cls: "num", sort: x => v(x.a.pkL) * v(x.a.pkB) * v(x.a.pkH), cell: x => v(x.a.pkL) ? `${dec(v(x.a.pkL))} × ${dec(v(x.a.pkB))} × ${dec(v(x.a.pkH))} cm` : "–" },
-    { k: "box", l: () => "Karton", hideSm: true, sort: x => norm(x.a.box), cell: x => esc(x.a.box || "–") },
+    { k: "box", l: () => "Karton", hideSm: true, sort: x => norm(x.a.box),
+      cell: x => `<div class="inp qprice qbox"><select data-q="box" data-qid="${x.a.id}" aria-label="Karton ${esc(x.a.name)}">${opt("", x.a.pkL ? "Eigene Maße" : "– wählen –", !x.a.box)}${(S.boxes || []).filter(b => b.n).map(b => opt(b.n, b.n, x.a.box === b.n)).join("")}</select></div>` },
     { k: "ship", l: () => "Versandart", hideSm: true, sort: x => x.r.ship.chosen ? x.r.ship.chosen.o.n : "", cell: x => x.r.ship.chosen ? esc(x.r.ship.chosen.o.n) : "–" },
     { k: "porto", l: () => "Porto", hideSm: true, cls: "num", sort: x => x.r.porto, cell: x => eur(x.r.porto) },
     { k: "fees", l: () => "Gebühren", hideSm: true, cls: "num", sort: x => x.r.fees + x.r.ads, cell: x => eur(x.r.fees + x.r.ads) },
@@ -1721,32 +1726,53 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   });
 
   let qNext = null;
-  // Preis direkt in der Artikelliste ändern (Enter oder Feld verlassen = speichern)
+  // Preis und Gewicht direkt in der Artikelliste ändern (Enter, Tab oder Feld verlassen = speichern)
+  const qFmt = { price: a => v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : "", weight: a => v(a.weight) ? String(Math.round(v(a.weight))) : "", mins: a => v(a.mins) ? dec(v(a.mins)) : "" };
   document.addEventListener("change", e => {
-    const id = e.target.dataset && e.target.dataset.qprice; if (!id) return;
-    const a = A.find(x => x.id === id), val = e.target.value.trim();
-    if (!a || v(val) <= 0 || v(val) === v(a.price)) { if (a) e.target.value = v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : ""; return; }
-    if (a.priceAtEtsy == null) a.priceAtEtsy = a.price;
-    a.price = v(val).toFixed(2); if (v(a.priceAtEtsy) === v(a.price)) delete a.priceAtEtsy;
-    // mit Tab ins nächste Preisfeld gesprungen: dort weitermachen
-    const next = qNext || document.activeElement?.dataset?.qprice;
-    saveArticle(a); renderOverview(); toast(`${a.name}: neuer Preis ${eur(v(val))}`);
-    if (next) { const el = document.querySelector(`[data-qprice="${next}"]`); if (el) { el.focus(); el.select(); } }
+    const f = e.target.dataset && e.target.dataset.q, id = f && e.target.dataset.qid; if (!id) return;
+    const a = A.find(x => x.id === id), val = e.target.value.trim().replace(/\.(?=\d{3}\b)/g, "");
+    if (!a) return;
+    if (f === "price") {
+      if (v(val) <= 0 || v(val) === v(a.price)) { e.target.value = qFmt.price(a); return; }
+      if (a.priceAtEtsy == null) a.priceAtEtsy = a.price;
+      a.price = v(val).toFixed(2); if (v(a.priceAtEtsy) === v(a.price)) delete a.priceAtEtsy;
+    } else if (f === "weight") {
+      const g = val === "" ? "" : String(Math.round(v(val)));
+      if (g === String(a.weight || "")) return;
+      a.weight = g === "0" ? "" : g;
+    } else if (f === "box") {
+      if (val === (a.box || "")) return;
+      a.box = val;
+      // wie im Artikel: Packmaße und Umverpackung vom Karton übernehmen
+      const bx = (S.boxes || []).find(b => b.n === val);
+      if (bx) Object.assign(a, { pkL: bx.l, pkB: bx.b, pkH: bx.h }, bx.p !== "" && bx.p != null ? { outer: bx.p } : {});
+    } else if (f === "mins") {
+      const m = val === "" ? "" : String(v(val));
+      if (v(m) === v(a.mins) && (m === "") === !a.mins) return;
+      a.mins = m === "0" ? "" : m;
+    }
+    // mit Tab ins nächste Feld gesprungen: dort weitermachen
+    const next = qNext || (document.activeElement?.dataset?.q ? [document.activeElement.dataset.q, document.activeElement.dataset.qid] : null);
+    saveArticle(a); renderOverview();
+    toast(f === "box" ? `${a.name}: ${a.box || "eigene Maße"}` : f === "price" ? `${a.name}: neuer Preis ${eur(v(val))}` : f === "mins" ? `${a.name}: ${dec(v(a.mins))} Min eigene Arbeitszeit` : a.weight ? `${a.name}: ${a.weight} g` : `${a.name}: Gewicht wieder automatisch`);
+    if (next) { const el = document.querySelector(`[data-q="${next[0]}"][data-qid="${next[1]}"]`); if (el) { el.focus(); el.select(); } }
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("donePop").hidden) $("donePop").hidden = true; });
-  // Preisspalte wie eine Tabelle: Tab/Enter springt ins nächste Preisfeld, Umschalt zurück
+  document.addEventListener("focusin", e => { if (e.target.matches && e.target.matches('input[data-q]')) setTimeout(() => e.target.select(), 0); });
+  // Eingabespalten wie eine Tabelle: Tab/Enter springt ins nächste Feld derselben Spalte, Umschalt zurück
   document.addEventListener("keydown", e => {
-    if (!(e.target.dataset && e.target.dataset.qprice) || !(e.key === "Enter" || e.key === "Tab")) return;
-    const all = [...document.querySelectorAll("[data-qprice]")], i = all.indexOf(e.target), to = all[i + (e.shiftKey ? -1 : 1)];
+    const f = e.target.dataset && e.target.dataset.q;
+    if (!f || !(e.key === "Enter" || e.key === "Tab")) return;
+    const all = [...document.querySelectorAll(`[data-q="${f}"]`)], i = all.indexOf(e.target), to = all[i + (e.shiftKey ? -1 : 1)];
     if (!to) { if (e.key === "Enter") e.target.blur(); return; }
-    e.preventDefault(); qNext = to.dataset.qprice; to.focus();
+    e.preventDefault(); qNext = [f, to.dataset.qid]; to.focus();
     // das Speichern beim Verlassen zeichnet die Liste neu: Feld danach frisch suchen
-    const el = document.querySelector(`[data-qprice="${qNext}"]`); qNext = null; if (el) { el.focus(); el.select(); }
+    const el = document.querySelector(`[data-q="${qNext[0]}"][data-qid="${qNext[1]}"]`); qNext = null; if (el) { el.focus(); el.select(); }
   });
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
-    if (e.target.closest("[data-qprice]")) return;
+    if (e.target.closest("[data-q]")) return;
     const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
