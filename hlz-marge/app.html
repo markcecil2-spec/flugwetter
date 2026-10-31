@@ -756,6 +756,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   function route() {
     if (skipHash) { skipHash = false; return; }
     if (dirty) doSave();
+    $("donePop").hidden = true;   // Vollständig-Hinweis schließt bei jedem Seitenwechsel
     // neuer Artikel, in den nichts eingetragen wurde: wieder weg
     if (draft && draft.isNew) A = A.filter(x => x.id !== draft.id);
     curHash = location.hash; draft = null; draftS = null; renames = [];
