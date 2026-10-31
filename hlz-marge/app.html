@@ -246,7 +246,12 @@ th { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color:
 .star[aria-pressed=true] { color: var(--warn) } .star:hover { color: var(--warn) }
 .btn.star-btn[aria-pressed=true] { color: var(--warn); border-color: var(--warn) }
 th button { all: unset; cursor: pointer } th button:hover, th button[aria-pressed=true] { color: var(--accent) }
-tbody tr.click { cursor: pointer } tbody tr.click:hover td { background: var(--accent-soft) }
+tbody tr.row:hover td { background: var(--accent-soft) }
+/* nur Name und Bild öffnen den Artikel */
+.artlink { all: unset; font-weight: 600; cursor: pointer; border-radius: 4px }
+.artlink:hover { text-decoration: underline; text-underline-offset: 3px }
+.artlink:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+td.name img.thumb[data-open] { cursor: pointer }
 td.name { white-space: normal; min-width: 180px }
 td.name strong { font-weight: 600 }
 .inp.qprice { display: inline-flex; width: 104px; vertical-align: middle; background: transparent; border-color: transparent }
@@ -950,9 +955,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
           <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}<th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
           <tbody>${shown.map(({ a, ch, r, pm, t, miss }) => {
             const [c, w] = status(r.margin);
-            return `<tr class="click${sel.has(a.id) ? " selected" : ""}" data-open="${a.id}" tabindex="0">
+            return `<tr class="row${sel.has(a.id) ? " selected" : ""}">
               <td class="selcol"><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></td>
-              <td class="name">${thumbHTML(a)}<button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
+              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><button type="button" class="artlink" data-open="${a.id}">${esc(a.name)}</button> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
               <td class="num hide-sm"><div class="inp qprice"><input type="text" inputmode="decimal" data-qprice="${a.id}" value="${v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>${Math.abs(r.P - v(a.price)) > 0.005 ? `<small class="note">Kunde zahlt ${eur(r.P)}</small>` : ""}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
@@ -1497,7 +1502,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       case "cancelImport": imp = null; return renderImport();
     }
   });
-  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.open) go("artikel-" + e.target.dataset.open); });
+  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName !== "BUTTON" && e.target.dataset && e.target.dataset.open) go("artikel-" + e.target.dataset.open); });
 
   // ---------- Sicherung ----------
   // Datei anbieten: erst über die Download-Funktion von Claude, sonst normaler Browser-Download
