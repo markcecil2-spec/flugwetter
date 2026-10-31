@@ -63,7 +63,9 @@ h3 { font-size: 1rem }
 .reco-big { margin: 4px 0 0; font-size: .95rem } .reco-big strong { color: var(--accent); font-size: 1.1rem }
 .inp.est, .inp.need, .inp.changed { box-shadow: 0 0 0 2px var(--warn) }
 table.ov td.name, table.ov th.selcol + th { text-align: left }
-.selcol { width: 34px; padding-right: 0 } .selcol input { width: 18px; height: 18px; accent-color: var(--accent) }
+.selcol { width: 34px; padding-right: 0 }
+.selstack { display: flex; flex-direction: column; align-items: center; gap: 4px }
+.selstack .star { padding: 0; font-size: 1.05rem } .selcol input { width: 18px; height: 18px; accent-color: var(--accent) }
 tr.selected td { background: var(--accent-soft) }
 .cmp { margin: 10px 0; gap: 10px }
 .cmp .row { display: flex; justify-content: space-between; align-items: center; gap: 8px }
@@ -1222,7 +1224,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       && (!search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)) || norm(x.a.note).includes(norm(search)) || norm(x.a.supplier).includes(norm(search))));
     shownIds = shown.map(x => x.a.id);
     const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["todo", "Nochmal ran", nTodo], ["all", "Alle", rows.length]];
-    const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}">${l}${sortKey === k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
+    const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}" title="Klicken zum Sortieren, nochmal klicken dreht die Reihenfolge">${l}${sortKey === k ? (k === "name" ? (sortDir > 0 ? " A→Z" : " Z→A") : sortDir < 0 ? " ↓" : " ↑") : k === "name" ? " ⇅" : ""}</button></th>`;
     const hasSales = m.qty > 0;
     $("view").innerHTML = `
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
@@ -1255,8 +1257,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
           <tbody>${shown.map(x => { const { a, ch, r, pm, t, miss } = x;
             const [c, w] = status(r.margin);
             return `<tr class="ovrow${sel.has(a.id) ? " selected" : ""}">
-              <td class="selcol"><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></td>
-              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><a class="artlink" href="#artikel-${a.id}" data-open="${a.id}">${esc(a.name)}</a> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
+              <td class="selcol"><div class="selstack"><button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></div></td>
+              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<a class="artlink" href="#artikel-${a.id}" data-open="${a.id}">${esc(a.name)}</a> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
               ${visCols.map(c => `<td class="${c.cls || ""}${c.hideSm ? " hide-sm" : ""}"${c.style ? ` style="${c.style(x)}"` : ""}>${c.cell(x)}</td>`).join("")}</tr>`;
           }).join("") || `<tr><td colspan="${visCols.length + 2}" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
