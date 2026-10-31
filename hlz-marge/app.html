@@ -80,7 +80,7 @@ tr.selected td { background: var(--accent-soft) }
 .cmptable td.best { color: var(--good); font-weight: 700 }
 .linkbtn { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
 .linkbtn:hover { text-decoration-color: currentColor }
-.selbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
+.selbar { position: sticky; top: calc(var(--toph, 60px) + 8px); z-index: 5; background: var(--panel); box-shadow: 0 4px 14px rgb(0 0 0 / .08); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
 .bulkbox { margin: 10px 0; border-color: var(--accent) }
 .inp textarea { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); padding: 9px 10px; font: .95rem var(--font-body); outline: none; resize: vertical }
 .todo-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line) }
@@ -219,7 +219,7 @@ main.wrap { padding-block: 20px 48px }
 .tip { color: var(--walnut) } .warn { color: var(--bad) }
 
 /* Übersicht */
-.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
+.tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px }
 @media (max-width: 760px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
 .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 4px; min-width: 0 }
 .tile .num { font-size: 1.35rem }
@@ -233,7 +233,7 @@ main.wrap { padding-block: 20px 48px }
   opacity: 0; visibility: hidden; transition: opacity .12s; pointer-events: none }
 .info:hover::after, .info:focus::after { opacity: 1; visibility: visible }
 .tile:nth-child(even) .info::after { left: auto; right: 8px }
-@media (min-width: 761px) { .tile:nth-child(2) .info::after { left: 8px; right: auto } }
+@media (min-width: 761px) { .tile:nth-child(n) .info::after { left: 8px; right: auto } .tile:nth-last-child(-n+2) .info::after { left: auto; right: 8px } }
 .tablewrap { overflow-x: auto }
 table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 640px }
 table.imp { min-width: 520px }
@@ -346,7 +346,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 
   // ---------- Vorgaben (ph = Platzhalter, noch nicht durch echte Werte ersetzt) ----------
   const SETTINGS_DEFAULT = () => ({
-    tax: "regel", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90", wasteDefault: "7",
+    tax: "regel", hebesatz: "420", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90", wasteDefault: "7",
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
     bPayP: "12", bPayF: "0.45", bAds: "0",
@@ -630,14 +630,40 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   let pendingFocus = null;
   // Monatsergebnis aus echten Verkäufen (Import), je Kanal mit Ø-Preis
   function monthly(ctx) {
-    let db = 0, rev = 0, qty = 0;
+    let db = 0, rev = 0, qty = 0, labor = 0;
     A.forEach(a => Object.entries(a.sales || {}).forEach(([ch, x]) => {
       const pm = v(x.months) > 0 ? v(x.qty) / v(x.months) : 0;
       if (!pm) return;
       const r = calc(a, CHANNELS.includes(ch) ? ch : "etsy", v(x.avg) || v(a.price), ctx, v(x.avg) > 0);
-      db += pm * r.db; rev += pm * r.gross; qty += pm;
+      db += pm * r.db; rev += pm * r.gross; qty += pm; labor += pm * r.time;
     }));
-    return { db, rev, qty, result: db - fixTotal() };
+    return { db, rev, qty, labor, result: db - fixTotal() };
+  }
+
+  // Einkommensteuer nach § 32a EStG, Tarif 2026 (Grundtabelle)
+  const est26 = x => {
+    x = Math.floor(Math.max(0, x));
+    if (x <= 12348) return 0;
+    if (x <= 17799) { const y = (x - 12348) / 1e4; return Math.floor((914.51 * y + 1400) * y); }
+    if (x <= 69878) { const z = (x - 17799) / 1e4; return Math.floor((173.10 * z + 2397) * z + 1034.87); }
+    if (x <= 277825) return Math.floor(0.42 * x - 11135.63);
+    return Math.floor(0.45 * x - 19470.38);
+  };
+  // ESt (Splitting bei Zusammenveranlagung) abzüglich Gewerbesteuer-Anrechnung, dazu Soli und Kirchensteuer
+  function incomeTax(zvE, gewAnr = 0) {
+    const est = Math.max(0, (S.taxJoint ? 2 * est26(zvE / 2) : est26(zvE)) - gewAnr);
+    const soli = Math.max(0, Math.min(est * 0.055, (est - (S.taxJoint ? 40700 : 20350)) * 0.119));
+    return est + soli + (S.taxChurch ? est * 0.08 : 0);
+  }
+  // Was vom Shop nach Steuern bleibt: Gewinn inkl. eigenem Stundenlohn, Krankenversicherung abziehbar.
+  // Steuer = Mehrsteuer durch den Shop gegenüber dem übrigen Einkommen.
+  function afterTax(m) {
+    const base = m.result + m.labor, kv = v(S.kvMonth), year = base * 12, other = v(S.taxOther);
+    const mess = Math.max(0, Math.floor((year - 24500) / 100) * 100) * 0.035;
+    const gew = mess * v(S.hebesatz) / 100, anr = Math.min(4 * mess, gew);
+    const zv = Math.max(0, year - kv * 12);
+    const tax = Math.max(0, incomeTax(other + zv, anr) - incomeTax(other)) + gew;
+    return { base, kv, gew: gew / 12, taxM: tax / 12, net: base - kv - tax / 12, rate: zv > 0 ? tax / zv * 100 : 0 };
   }
 
   // ---------- Routing ----------
@@ -906,6 +932,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
       <div class="tiles">
         <div class="tile hero"><span class="label">Ergebnis pro Monat${info(`Was im Monat übrig bleibt: Deckungsbeitrag minus Fixkosten. Deine Arbeitszeit ist schon mit ${eur(v(S.rate))}/h als Kosten abgezogen. Davon gehen noch Einkommensteuer und Krankenversicherung ab.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
+        ${(() => { const t = afterTax(m); return `<div class="tile hero"><span class="label">Bleibt nach Steuer${info(`Dein Gewinn inkl. eingerechnetem Stundenlohn (${eur0(t.base)}/Monat) minus Einkommensteuer nach Tarif 2026${S.taxChurch ? ", Kirchensteuer" : ""}${t.gew > 0 ? ", Gewerbesteuer" : ""}${t.kv ? " und Krankenversicherung" : ""}. Steuerlast ca. ${pct(t.rate)}. Schätzung, ohne Rentenversicherung und sonstige Abzüge. Einstellen unter Einstellungen → Betrieb.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : t.net >= 0 ? "good" : "bad"})">${hasSales ? eur0(t.net) : "–"}</span><span class="note">${hasSales ? `inkl. deinem Stundenlohn · Steuer ca. ${eur0(t.taxM)}${t.kv ? " · KV " + eur0(t.kv) : ""}` : "pro Monat"}</span></div>`; })()}
         <div class="tile"><span class="label">Deckungsbeitrag${info("Netto-Umsatz minus alles, was pro Stück anfällt: Material, Verpackung, Porto, Gebühren, Werbung und deine Arbeitszeit. Das ist das Geld, mit dem die Fixkosten bezahlt werden. Hochgerechnet mit deinen echten Verkaufszahlen.")}</span><span class="num">${hasSales ? eur0(m.db) : "–"}</span><span class="note">${hasSales ? "aus " + dec(m.qty) + " Verkäufen/Monat" : "noch keine Verkaufszahlen"}</span></div>
         <div class="tile"><span class="label">Fixkosten${info("Kosten, die jeden Monat anfallen, egal wie viel du verkaufst: Werkstattmiete, Software, Abos. Ändern unter Einstellungen → Fixkosten.")}</span><span class="num">${eur0(fix)}</span><span class="note">Miete, Software, Abos</span></div>
         <div class="tile"><span class="label">Werkstattanteil${info("Fixkosten geteilt durch deine Verkäufe pro Monat. So viel muss jeder Verkauf zusätzlich einbringen, damit Miete und Co. bezahlt sind. Wird beim Gewinn pro Stück schon abgezogen.")}</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${{ real: "laut deiner Angabe", import: "laut Import" }[ctx.src] || "geschätzt"}</span></div>
@@ -1262,6 +1289,17 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
               ${settingsField("shipInDefault", "Versand vom Kunden", "€", "Standard für neue Artikel")}
             </div>
             <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück)</label>
+          </section>
+          <section class="box" data-sec="betrieb">
+            <h2>Einkommensteuer</h2>
+            <div class="grid3 keep">
+              ${settingsField("taxOther", "Anderes Einkommen", "€/Jahr", "zu versteuern, z. B. Gehalt. Leer = nur der Shop")}
+              ${settingsField("kvMonth", "Krankenversicherung", "€/Monat", "nur wenn du sie selbst zahlst")}
+              ${settingsField("hebesatz", "Gewerbesteuer-Hebesatz", "%", "Stuttgart 420 %, erst ab 24.500 € Gewinn/Jahr")}
+            </div>
+            <label class="check"><input type="checkbox" data-s="taxJoint" ${T.taxJoint ? "checked" : ""}> Verheiratet, Zusammenveranlagung (Splitting)</label>
+            <label class="check"><input type="checkbox" data-s="taxChurch" ${T.taxChurch ? "checked" : ""}> Kirchensteuer (8 % in Baden-Württemberg)</label>
+            <p class="note">Grundlage: Einkommensteuertarif 2026. Der Shop-Gewinn zählt inklusive deines eingerechneten Stundenlohns, denn den zahlst du dir ja selbst. Schätzung, kein Ersatz für die Steuererklärung.</p>
           </section>
           <section class="box" data-sec="betrieb"><h2>${LISTS.fixed.title}</h2>${listHTML("fixed")}<div class="sumline"><span>Summe</span><strong id="fixSum">${eur(fixTotal(T))}</strong></div></section>
           <section class="box" data-sec="betrieb"><h2>${LISTS.order.title}</h2>${listHTML("order")}<p class="note">Billbee: 53 € ÷ 113 Bestellungen = 0,47 €</p></section>
