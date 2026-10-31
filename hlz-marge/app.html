@@ -862,11 +862,15 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     { k: "mins", l: () => "Arbeitszeit", hideSm: true, cls: "num", sort: x => v(x.a.mins) + x.r.rohMin + x.r.packMin,
       cell: x => { const au = x.r.rohMin + x.r.packMin; return `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="mins" data-qid="${x.a.id}" value="${v(x.a.mins) ? dec(v(x.a.mins)) : ""}" placeholder="0" aria-label="Weitere Minuten ${esc(x.a.name)}" title="Deine Minuten für Bohren, Lasern, Schleifen, Ölen …"><span>Min</span></div>${au ? `<small class="note qsub">+ ${dec(au)} auto = ${dec(au + v(x.a.mins))} Min</small>` : ""}`; } },
     { k: "weight", l: () => "Gewicht", hideSm: true, cls: "num", sort: x => shipWeight(x.a),
-      cell: x => { const aw = autoWeight(x.a); return `<div class="inp qprice${!v(x.a.weight) && !aw ? " need" : ""}"><input type="text" inputmode="numeric" data-q="weight" data-qid="${x.a.id}" value="${v(x.a.weight) ? dec(v(x.a.weight), 0).replace(".", "") : ""}" placeholder="${aw ? dec(aw, 0).replace(".", "") : ""}" aria-label="Gewicht verpackt ${esc(x.a.name)}" title="${aw ? "Berechnet " + dec(aw, 0) + " g, überschreiben durch Eingabe" : "Gewicht verpackt eintragen"}"><span>g</span></div>`; } },
+      cell: x => { const aw = autoWeight(x.a); return `<div class="inp qprice${!v(x.a.weight) && !aw ? " need" : ""}"><input type="text" inputmode="numeric" data-q="weight" data-qid="${x.a.id}" value="${v(x.a.weight) ? dec(v(x.a.weight), 0).replace(".", "") : ""}" placeholder="${aw ? dec(aw, 0).replace(".", "") : ""}" aria-label="Gewicht verpackt ${esc(x.a.name)}" title="${aw ? "Berechnet " + dec(aw, 0) + " g, überschreiben durch Eingabe" : "Gewicht verpackt eintragen"}"><span>g</span></div>${aw && !v(x.a.weight) ? `<small class="note qsub">berechnet ${dec(aw, 0)} g</small>` : !aw && !v(x.a.weight) ? `<small class="note qsub" style="color:var(--warn)">bitte eintragen</small>` : ""}`; } },
     { k: "dims", l: () => "Packmaß", hideSm: true, cls: "num", sort: x => v(x.a.pkL) * v(x.a.pkB) * v(x.a.pkH), cell: x => v(x.a.pkL) ? `${dec(v(x.a.pkL))} × ${dec(v(x.a.pkB))} × ${dec(v(x.a.pkH))} cm` : "–" },
     { k: "box", l: () => "Karton", hideSm: true, sort: x => norm(x.a.box),
       cell: x => `<div class="inp qprice qbox"><select data-q="box" data-qid="${x.a.id}" aria-label="Karton ${esc(x.a.name)}">${opt("", x.a.pkL ? "Eigene Maße" : "– wählen –", !x.a.box)}${(S.boxes || []).filter(b => b.n).map(b => opt(b.n, b.n, x.a.box === b.n)).join("")}</select></div>` },
     { k: "ship", l: () => "Versandart", hideSm: true, sort: x => x.r.ship.chosen ? x.r.ship.chosen.o.n : "", cell: x => x.r.ship.chosen ? esc(x.r.ship.chosen.o.n) : "–" },
+    { k: "pack", l: () => "Verpackung", hideSm: true, cls: "num", sort: x => v(x.a.pack),
+      cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="pack" data-qid="${x.a.id}" value="${x.a.pack !== "" && x.a.pack != null ? v(x.a.pack).toFixed(2).replace(".", ",") : ""}" placeholder="0,00" aria-label="Verpackung ${esc(x.a.name)}" title="Papier, Füllmaterial"><span>€</span></div>` },
+    { k: "outer", l: () => "Umverpackung", hideSm: true, cls: "num", sort: x => v(x.a.outer),
+      cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="outer" data-qid="${x.a.id}" value="${x.a.outer !== "" && x.a.outer != null ? v(x.a.outer).toFixed(2).replace(".", ",") : ""}" placeholder="0,00" aria-label="Umverpackung ${esc(x.a.name)}" title="Karton, Klebeband, Etikett"><span>€</span></div>` },
     { k: "porto", l: () => "Porto", hideSm: true, cls: "num", sort: x => x.r.porto, cell: x => eur(x.r.porto) },
     { k: "fees", l: () => "Gebühren", hideSm: true, cls: "num", sort: x => x.r.fees + x.r.ads, cell: x => eur(x.r.fees + x.r.ads) },
     { k: "wood", l: () => "Holz", hideSm: true, cls: "num", sort: x => x.r.wood, cell: x => dash(x.r.wood, eur) },
@@ -1746,6 +1750,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       // wie im Artikel: Packmaße und Umverpackung vom Karton übernehmen
       const bx = (S.boxes || []).find(b => b.n === val);
       if (bx) Object.assign(a, { pkL: bx.l, pkB: bx.b, pkH: bx.h }, bx.p !== "" && bx.p != null ? { outer: bx.p } : {});
+    } else if (f === "pack" || f === "outer") {
+      const n = val === "" ? "" : v(val).toFixed(2);
+      if (n === (a[f] === "" || a[f] == null ? "" : v(a[f]).toFixed(2))) { e.target.value = a[f] !== "" && a[f] != null ? v(a[f]).toFixed(2).replace(".", ",") : ""; return; }
+      a[f] = n;
     } else if (f === "mins") {
       const m = val === "" ? "" : String(v(val));
       if (v(m) === v(a.mins) && (m === "") === !a.mins) return;
@@ -1754,7 +1762,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     // mit Tab ins nächste Feld gesprungen: dort weitermachen
     const next = qNext || (document.activeElement?.dataset?.q ? [document.activeElement.dataset.q, document.activeElement.dataset.qid] : null);
     saveArticle(a); renderOverview();
-    toast(f === "box" ? `${a.name}: ${a.box || "eigene Maße"}` : f === "price" ? `${a.name}: neuer Preis ${eur(v(val))}` : f === "mins" ? `${a.name}: ${dec(v(a.mins))} Min eigene Arbeitszeit` : a.weight ? `${a.name}: ${a.weight} g` : `${a.name}: Gewicht wieder automatisch`);
+    toast(f === "pack" || f === "outer" ? `${a.name}: ${f === "pack" ? "Verpackung" : "Umverpackung"} ${eur(v(a[f]))}` : f === "box" ? `${a.name}: ${a.box || "eigene Maße"}` : f === "price" ? `${a.name}: neuer Preis ${eur(v(val))}` : f === "mins" ? `${a.name}: ${dec(v(a.mins))} Min eigene Arbeitszeit` : a.weight ? `${a.name}: ${a.weight} g` : `${a.name}: Gewicht wieder automatisch`);
     if (next) { const el = document.querySelector(`[data-q="${next[0]}"][data-qid="${next[1]}"]`); if (el) { el.focus(); el.select(); } }
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("donePop").hidden) $("donePop").hidden = true; });
