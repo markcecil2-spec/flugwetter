@@ -783,6 +783,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       <p class="note">Grün = bester Wert in der Zeile. Stundenlohn = (Gewinn + eingerechnete Arbeitszeit) ÷ Arbeitsstunden, also was du pro Stunde wirklich verdienst.</p></div>`;
   }
 
+  const machAutoOn = m => v(m.a) > 0 || v(m.s) > 0;
+
   function bulkPanel(list) {
     const fields = bulkFields().map(([k, l, type, opts]) => {
       const vals = new Set(list.map(a => String(bulkGet(a, k))));
@@ -984,7 +986,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         <button type="button" class="x" data-del-part="${i}" aria-label="Teil entfernen">×</button></div>`).join("");
     const sm = a.small || {};
     const smallFields = S.small.map((x, i) => `<div class="field"><label for="sm-${i}">${esc(x.n)} <span class="num">· ${eur(v(x.p))}</span></label>${numIn(`id="sm-${i}" data-as="${esc(x.n)}"`, sm[x.n] ?? "", "Stk")}</div>`).join("");
-    const machFields = S.mach.map((x, i) => `<div class="field"><label for="mm-${i}">${esc(x.n)} <span class="num">· ${eur(v(x.r))}/h</span></label>${numIn(`id="mm-${i}" data-am="${esc(x.n)}"`, (a.mach || {})[x.n] ?? "", "Min")}</div>`).join("");
+    // Maschinen mit Pauschale (Min je Artikel oder % der Rohling-Zeit) laufen automatisch, Eingabe nur für die übrigen (z. B. CNC, Laser)
+    const machFields = S.mach.map((x, i) => [x, i]).filter(([x]) => !machAutoOn(x) || v((a.mach || {})[x.n]) > 0).map(([x, i]) => `<div class="field"><label for="mm-${i}">${esc(x.n)} <span class="num">· ${eur(v(x.r))}/h</span></label>${numIn(`id="mm-${i}" data-am="${esc(x.n)}"`, (a.mach || {})[x.n] ?? "", "Min")}</div>`).join("");
     const sales = Object.entries(a.sales || {});
     $("view").innerHTML = `
       <div class="row">
@@ -1175,7 +1178,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     $("woodInfo").textContent = r.partsM2 > 0 ? `${dec(r.partsM2, 3)} m² · ${eur(m2)}/m² · ca. ${perPlate} Stück pro Platte` : "Zuschnitt eintragen";
     $("woodSum").textContent = eur(r.wood); $("oilSum").textContent = eur(r.oil); $("smallSum").textContent = eur(r.small);
     $("smallFlatNote").textContent = !a.fremd && v(S.smallFlat) > 0 ? `inkl. ${eur(v(S.smallFlat))} Pauschale für Schrauben, Dübel und Scheiben` : ""; $("machSum").textContent = eur(r.mach);
-    $("machNote").textContent = r.machAuto > 0 ? `inkl. ${dec(r.machAuto)} Min automatisch (Rohling-Vorfertigung, Schleifen, Bohren). Hier nur Zusätzliches eintragen, z. B. CNC oder Laser.` : ""; $("timeSum").textContent = eur(r.time);
+    const autoNames = (S.mach || []).filter(machAutoOn).map(m => m.n);
+    $("machNote").textContent = r.machAuto > 0 ? `inkl. ${dec(r.machAuto)} Min pauschal für ${autoNames.join(", ")} (aus den Einstellungen). Hier nur CNC, Laser o. Ä. eintragen.` : ""; $("timeSum").textContent = eur(r.time);
     $("timeAuto").textContent = `${dec(r.rohMin)} Min Rohlinge + ${dec(r.packMin)} Min Verpacken · gesamt ${dec(r.rohMin + r.packMin + v(a.mins))} Min zu ${eur(v(S.rate))}/h`
       + (!a.fremd && !r.rohMin && r.partsM2 > 0 ? " · Kein passender Rohling, beim Holz einen Rohling wählen" : "");
 
