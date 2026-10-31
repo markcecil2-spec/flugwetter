@@ -80,8 +80,6 @@ tr.selected td { background: var(--accent-soft) }
 .cmptable td.best { color: var(--good); font-weight: 700 }
 .linkbtn { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
 .linkbtn:hover { text-decoration-color: currentColor }
-.addsmall { display: grid; gap: 10px; padding: 12px; border: 1px dashed var(--accent); border-radius: 10px }
-#newSmallBtn { justify-self: start }
 .selbar { position: sticky; top: calc(var(--toph, 60px) + 8px); z-index: 5; background: var(--panel); box-shadow: 0 4px 14px rgb(0 0 0 / .08); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
 .selbar.danger { border-color: var(--bad) }
 .selbar.danger .note { flex: 1 }
@@ -146,7 +144,7 @@ main.wrap { padding-block: 20px 48px }
 .rowhead { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600 }
 .rowline .inp input, .rowline .inp select { padding: 7px 8px; font-size: .88rem }
 .rowline .out { font-family: var(--font-mono); font-size: .85rem; text-align: right; color: var(--muted) }
-.c-parts { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr) 32px }
+.c-parts, .c-extra { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr) 32px }
 .c-2 { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
 .c-plates { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, .8fr) minmax(0, .8fr) 32px }
 .c-ship { grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)) 32px }
@@ -164,6 +162,9 @@ main.wrap { padding-block: 20px 48px }
 /* Listen stapeln, sobald ihre Box schmal ist (Handy, aber auch die halbe Desktop-Spalte) */
 .rows { container-type: inline-size }
 @container (max-width: 640px) {
+  .rowhead.c-extra { display: none }
+  .rowline.c-extra { grid-template-columns: repeat(3, minmax(0, 1fr)) 32px; grid-template-areas: "n n n x" "p g q ."; padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
+  .rowline.c-extra > :nth-child(1) { grid-area: n } .rowline.c-extra > :nth-child(2) { grid-area: p } .rowline.c-extra > :nth-child(3) { grid-area: g } .rowline.c-extra > :nth-child(4) { grid-area: q } .rowline.c-extra > :nth-child(5) { grid-area: x; justify-self: end }
   .rowhead.c-parts, .rowhead.c-ship, .rowhead.c-plates, .rowhead.c-box, .rowhead.c-blank { display: none }
   .rowline.c-parts, .rowline.c-ship, .rowline.c-plates, .rowline.c-box, .rowline.c-blank { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 8px; border-bottom: 1px dashed var(--line) }
   .rowline.c-ship > :first-child, .rowline.c-plates > :first-child, .rowline.c-box > :first-child { grid-column: 1 / -1 }
@@ -500,7 +501,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       wood += v(p.l) * v(p.b) * t * v(p.q);
     });
     if (!(wood > 0)) return 0;
-    const parts = (S.small || []).reduce((s, x) => s + v(x.g) * v((a.small || {})[x.n]), 0);
+    const parts = (S.small || []).reduce((s, x) => s + v(x.g) * v((a.small || {})[x.n]), 0) + (a.extra || []).reduce((s, x) => s + v(x.g) * v(x.q), 0);
     const box = v(((S.boxes || []).find(b => b.n === a.box) || {}).g);
     return Math.round(wood * v(S.woodDensity || 0.75) + parts + box + v(S.paperG));
   }
@@ -569,7 +570,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     wood *= a.fremd ? 0 : inK;
     const oil = a.fremd ? 0 : surf * v(S.oilM2) * inK;
     // Kleinkram (Schrauben, Dübel, Scheiben) als Pauschale, teurere Teile einzeln
-    const small = ((S.small || []).reduce((s, x) => s + v(x.p) * v((a.small || {})[x.n]), 0) + (a.fremd ? 0 : v(S.smallFlat))) * inK;
+    const small = ((S.small || []).reduce((s, x) => s + v(x.p) * v((a.small || {})[x.n]), 0) + (a.extra || []).reduce((s, x) => s + v(x.p) * v(x.q), 0) + (a.fremd ? 0 : v(S.smallFlat))) * inK;
     const rohMin = a.fremd ? 0 : (a.parts || []).reduce((s, p) => s + blankMin(p) * v(p.q), 0);
     // Maschinenminuten: eigene Eingabe + feste Minuten je Artikel + Anteil an der Rohling-Vorfertigung
     const machMin = m => a.fremd ? 0 : v((a.mach || {})[m.n]) + v(m.a) + v(m.s) / 100 * rohMin;
@@ -602,7 +603,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (!v(a.price)) m.push("Preis");
     if (a.fremd) { if (v(a.ext) === 0) m.push("Einkaufspreis"); }
     else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0)) m.push("Holz");
-    if (!a.fremd && !v(S.smallFlat) && !Object.values(a.small || {}).some(x => v(x) > 0)) m.push("Kleinteile");
+    if (!a.fremd && !v(S.smallFlat) && !Object.values(a.small || {}).some(x => v(x) > 0) && !(a.extra || []).some(x => v(x.p) * v(x.q) > 0)) m.push("Kleinteile");
     if (!a.fremd && !Object.values(a.mach || {}).some(x => v(x) > 0) && !(S.mach || []).some(x => v(x.a) > 0 || v(x.s) > 0)) m.push("Maschinenzeit");
     if (!v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
     if (!shipWeight(a)) m.push("Gewicht");
@@ -1036,16 +1037,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
           <section class="box">
             <h2>Beschläge &amp; Kleinteile</h2>
             <div class="grid3 keep">${smallFields || '<p class="note">Noch keine Kleinteile angelegt.</p>'}</div>
-            <button type="button" class="btn" data-act="newSmall" id="newSmallBtn">+ Neues Teil</button>
-            <div class="addsmall" id="addSmall" hidden>
-              <div class="grid3 keep">
-                <div class="field"><label for="ns-n">Teil</label><div class="inp"><input type="text" id="ns-n" placeholder="z. B. Messinghaken"></div></div>
-                <div class="field"><label for="ns-p">Preis pro Stück netto</label>${numIn('id="ns-p"', "", "€")}</div>
-                <div class="field"><label for="ns-g">Gewicht pro Stück</label>${numIn('id="ns-g"', "", "g")}</div>
-              </div>
-              <div class="btns"><button type="button" class="btn primary" data-act="addSmall">Hinzufügen</button><button type="button" class="btn" data-act="newSmallNo">Abbrechen</button></div>
-              <small class="note">Das Teil steht danach bei allen Artikeln zur Auswahl. Hier wird es gleich mit 1 Stück eingetragen.</small>
-            </div>
+            ${(a.extra || []).length ? `<div class="rows"><div class="rowhead c-extra"><span>Eigenes Teil, nur hier</span><span>€ / Stk netto</span><span>Gewicht</span><span>Menge</span><span></span></div>${a.extra.map((x, i) => `<div class="rowline c-extra"><div class="inp"><input type="text" data-ax="${i}" data-f="n" value="${esc(x.n)}" aria-label="Teil" placeholder="z. B. Messinghaken"></div>${numIn(`data-ax="${i}" data-f="p" aria-label="Preis pro Stück netto" placeholder="Preis"`, x.p, "€")}${numIn(`data-ax="${i}" data-f="g" aria-label="Gewicht pro Stück" placeholder="Gewicht"`, x.g, "g")}${numIn(`data-ax="${i}" data-f="q" aria-label="Stück" placeholder="Menge"`, x.q, "Stk")}<button type="button" class="x" data-del-extra="${i}" aria-label="Teil entfernen">×</button></div>`).join("")}</div>` : ""}
+            <button type="button" class="btn add" data-act="addExtra">+ Eigenes Teil (nur für diesen Artikel)</button>
             <div class="sumline"><a class="note" href="#einstellungen">Preise und Teile unter Einstellungen pflegen</a><span>pro Stück <strong id="smallSum"></strong></span></div>
             <p class="note" id="smallFlatNote"></p>
           </section>
@@ -1425,6 +1418,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       updateEditor(a);
     }
     else if (a && d.as !== undefined) { (a.small = a.small || {})[d.as] = val; setDirty(true); updateEditor(a); }
+    else if (a && d.ax !== undefined) { a.extra[+d.ax][d.f] = val; setDirty(true); updateEditor(a); }
     else if (a && d.am !== undefined) { (a.mach = a.mach || {})[d.am] = val; setDirty(true); updateEditor(a); }
     else if (t.id === "rChan") { viewCh = val; LS.set("hlz-app-viewch", viewCh); if (a) updateEditor(a); }
     else if (bulk && d.bulk !== undefined) { bulk[d.bulk] = val; t.closest(".inp")?.classList.add("changed"); }
@@ -1450,12 +1444,11 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     saveArticle(a); renderOverview(); toast(`${a.name}: neuer Preis ${eur(v(val))}`);
   });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.qprice) e.target.blur(); });
-  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.closest && e.target.closest("#addSmall")) { e.preventDefault(); document.querySelector('[data-act="addSmall"]').click(); } });
 
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
     if (e.target.closest("[data-qprice]")) return;
-    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
+    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.star) {
@@ -1479,6 +1472,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
     if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
     if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
+    if (d.delExtra !== undefined && a) { a.extra.splice(+d.delExtra, 1); setDirty(true); return renderEditor(a); }
     if (d.delPart !== undefined && a) { a.parts.splice(+d.delPart, 1); setDirty(true); return renderEditor(a); }
     switch (d.act) {
       case "syncLoad": return syncLoad();
@@ -1517,17 +1511,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         const n = sel.size; bulk = null; renderOverview(); return toast(`${n} Artikel geändert`);
       }
       case "save": return doSave();
-      case "newSmall": $("addSmall").hidden = false; $("newSmallBtn").hidden = true; return $("ns-n").focus();
-      case "newSmallNo": $("addSmall").hidden = true; $("newSmallBtn").hidden = false; return;
-      case "addSmall": {
-        const n = $("ns-n").value.trim(), pr = $("ns-p").value.trim(), g = $("ns-g").value.trim();
-        if (!n) { $("ns-n").focus(); return toast("Bitte einen Namen eingeben"); }
-        if ((S.small || []).some(x => norm(x.n) === norm(n))) return toast("Das Teil gibt es schon");
-        S.small = [...(S.small || []), { n, p: pr ? v(pr).toFixed(2) : "", g: g ? String(v(g)) : "" }]; saveSettings();
-        (a.small = a.small || {})[n] = "1"; setDirty(true); renderEditor(a);
-        setTimeout(() => $("sm-" + (S.small.length - 1))?.focus(), 30);
-        return toast(`${n} angelegt und eingetragen`);
-      }
+      case "addExtra": { (a.extra = a.extra || []).push({ n: "", p: "", g: "", q: "1" }); setDirty(true); renderEditor(a); const ins = document.querySelectorAll('[data-ax][data-f="n"]'); ins[ins.length - 1]?.focus(); return; }
       case "new": { const n = { ...ARTICLE_BLANK(), isNew: true }; A.push(n); return go("artikel-" + n.id); }
       case "examples": { EXAMPLES().forEach(x => { A.push(x); saveArticle(x); }); toast("4 Beispielartikel hinzugefügt"); return go("uebersicht"); }
       case "useBox": { const sb = suggestBox(a); if (!sb) return; $("a-box").value = sb.n; $("a-box").dispatchEvent(new Event("input", { bubbles: true })); return; }
