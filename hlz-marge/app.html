@@ -725,13 +725,13 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     dirty = x; clearTimeout(saveTimer);
     if (x) saveTimer = setTimeout(doSave, 2000);
   }
-  // Großer Hinweis in der Bildschirmmitte, wenn ein Artikel vollständig wird
+  // Großer Hinweis in der Bildschirmmitte, wenn ein Artikel vollständig wird (bleibt, bis man ihn wegklickt)
   let doneTimer = null;
   function showDone(a) {
     const next = A.find(x => x.id !== a.id && missing(x).length);
     $("doneName").textContent = a.name || ""; $("doneNext").hidden = !next; $("doneNext").dataset.id = next ? next.id : "";
     const el = $("donePop"); el.hidden = false; el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
-    clearTimeout(doneTimer); doneTimer = setTimeout(() => { el.hidden = true; }, 4000);
+    clearTimeout(doneTimer);
   }
   function doSave() {
     if (view === "artikel" && draft) {
@@ -1732,6 +1732,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     saveArticle(a); renderOverview(); toast(`${a.name}: neuer Preis ${eur(v(val))}`);
     if (next) { const el = document.querySelector(`[data-qprice="${next}"]`); if (el) { el.focus(); el.select(); } }
   });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("donePop").hidden) $("donePop").hidden = true; });
   // Preisspalte wie eine Tabelle: Tab/Enter springt ins nächste Preisfeld, Umschalt zurück
   document.addEventListener("keydown", e => {
     if (!(e.target.dataset && e.target.dataset.qprice) || !(e.key === "Enter" || e.key === "Tab")) return;
