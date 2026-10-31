@@ -741,7 +741,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       ["price", "Verkaufspreis brutto", "€"], ["shipIn", "Versand vom Kunden", "€"], ["disc", "Shop-Rabatt", "%"], ["adsEtsy", "Etsy Ads je Verkauf", "€"],
       ["box", "Karton", "select", [["", "Eigene Maße"], ...(S.boxes || []).filter(b => b.n).map(b => [b.n, b.n])]],
       ["pack", "Verpackung", "€"], ["outer", "Umverpackung", "€"], ["mins", "Weitere Minuten", "Min"],
-      ["fremd", "Fertigt andere Schreinerei", "yn", yn], ["todo", "📝 Nochmal ran", "yn", yn], ["note", "Notiz", "text"],
+      ["fremd", "Zukaufartikel", "yn", yn], ["supplier", "Lieferant", "text"], ["todo", "📝 Nochmal ran", "yn", yn], ["note", "Notiz", "text"],
       ...(S.small || []).filter(x => x.n).map(x => ["small:" + x.n, x.n, "Stk"])
     ];
   }
@@ -759,7 +759,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       ["Verkäufe pro Monat", c => c.pm, "hi", x => x ? dec(x) : "–"],
       ["—Kosten pro Stück"],
       costRow("Gebühren", r => r.fees), costRow("Werbung", r => r.ads), costRow("Billbee & Co.", r => r.order),
-      costRow("Holz", r => r.wood), costRow("Öl", r => r.oil), costRow("Kleinteile", r => r.small), costRow("Einkauf Schreinerei", r => r.ext),
+      costRow("Holz", r => r.wood), costRow("Öl", r => r.oil), costRow("Kleinteile", r => r.small), costRow("Einkauf", r => r.ext),
       costRow("Versand", r => r.porto), costRow("Verpackung", r => r.pack), costRow("Umverpackung", r => r.outer),
       costRow("Maschinen", r => r.mach), costRow("Deine Zeit", r => r.time), costRow("Werkstattanteil", r => r.fixShare),
       ["Kosten gesamt (ohne MwSt)", c => c.cost, "", eur],
@@ -925,7 +925,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const f = folder === "todo" && !nTodo ? "all" : folder || (nOpen ? "open" : "done");
     const inFolder = x => f === "all" || (f === "todo" ? !!x.a.todo : (f === "open") === (x.miss.length > 0));
     const shown = rows.filter(x => inFolder(x)
-      && (!search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)) || norm(x.a.note).includes(norm(search))));
+      && (!search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)) || norm(x.a.note).includes(norm(search)) || norm(x.a.supplier).includes(norm(search))));
     shownIds = shown.map(x => x.a.id);
     const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["todo", "Nochmal ran", nTodo], ["all", "Alle", rows.length]];
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}">${l}${sortKey === k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th>`;
@@ -1014,9 +1014,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
               <div class="field"><label for="a-adsEtsy">Etsy Ads je Verkauf</label>${numIn(`id="a-adsEtsy" data-a="adsEtsy"`, a.adsEtsy ?? "", "€")}<small>leer = Wert aus Einstellungen</small></div>
               <div class="field"><span class="label">Kunde zahlt</span><div class="note" id="discInfo" style="padding-top:10px"></div></div>
             </div>
-            <label class="check"><input type="checkbox" id="a-fremd" data-a="fremd" ${a.fremd ? "checked" : ""}> Fertigt eine andere Schreinerei <small>(kein Holz, keine Maschinen, dafür Einkaufspreis)</small></label>
+            <label class="check"><input type="checkbox" id="a-fremd" data-a="fremd" ${a.fremd ? "checked" : ""}> Zukaufartikel <small>(von Schreinerei, Großhandel, B2B … kein Holz, keine Maschinen, dafür Einkaufspreis)</small></label>
             <div class="grid3 keep" id="extBox" style="margin-top:10px">
-              <div class="field"><label for="a-ext">Einkaufspreis Schreinerei</label>${numIn(`id="a-ext" data-a="ext"`, a.ext, "€")}<small>pro Stück netto</small></div>
+              <div class="field"><label for="a-ext">Einkaufspreis</label>${numIn(`id="a-ext" data-a="ext"`, a.ext, "€")}<small>pro Stück netto</small></div>
+              <div class="field" style="grid-column: span 2"><label for="a-supplier">Lieferant</label><div class="inp"><input type="text" id="a-supplier" data-a="supplier" value="${esc(a.supplier || "")}" placeholder="z. B. Schreinerei Müller, Deko-Großhandel"></div></div>
             </div>
           </section>
 
@@ -1163,7 +1164,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const miss = missing(a), mb = $("missBox");
     markNeeded(a, miss);
     const aw = autoWeight(a);
-    $("wAuto").textContent = aw ? (v(a.weight) > 0 ? `berechnet wären ${dec(aw / 1000, 2)} kg` : `automatisch: ${dec(aw / 1000, 2)} kg (Holz, Teile, Karton, Papier)`) : a.fremd ? "Bitte Gewicht eintragen: Fremdfertigung kann die App nicht aus dem Holz berechnen" : "leer = automatisch, sobald Holzmaße da sind";
+    $("wAuto").textContent = aw ? (v(a.weight) > 0 ? `berechnet wären ${dec(aw / 1000, 2)} kg` : `automatisch: ${dec(aw / 1000, 2)} kg (Holz, Teile, Karton, Papier)`) : a.fremd ? "Bitte Gewicht eintragen: bei Zukaufartikeln kann die App es nicht aus dem Holz berechnen" : "leer = automatisch, sobald Holzmaße da sind";
     $("discInfo").textContent = (v(a.disc) > 0 ? `${eur(r.P)} statt ${eur(v(a.price))} (−${eur(v(a.price) - r.P)}) + ${eur(v(a.shipIn))} Versand` : `${eur(r.P)} + ${eur(v(a.shipIn))} Versand`)
       + (v(S.shopDisc) > 0 && v(a.price) > 0 ? ` · Shopify/eBay: ${eur(shopPrice(a))}` : "");
     const ti = $("ahImg"), ts = thumbOf(a); if (ts) { if (ti.getAttribute("src") !== ts) ti.src = ts; ti.hidden = false; } else ti.hidden = true;
@@ -1221,7 +1222,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 
     const segs = [
       ["MwSt", r.vatAmt, "--seg-vat"], ["Gebühren", r.fees, "--seg-fee"], ["Billbee & Co.", r.order, "--seg-fee", .8], ["Werbung", r.ads, "--seg-fee", .6],
-      ["Holz", r.wood, "--seg-make"], ["Öl", r.oil, "--seg-make", .8], ["Kleinteile", r.small, "--seg-make", .65], ["Einkauf Schreinerei", r.ext, "--seg-other"],
+      ["Holz", r.wood, "--seg-make"], ["Öl", r.oil, "--seg-make", .8], ["Kleinteile", r.small, "--seg-make", .65], ["Einkauf", r.ext, "--seg-other"],
       ["Versand", r.porto, "--seg-ship"], ["Verpackung", r.pack, "--seg-pack"], ["Umverpackung", r.outer, "--seg-pack", .65],
       ["Maschinen", r.mach, "--seg-time", .6], ["Deine Zeit", r.time, "--seg-time"], ["Werkstatt & Fixkosten", r.fixShare, "--seg-other", .6],
       ["Gewinn", Math.max(0, r.profit), "--seg-profit"]
@@ -1546,12 +1547,12 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       head = ["SKU", "Artikel", "Gewicht g", "Länge cm", "Breite cm", "Höhe cm", "Karton", "Versandart"];
       rows = list.filter(a => a.sku).map(a => { const sh = pickShip(a); return [a.sku, a.name, Math.round(shipWeight(a)) || "", num(v(a.pkL)), num(v(a.pkB)), num(v(a.pkH)), a.box || "", sh.chosen ? sh.chosen.o.n : ""]; });
     } else {
-      head = ["Artikel", "SKU", "Kanal", "Preis brutto", "Rabatt %", "Gewinn", "Marge %", "Preisempfehlung", "Mindestpreis", "Holz", "Öl", "Kleinteile", "Einkauf Schreinerei", "Porto", "Versandart", "Karton", "Gewicht g", "Arbeitszeit Min", "Verkäufe/Monat", "Status", "Nochmal ran", "Notiz"];
+      head = ["Artikel", "SKU", "Kanal", "Preis brutto", "Rabatt %", "Gewinn", "Marge %", "Preisempfehlung", "Mindestpreis", "Holz", "Öl", "Kleinteile", "Einkaufspreis", "Lieferant", "Porto", "Versandart", "Karton", "Gewicht g", "Arbeitszeit Min", "Verkäufe/Monat", "Status", "Nochmal ran", "Notiz"];
       rows = list.map(a => {
         const ch = viewCh, r = calc(a, ch, undefined, ctx), c = r;
         const tp = solvePrice(a, ch, v(S.target), ctx), miss = missing(a);
         return [a.name, a.sku || "", CH_NAMES[ch], num(v(a.price)), num(v(a.disc)), num(r.profit), num(r.margin), num(nicePrice(tp)), num(solvePrice(a, ch, 0, ctx)),
-          num(c.wood), num(c.oil), num(c.small), num(c.ext), num(c.porto), c.ship.chosen ? c.ship.chosen.o.n : "", a.box || "", Math.round(shipWeight(a)) || "",
+          num(c.wood), num(c.oil), num(c.small), num(c.ext), a.supplier || "", num(c.porto), c.ship.chosen ? c.ship.chosen.o.n : "", a.box || "", Math.round(shipWeight(a)) || "",
           num(v(a.mins) + c.rohMin + c.packMin), num(salesPerMonth(a)), miss.length ? "fehlt: " + miss.join(", ") : "fertig", a.todo ? "ja" : "", a.note || ""];
       });
     }
