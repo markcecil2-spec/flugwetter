@@ -296,6 +296,15 @@ tr.best td:first-child::after { content: " · bester"; color: var(--good); font-
 .banner { border: 1px solid var(--warn); color: var(--fg); background: var(--panel); border-radius: 10px; padding: 10px 14px; font-size: .88rem; display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center }
 .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 28px 16px; text-align: center; display: grid; gap: 10px; justify-items: center; color: var(--muted) }
 .drop.over { border-color: var(--accent); background: var(--accent-soft) }
+.donepop { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; pointer-events: none }
+.donecard { pointer-events: auto; background: var(--panel); border: 2px solid var(--good); border-radius: 18px; padding: 26px 32px; display: grid; gap: 8px; justify-items: center; text-align: center;
+  box-shadow: 0 20px 60px rgb(0 0 0 / .25); max-width: min(500px, calc(100vw - 32px)) }
+.donecard strong { font: 700 1.6rem var(--font-display); color: var(--good) }
+.donecard #doneName { font-weight: 600 }
+.donecheck { width: 64px; height: 64px; border-radius: 50%; background: var(--good); color: #fff; display: grid; place-items: center; font-size: 2rem; font-weight: 700 }
+.donepop.show .donecard { animation: donein .35s cubic-bezier(.2, .9, .3, 1.3) }
+@keyframes donein { from { transform: scale(.7); opacity: 0 } to { transform: none; opacity: 1 } }
+@media (prefers-reduced-motion: reduce) { .donepop.show .donecard { animation: none } }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-size: .85rem; z-index: 20; max-width: calc(100% - 32px) }
 details summary { cursor: pointer; color: var(--muted); font-size: .85rem }
 details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: .84rem; display: grid; gap: 4px }
@@ -330,6 +339,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
 <div class="toast" id="toast" hidden></div>
+<div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
 
 <script>
 (() => {
@@ -715,6 +725,14 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     dirty = x; clearTimeout(saveTimer);
     if (x) saveTimer = setTimeout(doSave, 2000);
   }
+  // Großer Hinweis in der Bildschirmmitte, wenn ein Artikel vollständig wird
+  let doneTimer = null;
+  function showDone(a) {
+    const next = A.find(x => x.id !== a.id && missing(x).length);
+    $("doneName").textContent = a.name || ""; $("doneNext").hidden = !next; $("doneNext").dataset.id = next ? next.id : "";
+    const el = $("donePop"); el.hidden = false; el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+    clearTimeout(doneTimer); doneTimer = setTimeout(() => { el.hidden = true; }, 4000);
+  }
   function doSave() {
     if (view === "artikel" && draft) {
       delete draft.isNew; delete draft.example;
@@ -726,7 +744,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       if (i >= 0) A[i] = a; else A.push(a);
       if (draft.priceAtEtsy !== a.priceAtEtsy) { if (a.priceAtEtsy == null) delete draft.priceAtEtsy; else draft.priceAtEtsy = a.priceAtEtsy; }
       saveArticle(a); draft.updated = a.updated; setDirty(false);
-      if (wasOpen !== nowOpen) toast(nowOpen ? "Zurück in ⚠ Daten fehlen" : "Vollständig · liegt jetzt in ✓ Fertig");
+      if (wasOpen !== nowOpen) nowOpen ? toast("Zurück in ⚠ Daten fehlen") : showDone(a);
     } else if (view === "einstellungen" && draftS) {
       S = clone(draftS); renames.forEach(([k, o, n]) => renameRef(k, o, n)); renames = [];
       saveSettings(); setDirty(false);
@@ -751,7 +769,12 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     pendingFocus = null;
   }
   window.addEventListener("hashchange", route);
-  const go = h => { if (location.hash === "#" + h) route(); else location.hash = h; };
+  // Von Artikel zu Artikel ohne neuen Verlaufseintrag: die Zurück-Taste führt dann immer zum Dashboard
+  const go = h => {
+    if (location.hash === "#" + h) return route();
+    if (view === "artikel" && h.startsWith("artikel-")) { history.replaceState(null, "", "#" + h); return route(); }
+    location.hash = h;
+  };
   function render() {
     if (view === "artikel") {
       const a = A.find(x => x.id === curId); if (!a) return go("uebersicht");
@@ -1791,6 +1814,9 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       case "save": return doSave();
       case "cols": colsOpen = !colsOpen; return renderOverview();
       case "colsReset": try { localStorage.removeItem("hlz-app-cols"); } catch (e) {} return renderOverview();
+      case "doneHome": clearTimeout(doneTimer); $("donePop").hidden = true; return go("uebersicht");
+      case "doneClose": clearTimeout(doneTimer); $("donePop").hidden = true; return;
+      case "doneNext": { clearTimeout(doneTimer); $("donePop").hidden = true; const id = $("doneNext").dataset.id; if (id) { pendingFocus = "auto"; go("artikel-" + id); } return; }
       case "supAsk": return supAsk();
       case "supStop": sup.ctl?.abort(); return;
       case "supNew": sup.f = supBlank(); sup.err = ""; renderSupport(); return $("s-msg").focus();
