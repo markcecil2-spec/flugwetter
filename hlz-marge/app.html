@@ -984,10 +984,6 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
               <div class="field"><label for="a-adsEtsy">Etsy Ads je Verkauf</label>${numIn(`id="a-adsEtsy" data-a="adsEtsy"`, a.adsEtsy ?? "", "€")}<small>leer = Wert aus Einstellungen</small></div>
               <div class="field"><span class="label">Kunde zahlt</span><div class="note" id="discInfo" style="padding-top:10px"></div></div>
             </div>
-            <div class="todo-box">
-              <label class="check"><input type="checkbox" id="a-todo" data-a="todo" ${a.todo ? "checked" : ""}> 📝 Nochmal dran arbeiten</label>
-              <div class="field" style="margin-top:8px"><label for="a-note">Notiz</label><div class="inp"><textarea id="a-note" data-a="note" rows="2" placeholder="Was ist noch zu tun? z. B. Karton bestellen, Laserzeit messen …">${esc(a.note || "")}</textarea></div></div>
-            </div>
             <label class="check"><input type="checkbox" id="a-fremd" data-a="fremd" ${a.fremd ? "checked" : ""}> Fertigt eine andere Schreinerei <small>(kein Holz, keine Maschinen, dafür Einkaufspreis)</small></label>
             <div class="grid3 keep" id="extBox" style="margin-top:10px">
               <div class="field"><label for="a-ext">Einkaufspreis Schreinerei</label>${numIn(`id="a-ext" data-a="ext"`, a.ext, "€")}<small>pro Stück netto</small></div>
@@ -1044,6 +1040,12 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
               <div class="field" style="grid-column: span 2"><span class="label">Automatisch dazu</span><div class="note" id="timeAuto" style="padding-top:10px"></div></div>
             </div>
             <div class="sumline"><a class="note" href="#einstellungen">Stundenlohn unter Einstellungen pflegen</a><span>pro Stück <strong id="timeSum"></strong></span></div>
+          </section>
+
+          <section class="box">
+            <h2>Notiz</h2>
+              <label class="check"><input type="checkbox" id="a-todo" data-a="todo" ${a.todo ? "checked" : ""}> 📝 Nochmal dran arbeiten</label>
+              <div class="field" style="margin-top:8px"><div class="inp"><textarea id="a-note" aria-label="Notiz" data-a="note" rows="2" placeholder="Was ist noch zu tun? z. B. Karton bestellen, Laserzeit messen …">${esc(a.note || "")}</textarea></div></div>
           </section>
 
           <section class="box">
