@@ -65,6 +65,21 @@ h3 { font-size: 1rem }
 table.ov td.name, table.ov th.selcol + th { text-align: left }
 .selcol { width: 34px; padding-right: 0 } .selcol input { width: 18px; height: 18px; accent-color: var(--accent) }
 tr.selected td { background: var(--accent-soft) }
+.cmp { margin: 10px 0; gap: 10px }
+.cmp .row { display: flex; justify-content: space-between; align-items: center; gap: 8px }
+.cmp h3 { margin: 0 }
+.cmptable { min-width: 0 }
+.cmptable th, .cmptable td { padding: 6px 10px; vertical-align: top }
+.cmptable th { text-transform: none; letter-spacing: 0; font-size: .9rem }
+.cmptable tbody th { text-align: left; font-weight: 500; color: var(--muted); white-space: nowrap }
+.cmptable .cmp-art { text-align: left; min-width: 150px; max-width: 220px; white-space: normal; font-weight: 600 }
+.cmptable .cmp-art .thumb { float: none; display: block; margin: 0 0 6px; width: 56px; height: 56px }
+.cmptable .cmp-sec th { padding-top: 14px; color: var(--fg); font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em }
+.cmptable tr.total th, .cmptable tr.total td { font-weight: 700; color: var(--fg) }
+.cmptable tr.total td.best { color: var(--good) }
+.cmptable td.best { color: var(--good); font-weight: 700 }
+.linkbtn { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
+.linkbtn:hover { text-decoration-color: currentColor }
 .selbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
 .bulkbox { margin: 10px 0; border-color: var(--accent) }
 .inp textarea { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); padding: 9px 10px; font: .95rem var(--font-body); outline: none; resize: vertical }
@@ -631,7 +646,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   let viewCh = LS.get("hlz-app-viewch") || "etsy";
   if (viewCh === "mix") viewCh = "etsy";
   // Mehrfachauswahl in der Artikelliste; bulk = geänderte Felder der gemeinsamen Bearbeitung (null = zu)
-  let sel = new Set(), bulk = null, bulkDelAsk = false, shownIds = [];
+  let sel = new Set(), bulk = null, bulkDelAsk = false, shownIds = [], cmp = false;
   const VIEW_CH = [["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
   // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
@@ -720,6 +735,44 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     ];
   }
   const bulkGet = (a, k) => k.startsWith("small:") ? (a.small || {})[k.slice(6)] ?? "" : k === "fremd" || k === "todo" ? (a[k] ? "ja" : "nein") : a[k] ?? "";
+  // Ausgewählte Artikel nebeneinander vergleichen; bester Wert je Zeile wird markiert
+  function cmpPanel(list) {
+    const ctx = volume(), cols = list.map(a => {
+      const r = calc(a, viewCh, undefined, ctx), mins = v(a.mins) + r.rohMin + r.packMin, pm = salesPerMonth(a);
+      return { a, r, mins, pm, wage: mins > 0 ? (r.profit + r.time) / (mins / 60) : NaN, cost: r.varCosts + r.fees + r.ads + r.fixShare, tp: solvePrice(a, viewCh, v(S.target), ctx) };
+    });
+    // [Bezeichnung, Wert, besser: "hi" | "lo" | "", Anzeige]
+    const costRow = (l, f) => [l, c => f(c.r), "", eur];
+    const rows = [
+      ["Verkaufspreis", c => c.r.P, "", eur],
+      ["Verkäufe pro Monat", c => c.pm, "hi", x => x ? dec(x) : "–"],
+      ["—Kosten pro Stück"],
+      costRow("Gebühren", r => r.fees), costRow("Werbung", r => r.ads), costRow("Billbee & Co.", r => r.order),
+      costRow("Holz", r => r.wood), costRow("Öl", r => r.oil), costRow("Kleinteile", r => r.small), costRow("Einkauf Schreinerei", r => r.ext),
+      costRow("Versand", r => r.porto), costRow("Verpackung", r => r.pack), costRow("Umverpackung", r => r.outer),
+      costRow("Maschinen", r => r.mach), costRow("Deine Zeit", r => r.time), costRow("Werkstattanteil", r => r.fixShare),
+      ["Kosten gesamt (ohne MwSt)", c => c.cost, "", eur],
+      ["—Ergebnis"],
+      ["Gewinn pro Stück", c => c.r.profit, "hi", eur],
+      ["Marge", c => c.r.margin, "hi", pct],
+      ["Gewinn pro Monat", c => c.r.profit * c.pm, "hi", x => x ? eur(x) : "–"],
+      ["Stundenlohn", c => c.wage, "hi", x => isFinite(x) ? eur(x) + "/h" : "–"],
+      ["Arbeitszeit", c => c.mins, "", x => x ? dec(x) + " Min" : "–"],
+      [`Preis für ${S.target} % Marge`, c => c.tp, "", x => isFinite(x) ? eur(x) : "–"],
+    ].filter(([l, f]) => !f || l === "Verkaufspreis" || cols.some(c => Math.abs(v(f(c))) > 0.004));
+    const body = rows.map(([l, f, dir, show]) => {
+      if (!f) return `<tr class="cmp-sec"><th colspan="${cols.length + 1}">${l.slice(1)}</th></tr>`;
+      const vals = cols.map(f), ok = vals.filter(isFinite);
+      const best = dir && ok.length > 1 && Math.max(...ok) - Math.min(...ok) > 0.004 ? (dir === "hi" ? Math.max(...ok) : Math.min(...ok)) : null;
+      return `<tr${/gesamt|Gewinn pro Stück/.test(l) ? ' class="total"' : ""}><th>${esc(l)}</th>${vals.map(x => `<td class="num${best !== null && Math.abs(x - best) < 0.0005 ? " best" : ""}">${show(x)}</td>`).join("")}</tr>`;
+    }).join("");
+    const head = cols.map(({ a, r }) => { const [k, w] = status(r.margin); return `<th class="cmp-art">${thumbHTML(a)}<button class="linkbtn" data-open="${a.id}">${esc(a.name)}</button><br><span class="note num">${esc(a.sku || "")}</span> <span class="pill ${k}">${w}</span></th>`; }).join("");
+    const ship = cols.map(c => `<td>${c.r.ship.chosen ? esc(c.r.ship.chosen.o.n) : "–"}${c.a.box ? `<br><span class="note">${esc(c.a.box)}</span>` : ""}</td>`).join("");
+    return `<div class="box cmp"><div class="row"><h3>Vergleich · ${esc(CH_NAMES[viewCh])}</h3><button class="btn" data-act="cmpClose">Schließen</button></div>
+      <div class="tablewrap"><table class="cmptable"><thead><tr><th></th>${head}</tr></thead><tbody>${body}<tr><th>Versandart</th>${ship}</tr></tbody></table></div>
+      <p class="note">Grün = bester Wert in der Zeile. Stundenlohn = (Gewinn + eingerechnete Arbeitszeit) ÷ Arbeitsstunden, also was du pro Stunde wirklich verdienst.</p></div>`;
+  }
+
   function bulkPanel(list) {
     const fields = bulkFields().map(([k, l, type, opts]) => {
       const vals = new Set(list.map(a => String(bulkGet(a, k))));
@@ -884,9 +937,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         </div>
         <div class="inp chsel"><select id="fCh" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div>
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
-        ${sel.size ? `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>` : ""}
+        ${sel.size ? `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn${cmp ? " primary" : ""}" data-act="cmpOpen" ${sel.size < 2 ? 'disabled title="Mindestens 2 Artikel auswählen"' : ""}>Vergleichen</button><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>` : ""}
         ${bulkDelAsk ? `<div class="banner"><span>${sel.size} Artikel wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : ""}
         ${bulk && sel.size ? bulkPanel(A.filter(x => sel.has(x.id))) : ""}
+        ${cmp && sel.size >= 2 ? cmpPanel(shownIds.filter(id => sel.has(id)).concat([...sel].filter(id => !shownIds.includes(id))).map(id => A.find(x => x.id === id)).filter(Boolean)) : ""}
         <div class="tablewrap"><table class="ov">
           <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}<th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
           <tbody>${shown.map(({ a, ch, r, pm, t, miss }) => {
@@ -1395,8 +1449,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       case "exportCsv": return exportCSV("list", false);
       case "exportSel": return exportCSV("list", true);
       case "exportBillbee": return exportCSV("billbee", false);
-      case "selNone": sel.clear(); bulk = null; bulkDelAsk = false; return renderOverview();
-      case "bulkEdit": bulk = {}; bulkDelAsk = false; return renderOverview();
+      case "selNone": sel.clear(); bulk = null; bulkDelAsk = false; cmp = false; return renderOverview();
+      case "bulkEdit": bulk = {}; bulkDelAsk = false; cmp = false; return renderOverview();
+      case "cmpOpen": cmp = true; bulk = null; bulkDelAsk = false; return renderOverview();
+      case "cmpClose": cmp = false; return renderOverview();
       case "bulkCancel": bulk = null; return renderOverview();
       case "bulkDel": bulkDelAsk = true; bulk = null; return renderOverview();
       case "bulkDelNo": bulkDelAsk = false; return renderOverview();
