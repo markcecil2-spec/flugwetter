@@ -80,6 +80,12 @@ tr.selected td { background: var(--accent-soft) }
 .cmptable td.best { color: var(--good); font-weight: 700 }
 .linkbtn { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
 .linkbtn:hover { text-decoration-color: currentColor }
+.suptable th, .suptable td { text-align: left; vertical-align: top }
+.supbars { display: grid; gap: 12px }
+.supbar { display: grid; gap: 4px }
+.supbar-head { display: flex; justify-content: space-between; gap: 10px; font-size: .9rem }
+.supbar-track { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden }
+.supbar-track div { height: 100%; background: var(--accent); border-radius: 4px }
 .selbar { position: sticky; top: calc(var(--toph, 60px) + 8px); z-index: 5; background: var(--panel); box-shadow: 0 4px 14px rgb(0 0 0 / .08); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
 .selbar.danger { border-color: var(--bad) }
 .selbar.danger .note { flex: 1 }
@@ -301,6 +307,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
       <a href="#import" data-tab="import">Import</a>
+      <a href="#support" data-tab="support">Support</a>
     </nav>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
   </div>
@@ -408,11 +415,15 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   let S = SETTINGS_DEFAULT();   // Betriebsdaten & Stammdaten
   let A = [];                   // Artikel
   let store = null, mode = "local";
+  let SUP = [];                 // Kundennachrichten (Support)
 
   // ---------- Speicher: Cloud (Artifact-Datenbank, Handy & PC) oder lokal im Browser ----------
   const LS = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, x) { try { localStorage.setItem(k, JSON.stringify(x)); } catch (e) {} } };
   const Local = {
     async load() { return { settings: LS.get("hlz-app-settings"), articles: LS.get("hlz-app-articles") || [] }; },
+    async loadSupport() { return LS.get("hlz-app-support") || []; },
+    async saveMsg() { LS.set("hlz-app-support", SUP); },
+    async deleteMsg() { LS.set("hlz-app-support", SUP); },
     async saveSettings(s) { LS.set("hlz-app-settings", s); },
     async saveArticle() { LS.set("hlz-app-articles", A); },
     async deleteArticle() { LS.set("hlz-app-articles", A); }
@@ -430,7 +441,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       db.doc("hlz/settings").onSnapshot(d => onSettings(d.exists ? d.data() : null), () => {});
     },
     saveArticle: a => db.collection("articles").doc(a.id).set(clone(a)),
-    deleteArticle: id => db.collection("articles").doc(id).delete()
+    deleteArticle: id => db.collection("articles").doc(id).delete(),
+    async loadSupport() { const q = await db.collection("support").get(); return q.docs.map(d => clone(d.data())); },
+    saveMsg: m => db.collection("support").doc(m.id).set(clone(m)),
+    deleteMsg: id => db.collection("support").doc(id).delete()
   });
   // pro Dokument: Eingaben bündeln, immer nur ein Schreibvorgang gleichzeitig
   const timers = {}, chains = {};
@@ -452,6 +466,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   }
   const saveSettings = () => persist("settings", () => store.saveSettings(S));
   const saveArticle = a => { a.updated = Date.now(); persist("a:" + a.id, () => store.saveArticle(a)); };
+  const saveMsg = m => persist("m:" + m.id, () => store.saveMsg(m));
+  const removeMsg = id => { SUP = SUP.filter(m => m.id !== id); persist("m:" + id, () => store.deleteMsg(id)); };
   const removeArticle = id => { A = A.filter(a => a.id !== id); persist("a:" + id, () => store.deleteArticle(id)); };
 
   // Übernahme aus der Vorversion (einzelner Rechner, gleicher Browser)
@@ -715,7 +731,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === view) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -733,6 +749,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "import") renderImport();
     else if (view === "einstellungen") { if (!draftS) draftS = clone(S); renderSettings(); }
     else if (view === "preise") renderPrices();
+    else if (view === "support") renderSupport();
     else renderOverview();
   }
 
@@ -814,6 +831,202 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   let sync = { state: "idle", rows: [], unmatched: [], msg: "", pick: new Set() };
   const etsyChanges = () => A.filter(a => a.priceAtEtsy != null && v(a.priceAtEtsy) !== v(a.price));
   const normTitle = t => norm(t).replace(/\(alte variante\)/g, "").replace(/[^a-z0-9äöüß]/g, "");
+  // ---------- Support: Kundennachrichten beantworten und auswerten ----------
+  const SUP_CATS = [["lieferzeit", "Lieferzeit / Wo ist mein Paket?"], ["reklamation", "Reklamation / Fehlteil / Defekt"], ["widerruf", "Widerruf / Rückgabe"],
+    ["montage", "Montage / Wandeignung"], ["mass", "Sondermaß / Angebot"], ["versandkosten", "Versandkosten"], ["bewertung", "Bewertung / Beschwerde"],
+    ["produktfrage", "Frage vor dem Kauf"], ["sonstiges", "Sonstiges"]];
+  const SUP_CAUSES = [["", "–"], ["schrauben", "Schrauben/Beschläge defekt"], ["fehlteil", "Fehlteil / falsche Teile"], ["menge", "Falsche Menge"],
+    ["gravur", "Gravur fehlt / falsch"], ["transport", "Transportschaden"], ["nichtangekommen", "Nicht angekommen"], ["holz", "Holz / Verarbeitung"],
+    ["erwartung", "Erwartung anders"], ["sonstiges", "Sonstiges"]];
+  const SUP_LANGS = { de: "Deutsch", en: "Englisch", fr: "Französisch", pl: "Polnisch", it: "Italienisch", es: "Spanisch", nl: "Niederländisch", andere: "Andere" };
+  const SUP_CHANNELS = ["Etsy", "Shopify", "eBay", "E-Mail", "Instagram", "Sonstiges"];
+  // Was gegen wiederkehrende Themen hilft (aus der Auswertung Oktober 2026)
+  const SUP_TIPS = {
+    lieferzeit: "Versandbestätigung mit Tracking-Link und realistischem Lieferdatum, Lieferzeit 1–2 Wochen auf den Produktseiten.",
+    reklamation: "Packliste / Abhakliste vor jedem Paket, Gravur-Aufträge separat markieren.",
+    widerruf: "Hinweis im Checkout: „Kein Widerrufsrecht bei personalisierten Gravuren“.",
+    montage: "Montagezettel ins Paket, „nur für massive Wände“ in der Beschreibung.",
+    mass: "FAQ: „Sondermaße auf Anfrage – Maße und Anzahl per Nachricht“.",
+    versandkosten: "Gratis-Versand-Grenze überall gleich (Banner und Versandseite).",
+    bewertung: "Bei Lieferproblemen sofort melden, Erwartungen im Listing klar beschreiben.",
+    schrauben: "Schraubentyp / Lieferant wechseln, Stichprobe vor dem Versand.",
+    fehlteil: "Packliste vor jedem Paket abhaken.", menge: "Packliste vor jedem Paket abhaken.",
+    gravur: "Gravur-Aufträge separat markieren und vor dem Packen prüfen.",
+    nichtangekommen: "Ab ca. 30 € immer Paket mit Tracking statt Warensendung.",
+    erwartung: "Fotos und Beschreibung ehrlicher machen (Maße, Holzbild, „abstrahiert“)."
+  };
+  const SUP_FACTS_DEFAULT = `Shop: HlzLaden (hlzladen.de, Etsy), handgemachte Holzprodukte aus Eiche, Inhaber Mark.
+Lieferzeit: Fertigung + Versand ca. 1–2 Wochen, Versand mit DHL inkl. Sendungsverfolgung.
+Kostenloser Versand ab: [Betrag festlegen, z. B. 49 €]
+Widerruf: 14 Tage Widerrufsrecht. Kein Widerrufsrecht bei personalisierten Artikeln (Gravur), § 312g Abs. 2 Nr. 1 BGB.
+Reklamation: fehlende oder defekte Teile schicken wir kostenlos nach, bitte Foto schicken.
+Montage: Wandhalterungen nur an massiven Wänden (Beton, Ziegel). Bei Gipskarton passende Hohlraumdübel nötig. Schrauben und Dübel liegen bei.
+Sondermaße: auf Anfrage, bitte Maße und Anzahl schicken, dann kommt ein Angebot.
+Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn der Kunde siezt). Unterschrift: Viele Grüße, Mark`;
+  let sup = { tab: "antwort", f: null, busy: false, ctl: null, err: "", period: "90", ai: "", aiBusy: false };
+  let sampleFn;
+  async function getSample() {
+    if (sampleFn !== undefined) return sampleFn;
+    sampleFn = window.claude && typeof window.claude.use === "function"
+      ? await Promise.race([window.claude.use("sample"), new Promise(r => setTimeout(() => r(null), 10000))]).catch(() => null) : null;
+    return sampleFn;
+  }
+  const supBlank = () => ({ id: uid(), at: new Date().toISOString().slice(0, 10), customer: "", channel: "Etsy", sku: "", msg: "", hint: "", lang: "", cat: "", cause: "", summary: "", reply: "", replyDe: "", msgDe: "", status: "offen" });
+  const SUP_ERR = { not_granted: "Claude ist für diese Seite nicht freigegeben. Erlauben über das Menü der Seite.", sampling_disabled: "Claude ist für dein Konto hier nicht verfügbar.",
+    rate_limited: "Gerade zu viele Anfragen. Bitte kurz warten und nochmal.", refused: "Claude hat diese Nachricht abgelehnt.", invalid_json: "Antwort kam unvollständig, bitte nochmal versuchen.",
+    session_expired: "Bitte neu bei Claude anmelden." };
+  const supErr = e => SUP_ERR[e && e.code] || "Hat nicht geklappt, bitte nochmal versuchen.";
+  const supTextOf = k => (SUP_CATS.find(x => x[0] === k) || [k, k || "–"])[1];
+  const supCauseOf = k => (SUP_CAUSES.find(x => x[0] === k) || [k, k || "–"])[1];
+
+  function renderSupport() {
+    if (!sup.f) sup.f = supBlank();
+    const tabs = [["antwort", "Beantworten"], ["auswertung", "Auswertung"], ["wissen", "Shop-Infos"]];
+    $("view").innerHTML = `
+      <div class="row"><h1>Support</h1><div class="seg" aria-label="Bereich">${tabs.map(([k, l]) => `<button type="button" data-suptab="${k}" aria-pressed="${sup.tab === k}">${l}</button>`).join("")}</div></div>
+      ${sup.tab === "antwort" ? supAnswerHTML() : sup.tab === "auswertung" ? supStatsHTML() : supFactsHTML()}`;
+    getSample().then(f => { const n = $("supNoAi"); if (n) n.hidden = !!f; });
+  }
+
+  function supAnswerHTML() {
+    const f = sup.f, sel = (id, list, cur) => `<div class="inp"><select id="${id}" data-sup="${id.slice(2)}">${list.map(([k, l]) => opt(k, l, cur === k)).join("")}</select></div>`;
+    const open = SUP.filter(m => m.status !== "erledigt").sort((a, b) => (b.at || "").localeCompare(a.at || ""));
+    return `
+      <div class="stack">
+        <section class="box">
+          <h2>Kundennachricht</h2>
+          <div class="grid3 keep">
+            <div class="field"><label for="s-customer">Kunde</label><div class="inp"><input type="text" id="s-customer" data-sup="customer" value="${esc(f.customer)}" placeholder="Name"></div></div>
+            <div class="field"><label for="s-channel">Kanal</label>${sel("s-channel", SUP_CHANNELS.map(c => [c, c]), f.channel)}</div>
+            <div class="field"><label for="s-sku">Artikel / SKU</label><div class="inp"><input type="text" id="s-sku" data-sup="sku" value="${esc(f.sku)}" placeholder="optional" list="supSkus"></div></div>
+          </div>
+          <datalist id="supSkus">${A.filter(a => a.sku).map(a => `<option value="${esc(a.sku)}">${esc(a.name)}</option>`).join("")}</datalist>
+          <div class="field"><label for="s-msg">Nachricht (einfach reinkopieren, auch der ganze Verlauf)</label><div class="inp"><textarea id="s-msg" data-sup="msg" rows="7" placeholder="Hallo, mein Paket ist noch nicht da …">${esc(f.msg)}</textarea></div></div>
+          <div class="field"><label for="s-hint">Was soll in die Antwort? (optional)</label><div class="inp"><input type="text" id="s-hint" data-sup="hint" value="${esc(f.hint)}" placeholder="z. B. Ersatzschrauben schicken, 10 % Gutschein anbieten"></div></div>
+          <div class="btns"><button type="button" class="btn primary" data-act="supAsk" ${sup.busy ? "disabled" : ""}>${sup.busy ? "Claude schreibt …" : f.reply ? "↻ Neuer Vorschlag" : "✨ Antwort vorschlagen"}</button>${sup.busy ? '<button type="button" class="btn" data-act="supStop">Stopp</button>' : ""}<button type="button" class="btn" data-act="supNew">Neue Nachricht</button></div>
+          <p class="note" id="supNoAi" hidden>Claude ist hier nicht verfügbar. Du kannst die Antwort selbst schreiben und die Nachricht trotzdem für die Auswertung erfassen.</p>
+          ${sup.err ? `<p class="note" style="color:var(--bad)">${esc(sup.err)}</p>` : ""}
+        </section>
+        <section class="box">
+          <h2>Antwort</h2>
+          ${f.msgDe ? `<details><summary class="note">Kundennachricht auf Deutsch</summary><p class="note" style="white-space:pre-wrap">${esc(f.msgDe)}</p></details>` : ""}
+          <div class="field"><label for="s-reply">Antwort${f.lang && f.lang !== "de" ? ` auf ${esc(SUP_LANGS[f.lang] || f.lang)}` : ""}, kannst du direkt ändern</label><div class="inp"><textarea id="s-reply" data-sup="reply" rows="10" placeholder="Hier erscheint der Vorschlag …">${esc(f.reply)}</textarea></div></div>
+          ${f.replyDe ? `<details><summary class="note">Antwort auf Deutsch (zur Kontrolle)</summary><p class="note" style="white-space:pre-wrap">${esc(f.replyDe)}</p></details>` : ""}
+          <div class="grid3 keep">
+            <div class="field"><label for="s-cat">Thema</label>${sel("s-cat", [["", "– wählen –"], ...SUP_CATS], f.cat)}</div>
+            <div class="field"><label for="s-cause">Ursache (bei Reklamation)</label>${sel("s-cause", SUP_CAUSES, f.cause)}</div>
+            <div class="field"><label for="s-lang">Sprache</label>${sel("s-lang", [["", "–"], ...Object.entries(SUP_LANGS)], f.lang)}</div>
+          </div>
+          ${f.summary ? `<p class="note">Kurz: ${esc(f.summary)}</p>` : ""}
+          <div class="btns"><button type="button" class="btn primary" data-act="supCopy">Antwort kopieren</button><button type="button" class="btn" data-act="supDone">✓ Erledigt, in Auswertung</button><button type="button" class="btn" data-act="supKeep">Offen merken</button></div>
+        </section>
+        ${open.length ? `<section class="box"><h2>Offen gemerkt</h2><div class="tablewrap"><table class="suptable"><thead><tr><th>Datum</th><th>Kunde</th><th>Thema</th><th></th></tr></thead><tbody>${open.map(m => `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(m.customer || "–")}<br><span class="note">${esc((m.summary || m.msg).slice(0, 80))}</span></td><td>${esc(supTextOf(m.cat))}</td><td><button class="btn" data-supopen="${m.id}">Öffnen</button></td></tr>`).join("")}</tbody></table></div></section>` : ""}
+      </div>`;
+  }
+
+  function supStatsHTML() {
+    const days = sup.period === "all" ? null : +sup.period, from = days ? new Date(Date.now() - days * 864e5).toISOString().slice(0, 10) : "";
+    const L = SUP.filter(m => m.cat && (!from || (m.at || "") >= from));
+    const count = key => L.reduce((o, m) => (o[m[key] || ""] = (o[m[key] || ""] || 0) + 1, o), {});
+    const bars = (obj, label, tips) => {
+      const rows = Object.entries(obj).filter(([k]) => k).sort((a, b) => b[1] - a[1]), max = Math.max(1, ...rows.map(r => r[1]));
+      return rows.length ? `<div class="supbars">${rows.map(([k, n]) => `<div class="supbar"><div class="supbar-head"><span>${esc(label(k))}</span><span class="num">${n} · ${pct(n / L.length * 100)}</span></div><div class="supbar-track"><div style="width:${n / max * 100}%"></div></div>${tips && SUP_TIPS[k] ? `<small class="note">→ ${esc(SUP_TIPS[k])}</small>` : ""}</div>`).join("")}</div>` : '<p class="note">Noch nichts erfasst.</p>';
+    };
+    const cats = count("cat"), langs = count("lang"), causes = count("cause"), recl = L.filter(m => m.cat === "reklamation");
+    const foreign = L.filter(m => m.lang && m.lang !== "de").length;
+    const periods = [["30", "30 Tage"], ["90", "90 Tage"], ["365", "12 Monate"], ["all", "Alle"]];
+    return `
+      <div class="seg" style="margin:10px 0">${periods.map(([k, l]) => `<button type="button" data-supperiod="${k}" aria-pressed="${sup.period === k}">${l}</button>`).join("")}</div>
+      <div class="tiles">
+        <div class="tile"><span class="label">Nachrichten</span><span class="num">${L.length}</span><span class="note">erfasst${days ? " in " + days + " Tagen" : ""}</span></div>
+        <div class="tile"><span class="label">Reklamationen</span><span class="num" style="color:var(--${recl.length ? "bad" : "fg"})">${recl.length}</span><span class="note">${L.length ? pct(recl.length / L.length * 100) + " aller Nachrichten" : "–"}</span></div>
+        <div class="tile"><span class="label">Widerruf</span><span class="num">${cats.widerruf || 0}</span><span class="note">Anfragen</span></div>
+        <div class="tile"><span class="label">Sprachen</span><span class="num">${Object.keys(langs).filter(k => k).length}</span><span class="note">${L.length ? pct(foreign / L.length * 100) + " nicht Deutsch" : "–"}</span></div>
+        <div class="tile"><span class="label">Offen</span><span class="num">${SUP.filter(m => m.status !== "erledigt").length}</span><span class="note">gemerkt</span></div>
+      </div>
+      <div class="stack stackset" style="margin-top:12px">
+        <section class="box"><h2>Themen</h2>${bars(cats, supTextOf, true)}</section>
+        <section class="box"><h2>Reklamationsursachen</h2>${bars(causes, supCauseOf, true)}</section>
+        <section class="box"><h2>Sprachen</h2>${bars(langs, k => SUP_LANGS[k] || k, false)}</section>
+        <section class="box"><h2>Was tun? Vorschlag von Claude</h2>
+          <p class="note">Claude liest die Kurzfassungen der erfassten Nachrichten und schlägt die wirksamsten Maßnahmen vor.</p>
+          <div class="btns"><button type="button" class="btn primary" data-act="supAnalyze" ${L.length && !sup.aiBusy ? "" : "disabled"}>${sup.aiBusy ? "Claude wertet aus …" : "✨ Auswerten"}</button></div>
+          ${sup.ai ? `<div class="note" style="white-space:pre-wrap;color:var(--fg)" id="supAi">${esc(sup.ai)}</div>` : '<div id="supAi"></div>'}
+        </section>
+        <section class="box"><h2>Alle Nachrichten</h2>
+          ${L.length ? `<div class="tablewrap"><table class="suptable"><thead><tr><th>Datum</th><th>Kunde</th><th>Thema</th><th>Sprache</th><th></th></tr></thead><tbody>${L.slice().sort((a, b) => (b.at || "").localeCompare(a.at || "")).map(m => `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(m.customer || "–")} <span class="note">${esc(m.channel || "")}${m.sku ? " · " + esc(m.sku) : ""}</span><br><span class="note">${esc((m.summary || m.msg || "").slice(0, 90))}</span></td><td>${esc(supTextOf(m.cat))}${m.cause ? `<br><span class="note">${esc(supCauseOf(m.cause))}</span>` : ""}</td><td>${esc(SUP_LANGS[m.lang] || m.lang || "–")}</td><td><div class="btns" style="flex-wrap:nowrap"><button class="btn" data-supopen="${m.id}">Öffnen</button><button class="x" data-supdel="${m.id}" aria-label="Löschen">×</button></div></td></tr>`).join("")}</tbody></table></div>` : '<p class="note">Beantworte Nachrichten unter „Beantworten“ und klick auf „Erledigt“, dann tauchen sie hier auf.</p>'}
+        </section>
+      </div>`;
+  }
+
+  function supFactsHTML() {
+    return `<section class="box" style="margin-top:12px"><h2>Shop-Infos für Antworten</h2>
+      <p class="note">Das liest Claude bei jeder Antwort mit. Nur was hier steht, darf es versprechen. Halte es kurz und aktuell (Lieferzeit, Versandgrenze, Widerruf, Montage, Ton, Unterschrift).</p>
+      <div class="inp"><textarea id="supFacts" rows="14">${esc(S.supFacts || SUP_FACTS_DEFAULT)}</textarea></div>
+      <p class="note">Wird automatisch gespeichert.</p></section>`;
+  }
+
+  async function supAsk() {
+    const f = sup.f;
+    if (!f.msg.trim()) { $("s-msg").focus(); return toast("Bitte erst die Kundennachricht einfügen"); }
+    const sample = await getSample();
+    if (!sample) { sup.err = "Claude ist hier nicht verfügbar. Schreib die Antwort selbst, die Auswertung funktioniert trotzdem."; return renderSupport(); }
+    const art = f.sku ? A.find(a => norm(a.sku) === norm(f.sku)) : null;
+    const prompt = `Du schreibst Antworten für den Kundenservice eines kleinen Holzwerkstatt-Shops. Schreib so, wie der Inhaber selbst schreiben würde: freundlich, persönlich, kurz, ehrlich, nicht nach KI oder Vorlage klingend. Antworte in der Sprache, in der der Kunde schreibt. Versprich nichts, was nicht in den Shop-Infos oder der Anweisung des Inhabers steht. Wenn Infos fehlen (z. B. Bestellnummer, Foto), frag freundlich danach.
+
+SHOP-INFOS:
+${S.supFacts || SUP_FACTS_DEFAULT}
+
+KANAL: ${f.channel}${f.customer ? "\nKUNDE: " + f.customer : ""}${art ? `\nARTIKEL: ${art.name} (SKU ${art.sku}), Preis ${eur(v(art.price))}` : f.sku ? "\nARTIKEL/SKU: " + f.sku : ""}
+${f.hint ? "ANWEISUNG DES INHABERS: " + f.hint + "\n" : ""}
+KUNDENNACHRICHT:
+"""
+${f.msg.slice(0, 12000)}
+"""
+
+Gib NUR dieses JSON zurück:
+{"lang": "de|en|fr|pl|it|es|nl|andere", "cat": "${SUP_CATS.map(c => c[0]).join("|")}", "cause": "${SUP_CAUSES.map(c => c[0]).filter(Boolean).join("|")} oder leer, nur bei Reklamation", "summary": "ein Satz auf Deutsch, worum es geht", "reply": "die fertige Antwort in der Sprache des Kunden", "reply_de": "deutsche Übersetzung der Antwort, leer wenn der Kunde Deutsch schreibt", "message_de": "deutsche Übersetzung der Kundennachricht, leer wenn Deutsch"}`;
+    sup.busy = true; sup.err = ""; sup.ctl = new AbortController(); renderSupport();
+    try {
+      const r = await sample.json(prompt, { signal: sup.ctl.signal, cache: false });
+      if (!r || typeof r.reply !== "string") throw { code: "invalid_json" };
+      Object.assign(f, { reply: r.reply, replyDe: String(r.reply_de || ""), msgDe: String(r.message_de || ""), summary: String(r.summary || ""),
+        lang: SUP_LANGS[r.lang] ? r.lang : (r.lang ? "andere" : f.lang), cat: SUP_CATS.some(c => c[0] === r.cat) ? r.cat : (f.cat || "sonstiges"),
+        cause: SUP_CAUSES.some(c => c[0] === r.cause) ? r.cause : "" });
+    } catch (e) { if (!e || e.code !== "cancelled") sup.err = supErr(e); }
+    sup.busy = false; sup.ctl = null; renderSupport();
+  }
+
+  async function supAnalyze() {
+    const sample = await getSample();
+    if (!sample) { sup.ai = "Claude ist hier nicht verfügbar."; return renderSupport(); }
+    const days = sup.period === "all" ? null : +sup.period, from = days ? new Date(Date.now() - days * 864e5).toISOString().slice(0, 10) : "";
+    const L = SUP.filter(m => m.cat && (!from || (m.at || "") >= from)).slice(-300);
+    const lines = L.map(m => `${m.at} | ${supTextOf(m.cat)}${m.cause ? " / " + supCauseOf(m.cause) : ""} | ${SUP_LANGS[m.lang] || "?"} | ${m.channel || ""}${m.sku ? " | " + m.sku : ""} | ${(m.summary || m.msg || "").slice(0, 200).replace(/\s+/g, " ")}`).join("\n");
+    sup.aiBusy = true; sup.ai = ""; renderSupport();
+    try {
+      await sample(`Du berätst den Inhaber eines kleinen Holzwerkstatt-Shops (Etsy + eigener Shop). Hier sind seine Kundenanfragen (Datum | Thema | Sprache | Kanal | Artikel | Kurzfassung):
+
+${lines}
+
+Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
+1. Die 3 bis 5 Maßnahmen mit der größten Wirkung (was genau tun, warum, welche Anfragen damit wegfallen), wichtigste zuerst.
+2. Auffällige Artikel oder Muster (z. B. ein Artikel mit vielen Reklamationen).
+3. Ein Satz, was sich gegenüber früher verbessert oder verschlechtert hat, falls erkennbar.`, { cache: false, onText: ({ text }) => { sup.ai = text; const el = $("supAi"); if (el) { el.textContent = text; el.className = "note"; el.style.whiteSpace = "pre-wrap"; el.style.color = "var(--fg)"; } } });
+    } catch (e) { if (!sup.ai) sup.ai = supErr(e); }
+    sup.aiBusy = false; renderSupport();
+  }
+
+  function supSave(status) {
+    const f = sup.f;
+    if (!f.msg.trim() && !f.reply.trim()) return toast("Noch nichts eingetragen");
+    if (status === "erledigt" && !f.cat) { $("s-cat").focus(); return toast("Bitte noch das Thema wählen"); }
+    const m = { ...clone(f), status }; delete m.hint;
+    const i = SUP.findIndex(x => x.id === m.id); if (i >= 0) SUP[i] = m; else SUP.push(m);
+    saveMsg(m); sup.f = supBlank(); sup.err = ""; renderSupport();
+    toast(status === "erledigt" ? "Gespeichert, zählt jetzt in der Auswertung" : "Als offen gemerkt");
+  }
+
   function renderPrices() {
     const ch = etsyChanges(), d = v(S.shopDisc);
     const rowsHTML = sync.rows.map((x, i) => `<tr><td class="selcol"><input type="checkbox" data-syncpick="${i}" ${sync.pick.has(i) ? "checked" : ""}></td><td class="name"><strong>${esc(x.a.name)}</strong><br><span class="note num">${esc(x.a.sku)}</span></td><td class="num">${eur(x.old)}</td><td class="num"><strong>${eur(x.neu)}</strong></td><td class="num" style="color:var(--${x.neu < x.old ? "bad" : "good"})">${x.neu > x.old ? "+" : ""}${eur(x.neu - x.old)}</td></tr>`).join("");
@@ -1401,6 +1614,11 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   document.addEventListener("input", e => {
     const t = e.target, d = t.dataset, val = t.type === "checkbox" ? t.checked : t.value;
     const a = view === "artikel" ? draft : null;
+    if (view === "support") {
+      if (d.sup && sup.f) sup.f[d.sup] = val;
+      if (t.id === "supFacts") { S.supFacts = val; saveSettings(); }
+      return;
+    }
     if (a && d.a) {
       a[d.a] = val;
       // Karton gewählt: Packmaße und Umverpackung übernehmen
@@ -1448,7 +1666,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
     if (e.target.closest("[data-qprice]")) return;
-    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra]");
+    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.star) {
@@ -1472,6 +1690,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
     if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
     if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
+    if (d.suptab) { sup.tab = d.suptab; return renderSupport(); }
+    if (d.supperiod) { sup.period = d.supperiod; sup.ai = ""; return renderSupport(); }
+    if (d.supopen) { const m = SUP.find(x => x.id === d.supopen); if (m) { sup.f = { ...supBlank(), ...clone(m) }; sup.tab = "antwort"; renderSupport(); window.scrollTo(0, 0); } return; }
+    if (d.supdel) { removeMsg(d.supdel); renderSupport(); return toast("Nachricht gelöscht"); }
     if (d.delExtra !== undefined && a) { a.extra.splice(+d.delExtra, 1); setDirty(true); return renderEditor(a); }
     if (d.delPart !== undefined && a) { a.parts.splice(+d.delPart, 1); setDirty(true); return renderEditor(a); }
     switch (d.act) {
@@ -1511,6 +1733,18 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         const n = sel.size; bulk = null; renderOverview(); return toast(`${n} Artikel geändert`);
       }
       case "save": return doSave();
+      case "supAsk": return supAsk();
+      case "supStop": sup.ctl?.abort(); return;
+      case "supNew": sup.f = supBlank(); sup.err = ""; renderSupport(); return $("s-msg").focus();
+      case "supDone": return supSave("erledigt");
+      case "supKeep": return supSave("offen");
+      case "supAnalyze": return supAnalyze();
+      case "supCopy": {
+        const txt = sup.f.reply; if (!txt.trim()) return toast("Noch keine Antwort da");
+        (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Antwort kopiert"))
+          .catch(() => { const el = $("s-reply"); el.focus(); el.select(); toast("Markiert, jetzt Strg+C drücken"); });
+        return;
+      }
       case "addExtra": { (a.extra = a.extra || []).push({ n: "", p: "", g: "", q: "1" }); setDirty(true); renderEditor(a); const ins = document.querySelectorAll('[data-ax][data-f="n"]'); ins[ins.length - 1]?.focus(); return; }
       case "new": { const n = { ...ARTICLE_BLANK(), isNew: true }; A.push(n); return go("artikel-" + n.id); }
       case "examples": { EXAMPLES().forEach(x => { A.push(x); saveArticle(x); }); toast("4 Beispielartikel hinzugefügt"); return go("uebersicht"); }
@@ -1875,6 +2109,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     } else {
       S = { ...SETTINGS_DEFAULT(), ...(data.settings || {}) }; A = data.articles || [];
     }
+    try { SUP = await store.loadSupport(); } catch (e) { SUP = []; }
     setSync("ok");
     route();
     if (store.subscribe) store.subscribe(liveArticles, liveSettings);
