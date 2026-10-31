@@ -1004,7 +1004,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       let y = base.getFullYear(); if (new Date(y, mon, day) < new Date(base.getTime() - 30 * 864e5)) y++;
       shipBy = `${y}-${String(mon + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
     }
-    const lines = [], re = /Transaktions-Nr\.:\s*\d+\s*\n\s*Artikel:\s*([^\n]+)\n([\s\S]*?)St(?:ü|&uuml;)ckzahl:\s*(\d+)\s*\n\s*Artikelpreis:\s*([\d.,]+)/g;
+    const lines = [], re = /Transaktions-Nr\.:\s*\d+\s*\n\s*Artikel:[ \t]*([^\n]*)\n([\s\S]*?)St(?:ü|&uuml;)ckzahl:\s*(\d+)\s*\n\s*Artikelpreis:\s*([\d.,]+)/g;
     let x; while ((x = re.exec(body))) {
       const variant = x[2].split("\n").map(t => decEnt(t).trim()).filter(Boolean).join(" · ");
       lines.push({ sku: "", title: decEnt(x[1]).trim(), variant, qty: +x[3], price: deNum(x[4]), aid: "" });
@@ -1030,6 +1030,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // Etsy-Positionen den Artikeln zuordnen: gemerkte Zuordnung, sonst Claude (Vorschlag, in der Liste korrigierbar)
   async function ordMapEtsy() {
     S.ordMap = S.ordMap || {};
+    const info = { err: "", unmapped: 0 };
+    // früher falsch gelesen: leerer Titel, dann stand die Variante im Titel
+    ORD.forEach(o => { if (o.src === "etsy") o.lines.forEach(l => { if (!l.aid && l.title && !/\|/.test(l.title) && /^[^:]{1,40}:\s/.test(l.title) && l.title.length < 70) { l.variant = l.title + (l.variant ? " · " + l.variant : ""); l.title = ""; saveOrder(o); } }); });
     const open = []; ORD.forEach(o => o.lines.forEach((l, i) => { if (!l.aid && o.src === "etsy") open.push([o, i, l]); }));
     const changed = new Set();
     open.forEach(([o, i, l]) => { const id = S.ordMap[ordKey(l.title, l.variant)]; if (id && ordArt(id)) { l.aid = id; l.sku = ordArt(id).sku || ""; changed.add(o); } });
@@ -1038,25 +1041,27 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       const sample = await getSample();
       if (sample) {
         const first = {}; rest.forEach(([o, i, l]) => { first[ordKey(l.title, l.variant)] = l; });
-        const arts = A.map((a, i) => `${i}|${a.sku || "-"}|${a.name}`).join("\n");
-        const pos = keys.map((k, i) => `${i}|${first[k].title} | ${first[k].variant}`).join("\n");
+        const arts = A.map((a, i) => `${i}|${a.sku || "-"}|${a.name}|${v(a.price) ? dec(v(a.price), 0) + " €" : "?"}`).join("\n");
+        const pos = keys.map((k, i) => `${i}|${first[k].title || "(ohne Titel)"} | ${first[k].variant} | ${dec(v(first[k].price), 0)} €`).join("\n");
         try {
-          const r = await sample.json(`Ordne jede Etsy-Bestellposition dem passenden Artikel aus der Liste zu. Die Position besteht aus dem Etsy-Angebotstitel (oft englisch) und der gewählten Variante (Größe, Hakenzahl, Farbe, Gravur). Gib nur dann einen Artikel an, wenn Produkt UND Variante (Länge/Größe, Haken, Gravur) passen. Sonst null.
+          const r = await sample.json(`Ordne jede Etsy-Bestellposition dem passenden Artikel aus der Liste zu. Die Position besteht aus dem Etsy-Angebotstitel (oft englisch) und der gewählten Variante (Größe, Hakenzahl, Farbe, Gravur). Der Titel steht in der Sprache des Käufers (englisch, französisch …), die Artikelnamen sind deutsch. Die Variante nennt Breite/Länge in cm (z. B. „Width: 70 Centimeters“, „Breite/Gravur: 40 cm - 7 Haken“), Hakenzahl und Gravur. Die Hakenfarbe (Schwarz, Silber, Gold) ignorierst du. Fehlt der Titel, entscheiden Größe, Hakenzahl und Preis. Der Preis ist der Etsy-Preis pro Stück und passt meist zum Artikelpreis. Gib nur dann einen Artikel an, wenn Produkt UND Größe passen. Sonst null.
 
-ARTIKEL (Nr|SKU|Name):
+ARTIKEL (Nr|SKU|Name|Preis):
 ${arts}
 
-POSITIONEN (Nr|Angebotstitel | Variante):
+POSITIONEN (Nr|Angebotstitel | Variante | Preis pro Stück):
 ${pos}
 
 Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = Nummer der Position.`, { modelTier: "default", cache: { gcTime: 600000 } });
           keys.forEach((k, i) => { const idx = r && r[String(i)]; const a = Number.isInteger(idx) ? A[idx] : null; if (a) S.ordMap[k] = a.id; });
           saveSettings();
           rest.forEach(([o, i, l]) => { const id = S.ordMap[ordKey(l.title, l.variant)]; if (id && ordArt(id)) { l.aid = id; l.sku = ordArt(id).sku || ""; changed.add(o); } });
-        } catch (e) { /* ohne Vorschlag weiter, Zuordnung von Hand */ }
-      }
+        } catch (e) { info.err = supErr(e).replace(/\.$/, ""); }
+      } else info.err = "Claude ist hier nicht verfügbar";
     }
     changed.forEach(saveOrder);
+    info.unmapped = ORD.reduce((n, o) => n + (o.src === "etsy" && ordOpen(o) ? o.lines.filter(l => !l.aid).length : 0), 0);
+    return info;
   }
 
   // Ab wann gesucht wird: erster Lauf nach Wahl (heute oder x Tage zurück), danach ab dem letzten Lauf (2 Tage Überlappung, bekannte Bestellungen werden eh übersprungen)
@@ -1095,7 +1100,10 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         const o = ordParseEtsy(th); if (o && !ORD.some(x => x.id === o.id)) { ORD.push(o); saveOrder(o); nNew++; }
       }
     } catch (e) { errs.push("Etsy/Gmail: " + mcpErr("Gmail", e)); }
-    try { ord.msg = "Artikel werden zugeordnet …"; renderOrders(); await ordMapEtsy(); } catch (e) { /* egal */ }
+    let mapInfo = { err: "", unmapped: 0 };
+    try { ord.msg = "Artikel werden zugeordnet …"; renderOrders(); mapInfo = await ordMapEtsy(); } catch (e) { mapInfo.err = "Zuordnung fehlgeschlagen"; }
+    if (mapInfo.err) errs.push("Automatische Zuordnung: " + mapInfo.err + ". Bitte unten per Auswahl zuordnen.");
+    else if (mapInfo.unmapped) errs.push(mapInfo.unmapped + " Position" + (mapInfo.unmapped > 1 ? "en" : "") + " nicht sicher zuzuordnen (z. B. Titel fehlt oder Variante mehrdeutig). Bitte unten per Auswahl zuordnen, die App merkt es sich.");
     ord.busy = false; ord.err = errs.join(" · ");
     if (!errs.length) { S.ordLast = isoDay(Date.now()); saveSettings(); }
     ord.msg = errs.length && !nNew ? "" : (nNew ? nNew + " neue Bestellung" + (nNew > 1 ? "en" : "") + " geholt." : "Keine neuen Bestellungen.");
@@ -1110,7 +1118,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     const lineHTML = (o, l, i) => { const a = ordArt(l.aid);
       return `<div class="ordline">${a ? thumbHTML(a) : ""}<div>${a ? `<strong class="num">${esc(a.sku || "")}</strong> <span class="note">${esc(a.name)}</span>`
         : `<select data-ordmap="${o.id}:${i}" aria-label="Artikel zuordnen"><option value="">⚠ Artikel zuordnen …</option>${arts.map(x => `<option value="${x.id}">${esc((x.sku || "–") + " · " + x.name)}</option>`).join("")}</select>`}
-        <div class="note">${esc(l.variant || "")}${a ? "" : " · " + esc(l.title.slice(0, 70))}</div></div><span class="ordqty num">× ${dec(v(l.qty), 0)}</span></div>`; };
+        <div class="note">${esc(l.variant || "")}${a ? "" : (l.title ? " · " + esc(l.title.slice(0, 70)) : " · (Titel fehlt in der Etsy-Mail)") + " · " + eur(v(l.price))}</div></div><span class="ordqty num">× ${dec(v(l.qty), 0)}</span></div>`; };
     $("view").innerHTML = `
       <div class="row"><h1>Bestellungen</h1>${ORD.length || S.ordLast ? `<button type="button" class="btn primary" data-act="ordSync" ${ord.busy ? "disabled" : ""}>${ord.busy ? "Lade …" : "↻ Neue Bestellungen holen"}</button>`
         : `<div class="btns"><button type="button" class="btn primary" data-act="ordSyncNew" ${ord.busy ? "disabled" : ""}>Nur neue ab heute</button><button type="button" class="btn" data-act="ordSync30" ${ord.busy ? "disabled" : ""}>Letzte 30 Tage holen</button></div>`}</div>
