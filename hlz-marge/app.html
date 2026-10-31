@@ -937,6 +937,7 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
     const periods = [["30", "30 Tage"], ["90", "90 Tage"], ["365", "12 Monate"], ["all", "Alle"]];
     return `
       <div class="seg" style="margin:10px 0">${periods.map(([k, l]) => `<button type="button" data-supperiod="${k}" aria-pressed="${sup.period === k}">${l}</button>`).join("")}</div>
+      ${L.some(m => m.src === "pdf") ? `<p class="note">Enthält ${L.filter(m => m.src === "pdf").length} Fälle aus der Auswertung Oktober 2026 (PDF). Wo dort nur „mehrere“ oder „viele“ stand, ist die Anzahl geschätzt, die Sprachen sind passend zur Gesamtverteilung verteilt.</p>` : ""}
       <div class="tiles">
         <div class="tile"><span class="label">Nachrichten</span><span class="num">${L.length}</span><span class="note">erfasst${days ? " in " + days + " Tagen" : ""}</span></div>
         <div class="tile"><span class="label">Reklamationen</span><span class="num" style="color:var(--${recl.length ? "bad" : "fg"})">${recl.length}</span><span class="note">${L.length ? pct(recl.length / L.length * 100) + " aller Nachrichten" : "–"}</span></div>
