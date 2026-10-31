@@ -81,6 +81,8 @@ tr.selected td { background: var(--accent-soft) }
 .linkbtn { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
 .linkbtn:hover { text-decoration-color: currentColor }
 .selbar { position: sticky; top: calc(var(--toph, 60px) + 8px); z-index: 5; background: var(--panel); box-shadow: 0 4px 14px rgb(0 0 0 / .08); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 10px 0; border: 1px solid var(--accent); border-radius: 10px }
+.selbar.danger { border-color: var(--bad) }
+.selbar.danger .note { flex: 1 }
 .bulkbox { margin: 10px 0; border-color: var(--accent) }
 .inp textarea { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--fg); padding: 9px 10px; font: .95rem var(--font-body); outline: none; resize: vertical }
 .todo-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line) }
@@ -949,8 +951,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         </div>
         <div class="inp chsel"><select id="fCh" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div>
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
-        ${sel.size ? `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn${cmp ? " primary" : ""}" data-act="cmpOpen" ${sel.size < 2 ? 'disabled title="Mindestens 2 Artikel auswählen"' : ""}>Vergleichen</button><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>` : ""}
-        ${bulkDelAsk ? `<div class="banner"><span>${sel.size} Artikel wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : ""}
+        ${sel.size ? (bulkDelAsk ? `<div class="selbar danger"><strong>${sel.size} Artikel wirklich löschen?</strong><span class="note">Lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn${cmp ? " primary" : ""}" data-act="cmpOpen" ${sel.size < 2 ? 'disabled title="Mindestens 2 Artikel auswählen"' : ""}>Vergleichen</button><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>`) : ""}
         ${bulk && sel.size ? bulkPanel(A.filter(x => sel.has(x.id))) : ""}
         ${cmp && sel.size >= 2 ? cmpPanel(shownIds.filter(id => sel.has(id)).concat([...sel].filter(id => !shownIds.includes(id))).map(id => A.find(x => x.id === id)).filter(Boolean)) : ""}
         <div class="tablewrap"><table class="ov">
