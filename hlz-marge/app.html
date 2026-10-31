@@ -81,7 +81,7 @@ label.check small { font-weight: 400; color: var(--muted) }
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line) }
 .top .wrap { grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding-block: 10px }
 .brand { display: flex; gap: 10px; align-items: center; min-width: 0 }
-.logo { width: 34px; height: 34px; border-radius: 8px; background: var(--walnut); color: var(--panel); display: grid; place-items: center; font: 700 .8rem var(--font-display); flex: none }
+.logo { width: 34px; height: 34px; border-radius: 8px; flex: none; display: block }
 .brand strong { font-family: var(--font-display); font-size: 1.05rem; white-space: nowrap }
 nav.tabs { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center }
 nav.tabs a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: .9rem; padding: 6px 12px; border-radius: 999px }
@@ -229,6 +229,12 @@ th button { all: unset; cursor: pointer } th button:hover, th button[aria-presse
 tbody tr.click { cursor: pointer } tbody tr.click:hover td { background: var(--accent-soft) }
 td.name { white-space: normal; min-width: 180px }
 td.name strong { font-weight: 600 }
+.inp.qprice { display: inline-flex; width: 104px; vertical-align: middle; background: transparent; border-color: transparent }
+.inp.qprice input { text-align: right; padding: 6px 4px 6px 8px; font: inherit; min-width: 0 }
+.inp.qprice span { padding: 0 8px 0 2px; color: inherit; font-size: inherit }
+tr:hover .inp.qprice, .inp.qprice:focus-within { border-color: var(--line); background: var(--bg) }
+.inp.qprice:focus-within { border-color: var(--accent) }
+td .inp.qprice + .note { display: block; font-size: .75rem }
 .sellprice { margin: -4px 0 0; font-size: .95rem }
 .thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; float: left; margin: 0 10px 2px 0; background: var(--line) }
 .arthead .thumb { float: none; width: 36px; height: 36px; margin: 0; flex: none }
@@ -265,7 +271,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 <body>
 <header class="top gutter">
   <div class="wrap">
-    <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><span class="logo" aria-hidden="true">HLZ</span><strong>Kalkulatte</strong></a>
+    <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>Kalkulatte</strong></a>
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
@@ -888,7 +894,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
             return `<tr class="click${sel.has(a.id) ? " selected" : ""}" data-open="${a.id}" tabindex="0">
               <td class="selcol"><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></td>
               <td class="name">${thumbHTML(a)}<button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
-              <td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
+              <td class="num hide-sm"><div class="inp qprice"><input type="text" inputmode="decimal" data-qprice="${a.id}" value="${v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>${Math.abs(r.P - v(a.price)) > 0.005 ? `<small class="note">Kunde zahlt ${eur(r.P)}</small>` : ""}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
               <td><span class="pill ${c}">${pct(r.margin)}</span>${isFinite(t) ? `<div class="reco num" title="Preisempfehlung für ${esc(S.target)} % Marge">→ ${eur(nicePrice(t))}</div>` : ""}</td><td class="num hide-sm">${eur(t)}</td></tr>`;
@@ -1338,8 +1344,20 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
   });
 
+  // Preis direkt in der Artikelliste ändern (Enter oder Feld verlassen = speichern)
+  document.addEventListener("change", e => {
+    const id = e.target.dataset && e.target.dataset.qprice; if (!id) return;
+    const a = A.find(x => x.id === id), val = e.target.value.trim();
+    if (!a || v(val) <= 0 || v(val) === v(a.price)) { if (a) e.target.value = v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : ""; return; }
+    if (a.priceAtEtsy == null) a.priceAtEtsy = a.price;
+    a.price = v(val).toFixed(2); if (v(a.priceAtEtsy) === v(a.price)) delete a.priceAtEtsy;
+    saveArticle(a); renderOverview(); toast(`${a.name}: neuer Preis ${eur(v(val))}`);
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.qprice) e.target.blur(); });
+
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
+    if (e.target.closest("[data-qprice]")) return;
     const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
