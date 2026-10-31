@@ -600,7 +600,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (!(a.parts || []).some(r => v(r.l) * v(r.b) * v(r.q) > 0)) m.push("Holz");
     if (!a.fremd && !v(S.smallFlat) && !Object.values(a.small || {}).some(x => v(x) > 0)) m.push("Kleinteile");
     if (!a.fremd && !Object.values(a.mach || {}).some(x => v(x) > 0) && !(S.mach || []).some(x => v(x.a) > 0 || v(x.s) > 0)) m.push("Maschinenzeit");
-    if (!shipWeight(a) || !v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
+    if (!v(a.pkL) || !v(a.pkB) || !v(a.pkH)) m.push("Versandmaße");
+    if (!shipWeight(a)) m.push("Gewicht");
     if (!v(a.mins) && !a.fremd) m.push("Arbeitszeit");
     return m;
   }
@@ -617,7 +618,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (what === "Einkaufspreis") el = $("a-ext");
     if (what === "Kleinteile") el = $("sm-0");
     if (what === "Maschinenzeit") el = $("mm-0");
-    if (what === "Versandmaße") el = ["a-weight", "a-pkL", "a-pkB", "a-pkH"].map($).find(x => x && !v(x.value));
+    if (what === "Versandmaße") el = ["a-pkL", "a-pkB", "a-pkH"].map($).find(x => x && !v(x.value));
+    if (what === "Gewicht") el = $("a-weight");
     if (what === "Arbeitszeit") el = $("a-mins");
     if (!el) return;
     el.scrollIntoView({ block: "center", behavior: "smooth" });
@@ -1121,7 +1123,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (miss.includes("Preis")) add("a-price");
     if (miss.includes("Einkaufspreis")) add("a-ext");
     if (miss.includes("Holz")) document.querySelectorAll('[data-ap][data-f="l"], [data-ap][data-f="b"], [data-ap][data-f="q"]').forEach(add);
-    if (miss.includes("Versandmaße")) { ["a-pkL", "a-pkB", "a-pkH"].forEach(add); if (!autoWeight(a)) add("a-weight"); }
+    if (miss.includes("Versandmaße")) ["a-pkL", "a-pkB", "a-pkH"].forEach(add);
+    if (miss.includes("Gewicht")) add("a-weight");
     if (miss.includes("Arbeitszeit")) add("a-mins");
     if (miss.includes("Kleinteile")) add("sm-0");
     if (miss.includes("Maschinenzeit")) add("mm-0");
@@ -1132,7 +1135,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const miss = missing(a), mb = $("missBox");
     markNeeded(a, miss);
     const aw = autoWeight(a);
-    $("wAuto").textContent = aw ? (v(a.weight) > 0 ? `berechnet wären ${dec(aw / 1000, 2)} kg` : `automatisch: ${dec(aw / 1000, 2)} kg (Holz, Teile, Karton, Papier)`) : "leer = automatisch, sobald Holzmaße da sind";
+    $("wAuto").textContent = aw ? (v(a.weight) > 0 ? `berechnet wären ${dec(aw / 1000, 2)} kg` : `automatisch: ${dec(aw / 1000, 2)} kg (Holz, Teile, Karton, Papier)`) : a.fremd ? "Bitte Gewicht eintragen: Fremdfertigung kann die App nicht aus dem Holz berechnen" : "leer = automatisch, sobald Holzmaße da sind";
     $("discInfo").textContent = (v(a.disc) > 0 ? `${eur(r.P)} statt ${eur(v(a.price))} (−${eur(v(a.price) - r.P)}) + ${eur(v(a.shipIn))} Versand` : `${eur(r.P)} + ${eur(v(a.shipIn))} Versand`)
       + (v(S.shopDisc) > 0 && v(a.price) > 0 ? ` · Shopify/eBay: ${eur(shopPrice(a))}` : "");
     const ti = $("ahImg"), ts = thumbOf(a); if (ts) { if (ti.getAttribute("src") !== ts) ti.src = ts; ti.hidden = false; } else ti.hidden = true;
@@ -1143,7 +1146,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     $("extBox").hidden = !a.fremd;
     mb.className = "status " + (miss.length ? "open" : "done");
     mb.innerHTML = miss.length
-      ? `<span>⚠ Noch offen:</span> ${miss.map(x => `<button type="button" class="chip miss" data-jump="${x}">${x}</button>`).join("")}<span class="note">Sind alle Punkte erledigt, kommt der Artikel beim Speichern nach ✓ Fertig.</span>`
+      ? `<span>⚠ Noch offen:</span> ${miss.map(x => `<button type="button" class="chip miss" data-jump="${x}">${x}</button>`).join("")}<span class="note">Sind alle Punkte erledigt, kommt der Artikel automatisch nach ✓ Fertig.</span>`
       : `<span>✓ Vollständig</span><span class="note">Liegt im Ordner ✓ Fertig.</span>`;
     const pl = S.plates[0];
     const m2 = pl && v(pl.l) * v(pl.b) > 0 ? v(pl.p) / (v(pl.l) * v(pl.b) / 10000) : 0;
