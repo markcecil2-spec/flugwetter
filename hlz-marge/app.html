@@ -1015,8 +1015,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   function prodListHTML(rows, imgs) {
     const pcs = rows.reduce((n, x) => n + v(x.a.prod), 0);
     return `<h1>Produktionsliste · ${new Date().toLocaleDateString("de-DE")}</h1>
-      <table><thead><tr><th>✓</th><th>Bild</th><th>SKU / Artikel</th><th>Kategorie</th><th>Menge</th><th>Maße</th></tr></thead><tbody>${rows.map(({ a, cat }, i) =>
-      `<tr><td class="chk">☐</td><td>${imgs ? (imgs[i] ? `<img src="${imgs[i]}" alt="">` : "") : thumbHTML(a)}</td><td><strong>${esc(a.sku || "")}</strong><br>${esc(a.name)}</td><td>${esc(cat)}</td><td class="qty">${dec(v(a.prod), 0)}</td><td>${esc(prodDims(a))}</td></tr>`).join("")}</tbody></table>
+      <table><thead><tr><th>✓</th><th>Bild</th><th>SKU / Artikel</th><th>Menge</th><th>Maße</th></tr></thead><tbody>${rows.map(({ a, cat }, i) =>
+      `<tr><td class="chk">☐</td><td>${imgs ? (imgs[i] ? `<img src="${imgs[i]}" alt="">` : "") : thumbHTML(a)}</td><td><strong>${esc(a.sku || "")}</strong><br>${esc(a.name)}</td><td class="qty">${dec(v(a.prod), 0)}</td><td>${esc(prodDims(a))}</td></tr>`).join("")}</tbody></table>
       <p>${dec(pcs, 0)} Stück · ${rows.length} Artikel</p>`;
   }
   async function prodPrint() {
