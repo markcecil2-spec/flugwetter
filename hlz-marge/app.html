@@ -211,6 +211,11 @@ main.wrap { padding-block: 20px 48px }
 .legend .lrow { display: grid; grid-template-columns: 12px 1fr auto auto; gap: 8px; align-items: center }
 .legend .sw { width: 10px; height: 10px; border-radius: 2px }
 .legend .pct { color: var(--muted); width: 3.6em; text-align: right }
+#boxTip:not([hidden]) { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border: 1px solid var(--accent) }
+#boxTip .boxtip-ic { font-size: 1.4rem; line-height: 1 }
+#boxTip .boxtip-txt { flex: 1 1 200px; display: grid; gap: 2px }
+#boxTip .boxtip-txt small { color: var(--muted); font-size: .8rem }
+#boxTip .btn { flex: none }
 .shipinfo { display: grid; gap: 4px; font-size: .88rem; padding: 10px 12px; border-radius: 8px; background: var(--accent-soft) }
 .tip { color: var(--walnut) } .warn { color: var(--bad) }
 
@@ -1182,7 +1187,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const nd = needDims(a);
     tip.hidden = sb ? a.box === sb.n : !(nd && !a.fremd);
     if (!sb && nd) tip.innerHTML = `<span class="warn">Kein Karton aus deiner Liste passt. Gebraucht wird innen ca. ${nd.map(x => dec(x)).join(" × ")} cm, außen also ca. ${nd.map(x => dec(x + 1)).join(" × ")} cm.</span>`;
-    if (sb) tip.innerHTML = `<span class="tip">Passender Karton für die Holzteile: <strong>${esc(sb.n)}</strong>${v(sb.p) ? " · " + eur(v(sb.p)) : ""}</span> <button type="button" class="btn" data-act="useBox">Übernehmen</button>`;
+    if (sb) tip.innerHTML = `<span class="boxtip-ic" aria-hidden="true">📦</span><span class="boxtip-txt"><span>Passender Karton: <strong>${esc(sb.n)}</strong>${v(sb.p) ? ` · ${eur(v(sb.p))}` : ""}</span><small>${a.box ? `statt ${esc(a.box)}` : "Packmaße werden automatisch eingetragen"}</small></span><button type="button" class="btn primary" data-act="useBox">✓ Übernehmen</button>`;
 
     const [cls, word] = status(r.margin);
     const base = ch === "shopify" || ch === "ebay" ? shopPrice(a) : v(a.price);
