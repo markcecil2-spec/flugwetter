@@ -95,6 +95,14 @@ tr.selected td { background: var(--accent-soft) }
 .switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px }
 table.ov td, table.ov th { white-space: nowrap }
 table.ov td.name { white-space: normal; min-width: 260px }
+.abc { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 700; border: 1.5px solid currentColor; font-size: .85rem }
+.abc.sm { width: 20px; height: 20px; font-size: .72rem }
+.abc-A { color: var(--good) } .abc-B { color: var(--warn) } .abc-C { color: var(--muted) }
+.rmbtn { font: 500 .78rem var(--font-body); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; white-space: nowrap }
+.rmbtn:hover { border-color: var(--bad); color: var(--bad) }
+.rmbtn.on { border-color: var(--bad); background: var(--bad); color: #fff }
+tr.rmrow td:not(:first-child) { opacity: .6 }
+.chip.rm { color: var(--bad); font-weight: 600 }
 .navbadge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: var(--warn); color: #fff; font-size: .72rem; font-weight: 700; line-height: 18px; text-align: center }
 .ordtable th, .ordtable td { text-align: left; vertical-align: top; padding-left: 8px; padding-right: 8px }
 .ordtable tr.orddone td { opacity: .55 }
@@ -890,10 +898,30 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 
   const machAutoOn = m => v(m.a) > 0 || v(m.s) > 0;
 
+  // ABC-Bewertung nach Gewinn pro Monat (Gewinn pro Stück × Verkäufe pro Monat, Etsy):
+  // A = zusammen 80 % des Gewinns, B = die nächsten 15 %, C = der Rest und alles ohne Verkäufe
+  function abcInfo() {
+    const ctx = volume(), items = A.map(a => { const pm = salesPerMonth(a); return { id: a.id, pm, c: pm > 0 ? calc(a, "etsy", undefined, ctx).profit * pm : 0 }; });
+    const total = items.reduce((n, x) => n + Math.max(0, x.c), 0), out = {};
+    let cum = 0;
+    items.filter(x => x.pm > 0).sort((x, y) => y.c - x.c).forEach(x => {
+      const before = total > 0 ? cum / total : 1;
+      out[x.id] = { abc: before < 0.8 ? "A" : before < 0.95 ? "B" : "C", share: total > 0 ? x.c / total * 100 : 0, noSales: false };
+      cum += Math.max(0, x.c);
+    });
+    items.filter(x => !(x.pm > 0)).forEach(x => { out[x.id] = { abc: "C", share: 0, noSales: true }; });
+    return out;
+  }
+  const ABC_TIP = "ABC nach Gewinn pro Monat: A = die Artikel, die zusammen 80 % deines Gewinns bringen, B = die nächsten 15 %, C = der Rest (auch alles ohne Verkäufe). Darunter steht der Anteil am Gesamtgewinn.";
+
   // Spalten der Artikelliste: ein- und ausblendbar, pro Gerät gemerkt
   const pickWage = x => { const mins = v(x.a.mins) + x.r.rohMin + x.r.packMin; return mins > 0 ? (x.r.profit + x.r.time) / (mins / 60) : NaN; };
   const dash = (val, f) => val ? f(val) : "–";
   const OV_COLS = [
+    { k: "abc", l: () => "ABC", def: true, tip: ABC_TIP, sort: x => ({ A: 3000, B: 2000, C: 1000 }[x.abc] || 0) + (x.share || 0),
+      cell: x => `<span class="abc abc-${x.abc}" title="${esc(x.noSales ? "Keine Verkäufe" : dec(x.share, 1) + " % deines Gewinns")}">${x.abc}</span><small class="note qsub" style="text-align:left;padding:0">${x.noSales ? "kein Verkauf" : dec(x.share, 1) + " %"}</small>` },
+    { k: "remove", l: () => "Entfernen", def: true, tip: "Artikel markieren, den du aus dem Sortiment nehmen willst", sort: x => x.a.remove ? 1 : 0,
+      cell: x => `<button type="button" class="rmbtn${x.a.remove ? " on" : ""}" data-rm="${x.a.id}" aria-pressed="${!!x.a.remove}" title="${x.a.remove ? "Markierung entfernen" : "Zum Entfernen markieren"}">${x.a.remove ? "✕ Entfernen" : "Entfernen?"}</button>` },
     { k: "price", l: () => "Preis", def: true, hideSm: true, cls: "num", sort: x => x.r.P,
       cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="price" data-qid="${x.a.id}" value="${v(x.a.price) ? v(x.a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(x.a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>` },
     { k: "pm", l: () => "Verk./Mon.", def: true, hideSm: true, cls: "num", sort: x => x.pm, cell: x => x.pm ? dec(x.pm) : "–" },
@@ -925,7 +953,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     { k: "supplier", l: () => "Lieferant", hideSm: true, sort: x => norm(x.a.supplier), cell: x => esc(x.a.supplier || "–") },
     { k: "note", l: () => "Notiz", hideSm: true, sort: x => norm(x.a.note), cell: x => `<span class="note">${esc(x.a.note || "")}</span>` },
   ];
-  let colsOpen = false;
+  let colsOpen = false, abcF = "";
   const ovCols = () => { const on = LS.get("hlz-app-cols"); return OV_COLS.filter(c => Array.isArray(on) ? on.includes(c.k) : c.def); };
 
   function bulkPanel(list) {
@@ -1569,17 +1597,19 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       const ch = "etsy", r = calc(a, ch, undefined, ctx);
       return { a, ch, r, pm: salesPerMonth(a), t: solvePrice(a, ch, v(S.target), ctx), miss: missing(a) };
     });
+    const abc = abcInfo(); rows.forEach(x => Object.assign(x, abc[x.a.id] || { abc: "C", share: 0, noSales: true }));
     const visCols = ovCols();
     const key = sortKey === "name" ? x => norm(x.a.name) : ((OV_COLS.find(c => c.k === sortKey) || {}).sort || (x => x.r.profit));
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
     rows.sort((x, y) => { const f = (y.a.fav ? 1 : 0) - (x.a.fav ? 1 : 0); if (f) return f; const p = key(x), q = key(y); return (p < q ? -1 : p > q ? 1 : 0) * sortDir; });
-    const nOpen = rows.filter(x => x.miss.length).length, nDone = rows.length - nOpen, nTodo = rows.filter(x => x.a.todo).length;
-    const f = folder === "todo" && !nTodo ? "all" : folder || (nOpen ? "open" : "done");
-    const inFolder = x => f === "all" || (f === "todo" ? !!x.a.todo : (f === "open") === (x.miss.length > 0));
-    const shown = rows.filter(x => inFolder(x)
+    const nOpen = rows.filter(x => x.miss.length).length, nDone = rows.length - nOpen, nTodo = rows.filter(x => x.a.todo).length, nRem = rows.filter(x => x.a.remove).length;
+    const f = (folder === "todo" && !nTodo) || (folder === "remove" && !nRem) ? "all" : folder || (nOpen ? "open" : "done");
+    const inFolder = x => f === "all" || (f === "remove" ? !!x.a.remove : f === "todo" ? !!x.a.todo : (f === "open") === (x.miss.length > 0));
+    const nAbc = { A: 0, B: 0, C: 0 }; rows.forEach(x => nAbc[x.abc]++);
+    const shown = rows.filter(x => inFolder(x) && (!abcF || x.abc === abcF)
       && (!search || norm(x.a.name).includes(norm(search)) || norm(x.a.sku).includes(norm(search)) || norm(x.a.note).includes(norm(search)) || norm(x.a.supplier).includes(norm(search))));
     shownIds = shown.map(x => x.a.id);
-    const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["todo", "Nochmal ran", nTodo], ["all", "Alle", rows.length]];
+    const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["todo", "Nochmal ran", nTodo], ...(nRem ? [["remove", "Entfernen", nRem]] : []), ["all", "Alle", rows.length]];
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}" title="Klicken zum Sortieren, nochmal klicken dreht die Reihenfolge">${l}${sortKey === k ? (k === "name" ? (sortDir > 0 ? " A→Z" : " Z→A") : sortDir < 0 ? " ↓" : " ↑") : k === "name" ? " ⇅" : ""}</button></th>`;
     const hasSales = m.qty > 0;
     $("view").innerHTML = `
@@ -1604,17 +1634,18 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         </div>
         ${colsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-act="colsReset">Standard</button><button class="btn" data-act="cols">Fertig</button></span></div>
           <div class="colpick-list">${OV_COLS.map(c => `<label class="switch"><input type="checkbox" data-col="${c.k}" ${visCols.includes(c) ? "checked" : ""}><span class="track"></span>${esc(c.l())}</label>`).join("")}</div></div>` : ""}
-        <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
-        ${sel.size ? (bulkDelAsk ? `<div class="selbar danger"><strong>${sel.size} Artikel wirklich löschen?</strong><span class="note">Lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn${cmp ? " primary" : ""}" data-act="cmpOpen" ${sel.size < 2 ? 'disabled title="Mindestens 2 Artikel auswählen"' : ""}>Vergleichen</button><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>`) : ""}
+        <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : k === "remove" ? "✕ " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
+        <div class="seg" aria-label="ABC-Bewertung"><button type="button" data-abcf="" aria-pressed="${!abcF}" title="${esc(ABC_TIP)}">ABC: alle</button>${["A", "B", "C"].map(k => `<button type="button" data-abcf="${k}" aria-pressed="${abcF === k}"><span class="abc abc-${k} sm">${k}</span> ${nAbc[k]}</button>`).join("")}</div>
+        ${sel.size ? (bulkDelAsk ? `<div class="selbar danger"><strong>${sel.size} Artikel wirklich löschen?</strong><span class="note">Lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn${cmp ? " primary" : ""}" data-act="cmpOpen" ${sel.size < 2 ? 'disabled title="Mindestens 2 Artikel auswählen"' : ""}>Vergleichen</button><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn" data-act="${[...sel].every(id => (ordArt(id) || {}).remove) ? "rmOff" : "rmOn"}">${[...sel].every(id => (ordArt(id) || {}).remove) ? "Markierung „Entfernen“ aufheben" : "✕ Zum Entfernen markieren"}</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>`) : ""}
         ${bulk && sel.size ? bulkPanel(A.filter(x => sel.has(x.id))) : ""}
         ${cmp && sel.size >= 2 ? cmpPanel(shownIds.filter(id => sel.has(id)).concat([...sel].filter(id => !shownIds.includes(id))).map(id => A.find(x => x.id === id)).filter(Boolean)) : ""}
         <div class="tablewrap"><table class="ov">
-          <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}${visCols.map(c => `<th class="${c.hideSm ? "hide-sm" : ""}">${c.sort ? `<button data-sort="${c.k}" aria-pressed="${sortKey === c.k}">${c.l()}${sortKey === c.k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button>` : c.l()}</th>`).join("")}</tr></thead>
+          <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}${visCols.map(c => `<th class="${c.hideSm ? "hide-sm" : ""}">${c.sort ? `<button data-sort="${c.k}" aria-pressed="${sortKey === c.k}"${c.tip ? ` title="${esc(c.tip)}"` : ""}>${c.l()}${sortKey === c.k ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button>` : c.l()}</th>`).join("")}</tr></thead>
           <tbody>${shown.map(x => { const { a, ch, r, pm, t, miss } = x;
             const [c, w] = status(r.margin);
-            return `<tr class="ovrow${sel.has(a.id) ? " selected" : ""}">
+            return `<tr class="ovrow${sel.has(a.id) ? " selected" : ""}${a.remove ? " rmrow" : ""}">
               <td class="selcol"><div class="selstack"><button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></div></td>
-              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<a class="artlink" href="#artikel-${a.id}" data-open="${a.id}">${esc(a.name)}</a> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
+              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<a class="artlink" href="#artikel-${a.id}" data-open="${a.id}">${esc(a.name)}</a> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${a.remove ? '<span class="chip rm">Entfernen</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
               ${visCols.map(c => `<td class="${c.cls || ""}${c.hideSm ? " hide-sm" : ""}"${c.style ? ` style="${c.style(x)}"` : ""}>${c.cell(x)}</td>`).join("")}</tr>`;
           }).join("") || `<tr><td colspan="${visCols.length + 2}" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
@@ -1728,6 +1759,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
           <section class="box">
             <h2>Notiz</h2>
               <label class="check"><input type="checkbox" id="a-todo" data-a="todo" ${a.todo ? "checked" : ""}> 📝 Nochmal dran arbeiten</label>
+              <label class="check"><input type="checkbox" id="a-remove" data-a="remove" ${a.remove ? "checked" : ""}> ✕ Zum Entfernen markieren (aus dem Sortiment nehmen)</label>
               <div class="field" style="margin-top:8px"><div class="inp"><textarea id="a-note" aria-label="Notiz" data-a="note" rows="2" placeholder="Was ist noch zu tun? z. B. Karton bestellen, Laserzeit messen …">${esc(a.note || "")}</textarea></div></div>
           </section>
 
@@ -2145,7 +2177,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
     if (e.target.closest("[data-q]")) return;
-    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel],[data-ordf],[data-orddone]");
+    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel],[data-ordf],[data-orddone],[data-rm],[data-abcf]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.star) {
@@ -2169,6 +2201,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
     if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
     if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
+    if (d.rm !== undefined && d.rm) { const x = A.find(q => q.id === d.rm); if (x) { x.remove = !x.remove; if (!x.remove) delete x.remove; saveArticle(x); renderOverview(); } return; }
+    if (d.abcf !== undefined && t.hasAttribute("data-abcf")) { abcF = d.abcf; return renderOverview(); }
     if (d.ordf) { ord.f = d.ordf; ord.ask = ""; return renderOrders(); }
     if (d.orddone) { const o = ORD.find(x => x.id === d.orddone); if (o) { o.status = o.status === "offen" ? "erledigt" : "offen"; o.manual = true; saveOrder(o); ordBadge(); renderOrders(); } return; }
     if (d.suptab) { sup.tab = d.suptab; return renderSupport(); }
@@ -2219,6 +2253,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       case "doneHome": clearTimeout(doneTimer); $("donePop").hidden = true; return go("uebersicht");
       case "doneClose": clearTimeout(doneTimer); $("donePop").hidden = true; return;
       case "doneNext": { clearTimeout(doneTimer); $("donePop").hidden = true; const id = $("doneNext").dataset.id; if (id) { pendingFocus = "auto"; go("artikel-" + id); } return; }
+      case "rmOn": case "rmOff": { const on = d.act === "rmOn"; [...sel].forEach(id => { const x = A.find(q => q.id === id); if (x) { if (on) x.remove = true; else delete x.remove; saveArticle(x); } }); renderOverview(); return toast(on ? `${sel.size} Artikel zum Entfernen markiert` : "Markierung aufgehoben"); }
       case "ordSync": return ordSync();
       case "ordSyncNew": return ordSync(0);
       case "ordSync30": return ordSync(30);
@@ -2287,7 +2322,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   }
   // CSV für Excel: Semikolon, Dezimalkomma, BOM
   function exportCSV(kind, onlySel) {
-    const ctx = volume(), list = A.filter(a => !onlySel || sel.has(a.id));
+    const ctx = volume(), list = A.filter(a => !onlySel || sel.has(a.id)), abcAll = abcInfo();
     const num = x => isFinite(x) ? String(Math.round(x * 100) / 100).replace(".", ",") : "";
     const cell = x => { const t = String(x ?? ""); return /[;"\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
     let head, rows;
@@ -2295,13 +2330,13 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       head = ["SKU", "Artikel", "Gewicht g", "Länge cm", "Breite cm", "Höhe cm", "Karton", "Versandart"];
       rows = list.filter(a => a.sku).map(a => { const sh = pickShip(a); return [a.sku, a.name, Math.round(shipWeight(a)) || "", num(v(a.pkL)), num(v(a.pkB)), num(v(a.pkH)), a.box || "", sh.chosen ? sh.chosen.o.n : ""]; });
     } else {
-      head = ["Artikel", "SKU", "Kanal", "Preis brutto", "Rabatt %", "Gewinn", "Marge %", "Preisempfehlung", "Mindestpreis", "Holz", "Öl", "Kleinteile", "Einkaufspreis", "Lieferant", "Porto", "Versandart", "Karton", "Gewicht g", "Arbeitszeit Min", "Verkäufe/Monat", "Status", "Nochmal ran", "Notiz"];
+      head = ["Artikel", "SKU", "Kanal", "Preis brutto", "Rabatt %", "Gewinn", "Marge %", "Preisempfehlung", "Mindestpreis", "Holz", "Öl", "Kleinteile", "Einkaufspreis", "Lieferant", "Porto", "Versandart", "Karton", "Gewicht g", "Arbeitszeit Min", "Verkäufe/Monat", "Status", "Nochmal ran", "Notiz", "ABC", "Entfernen"];
       rows = list.map(a => {
         const ch = "etsy", r = calc(a, ch, undefined, ctx), c = r;
         const tp = solvePrice(a, ch, v(S.target), ctx), miss = missing(a);
         return [a.name, a.sku || "", CH_NAMES[ch], num(v(a.price)), num(v(a.disc)), num(r.profit), num(r.margin), num(nicePrice(tp)), num(solvePrice(a, ch, 0, ctx)),
           num(c.wood), num(c.oil), num(c.small), num(c.ext), a.supplier || "", num(c.porto), c.ship.chosen ? c.ship.chosen.o.n : "", a.box || "", Math.round(shipWeight(a)) || "",
-          num(v(a.mins) + c.rohMin + c.packMin), num(salesPerMonth(a)), miss.length ? "fehlt: " + miss.join(", ") : "fertig", a.todo ? "ja" : "", a.note || ""];
+          num(v(a.mins) + c.rohMin + c.packMin), num(salesPerMonth(a)), miss.length ? "fehlt: " + miss.join(", ") : "fertig", a.todo ? "ja" : "", a.note || "", (abcAll[a.id] || {}).abc || "", a.remove ? "ja" : ""];
       });
     }
     const csv = "\ufeff" + [head, ...rows].map(r => r.map(cell).join(";")).join("\r\n");
