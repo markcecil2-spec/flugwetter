@@ -1005,15 +1005,37 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     return "Produktion " + new Date().toLocaleDateString("de-DE") + "\n" + Object.keys(by).sort((a, b) => a.localeCompare(b, "de")).map(c =>
       "\n" + c + "\n" + by[c].map(a => `${dec(v(a.prod), 0)} × ${a.sku || a.name}${d(a) ? " · " + d(a) : ""}`).join("\n")).join("\n");
   }
-  function prodPrint() {
-    const rows = prodRows().filter(x => v(x.a.prod) > 0), pcs = rows.reduce((n, x) => n + v(x.a.prod), 0);
-    let box = $("printArea"); if (!box) { box = document.createElement("div"); box.id = "printArea"; document.body.appendChild(box); }
-    box.innerHTML = `<h1>Produktionsliste · ${new Date().toLocaleDateString("de-DE")}</h1>
-      <table><thead><tr><th>✓</th><th>Bild</th><th>SKU / Artikel</th><th>Kategorie</th><th>Menge</th><th>Maße</th></tr></thead><tbody>${rows.map(({ a, cat }) =>
-      `<tr><td class="chk">☐</td><td>${thumbHTML(a)}</td><td><strong>${esc(a.sku || "")}</strong><br>${esc(a.name)}</td><td>${esc(cat)}</td><td class="qty">${dec(v(a.prod), 0)}</td><td>${esc(prodDims(a))}</td></tr>`).join("")}</tbody></table>
+  // Bild als kleines Data-URL (für die gespeicherte Druckdatei), ohne Netzwerk: aus dem schon geladenen Vorschaubild
+  const imgData = src => new Promise(res => {
+    const im = new Image(); im.onload = () => { try { const c = document.createElement("canvas"); c.width = c.height = 96; c.getContext("2d").drawImage(im, 0, 0, 96, 96); res(c.toDataURL("image/jpeg", .8)); } catch (e) { res(""); } };
+    im.onerror = () => res(""); im.src = src;
+  });
+  const PRINT_CSS = `body{font:14px sans-serif;color:#000;margin:20px}h1{font:700 20px sans-serif;margin:0 0 12px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:6px 8px;text-align:left;vertical-align:middle}
+    img{width:56px;height:56px;object-fit:cover;display:block}.chk{font-size:22px;text-align:center}.qty{font:700 20px sans-serif;text-align:center}tr{break-inside:avoid}p{margin-top:10px}`;
+  function prodListHTML(rows, imgs) {
+    const pcs = rows.reduce((n, x) => n + v(x.a.prod), 0);
+    return `<h1>Produktionsliste · ${new Date().toLocaleDateString("de-DE")}</h1>
+      <table><thead><tr><th>✓</th><th>Bild</th><th>SKU / Artikel</th><th>Kategorie</th><th>Menge</th><th>Maße</th></tr></thead><tbody>${rows.map(({ a, cat }, i) =>
+      `<tr><td class="chk">☐</td><td>${imgs ? (imgs[i] ? `<img src="${imgs[i]}" alt="">` : "") : thumbHTML(a)}</td><td><strong>${esc(a.sku || "")}</strong><br>${esc(a.name)}</td><td>${esc(cat)}</td><td class="qty">${dec(v(a.prod), 0)}</td><td>${esc(prodDims(a))}</td></tr>`).join("")}</tbody></table>
       <p>${dec(pcs, 0)} Stück · ${rows.length} Artikel</p>`;
+  }
+  async function prodPrint() {
+    const rows = prodRows().filter(x => v(x.a.prod) > 0); if (!rows.length) return;
+    let box = $("printArea"); if (!box) { box = document.createElement("div"); box.id = "printArea"; document.body.appendChild(box); }
+    box.innerHTML = prodListHTML(rows);
     window.addEventListener("afterprint", () => { box.innerHTML = ""; }, { once: true });
-    try { window.print(); } catch (e) { toast("Drucken geht hier nicht, nimm „Als Text kopieren“"); }
+    // Erst normal drucken. In der eingebetteten Ansicht ist das oft gesperrt (es passiert dann nichts): dann Druckdatei speichern.
+    let fired = false; const mark = () => { fired = true; };
+    window.addEventListener("beforeprint", mark, { once: true });
+    try { window.print(); } catch (e) { /* gesperrt */ }
+    await new Promise(r => setTimeout(r, 600));
+    window.removeEventListener("beforeprint", mark);
+    if (fired) return;
+    box.innerHTML = "";
+    toast("Drucken ist hier gesperrt, ich speichere eine Druckdatei …");
+    const imgs = await Promise.all(rows.map(({ a }) => { const t = thumbOf(a); return t ? imgData(t) : ""; }));
+    const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Produktionsliste</title><style>${PRINT_CSS}</style></head><body>${prodListHTML(rows, imgs)}<script>addEventListener("load",function(){setTimeout(function(){print()},400)})<\/script></body></html>`;
+    offerFile("Produktionsliste.html", html, "text/html");
   }
   function prodBook() {
     prodTodo().forEach(a => { a.stock = String(v(a.stock) + v(a.prod)); a.prod = ""; saveArticle(a); });
