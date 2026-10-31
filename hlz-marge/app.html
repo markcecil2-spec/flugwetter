@@ -961,7 +961,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
           </div>
         </div>
         <div class="btns">
-          <button type="button" class="btn${prod.only ? " primary" : ""}" data-act="prodOnly" aria-pressed="${prod.only}">Nur zu produzieren${todo.length ? " (" + todo.length + ")" : ""}</button>
+          <div class="seg" aria-label="Anzeige"><button type="button" data-act="prodAll" aria-pressed="${!prod.only}">Alle Artikel</button><button type="button" data-act="prodOnlyOn" id="prodOnlyBtn" aria-pressed="${prod.only}">Nur zu produzieren${todo.length ? " (" + todo.length + ")" : ""}</button></div>
           <button type="button" class="btn" data-act="prodPrint" ${todo.length ? "" : "disabled"}>🖨 Drucken</button>
           <button type="button" class="btn" data-act="prodCopy" ${todo.length ? "" : "disabled"}>Als Text kopieren</button>
           <button type="button" class="btn" data-act="prodBook" ${todo.length ? "" : "disabled"}>✓ Produziert → ins Lager</button>
@@ -996,7 +996,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const todo = prodTodo(), pcs = todo.reduce((n, x) => n + v(x.prod), 0), sum = $("prodSum");
     if (sum) sum.textContent = todo.length ? `${dec(pcs, 0)} Stück · ${todo.length} Artikel zu produzieren` : "Noch nichts eingetragen";
     document.querySelectorAll('[data-act="prodPrint"],[data-act="prodCopy"],[data-act="prodBook"],[data-act="prodClear"]').forEach(b => b.disabled = !todo.length);
-    const ob = document.querySelector('[data-act="prodOnly"]'); if (ob) ob.textContent = "Nur zu produzieren" + (todo.length ? " (" + todo.length + ")" : "");
+    const ob = $("prodOnlyBtn"); if (ob) ob.textContent = "Nur zu produzieren" + (todo.length ? " (" + todo.length + ")" : "");
   }
 
   function prodText() {
@@ -1990,7 +1990,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       case "doneHome": clearTimeout(doneTimer); $("donePop").hidden = true; return go("uebersicht");
       case "doneClose": clearTimeout(doneTimer); $("donePop").hidden = true; return;
       case "doneNext": { clearTimeout(doneTimer); $("donePop").hidden = true; const id = $("doneNext").dataset.id; if (id) { pendingFocus = "auto"; go("artikel-" + id); } return; }
-      case "prodOnly": prod.only = !prod.only; return renderProduction();
+      case "prodAll": prod.only = false; return renderProduction();
+      case "prodOnlyOn": prod.only = true; return renderProduction();
       case "prodPrint": return prodPrint();
       case "prodCopy": {
         const txt = prodText();
