@@ -205,6 +205,16 @@ main.wrap { padding-block: 20px 48px }
 .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 4px; min-width: 0 }
 .tile .num { font-size: 1.35rem }
 .tile.hero { border-color: var(--accent) }
+.tile { position: relative }
+.info { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 2px; border-radius: 50%; border: 1px solid currentColor;
+  font: 600 10px/1 var(--font-body); text-transform: none; letter-spacing: 0; cursor: help; vertical-align: 1px; color: var(--muted) }
+/* Erklärung hängt an der Kachel, links- oder rechtsbündig, damit sie nicht aus dem Bildschirm ragt */
+.info::after { content: attr(data-tip); position: absolute; z-index: 10; top: 40px; left: 8px; width: min(260px, 70vw); padding: 10px 12px; border-radius: 8px;
+  background: var(--fg); color: var(--bg); font: 400 .82rem/1.4 var(--font-body); text-align: left; white-space: normal; box-shadow: 0 6px 20px rgba(0,0,0,.18);
+  opacity: 0; visibility: hidden; transition: opacity .12s; pointer-events: none }
+.info:hover::after, .info:focus::after { opacity: 1; visibility: visible }
+.tile:nth-child(even) .info::after { left: auto; right: 8px }
+@media (min-width: 761px) { .tile:nth-child(2) .info::after { left: 8px; right: auto } }
 .tablewrap { overflow-x: auto }
 table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 640px }
 table.imp { min-width: 520px }
@@ -219,6 +229,7 @@ th button { all: unset; cursor: pointer } th button:hover, th button[aria-presse
 tbody tr.click { cursor: pointer } tbody tr.click:hover td { background: var(--accent-soft) }
 td.name { white-space: normal; min-width: 180px }
 td.name strong { font-weight: 600 }
+.sellprice { margin: -4px 0 0; font-size: .95rem }
 .thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; float: left; margin: 0 10px 2px 0; background: var(--line) }
 .arthead .thumb { float: none; width: 36px; height: 36px; margin: 0; flex: none }
 .chip { display: inline-block; font-size: .68rem; border-radius: 4px; padding: 0 5px; margin: 2px 4px 0 0; border: 1px solid currentColor }
@@ -304,6 +315,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
     return "";
   };
+  // Infopunkt: Erklärung beim Drüberfahren (am Handy: antippen)
+  const info = t => ` <span class="info" tabindex="0" role="note" aria-label="${esc(t)}" data-tip="${esc(t)}">i</span>`;
   const thumbHTML = a => { const t = thumbOf(a); return t ? `<img class="thumb" src="${t}" alt="" loading="lazy" onerror="this.remove()">` : ""; };
   const loose = s => norm(s).replace(/[^a-z0-9äöüß]/g, "");   // Abgleich ohne Satz- und Leerzeichen
   const CH_NAMES = { etsy: "Etsy", etsyOff: "Etsy + Offsite Ads 15 %", shopify: "Shopify", ebay: "eBay", direkt: "Direktverkauf" };
@@ -557,7 +570,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const g0 = g(0), slope = (g(100) - g0) / 100;
     return slope > 0 ? Math.max(0, -g0 / slope) : NaN;
   }
-  const status = m => !isFinite(m) ? ["muted", "–"] : m >= 30 ? ["good", "läuft"] : m >= 15 ? ["warn", "knapp"] : ["bad", m < 0 ? "Verlust" : "zu wenig"];
+  // Ampel an der Zielmarge: ab Ziel grün, ab halbem Ziel gelb, darunter rot
+  const status = m => { const t = v(S.target) || 30; return !isFinite(m) ? ["muted", "–"] : m >= t ? ["good", "läuft"] : m >= t / 2 ? ["warn", "knapp"] : ["bad", m < 0 ? "Verlust" : "zu wenig"]; };
   function missing(a) {
     const m = [];
     if (!v(a.price)) m.push("Preis");
@@ -609,9 +623,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   let folder = LS.get("hlz-app-folder") || null;
   // Kanal, für den Liste und Artikel rechnen (der eingetragene Preis ist immer der Etsy-Preis)
   let viewCh = LS.get("hlz-app-viewch") || "etsy";
+  if (viewCh === "mix") viewCh = "etsy";
   // Mehrfachauswahl in der Artikelliste; bulk = geänderte Felder der gemeinsamen Bearbeitung (null = zu)
   let sel = new Set(), bulk = null, bulkDelAsk = false, shownIds = [];
-  const VIEW_CH = [["mix", "Kanal: Alle (Mix nach Verkäufen)"], ["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
+  const VIEW_CH = [["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
   // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
   let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
   function setDirty(x) {
@@ -686,18 +701,6 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     else renderOverview();
   }
 
-  // Durchschnitt über alle Kanäle, gewichtet nach den echten Verkäufen (ohne Verkäufe: Kanal des Artikels)
-  function mixCalc(a, ctx) {
-    const w = Object.entries(a.sales || {}).map(([ch, x]) => [CHANNELS.includes(ch) ? ch : "etsy", v(x.qty) / Math.max(v(x.months), 0.1)]).filter(x => x[1] > 0);
-    if (!w.length) return calc(a, "etsy", undefined, ctx);
-    // alle Zahlen gewichtet mitteln, der Rest (z. B. Versandart) kommt vom meistverkauften Kanal
-    const tot = w.reduce((s, x) => s + x[1], 0), cs = w.map(([ch, q]) => [calc(a, ch, undefined, ctx), q / tot]);
-    const top = cs.reduce((x, y) => y[1] > x[1] ? y : x)[0], r = { ...top };
-    Object.keys(top).filter(k => typeof top[k] === "number").forEach(k => r[k] = cs.reduce((s, [c, f]) => s + (v(c[k]) || 0) * f, 0));
-    r.margin = r.net > 0 ? r.profit / r.net * 100 : NaN;
-    r.mixLabel = w.map(([ch, q]) => `${CH_NAMES[ch]} ${Math.round(q / tot * 100)} %`).join(", ");
-    return r;
-  }
 
   // Gemeinsame Bearbeitung: Felder, die für alle Ausgewählten gesetzt werden können
   function bulkFields() {
@@ -840,8 +843,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     }
     const m = monthly(ctx), fix = fixTotal(), ph = phCount();
     const rows = A.map(a => {
-      const ch = viewCh, r = ch === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx);
-      return { a, ch, r, pm: salesPerMonth(a), t: solvePrice(a, ch === "mix" ? "etsy" : ch, v(S.target), ctx), miss: missing(a) };
+      const ch = viewCh, r = calc(a, ch, undefined, ctx);
+      return { a, ch, r, pm: salesPerMonth(a), t: solvePrice(a, ch, v(S.target), ctx), miss: missing(a) };
     });
     const key = { name: x => norm(x.a.name), price: x => x.r.P, pm: x => x.pm, profit: x => x.r.profit, margin: x => isFinite(x.r.margin) ? x.r.margin : -1e9 }[sortKey];
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
@@ -858,10 +861,10 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     $("view").innerHTML = `
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
       <div class="tiles">
-        <div class="tile hero"><span class="label">Ergebnis pro Monat</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
-        <div class="tile"><span class="label">Deckungsbeitrag</span><span class="num">${hasSales ? eur0(m.db) : "–"}</span><span class="note">${hasSales ? "aus " + dec(m.qty) + " Verkäufen/Monat" : "noch keine Verkaufszahlen"}</span></div>
-        <div class="tile"><span class="label">Fixkosten</span><span class="num">${eur0(fix)}</span><span class="note">Miete, Software, Abos</span></div>
-        <div class="tile"><span class="label">Werkstattanteil</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${{ real: "laut deiner Angabe", import: "laut Import" }[ctx.src] || "geschätzt"}</span></div>
+        <div class="tile hero"><span class="label">Ergebnis pro Monat${info(`Was im Monat übrig bleibt: Deckungsbeitrag minus Fixkosten. Deine Arbeitszeit ist schon mit ${eur(v(S.rate))}/h als Kosten abgezogen. Davon gehen noch Einkommensteuer und Krankenversicherung ab.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
+        <div class="tile"><span class="label">Deckungsbeitrag${info("Netto-Umsatz minus alles, was pro Stück anfällt: Material, Verpackung, Porto, Gebühren, Werbung und deine Arbeitszeit. Das ist das Geld, mit dem die Fixkosten bezahlt werden. Hochgerechnet mit deinen echten Verkaufszahlen.")}</span><span class="num">${hasSales ? eur0(m.db) : "–"}</span><span class="note">${hasSales ? "aus " + dec(m.qty) + " Verkäufen/Monat" : "noch keine Verkaufszahlen"}</span></div>
+        <div class="tile"><span class="label">Fixkosten${info("Kosten, die jeden Monat anfallen, egal wie viel du verkaufst: Werkstattmiete, Software, Abos. Ändern unter Einstellungen → Fixkosten.")}</span><span class="num">${eur0(fix)}</span><span class="note">Miete, Software, Abos</span></div>
+        <div class="tile"><span class="label">Werkstattanteil${info("Fixkosten geteilt durch deine Verkäufe pro Monat. So viel muss jeder Verkauf zusätzlich einbringen, damit Miete und Co. bezahlt sind. Wird beim Gewinn pro Stück schon abgezogen.")}</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${{ real: "laut deiner Angabe", import: "laut Import" }[ctx.src] || "geschätzt"}</span></div>
       </div>
       <section class="box">
         <div class="row">
@@ -879,19 +882,19 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         ${bulkDelAsk ? `<div class="banner"><span>${sel.size} Artikel wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : ""}
         ${bulk && sel.size ? bulkPanel(A.filter(x => sel.has(x.id))) : ""}
         <div class="tablewrap"><table class="ov">
-          <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}<th class="hide-sm">Kanal</th><th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
+          <thead><tr><th class="selcol"><input type="checkbox" data-selall="1" aria-label="Alle angezeigten auswählen" ${shown.length && shown.every(x => sel.has(x.a.id)) ? "checked" : ""}></th>${th("name", "Artikel")}<th class="hide-sm"><button data-sort="price" aria-pressed="${sortKey === "price"}">Preis${sortKey === "price" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm"><button data-sort="pm" aria-pressed="${sortKey === "pm"}">Verk./Mon.${sortKey === "pm" ? (sortDir < 0 ? " ↓" : " ↑") : ""}</button></th><th class="hide-sm">Kosten</th>${th("profit", "Gewinn")}${th("margin", "Marge")}<th class="hide-sm">Preis für ${esc(S.target)} %</th></tr></thead>
           <tbody>${shown.map(({ a, ch, r, pm, t, miss }) => {
             const [c, w] = status(r.margin);
             return `<tr class="click${sel.has(a.id) ? " selected" : ""}" data-open="${a.id}" tabindex="0">
               <td class="selcol"><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></td>
               <td class="name">${thumbHTML(a)}<button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><strong>${esc(a.name)}</strong> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
-              <td class="hide-sm">${ch === "mix" ? (r.mixLabel || "Etsy") : CH_NAMES[ch] || ch}</td><td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
+              <td class="num hide-sm">${eur(r.P)}</td><td class="num hide-sm">${pm ? dec(pm) : "–"}</td>
               <td class="num hide-sm">${eur(r.varCosts + r.fees + r.ads + r.fixShare)}</td>
               <td class="num" style="color:var(--${c === "muted" ? "fg" : c})">${eur(r.profit)}</td>
               <td><span class="pill ${c}">${pct(r.margin)}</span>${isFinite(t) ? `<div class="reco num" title="Preisempfehlung für ${esc(S.target)} % Marge">→ ${eur(nicePrice(t))}</div>` : ""}</td><td class="num hide-sm">${eur(t)}</td></tr>`;
           }).join("") || `<tr><td colspan="9" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
-        <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab 30 % grün, 15–30 % gelb, darunter rot.</p>
+        <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab ${esc(S.target)} % (dein Ziel) grün, ab ${esc(dec(v(S.target) / 2))} % gelb, darunter rot.</p>
       </section>`;
     $("fCh").addEventListener("change", e => { viewCh = e.target.value; LS.set("hlz-app-viewch", viewCh); renderOverview(); });
     const sEl = $("search");
@@ -1011,6 +1014,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         <aside class="box result" aria-live="polite">
           <div class="row"><span class="label">Gewinn pro Stück · <select id="rChan" class="chmini" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l.replace("Kanal: ", ""), viewCh === k)).join("")}</select></span><span class="pill" id="rPill"></span></div>
           <div class="big"><span class="num" id="rProfit"></span><span class="num" id="rMargin" style="color:var(--muted)"></span></div>
+          <p class="sellprice" id="rPrice"></p>
           <p class="reco-big" id="rReco"></p>
           <p class="note" id="rSub"></p>
           <div class="bar" id="rBar" role="img" aria-label="Aufteilung des Verkaufspreises"></div>
@@ -1078,7 +1082,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     els.forEach(el => el.closest(".inp")?.classList.add("need"));
   }
   function updateEditor(a) {
-    const ctx = volume(), ch = viewCh === "mix" ? "etsy" : viewCh, r = viewCh === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx);
+    const ctx = volume(), ch = viewCh, r = calc(a, ch, undefined, ctx);
     const miss = missing(a), mb = $("missBox");
     markNeeded(a, miss);
     const aw = autoWeight(a);
@@ -1121,6 +1125,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     if (sb) tip.innerHTML = `<span class="tip">Passender Karton für die Holzteile: <strong>${esc(sb.n)}</strong>${v(sb.p) ? " · " + eur(v(sb.p)) : ""}</span> <button type="button" class="btn" data-act="useBox">Übernehmen</button>`;
 
     const [cls, word] = status(r.margin);
+    const base = ch === "shopify" || ch === "ebay" ? shopPrice(a) : v(a.price);
+    $("rPrice").innerHTML = v(a.price) ? `Verkaufspreis ${esc(CH_NAMES[ch])}: <strong class="num">${eur(base)}</strong>`
+      + (base !== v(a.price) ? ` <span class="note">(Etsy ${eur(v(a.price))} − ${esc(S.shopDisc)} %)</span>` : "")
+      + (v(a.disc) > 0 ? ` · mit ${esc(a.disc)} % Rabatt <strong class="num">${eur(r.P)}</strong>` : "")
+      + (v(a.shipIn) > 0 ? ` <span class="note">+ ${eur(v(a.shipIn))} Versand</span>` : "") : "";
     $("rPill").className = "pill " + cls; $("rPill").textContent = word;
     $("rProfit").textContent = eur(r.profit); $("rProfit").style.color = r.profit < 0 ? "var(--bad)" : "";
     $("rMargin").textContent = pct(r.margin) + " Marge";
@@ -1437,9 +1446,9 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     } else {
       head = ["Artikel", "SKU", "Kanal", "Preis brutto", "Rabatt %", "Gewinn", "Marge %", "Preisempfehlung", "Mindestpreis", "Holz", "Öl", "Kleinteile", "Einkauf Schreinerei", "Porto", "Versandart", "Karton", "Gewicht g", "Arbeitszeit Min", "Verkäufe/Monat", "Status", "Nochmal ran", "Notiz"];
       rows = list.map(a => {
-        const ch = viewCh, r = ch === "mix" ? mixCalc(a, ctx) : calc(a, ch, undefined, ctx), c = calc(a, ch === "mix" ? "etsy" : ch, undefined, ctx);
-        const tp = solvePrice(a, ch === "mix" ? "etsy" : ch, v(S.target), ctx), miss = missing(a);
-        return [a.name, a.sku || "", ch === "mix" ? (r.mixLabel || "Etsy") : CH_NAMES[ch], num(v(a.price)), num(v(a.disc)), num(r.profit), num(r.margin), num(nicePrice(tp)), num(solvePrice(a, ch === "mix" ? "etsy" : ch, 0, ctx)),
+        const ch = viewCh, r = calc(a, ch, undefined, ctx), c = r;
+        const tp = solvePrice(a, ch, v(S.target), ctx), miss = missing(a);
+        return [a.name, a.sku || "", CH_NAMES[ch], num(v(a.price)), num(v(a.disc)), num(r.profit), num(r.margin), num(nicePrice(tp)), num(solvePrice(a, ch, 0, ctx)),
           num(c.wood), num(c.oil), num(c.small), num(c.ext), num(c.porto), c.ship.chosen ? c.ship.chosen.o.n : "", a.box || "", Math.round(shipWeight(a)) || "",
           num(v(a.mins) + c.rohMin + c.packMin), num(salesPerMonth(a)), miss.length ? "fehlt: " + miss.join(", ") : "fertig", a.todo ? "ja" : "", a.note || ""];
       });
