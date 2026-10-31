@@ -328,6 +328,9 @@ td .inp.qprice + .note { display: block; font-size: .75rem }
 .qsub { display: block; font-size: .72rem; text-align: right; padding-right: 8px }
 .sellprice { margin: -4px 0 0; font-size: .95rem }
 .thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; float: left; margin: 0 10px 2px 0; background: var(--line) }
+.stepnav { display: inline-flex; align-items: center; gap: 8px }
+.stepmini { display: inline-flex; gap: 4px; flex: none }
+.stepmini .btn { padding: 4px 12px; font-size: 1.1rem; line-height: 1 }
 .arthead .thumb { float: none; width: 36px; height: 36px; margin: 0; flex: none }
 .chip { display: inline-block; font-size: .68rem; border-radius: 4px; padding: 0 5px; margin: 2px 4px 0 0; border: 1px solid currentColor }
 .status { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; padding: 10px 14px; border-radius: 10px; border: 1px solid; font-size: .9rem; font-weight: 600 }
@@ -1658,6 +1661,11 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   // ---------- Artikel-Editor ----------
   const opt = (val, label, sel) => `<option value="${esc(val)}"${sel ? " selected" : ""}>${esc(label)}</option>`;
   const numIn = (attrs, val, unit, extra = "") => `<div class="inp"><input type="number" step="any" min="0" inputmode="decimal" ${attrs} value="${esc(val)}" ${extra}>${unit ? `<span>${unit}</span>` : ""}</div>`;
+  // Durchklicken: Reihenfolge der Übersicht (Filter und Sortierung von dort)
+  function stepInfo(id) {
+    const i = shownIds.indexOf(id); if (i < 0) return null;
+    return { i, n: shownIds.length, prev: shownIds[i - 1] || "", next: shownIds[i + 1] || "" };
+  }
   function renderEditor(a) {
     const partsRows = (a.parts || []).map((r, i) => `<div class="rowline c-parts">
         ${(S.blanks || []).some(b => b.n) ? `<div class="inp"><select data-ap="${i}" data-f="blank" aria-label="Rohling">${opt("", "Freies Teil", !r.blank)}${S.blanks.filter(b => b.n).map(b => opt(b.n, b.n, r.blank === b.n)).join("")}</select></div>`
@@ -1673,10 +1681,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const sales = Object.entries(a.sales || {});
     $("view").innerHTML = `
       <div class="row">
-        <span class="btns"><a class="btn" href="#uebersicht">← Dashboard</a><button class="btn star-btn" data-star="${a.id}" aria-pressed="${!!a.fav}">${a.fav ? "★ Markiert" : "☆ Markieren"}</button></span>
+        <span class="btns"><a class="btn" href="#uebersicht">← Dashboard</a><button class="btn star-btn" data-star="${a.id}" aria-pressed="${!!a.fav}">${a.fav ? "★ Markiert" : "☆ Markieren"}</button>${(() => { const st = stepInfo(a.id); return st ? `<span class="stepnav"><button class="btn" data-step="${st.prev}" ${st.prev ? "" : "disabled"} title="Vorheriger Artikel der Liste (Alt + ←)">‹ Zurück</button><span class="note num">${st.i + 1} / ${st.n}</span><button class="btn primary" data-step="${st.next}" ${st.next ? "" : "disabled"} title="Nächster Artikel der Liste (Alt + →)">Weiter ›</button></span>` : ""; })()}</span>
         <div class="btns">${a.example ? '<span class="pill muted">Beispiel mit geschätzten Zahlen</span>' : ""}<button class="btn" data-act="dup">Duplizieren</button><button class="btn danger" data-act="del">Löschen</button></div>
       </div>
-      <div class="arthead" id="artHead"><img class="thumb" id="ahImg" alt="" hidden onerror="this.hidden=true"><div class="ahname"><strong id="ahName"></strong><span class="sku" id="ahSku"></span></div><span class="num" id="ahProfit"></span></div>
+      <div class="arthead" id="artHead"><img class="thumb" id="ahImg" alt="" hidden onerror="this.hidden=true"><div class="ahname"><strong id="ahName"></strong><span class="sku" id="ahSku"></span></div><span class="num" id="ahProfit"></span>${(() => { const st = stepInfo(a.id); return st ? `<span class="stepmini"><button class="btn" data-step="${st.prev}" ${st.prev ? "" : "disabled"} aria-label="Vorheriger Artikel">‹</button><button class="btn" data-step="${st.next}" ${st.next ? "" : "disabled"} aria-label="Nächster Artikel">›</button></span>` : ""; })()}</div>
       <div class="status" id="missBox"></div>
       <div class="banner" id="delConfirm" hidden><span>„${esc(a.name)}“ wirklich löschen? Das lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="delYes">Löschen</button><button class="btn" data-act="delNo">Abbrechen</button></span></div>
       <div class="cols">
@@ -2162,6 +2170,11 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (next) { const el = document.querySelector(`[data-q="${next[0]}"][data-qid="${next[1]}"]`); if (el) { el.focus(); el.select(); } }
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("donePop").hidden) $("donePop").hidden = true; });
+  document.addEventListener("keydown", e => {
+    if (!e.altKey || (e.key !== "ArrowRight" && e.key !== "ArrowLeft") || view !== "artikel") return;
+    const st = stepInfo(curId), id = st && (e.key === "ArrowRight" ? st.next : st.prev);
+    if (id) { e.preventDefault(); pendingFocus = "auto"; go("artikel-" + id); }
+  });
   document.addEventListener("focusin", e => { if (e.target.matches && e.target.matches('input[data-q]')) setTimeout(() => e.target.select(), 0); });
   // Eingabespalten wie eine Tabelle: Tab/Enter springt ins nächste Feld derselben Spalte, Umschalt zurück
   document.addEventListener("keydown", e => {
@@ -2177,9 +2190,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
     if (e.target.closest("[data-q]")) return;
-    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel],[data-ordf],[data-orddone],[data-rm],[data-abcf]");
+    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel],[data-ordf],[data-orddone],[data-rm],[data-abcf],[data-step]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
+    if (d.step !== undefined && t.hasAttribute("data-step")) { if (d.step) { pendingFocus = "auto"; go("artikel-" + d.step); } return; }
     if (d.star) {
       // Markieren speichert sofort, auch während ein Entwurf offen ist
       const stored = A.find(x => x.id === d.star); if (!stored) return;
