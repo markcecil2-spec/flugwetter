@@ -1059,12 +1059,21 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     changed.forEach(saveOrder);
   }
 
-  async function ordSync() {
+  // Ab wann gesucht wird: erster Lauf nach Wahl (heute oder x Tage zurück), danach ab dem letzten Lauf (2 Tage Überlappung, bekannte Bestellungen werden eh übersprungen)
+  const isoDay = t => new Date(t).toISOString().slice(0, 10);
+  function ordSince(daysBack) {
+    if (daysBack !== undefined) return isoDay(Date.now() - daysBack * 864e5);
+    const last = S.ordLast || ORD.filter(o => o.src === "etsy").map(o => o.at).sort().pop() || "";
+    return isoDay(last ? new Date(last + "T00:00:00").getTime() - 2 * 864e5 : Date.now() - 30 * 864e5);
+  }
+  async function ordSync(daysBack) {
     if (ord.busy) return;
     ord.busy = true; ord.err = ""; ord.msg = "Shopify wird gelesen …"; renderOrders();
     const errs = []; let nNew = 0;
     try {
-      const since = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10); let after = null;
+      // Shopify: neue Bestellungen plus alle noch offenen (damit „versendet“ ankommt)
+      const oldestOpen = ORD.filter(o => o.src === "shopify" && o.status === "offen").map(o => o.at).sort()[0] || "9999";
+      const sinceE = ordSince(daysBack), since = oldestOpen < sinceE ? oldestOpen : sinceE; let after = null;
       for (let page = 0; page < 8; page++) {
         const d = await shopify("graphql_query", { query: "query($first:Int!,$after:String,$q:String){ orders(first:$first, after:$after, query:$q, sortKey:CREATED_AT, reverse:true){ pageInfo{ hasNextPage endCursor } nodes{ name createdAt displayFulfillmentStatus cancelledAt totalPriceSet{ shopMoney{ amount } } shippingAddress{ countryCodeV2 } lineItems(first:50){ nodes{ sku title variantTitle quantity originalUnitPriceSet{ shopMoney{ amount } } } } } } }", first: 50, variables: { first: 50, after, q: "created_at:>=" + since } });
         const os = d.orders; if (!os) throw { code: "tool_error", message: "Unerwartete Antwort" };
@@ -1074,9 +1083,9 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     } catch (e) { errs.push("Shopify: " + mcpErr("Shopify", e)); }
     try {
       ord.msg = "Etsy-Mails werden gesucht …"; renderOrders();
-      const days = ORD.some(o => o.src === "etsy") ? 21 : 45, threads = []; let tok = "";
+      const threads = []; let tok = "";
       for (let page = 0; page < 4; page++) {
-        const r = await gmail("search_threads", { query: `from:transaction@etsy.com subject:"Bestellung Nr." newer_than:${days}d`, pageSize: 50, ...(tok ? { pageToken: tok } : {}), view: "THREAD_VIEW_MINIMAL" });
+        const r = await gmail("search_threads", { query: `from:transaction@etsy.com subject:"Bestellung Nr." after:${ordSince(daysBack).replace(/-/g, "/")}`, pageSize: 50, ...(tok ? { pageToken: tok } : {}), view: "THREAD_VIEW_MINIMAL" });
         (r.threads || []).forEach(t => threads.push(t)); tok = r.nextPageToken || ""; if (!tok) break;
       }
       const fresh = threads.filter(t => { const sj = ((t.messages || [])[0] || {}).subject || ""; const no = (sj.match(/Bestellung Nr\.\s*(\d+)/) || [])[1]; return no && !ORD.some(o => o.id === "etsy-" + no); });
@@ -1088,6 +1097,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     } catch (e) { errs.push("Etsy/Gmail: " + mcpErr("Gmail", e)); }
     try { ord.msg = "Artikel werden zugeordnet …"; renderOrders(); await ordMapEtsy(); } catch (e) { /* egal */ }
     ord.busy = false; ord.err = errs.join(" · ");
+    if (!errs.length) { S.ordLast = isoDay(Date.now()); saveSettings(); }
     ord.msg = errs.length && !nNew ? "" : (nNew ? nNew + " neue Bestellung" + (nNew > 1 ? "en" : "") + " geholt." : "Keine neuen Bestellungen.");
     ordBadge(); renderOrders();
   }
@@ -1102,8 +1112,9 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         : `<select data-ordmap="${o.id}:${i}" aria-label="Artikel zuordnen"><option value="">⚠ Artikel zuordnen …</option>${arts.map(x => `<option value="${x.id}">${esc((x.sku || "–") + " · " + x.name)}</option>`).join("")}</select>`}
         <div class="note">${esc(l.variant || "")}${a ? "" : " · " + esc(l.title.slice(0, 70))}</div></div><span class="ordqty num">× ${dec(v(l.qty), 0)}</span></div>`; };
     $("view").innerHTML = `
-      <div class="row"><h1>Bestellungen</h1><button type="button" class="btn primary" data-act="ordSync" ${ord.busy ? "disabled" : ""}>${ord.busy ? "Lade …" : "↻ Neue Bestellungen holen"}</button></div>
-      <p class="note">Shopify wird direkt gelesen, Etsy aus den Bestätigungsmails in deinem Gmail (Absender transaction@etsy.com). Gespeichert werden nur Bestellnummer, Datum, Land, Artikel und Betrag, keine Namen oder Adressen.</p>
+      <div class="row"><h1>Bestellungen</h1>${ORD.length || S.ordLast ? `<button type="button" class="btn primary" data-act="ordSync" ${ord.busy ? "disabled" : ""}>${ord.busy ? "Lade …" : "↻ Neue Bestellungen holen"}</button>`
+        : `<div class="btns"><button type="button" class="btn primary" data-act="ordSyncNew" ${ord.busy ? "disabled" : ""}>Nur neue ab heute</button><button type="button" class="btn" data-act="ordSync30" ${ord.busy ? "disabled" : ""}>Letzte 30 Tage holen</button></div>`}</div>
+      <p class="note">Shopify wird direkt gelesen, Etsy aus den Bestätigungsmails in deinem Gmail (Absender transaction@etsy.com). Gespeichert werden nur Bestellnummer, Datum, Land, Artikel und Betrag, keine Namen oder Adressen. Die App holt immer nur Bestellungen, die sie noch nicht kennt${S.ordLast ? " (zuletzt geholt: " + esc(S.ordLast.split("-").reverse().join(".")) + ")" : ""}.</p>
       ${ord.msg ? `<p class="note" style="color:var(--fg)"><strong>${esc(ord.msg)}</strong></p>` : ""}${ord.err ? `<p class="note" style="color:var(--bad)">${esc(ord.err)}</p>` : ""}
       <section class="box">
         <div class="row"><strong>${open.length} offen · ${dec(pcs, 0)} Stück</strong>
@@ -2197,6 +2208,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       case "doneClose": clearTimeout(doneTimer); $("donePop").hidden = true; return;
       case "doneNext": { clearTimeout(doneTimer); $("donePop").hidden = true; const id = $("doneNext").dataset.id; if (id) { pendingFocus = "auto"; go("artikel-" + id); } return; }
       case "ordSync": return ordSync();
+      case "ordSyncNew": return ordSync(0);
+      case "ordSync30": return ordSync(30);
       case "ordAllDone": ord.ask = "done"; return renderOrders();
       case "ordNo": ord.ask = ""; return renderOrders();
       case "ordYes": { ORD.filter(ordOpen).forEach(o => { o.status = "erledigt"; o.manual = true; saveOrder(o); }); ord.ask = ""; ordBadge(); renderOrders(); return toast("Alle als erledigt markiert"); }
