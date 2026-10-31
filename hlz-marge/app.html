@@ -88,7 +88,6 @@ tr.selected td { background: var(--accent-soft) }
 .stabs { margin: 4px 0 14px } .stackset { max-width: 760px }
 .chmini { font: inherit; font-size: .8rem; padding: 1px 4px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: inherit }
 .inp.chsel { display: inline-flex; width: auto; max-width: 100%; margin-bottom: 10px }
-.savenear { display: block; margin: 12px 0 0 auto; padding: 7px 16px; font-size: .88rem }
 label.check { margin-top: 10px; font-weight: 600 }
 label.check small { font-weight: 400; color: var(--muted) }
 
@@ -284,11 +283,6 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   table.imp tr { display: grid; grid-template-columns: 1fr auto auto; gap: 6px 10px; border-bottom: 1px solid var(--line); padding: 10px 0 }
   table.imp td { border: 0; padding: 0 } table.imp td:last-child { grid-column: 1 / -1 }
 }
-.savebar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; background: var(--panel); border-top: 2px solid var(--accent); padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -6px 20px rgb(0 0 0 / .12) }
-.savebar .wrap { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding-block: 10px }
-.savebar .btn { padding: 9px 18px; font-size: .95rem }
-body.dirty main.wrap { padding-bottom: 120px }
-body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 .loading { padding: 60px 0; text-align: center; color: var(--muted) }
 @media (prefers-reduced-motion: no-preference) { .bar div { transition: width .25s ease } }
 </style>
@@ -312,10 +306,6 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
 <div class="toast" id="toast" hidden></div>
-<div class="savebar" id="savebar" hidden>
-  <div class="wrap gutter"><span><strong>Nicht gespeichert</strong> <span class="note">Änderungen gehen sonst verloren</span></span>
-    <span class="btns"><button class="btn" data-act="discard">Verwerfen</button><button class="btn primary" data-act="save">Speichern</button></span></div>
-</div>
 
 <script>
 (() => {
@@ -658,26 +648,12 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   // Mehrfachauswahl in der Artikelliste; bulk = geänderte Felder der gemeinsamen Bearbeitung (null = zu)
   let sel = new Set(), bulk = null, bulkDelAsk = false, shownIds = [], cmp = false;
   const VIEW_CH = [["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
-  // Entwürfe: Änderungen werden erst mit „Speichern“ übernommen
-  let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false;
+  // Entwürfe werden kurz nach der letzten Eingabe automatisch gespeichert
+  let draft = null, draftS = null, renames = [], dirty = false, curHash = null, skipHash = false, saveTimer = null;
   function setDirty(x) {
-    dirty = x; $("savebar").hidden = !x; document.body.classList.toggle("dirty", x);
-    const b = $("saveTop"); if (b) b.disabled = !x;
-    placeSaveNear();
+    dirty = x; clearTimeout(saveTimer);
+    if (x) saveTimer = setTimeout(doSave, 700);
   }
-  // Speichern-Knopf am Ende der Kategorie, in der man gerade tippt
-  let nearField = null;
-  const saveNear = Object.assign(document.createElement("button"), { type: "button", className: "btn primary savenear", textContent: "✓ Speichern" });
-  saveNear.dataset.act = "save";
-  saveNear.addEventListener("pointerdown", e => e.preventDefault());
-  function placeSaveNear() {
-    if (!dirty || !nearField || !nearField.isConnected) return saveNear.remove();
-    if (nearField.lastElementChild !== saveNear) nearField.append(saveNear);
-  }
-  document.addEventListener("focusin", e => {
-    const f = e.target.closest && e.target.closest("#view .box");
-    if (f && (e.target.matches("input, select"))) { nearField = f; placeSaveNear(); }
-  });
   function doSave() {
     if (view === "artikel" && draft) {
       delete draft.isNew; delete draft.example;
@@ -687,26 +663,22 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       if (i >= 0 && v(A[i].price) !== v(a.price) && a.priceAtEtsy == null) a.priceAtEtsy = A[i].price;
       if (a.priceAtEtsy != null && v(a.priceAtEtsy) === v(a.price)) delete a.priceAtEtsy;
       if (i >= 0) A[i] = a; else A.push(a);
-      saveArticle(a); setDirty(false); renderEditor(draft);
-      toast(wasOpen && !nowOpen ? "Gespeichert · verschoben nach ✓ Fertig" : !wasOpen && nowOpen ? "Gespeichert · zurück in ⚠ Daten fehlen" : "Gespeichert");
-      // Noch etwas offen: gleich zum nächsten fehlenden Feld springen
-      if (nowOpen) setTimeout(() => focusMissing(draft), 60);
+      if (draft.priceAtEtsy !== a.priceAtEtsy) { if (a.priceAtEtsy == null) delete draft.priceAtEtsy; else draft.priceAtEtsy = a.priceAtEtsy; }
+      saveArticle(a); setDirty(false);
+      if (wasOpen !== nowOpen) toast(nowOpen ? "Zurück in ⚠ Daten fehlen" : "Vollständig · liegt jetzt in ✓ Fertig");
     } else if (view === "einstellungen" && draftS) {
-      S = clone(draftS); draftS = clone(S); renames.forEach(([k, o, n]) => renameRef(k, o, n)); renames = [];
-      saveSettings(); setDirty(false); renderSettings(); toast("Gespeichert");
-    }
+      S = clone(draftS); renames.forEach(([k, o, n]) => renameRef(k, o, n)); renames = [];
+      saveSettings(); setDirty(false);
+    } else setDirty(false);
   }
-  function doDiscard() {
-    if (view === "artikel" && draft) {
-      if (draft.isNew) { A = A.filter(x => x.id !== draft.id); setDirty(false); return go("uebersicht"); }
-      draft = clone(A.find(x => x.id === draft.id)); setDirty(false); renderEditor(draft);
-    } else if (view === "einstellungen") { draftS = clone(S); renames = []; setDirty(false); renderSettings(); }
-    toast("Änderungen verworfen");
-  }
-  window.addEventListener("beforeunload", e => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
+  // offene Änderung sofort sichern, wenn die Seite verlassen oder versteckt wird
+  window.addEventListener("beforeunload", () => { if (dirty) doSave(); });
+  document.addEventListener("visibilitychange", () => { if (document.hidden && dirty) doSave(); });
   function route() {
     if (skipHash) { skipHash = false; return; }
-    if (dirty && location.hash !== curHash) { skipHash = true; location.hash = curHash; toast("Erst speichern oder verwerfen"); return; }
+    if (dirty) doSave();
+    // neuer Artikel, in den nichts eingetragen wurde: wieder weg
+    if (draft && draft.isNew) A = A.filter(x => x.id !== draft.id);
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
@@ -724,7 +696,6 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
       const a = A.find(x => x.id === curId); if (!a) return go("uebersicht");
       if (!draft || draft.id !== a.id) draft = clone(a);
       renderEditor(draft);
-      if (draft.isNew) setDirty(true);
     }
     else if (view === "import") renderImport();
     else if (view === "einstellungen") { if (!draftS) draftS = clone(S); renderSettings(); }
@@ -992,7 +963,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     $("view").innerHTML = `
       <div class="row">
         <span class="btns"><a class="btn" href="#uebersicht">← Dashboard</a><button class="btn star-btn" data-star="${a.id}" aria-pressed="${!!a.fav}">${a.fav ? "★ Markiert" : "☆ Markieren"}</button></span>
-        <div class="btns">${a.example ? '<span class="pill muted">Beispiel mit geschätzten Zahlen</span>' : ""}<button class="btn" data-act="dup">Duplizieren</button><button class="btn danger" data-act="del">Löschen</button><button class="btn primary" id="saveTop" data-act="save" ${dirty ? "" : "disabled"}>Speichern</button></div>
+        <div class="btns">${a.example ? '<span class="pill muted">Beispiel mit geschätzten Zahlen</span>' : ""}<button class="btn" data-act="dup">Duplizieren</button><button class="btn danger" data-act="del">Löschen</button></div>
       </div>
       <div class="arthead" id="artHead"><img class="thumb" id="ahImg" alt="" hidden onerror="this.hidden=true"><div class="ahname"><strong id="ahName"></strong><span class="sku" id="ahSku"></span></div><span class="num" id="ahProfit"></span></div>
       <div class="status" id="missBox"></div>
@@ -1171,7 +1142,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     mb.className = "status " + (miss.length ? "open" : "done");
     mb.innerHTML = miss.length
       ? `<span>⚠ Noch offen:</span> ${miss.map(x => `<button type="button" class="chip miss" data-jump="${x}">${x}</button>`).join("")}<span class="note">Sind alle Punkte erledigt, kommt der Artikel beim Speichern nach ✓ Fertig.</span>`
-      : `<span>✓ Vollständig</span><span class="note">${dirty ? "Beim Speichern kommt der Artikel nach ✓ Fertig." : "Liegt im Ordner ✓ Fertig."}</span>`;
+      : `<span>✓ Vollständig</span><span class="note">Liegt im Ordner ✓ Fertig.</span>`;
     const pl = S.plates[0];
     const m2 = pl && v(pl.l) * v(pl.b) > 0 ? v(pl.p) / (v(pl.l) * v(pl.b) / 10000) : 0;
     const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(S.wasteDefault) / 100))) : 0;
@@ -1268,8 +1239,8 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
     const T = draftS || S;
     const ctx = volume();
     $("view").innerHTML = `
-      <div class="row"><h1>Einstellungen</h1><button class="btn primary" id="saveTop" data-act="save" ${dirty ? "" : "disabled"}>Speichern</button></div>
-      <p class="note">Gilt für alle Artikel. Nach dem Speichern rechnet die App alle Artikel neu.</p>
+      <div class="row"><h1>Einstellungen</h1></div>
+      <p class="note">Gilt für alle Artikel. Änderungen werden automatisch gespeichert und alle Artikel neu gerechnet.</p>
       <div class="seg stabs" aria-label="Bereiche">${STABS.map(([k, l]) => `<button type="button" data-stab="${k}" aria-pressed="${stab === k}">${l}</button>`).join("")}</div>
       <div class="stack stackset">
           <section class="box" data-sec="betrieb">
@@ -1373,7 +1344,7 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
   }
   document.addEventListener("focusin", e => {
     const d = e.target.dataset;
-    if (draftS && d.sl && (draftS[d.sl][+d.i] || {}).ph) { confirmPh(d.sl, +d.i); toast("Als geprüft markiert, Speichern nicht vergessen"); }
+    if (draftS && d.sl && (draftS[d.sl][+d.i] || {}).ph) { confirmPh(d.sl, +d.i); toast("Als geprüft markiert"); }
   });
 
   // ---------- Eingaben ----------
@@ -1488,12 +1459,11 @@ body.dirty .toast { bottom: calc(80px + env(safe-area-inset-bottom, 0px)) }
         const n = sel.size; bulk = null; renderOverview(); return toast(`${n} Artikel geändert`);
       }
       case "save": return doSave();
-      case "discard": return doDiscard();
       case "new": { const n = { ...ARTICLE_BLANK(), isNew: true }; A.push(n); return go("artikel-" + n.id); }
       case "examples": { EXAMPLES().forEach(x => { A.push(x); saveArticle(x); }); toast("4 Beispielartikel hinzugefügt"); return go("uebersicht"); }
       case "useBox": { const sb = suggestBox(a); if (!sb) return; $("a-box").value = sb.n; $("a-box").dispatchEvent(new Event("input", { bubbles: true })); return; }
       case "addPart": a.parts.push({ n: "Teil", plate: (S.plates[0] || {}).n || "", l: "", b: "", q: "1" }); setDirty(true); renderEditor(a); return;
-      case "dup": { if (dirty) return toast("Erst speichern oder verwerfen"); const c = { ...clone(a), id: uid(), name: a.name + " (Kopie)", sales: {}, aliases: [] }; A.push(c); saveArticle(c); toast("Kopie angelegt"); return go("artikel-" + c.id); }
+      case "dup": { if (dirty) doSave(); const c = { ...clone(a), id: uid(), name: a.name + " (Kopie)", sales: {}, aliases: [] }; A.push(c); saveArticle(c); toast("Kopie angelegt"); return go("artikel-" + c.id); }
       case "del": $("delConfirm").hidden = false; return;
       case "delNo": $("delConfirm").hidden = true; return;
       case "delYes": { const n = a.name; removeArticle(a.id); setDirty(false); toast("Gelöscht: " + n); return go("uebersicht"); }
