@@ -692,8 +692,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // Ordner in der Übersicht: "open" = Daten fehlen, "done" = fertig, "all" = alle (pro Gerät gemerkt)
   let folder = LS.get("hlz-app-folder") || null;
   // Kanal, für den Liste und Artikel rechnen (der eingetragene Preis ist immer der Etsy-Preis)
-  let viewCh = LS.get("hlz-app-viewch") || "etsy";
-  if (viewCh === "mix") viewCh = "etsy";
+  // Liste, Vergleich und Export rechnen immer mit Etsy; nur der Artikel kann zum Nachsehen umschalten
+  let viewCh = "etsy";
   // Mehrfachauswahl in der Artikelliste; bulk = geänderte Felder der gemeinsamen Bearbeitung (null = zu)
   let sel = new Set(), bulk = null, bulkDelAsk = false, shownIds = [], cmp = false;
   const VIEW_CH = [["etsy", "Kanal: Etsy"], ["etsyOff", "Kanal: Etsy + Offsite Ads"], ["shopify", "Kanal: Shopify"], ["ebay", "Kanal: eBay"], ["direkt", "Kanal: Direktverkauf"]];
@@ -769,8 +769,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // Ausgewählte Artikel nebeneinander vergleichen; bester Wert je Zeile wird markiert
   function cmpPanel(list) {
     const ctx = volume(), cols = list.map(a => {
-      const r = calc(a, viewCh, undefined, ctx), mins = v(a.mins) + r.rohMin + r.packMin, pm = salesPerMonth(a);
-      return { a, r, mins, pm, wage: mins > 0 ? (r.profit + r.time) / (mins / 60) : NaN, cost: r.varCosts + r.fees + r.ads + r.fixShare, tp: solvePrice(a, viewCh, v(S.target), ctx) };
+      const r = calc(a, "etsy", undefined, ctx), mins = v(a.mins) + r.rohMin + r.packMin, pm = salesPerMonth(a);
+      return { a, r, mins, pm, wage: mins > 0 ? (r.profit + r.time) / (mins / 60) : NaN, cost: r.varCosts + r.fees + r.ads + r.fixShare, tp: solvePrice(a, "etsy", v(S.target), ctx) };
     });
     // [Bezeichnung, Wert, besser: "hi" | "lo" | "", Anzeige]
     const costRow = (l, f) => [l, c => f(c.r), "", eur];
@@ -799,7 +799,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     }).join("");
     const head = cols.map(({ a, r }) => { const [k, w] = status(r.margin); return `<th class="cmp-art">${thumbHTML(a)}<button class="linkbtn" data-open="${a.id}">${esc(a.name)}</button><br><span class="note num">${esc(a.sku || "")}</span> <span class="pill ${k}">${w}</span></th>`; }).join("");
     const ship = cols.map(c => `<td>${c.r.ship.chosen ? esc(c.r.ship.chosen.o.n) : "–"}${c.a.box ? `<br><span class="note">${esc(c.a.box)}</span>` : ""}</td>`).join("");
-    return `<div class="box cmp"><div class="row"><h3>Vergleich · ${esc(CH_NAMES[viewCh])}</h3><button class="btn" data-act="cmpClose">Schließen</button></div>
+    return `<div class="box cmp"><div class="row"><h3>Vergleich · Etsy</h3><button class="btn" data-act="cmpClose">Schließen</button></div>
       <div class="tablewrap"><table class="cmptable"><thead><tr><th></th>${head}</tr></thead><tbody>${body}<tr><th>Versandart</th>${ship}</tr></tbody></table></div>
       <p class="note">Grün = bester Wert in der Zeile. Stundenlohn = (Gewinn + eingerechnete Arbeitszeit) ÷ Arbeitsstunden, also was du pro Stunde wirklich verdienst.</p></div>`;
   }
@@ -1132,7 +1132,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     }
     const m = monthly(ctx), fix = fixTotal(), ph = phCount();
     const rows = A.map(a => {
-      const ch = viewCh, r = calc(a, ch, undefined, ctx);
+      const ch = "etsy", r = calc(a, ch, undefined, ctx);
       return { a, ch, r, pm: salesPerMonth(a), t: solvePrice(a, ch, v(S.target), ctx), miss: missing(a) };
     });
     const key = { name: x => norm(x.a.name), price: x => x.r.P, pm: x => x.pm, profit: x => x.r.profit, margin: x => isFinite(x.r.margin) ? x.r.margin : -1e9 }[sortKey];
@@ -1166,7 +1166,6 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <button class="btn" data-act="exportCsv">Export</button>
           </div>
         </div>
-        <div class="inp chsel"><select id="fCh" aria-label="Rechnen für Kanal">${VIEW_CH.map(([k, l]) => opt(k, l, viewCh === k)).join("")}</select></div>
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
         ${sel.size ? (bulkDelAsk ? `<div class="selbar danger"><strong>${sel.size} Artikel wirklich löschen?</strong><span class="note">Lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn${cmp ? " primary" : ""}" data-act="cmpOpen" ${sel.size < 2 ? 'disabled title="Mindestens 2 Artikel auswählen"' : ""}>Vergleichen</button><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>`) : ""}
         ${bulk && sel.size ? bulkPanel(A.filter(x => sel.has(x.id))) : ""}
@@ -1186,7 +1185,6 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         </table></div>
         <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab ${esc(S.target)} % (dein Ziel) grün, ab ${esc(dec(v(S.target) / 2))} % gelb, darunter rot.</p>
       </section>`;
-    $("fCh").addEventListener("change", e => { viewCh = e.target.value; LS.set("hlz-app-viewch", viewCh); renderOverview(); });
     const sEl = $("search");
     sEl.addEventListener("input", () => { search = sEl.value; const pos = sEl.selectionStart; renderOverview(); const n = $("search"); n.focus(); n.setSelectionRange(pos, pos); });
   }
@@ -1639,7 +1637,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     else if (a && d.as !== undefined) { (a.small = a.small || {})[d.as] = val; setDirty(true); updateEditor(a); }
     else if (a && d.ax !== undefined) { a.extra[+d.ax][d.f] = val; setDirty(true); updateEditor(a); }
     else if (a && d.am !== undefined) { (a.mach = a.mach || {})[d.am] = val; setDirty(true); updateEditor(a); }
-    else if (t.id === "rChan") { viewCh = val; LS.set("hlz-app-viewch", viewCh); if (a) updateEditor(a); }
+    else if (t.id === "rChan") { viewCh = val; if (a) updateEditor(a); }
     else if (bulk && d.bulk !== undefined) { bulk[d.bulk] = val; t.closest(".inp")?.classList.add("changed"); }
     else if (draftS && d.s) {
       draftS[d.s] = val; setDirty(true);
@@ -1792,7 +1790,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     } else {
       head = ["Artikel", "SKU", "Kanal", "Preis brutto", "Rabatt %", "Gewinn", "Marge %", "Preisempfehlung", "Mindestpreis", "Holz", "Öl", "Kleinteile", "Einkaufspreis", "Lieferant", "Porto", "Versandart", "Karton", "Gewicht g", "Arbeitszeit Min", "Verkäufe/Monat", "Status", "Nochmal ran", "Notiz"];
       rows = list.map(a => {
-        const ch = viewCh, r = calc(a, ch, undefined, ctx), c = r;
+        const ch = "etsy", r = calc(a, ch, undefined, ctx), c = r;
         const tp = solvePrice(a, ch, v(S.target), ctx), miss = missing(a);
         return [a.name, a.sku || "", CH_NAMES[ch], num(v(a.price)), num(v(a.disc)), num(r.profit), num(r.margin), num(nicePrice(tp)), num(solvePrice(a, ch, 0, ctx)),
           num(c.wood), num(c.oil), num(c.small), num(c.ext), a.supplier || "", num(c.porto), c.ship.chosen ? c.ship.chosen.o.n : "", a.box || "", Math.round(shipWeight(a)) || "",
