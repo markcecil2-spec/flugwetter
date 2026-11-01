@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 122 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 123 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -727,6 +727,16 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const g0 = g(0), slope = (g(100) - g0) / 100;
     return slope > 0 ? Math.max(0, -g0 / slope) : NaN;
   }
+  // Größter ganzer Rabatt (%) auf den Etsy-Preis, bei dem die Ziel-Marge noch gehalten wird. t = Preis für genau die Ziel-Marge (solvePrice).
+  // Der Gewinn ist linear im Preis, daher ist t exakt; abgerundet und mit calc nachgeprüft, damit die Marge sicher ≥ Ziel bleibt.
+  function maxDisc(a, ch, ctx, t) {
+    const p0 = v(a.price), target = v(S.target);
+    if (!(p0 > 0) || !isFinite(t) || !isFinite(target)) return NaN;
+    if (calc(a, ch, p0, ctx).margin < target) return 0;
+    let d = Math.max(0, Math.min(90, Math.floor((1 - t / p0) * 100 + 1e-9)));
+    while (d > 0 && calc(a, ch, p0 * (1 - d / 100), ctx).margin < target) d--;
+    return d;
+  }
   // Ampel an der Zielmarge: ab Ziel grün, ab halbem Ziel gelb, darunter rot
   const status = m => { const t = v(S.target) || 30; return !isFinite(m) ? ["muted", "–"] : m >= t ? ["good", "läuft"] : m >= t / 2 ? ["warn", "knapp"] : ["bad", m < 0 ? "Verlust" : "zu wenig"]; };
   function missing(a) {
@@ -972,6 +982,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     { k: "margin", l: () => "Marge", def: true, sort: x => isFinite(x.r.margin) ? x.r.margin : -1e9,
       cell: x => { const [c] = status(x.r.margin); return `<span class="pill ${c}">${pct(x.r.margin)}</span>${isFinite(x.t) ? `<div class="reco num" title="Preisempfehlung für ${esc(S.target)} % Marge">→ ${eur(nicePrice(x.t))}</div>` : ""}`; } },
     { k: "target", l: () => `Preis für ${S.target} %`, def: true, hideSm: true, cls: "num", sort: x => isFinite(x.t) ? x.t : 1e9, cell: x => eur(x.t) },
+    { k: "rabatt", l: () => "Max. Rabatt", def: true, hideSm: true, cls: "num", sort: x => isFinite(x.dmax) ? x.dmax : -1,
+      tip: "So viel Rabatt auf den Etsy-Preis ist höchstens drin, ohne unter deine Ziel-Marge zu fallen (auf ganze Prozent abgerundet, also sicher). Darunter der Preis nach diesem Rabatt. „kein Spielraum“ = die Marge liegt schon unter dem Ziel, erst den Preis erhöhen.",
+      cell: x => !isFinite(x.dmax) ? "–" : x.dmax > 0 ? `<span class="pill good" title="Marge danach mindestens ${esc(S.target)} %">−${x.dmax} %</span><div class="reco num">→ ${eur(v(x.a.price) * (1 - x.dmax / 100))}</div>` : `<span class="pill bad" title="Marge liegt schon unter dem Ziel">kein Spielraum</span>` },
     { k: "profitM", l: () => "Gewinn/Monat", hideSm: true, cls: "num", sort: x => x.r.profit * x.pm, cell: x => x.pm ? eur(x.r.profit * x.pm) : "–" },
     { k: "revM", l: () => "Umsatz/Monat", hideSm: true, cls: "num", sort: x => x.r.gross * x.pm, cell: x => x.pm ? eur(x.r.gross * x.pm) : "–" },
     { k: "wage", l: () => "Stundenlohn", hideSm: true, cls: "num", sort: x => isFinite(pickWage(x)) ? pickWage(x) : -1e9, cell: x => isFinite(pickWage(x)) ? eur(pickWage(x)) + "/h" : "–" },
@@ -1781,7 +1794,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const m = monthly(ctx), fix = fixTotal(), ph = phCount();
     const rows = A.map(a => {
       const ch = "etsy", r = calc(a, ch, undefined, ctx);
-      return { a, ch, r, pm: salesPerMonth(a), t: solvePrice(a, ch, v(S.target), ctx), miss: missing(a) };
+      const t = solvePrice(a, ch, v(S.target), ctx);
+      return { a, ch, r, pm: salesPerMonth(a), t, dmax: maxDisc(a, ch, ctx, t), miss: missing(a) };
     });
     const abc = abcInfo(); rows.forEach(x => Object.assign(x, abc[x.a.id] || { abc: "C", share: 0, noSales: true }));
     const visCols = ovCols();
@@ -1976,7 +1990,11 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <div class="kpi"><span class="label">Gebühren</span><span class="num" id="kFees"></span></div>
             <div class="kpi"><span class="label">Mindestpreis</span><span class="num" id="kMin"></span></div>
             <div class="kpi"><span class="label">Preis für ${esc(S.target)} % Marge</span><span class="num" id="kTarget" style="color:var(--accent)"></span></div>
+            <div class="kpi"><span class="label">Max. Rabatt (hält ${esc(S.target)} %)</span><span class="num" id="kDisc" style="color:var(--accent)"></span></div>
           </div>
+          <h3 style="margin-top:6px">Rabatt-Rechner</h3>
+          <p class="note" style="margin:0">Was bleibt, wenn du den Etsy-Preis um … senkst. Grün = Ziel-Marge gehalten.</p>
+          <div class="tablewrap"><table style="min-width:0"><thead><tr><th>Rabatt</th><th class="num">Preis</th><th class="num">Gewinn</th><th class="num">Marge</th><th class="num" title="Grob: so viel mehr müsstest du verkaufen, damit der Gewinn pro Monat gleich bleibt">Mehr Absatz nötig</th></tr></thead><tbody id="discBody"></tbody></table></div>
           <h3 style="margin-top:6px">Andere Kanäle</h3>
           <div class="tablewrap"><table style="min-width:0"><thead><tr><th>Kanal</th><th class="num">Gewinn</th><th class="num">Marge</th></tr></thead><tbody id="cmpBody"></tbody></table></div>
         </aside>
@@ -2092,6 +2110,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     $("kFees").textContent = eur(r.fees) + (r.gross > 0 ? " · " + pct(r.fees / r.gross * 100) : "");
     $("kMin").textContent = eur(solvePrice(a, ch, 0, ctx));
     const tp = solvePrice(a, ch, v(S.target), ctx); $("kTarget").textContent = isFinite(tp) ? eur(tp) : "nicht erreichbar";
+    { const p0 = v(a.price), dm = maxDisc(a, ch, ctx, tp);
+      $("kDisc").textContent = !(p0 > 0) || !isFinite(dm) ? "–" : dm > 0 ? `−${dm} % (→ ${eur(p0 * (1 - dm / 100))})` : "kein Spielraum";
+      $("discBody").innerHTML = p0 > 0 ? [5, 10, 15, 20, 25].map(d => { const rr = calc(a, ch, p0 * (1 - d / 100), ctx), c = rr.margin >= v(S.target) ? "good" : rr.margin >= 0 ? "warn" : "bad", more = r.profit > 0 && rr.profit > 0 ? "+" + dec((r.profit / rr.profit - 1) * 100, 0) + " %" : "–";
+        return `<tr><td>−${d} %</td><td class="num">${eur(p0 * (1 - d / 100))}</td><td class="num">${eur(rr.profit)}</td><td class="num"><span class="pill ${c}">${pct(rr.margin)}</span></td><td class="num">${more}</td></tr>`; }).join("") : `<tr><td colspan="5" class="note">Trag erst einen Preis ein.</td></tr>`; }
     const np = nicePrice(tp);
     $("rReco").innerHTML = isFinite(np) ? `Preisempfehlung für ${esc(S.target)} % Marge: <strong class="num">${eur(np)}</strong>${v(a.price) ? ` <span class="note">(${v(a.price) >= np ? "dein Preis passt" : eur(np - v(a.price)) + " mehr als jetzt"})</span>` : ""}` : "";
 
