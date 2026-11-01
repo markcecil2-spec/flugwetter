@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 119 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 120 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -2933,7 +2933,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     // USt-Posten mit Datum, aber ohne Betrag: mit 3 × Zahllast geschätzt
     const open = F.debts.map(d => v(d.a) > 0 ? { ...d, ea: v(d.a) } : d.typ === "ust" && d.due && zahl > 0 ? { ...d, ea: 3 * zahl, est: true } : null).filter(d => d && !d.paid), openSum = open.reduce((s, d) => s + d.ea, 0);
     const openP = open.filter(d => d.acc === "p").reduce((n, d) => n + d.ea, 0), openG = openSum - openP;
-    const nk = nowYM(), privOn = F.priv.filter(r => r.inc !== false), inc0 = F.income || [];
+    const nk = nowYM(), privOn = F.priv.filter(r => r.inc !== false), inc0 = (F.income || []).filter(r => r.inc !== false);   // „zählt“ abgehakte Einnahmen
     const privSum = privOn.filter(r => finAct(r, nk)).reduce((n, r) => n + privAvg(r), 0), sparM = privOn.filter(r => r.g === "vor" && finAct(r, nk)).reduce((n, r) => n + privAvg(r), 0);
     const other = inc0.reduce((n, r) => n + (finAct(r, nk) ? v(r.a) : 0), 0);
     const income = tx.net + other, ent = F.entnahme !== "" && F.entnahme !== undefined ? v(F.entnahme) : tx.net;   // Entnahme aufs Privatkonto: leer = ganzes Shop-Einkommen nach Steuer
@@ -3003,7 +3003,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         <tr class="tot"><td><strong>Gesamt</strong> <span class="note">(laufende Posten, Ø pro Monat)</span></td><td></td><td></td><td></td><td></td><td></td><td class="r num"><strong>${eur(tot)}</strong></td><td></td><td></td></tr></tbody></table></div>
         <div class="btns" style="margin:8px 0 14px"><button class="btn" data-fin-add="priv:${g}">+ Posten</button></div>`;
     };
-    const incRows = (F.income || []).map(r => [`<div class="inp"><input type="text" data-finl="income|${r.id}|n" value="${esc(r.n)}"></div>`, numIn(`data-finl="income|${r.id}|a"`, r.a, "€ / Monat"), sel(`data-finl="income|${r.id}|from"`, monthOpts(r.from, "sofort")), sel(`data-finl="income|${r.id}|to"`, monthOpts(r.to, "unbefristet")), `<button class="btn" data-fin-del="income|${r.id}" aria-label="Löschen">×</button>`]);
+    const incRows = (F.income || []).map(r => [`<div class="inp"><input type="text" data-finl="income|${r.id}|n" value="${esc(r.n)}"></div>`, numIn(`data-finl="income|${r.id}|a"`, r.a, "€ / Monat"), sel(`data-finl="income|${r.id}|from"`, monthOpts(r.from, "sofort")), sel(`data-finl="income|${r.id}|to"`, monthOpts(r.to, "unbefristet")), `<input type="checkbox" data-finl="income|${r.id}|inc" ${r.inc !== false ? "checked" : ""} aria-label="zählt im Budget mit">`, `<button class="btn" data-fin-del="income|${r.id}" aria-label="Löschen">×</button>`]);
     const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 || (x.once || []).length ? `<span class="note">${esc(x.items.concat(x.once || []).join(" · "))}</span>${x.pay > 0 ? `<br>−${eur0(x.pay)}` : ""}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.balP < 0 ? "bad" : "good"})">${eur0(x.balP)}</strong>`, `<strong class="num" style="color:var(--${x.balG < 0 ? "bad" : "good"})">${eur0(x.balG)}</strong>`, `<span class="num">${eur0(x.bal)}</span>`]);
     const firstNeg = c.proj.find(x => x.balP < 0 || x.balG < 0), negWho = firstNeg ? (firstNeg.balP < 0 && firstNeg.balG < 0 ? "auf beiden Konten" : firstNeg.balP < 0 ? "auf dem Privatkonto" : "auf dem Geschäftskonto") : "";
     const hasSales = c.T.qty > 0, hasSalesEnt = hasSales, noMoney = F.kontoG === "" && F.kontoP === "" && F.guthaben === "" && F.bar === "";
@@ -3061,8 +3061,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       </section>
 
       <section class="box" data-fs="plan" style="margin-top:12px"><h2>Einnahmen neben dem Shop</h2>
-        <p class="note">Alles, was zusätzlich reinkommt: Gehalt, Nebenjob, Kindergeld, BFD … Mit „ab“ legst du fest, wann es losgeht, mit „bis“ optional, wann es endet. Der Shop selbst kommt aus der Auswertung und steht hier nicht drin.</p>
-        <div class="tablewrap">${anaTable(["Posten", "Betrag", "ab", "bis", ""], incRows, [1])}</div>
+        <p class="note">Alles, was zusätzlich reinkommt: Gehalt, Nebenjob, Kindergeld, BFD … Mit dem Haken „zählt“ nimmst du eine Einnahme in die Rechnung auf oder wieder raus (z. B. wenn der Job noch nicht sicher ist). Mit „ab“ legst du fest, wann es losgeht, mit „bis“ optional, wann es endet. Der Shop selbst kommt aus der Auswertung und steht hier nicht drin.</p>
+        <div class="tablewrap">${anaTable(["Posten", "Betrag", "ab", "bis", "zählt", ""], incRows, [1])}</div>
         <div class="btns" style="margin-top:8px"><button class="btn" data-fin-add="income">+ Posten</button></div>
         ${(F.income || []).some(r => r.id === "i-neu" && !v(r.a)) ? `<p class="note">Die Zeile „Zusätzliche Einnahmen“ startet im ${MN[(+(((F.income || []).find(r => r.id === "i-neu") || {}).from || "2027-03").split("-")[1]) - 1]}, trag den Betrag ein, dann fließt er in Budget und Prognose.</p>` : ""}
       </section>
@@ -3392,7 +3392,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (Math.min(worst.balG, worst.balP) < 0) L.push(`Am knappsten wird es im ${b(monthName(worst.d))}: Privatkonto ${eur0(worst.balP)}, Geschäftskonto ${eur0(worst.balG)}.${lastNeg >= 0 && lastNeg < c.proj.length - 1 ? ` Zusammen genommen bist du ab ${b(monthName(c.proj[lastNeg + 1].d))} wieder im Plus.` : lastNeg === c.proj.length - 1 ? " In den nächsten 12 Monaten wirst du zusammen nicht mehr ins Plus kommen." : ""}`);
     else L.push("In den nächsten 12 Monaten rutscht keines deiner Konten ins Minus.");
     const nk = nowYM();
-    (F.income || []).filter(r => v(r.a) > 0 && r.from && ymKey(r.from) > nk).forEach(r => L.push(`Ab ${b(ymName(r.from))} kommen ${b(eur0(v(r.a)))} pro Monat dazu (${esc(r.n || "Einnahme")}).`));
+    (F.income || []).filter(r => r.inc !== false && v(r.a) > 0 && r.from && ymKey(r.from) > nk).forEach(r => L.push(`Ab ${b(ymName(r.from))} kommen ${b(eur0(v(r.a)))} pro Monat dazu (${esc(r.n || "Einnahme")}).`));
     return L;
   }
   function finTips(c) {
@@ -3418,7 +3418,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const worst = c.proj.reduce((w, x) => Math.min(x.balG, x.balP) < Math.min(w.balG, w.balP) ? x : w, c.proj[0]);
     if (Math.min(worst.balG, worst.balP) < 0) add({ urg: 1, title: `Im ${monthName(worst.d)} wird es am knappsten`, why: `Dann stehen Privatkonto ${eur0(worst.balP)} und Geschäftskonto ${eur0(worst.balG)}.${worst.items.length ? ` Grund: ${esc(worst.items.join(", "))}.` : ""}`, todo: "Verteile große Zahlungen auf Raten, verschiebe Wünsche (Urlaub) hinter die engen Monate und plane Einnahmen früher ein.", impact: -Math.min(worst.balG, worst.balP), unit: "Lücke" });
     // neue Einnahme
-    (F.income || []).filter(r => v(r.a) > 0 && r.from && ymKey(r.from) > nk && ymKey(r.from) - nk <= 10).forEach(r => add({ urg: 2, title: `Ab ${ymName(r.from)} kommen ${eur0(v(r.a))} pro Monat dazu`, why: `${esc(r.n || "Einnahme")}: Das ist ${eur0(v(r.a))} mehr als heute.`, todo: `Plane mindestens die Hälfte (${eur0(v(r.a) * 0.5)}) für Steuerschulden und den Puffer ein, bevor du die Ausgaben erhöhst.`, impact: v(r.a) * 0.5, unit: "pro Monat" }));
+    (F.income || []).filter(r => r.inc !== false && v(r.a) > 0 && r.from && ymKey(r.from) > nk && ymKey(r.from) - nk <= 10).forEach(r => add({ urg: 2, title: `Ab ${ymName(r.from)} kommen ${eur0(v(r.a))} pro Monat dazu`, why: `${esc(r.n || "Einnahme")}: Das ist ${eur0(v(r.a))} mehr als heute.`, todo: `Plane mindestens die Hälfte (${eur0(v(r.a) * 0.5)}) für Steuerschulden und den Puffer ein, bevor du die Ausgaben erhöhst.`, impact: v(r.a) * 0.5, unit: "pro Monat" }));
     // USt-Rücklage
     if (c.regel && c.zahl > 0) add({ urg: 2, title: "Umsatzsteuer jeden Monat zurücklegen", why: `Deine Umsatzsteuer-Zahllast liegt bei etwa ${eur0(c.zahl)} pro Monat (${eur0(3 * c.zahl)} pro Quartal).`, todo: "Lass bei jeder Auszahlung gleich 10 % in ein Konto laufen, an das du nicht rankommst (zweites Konto ohne Karte, oder ein Space ohne Rückbuchung). Dann ist die Steuer beim nächsten Termin da.", impact: null });
     // aus den Kontoauszügen
