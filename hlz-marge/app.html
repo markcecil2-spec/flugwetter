@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 111 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 112 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -423,6 +423,11 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const eur0 = x => !isFinite(x) ? "–" : (x < 0 ? "−" : "") + Math.abs(x).toLocaleString("de-DE", { maximumFractionDigits: 0 }) + " €";
   const pct = x => isFinite(x) ? (x < 0 ? "−" : "") + Math.abs(x).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " %" : "–";
   const dec = (x, d = 1) => x.toLocaleString("de-DE", { maximumFractionDigits: d });
+  function showErr(e) {
+    console.error(e);
+    const el = document.getElementById("view"); if (!el) return;
+    el.innerHTML = `<section class="box"><h2>Da ist etwas schiefgelaufen</h2><p>Die Seite konnte nicht aufgebaut werden. Schick mir bitte einen Screenshot von diesem Kasten.</p><pre style="white-space:pre-wrap;font-size:.8rem;overflow:auto">${String((e && (e.stack || e.message)) || e).replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre><p><a class="btn primary" href="">Neu laden</a></p></section>`;
+  }
   const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
   const kg = g => dec(g / 1000, 2) + " kg";
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -565,8 +570,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         .catch(e => { inflight--; setSync("err"); toast(e && e.code === "quota_exceeded" ? "Speicher voll, lösche alte Artikel." : "Speichern fehlgeschlagen, versuch es gleich nochmal."); });
     }, 50);
   }
-  let lastSettingsSave = 0;
-  const saveSettings = () => { lastSettingsSave = Date.now(); persist("settings", () => store.saveSettings(S)); };
+  const canon = x => Array.isArray(x) ? x.map(canon) : x && typeof x === "object" ? Object.fromEntries(Object.keys(x).sort().map(k => [k, canon(x[k])])) : x;
+  const ownEchoes = [];   // die letzten selbst gespeicherten Einstellungs-Stände: kommen sie als „Live-Änderung“ zurück, werden sie ignoriert
+  const saveSettings = () => persist("settings", () => { ownEchoes.push(JSON.stringify(canon(clone(S)))); if (ownEchoes.length > 40) ownEchoes.shift(); return store.saveSettings(S); });
   const saveArticle = a => { a.updated = Date.now(); persist("a:" + a.id, () => store.saveArticle(a)); };
   const saveMsg = m => persist("m:" + m.id, () => store.saveMsg(m));
   const saveOrder = o => persist("o:" + o.id, () => store.saveOrder(o));
@@ -857,7 +863,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (view === "artikel" && h.startsWith("artikel-")) { history.replaceState(null, "", "#" + h); return route(); }
     location.hash = h;
   };
-  function render() {
+  function render() { try { render0(); } catch (e) { showErr(e); } }
+  function render0() {
     if (view === "artikel") {
       const a = A.find(x => x.id === curId); if (!a) return go("uebersicht");
       if (!draft || draft.id !== a.id) draft = clone(a);
@@ -870,7 +877,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "produktion") renderProduction();
     else if (view === "bestellungen") renderOrders();
     else if (view === "auswertung") renderAnalysis();
-    else if (view === "finanzen") renderFinance();
+    else if (view === "finanzen") finDraw();
     else renderOverview();
   }
 
@@ -2796,7 +2803,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   function liveSettings(data) {
     if (!data) return;
     // Echo der eigenen Speicherung (kann älter sein als das, was gerade getippt wurde) nicht übernehmen
-    if (Date.now() - lastSettingsSave < 4000 || inflight > 0) return;
+    if (inflight > 0 || ownEchoes.includes(JSON.stringify(canon(data)))) return;
     const next = { ...SETTINGS_DEFAULT(), ...clone(data) };
     if (!data.fin && S.fin) next.fin = S.fin;
     if (JSON.stringify(next) === JSON.stringify(S)) return;
@@ -2808,7 +2815,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (typing()) return;
     if (view === "uebersicht") renderOverview();
     else if (view === "produktion") renderProduction();
-    else if (view === "finanzen") renderFinance();
+    else if (view === "finanzen") finDraw();
     else if (view === "artikel" && !dirty) {
       const a = A.find(x => x.id === curId);
       if (a && JSON.stringify(a) !== JSON.stringify(draft)) { draft = clone(a); renderEditor(draft); }
@@ -2939,6 +2946,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const monthlyRate = open.reduce((s, d) => s + (v(d.raten) > 1 ? d.ea / Math.floor(v(d.raten)) : 0), 0);
     return { F, T, m, tx, regel, liquid, open, openSum, ustOut, vor, vorAuto, zahl, privSum, sparM, other, income, proj, next, late, monthlyRate, td, surplus: income - privSum - monthlyRate, lastUst };
   }
+  const finDraw = () => { try { renderFinance(); } catch (e) { showErr(e); } };
   function renderFinance() {
     const c = finCalc(), F = c.F, td = c.td;
     const free = c.liquid - c.openSum;
@@ -3053,10 +3061,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     // Datum: der Browser meldet schon beim Tippen der ersten Jahresziffer. Nur gültige Jahre speichern, neu zeichnen erst beim Verlassen des Felds.
     if (t.type === "date") { finCommitDates(); return; }
     if (d.fin) { F[d.fin] = val; if (["konto", "guthaben", "bar"].includes(d.fin)) F.stand = isoD(new Date()); }
-    else if (d.finl) { const [k, id, f] = d.finl.split("|"), r = F[k].find(x => x.id === id); if (!r) { toast("Die Liste wurde gerade aktualisiert, bitte nochmal eintragen."); return renderFinance(); } if (f === "ust") r.typ = val ? "ust" : "sonst"; else if (/^m\d+$/.test(f)) { r.m = r.m || Array(12).fill(""); r.m[+f.slice(1)] = val; } else r[f] = val; }
+    else if (d.finl) { const [k, id, f] = d.finl.split("|"), r = F[k].find(x => x.id === id); if (!r) { toast("Die Liste wurde gerade aktualisiert, bitte nochmal eintragen."); return finDraw(); } if (f === "ust") r.typ = val ? "ust" : "sonst"; else if (/^m\d+$/.test(f)) { r.m = r.m || Array(12).fill(""); r.m[+f.slice(1)] = val; } else r[f] = val; }
     else return;
     saveSettings();
-    if (t.type === "checkbox" || t.tagName === "SELECT") renderFinance(); else finSoon();
+    if (t.type === "checkbox" || t.tagName === "SELECT") finDraw(); else finSoon();
   });
   // Summen aktualisieren: erst wenn der Cursor in keinem Feld mehr steht (sonst springt er beim Tab-Durchtippen raus)
   let finTimer = null;
@@ -3065,13 +3073,13 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     finTimer = setTimeout(() => {
       if (view !== "finanzen") return;
       if (typing()) return finSoon();
-      const sy = window.scrollY; renderFinance(); window.scrollTo(0, sy);
+      const sy = window.scrollY; finDraw(); window.scrollTo(0, sy);
     }, 700);
   }
   // neu zeichnen und den Fokus (z. B. nach Tab ins nächste Feld) und die Scrollposition behalten
   function finRerender() {
     const ae = document.activeElement, dd = ae && ae.dataset, key = dd && (dd.fin ? `[data-fin="${dd.fin}"]` : dd.finl ? `[data-finl="${dd.finl}"]` : ""), sy = window.scrollY;
-    renderFinance(); window.scrollTo(0, sy);
+    finDraw(); window.scrollTo(0, sy);
     if (key) { const el = document.querySelector(key); if (el) { el.focus(); if (el.select && el.type !== "checkbox") el.select(); } }
   }
   // Datumsfelder sichern, ohne neu zu zeichnen: zweistelliges Jahr (26) wird 2026, unsinnige Jahre werden ignoriert
@@ -3094,7 +3102,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   document.addEventListener("visibilitychange", () => { if (document.hidden) finCommitDates(); });
   document.addEventListener("focusout", e => {
     if (view !== "finanzen" || !e.target.dataset || e.target.type !== "date") return;
-    finCommitDates(); if (e.target.dataset.finPending) { delete e.target.dataset.finPending; renderFinance(); }
+    finCommitDates(); if (e.target.dataset.finPending) { delete e.target.dataset.finPending; finDraw(); }
   });
   document.addEventListener("click", e => {
     if (view !== "finanzen") return;
@@ -3107,6 +3115,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
 
   // ---------- Start ----------
   async function boot() {
+    setTimeout(() => { const l = document.querySelector("#view .loading"); if (l) l.innerHTML = 'Lädt länger als gewöhnlich … <a href="">Neu laden</a>'; }, 15000);
     store = Local; mode = "local";
     if (window.claude && typeof window.claude.use === "function") {
       try {
