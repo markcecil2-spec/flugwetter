@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 116 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 117 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -525,6 +525,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     async loadOrders() { return LS.get("hlz-app-orders") || []; },
     async saveOrder() { LS.set("hlz-app-orders", ORD); },
     async deleteOrder() { LS.set("hlz-app-orders", ORD); },
+    async loadBank() { return Object.values(LS.get("hlz-app-bank") || {}); },
+    async saveBank(d) { const all = LS.get("hlz-app-bank") || {}; all[d.id] = d; LS.set("hlz-app-bank", all); },
+    async deleteBank(id) { const all = LS.get("hlz-app-bank") || {}; delete all[id]; LS.set("hlz-app-bank", all); },
     async saveMsg() { LS.set("hlz-app-support", SUP); },
     async deleteMsg() { LS.set("hlz-app-support", SUP); },
     async saveSettings(s) { LS.set("hlz-app-settings", s); },
@@ -549,6 +552,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     async loadOrders() { const q = await db.collection("orders").get(); return q.docs.map(d => clone(d.data())); },
     saveOrder: o => db.collection("orders").doc(o.id).set(clone(o)),
     deleteOrder: id => db.collection("orders").doc(id).delete(),
+    async loadBank() { const q = await db.collection("bank").get(); return q.docs.map(d => clone(d.data())); },
+    saveBank: d => db.collection("bank").doc(d.id).set(clone(d)),
+    deleteBank: id => db.collection("bank").doc(id).delete(),
     saveMsg: m => db.collection("support").doc(m.id).set(clone(m)),
     deleteMsg: id => db.collection("support").doc(id).delete()
   });
@@ -2913,6 +2919,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     // zwei Konten: der bisherige gemeinsame Kontostand wird zum Geschäftskonto, jeder Posten läuft standardmäßig übers Geschäftskonto
     if (F.kontoG === undefined) { F.kontoG = F.konto || ""; F.kontoP = ""; }
     if (F.entnahme === undefined) F.entnahme = "";
+    if (F.selfNames === undefined) F.selfNames = "mark adcock, mark cecil alexander adcock, mark cecil";
+    if (!F.rules) F.rules = {};
     F.debts.forEach(d => { if (!d.acc) d.acc = "g"; });
     return F;
   };
@@ -2960,7 +2968,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const surplusP = ent + other - privSum - rateP, surplusG = tx.net - ent - rateG;
     return { F, T, m, tx, regel, liquid, liquidG, liquidP, openG, openP, ent, rateP, rateG, surplusP, surplusG, open, openSum, ustOut, vor, vorAuto, zahl, privSum, sparM, other, income, proj, next, late, monthlyRate, td, surplus: surplusP + surplusG, lastUst };
   }
-  const FTABS = [["uebersicht", "Übersicht"], ["schulden", "Schulden und Steuern"], ["plan", "Einnahmen und Ausgaben"]];
+  const FTABS = [["uebersicht", "Übersicht"], ["schulden", "Schulden und Steuern"], ["plan", "Einnahmen und Ausgaben"], ["konto", "Kontoauszüge"]];
   let finTab = LS.get("hlz-app-ftab") || "uebersicht"; if (!FTABS.some(x => x[0] === finTab)) finTab = "uebersicht";
   const finDraw = () => { try { renderFinance(); } catch (e) { showErr(e); } };
   function renderFinance() {
@@ -3092,7 +3100,9 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Prognose: die nächsten 12 Monate</h2>
         <p class="note">Kontostände am Monatsende, je Konto: heutiges Geld + monatlich übrig − alle Fälligkeiten. Das Shop-Einkommen geht nach der Entnahme aufs Privatkonto, die Umsatzsteuer und die Schulden mit „Geschäft“ laufen übers Geschäftskonto. ${firstNeg ? `<strong style="color:var(--bad)">Achtung: ab ${firstNeg.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })} wird es ${negWho} knapp (Privat ${eur0(firstNeg.balP)}, Geschäft ${eur0(firstNeg.balG)}).</strong>` : c.liquid > 0 ? "Auf Basis deiner Zahlen reicht das Geld über den ganzen Zeitraum." : ""}</p>
         ${anaTable(["Monat", "Fällig (Schulden, USt)", "Privatkonto", "Geschäftskonto", "Gesamt"], projRows, [2, 3, 4])}
-      </section>`;
+      </section>
+      ${bankHTML()}`;
+    if (finTab === "konto" && BANK === null) bankLoad();
     document.querySelectorAll("#view [data-fs]").forEach(el => { el.style.display = el.dataset.fs === finTab ? "" : "none"; });
   }
   document.addEventListener("click", e => {
@@ -3155,6 +3165,213 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (t.dataset.finAdd) { const [k, g] = t.dataset.finAdd.split(":"); F[k].push(k === "debts" ? { id: uid(), n: "", a: "", due: "", typ: "sonst", raten: "", paid: false } : k === "income" ? { id: uid(), n: "", a: "", from: "", to: "" } : prow(uid(), g, "", "")); }
     else { const [k, id] = t.dataset.finDel.split("|"); F[k] = F[k].filter(x => x.id !== id); }
     saveSettings(); finRerender();
+  });
+
+  // ---------- Kontoauszüge (Import, Kategorien, Auswertung) ----------
+  let BANK = null, bankLoading = false, bankMsg = "", bankAcc = LS.get("hlz-app-bankacc") || "g", bankView = LS.get("hlz-app-bankview") || "g", bankDelAsk = false;
+  const BANK_CATS = {
+    g: ["E Etsy-Auszahlungen", "E PayPal", "E Shopify/Stripe", "E Sonstige Einnahmen", "F Shopify Capital (Kredit-Auszahlung)", "A Versand (Post/DHL/shipcloud)", "A Material/Holz/Zubehör", "A Zulieferer/Fertigung (Böttcher, Stauch)", "A Werkstattmiete", "A Software/Abos/KI/Telefon", "A Werbung (Google Ads)", "A Shopify Capital (Rückzahlung)", "A Ratenzahlung N26", "A Ladengemeinschaft Fünfeck", "A Versicherung (HUK Betrieb)", "A Amazon/Temu/Einkäufe", "A Fahrzeug/Tanken/Maut", "A PayPal-Zahlungen", "A Gebühren/Kammer/Kfz-Steuer", "A Sonstiges", "T Umsatzsteuer-Zahlung Finanzamt", "T Steuer-Erstattung", "T Steuern Finanzamt (Zahlung)", "P Privates über Geschäftskonto (Lebensmittel, Freizeit)", "INTERN Konto Geschäft ⇄ Privat", "INTERN Darlehen von Privat", "INTERN Spaces (Steuer-Rücklagen)"],
+    p: ["E Einkommensteuer-Erstattung", "E Bundeswehr (Besoldung/Lehrgangsgebühren)", "E Versicherung/Krankenkasse Erstattung", "E Sonstige Gutschriften", "P Miete", "P Strom", "P Krankenversicherung (TK)", "P Versicherungen", "P Fitness", "P Sparen/ETF (Trade Republic)", "P Gleitschirm/Fliegen", "P Fahrschule C/CE (Datapart, erstattet)", "P Reisen", "P Lebensmittel", "P Tanken/Auto", "P Bargeld", "P Marlene Sophie", "P GEZ/Rundfunk", "P PayPal/Online-Käufe", "P Restaurants/Freizeit/Sonstiges (Karte)", "P Überweisungen an Personen (Splitwise, Freunde)", "P Sonstiges", "INTERN Konto Geschäft ⇄ Privat", "INTERN Darlehen/Auslage an Geschäft"]
+  };
+  const BANK_GR = { E: "Einnahmen", F: "Finanzierung", A: "Betriebsausgaben", T: "Steuern", P: "Privat", INTERN: "Umbuchungen (zählen nicht)" };
+  const catPref = c => c.split(" ")[0], catOrder = c => ["E", "F", "A", "T", "P", "INTERN"].indexOf(catPref(c));
+  const partnerKey = p => String(p || "").toLowerCase().replace(/\s+/g, " ").trim().slice(0, 40);
+  const rx = (s, t) => new RegExp(s, "i").test(t);
+  const BANK_G_RULES = [["A Werkstattmiete", "apa grundst"], ["A Versand (Post/DHL/shipcloud)", "deutsche post|dhl|shipcloud|packs gmbh|ips karton"], ["A Material/Holz/Zubehör", "zeg zentral|hornbach|bauhaus|obi |toom|dehner|kassenklingeln|burnair"], ["A Zulieferer/Fertigung (Böttcher, Stauch)", "bottcher|stauch"], ["A Software/Abos/KI/Telefon", "billbee|haufe|buhl|anthropic|claude|openai|google workspace|congstar|e-plus|shopify\\*|n26|lexware|canva|adobe"], ["A Werbung (Google Ads)", "google ads|google \\*ads|pinterest"], ["A Shopify Capital (Rückzahlung)", "shopify capital"], ["A Ratenzahlung N26", "n26 ratenzahlung"], ["A Ladengemeinschaft Fünfeck", "f[uü]nfeck"], ["A Versicherung (HUK Betrieb)", "huk"], ["A Amazon/Temu/Einkäufe", "amazon|amzn|temu|b2b prime|aliexpress|ebay"], ["A Fahrzeug/Tanken/Maut", "tankstelle|orlen|jet-sb|total service|genol|asfinag|caravaning|aral|shell|agip"], ["A PayPal-Zahlungen", "paypal"], ["P Privates über Geschäftskonto (Lebensmittel, Freizeit)", "aldi|kaufland|gerlitzen|lidl|rewe|edeka"]];
+  const BANK_P_RULES = [["P Miete", "otto (gottlieb )?maier"], ["P Strom", "stadtwerke"], ["P Krankenversicherung (TK)", "techniker"], ["P Versicherungen", "gothaer|barmenia|cosmos|huk"], ["P Fitness", "fitness first"], ["P Sparen/ETF (Trade Republic)", "trade republic"], ["P Gleitschirm/Fliegen", "luftikus|hangegleiter|paraglid|adelboden|flugschule"], ["P Fahrschule C/CE (Datapart, erstattet)", "datapart"], ["P Reisen", "johannes blum|thailand|flug|bergbahn|gerlitzen|snocks"], ["P Lebensmittel", "aldi|rewe|kaufland|lidl|edeka|netto|penny|dm drogerie|mueller|müller|rossmann|baecker|metzger|pflanzen"], ["P Tanken/Auto", "tankstelle|orlen|aral|agip|total|jet |shell|trento|bolt|parkhaus|parken|park"], ["P Bargeld", "bargeld"], ["P Marlene Sophie", "marlene sophie"], ["P GEZ/Rundfunk", "rundfunk"], ["P PayPal/Online-Käufe", "paypal|otto payments|amazon|google|temu|decathlon|new yorker|deichmann|schuhhaus|fileworld|b2c|ebikes"]];
+  function bankCat(r, acc, F) {
+    const key = partnerKey(r.p); if (F.rules && F.rules[key]) return F.rules[key];
+    const p = String(r.p || "").toLowerCase(), ref = String(r.r || "").toLowerCase(), a = r.a;
+    const names = String(F.selfNames || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean).map(x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const self = names.length && new RegExp("^(" + names.join("|") + ")").test(p);
+    if (acc === "p") {
+      if (self) return a < 0 && ref.includes("hlzladen") ? "INTERN Darlehen/Auslage an Geschäft" : "INTERN Konto Geschäft ⇄ Privat";
+      if (a > 0) return rx("finanzamt", p) ? "E Einkommensteuer-Erstattung" : p.includes("bundeskasse") ? "E Bundeswehr (Besoldung/Lehrgangsgebühren)" : rx("techniker|huk|gothaer|barmenia|cosmos", p) ? "E Versicherung/Krankenkasse Erstattung" : "E Sonstige Gutschriften";
+      for (const [c, s] of BANK_P_RULES) if (rx(s, p)) return c;
+      if (p.startsWith("visa")) return "P Restaurants/Freizeit/Sonstiges (Karte)";
+      if (/^[a-zäöüß\-. ]+$/.test(p)) return "P Überweisungen an Personen (Splitwise, Freunde)";
+      return "P Sonstiges";
+    }
+    if (self) return a > 0 && ref.includes("hlzladen") ? "INTERN Darlehen von Privat" : "INTERN Konto Geschäft ⇄ Privat";
+    if (rx("^ustg steuer|^steuern/buchhaltung|einkommensverteiler", p + " " + ref)) return "INTERN Spaces (Steuer-Rücklagen)";
+    if (p.includes("finanzamt")) return a > 0 ? "T Steuer-Erstattung" : ref.includes("umsatzsteuer") ? "T Umsatzsteuer-Zahlung Finanzamt" : "T Steuern Finanzamt (Zahlung)";
+    if (rx("bundeskasse|handwerkskammer|rems-murr|stadt fellbach|abfall|grüne punkt|gruene punkt", p + " " + ref)) return "A Gebühren/Kammer/Kfz-Steuer";
+    if (a > 0) return p.includes("etsy") ? "E Etsy-Auszahlungen" : p.includes("paypal") ? "E PayPal" : (p.includes("banking circle") || ref.includes("shopify capital")) ? "F Shopify Capital (Kredit-Auszahlung)" : p.includes("stripe") ? "E Shopify/Stripe" : "E Sonstige Einnahmen";
+    for (const [c, s] of BANK_G_RULES) if (rx(s, p)) return c;
+    return "A Sonstiges";
+  }
+  // --- Datei lesen ---
+  const bankDecode = buf => { try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch (e) { return new TextDecoder("windows-1252").decode(buf); } };
+  function bankTable(text, d) {
+    const rows = []; let row = [], f = "", q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+      else if (c === '"') q = true;
+      else if (c === d) { row.push(f); f = ""; }
+      else if (c === "\n") { row.push(f); rows.push(row); row = []; f = ""; }
+      else if (c !== "\r") f += c;
+    }
+    if (f !== "" || row.length) { row.push(f); rows.push(row); }
+    return rows;
+  }
+  const BANK_AL = { d: ["booking date", "buchungsdatum", "buchung", "buchungstag", "datum"], p: ["partner name", "partnername", "auftraggeber/empfänger", "name zahlungsbeteiligter", "beguenstigter/zahlungspflichtiger", "begünstigter/zahlungspflichtiger", "zahlungsempfänger", "empfänger", "auftraggeber"], r: ["payment reference", "verwendungszweck"], a: ["amount (eur)", "betrag (eur)", "betrag"], t: ["type", "typ", "buchungstext"], acc: ["account name", "kontoname"], s: ["saldo"] };
+  function bankParse(text) {
+    text = text.replace(/^﻿/, ""); const lines = text.split(/\n/);
+    let hi = -1, delim = ";", cols = null, saldo = null;
+    for (let i = 0; i < Math.min(lines.length, 40) && hi < 0; i++) {
+      for (const d of [";", ",", "\t"]) {
+        const h = lines[i].replace(/\r/g, "").split(d).map(x => x.replace(/^"|"$/g, "").trim().toLowerCase());
+        const find = al => h.findIndex(x => al.includes(x));
+        const c = { d: find(BANK_AL.d), a: find(BANK_AL.a) };
+        if (c.d >= 0 && c.a >= 0 && h.length >= 4) { hi = i; delim = d; cols = { d: c.d, a: c.a, p: find(BANK_AL.p), r: find(BANK_AL.r), t: find(BANK_AL.t), acc: find(BANK_AL.acc), s: find(BANK_AL.s) }; break; }
+      }
+      const m = lines[i].match(/^Saldo;\s*([-\d.,]+)/i); if (m) saldo = bankAmt(m[1], true);
+    }
+    if (hi < 0) throw new Error("Spalten für Datum und Betrag nicht gefunden. Ist das eine CSV-Datei aus dem Online-Banking?");
+    const table = bankTable(lines.slice(hi).join("\n"), delim).slice(1);
+    const euro = delim === ";";
+    let out = [];
+    table.forEach(r => {
+      if (r.length < 3) return;
+      const ds = String(r[cols.d] || "").trim(); let d = null, m;
+      if ((m = ds.match(/^(\d{4})-(\d{2})-(\d{2})/))) d = ds.slice(0, 10); else if ((m = ds.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})/))) d = (m[3].length === 2 ? "20" + m[3] : m[3]) + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+      const a = bankAmt(r[cols.a], euro); if (!d || !isFinite(a)) return;
+      out.push({ d, p: String(cols.p >= 0 ? r[cols.p] : "").replace(/\s+/g, " ").trim().slice(0, 60), r: String(cols.r >= 0 ? r[cols.r] : "").replace(/\s+/g, " ").replace(/\d{9,}/g, "…").trim().slice(0, 90), a: Math.round(a * 100) / 100, t: cols.t >= 0 ? String(r[cols.t]).slice(0, 24) : "", acc: cols.acc >= 0 ? String(r[cols.acc]).trim() : "" });
+    });
+    let ignored = 0;
+    if (cols.acc >= 0) {   // N26: Unterkonten („Spaces“) nicht doppelt zählen, ihre Bewegungen stehen schon auf dem Hauptkonto
+      const cnt = {}; out.forEach(x => cnt[x.acc] = (cnt[x.acc] || 0) + 1);
+      const main = Object.entries(cnt).sort((x, y) => y[1] - x[1])[0][0];
+      const before = out.length; out = out.filter(x => x.acc === main); ignored = before - out.length;
+    }
+    return { rows: out, saldo, ignored, from: out.reduce((m, x) => !m || x.d < m ? x.d : m, ""), to: out.reduce((m, x) => !m || x.d > m ? x.d : m, "") };
+  }
+  const bankAmt = (s, euro) => { s = String(s ?? "").replace(/\s|€/g, ""); s = euro || /,\d{1,2}$/.test(s) ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, ""); return parseFloat(s); };
+  const bankHash = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+  // --- Speicher ---
+  async function bankLoad() {
+    if (BANK || bankLoading) return; bankLoading = true;
+    BANK = {};
+    try { (await store.loadBank()).forEach(d => BANK[d.id] = d); } catch (e) { toast("Kontoauszüge konnten nicht geladen werden."); }
+    bankLoading = false; if (view === "finanzen") finDraw();
+  }
+  const bankSave = d => persist("bk:" + d.id, () => store.saveBank(d));
+  async function bankImport(files) {
+    const acc = bankAcc; let added = 0, dup = 0, n = 0, ignored = 0, saldo = null, from = "", to = "";
+    for (const f of files) {
+      let res; try { res = bankParse(bankDecode(await f.arrayBuffer())); } catch (e) { bankMsg = `${f.name}: ${e.message}`; finDraw(); return; }
+      n += res.rows.length; ignored += res.ignored; if (res.saldo !== null) saldo = res.saldo;
+      from = !from || (res.from && res.from < from) ? res.from : from; to = res.to > to ? res.to : to;
+      const seen = {}, byMonth = {};
+      res.rows.forEach(r => { const base = [r.d, r.a.toFixed(2), r.p.toLowerCase().slice(0, 30), r.r.toLowerCase().slice(0, 30)].join("|"); seen[base] = (seen[base] || 0) + 1; r.k = bankHash(base) + seen[base]; (byMonth[r.d.slice(0, 7)] = byMonth[r.d.slice(0, 7)] || []).push(r); });
+      Object.entries(byMonth).forEach(([m, rows]) => {
+        const id = acc + "-" + m, doc = BANK[id] || (BANK[id] = { id, acc, rows: [] }), have = new Set(doc.rows.map(x => x.k)); let add = 0;
+        rows.forEach(r => { if (have.has(r.k)) { dup++; return; } doc.rows.push({ k: r.k, d: r.d, p: r.p, r: r.r, a: r.a }); add++; });
+        if (add) { doc.rows.sort((x, y) => x.d < y.d ? -1 : x.d > y.d ? 1 : 0); bankSave(doc); added += add; }
+      });
+    }
+    const F = FIN(); let note = "";
+    if (saldo !== null && $("bankSaldo") && $("bankSaldo").checked) { F[acc === "g" ? "kontoG" : "kontoP"] = String(saldo); F.stand = isoD(new Date()); saveSettings(); note = ` Kontostand ${eur(saldo)} übernommen.`; }
+    bankView = acc; LS.set("hlz-app-bankview", bankView);
+    bankMsg = `${n} Buchungen gelesen (${dDE(from)} bis ${dDE(to)}): ${added} neu, ${dup} schon vorhanden${ignored ? `, ${ignored} Buchungen aus Unterkonten übersprungen` : ""}.${note}`;
+    finDraw();
+  }
+  // --- Auswertung ---
+  function bankRows(acc) { const F = FIN(), out = []; Object.values(BANK || {}).filter(d => d.acc === acc).forEach(d => d.rows.forEach(r => out.push({ ...r, cat: bankCat(r, acc, F) }))); return out; }
+  function bankPivot(acc) {
+    const rows = bankRows(acc); if (!rows.length) return null;
+    const byM = {}; rows.forEach(r => { const m = r.d.slice(0, 7); (byM[m] = byM[m] || []).push(r.d); });
+    let ms = Object.keys(byM).sort();
+    // angebrochene Monate am Anfang und Ende weglassen
+    if (ms.length > 2) { if (+byM[ms[0]].sort()[0].slice(8) > 5) ms = ms.slice(1); const last = ms[ms.length - 1]; if (+byM[last].sort().slice(-1)[0].slice(8) < 25) ms = ms.slice(0, -1); }
+    ms = ms.slice(-12);
+    const cats = {}; rows.forEach(r => { const m = r.d.slice(0, 7); if (!ms.includes(m)) return; const c = cats[r.cat] = cats[r.cat] || { by: {}, sum: 0 }; c.by[m] = (c.by[m] || 0) + r.a; c.sum += r.a; });
+    const names = Object.keys(cats).sort((x, y) => catOrder(x) - catOrder(y) || cats[x].sum - cats[y].sum);
+    const grp = {}; names.forEach(c => { const g = catPref(c); grp[g] = grp[g] || { by: {}, sum: 0 }; Object.entries(cats[c].by).forEach(([m, v]) => grp[g].by[m] = (grp[g].by[m] || 0) + v); grp[g].sum += cats[c].sum; });
+    return { rows, ms, cats, names, grp };
+  }
+  function bankHTML() {
+    const F = FIN(), rowsAll = Object.values(BANK || {}), nTot = rowsAll.reduce((n, d) => n + d.rows.length, 0);
+    let h = `<section class="box" data-fs="konto"><h2>Kontoauszug importieren</h2>
+      <p class="note">Lad die CSV-Datei aus deinem Online-Banking hoch (Umsätze exportieren). Das geht mit N26, ING und den meisten Banken. Doppelte Buchungen erkennt die App selbst, du kannst also jeden Monat die neue Datei hochladen, auch wenn sie sich überschneidet. Die Buchungen liegen nur in deiner App-Datenbank (Zugriff nur für dich), IBANs speichere ich nicht.</p>
+      <div class="anagrid">
+        <div class="field"><label for="bankAccSel">Von welchem Konto ist die Datei?</label><div class="inp"><select id="bankAccSel"><option value="g" ${bankAcc === "g" ? "selected" : ""}>Geschäftskonto</option><option value="p" ${bankAcc === "p" ? "selected" : ""}>Privatkonto</option></select></div></div>
+        <div class="field"><label for="bankFile">CSV-Datei(en)</label><input type="file" id="bankFile" accept=".csv,text/csv,.txt" multiple></div>
+        <div class="field"><label><input type="checkbox" id="bankSaldo" checked> Kontostand aus der Datei übernehmen, wenn dort einer steht (z. B. ING)</label></div>
+      </div>
+      ${bankMsg ? `<p><strong>${esc(bankMsg)}</strong></p>` : ""}
+      <div class="field"><label for="bankSelf">Deine eigenen Namen (für Überweisungen zwischen deinen Konten), mit Komma getrennt</label><div class="inp"><input type="text" id="bankSelf" data-fin="selfNames" value="${esc(F.selfNames || "")}"></div><small>Überweisungen an diese Namen zählen als Umbuchung, nicht als Ausgabe oder Einnahme.</small></div>
+    </section>`;
+    if (BANK === null) return h + `<section class="box" data-fs="konto"><p class="note">Lade Kontoauszüge …</p></section>`;
+    if (!nTot) return h + `<section class="box empty" data-fs="konto"><p>Noch keine Kontoauszüge. Lad oben die erste CSV-Datei hoch.</p></section>`;
+    const has = { g: rowsAll.some(d => d.acc === "g"), p: rowsAll.some(d => d.acc === "p") };
+    if (!has[bankView]) bankView = has.g ? "g" : "p";
+    const pv = bankPivot(bankView); if (!pv) return h;
+    const mn = m => MN[+m.slice(5) - 1] + " " + m.slice(2, 4), nm = pv.ms.length || 1, tot = g => (pv.grp[g] || { sum: 0 }).sum;
+    const sumCat = (re, ex) => pv.names.filter(c => re.test(c) && !(ex && ex.test(c))).reduce((n, c) => n + pv.cats[c].sum, 0);
+    h += `<section class="box" data-fs="konto"><h2>Auswertung der letzten ${nm} Monate</h2>
+      <div class="seg stabs">${["g", "p"].filter(a => has[a]).map(a => `<button type="button" data-bankview="${a}" aria-pressed="${bankView === a}">${a === "g" ? "Geschäftskonto" : "Privatkonto"}</button>`).join("")}</div>`;
+    if (bankView === "g") {
+      const gew = tot("E") + tot("A");
+      h += `<div class="tiles t3" style="margin-bottom:6px">
+        ${`<div class="tile"><span class="label">Einnahmen (Auszahlungen)</span><span class="num" style="font-size:1.25rem">${eur0(tot("E") / nm)}</span><span class="note">pro Monat, ${eur0(tot("E"))} gesamt</span></div>`}
+        ${`<div class="tile"><span class="label">Betriebsausgaben</span><span class="num" style="font-size:1.25rem">${eur0(tot("A") / nm)}</span><span class="note">pro Monat, ${eur0(tot("A"))} gesamt</span></div>`}
+        ${`<div class="tile"><span class="label">Cash-Gewinn vor Steuern</span><span class="num" style="font-size:1.25rem;color:var(--${gew >= 0 ? "good" : "bad"})">${eur0(gew / nm)}</span><span class="note">pro Monat, ${eur0(gew)} gesamt</span></div>`}
+      </div>`;
+      const ent = -(pv.cats["INTERN Konto Geschäft ⇄ Privat"] || { sum: 0 }).sum / nm;
+      h += `<p>Du hast dir im Schnitt <strong>${eur0(ent)}</strong> pro Monat aufs Privatkonto überwiesen. <button class="btn" data-bank-ent="${Math.round(ent)}">Als Entnahme in die Planung übernehmen</button></p>`;
+    } else {
+      const lauf = -sumCat(/^P /, /Fahrschule/), eink = sumCat(/^E /);
+      h += `<div class="tiles t3" style="margin-bottom:6px">
+        ${`<div class="tile"><span class="label">Private Ausgaben, laufend</span><span class="num" style="font-size:1.25rem">${eur0(lauf / nm)}</span><span class="note">pro Monat, ohne Fahrschule (die wird erstattet)</span></div>`}
+        ${`<div class="tile"><span class="label">Einnahmen privat</span><span class="num" style="font-size:1.25rem">${eur0(eink / nm)}</span><span class="note">pro Monat: Erstattungen, Gehalt, Sonstiges (ohne Entnahmen)</span></div>`}
+        ${`<div class="tile"><span class="label">Umbuchungen (netto)</span><span class="num" style="font-size:1.25rem">${eur0(tot("INTERN") / nm)}</span><span class="note">pro Monat von/zu deinen anderen Konten</span></div>`}
+      </div>`;
+    }
+    h += `<div class="tablewrap"><table class="anatable mtab"><thead><tr><th>Kategorie</th>${pv.ms.map(m => `<th class="r">${mn(m)}</th>`).join("")}<th class="r">Summe</th><th class="r">Ø/Monat</th>${bankView === "p" ? "<th></th>" : ""}</tr></thead><tbody>`;
+    ["E", "F", "A", "T", "P", "INTERN"].forEach(g => {
+      const names = pv.names.filter(c => catPref(c) === g); if (!names.length) return;
+      names.forEach(c => h += `<tr><td>${esc(c)}</td>${pv.ms.map(m => `<td class="r num">${pv.cats[c].by[m] ? eur0(pv.cats[c].by[m]) : "–"}</td>`).join("")}<td class="r num"><strong>${eur0(pv.cats[c].sum)}</strong></td><td class="r num">${eur0(pv.cats[c].sum / nm)}</td>${bankView === "p" ? `<td>${g === "P" && pv.cats[c].sum < 0 ? `<button class="btn" data-bank-plan="${esc(c)}" title="Den Ø-Betrag als Posten in die Ausgabenplanung übernehmen">→ Plan</button>` : ""}</td>` : ""}</tr>`);
+      h += `<tr class="tot"><td><strong>${BANK_GR[g]}</strong></td>${pv.ms.map(m => `<td class="r num"><strong>${pv.grp[g].by[m] ? eur0(pv.grp[g].by[m]) : "–"}</strong></td>`).join("")}<td class="r num"><strong>${eur0(pv.grp[g].sum)}</strong></td><td class="r num"><strong>${eur0(pv.grp[g].sum / nm)}</strong></td>${bankView === "p" ? "<td></td>" : ""}</tr>`;
+    });
+    h += `</tbody></table></div></section>`;
+    // Partner prüfen
+    const byP = {}; pv.rows.forEach(r => { const k = partnerKey(r.p) || "(ohne Name)"; const o = byP[k] = byP[k] || { n: r.p || "(ohne Name)", cnt: 0, sum: 0, cat: r.cat, key: partnerKey(r.p) }; o.cnt++; o.sum += r.a; });
+    const list = Object.values(byP).sort((x, y) => Math.abs(y.sum) - Math.abs(x.sum)).slice(0, 40);
+    const opts = cur => BANK_CATS[bankView].concat(BANK_CATS[bankView].includes(cur) ? [] : [cur]).map(c => `<option value="${esc(c)}" ${c === cur ? "selected" : ""}>${esc(c)}</option>`).join("");
+    h += `<section class="box" data-fs="konto"><h2>Größte Partner prüfen</h2>
+      <p class="note">Hier stimmt die automatische Zuordnung vielleicht nicht. Wählst du eine andere Kategorie, merkt sich die App das für alle Buchungen dieses Partners (jetzt und bei künftigen Importen).</p>
+      <div class="tablewrap"><table class="anatable"><thead><tr><th>Partner</th><th class="r">Buchungen</th><th class="r">Summe</th><th>Kategorie</th></tr></thead><tbody>
+      ${list.map(o => `<tr><td>${esc(o.n.slice(0, 40))}</td><td class="r num">${o.cnt}</td><td class="r num">${eur0(o.sum)}</td><td><div class="inp"><select data-bankrule="${esc(o.key)}">${opts(o.cat)}</select></div></td></tr>`).join("")}
+      </tbody></table></div>
+      ${Object.keys(F.rules || {}).length ? `<p class="note">${Object.keys(F.rules).length} eigene Zuordnungen gespeichert.</p>` : ""}</section>
+      <section class="box" data-fs="konto"><h2>Daten verwalten</h2>
+      <p class="note">${nTot} Buchungen gespeichert (${rowsAll.filter(d => d.acc === "g").reduce((n, d) => n + d.rows.length, 0)} Geschäft, ${rowsAll.filter(d => d.acc === "p").reduce((n, d) => n + d.rows.length, 0)} Privat).</p>
+      ${bankDelAsk ? `<p><strong>Wirklich alle Kontoauszüge löschen?</strong> <button class="btn danger" data-bank-del="yes">Ja, alles löschen</button> <button class="btn" data-bank-del="no">Abbrechen</button></p>` : `<button class="btn danger" data-bank-del="ask">Alle Kontoauszüge löschen</button>`}</section>`;
+    return h;
+  }
+  document.addEventListener("change", async e => {
+    if (view !== "finanzen") return; const t = e.target;
+    if (t.id === "bankAccSel") { bankAcc = t.value; LS.set("hlz-app-bankacc", bankAcc); return; }
+    if (t.id === "bankFile" && t.files && t.files.length) { await bankLoad(); while (!BANK) await new Promise(r => setTimeout(r, 50)); const files = [...t.files]; t.value = ""; bankMsg = "Lese Datei …"; await bankImport(files); return; }
+    if (t.dataset.bankrule !== undefined) { const F = FIN(); F.rules = F.rules || {}; F.rules[t.dataset.bankrule] = t.value; saveSettings(); finDraw(); }
+  });
+  document.addEventListener("click", e => {
+    if (view !== "finanzen") return;
+    const t = e.target.closest("[data-bankview],[data-bank-ent],[data-bank-plan],[data-bank-del]"); if (!t) return;
+    const F = FIN(), d = t.dataset;
+    if (d.bankview) { bankView = d.bankview; LS.set("hlz-app-bankview", bankView); return finDraw(); }
+    if (d.bankEnt !== undefined) { F.entnahme = d.bankEnt; saveSettings(); toast("Entnahme " + eur0(+d.bankEnt) + " pro Monat übernommen"); return finDraw(); }
+    if (d.bankPlan) {
+      const pv = bankPivot("p"), c = pv && pv.cats[d.bankPlan]; if (!c) return;
+      const name = d.bankPlan.replace(/^P /, ""), amt = (Math.round(-c.sum / pv.ms.length * 100) / 100).toFixed(2).replace(/\.00$/, ""), ex = F.priv.find(r => r.n.toLowerCase() === name.toLowerCase());
+      if (ex) { ex.a = amt; ex.rh = "m"; ex.inc = true; ex.from = ""; ex.to = ""; } else F.priv.push({ id: "bk-" + bankHash(name), g: /sparen/i.test(name) ? "vor" : /versicher|krankenvers/i.test(name) ? "vers" : "leben", n: name, a: amt, rh: "m", mo: "0", from: "", to: "", inc: true });
+      saveSettings(); toast(`${name}: Ø ${amt} € pro Monat in die Planung übernommen`); return finDraw();
+    }
+    if (d.bankDel === "ask") { bankDelAsk = true; return finDraw(); }
+    if (d.bankDel === "no") { bankDelAsk = false; return finDraw(); }
+    if (d.bankDel === "yes") { bankDelAsk = false; const ids = Object.keys(BANK || {}); BANK = {}; ids.forEach(id => persist("bk:" + id, () => store.deleteBank(id))); bankMsg = "Alle Kontoauszüge gelöscht."; return finDraw(); }
   });
 
   // ---------- Start ----------
