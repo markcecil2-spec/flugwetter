@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 117 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 119 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -2968,7 +2968,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const surplusP = ent + other - privSum - rateP, surplusG = tx.net - ent - rateG;
     return { F, T, m, tx, regel, liquid, liquidG, liquidP, openG, openP, ent, rateP, rateG, surplusP, surplusG, open, openSum, ustOut, vor, vorAuto, zahl, privSum, sparM, other, income, proj, next, late, monthlyRate, td, surplus: surplusP + surplusG, lastUst };
   }
-  const FTABS = [["uebersicht", "Übersicht"], ["schulden", "Schulden und Steuern"], ["plan", "Einnahmen und Ausgaben"], ["konto", "Kontoauszüge"]];
+  const FTABS = [["uebersicht", "Auf einen Blick"], ["tipps", "Tipps zum Sparen"], ["schulden", "Was ich zahlen muss"], ["plan", "Mein Geld pro Monat"], ["konto", "Kontoauszüge"]];
   let finTab = LS.get("hlz-app-ftab") || "uebersicht"; if (!FTABS.some(x => x[0] === finTab)) finTab = "uebersicht";
   const finDraw = () => { try { renderFinance(); } catch (e) { showErr(e); } };
   function renderFinance() {
@@ -3016,6 +3016,9 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         <span class="num" style="font-size:2.4rem;color:var(--${noMoney ? "muted" : free < 0 ? "bad" : "good"})">${noMoney ? "–" : eur0(free)}</span>
         ${anaTable(["", "Betrag"], [["Geld auf deinen Konten", eur0(c.liquid)], ["− offene Steuern und Schulden", eur0(-c.openSum).replace("−0 €", "0 €")], ["<strong>= frei verfügbar</strong>", `<strong>${noMoney ? "–" : eur0(free)}</strong>`]], [1])}
         <p class="note">${noMoney ? "Trag unten bei „Wie viel Geld ist da?“ deine Kontostände ein, dann steht hier die Zahl." : free < 0 ? "Du hast weniger Geld als offene Zahlungen. Details zu Fristen und Raten im Reiter „Schulden und Steuern“." : "So viel bleibt dir nach allen bekannten Zahlungen."}</p>
+      </section>
+      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Das heißt in einfachen Worten</h2>
+        <ul style="margin:0;padding-left:18px;display:grid;gap:8px">${finSummary(c).map(x => `<li>${x}</li>`).join("")}</ul>
       </section>
       <div class="tiles" data-fs="uebersicht" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px">
         ${tile("Geschäftskonto", eur0(c.liquidG - c.openG), `${eur0(c.liquidG)} Konto und Guthaben − ${eur0(c.openG)} offene Posten`, c.liquidG - c.openG < 0 ? "bad" : "good", "Geschäftskonto plus Guthaben bei Etsy, PayPal und Shopify, abzüglich aller offenen Posten, die du dort „von Geschäft“ eingetragen hast (Umsatzsteuer usw.).")}
@@ -3097,12 +3100,13 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         <p class="note">Das Shop-Einkommen ist die Schätzung aus Verkaufszahlen und Artikeln, nicht der echte Zahlungseingang.${hasSales && c.regel ? ` Die USt (ca. ${eur0(c.zahl)} im Monat) kommt zusätzlich aufs Geschäftskonto, gehört aber dem Finanzamt und steckt deshalb nicht in den Zahlen.` : ""}${c.privSum === 0 ? ` <strong>Trag oben deine privaten Ausgaben ein, sonst ist „Übrig“ viel zu hoch.</strong>` : ""}</p>
       </section>
 
-      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Prognose: die nächsten 12 Monate</h2>
-        <p class="note">Kontostände am Monatsende, je Konto: heutiges Geld + monatlich übrig − alle Fälligkeiten. Das Shop-Einkommen geht nach der Entnahme aufs Privatkonto, die Umsatzsteuer und die Schulden mit „Geschäft“ laufen übers Geschäftskonto. ${firstNeg ? `<strong style="color:var(--bad)">Achtung: ab ${firstNeg.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })} wird es ${negWho} knapp (Privat ${eur0(firstNeg.balP)}, Geschäft ${eur0(firstNeg.balG)}).</strong>` : c.liquid > 0 ? "Auf Basis deiner Zahlen reicht das Geld über den ganzen Zeitraum." : ""}</p>
+      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Wie geht es in den nächsten 12 Monaten weiter?</h2>
+        <p class="note">So liest du die Tabelle: Jede Zeile ist ein Monat. Die Zahlen zeigen, wie viel am Monatsende auf dem Konto liegt, wenn alles wie geplant läuft. Rot heißt Minus. Kontostände je Konto: heutiges Geld + monatlich übrig − alle Fälligkeiten. Das Shop-Einkommen geht nach der Entnahme aufs Privatkonto, die Umsatzsteuer und die Schulden mit „Geschäft“ laufen übers Geschäftskonto. ${firstNeg ? `<strong style="color:var(--bad)">Achtung: ab ${firstNeg.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })} wird es ${negWho} knapp (Privat ${eur0(firstNeg.balP)}, Geschäft ${eur0(firstNeg.balG)}).</strong>` : c.liquid > 0 ? "Auf Basis deiner Zahlen reicht das Geld über den ganzen Zeitraum." : ""}</p>
         ${anaTable(["Monat", "Fällig (Schulden, USt)", "Privatkonto", "Geschäftskonto", "Gesamt"], projRows, [2, 3, 4])}
       </section>
+      ${finTipsHTML(c)}
       ${bankHTML()}`;
-    if (finTab === "konto" && BANK === null) bankLoad();
+    if ((finTab === "konto" || finTab === "tipps") && BANK === null) bankLoad();
     document.querySelectorAll("#view [data-fs]").forEach(el => { el.style.display = el.dataset.fs === finTab ? "" : "none"; });
   }
   document.addEventListener("click", e => {
@@ -3373,6 +3377,80 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (d.bankDel === "no") { bankDelAsk = false; return finDraw(); }
     if (d.bankDel === "yes") { bankDelAsk = false; const ids = Object.keys(BANK || {}); BANK = {}; ids.forEach(id => persist("bk:" + id, () => store.deleteBank(id))); bankMsg = "Alle Kontoauszüge gelöscht."; return finDraw(); }
   });
+
+  // ---------- Klartext-Zusammenfassung und Tipps (rechnen sich bei jeder Änderung neu) ----------
+  const MONTHS_FULL = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  const monthName = d => MONTHS_FULL[d.getMonth()] + " " + d.getFullYear();
+  const ymName = s => MONTHS_FULL[+s.split("-")[1] - 1] + " " + s.split("-")[0];
+  function finSummary(c) {
+    const F = c.F, free = c.liquid - c.openSum, L = [], b = x => `<strong>${x}</strong>`;
+    L.push(`${c.liquid < 0 ? "Deine Konten stehen zusammen im Minus:" : "Auf deinen Konten sind"} ${b(eur0(c.liquid))}. Du musst noch ${b(eur0(c.openSum))} an Steuern und Schulden zahlen. ${free < 0 ? `Dir fehlen also ${b(eur0(-free))}.` : `Danach bleiben ${b(eur0(free))} übrig.`}`);
+    const inc = c.ent + c.other, out = c.privSum;
+    L.push(`Pro Monat kommen privat ca. ${b(eur0(inc))} rein (Entnahme aus dem Shop plus weitere Einnahmen) und ca. ${b(eur0(out))} gehen raus${c.rateP > 0 ? `, dazu ${eur0(c.rateP)} Raten` : ""}. Es ${c.surplusP >= 0 ? `bleiben ${b(eur0(c.surplusP))}` : `fehlen ${b(eur0(-c.surplusP))}`} pro Monat auf dem Privatkonto.`);
+    if (c.next) L.push(`Als Nächstes musst du zahlen: ${b(esc(c.next.n))} (${c.next.est ? "ca. " : ""}${b(eur0(c.next.ea))}), fällig am ${dDE(c.next.due)}.`);
+    const lastNeg = c.proj.reduce((i, x, k) => x.bal < 0 ? k : i, -1), worst = c.proj.reduce((w, x) => Math.min(x.balG, x.balP) < Math.min(w.balG, w.balP) ? x : w, c.proj[0]);
+    if (Math.min(worst.balG, worst.balP) < 0) L.push(`Am knappsten wird es im ${b(monthName(worst.d))}: Privatkonto ${eur0(worst.balP)}, Geschäftskonto ${eur0(worst.balG)}.${lastNeg >= 0 && lastNeg < c.proj.length - 1 ? ` Zusammen genommen bist du ab ${b(monthName(c.proj[lastNeg + 1].d))} wieder im Plus.` : lastNeg === c.proj.length - 1 ? " In den nächsten 12 Monaten wirst du zusammen nicht mehr ins Plus kommen." : ""}`);
+    else L.push("In den nächsten 12 Monaten rutscht keines deiner Konten ins Minus.");
+    const nk = nowYM();
+    (F.income || []).filter(r => v(r.a) > 0 && r.from && ymKey(r.from) > nk).forEach(r => L.push(`Ab ${b(ymName(r.from))} kommen ${b(eur0(v(r.a)))} pro Monat dazu (${esc(r.n || "Einnahme")}).`));
+    return L;
+  }
+  function finTips(c) {
+    const F = c.F, tips = [], td = c.td, nk = nowYM(), pvG = BANK ? bankPivot("g") : null, pvP = BANK ? bankPivot("p") : null;
+    const avg = (pv, re) => pv ? -pv.names.filter(n => re.test(n)).reduce((s, n) => s + pv.cats[n].sum, 0) / pv.ms.length : null;
+    const add = o => tips.push({ urg: 2, impact: null, ...o });
+    const days = ds => Math.round((new Date(ds + "T00:00:00") - new Date(td + "T00:00:00")) / 864e5);
+    // Steuern
+    const bigDebts = c.open.filter(d => d.ea >= 1000 && !(v(d.raten) > 1) && d.acc !== "p");
+    bigDebts.forEach(d => { const n = 6; add({ urg: d.due && days(d.due) > 14 ? 1 : 0, title: `Ratenzahlung für „${d.n}“ beantragen`, why: `${eur0(d.ea)} auf einmal${d.due && days(d.due) < 0 ? `, schon ${-days(d.due)} Tage überfällig` : d.due ? `, fällig am ${dDE(d.due)}` : ", sofort fällig"}.${c.liquidG - c.openG < 0 ? " Auf deinem Geschäftskonto ist nicht genug Geld dafür." : ""}`, todo: `Schreib dem Finanzamt und bitte um Ratenzahlung oder Stundung. Bei ${n} Raten wären das ${eur0(d.ea / n)} pro Monat. Wenn du sie bewilligt hast, trägst du „${n}“ im Reiter „Was ich zahlen muss“ bei Raten ein, und die Prognose rechnet damit.`, impact: null }); });
+    if (c.late > 0) add({ urg: 0, title: "Überfällige Steuern kosten jeden Monat Geld", why: `Auf ${eur0(c.late)} überfällige Steuern läuft ein Säumniszuschlag von 1 % pro angefangenem Monat.`, todo: "Jetzt zahlen oder schriftlich Raten oder Stundung beantragen. Je länger du wartest, desto teurer.", impact: c.late * 0.01, unit: "pro Monat" });
+    // Privatkonto
+    if (c.surplusP < -30) {
+      const flex = F.priv.filter(r => r.inc !== false && finAct(r, nk) && /essen|lebensmittel|online|karte|freizeit|person|bargeld|fliegen|gleitschirm|reise|restaurant|kleinkram/i.test(r.n)).map(r => ({ n: r.n, a: privAvg(r) })).sort((x, y) => y.a - x.a).slice(0, 3);
+      const sav = flex.reduce((n, x) => n + x.a * 0.2, 0);
+      add({ urg: 1, title: "Privat gibst du mehr aus, als du entnimmst", why: `Pro Monat fehlen ${eur0(-c.surplusP)} auf dem Privatkonto (Entnahme ${eur0(c.ent)}, Ausgaben ${eur0(c.privSum)}).`, todo: flex.length ? `Die größten Posten, an denen du drehen kannst: ${flex.map(x => `${esc(x.n)} (${eur0(x.a)})`).join(", ")}. 20 % weniger bei diesen drei bringt ${eur0(sav)} pro Monat.` : "Prüf deine Ausgaben im Reiter „Mein Geld pro Monat“.", impact: Math.min(sav, -c.surplusP), unit: "pro Monat" });
+    }
+    if (v(F.kontoP) < 0) add({ urg: 1, title: "Dein Privatkonto ist im Minus", why: `Kontostand ${eur0(v(F.kontoP))}.`, todo: "Prüf, ob dafür Dispozinsen anfallen, und gleich die nächste Entnahme aus dem Geschäft einplanen, damit du wieder ins Plus kommst.", impact: null });
+    // Sparpläne
+    const spar = F.priv.filter(r => r.inc !== false && r.g === "vor" && finAct(r, nk) && privAvg(r) > 0);
+    if (spar.length && (c.surplusP < 0 || c.openSum > c.liquid)) { const m = spar.reduce((n, r) => n + privAvg(r), 0); add({ urg: 1, title: "Sparen erst mal pausieren", why: `Du planst ${eur0(m)} pro Monat für ${spar.map(r => esc(r.n)).join(" und ")}, hast aber noch Steuerschulden und ein Minus im Monat.`, todo: "Erst die Steuern ausgleichen und einen Puffer von einer Monatsmiete aufbauen, dann den Sparplan wieder starten. Setz den Haken „zählt“ bei diesen Posten aus.", impact: m, unit: "pro Monat" }); }
+    // kritischer Monat
+    const worst = c.proj.reduce((w, x) => Math.min(x.balG, x.balP) < Math.min(w.balG, w.balP) ? x : w, c.proj[0]);
+    if (Math.min(worst.balG, worst.balP) < 0) add({ urg: 1, title: `Im ${monthName(worst.d)} wird es am knappsten`, why: `Dann stehen Privatkonto ${eur0(worst.balP)} und Geschäftskonto ${eur0(worst.balG)}.${worst.items.length ? ` Grund: ${esc(worst.items.join(", "))}.` : ""}`, todo: "Verteile große Zahlungen auf Raten, verschiebe Wünsche (Urlaub) hinter die engen Monate und plane Einnahmen früher ein.", impact: -Math.min(worst.balG, worst.balP), unit: "Lücke" });
+    // neue Einnahme
+    (F.income || []).filter(r => v(r.a) > 0 && r.from && ymKey(r.from) > nk && ymKey(r.from) - nk <= 10).forEach(r => add({ urg: 2, title: `Ab ${ymName(r.from)} kommen ${eur0(v(r.a))} pro Monat dazu`, why: `${esc(r.n || "Einnahme")}: Das ist ${eur0(v(r.a))} mehr als heute.`, todo: `Plane mindestens die Hälfte (${eur0(v(r.a) * 0.5)}) für Steuerschulden und den Puffer ein, bevor du die Ausgaben erhöhst.`, impact: v(r.a) * 0.5, unit: "pro Monat" }));
+    // USt-Rücklage
+    if (c.regel && c.zahl > 0) add({ urg: 2, title: "Umsatzsteuer jeden Monat zurücklegen", why: `Deine Umsatzsteuer-Zahllast liegt bei etwa ${eur0(c.zahl)} pro Monat (${eur0(3 * c.zahl)} pro Quartal).`, todo: "Lass bei jeder Auszahlung gleich 10 % in ein Konto laufen, an das du nicht rankommst (zweites Konto ohne Karte, oder ein Space ohne Rückbuchung). Dann ist die Steuer beim nächsten Termin da.", impact: null });
+    // aus den Kontoauszügen
+    if (pvG) {
+      const nm = pvG.ms.length, E = pvG.grp.E ? pvG.grp.E.sum / nm : 0, A = pvG.grp.A ? pvG.grp.A.sum / nm : 0;
+      const ent = -((pvG.cats["INTERN Konto Geschäft ⇄ Privat"] || { sum: 0 }).sum) / nm;
+      if (E + A > 0 && ent > 0.9 * (E + A)) add({ urg: 1, title: "Du entnimmst fast den ganzen Gewinn", why: `Gewinn vor Steuern laut Konto: ${eur0(E + A)} pro Monat. Entnommen hast du ${eur0(ent)}. Für Steuern bleibt nichts.`, todo: `Setz die Entnahme fest auf einen Betrag unter dem Gewinn und lass den Rest (mindestens ${eur0(0.1 * E)}, also 10 % der Auszahlungen) automatisch auf das Steuerkonto laufen.`, impact: null });
+      const vers = avg(pvG, /^A Versand/);
+      if (vers > 0 && E > 0 && vers / E > 0.12) add({ urg: 2, title: "Versand ist dein größter Kostenblock", why: `${eur0(vers)} pro Monat, das sind ${pct(vers / E * 100)} deiner Auszahlungen.`, todo: "Alle Sendungen in einem Geschäftskundenvertrag bündeln, bei leichten Paketen Warenpost/Kleinpaket nutzen und die Preisanpassung prüfen. 7 % weniger sind realistisch.", impact: vers * 0.07, unit: "pro Monat" });
+      const abo = avg(pvG, /^A Software/);
+      if (abo > 150) add({ urg: 2, title: "Abos und Software prüfen", why: `${eur0(abo)} pro Monat für Software, KI, Telefon und Shop-Systeme.`, todo: "Liste alle Abos auf, kündige doppelte Tools (z. B. zwei KI-Abos) und prüf, ob jeder Shopify-Plan noch Umsatz bringt. 20 % sind oft drin.", impact: abo * 0.2, unit: "pro Monat" });
+      const ein = avg(pvG, /^A (Amazon|PayPal)/);
+      if (ein > 200 && E > 0 && ein / E > 0.08) add({ urg: 2, title: "Einkäufe ohne klaren Zweck prüfen", why: `Amazon, Temu und PayPal-Zahlungen vom Geschäftskonto: ${eur0(ein)} pro Monat (${pct(ein / E * 100)} der Auszahlungen).`, todo: "Sammle die Belege und ordne sie in Lexware zu, was Material und was privat ist. So holst du die Vorsteuer sicher zurück und vermeidest Ärger bei einer Prüfung.", impact: null });
+      const dl = pvG.cats["INTERN Darlehen von Privat"]; if (dl && dl.sum > 0) add({ urg: 2, title: "Das Geschäft schuldet dir Geld", why: `Du hast dem Geschäft ${eur0(dl.sum)} aus dem Privatkonto geliehen.`, todo: "Buch das in Lexware als Darlehen und leg fest, wann du es zurückbekommst, sobald das Geschäft die Steuern bezahlt hat.", impact: null });
+    }
+    if (pvP) {
+      const fl = avg(pvP, /Gleitschirm/);
+      if (fl > 150) add({ urg: 2, title: "Fliegen planbar machen", why: `Gleitschirm kostet dich im Schnitt ${eur0(fl)} pro Monat, oft als großer Betrag auf einmal.`, todo: "Setz eine feste Monatsrate im Budget an (Posten „Gleitschirm/Fliegen“) und zahl größere Rechnungen aus diesem Topf.", impact: null });
+      const lauf = avg(pvP, /^P /) - avg(pvP, /Fahrschule/);
+      if (lauf > 0 && c.privSum > 0 && lauf > c.privSum * 1.25) add({ urg: 1, title: "Dein Budget ist niedriger als deine echten Ausgaben", why: `Laut Kontoauszug gibst du ${eur0(lauf)} pro Monat aus, in der Planung stehen nur ${eur0(c.privSum)}.`, todo: "Geh im Reiter „Kontoauszüge“ bei Privat die Kategorien durch und übernimm die echten Durchschnitte mit „→ Plan“. Dann stimmen Prognose und Tipps.", impact: lauf - c.privSum, unit: "pro Monat fehlt in der Planung" });
+    }
+    if (!BANK || !Object.keys(BANK).length) add({ urg: 3, title: "Lad deine Kontoauszüge hoch, dann werden die Tipps genauer", why: "Ohne Kontoauszüge kenne ich nur deine Planung, nicht deine echten Ausgaben.", todo: "Reiter „Kontoauszüge“: CSV vom Geschäfts- und vom Privatkonto hochladen.", impact: null });
+    return tips.sort((x, y) => x.urg - y.urg || (y.impact || 0) - (x.impact || 0));
+  }
+  const finTipsHTML = c => {
+    const tips = finTips(c), U = ["Jetzt", "Bald", "Laufend", "Info"], col = ["bad", "warn", "muted", "muted"];
+    return `<section class="box" data-fs="tipps"><h2>Tipps zum Sparen und wo deine Hebel sind</h2>
+      <p class="note">Diese Tipps rechnen sich bei jeder Änderung neu: mit deinen Schulden, deiner Planung, den Kontoauszügen und der Prognose. Oben stehen die dringendsten.</p>
+      ${BANK === null ? `<p class="note">Lade Kontoauszüge …</p>` : ""}
+      ${tips.length ? tips.map(t => `<div class="box" style="margin-top:8px"><div class="row"><strong>${t.title}</strong> <span class="pill ${col[t.urg]}">${U[t.urg]}</span>${t.impact > 0 ? ` <span class="pill good">Wirkung ca. ${eur0(t.impact)} ${t.unit || ""}</span>` : ""}</div><p style="margin:2px 0"><span class="note">So sieht es aus:</span> ${t.why}</p><p style="margin:2px 0"><span class="note">Das kannst du tun:</span> ${t.todo}</p></div>`).join("") : `<p>Gerade fällt mir nichts Auffälliges auf. Sobald sich deine Zahlen ändern, melden sich hier neue Tipps.</p>`}
+    </section>`;
+  };
 
   // ---------- Start ----------
   async function boot() {
