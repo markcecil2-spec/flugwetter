@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 115 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 116 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -2960,6 +2960,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const surplusP = ent + other - privSum - rateP, surplusG = tx.net - ent - rateG;
     return { F, T, m, tx, regel, liquid, liquidG, liquidP, openG, openP, ent, rateP, rateG, surplusP, surplusG, open, openSum, ustOut, vor, vorAuto, zahl, privSum, sparM, other, income, proj, next, late, monthlyRate, td, surplus: surplusP + surplusG, lastUst };
   }
+  const FTABS = [["uebersicht", "Übersicht"], ["schulden", "Schulden und Steuern"], ["plan", "Einnahmen und Ausgaben"]];
+  let finTab = LS.get("hlz-app-ftab") || "uebersicht"; if (!FTABS.some(x => x[0] === finTab)) finTab = "uebersicht";
   const finDraw = () => { try { renderFinance(); } catch (e) { showErr(e); } };
   function renderFinance() {
     const c = finCalc(), F = c.F, td = c.td;
@@ -2996,21 +2998,25 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const incRows = (F.income || []).map(r => [`<div class="inp"><input type="text" data-finl="income|${r.id}|n" value="${esc(r.n)}"></div>`, numIn(`data-finl="income|${r.id}|a"`, r.a, "€ / Monat"), sel(`data-finl="income|${r.id}|from"`, monthOpts(r.from, "sofort")), sel(`data-finl="income|${r.id}|to"`, monthOpts(r.to, "unbefristet")), `<button class="btn" data-fin-del="income|${r.id}" aria-label="Löschen">×</button>`]);
     const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 || (x.once || []).length ? `<span class="note">${esc(x.items.concat(x.once || []).join(" · "))}</span>${x.pay > 0 ? `<br>−${eur0(x.pay)}` : ""}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.balP < 0 ? "bad" : "good"})">${eur0(x.balP)}</strong>`, `<strong class="num" style="color:var(--${x.balG < 0 ? "bad" : "good"})">${eur0(x.balG)}</strong>`, `<span class="num">${eur0(x.bal)}</span>`]);
     const firstNeg = c.proj.find(x => x.balP < 0 || x.balG < 0), negWho = firstNeg ? (firstNeg.balP < 0 && firstNeg.balG < 0 ? "auf beiden Konten" : firstNeg.balP < 0 ? "auf dem Privatkonto" : "auf dem Geschäftskonto") : "";
-    const hasSales = c.T.qty > 0, hasSalesEnt = hasSales;
+    const hasSales = c.T.qty > 0, hasSalesEnt = hasSales, noMoney = F.kontoG === "" && F.kontoP === "" && F.guthaben === "" && F.bar === "";
     $("view").innerHTML = `
       <div class="row"><h1>Finanzen</h1></div>
-      <p class="note">Dein Haushaltsbuch: Was ist da, was ist schon verplant, was bleibt wirklich frei. Kontostand und Schulden trägst du selbst ein, die laufenden Einnahmen und die Umsatzsteuer rechnet die App aus deinen Verkaufszahlen. Alles Schätzungen, keine Steuerberatung.</p>
-      <div class="tiles t3">
-        ${tile("Frei verfügbar (beide Konten)", F.kontoG === "" && F.kontoP === "" && F.guthaben === "" && F.bar === "" ? "–" : eur0(free), `${eur0(c.liquid)} flüssig − ${eur0(c.openSum)} offene Schulden`, free < 0 ? "bad" : "good", "Alles Geld auf Konto, PayPal/Etsy und in bar, abzüglich aller noch offenen Posten unten (auch die, die erst später fällig sind).")}
-        ${tile("Nächste Fälligkeit", c.next ? (c.next.est ? "ca. " : "") + eur0(c.next.ea) : "–", c.next ? `${esc(c.next.n)} · ${dDE(c.next.due)} (${when(c.next.due).replace(/<[^>]+>/g, "")})` : "Kein Posten mit Datum")}
-        ${tile("Monatlich übrig", hasSales ? eur0(c.surplus) : "–", hasSales ? "nach privaten Ausgaben und Raten, ohne USt" : "Noch keine Verkaufszahlen", hasSales ? (c.surplus < 0 ? "bad" : "good") : "", "Shop-Einkommen nach Steuer (aus der Auswertung) + sonstiges Einkommen − private Ausgaben − Raten. Die Umsatzsteuer ist nicht dabei, die gehört dem Finanzamt.")}
-      </div>
-      <div class="tiles" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px">
+      <div class="seg stabs" aria-label="Bereiche der Finanzen">${FTABS.map(([k, l]) => `<button type="button" data-ftab="${k}" aria-pressed="${finTab === k}">${l}</button>`).join("")}</div>
+
+      <section class="box" data-fs="uebersicht" style="border-color:var(--accent)">
+        <span class="label" style="font-size:.85rem">Das kannst du gerade frei ausgeben${info("Alles Geld auf deinen Konten (inkl. Etsy/PayPal-Guthaben und Bargeld) minus alles, was du noch zahlen musst: Steuern, Schulden und Raten, auch die, die erst später fällig sind. Nicht abgezogen sind deine laufenden Ausgaben bis zum nächsten Geldeingang und die Steuerrücklage für das laufende Quartal.")}</span>
+        <span class="num" style="font-size:2.4rem;color:var(--${noMoney ? "muted" : free < 0 ? "bad" : "good"})">${noMoney ? "–" : eur0(free)}</span>
+        ${anaTable(["", "Betrag"], [["Geld auf deinen Konten", eur0(c.liquid)], ["− offene Steuern und Schulden", eur0(-c.openSum).replace("−0 €", "0 €")], ["<strong>= frei verfügbar</strong>", `<strong>${noMoney ? "–" : eur0(free)}</strong>`]], [1])}
+        <p class="note">${noMoney ? "Trag unten bei „Wie viel Geld ist da?“ deine Kontostände ein, dann steht hier die Zahl." : free < 0 ? "Du hast weniger Geld als offene Zahlungen. Details zu Fristen und Raten im Reiter „Schulden und Steuern“." : "So viel bleibt dir nach allen bekannten Zahlungen."}</p>
+      </section>
+      <div class="tiles" data-fs="uebersicht" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px">
         ${tile("Geschäftskonto", eur0(c.liquidG - c.openG), `${eur0(c.liquidG)} Konto und Guthaben − ${eur0(c.openG)} offene Posten`, c.liquidG - c.openG < 0 ? "bad" : "good", "Geschäftskonto plus Guthaben bei Etsy, PayPal und Shopify, abzüglich aller offenen Posten, die du dort „von Geschäft“ eingetragen hast (Umsatzsteuer usw.).")}
         ${tile("Privatkonto", eur0(c.liquidP - c.openP), `${eur0(c.liquidP)} Konto und Bargeld − ${eur0(c.openP)} offene Posten`, c.liquidP - c.openP < 0 ? "bad" : "good", "Privatkonto plus Bargeld, abzüglich aller offenen Posten, die du dort „von Privat“ eingetragen hast.")}
+        ${tile("Nächste Fälligkeit", c.next ? (c.next.est ? "ca. " : "") + eur0(c.next.ea) : "–", c.next ? `${esc(c.next.n)} · ${dDE(c.next.due)} (${when(c.next.due).replace(/<[^>]+>/g, "")})` : "Kein Posten mit Datum")}
+        ${tile("Monatlich übrig", hasSales ? eur0(c.surplus) : "–", hasSales ? "nach privaten Ausgaben und Raten, ohne USt" : "Noch keine Verkaufszahlen", hasSales ? (c.surplus < 0 ? "bad" : "good") : "", "Shop-Einkommen nach Steuer (aus der Auswertung) + weitere Einnahmen − private Ausgaben − Raten. Die Umsatzsteuer ist nicht dabei, die gehört dem Finanzamt.")}
       </div>
 
-      <section class="box" style="margin-top:12px"><h2>Wie viel Geld ist da?</h2>
+      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Wie viel Geld ist da?</h2>
         <div class="anagrid">
           <div class="field"><label>Geschäftskonto</label>${inp('data-fin="kontoG"', F.kontoG, "€")}</div>
           <div class="field"><label>Privatkonto</label>${inp('data-fin="kontoP"', F.kontoP, "€")}</div>
@@ -3020,7 +3026,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         </div>
       </section>
 
-      <section class="box" style="margin-top:12px"><h2>Schulden und Fälligkeiten</h2>
+      <section class="box" data-fs="schulden" style="margin-top:12px"><h2>Schulden und Fälligkeiten</h2>
         <p class="note">Ohne Datum zählt ein Posten als sofort fällig. „Raten“ = Betrag verteilt auf so viele Monate, z. B. nach Absprache mit dem Finanzamt. Haken bei „bezahlt“ nimmt den Posten raus. Bei Teilzahlung den Betrag einfach auf den Rest ändern.</p>
         ${anaTable(["Posten", "Betrag", "Fällig am", "Raten", "Zahlt", "", "Status", "", ""], debtRows, [1])}
         <div class="btns" style="margin-top:8px"><button class="btn" data-fin-add="debts">+ Posten</button></div>
@@ -3028,7 +3034,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         ${c.lastUst ? `<p class="note">Die nächste Voranmeldung nach dem letzten USt-Posten (${dDE(c.lastUst)}) plant die App automatisch ein (Schalter bei „Laufende Umsatzsteuer“).</p>` : ""}
       </section>
 
-      <section class="box" style="margin-top:12px"><h2>Laufende Umsatzsteuer</h2>
+      <section class="box" data-fs="schulden" style="margin-top:12px"><h2>Laufende Umsatzsteuer</h2>
         ${!c.regel ? `<p class="note">Du bist in den Einstellungen als Kleinunternehmer eingestellt: keine USt.</p>` : !hasSales ? `<p class="note">Noch keine Verkaufszahlen, daher keine Schätzung.</p>` : `
         <p class="note">Aus deinen Verkäufen: Die USt auf deine Umsätze kommt als Zahllast ans Finanzamt, abzüglich Vorsteuer aus deinen Einkäufen.</p>
         ${anaTable(["Posten", "Monat", "Quartal"], [
@@ -3043,14 +3049,14 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         <p class="note">Etsy-Gebühren berechnet dir Etsy aus Irland, da holst du dir keine Vorsteuer, deshalb zählen sie hier nicht mit. Für ein einzelnes Quartal bitte die echte Zahl aus Lexware nehmen.${F.debts.some(d => d.typ === "ust" && !d.paid && !v(d.a)) ? ` Für „USt Q4“ wäre die Schätzung ${eur0(3 * c.zahl)}.` : ""}</p>`}
       </section>
 
-      <section class="box" style="margin-top:12px"><h2>Einnahmen neben dem Shop</h2>
+      <section class="box" data-fs="plan" style="margin-top:12px"><h2>Einnahmen neben dem Shop</h2>
         <p class="note">Alles, was zusätzlich reinkommt: Gehalt, Nebenjob, Kindergeld, BFD … Mit „ab“ legst du fest, wann es losgeht, mit „bis“ optional, wann es endet. Der Shop selbst kommt aus der Auswertung und steht hier nicht drin.</p>
         <div class="tablewrap">${anaTable(["Posten", "Betrag", "ab", "bis", ""], incRows, [1])}</div>
         <div class="btns" style="margin-top:8px"><button class="btn" data-fin-add="income">+ Posten</button></div>
         ${(F.income || []).some(r => r.id === "i-neu" && !v(r.a)) ? `<p class="note">Die Zeile „Zusätzliche Einnahmen“ startet im ${MN[(+(((F.income || []).find(r => r.id === "i-neu") || {}).from || "2027-03").split("-")[1]) - 1]}, trag den Betrag ein, dann fließt er in Budget und Prognose.</p>` : ""}
       </section>
 
-      <section class="box" style="margin-top:12px"><h2>Private Ausgaben</h2>
+      <section class="box" data-fs="plan" style="margin-top:12px"><h2>Private Ausgaben</h2>
         <p class="note">Jeder Posten mit Betrag und Rhythmus: jeden Monat, alle 3 Monate (z. B. GEZ), 1× im Jahr (z. B. KFZ-Steuer) oder einmalig (z. B. ein Urlaub: Betrag eintragen, Rhythmus „einmalig“, Monat wählen). „von“ und „bis“ legen fest, wann ein Posten läuft. Alles ist änderbar. „zählt“ = der Posten geht ins Budget ein.</p>
         ${PRIV_GROUPS.map(privGrp).join("")}
         <p><strong>Zusammen Ø ${eur0(c.privSum)} im Monat</strong> (aktuell laufende Posten), davon Sparen und Vorsorge (Notgroschen, ETF) ${eur0(c.sparM)}. Das Geld verschwindet nicht, es liegt nur nicht mehr auf dem Konto. Alle 3 Monate und 1× im Jahr sind hier auf den Monat umgerechnet. Einmalige Posten stehen nur in der Prognose unten, im richtigen Monat.</p>
@@ -3058,7 +3064,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         ${F.priv.some(r => r.id === "p-est" && r.inc === false) ? `<p class="note">„Einkommensteuer Rücklage“ habe ich auf „zählt nicht“ gestellt: Die App zieht die Steuer schon vom Shop-Einkommen ab (siehe unten). Setz den Haken, wenn du sie zusätzlich rechnen willst.</p>` : ""}
       </section>
 
-      <section class="box" style="margin-top:12px"><h2>Monatsbudget</h2>
+      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Monatsbudget</h2>
         <div class="anagrid">
           <div>
             <h3>Privatkonto, pro Monat</h3>
@@ -3083,11 +3089,16 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         <p class="note">Das Shop-Einkommen ist die Schätzung aus Verkaufszahlen und Artikeln, nicht der echte Zahlungseingang.${hasSales && c.regel ? ` Die USt (ca. ${eur0(c.zahl)} im Monat) kommt zusätzlich aufs Geschäftskonto, gehört aber dem Finanzamt und steckt deshalb nicht in den Zahlen.` : ""}${c.privSum === 0 ? ` <strong>Trag oben deine privaten Ausgaben ein, sonst ist „Übrig“ viel zu hoch.</strong>` : ""}</p>
       </section>
 
-      <section class="box" style="margin-top:12px"><h2>Prognose: die nächsten 12 Monate</h2>
+      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Prognose: die nächsten 12 Monate</h2>
         <p class="note">Kontostände am Monatsende, je Konto: heutiges Geld + monatlich übrig − alle Fälligkeiten. Das Shop-Einkommen geht nach der Entnahme aufs Privatkonto, die Umsatzsteuer und die Schulden mit „Geschäft“ laufen übers Geschäftskonto. ${firstNeg ? `<strong style="color:var(--bad)">Achtung: ab ${firstNeg.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })} wird es ${negWho} knapp (Privat ${eur0(firstNeg.balP)}, Geschäft ${eur0(firstNeg.balG)}).</strong>` : c.liquid > 0 ? "Auf Basis deiner Zahlen reicht das Geld über den ganzen Zeitraum." : ""}</p>
         ${anaTable(["Monat", "Fällig (Schulden, USt)", "Privatkonto", "Geschäftskonto", "Gesamt"], projRows, [2, 3, 4])}
       </section>`;
+    document.querySelectorAll("#view [data-fs]").forEach(el => { el.style.display = el.dataset.fs === finTab ? "" : "none"; });
   }
+  document.addEventListener("click", e => {
+    const t = e.target.closest("[data-ftab]"); if (!t || view !== "finanzen") return;
+    finTab = t.dataset.ftab; LS.set("hlz-app-ftab", finTab); finDraw(); window.scrollTo(0, 0);
+  });
   document.addEventListener("change", e => {
     if (view !== "finanzen") return;
     const t = e.target, d = t.dataset || {}, F = FIN(), val = t.type === "checkbox" ? t.checked : t.value;
