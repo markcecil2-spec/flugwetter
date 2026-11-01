@@ -555,7 +555,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         .catch(e => { inflight--; setSync("err"); toast(e && e.code === "quota_exceeded" ? "Speicher voll, lösche alte Artikel." : "Speichern fehlgeschlagen, versuch es gleich nochmal."); });
     }, 50);
   }
-  const saveSettings = () => persist("settings", () => store.saveSettings(S));
+  let lastSettingsSave = 0;
+  const saveSettings = () => { lastSettingsSave = Date.now(); persist("settings", () => store.saveSettings(S)); };
   const saveArticle = a => { a.updated = Date.now(); persist("a:" + a.id, () => store.saveArticle(a)); };
   const saveMsg = m => persist("m:" + m.id, () => store.saveMsg(m));
   const saveOrder = o => persist("o:" + o.id, () => store.saveOrder(o));
@@ -2784,7 +2785,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   }
   function liveSettings(data) {
     if (!data) return;
+    // Echo der eigenen Speicherung (kann älter sein als das, was gerade getippt wurde) nicht übernehmen
+    if (Date.now() - lastSettingsSave < 4000 || inflight > 0) return;
     const next = { ...SETTINGS_DEFAULT(), ...clone(data) };
+    if (!data.fin && S.fin) next.fin = S.fin;
     if (JSON.stringify(next) === JSON.stringify(S)) return;
     S = next; liveRefresh();
   }
@@ -2794,6 +2798,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (typing()) return;
     if (view === "uebersicht") renderOverview();
     else if (view === "produktion") renderProduction();
+    else if (view === "finanzen") renderFinance();
     else if (view === "artikel" && !dirty) {
       const a = A.find(x => x.id === curId);
       if (a && JSON.stringify(a) !== JSON.stringify(draft)) { draft = clone(a); renderEditor(draft); }
@@ -2808,10 +2813,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   const finDef = () => ({
     konto: "", guthaben: "", bar: "", stand: "", ratenOffen: true, otherIncome: "", vorsteuer: "", auto: true,
     debts: [
-      { id: uid(), n: "Umsatzsteuer 2025 Q1–Q3 (Rückstand)", a: "4547.94", due: "", typ: "ust", raten: "", paid: false },
-      { id: uid(), n: "Umsatzsteuer 2025 Q4", a: "", due: nextJan10(), typ: "ust", raten: "", paid: false }
+      { id: "d-ust-q13", n: "Umsatzsteuer 2025 Q1–Q3 (Rückstand)", a: "4547.94", due: "", typ: "ust", raten: "", paid: false },
+      { id: "d-ust-q4", n: "Umsatzsteuer 2025 Q4", a: "", due: nextJan10(), typ: "ust", raten: "", paid: false }
     ],
-    priv: [{ id: uid(), n: "Miete / Wohnen", a: "" }, { id: uid(), n: "Lebensmittel", a: "" }, { id: uid(), n: "Versicherungen", a: "" }, { id: uid(), n: "Auto / Fahrrad", a: "" }, { id: uid(), n: "Sonstiges", a: "" }]
+    priv: [{ id: "p-miete", n: "Miete / Wohnen", a: "" }, { id: "p-essen", n: "Lebensmittel", a: "" }, { id: "p-vers", n: "Versicherungen", a: "" }, { id: "p-auto", n: "Auto / Fahrrad", a: "" }, { id: "p-sonst", n: "Sonstiges", a: "" }]
   });
   const FIN = () => {
     const F = (S.fin = S.fin || finDef());
@@ -2948,7 +2953,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     // Datum: der Browser meldet schon beim Tippen der ersten Jahresziffer. Nur gültige Jahre speichern, neu zeichnen erst beim Verlassen des Felds.
     if (t.type === "date") { finCommitDates(); return; }
     if (d.fin) { F[d.fin] = val; if (["konto", "guthaben", "bar"].includes(d.fin)) F.stand = isoD(new Date()); }
-    else if (d.finl) { const [k, id, f] = d.finl.split("|"), r = F[k].find(x => x.id === id); if (!r) return; if (f === "ust") r.typ = val ? "ust" : "sonst"; else r[f] = val; }
+    else if (d.finl) { const [k, id, f] = d.finl.split("|"), r = F[k].find(x => x.id === id); if (!r) { toast("Die Liste wurde gerade aktualisiert, bitte nochmal eintragen."); return renderFinance(); } if (f === "ust") r.typ = val ? "ust" : "sonst"; else r[f] = val; }
     else return;
     saveSettings(); renderFinance();
   });
