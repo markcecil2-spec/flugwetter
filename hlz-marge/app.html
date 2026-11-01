@@ -177,6 +177,18 @@ label.check small { font-weight: 400; color: var(--muted) }
 .brand strong { font-family: var(--font-display); font-size: 1.05rem; white-space: nowrap }
 nav.tabs { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center }
 nav.tabs a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: .9rem; padding: 6px 12px; border-radius: 999px }
+nav.tabs a.navpriv { color: var(--walnut) }
+.todorow { display: grid; grid-template-columns: 28px minmax(160px, 1fr) 150px 130px 40px 40px; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--line) }
+.todorow.done .inp input[type=text] { text-decoration: line-through; color: var(--muted) }
+.dayrow { display: grid; grid-template-columns: 26px 128px 128px 84px minmax(150px, 1fr) 132px 100px 40px; gap: 8px; align-items: center; padding: 6px 8px; border-bottom: 1px solid var(--line); border-radius: 4px }
+.dayhead { display: grid; grid-template-columns: 26px 128px 128px 84px minmax(150px, 1fr) 132px 100px 40px; gap: 8px; padding: 0 8px 4px 12px; font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted) }
+.dayrow.now { background: var(--accent-soft) }
+.dayrow.done .inp input[type=text] { text-decoration: line-through; color: var(--muted) }
+.dayrow .daynote { grid-column: 5 / -1; margin-top: -4px }
+.dayrow .inp input[type=time] { width: 100% }
+@media (max-width: 860px) { .dayhead { display: none } .dayrow { grid-template-columns: 26px 1fr 1fr 40px } .dayrow .daydur { display: none } .dayrow .inp:nth-of-type(3), .dayrow .inp:nth-of-type(4), .dayrow .inp:nth-of-type(5) { grid-column: 2 / -1 } }
+.todoadd { display: grid; grid-template-columns: minmax(180px, 1fr) 170px auto; gap: 8px; align-items: center }
+@media (max-width: 720px) { .todorow { grid-template-columns: 28px 1fr 40px 40px } .todorow .inp:nth-of-type(2), .todorow .inp:nth-of-type(3) { grid-column: 2 / -1 } .todoadd { grid-template-columns: 1fr } }
 nav.tabs a[aria-current=page] { background: var(--accent-soft); color: var(--accent) }
 /* Kalkulator links, Betrieb (Bestellungen, Produktion, Support) rechts davon, durch einen Strich getrennt */
 .navsep { align-self: center; width: 1px; height: 20px; background: var(--line); margin: 0 14px }
@@ -400,7 +412,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion">Produktion</a>
       <a href="#support" data-tab="support">Support</a>
-      <a href="#finanzen" data-tab="finanzen">Finanzen</a>
+      <span class="navsep" aria-hidden="true"></span>
+      <a href="#finanzen" data-tab="privat" class="navpriv">Privat<span class="navbadge" id="privBadge" hidden></span></a>
     </nav>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
   </div>
@@ -410,7 +423,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 126 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 128 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -866,8 +879,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen"].includes(h) ? h : "uebersicht";
-    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === view) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "todo", "tag"].includes(h) ? h : "uebersicht";
+    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "finanzen" || view === "todo" || view === "tag" ? "privat" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
     if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
@@ -896,8 +909,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "auswertung") renderAnalysis();
     else if (view === "finanzen") finDraw();
     else if (view === "ideen") renderIdeas();
+    else if (view === "todo") renderTodo();
+    else if (view === "tag") renderDay();
     else renderOverview();
-    ideaBadge();
+    ideaBadge(); todoBadge();
   }
 
 
@@ -2853,6 +2868,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (view === "uebersicht") renderOverview();
     else if (view === "produktion") renderProduction();
     else if (view === "finanzen") finDraw();
+    else if (view === "todo") renderTodo();
+    else if (view === "tag") renderDay();
     else if (view === "artikel" && !dirty) {
       const a = A.find(x => x.id === curId);
       if (a && JSON.stringify(a) !== JSON.stringify(draft)) { draft = clone(a); renderEditor(draft); }
@@ -3039,7 +3056,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const firstNeg = c.proj.find(x => x.balP < 0 || x.balG < 0), negWho = firstNeg ? (firstNeg.balP < 0 && firstNeg.balG < 0 ? "auf beiden Konten" : firstNeg.balP < 0 ? "auf dem Privatkonto" : "auf dem Geschäftskonto") : "";
     const hasSales = c.T.qty > 0, hasSalesEnt = hasSales, noMoney = F.kontoG === "" && F.kontoP === "" && F.guthaben === "" && F.bar === "";
     $("view").innerHTML = `
-      <div class="row"><h1>Finanzen</h1></div>
+      ${privBar("finanzen")}<div class="row"><h1>Finanzen</h1></div>
       <div class="seg stabs" aria-label="Bereiche der Finanzen">${FTABS.map(([k, l]) => `<button type="button" data-ftab="${k}" aria-pressed="${finTab === k}">${l}</button>`).join("")}</div>
 
       <section class="box" data-fs="uebersicht" style="border-color:var(--accent)">
@@ -3687,6 +3704,162 @@ Antworte NUR mit JSON in dieser Form:
       A.push(a); saveArticle(a); idea.status = "angelegt"; idea.aid = a.id; saveSettings(); toast("Artikel angelegt, bitte Gewicht, Karton und Fotos ergänzen"); return go("artikel-" + a.id);
     }
     if (d.ideaOther) { (S.ideaNo = S.ideaNo || []).push(idea.name); S.ideaNo = S.ideaNo.slice(-40); return ideaGenerate(1, idea.id); }
+  });
+
+  // ---------- Privat: To-do-Liste (getrennter Bereich zusammen mit Finanzen) ----------
+  const TODO_REP = [["", "einmalig"], ["w", "jede Woche"], ["m", "jeden Monat"], ["y", "jedes Jahr"]];
+  const todayISO = () => isoD(new Date());
+  const addDays = (iso, n) => { const d = new Date(iso + "T00:00:00"); d.setDate(d.getDate() + n); return isoD(d); };
+  const addMonths = (iso, n) => { const d = new Date(iso + "T00:00:00"), day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n); d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); return isoD(d); };
+  const todoNext = t => { const b = t.due || todayISO(); return t.rep === "w" ? addDays(b, 7) : t.rep === "m" ? addMonths(b, 1) : addMonths(b, 12); };
+  const TODOS = () => (S.todos = S.todos || []);
+  let todoSug = [], todoDoneOpen = false;
+  const privBar = active => `<div class="seg privbar" aria-label="Privat" style="margin-bottom:10px"><span class="label" style="align-self:center;margin-right:4px;color:var(--walnut)">Privat</span>
+      <a class="btn ${active === "finanzen" ? "primary" : ""}" href="#finanzen">Finanzen</a><a class="btn ${active === "todo" ? "primary" : ""}" href="#todo">To-do${todoOpenCount() ? ` <span class="navbadge" style="margin-left:2px">${todoOpenCount()}</span>` : ""}</a><a class="btn ${active === "tag" ? "primary" : ""}" href="#tag">Tagesplan</a></div>`;
+  const todoOpenCount = () => TODOS().filter(t => !t.done && t.due && t.due <= todayISO()).length;
+  function todoBadge() { const el = $("privBadge"); if (!el) return; const n = todoOpenCount(); el.hidden = !n; el.textContent = n; }
+  function todoSuggestions() {
+    const out = [], td = todayISO(); let c; try { c = finCalc(); } catch (e) { return out; }
+    c.open.filter(d => d.due && d.due <= addDays(td, 45)).forEach(d => out.push({ t: `Zahlen: ${d.n} (${d.est ? "ca. " : ""}${eur0(d.ea)})`, due: d.due < td ? td : d.due, p: d.due <= addDays(td, 7) }));
+    try { finTips(c).filter(x => x.urg <= 1).slice(0, 3).forEach(x => out.push({ t: String(x.title).replace(/<[^>]+>/g, ""), due: "", p: x.urg === 0 })); } catch (e) {}
+    return out.filter(o => !TODOS().some(t => t.t === o.t)).slice(0, 6);
+  }
+  function todoRow(t) {
+    const od = !t.done && t.due && t.due < todayISO();
+    return `<div class="todorow${t.done ? " done" : ""}"><input type="checkbox" data-todo="done|${t.id}" ${t.done ? "checked" : ""} aria-label="erledigt">
+      <div class="inp"><input type="text" data-todo="t|${t.id}" value="${esc(t.t)}" aria-label="Aufgabe"></div>
+      <div class="inp"><input type="date" data-todo="due|${t.id}" value="${esc(t.due || "")}" aria-label="Termin" ${od ? 'style="color:var(--bad)"' : ""}></div>
+      <div class="inp"><select data-todo="rep|${t.id}" aria-label="Wiederholen">${TODO_REP.map(([k, l]) => `<option value="${k}" ${(t.rep || "") === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+      <button type="button" class="btn" data-todo-star="${t.id}" aria-pressed="${!!t.p}" title="Wichtig" style="${t.p ? "color:var(--warn);border-color:var(--warn)" : ""}">★</button>
+      <button type="button" class="btn" data-todo-del="${t.id}" aria-label="Löschen">×</button></div>`;
+  }
+  function renderTodo() {
+    const td = todayISO(), wk = addDays(td, 7), list = TODOS(), open = list.filter(t => !t.done);
+    const srt = a => a.slice().sort((x, y) => (y.p ? 1 : 0) - (x.p ? 1 : 0) || String(x.due || "9").localeCompare(String(y.due || "9")));
+    const G = [["Überfällig", open.filter(t => t.due && t.due < td), "bad"], ["Heute", open.filter(t => t.due === td), "warn"], ["Diese Woche", open.filter(t => t.due > td && t.due <= wk), ""], ["Später", open.filter(t => t.due > wk), ""], ["Ohne Termin", open.filter(t => !t.due), ""]];
+    const done = list.filter(t => t.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0)).slice(0, 20);
+    todoSug = todoSuggestions();
+    $("view").innerHTML = `${privBar("todo")}<div class="row"><h1>To-do</h1></div>
+      <section class="box"><h2>Neue Aufgabe</h2>
+        <div class="todoadd"><div class="inp"><input type="text" id="todoNew" placeholder="Was ist zu tun?" aria-label="Neue Aufgabe" autocomplete="off"></div>
+          <div class="inp"><select id="todoDue" aria-label="Termin"><option value="">ohne Termin</option><option value="0">heute</option><option value="1">morgen</option><option value="3">in 3 Tagen</option><option value="7">in einer Woche</option><option value="30">in einem Monat</option></select></div>
+          <button type="button" class="btn primary" data-todo-add>+ Aufgabe</button></div></section>
+      ${todoSug.length ? `<section class="box" style="margin-top:12px"><h2>Vorschläge aus deinen Finanzen</h2><p class="note">Das fällt gerade an. Mit „+“ übernimmst du es in deine Liste.</p>
+        ${todoSug.map((s, i) => `<div class="row" style="justify-content:space-between;gap:8px"><span>${esc(s.t)}${s.due ? ` <span class="note">· ${dDE(s.due)}</span>` : ""}</span><button type="button" class="btn" data-todo-sug="${i}">+ übernehmen</button></div>`).join("")}</section>` : ""}
+      ${G.map(([n, l, c]) => l.length ? `<section class="box" style="margin-top:12px"><h2${c ? ` style="color:var(--${c})"` : ""}>${n} <span class="note">${l.length}</span></h2>${srt(l).map(todoRow).join("")}</section>` : "").join("")}
+      ${!open.length ? `<section class="box empty" style="margin-top:12px"><p>Nichts offen. Schreib oben deine erste Aufgabe auf.</p></section>` : ""}
+      ${done.length ? `<section class="box" style="margin-top:12px"><div class="row"><h2>Erledigt <span class="note">${done.length}</span></h2><button type="button" class="btn" data-todo-donetoggle>${todoDoneOpen ? "ausblenden" : "anzeigen"}</button></div>${todoDoneOpen ? done.map(todoRow).join("") : ""}</section>` : ""}`;
+    todoBadge();
+  }
+  let todoTimer = null;
+  const todoSoon = () => { clearTimeout(todoTimer); todoTimer = setTimeout(() => { if (view !== "todo") return; if (typing()) return todoSoon(); const sy = window.scrollY; renderTodo(); window.scrollTo(0, sy); }, 700); };
+  function todoAdd() {
+    const inp = $("todoNew"); if (!inp) return; const t = inp.value.trim(); if (!t) { toast("Schreib erst die Aufgabe auf."); return; }
+    const dv = $("todoDue").value; TODOS().push({ id: uid(), t, due: dv === "" ? "" : addDays(todayISO(), +dv), p: false, rep: "", done: false, made: Date.now() });
+    saveSettings(); renderTodo(); const n = $("todoNew"); if (n) n.focus();
+  }
+  document.addEventListener("keydown", e => { if (view === "todo" && e.key === "Enter" && e.target.id === "todoNew") { e.preventDefault(); todoAdd(); } });
+  document.addEventListener("change", e => {
+    if (view !== "todo") return; const el = e.target, d = el.dataset.todo; if (!d) return;
+    const [f, id] = d.split("|"), t = TODOS().find(x => x.id === id); if (!t) return;
+    if (f === "done") {
+      t.done = el.checked; t.doneAt = t.done ? Date.now() : 0;
+      if (t.done && t.rep) TODOS().push({ id: uid(), t: t.t, due: todoNext(t), p: t.p, rep: t.rep, done: false, made: Date.now() });   // wiederkehrend: nächste Aufgabe anlegen
+      saveSettings(); return renderTodo();
+    }
+    if (f === "due") { const y = +String(el.value).slice(0, 4); if (el.value && (y < 2000 || y > 2100)) return; t.due = el.value; saveSettings(); el.dataset.pending = "1"; return; }
+    if (f === "rep") { t.rep = el.value; saveSettings(); return renderTodo(); }
+    t[f] = el.value; saveSettings(); todoSoon();
+  });
+  document.addEventListener("focusout", e => { if (view === "todo" && e.target.dataset && e.target.dataset.pending) { delete e.target.dataset.pending; renderTodo(); } });
+  document.addEventListener("click", e => {
+    if (view !== "todo") return;
+    const t = e.target.closest("[data-todo-add],[data-todo-star],[data-todo-del],[data-todo-sug],[data-todo-donetoggle]"); if (!t) return; const d = t.dataset;
+    if (d.todoAdd !== undefined) return todoAdd();
+    if (d.todoDonetoggle !== undefined) { todoDoneOpen = !todoDoneOpen; return renderTodo(); }
+    if (d.todoSug !== undefined) { const s = todoSug[+d.todoSug]; if (s) { TODOS().push({ id: uid(), t: s.t, due: s.due, p: !!s.p, rep: "", done: false, made: Date.now() }); saveSettings(); toast("Aufgabe übernommen"); renderTodo(); } return; }
+    const task = TODOS().find(x => x.id === (d.todoStar || d.todoDel)); if (!task) return;
+    if (d.todoStar) { task.p = !task.p; saveSettings(); return renderTodo(); }
+    if (d.todoDel) { S.todos = TODOS().filter(x => x.id !== task.id); saveSettings(); return renderTodo(); }
+  });
+
+  // ---------- Privat: Tagesplan ----------
+  const DAY_CATS = [["Routine", "--seg-other"], ["Gesundheit", "--seg-profit"], ["Lernen", "--seg-ship"], ["Arbeit", "--seg-make"], ["Essen", "--seg-fee"], ["Freizeit", "--seg-time"]];
+  const DAY_TYPES = [["all", "täglich"], ["wt", "Mo–Fr"], ["we", "Sa–So"]];
+  const tmin = s => { const m = String(s || "").match(/^(\d{1,2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : NaN; };
+  const tfmt = n => String(Math.floor(n / 60) % 24).padStart(2, "0") + ":" + String(n % 60).padStart(2, "0");
+  const dur = b => { const d = tmin(b.to) - tmin(b.from); return isFinite(d) ? d : NaN; };
+  const durTxt = m => !isFinite(m) ? "–" : m >= 60 ? `${Math.floor(m / 60)} Std${m % 60 ? " " + (m % 60) + " Min" : ""}` : `${m} Min`;
+  // Startplan nach deinen Angaben. Annahmen (grau markiert, änderbar): 08:15 bis 09:00 Puffer, Heimweg, Abendroutine.
+  const dayDefault = () => [
+    ["07:00", "07:15", "Aufstehen, fertig machen", "Routine", "all"], ["07:15", "07:45", "Sport", "Gesundheit", "all"], ["07:45", "08:15", "Englisch lernen", "Lernen", "all"],
+    ["08:15", "09:00", "Duschen, Kaffee, Puffer", "Routine", "all", "Annahme: Zeit bis zum Büro, ändere sie nach Bedarf."], ["09:00", "11:00", "Büro", "Arbeit", "wt"], ["11:00", "11:30", "Frühstück", "Essen", "all"],
+    ["11:30", "17:00", "Werkstatt", "Arbeit", "wt"], ["17:00", "17:30", "Heimweg", "Routine", "wt", "Annahme: 30 Minuten."], ["17:30", "18:30", "Kochen und Essen", "Essen", "all"],
+    ["18:30", "22:00", "Freizeit", "Freizeit", "all"], ["22:00", "22:30", "Runterkommen, Schlafen gehen", "Routine", "all", "Annahme: für etwa 8 Stunden Schlaf bis 07:00."]
+  ].map(([from, to, t, cat, days, note]) => ({ id: uid(), from, to, t, cat, days, note: note || "" }));
+  const DAYPLAN = () => { if (!S.dayPlan || !Array.isArray(S.dayPlan.blocks)) S.dayPlan = { blocks: dayDefault() }; return S.dayPlan.blocks; };
+  let dayView = LS.get("hlz-app-dayview") || (([0, 6].includes(new Date().getDay())) ? "we" : "wt"), dayResetAsk = false, dayTimer = null;
+  const dayApplies = (b, v2) => b.days === "all" || !b.days || b.days === v2;
+  const dayBlocks = () => DAYPLAN().filter(b => dayApplies(b, dayView)).sort((x, y) => (tmin(x.from) || 0) - (tmin(y.from) || 0));
+  const dayStreak = () => {
+    const done = S.dayDone || {}; let n = 0, d = new Date();
+    const hit = iso => (done[iso] || []).some(id => { const b = DAYPLAN().find(x => x.id === id); return b && /sport/i.test(b.t); });
+    if (!hit(isoD(d))) d.setDate(d.getDate() - 1);
+    while (hit(isoD(d))) { n++; d.setDate(d.getDate() - 1); }
+    return n;
+  };
+  function renderDay() {
+    const bl = dayBlocks(), td = todayISO(), now = new Date(), nm = now.getHours() * 60 + now.getMinutes(), isToday = (dayView === "all") || (([0, 6].includes(now.getDay())) ? "we" : "wt") === dayView;
+    const doneToday = new Set((S.dayDone || {})[td] || []);
+    const cur = isToday ? bl.find(b => tmin(b.from) <= nm && nm < tmin(b.to)) : null, next = isToday ? bl.find(b => tmin(b.from) > nm) : null;
+    // Summen, Überschneidungen, Lücken
+    const sums = {}; let gaps = [], over = [];
+    bl.forEach((b, i) => { const d = dur(b); if (isFinite(d) && d > 0) sums[b.cat] = (sums[b.cat] || 0) + d; if (i > 0) { const g = tmin(b.from) - tmin(bl[i - 1].to); if (g > 15) gaps.push(`${bl[i - 1].to} bis ${b.from} (${durTxt(g)})`); if (g < 0) over.push(`${bl[i - 1].t} und ${b.t}`); } if (!(d > 0)) over.push(`${b.t}: Ende liegt nicht nach dem Start`); });
+    const sleep = bl.length ? 24 * 60 - tmin(bl[bl.length - 1].to) + tmin(bl[0].from) : NaN;
+    const doneN = bl.filter(b => doneToday.has(b.id)).length, streak = dayStreak();
+    const row = b => { const c = (DAY_CATS.find(x => x[0] === b.cat) || DAY_CATS[0])[1], isNow = cur && cur.id === b.id;
+      return `<div class="dayrow${isNow ? " now" : ""}${doneToday.has(b.id) ? " done" : ""}" style="border-left:4px solid var(${c})">
+        <input type="checkbox" data-day="done|${b.id}" ${doneToday.has(b.id) ? "checked" : ""} aria-label="heute erledigt" title="Heute erledigt" ${isToday ? "" : "disabled"}>
+        <div class="inp"><input type="time" data-day="from|${b.id}" value="${esc(b.from)}" aria-label="Von"></div><div class="inp"><input type="time" data-day="to|${b.id}" value="${esc(b.to)}" aria-label="Bis"></div>
+        <span class="note daydur">${durTxt(dur(b))}</span>
+        <div class="inp"><input type="text" data-day="t|${b.id}" value="${esc(b.t)}" aria-label="Titel">${b.note ? "" : ""}</div>
+        <div class="inp"><select data-day="cat|${b.id}" aria-label="Kategorie">${DAY_CATS.map(([k]) => `<option ${k === b.cat ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+        <div class="inp"><select data-day="days|${b.id}" aria-label="Tage">${DAY_TYPES.map(([k, l]) => `<option value="${k}" ${(b.days || "all") === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+        <button type="button" class="btn" data-day-del="${b.id}" aria-label="Löschen">×</button>${b.note ? `<span class="note daynote">${esc(b.note)}</span>` : ""}</div>`; };
+    $("view").innerHTML = `${privBar("tag")}<div class="row"><h1>Tagesplan</h1><div class="seg" aria-label="Plan für"><button type="button" data-day-view="wt" aria-pressed="${dayView === "wt"}">Werktag (Mo–Fr)</button><button type="button" data-day-view="we" aria-pressed="${dayView === "we"}">Wochenende</button></div></div>
+      <p class="note">Dein Tag in Blöcken. Zeiten, Namen, Kategorien und die Tage änderst du direkt in der Zeile. Mit dem Haken markierst du heute erledigte Blöcke. Grau hinterlegte Hinweise sind Annahmen von mir, wo du keine Zeit genannt hattest.</p>
+      <section class="box"><div class="tiles t3">
+        <div class="tile"><span class="label">Jetzt</span><span class="num" style="font-size:1.15rem">${cur ? esc(cur.t) : isToday ? "frei" : "–"}</span><span class="note">${cur ? `bis ${esc(cur.to)}` : next ? `als Nächstes: ${esc(next.t)} um ${esc(next.from)}` : isToday ? "Der Plan für heute ist durch." : "Du siehst gerade den Plan für einen anderen Tag."}</span></div>
+        <div class="tile"><span class="label">Heute geschafft</span><span class="num" style="font-size:1.15rem">${isToday ? `${doneN} von ${bl.length}` : "–"}</span><span class="note">${streak ? `Sport-Serie: ${streak} ${streak === 1 ? "Tag" : "Tage"} in Folge` : "Haken bei „Sport“ setzen, dann zählt die Serie."}</span></div>
+        <div class="tile"><span class="label">Schlaf</span><span class="num" style="font-size:1.15rem">${isFinite(sleep) ? durTxt(sleep) : "–"}</span><span class="note">vom letzten Block bis zum ersten am nächsten Morgen</span></div>
+      </div></section>
+      <section class="box" style="margin-top:12px"><div class="dayhead"><span></span><span>Von</span><span>Bis</span><span>Dauer</span><span>Block</span><span>Kategorie</span><span>Tage</span><span></span></div>
+        ${bl.length ? bl.map(row).join("") : `<p class="note">Für diesen Tagestyp gibt es noch keine Blöcke.</p>`}
+        <div class="btns" style="margin-top:8px"><button type="button" class="btn" data-day-add>+ Block</button>${dayResetAsk ? `<span><strong>Plan wirklich zurücksetzen?</strong> <button type="button" class="btn danger" data-day-reset="yes">Ja</button> <button type="button" class="btn" data-day-reset="no">Nein</button></span>` : `<button type="button" class="btn" data-day-reset="ask">Plan zurücksetzen</button>`}</div></section>
+      <section class="box" style="margin-top:12px"><h2>Auswertung</h2>
+        ${anaTable(["Kategorie", "Zeit pro Tag"], DAY_CATS.filter(([k]) => sums[k]).map(([k, c]) => [`<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(${c});margin-right:6px"></span>${k}`, durTxt(sums[k])]), [1])}
+        ${over.length ? `<p style="color:var(--bad)"><strong>Überschneidung:</strong> ${esc(over.join(", "))}.</p>` : ""}
+        ${gaps.length ? `<p class="note">Freie Lücken über 15 Minuten: ${esc(gaps.join(" · "))}. Füll sie mit einem Block oder lass sie als Puffer.</p>` : ""}</section>`;
+  }
+  const daySoon = () => { clearTimeout(dayTimer); dayTimer = setTimeout(() => { if (view !== "tag") return; if (typing()) return daySoon(); const sy = window.scrollY; renderDay(); window.scrollTo(0, sy); }, 700); };
+  setInterval(() => { if (view === "tag" && !typing()) renderDay(); }, 60000);   // „Jetzt“ bleibt aktuell
+  document.addEventListener("change", e => {
+    if (view !== "tag") return; const el = e.target, d = el.dataset.day; if (!d) return;
+    const [f, id] = d.split("|"), b = DAYPLAN().find(x => x.id === id); if (!b) return;
+    if (f === "done") { S.dayDone = S.dayDone || {}; const td = todayISO(), set = new Set(S.dayDone[td] || []); el.checked ? set.add(id) : set.delete(id); S.dayDone[td] = [...set]; Object.keys(S.dayDone).sort().slice(0, -60).forEach(k => delete S.dayDone[k]); saveSettings(); return renderDay(); }
+    if (f === "from" || f === "to") { if (!isFinite(tmin(el.value))) return; b[f] = el.value; saveSettings(); el.dataset.pending = "1"; return; }
+    b[f] = el.value; saveSettings(); (f === "t") ? daySoon() : renderDay();
+  });
+  document.addEventListener("focusout", e => { if (view === "tag" && e.target.dataset && e.target.dataset.pending) { delete e.target.dataset.pending; renderDay(); } });
+  document.addEventListener("click", e => {
+    if (view !== "tag") return;
+    const t = e.target.closest("[data-day-add],[data-day-del],[data-day-view],[data-day-reset]"); if (!t) return; const d = t.dataset;
+    if (d.dayView) { dayView = d.dayView; LS.set("hlz-app-dayview", dayView); return renderDay(); }
+    if (d.dayAdd !== undefined) { const bl = dayBlocks(), last = bl.length ? tmin(bl[bl.length - 1].to) : 8 * 60, s = isFinite(last) ? last : 8 * 60; DAYPLAN().push({ id: uid(), from: tfmt(s), to: tfmt(s + 30), t: "Neuer Block", cat: "Routine", days: dayView === "all" ? "all" : dayView, note: "" }); saveSettings(); return renderDay(); }
+    if (d.dayDel) { S.dayPlan.blocks = DAYPLAN().filter(x => x.id !== d.dayDel); saveSettings(); return renderDay(); }
+    if (d.dayReset === "ask") { dayResetAsk = true; return renderDay(); }
+    if (d.dayReset === "no") { dayResetAsk = false; return renderDay(); }
+    if (d.dayReset === "yes") { dayResetAsk = false; S.dayPlan = { blocks: dayDefault() }; saveSettings(); return renderDay(); }
   });
 
   // ---------- Start ----------
