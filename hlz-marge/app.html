@@ -392,6 +392,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
       <a href="#auswertung" data-tab="auswertung">Auswertung</a>
+      <a href="#ideen" data-tab="ideen">Ideen<span class="navbadge" id="ideaBadge" hidden></span></a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
       <a href="#import" data-tab="import">Import</a>
@@ -409,7 +410,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 123 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 124 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -865,7 +866,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === view) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -894,7 +895,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "bestellungen") renderOrders();
     else if (view === "auswertung") renderAnalysis();
     else if (view === "finanzen") finDraw();
+    else if (view === "ideen") renderIdeas();
     else renderOverview();
+    ideaBadge();
   }
 
 
@@ -3508,6 +3511,155 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       ${bad.length ? `<ul style="margin:0;padding-left:18px;display:grid;gap:4px">${bad.map(([l, , , , h]) => `<li><span class="note">${esc(l.split(" (")[0])}:</span> ${esc(h)}</li>`).join("")}</ul>` : ""}
       <p class="note">Das Konto zeigt Cash, die App rechnet Netto ohne Umsatzsteuer. Kleine Unterschiede durch Zahlungszeitpunkte sind normal. Beim Netto-Eingang sind auch Verkäufe über PayPal und Ladengemeinschaft dabei, die die Artikel-Statistik nicht kennt.</p></section>`;
   }
+  // ---------- Produktideen: 2 neue Produkte pro Monat, passend zu Shop, Rohlingen und Saison ----------
+  let ideaState = { busy: "", msg: "" };
+  const monthKey = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  const monthLabel = k => MONTHS_FULL[+k.split("-")[1] - 1] + " " + k.split("-")[0];
+  // Käufer suchen Geschenke und Deko 4 bis 8 Wochen vor dem Anlass: darum zählen die Anlässe der nächsten 2 bis 3 Monate
+  const IDEA_EVENTS = { 1: "Valentinstag (14.2.), Ostern, Muttertag", 2: "Ostern, Muttertag, Frühling und Balkon", 3: "Muttertag, Vatertag, Hochzeitssaison", 4: "Vatertag, Hochzeiten, Sommer und Camping", 5: "Camping und Outdoor, Hochzeiten, Einschulung", 6: "Einschulung, Herbst (Garderobe, Flur), Umzug und Einweihung", 7: "Herbst und Flur, Einweihungsgeschenke, Halloween", 8: "Weihnachtsgeschenke, Adventskalender, Halloween", 9: "Weihnachten, Nikolaus, Advent, Silvester", 10: "Weihnachtsgeschenke (letzte Bestellungen), Silvester, Neujahr", 11: "Neujahr und Ordnung, Valentinstag, Weihnachten", 12: "Valentinstag, Neujahr, Ostern" };
+  const baseName = n => norm(String(n || "").replace(/·.*$/, "").replace(/\d+[.,]?\d*\s*cm/gi, "")).trim();
+  const ideaAll = () => Object.entries(S.ideas || {}).flatMap(([k, l]) => l.map(i => ({ ...i, mk: k })));
+  const ideaUsed = () => new Set([...A.map(a => baseName(a.name)), ...ideaAll().map(i => baseName(i.name)), ...(S.ideaNo || []).map(baseName)]);
+  // Beschreibung des Shops für Claude: echte Zahlen, Rohlinge, Kleinteile, Bestseller, Kategorien
+  function ideaContext(mk) {
+    const { rows, ctx } = anaCalc(), cats = {};
+    rows.forEach(x => { const o = cats[x.cat] = cats[x.cat] || { pm: 0, profit: 0, net: 0, n: 0 }; o.pm += x.pm; o.profit += x.pm * x.r.profit; o.net += x.pm * x.r.net; o.n++; });
+    const top = [...rows].sort((a, b) => b.pm * b.r.profit - a.pm * a.r.profit).slice(0, 12).map(x => `- ${x.a.name} | ${eur0(v(x.a.price))} | ${dec(x.pm, 1)} Stk/Monat | Marge ${dec(x.r.margin, 0)} %`).join("\n");
+    const cat = Object.entries(cats).sort((a, b) => b[1].profit - a[1].profit).map(([k, o]) => `- ${k}: ${o.n} Artikel, ${dec(o.pm, 0)} Stk/Monat, Gewinn ${eur0(o.profit)}/Monat, Marge ${dec(o.net > 0 ? o.profit / o.net * 100 : 0, 0)} %`).join("\n");
+    const names = [...new Set(A.map(a => baseName(a.name)))].slice(0, 70).join("; ");
+    const no = [...new Set(ideaAll().map(i => i.name).concat(S.ideaNo || []))].slice(-30).join("; ");
+    const mo = +mk.split("-")[1];
+    return `SHOP: HLZ-Laden, handgemachte Wohnaccessoires aus Eichenholz (Etsy und eigener Shopify-Shop, Kundschaft vor allem Deutschland, dazu EU). Aktuell ${A.length} Artikel (${rows.length} mit Verkäufen). Preise meist 30 bis 190 €. Ziel-Marge ${S.target} %. Gefertigt in einer eigenen Werkstatt (Formatkreissäge, Dickenhobel, Tischfräse, Schleifer, Standbohrmaschine, CNC-Fräse, Laser für Gravuren).
+MATERIAL: ${(S.plates || []).map(p => `${p.n} (${p.l} × ${p.b} cm, ${eur0(v(p.p))})`).join("; ")}.
+ROHLINGE (vorgesägte Teile, Name: Länge × Breite × Dicke in cm): ${(S.blanks || []).filter(b => b.n).map(b => `${b.n}: ${b.l} × ${b.h} × ${b.t}`).join("; ")}.
+KLEINTEILE (Name, Preis): ${(S.small || []).map(x => `${x.n} (${eur(v(x.p))})`).join("; ")}.
+BESTSELLER (Name | Preis | Absatz | Marge):\n${top}
+KATEGORIEN:\n${cat}
+SCHON IM SORTIMENT (Namen ohne Größe): ${names}
+BEREITS VORGESCHLAGEN ODER ABGELEHNT (nicht wiederholen): ${no || "nichts"}
+VERSAND: DHL Kleinpaket ist am günstigsten (bis ca. 35 × 25 × 8 cm und 1 kg). Pakete bis 120 × 60 × 60 cm. Auslandsversand ist teuer, deshalb sind kleine, leichte Produkte besser.
+JETZT: ${monthLabel(mk)}. Das Produkt soll in diesem Monat in den Verkauf gehen. Anlässe, für die jetzt gesucht wird: ${IDEA_EVENTS[mo]}.`;
+  }
+  function ideaPrompt(mk, n) {
+    return `${ideaContext(mk)}
+
+AUFGABE: Schlage genau ${n} neue Produkte vor, die ich diesen Monat einführen soll. Regeln:
+1. Jedes Produkt passt zum Shop und zu den Bestsellern, ist aber kein Duplikat von bestehenden Artikeln.
+2. Bevorzuge Produkte, die sich aus meinen ROHLINGEN fertigen lassen (Name exakt aus der Liste übernehmen). Nur wenn ein anderes Maß wirklich nötig ist, gib eigene Maße an und lass rohling leer.
+3. Eines der Produkte soll saisonal oder zu einem Anlass passen, das andere darf ein ganzjähriger Bestseller-Ausbau sein (z. B. neue Variante, Set, Personalisierung).
+4. Rechne realistisch: Der Preis muss Material, Etsy-Gebühren (ca. 19 %), Versand und meine Zeit tragen. Personalisierung (Gravur) rechtfertigt höhere Preise.
+5. Nutze nur Kleinteile aus meiner Liste, mit realistischen Mengen.
+6. Nur Eiche, keine fremden Materialien, außer als Kleinteil.
+
+Antworte NUR mit JSON in dieser Form:
+{"ideen":[{"name":"kurzer Produktname","kategorie":"Schlüsselbrett|Garderobe|Regal|Knotenbrett|Haken|Deko & Zubehör","anlass":"Anlass oder ganzjährig","beschreibung":"2 Sätze, was es ist","warum":"1 bis 2 Sätze, warum es zu meinem Shop passt, mit Bezug auf meine Zahlen","teile":[{"rohling":"exakter Rohlingsname oder leer","l":Länge_cm,"b":Breite_cm,"q":Anzahl,"hinweis":"Funktion des Teils"}],"kleinteile":{"Kleinteilname":Menge},"gravur":true oder false,"minuten":Arbeitsminuten für Bohren, Schleifen, Montage und Gravur ohne Zuschnitt,"preis":Verkaufspreis_brutto_in_Euro,"etsyTitel":"Etsy-Titel mit den wichtigsten Suchwörtern, höchstens 140 Zeichen","tags":["13 Etsy-Tags, jeweils höchstens 20 Zeichen"],"risiko":"1 Satz, was schiefgehen kann"}]}`;
+  }
+  const num0 = (x, d) => { const f = parseFloat(String(x ?? "").replace(",", ".")); return isFinite(f) && f > 0 ? f : d; };
+  function ideaParse(r, n) {
+    const list = r && (r.ideen || r.ideas || (Array.isArray(r) ? r : [])); if (!Array.isArray(list)) return [];
+    const used = ideaUsed(), out = [];
+    list.forEach(x => {
+      if (!x || !x.name || !Array.isArray(x.teile) || !x.teile.length) return;
+      const teile = x.teile.map(t => { const bl = (S.blanks || []).find(b => norm(b.n) === norm(t.rohling || "")); return { rohling: bl ? bl.n : "", l: num0(bl ? bl.l : t.l, 0), b: num0(bl ? bl.h : t.b, 0), q: Math.max(1, Math.round(num0(t.q, 1))), hinweis: String(t.hinweis || "").slice(0, 80) }; }).filter(t => t.l > 0 && t.b > 0);
+      const preis = num0(x.preis, 0); if (!teile.length || !(preis > 0)) return;
+      if (used.has(baseName(x.name)) || out.some(o => baseName(o.name) === baseName(x.name))) return;
+      const klein = {}; Object.entries(x.kleinteile || {}).forEach(([k, q]) => { const s = (S.small || []).find(y => norm(y.n) === norm(k)); if (s && num0(q, 0) > 0) klein[s.n] = Math.round(num0(q, 0)); });
+      out.push({ id: uid(), name: String(x.name).slice(0, 90), kat: String(x.kategorie || "Deko & Zubehör").slice(0, 40), anlass: String(x.anlass || "ganzjährig").slice(0, 90), besch: String(x.beschreibung || "").slice(0, 400), warum: String(x.warum || "").slice(0, 400), teile, klein, gravur: !!x.gravur, min: num0(x.minuten, 6), preis, titel: String(x.etsyTitel || "").slice(0, 140), tags: (Array.isArray(x.tags) ? x.tags : []).slice(0, 13).map(t => String(t).slice(0, 20)), risiko: String(x.risiko || "").slice(0, 200), status: "neu" });
+    });
+    return out.slice(0, n);
+  }
+  // Baukasten für den Fall, dass Claude nicht erreichbar ist: feste Vorlagen nach Monat
+  const IDEA_TPL = [
+    { m: [11, 12, 1], name: "Herz-Schlüsselbrett mit Namensgravur", kat: "Schlüsselbrett", anlass: "Valentinstag", teile: [{ rohling: "Leiste 30 cm", q: 1 }], klein: { "Haken Schlüsselbrett": 3 }, gravur: true, min: 6, preis: 49, besch: "Schlüsselbrett mit gravierten Namen oder Herz, ein Geschenk für Paare.", warum: "Schlüsselbretter sind dein Bestseller, die Gravur steigert den Preis." },
+    { m: [2, 3, 4], name: "Mini-Regal Mama mit Muttertagsgravur", kat: "Regal", anlass: "Muttertag", teile: [{ rohling: "Mini 18 cm", q: 1 }, { rohling: "Mini 12 cm", q: 1 }], klein: { "Stockschrauben + Muffe": 2 }, gravur: true, min: 6, preis: 39, besch: "Kleines Wandregal mit persönlicher Gravur als Muttertagsgeschenk.", warum: "Die Mini-Rohlinge sind vorhanden und das Geschenk wird vor dem Muttertag stark gesucht." },
+    { m: [3, 4, 5], name: "Hochzeitsgeschenk Schlüsselbrett „Unser Zuhause“", kat: "Schlüsselbrett", anlass: "Hochzeit", teile: [{ rohling: "Leiste 40 cm", q: 1 }], klein: { "Haken Schlüsselbrett": 4 }, gravur: true, min: 7, preis: 59, besch: "Schlüsselbrett mit Namen und Hochzeitsdatum.", warum: "Hochzeitssaison, Personalisierung und gute Marge bei deiner Leiste 40 cm." },
+    { m: [4, 5, 6], name: "Outdoor-Hakenleiste für Camper 50 cm", kat: "Haken", anlass: "Camping und Outdoor", teile: [{ rohling: "Leiste 50 cm", q: 1 }], klein: { "Haken Garderobe": 4 }, gravur: false, min: 4, preis: 39, besch: "Robuste, geölte Hakenleiste für Wohnwagen und Gartenhaus.", warum: "Du hast Campingerfahrung und die Leiste 50 cm ist vorhanden." },
+    { m: [6, 7, 8], name: "Kinder-Garderobe mit Name 60 cm", kat: "Garderobe", anlass: "Einschulung", teile: [{ rohling: "Leiste 60 cm", q: 1 }], klein: { "Haken Garderobe": 4 }, gravur: true, min: 7, preis: 59, besch: "Niedrige Garderobe mit Namensgravur für das Kinderzimmer.", warum: "Einschulungsgeschenke werden ab Sommer gesucht, Garderoben laufen bei dir gut." },
+    { m: [7, 8, 9], name: "Schmale Flur-Garderobe mit Ablage 60 cm", kat: "Garderobe", anlass: "Herbst, Flur", teile: [{ rohling: "Leiste 60 cm", q: 1 }, { rohling: "Regalbrett 60 cm", q: 1 }], klein: { "Haken Garderobe": 4, "Stockschrauben + Muffe": 2 }, gravur: false, min: 8, preis: 89, besch: "Garderobe mit Hakenleiste und Ablage darüber.", warum: "Im Herbst steigt die Nachfrage nach Garderoben, die Rohlinge sind vorhanden." },
+    { m: [8, 9, 10], name: "Weihnachts-Geschenkset Schlüsselbrett + Mini-Regal", kat: "Geschenkset", anlass: "Weihnachten", teile: [{ rohling: "Leiste 30 cm", q: 1 }, { rohling: "Mini 12 cm", q: 1 }], klein: { "Haken Schlüsselbrett": 3, "Stockschrauben + Muffe": 2 }, gravur: true, min: 9, preis: 69, besch: "Zwei passende Stücke als Geschenkset mit Gravur.", warum: "Sets erhöhen den Warenkorb und passen in die Weihnachtszeit." },
+    { m: [9, 10, 11], name: "Adventsbrett für 4 Kerzen 50 cm", kat: "Deko & Zubehör", anlass: "Advent", teile: [{ rohling: "Regalbrett 50 cm", q: 1 }], klein: {}, gravur: false, min: 7, preis: 39, besch: "Eichenbrett mit vier Bohrungen für Stabkerzen.", warum: "Saisonprodukt aus einem vorhandenen Rohling, wenig Aufwand." },
+    { m: [11, 12, 1], name: "Post- und Schlüsselablage mit Haken 40 cm", kat: "Regal", anlass: "Neujahr, Ordnung", teile: [{ rohling: "Regalbrett 40 cm", q: 1 }], klein: { "Haken Schlüsselbrett": 3, "Stockschrauben + Muffe": 2 }, gravur: false, min: 6, preis: 49, besch: "Ablage für Post, darunter Haken für Schlüssel.", warum: "Verbindet deine zwei stärksten Kategorien, Regal und Schlüsselbrett." },
+    { m: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], name: "Handtuch- und Bade-Leiste Eiche 60 cm", kat: "Haken", anlass: "ganzjährig", teile: [{ rohling: "Leiste 60 cm", q: 1 }], klein: { "Haken Garderobe": 3 }, gravur: false, min: 4, preis: 39, besch: "Geölte Hakenleiste fürs Bad.", warum: "Einfaches Produkt aus der Leiste 60 cm, dein Rohling ist vorhanden." },
+    { m: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], name: "Kopfhörer-Wandhalter Eiche", kat: "Deko & Zubehör", anlass: "ganzjährig", teile: [{ rohling: "Leiste 20 cm", q: 1 }], klein: { "Haken Garderobe": 1 }, gravur: true, min: 4, preis: 29, besch: "Kleiner Halter für Kopfhörer mit optionaler Gravur.", warum: "Wenig Material und Aufwand, gute Gravur-Möglichkeit." }
+  ];
+  function ideaFallback(mk, n) {
+    const mo = +mk.split("-")[1], used = ideaUsed(), pool = IDEA_TPL.filter(t => t.m.includes(mo) && !used.has(baseName(t.name))).sort((a, b) => a.m.length - b.m.length);
+    return pool.slice(0, n).map(t => ({ id: uid(), name: t.name, kat: t.kat, anlass: t.anlass, besch: t.besch, warum: t.warum, teile: t.teile.map(p => { const bl = (S.blanks || []).find(b => b.n === p.rohling); return { rohling: bl ? bl.n : "", l: bl ? v(bl.l) : 30, b: bl ? v(bl.h) : 8, q: p.q, hinweis: "" }; }), klein: t.klein, gravur: t.gravur, min: t.min, preis: t.preis, titel: "", tags: [], risiko: "", status: "neu" }));
+  }
+  // Ideen in einen Artikelentwurf umrechnen, damit die App die echte Marge ausrechnet
+  function ideaDraft(i) {
+    const a = ARTICLE_BLANK(), plate = (S.plates[0] || {}).n || "";
+    a.name = i.name; a.price = String(i.preis); a.pcat = i.kat;
+    a.parts = i.teile.map(t => ({ n: t.rohling || t.hinweis || "Teil", ...(t.rohling ? { blank: t.rohling } : {}), plate, l: String(t.l), b: String(t.b), q: String(t.q) }));
+    a.small = {}; Object.entries(i.klein || {}).forEach(([k, q]) => a.small[k] = String(q));
+    a.mins = String(i.min); a.mach = i.gravur && (S.mach || []).some(m => m.n === "Laser") ? { Laser: "4" } : {};
+    const Lm = Math.max(...i.teile.map(t => Math.max(t.l, t.b))), Bm = Math.max(...i.teile.map(t => Math.min(t.l, t.b)));
+    a.pkL = String(Math.ceil(Lm + 3)); a.pkB = String(Math.ceil(Bm + 3)); a.pkH = String(Math.max(6, Math.ceil(2 * i.teile.reduce((n, t) => n + t.q, 0) + 3)));
+    return a;
+  }
+  function ideaCalc(i) {
+    const ctx = volume(), a = ideaDraft(i), tp = solvePrice(a, "etsy", v(S.target), ctx), np = nicePrice(tp), r = calc(a, "etsy", v(a.price), ctx);
+    const price = isFinite(np) ? Math.max(i.preis, np) : i.preis, rp = price === i.preis ? r : calc(a, "etsy", price, ctx);
+    return { a, r, rp, price, np, dmax: maxDisc({ ...a, price: String(price) }, "etsy", ctx, tp) };
+  }
+  async function ideaGenerate(n, replaceId) {
+    const mk = monthKey(new Date()); ideaState.busy = "Claude schlägt Produkte vor …"; ideaState.msg = ""; renderIdeas();
+    let list = [], src = "claude"; const sample = await getSample();
+    if (sample) { try { list = ideaParse(await sample.json(ideaPrompt(mk, n), { modelTier: "default" }), n); } catch (e) { ideaState.msg = supErr(e); } } else ideaState.msg = "Claude ist hier nicht verfügbar.";
+    if (list.length < n) { const fb = ideaFallback(mk, n - list.length); if (fb.length) { list = list.concat(fb); src = list.length === fb.length ? "baukasten" : "gemischt"; ideaState.msg = (ideaState.msg ? ideaState.msg + " " : "") + "Ein Teil kommt aus dem Ideen-Baukasten." } }
+    S.ideas = S.ideas || {}; const cur = S.ideas[mk] = S.ideas[mk] || [];
+    list.forEach(x => { x.src = src; x.made = Date.now(); });
+    if (replaceId) { const k = cur.findIndex(x => x.id === replaceId); if (k >= 0 && list[0]) cur.splice(k, 1, list[0]); } else list.forEach(x => cur.push(x));
+    Object.keys(S.ideas).sort().slice(0, -12).forEach(k => delete S.ideas[k]);
+    saveSettings(); ideaState.busy = ""; if (!list.length) ideaState.msg = ideaState.msg || "Gerade fiel mir nichts Neues ein, versuch es später nochmal.";
+    renderIdeas(); ideaBadge();
+  }
+  function ideaCard(i) {
+    const c = ideaCalc(i), r = c.rp, [col, label] = status(r.margin), blanks = i.teile.map(t => `${t.rohling ? esc(t.rohling) : `eigenes Maß ${dec(t.l)} × ${dec(t.b)} cm`}${t.q > 1 ? ` × ${t.q}` : ""}${t.hinweis ? ` <span class="note">(${esc(t.hinweis)})</span>` : ""}`).join("<br>");
+    const small = Object.entries(i.klein || {}).map(([k, q]) => `${q} × ${esc(k)}`).join(", ") || "keine";
+    return `<section class="box" data-idea="${i.id}"><div class="row"><h3 style="margin:0">${esc(i.name)}</h3><span class="pill muted">${esc(i.anlass)}</span><span class="pill ${i.teile.every(t => t.rohling) ? "good" : "warn"}">${i.teile.every(t => t.rohling) ? "aus deinen Rohlingen" : "eigenes Maß nötig"}</span>${i.status === "angelegt" ? `<span class="pill good">Artikel angelegt</span>` : ""}</div>
+      <p style="margin:0">${esc(i.besch)}</p>
+      ${i.warum ? `<p style="margin:0"><span class="note">Warum es passt:</span> ${esc(i.warum)}</p>` : ""}
+      <div class="tiles" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+        <div class="tile"><span class="label">Preis</span><span class="num" style="font-size:1.25rem">${eur0(c.price)}</span><span class="note">${c.price > i.preis ? `Idee: ${eur0(i.preis)}, angehoben für ${esc(S.target)} % Marge` : "brutto auf Etsy"}</span></div>
+        <div class="tile"><span class="label">Gewinn pro Stück</span><span class="num" style="font-size:1.25rem;color:var(--${col === "muted" ? "fg" : col})">${eur(r.profit)}</span><span class="note">nach allen Kosten und Fixkosten-Anteil</span></div>
+        <div class="tile"><span class="label">Marge</span><span class="num" style="font-size:1.25rem;color:var(--${col === "muted" ? "fg" : col})">${pct(r.margin)}</span><span class="note">${label}, Ziel ${esc(S.target)} %</span></div>
+        <div class="tile"><span class="label">Max. Rabatt</span><span class="num" style="font-size:1.25rem">${isFinite(c.dmax) && c.dmax > 0 ? "−" + c.dmax + " %" : "keiner"}</span><span class="note">hält die Ziel-Marge</span></div>
+      </div>
+      ${anaTable(["Zutaten", ""], [["Rohlinge und Teile", blanks], ["Kleinteile", esc(small)], ["Gravur", i.gravur ? "ja (Laser)" : "nein"], ["Arbeitszeit", `${dec(i.min)} Min. plus Zuschnitt ${dec(r.rohMin)} Min.`], ["Versand", `${r.ship && r.ship.chosen ? esc(r.ship.chosen.o.n) : "keine Versandart passt, prüf die Maße"} (${dec(shipWeight(c.a) / 1000, 2)} kg)`]])}
+      ${i.titel ? `<div class="field"><label>Etsy-Titel</label><div class="inp"><input type="text" readonly value="${esc(i.titel)}" onclick="this.select()"></div></div>` : ""}
+      ${i.tags.length ? `<div class="field"><label>Etsy-Tags (${i.tags.length})</label><div class="inp"><input type="text" readonly value="${esc(i.tags.join(", "))}" onclick="this.select()"></div></div>` : ""}
+      ${i.risiko ? `<p class="note" style="margin:0">Achtung: ${esc(i.risiko)}</p>` : ""}
+      <div class="btns">${i.status === "angelegt" ? `<a class="btn primary" href="#artikel-${esc(i.aid)}">Artikel öffnen</a>` : `<button class="btn primary" data-idea-add="${i.id}">Als Artikel anlegen</button>`}<button class="btn" data-idea-other="${i.id}" ${ideaState.busy ? "disabled" : ""}>Andere Idee</button></div></section>`;
+  }
+  function renderIdeas() {
+    const mk = monthKey(new Date()), cur = (S.ideas || {})[mk] || [], past = Object.entries(S.ideas || {}).filter(([k]) => k !== mk).sort().reverse();
+    $("view").innerHTML = `<div class="row"><h1>Ideen</h1></div>
+      <p class="note">Dein Ziel: 2 neue Produkte pro Monat. Die Vorschläge kommen von Claude, aus deinen echten Verkaufszahlen, deinen Rohlingen, deinen Kleinteilen und den Anlässen der nächsten Monate. Die Marge rechnet die App mit deinen echten Kosten aus.</p>
+      ${ideaState.busy ? `<section class="box empty"><p>${esc(ideaState.busy)}</p></section>` : ""}
+      ${ideaState.msg ? `<p class="note"><strong>${esc(ideaState.msg)}</strong></p>` : ""}
+      <h2>${monthLabel(mk)}</h2>
+      ${cur.length ? cur.map(ideaCard).join("") : `<section class="box empty"><p>Für ${monthLabel(mk)} gibt es noch keine Ideen.</p><div class="btns" style="justify-content:center"><button class="btn primary" data-idea-gen="2" ${ideaState.busy ? "disabled" : ""}>2 Ideen für ${MONTHS_FULL[new Date().getMonth()]} holen</button></div></section>`}
+      ${cur.length ? `<div class="btns"><button class="btn" data-idea-gen="1" ${ideaState.busy ? "disabled" : ""}>Noch eine Idee</button></div>` : ""}
+      ${past.length ? `<h2>Frühere Monate</h2>${anaTable(["Monat", "Idee", "Anlass", "Status"], past.flatMap(([k, l]) => l.map(i => [monthLabel(k), esc(i.name), esc(i.anlass), i.status === "angelegt" ? `<a href="#artikel-${esc(i.aid)}">Artikel angelegt</a>` : i.status === "verworfen" ? "verworfen" : "offen"])))}` : ""}`;
+  }
+  function ideaBadge() {
+    const el = $("ideaBadge"); if (!el) return;
+    const need = ((S.ideas || {})[monthKey(new Date())] || []).length < 2; el.hidden = !need; el.textContent = "neu";
+  }
+  document.addEventListener("click", e => {
+    if (view !== "ideen") return;
+    const t = e.target.closest("[data-idea-gen],[data-idea-add],[data-idea-other]"); if (!t) return;
+    const d = t.dataset;
+    if (d.ideaGen) return ideaGenerate(+d.ideaGen);
+    const mk = monthKey(new Date()), cur = (S.ideas || {})[mk] || [], idea = cur.find(x => x.id === (d.ideaAdd || d.ideaOther)); if (!idea) return;
+    if (d.ideaAdd) {
+      const c = ideaCalc(idea), a = c.a; a.price = String(c.price); a.sku = ""; a.note = "Idee " + monthLabel(mk) + (idea.titel ? " · Titel: " + idea.titel : "");
+      A.push(a); saveArticle(a); idea.status = "angelegt"; idea.aid = a.id; saveSettings(); toast("Artikel angelegt, bitte Gewicht, Karton und Fotos ergänzen"); return go("artikel-" + a.id);
+    }
+    if (d.ideaOther) { (S.ideaNo = S.ideaNo || []).push(idea.name); S.ideaNo = S.ideaNo.slice(-40); return ideaGenerate(1, idea.id); }
+  });
+
   // ---------- Start ----------
   async function boot() {
     setTimeout(() => { const l = document.querySelector("#view .loading"); if (l) l.innerHTML = 'Lädt länger als gewöhnlich … <a href="">Neu laden</a>'; }, 15000);
