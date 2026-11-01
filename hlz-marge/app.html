@@ -50,7 +50,9 @@
 body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body) }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel) }
 .gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
-.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 20px }
+.wrap { max-width: 1800px; margin: 0 auto; display: grid; gap: 20px }
+@media (min-width: 1200px) { .gutter { padding-left: 32px; padding-right: 32px } }
+main p { max-width: 130ch }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 700; text-wrap: balance; margin: 0 }
 h1 { font-size: 1.6rem; letter-spacing: -0.01em }
 h2 { font-size: 1.15rem }
@@ -96,6 +98,7 @@ tr.selected td { background: var(--accent-soft) }
 table.ov td, table.ov th { white-space: nowrap }
 table.ov td.name { white-space: normal; min-width: 260px }
 .abc { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 700; border: 1.5px solid currentColor; font-size: .85rem }
+.abccell { display: grid; justify-items: center; gap: 2px; white-space: nowrap }
 .abc.sm { width: 20px; height: 20px; font-size: .72rem }
 .abc-A { color: var(--good) } .abc-B { color: var(--warn) } .abc-C { color: var(--muted) }
 .rmbtn { font: 500 .78rem var(--font-body); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; white-space: nowrap }
@@ -932,7 +935,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const dash = (val, f) => val ? f(val) : "–";
   const OV_COLS = [
     { k: "abc", l: () => "ABC", def: true, tip: ABC_TIP, sort: x => ({ A: 3000, B: 2000, C: 1000 }[x.abc] || 0) + (x.share || 0),
-      cell: x => `<span class="abc abc-${x.abc}" title="${esc(x.noSales ? "Keine Verkäufe" : dec(x.share, 1) + " % deines Gewinns")}">${x.abc}</span><small class="note qsub" style="text-align:left;padding:0">${x.noSales ? "kein Verkauf" : dec(x.share, 1) + " %"}</small>` },
+      cell: x => `<div class="abccell"><span class="abc abc-${x.abc}" title="${esc(x.noSales ? "Keine Verkäufe" : dec(x.share, 1) + " % deines Gewinns")}">${x.abc}</span><small class="note">${x.noSales ? "kein Verkauf" : dec(x.share, 1) + " %"}</small></div>` },
     { k: "remove", l: () => "Entfernen", def: true, tip: "Artikel markieren, den du aus dem Sortiment nehmen willst", sort: x => x.a.remove ? 1 : 0,
       cell: x => `<button type="button" class="rmbtn${x.a.remove ? " on" : ""}" data-rm="${x.a.id}" aria-pressed="${!!x.a.remove}" title="${x.a.remove ? "Markierung entfernen" : "Zum Entfernen markieren"}">${x.a.remove ? "✕ Entfernen" : "Entfernen?"}</button>` },
     { k: "price", l: () => "Preis", def: true, hideSm: true, cls: "num", sort: x => x.r.P,
