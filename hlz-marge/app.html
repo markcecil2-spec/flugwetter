@@ -113,6 +113,13 @@ tr.rmrow td:not(:first-child) { opacity: .6 }
 .anatable th.r, .anatable td.r { text-align: right }
 .anabar { display: block; height: 8px; min-width: 90px; border-radius: 4px; background: var(--line); overflow: hidden }
 .anabar i { display: block; height: 100%; border-radius: 4px }
+.mtab td { padding: 3px 3px }
+.mtab .inp { min-width: 0 }
+.mtab .inp input { width: 64px; min-width: 0; text-align: right; padding: 6px 6px; font-size: .82rem }
+.mtab td:first-child .inp input { width: 230px; text-align: left; font-size: .85rem }
+.mtab tr.off td { opacity: .5 }
+.mtab tr.tot td { border-top: 2px solid var(--line) }
+.mtab .btn { padding: 4px 8px; font-size: .78rem }
 .anagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
 .navbadge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: var(--warn); color: #fff; font-size: .72rem; font-weight: 700; line-height: 18px; text-align: center }
 .ordtable th, .ordtable td { text-align: left; vertical-align: top; padding-left: 8px; padding-right: 8px }
@@ -2818,9 +2825,41 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     ],
     priv: [{ id: "p-miete", n: "Miete / Wohnen", a: "" }, { id: "p-essen", n: "Lebensmittel", a: "" }, { id: "p-vers", n: "Versicherungen", a: "" }, { id: "p-auto", n: "Auto / Fahrrad", a: "" }, { id: "p-sonst", n: "Sonstiges", a: "" }]
   });
+
+  // Private Ausgaben als Jahresplan (Werte je Kalendermonat Jan–Dez, wiederholt sich jedes Jahr)
+  const PRIV_GROUPS = [["leben", "Wohnen und Leben (Fixkosten)"], ["vor", "Vorsorge und Vermögensaufbau (Sparen)"], ["vers", "Versicherungen"]];
+  const MN = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  const mAll = x => Array(12).fill(String(x)), mAt = (x, idx) => { const a = Array(12).fill(""); idx.forEach(i => a[i - 1] = String(x)); return a; };
+  const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  const finPlan = () => [
+    { id: "p-miete", g: "leben", n: "Miete + NK", m: mAll(450) },
+    { id: "p-strom", g: "leben", n: "Stromanbieter", m: mAll(32) },
+    { id: "p-gez", g: "leben", n: "GEZ", m: mAt(18.36, [1, 4, 7, 10]) },
+    { id: "p-bu", g: "leben", n: "Berufsunfähigkeitsversicherung BU/AU", m: mAll(114.4) },
+    { id: "p-dhvh", g: "leben", n: "DHV Haftpflicht", m: mAt(45.33, [3]) },
+    { id: "p-dhvm", g: "leben", n: "DHV Mitgliedsbeitrag", m: mAt(89, [3]) },
+    { id: "p-marlene", g: "leben", n: "Marlene Sophie", m: mAll(20) },
+    { id: "p-urlaub", g: "leben", n: "Urlaub sparen", m: mAt("", []) },
+    { id: "p-est", g: "leben", n: "Einkommensteuer Rücklage", m: mAt(150, range(3, 12)), inc: false },
+    { id: "p-notgr", g: "vor", n: "Rücklagen Konto (Notgroschen)", m: ["", "100", "500", "600", "700", "700", "700", "700", "700", "700", "700", "700"] },
+    { id: "p-etf", g: "vor", n: "ETF", m: mAt(500, range(3, 12)) },
+    { id: "p-kv", g: "vers", n: "Kranken- und Pflegepflichtversicherung", m: mAt(275.4, [1, 2]) },
+    { id: "p-haft", g: "vers", n: "Haftpflichtversicherung", m: mAt(35.37, [3]) },
+    { id: "p-zahn", g: "vers", n: "Zahnzusatzversicherung", m: mAll(26.99) },
+    { id: "p-ausl", g: "vers", n: "Auslandsreisekrankenversicherung", m: mAt(14.8, [9]) },
+    { id: "p-rad", g: "vers", n: "Fahrradversicherung", m: mAt(53.91, [4]) },
+    { id: "p-kfz", g: "vers", n: "KFZ-Versicherung", m: mAt(511.59, [1]) },
+    { id: "p-kfzst", g: "vers", n: "KFZ-Steuer", m: mAt(119, [1]) },
+    { id: "p-tuev", g: "vers", n: "KFZ-TÜV", m: mAt("", []) }
+  ].map(r => ({ inc: true, ...r }));
   const FIN = () => {
     const F = (S.fin = S.fin || finDef());
     F.debts.forEach(d => { if (d.due && d.due < "2000-01-01") d.due = ""; });   // kaputte Jahreszahlen (z. B. 0002) aus der Eingabe entfernen
+    // alte Liste (ein Betrag pro Monat) auf den Jahresplan umstellen; vorhandene Beträge bleiben als eigene Zeilen
+    if (F.privV !== 2) {
+      const old = (F.priv || []).filter(r => v(r.a) > 0).map(r => ({ id: r.id, g: "leben", n: r.n, m: mAll(r.a), inc: true }));
+      F.priv = finPlan().concat(old); F.privV = 2;
+    }
     return F;
   };
   function finCalc() {
@@ -2831,7 +2870,9 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const zahl = ustOut - vor;
     // USt-Posten mit Datum, aber ohne Betrag: mit 3 × Zahllast geschätzt
     const open = F.debts.map(d => v(d.a) > 0 ? { ...d, ea: v(d.a) } : d.typ === "ust" && d.due && zahl > 0 ? { ...d, ea: 3 * zahl, est: true } : null).filter(d => d && !d.paid), openSum = open.reduce((s, d) => s + d.ea, 0);
-    const privSum = F.priv.reduce((s, r) => s + v(r.a), 0), other = v(F.otherIncome);
+    const privOn = F.priv.filter(r => r.inc !== false), privM = Array.from({ length: 12 }, (_, k) => privOn.reduce((s, r) => s + v((r.m || [])[k]), 0));
+    const privYear = privM.reduce((a, b) => a + b, 0), privSum = privYear / 12, other = v(F.otherIncome);
+    const sparYear = privOn.filter(r => r.g === "vor").reduce((s, r) => s + (r.m || []).reduce((a, b) => a + v(b), 0), 0);
     const income = tx.net + other;
     // Fälligkeiten: einzeln oder in Raten, ohne Datum = sofort (diesen Monat)
     const base = new Date(today.getFullYear(), today.getMonth(), 1), months = [];
@@ -2850,12 +2891,12 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         if ([0, 3, 6, 9].includes(mo) && ds > lastUst && ds > td) { const q = mo === 0 ? "Q4" : "Q" + (mo / 3); const amt = 3 * zahl; months[k].pay += amt; months[k].items.push(`USt ${q} (geschätzt)`); }
       }
     }
-    let bal = liquid; const proj = months.map(x => { bal += income + (F.auto && regel ? zahl : 0) - privSum - x.pay; return { ...x, bal }; });
+    let bal = liquid; const proj = months.map(x => { bal += income + (F.auto && regel ? zahl : 0) - privM[x.d.getMonth()] - x.pay; return { ...x, bal }; });
     const next = [...open].filter(d => d.due).sort((a, b) => a.due.localeCompare(b.due))[0];
     // Säumniszuschlag: 1 % pro angefangenem Monat auf überfällige Steuern
     const late = open.filter(d => d.typ === "ust" && (!d.due || d.due < td)).reduce((s, d) => s + d.ea, 0);
     const monthlyRate = open.reduce((s, d) => s + (v(d.raten) > 1 ? d.ea / Math.floor(v(d.raten)) : 0), 0);
-    return { F, T, m, tx, regel, liquid, open, openSum, ustOut, vor, vorAuto, zahl, privSum, other, income, proj, next, late, monthlyRate, td, surplus: income - privSum - monthlyRate, lastUst };
+    return { F, T, m, tx, regel, liquid, open, openSum, ustOut, vor, vorAuto, zahl, privSum, privM, privYear, sparYear, other, income, proj, next, late, monthlyRate, td, surplus: income - privSum - monthlyRate, lastUst };
   }
   function renderFinance() {
     const c = finCalc(), F = c.F, td = c.td;
@@ -2875,7 +2916,14 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       `<label class="note"><input type="checkbox" data-finl="debts|${d.id}|paid" ${d.paid ? "checked" : ""}> bezahlt</label>`,
       `<button class="btn" data-fin-del="debts|${d.id}" aria-label="Löschen">×</button>`
     ]);
-    const privRows = F.priv.map(r => [`<div class="inp"><input type="text" data-finl="priv|${r.id}|n" value="${esc(r.n)}"></div>`, inp(`data-finl="priv|${r.id}|a"`, r.a, "€ / Monat"), `<button class="btn" data-fin-del="priv|${r.id}" aria-label="Löschen">×</button>`]);
+    const rowSum = r => (r.m || []).reduce((a, b) => a + v(b), 0);
+    const privGrp = ([g, title]) => {
+      const rows = F.priv.filter(r => (r.g || "leben") === g), tot = MN.map((_, k) => rows.filter(r => r.inc !== false).reduce((a, r) => a + v((r.m || [])[k]), 0));
+      return `<h3>${title}</h3><div class="tablewrap"><table class="anatable mtab"><thead><tr><th>Posten</th>${MN.map(x => `<th class="r">${x}</th>`).join("")}<th class="r">Jahr</th><th>zählt</th><th></th></tr></thead><tbody>
+        ${rows.map(r => `<tr class="${r.inc === false ? "off" : ""}"><td><div class="inp"><input type="text" data-finl="priv|${r.id}|n" value="${esc(r.n)}"></div></td>${MN.map((_, k) => `<td><div class="inp"><input type="number" step="any" min="0" inputmode="decimal" aria-label="${esc(r.n)} ${MN[k]}" data-finl="priv|${r.id}|m${k}" value="${esc((r.m || [])[k] || "")}"></div></td>`).join("")}<td class="r num">${eur0(rowSum(r))}</td><td><input type="checkbox" data-finl="priv|${r.id}|inc" ${r.inc !== false ? "checked" : ""} aria-label="zählt im Budget mit"></td><td style="white-space:nowrap"><button class="btn" data-fin-fill="priv|${r.id}" title="Den ersten eingetragenen Wert in alle 12 Monate übernehmen">alle Monate</button> <button class="btn" data-fin-del="priv|${r.id}" aria-label="Löschen">×</button></td></tr>`).join("")}
+        <tr class="tot"><td><strong>Gesamt</strong></td>${tot.map(x => `<td class="r num"><strong>${x ? eur0(x) : "–"}</strong></td>`).join("")}<td class="r num"><strong>${eur0(tot.reduce((a, b) => a + b, 0))}</strong></td><td></td><td></td></tr></tbody></table></div>
+        <div class="btns" style="margin:8px 0 14px"><button class="btn" data-fin-add="priv:${g}">+ Posten</button></div>`;
+    };
     const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 ? `<span class="note">${esc(x.items.join(" · "))}</span><br>−${eur0(x.pay)}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.bal < 0 ? "bad" : "good"})">${eur0(x.bal)}</strong>`]);
     const firstNeg = c.proj.find(x => x.bal < 0);
     const hasSales = c.T.qty > 0;
@@ -2920,26 +2968,24 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         <p class="note">Etsy-Gebühren berechnet dir Etsy aus Irland, da holst du dir keine Vorsteuer, deshalb zählen sie hier nicht mit. Für ein einzelnes Quartal bitte die echte Zahl aus Lexware nehmen.${F.debts.some(d => d.typ === "ust" && !d.paid && !v(d.a)) ? ` Für „USt Q4“ wäre die Schätzung ${eur0(3 * c.zahl)}.` : ""}</p>`}
       </section>
 
+      <section class="box" style="margin-top:12px"><h2>Private Ausgaben (Jahresplan)</h2>
+        <p class="note">Die Spalten sind die Kalendermonate Jan–Dez, der Plan wiederholt sich jedes Jahr. Alles ist änderbar. „zählt“ = der Posten geht ins Budget ein. „alle Monate“ übernimmt den ersten Wert in alle 12 Monate.</p>
+        ${PRIV_GROUPS.map(privGrp).join("")}
+        <p><strong>Zusammen ${eur0(c.privYear)} im Jahr, Ø ${eur0(c.privSum)} im Monat.</strong> Davon Sparen und Vorsorge (Notgroschen, ETF): ${eur0(c.sparYear)} im Jahr. Das Geld verschwindet nicht, es liegt nur nicht mehr auf dem Konto.</p>
+        ${F.priv.some(r => r.id === "p-est" && r.inc === false) ? `<p class="note">„Einkommensteuer Rücklage“ habe ich auf „zählt nicht“ gestellt: Die App zieht die Steuer schon vom Shop-Einkommen ab (siehe unten). Setz den Haken, wenn du sie zusätzlich rechnen willst.</p>` : ""}
+      </section>
+
       <section class="box" style="margin-top:12px"><h2>Monatsbudget</h2>
-        <div class="anagrid">
-          <div>
-            <h3>Private Ausgaben</h3>
-            ${anaTable(["Posten", "Betrag", ""], privRows, [1])}
-            <div class="btns" style="margin-top:8px"><button class="btn" data-fin-add="priv">+ Posten</button></div>
-            <p><strong>Summe: ${eur(c.privSum)}</strong></p>
-          </div>
-          <div>
-            <h3>So sieht ein Monat aus</h3>
+        <h3>So sieht ein Monat aus</h3>
             ${anaTable(["", "Betrag"], [
               ["Shop-Einkommen nach Steuer und KV" + info("Aus der Auswertung: Gewinn inkl. Stundenlohn minus Einkommensteuer, Gewerbesteuer und Krankenversicherung. Die KV ist also schon abgezogen, trag sie nicht nochmal unter private Ausgaben ein."), hasSales ? eur0(c.tx.net) : "–"],
               ["Sonstiges Einkommen", eur0(c.other)],
-              ["Private Ausgaben", eur0(-c.privSum).replace("−0 €", "0 €")],
+              ["Private Ausgaben (Ø aus dem Jahresplan)", eur0(-c.privSum).replace("−0 €", "0 €")],
               ["Raten auf Schulden", c.monthlyRate > 0 ? "−" + eur0(c.monthlyRate) : "0 €"],
               ["<strong>Übrig im Monat</strong>", `<strong style="color:var(--${c.surplus < 0 ? "bad" : "good"})">${hasSales ? eur0(c.surplus) : "–"}</strong>`]
             ], [1])}
-            <p class="note">Das Shop-Einkommen ist die Schätzung aus Verkaufszahlen und Artikeln, nicht der echte Zahlungseingang.${hasSales && c.regel ? ` Die USt (ca. ${eur0(c.zahl)} im Monat) kommt zusätzlich rein, gehört aber dem Finanzamt und steckt deshalb nicht im „Übrig“.` : ""}${c.privSum === 0 ? ` <strong>Trag links deine privaten Ausgaben ein, sonst ist „Übrig“ viel zu hoch.</strong>` : ""}</p>
-          </div>
-        </div>
+            <p class="note">Das Shop-Einkommen ist die Schätzung aus Verkaufszahlen und Artikeln, nicht der echte Zahlungseingang.${hasSales && c.regel ? ` Die USt (ca. ${eur0(c.zahl)} im Monat) kommt zusätzlich rein, gehört aber dem Finanzamt und steckt deshalb nicht im „Übrig“.` : ""}${c.privSum === 0 ? ` <strong>Trag oben deine privaten Ausgaben ein, sonst ist „Übrig“ viel zu hoch.</strong>` : ""}</p>
+          
       </section>
 
       <section class="box" style="margin-top:12px"><h2>Prognose: die nächsten 12 Monate</h2>
@@ -2953,10 +2999,27 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     // Datum: der Browser meldet schon beim Tippen der ersten Jahresziffer. Nur gültige Jahre speichern, neu zeichnen erst beim Verlassen des Felds.
     if (t.type === "date") { finCommitDates(); return; }
     if (d.fin) { F[d.fin] = val; if (["konto", "guthaben", "bar"].includes(d.fin)) F.stand = isoD(new Date()); }
-    else if (d.finl) { const [k, id, f] = d.finl.split("|"), r = F[k].find(x => x.id === id); if (!r) { toast("Die Liste wurde gerade aktualisiert, bitte nochmal eintragen."); return renderFinance(); } if (f === "ust") r.typ = val ? "ust" : "sonst"; else r[f] = val; }
+    else if (d.finl) { const [k, id, f] = d.finl.split("|"), r = F[k].find(x => x.id === id); if (!r) { toast("Die Liste wurde gerade aktualisiert, bitte nochmal eintragen."); return renderFinance(); } if (f === "ust") r.typ = val ? "ust" : "sonst"; else if (/^m\d+$/.test(f)) { r.m = r.m || Array(12).fill(""); r.m[+f.slice(1)] = val; } else r[f] = val; }
     else return;
-    saveSettings(); renderFinance();
+    saveSettings();
+    if (t.type === "checkbox") renderFinance(); else finSoon();
   });
+  // Summen aktualisieren: erst wenn der Cursor in keinem Feld mehr steht (sonst springt er beim Tab-Durchtippen raus)
+  let finTimer = null;
+  function finSoon() {
+    clearTimeout(finTimer);
+    finTimer = setTimeout(() => {
+      if (view !== "finanzen") return;
+      if (typing()) return finSoon();
+      const sy = window.scrollY; renderFinance(); window.scrollTo(0, sy);
+    }, 700);
+  }
+  // neu zeichnen und den Fokus (z. B. nach Tab ins nächste Feld) und die Scrollposition behalten
+  function finRerender() {
+    const ae = document.activeElement, dd = ae && ae.dataset, key = dd && (dd.fin ? `[data-fin="${dd.fin}"]` : dd.finl ? `[data-finl="${dd.finl}"]` : ""), sy = window.scrollY;
+    renderFinance(); window.scrollTo(0, sy);
+    if (key) { const el = document.querySelector(key); if (el) { el.focus(); if (el.select && el.type !== "checkbox") el.select(); } }
+  }
   // Datumsfelder sichern, ohne neu zu zeichnen: zweistelliges Jahr (26) wird 2026, unsinnige Jahre werden ignoriert
   function finCommitDates() {
     if (view !== "finanzen") return false;
@@ -2981,11 +3044,16 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   });
   document.addEventListener("click", e => {
     if (view !== "finanzen") return;
-    const t = e.target.closest("[data-fin-add],[data-fin-del]"); if (!t) return;
+    const t = e.target.closest("[data-fin-add],[data-fin-del],[data-fin-fill]"); if (!t) return;
     const F = FIN();
-    if (t.dataset.finAdd) F[t.dataset.finAdd].push(t.dataset.finAdd === "debts" ? { id: uid(), n: "", a: "", due: "", typ: "sonst", raten: "", paid: false } : { id: uid(), n: "", a: "" });
+    if (t.dataset.finAdd) { const [k, g] = t.dataset.finAdd.split(":"); F[k].push(k === "debts" ? { id: uid(), n: "", a: "", due: "", typ: "sonst", raten: "", paid: false } : { id: uid(), g, n: "", m: Array(12).fill(""), inc: true }); }
+    else if (t.dataset.finFill) {
+      const [k, id] = t.dataset.finFill.split("|"), r = F[k].find(x => x.id === id), first = r && (r.m || []).find(x => v(x) > 0);
+      if (!first) return toast("Trag erst in einem Monat einen Betrag ein.");
+      r.m = Array(12).fill(first);
+    }
     else { const [k, id] = t.dataset.finDel.split("|"); F[k] = F[k].filter(x => x.id !== id); }
-    saveSettings(); renderFinance();
+    saveSettings(); finRerender();
   });
 
   // ---------- Start ----------
