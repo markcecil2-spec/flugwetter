@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 114 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 115 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -2870,13 +2870,14 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   const nextMonthKey = mo => { const n = new Date(); let y = n.getFullYear(); if (n.getMonth() > mo) y++; return y * 12 + mo; };   // nächster Februar (mo = 1), März usw.
   const finAct = (r, key) => !((r.from && key < ymKey(r.from)) || (r.to && key > ymKey(r.to)));
   const privAt = (r, key) => {
+    if (r.rh === "o") return r.once && ymKey(r.once) === key ? v(r.a) : 0;   // einmalig: nur in dem gewählten Monat
     if (!finAct(r, key)) return 0;
     const a = v(r.a), mo = key % 12; if (!a) return 0;
     if (r.rh === "y") return mo === (+r.mo || 0) ? a : 0;
     if (r.rh === "q") return ((mo - (+r.mo || 0)) % 3 + 3) % 3 === 0 ? a : 0;
     return a;
   };
-  const privAvg = r => { const a = v(r.a); return r.rh === "y" ? a / 12 : r.rh === "q" ? a / 3 : a; };
+  const privAvg = r => { const a = v(r.a); return r.rh === "o" ? 0 : r.rh === "y" ? a / 12 : r.rh === "q" ? a / 3 : a; };
   const prow = (id, g, n, a, rh = "m", mo = 0, ex = {}) => ({ id, g, n, a: String(a), rh, mo: String(mo), from: "", to: "", inc: true, ...ex });
   const finPlan3 = () => [
     prow("p-miete", "leben", "Miete + NK", 450), prow("p-strom", "leben", "Stromanbieter", 32), prow("p-gez", "leben", "GEZ", 18.36, "q", 0),
@@ -2945,6 +2946,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         if ([0, 3, 6, 9].includes(mo) && ds > lastUst && ds > td) { const q = mo === 0 ? "Q4" : "Q" + (mo / 3); const amt = 3 * zahl; months[k].pay += amt; months[k].payG += amt; months[k].items.push(`USt ${q} (geschätzt)`); }
       }
     }
+    privOn.filter(r => r.rh === "o" && r.once && v(r.a) > 0).forEach(r => { const k = ymKey(r.once) - nk; if (months[k]) months[k].once = (months[k].once || []).concat([`${r.n || "Einmalig"} −${eur0(v(r.a))}`]); });
     let balG = liquidG, balP = liquidP;
     const proj = months.map(x => { const key = x.d.getFullYear() * 12 + x.d.getMonth();
       balG += tx.net - ent + (F.auto && regel ? zahl : 0) - x.payG;
@@ -2980,19 +2982,19 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     ]);
     const monthOpts = (sel, blank) => { const base = nowYM(), keys = Array.from({ length: 36 }, (_, i) => base + i); if (sel && !keys.includes(ymKey(sel))) keys.unshift(ymKey(sel));
       return `<option value="">${blank}</option>` + keys.map(k => `<option value="${ymVal(k)}" ${ymVal(k) === sel ? "selected" : ""}>${MN[k % 12]} ${Math.floor(k / 12)}</option>`).join(""); };
-    const rhOpts = cur => [["m", "jeden Monat"], ["q", "alle 3 Monate"], ["y", "1× im Jahr"]].map(([k, l]) => `<option value="${k}" ${(cur || "m") === k ? "selected" : ""}>${l}</option>`).join("");
+    const rhOpts = cur => [["m", "jeden Monat"], ["q", "alle 3 Monate"], ["y", "1× im Jahr"], ["o", "einmalig"]].map(([k, l]) => `<option value="${k}" ${(cur || "m") === k ? "selected" : ""}>${l}</option>`).join("");
     const moOpts = cur => MN.map((x, i) => `<option value="${i}" ${String(cur || 0) === String(i) ? "selected" : ""}>${x}</option>`).join("");
     const sel = (attr, opts) => `<div class="inp"><select ${attr}>${opts}</select></div>`;
     const nk0 = nowYM();
     const privGrp = ([g, title]) => {
       const rows = F.priv.filter(r => (r.g || "leben") === g), tot = rows.filter(r => r.inc !== false && finAct(r, nk0)).reduce((n, r) => n + privAvg(r), 0);
       return `<h3>${title}</h3><div class="tablewrap"><table class="anatable mtab"><thead><tr><th>Posten</th><th class="r">Betrag</th><th>Rhythmus</th><th>zahlt im</th><th>von</th><th>bis</th><th class="r">Ø pro Monat</th><th>zählt</th><th></th></tr></thead><tbody>
-        ${rows.map(r => `<tr class="${r.inc === false ? "off" : ""}"><td><div class="inp"><input type="text" data-finl="priv|${r.id}|n" value="${esc(r.n)}"></div></td><td>${numIn(`data-finl="priv|${r.id}|a"`, r.a, "€")}</td><td>${sel(`data-finl="priv|${r.id}|rh"`, rhOpts(r.rh))}</td><td>${(r.rh === "q" || r.rh === "y") ? sel(`data-finl="priv|${r.id}|mo"`, moOpts(r.mo)) : `<span class="note">–</span>`}</td><td>${sel(`data-finl="priv|${r.id}|from"`, monthOpts(r.from, "sofort"))}</td><td>${sel(`data-finl="priv|${r.id}|to"`, monthOpts(r.to, "unbefristet"))}</td><td class="r num">${eur(privAvg(r))}</td><td><input type="checkbox" data-finl="priv|${r.id}|inc" ${r.inc !== false ? "checked" : ""} aria-label="zählt im Budget mit"></td><td><button class="btn" data-fin-del="priv|${r.id}" aria-label="Löschen">×</button></td></tr>`).join("")}
+        ${rows.map(r => `<tr class="${r.inc === false ? "off" : ""}"><td><div class="inp"><input type="text" data-finl="priv|${r.id}|n" value="${esc(r.n)}"></div></td><td>${numIn(`data-finl="priv|${r.id}|a"`, r.a, "€")}</td><td>${sel(`data-finl="priv|${r.id}|rh"`, rhOpts(r.rh))}</td><td>${r.rh === "o" ? sel(`data-finl="priv|${r.id}|once"`, monthOpts(r.once, "Monat wählen")) : (r.rh === "q" || r.rh === "y") ? sel(`data-finl="priv|${r.id}|mo"`, moOpts(r.mo)) : `<span class="note">–</span>`}</td><td>${r.rh === "o" ? `<span class="note">–</span>` : sel(`data-finl="priv|${r.id}|from"`, monthOpts(r.from, "sofort"))}</td><td>${r.rh === "o" ? `<span class="note">–</span>` : sel(`data-finl="priv|${r.id}|to"`, monthOpts(r.to, "unbefristet"))}</td><td class="r num">${r.rh === "o" ? `<span class="note">einmalig${v(r.a) && !r.once ? ", Monat fehlt" : ""}</span>` : eur(privAvg(r))}</td><td><input type="checkbox" data-finl="priv|${r.id}|inc" ${r.inc !== false ? "checked" : ""} aria-label="zählt im Budget mit"></td><td><button class="btn" data-fin-del="priv|${r.id}" aria-label="Löschen">×</button></td></tr>`).join("")}
         <tr class="tot"><td><strong>Gesamt</strong> <span class="note">(laufende Posten, Ø pro Monat)</span></td><td></td><td></td><td></td><td></td><td></td><td class="r num"><strong>${eur(tot)}</strong></td><td></td><td></td></tr></tbody></table></div>
         <div class="btns" style="margin:8px 0 14px"><button class="btn" data-fin-add="priv:${g}">+ Posten</button></div>`;
     };
     const incRows = (F.income || []).map(r => [`<div class="inp"><input type="text" data-finl="income|${r.id}|n" value="${esc(r.n)}"></div>`, numIn(`data-finl="income|${r.id}|a"`, r.a, "€ / Monat"), sel(`data-finl="income|${r.id}|from"`, monthOpts(r.from, "sofort")), sel(`data-finl="income|${r.id}|to"`, monthOpts(r.to, "unbefristet")), `<button class="btn" data-fin-del="income|${r.id}" aria-label="Löschen">×</button>`]);
-    const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 ? `<span class="note">${esc(x.items.join(" · "))}</span><br>−${eur0(x.pay)}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.balP < 0 ? "bad" : "good"})">${eur0(x.balP)}</strong>`, `<strong class="num" style="color:var(--${x.balG < 0 ? "bad" : "good"})">${eur0(x.balG)}</strong>`, `<span class="num">${eur0(x.bal)}</span>`]);
+    const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 || (x.once || []).length ? `<span class="note">${esc(x.items.concat(x.once || []).join(" · "))}</span>${x.pay > 0 ? `<br>−${eur0(x.pay)}` : ""}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.balP < 0 ? "bad" : "good"})">${eur0(x.balP)}</strong>`, `<strong class="num" style="color:var(--${x.balG < 0 ? "bad" : "good"})">${eur0(x.balG)}</strong>`, `<span class="num">${eur0(x.bal)}</span>`]);
     const firstNeg = c.proj.find(x => x.balP < 0 || x.balG < 0), negWho = firstNeg ? (firstNeg.balP < 0 && firstNeg.balG < 0 ? "auf beiden Konten" : firstNeg.balP < 0 ? "auf dem Privatkonto" : "auf dem Geschäftskonto") : "";
     const hasSales = c.T.qty > 0, hasSalesEnt = hasSales;
     $("view").innerHTML = `
@@ -3049,9 +3051,9 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       </section>
 
       <section class="box" style="margin-top:12px"><h2>Private Ausgaben</h2>
-        <p class="note">Jeder Posten mit Betrag und Rhythmus: jeden Monat, alle 3 Monate (z. B. GEZ) oder 1× im Jahr (z. B. KFZ-Steuer). „von“ und „bis“ legen fest, wann ein Posten läuft. Alles ist änderbar. „zählt“ = der Posten geht ins Budget ein.</p>
+        <p class="note">Jeder Posten mit Betrag und Rhythmus: jeden Monat, alle 3 Monate (z. B. GEZ), 1× im Jahr (z. B. KFZ-Steuer) oder einmalig (z. B. ein Urlaub: Betrag eintragen, Rhythmus „einmalig“, Monat wählen). „von“ und „bis“ legen fest, wann ein Posten läuft. Alles ist änderbar. „zählt“ = der Posten geht ins Budget ein.</p>
         ${PRIV_GROUPS.map(privGrp).join("")}
-        <p><strong>Zusammen Ø ${eur0(c.privSum)} im Monat</strong> (aktuell laufende Posten), davon Sparen und Vorsorge (Notgroschen, ETF) ${eur0(c.sparM)}. Das Geld verschwindet nicht, es liegt nur nicht mehr auf dem Konto. Alle 3 Monate und 1× im Jahr sind hier auf den Monat umgerechnet, in der Prognose unten zahlst du sie im richtigen Monat.</p>
+        <p><strong>Zusammen Ø ${eur0(c.privSum)} im Monat</strong> (aktuell laufende Posten), davon Sparen und Vorsorge (Notgroschen, ETF) ${eur0(c.sparM)}. Das Geld verschwindet nicht, es liegt nur nicht mehr auf dem Konto. Alle 3 Monate und 1× im Jahr sind hier auf den Monat umgerechnet. Einmalige Posten stehen nur in der Prognose unten, im richtigen Monat.</p>
         ${(() => { const k = F.priv.find(r => r.id === "p-kv"); return k && k.to ? `<p class="note">Die Krankenversicherung läuft wie in deinem Blatt nur bis ${MN[+k.to.split("-")[1] - 1]} ${k.to.split("-")[0]} (Feld „bis“). Danach fällt sie im Budget weg.</p>` : ""; })()}
         ${F.priv.some(r => r.id === "p-est" && r.inc === false) ? `<p class="note">„Einkommensteuer Rücklage“ habe ich auf „zählt nicht“ gestellt: Die App zieht die Steuer schon vom Shop-Einkommen ab (siehe unten). Setz den Haken, wenn du sie zusätzlich rechnen willst.</p>` : ""}
       </section>
