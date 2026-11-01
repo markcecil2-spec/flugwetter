@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 121 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 122 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -709,7 +709,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const machAuto = a.fremd ? 0 : (S.mach || []).reduce((s, m) => s + v(m.a) + v(m.s) / 100 * rohMin, 0);
     const order = (S.order || []).reduce((s, r) => s + v(r.a), 0) * inK;
     const ship = pickShip(a);
-    const porto = (ship.chosen ? ship.chosen.price : 0) * inK;
+    const porto = (ship.chosen ? ship.chosen.price : 0) * (1 + v(S.shipAdj) / 100) * inK;   // shipAdj: Aufschlag auf die Preisliste (Ausland, Zuschläge), aus dem Kontoauszug abgeleitet
     const pack = v(a.pack) * inK, outer = v(a.outer) * inK, ext = a.fremd ? v(a.ext) * inK : 0;
     // Arbeitszeit = Vorfertigung der Rohlinge + Verpacken + eigene Eingabe (Bohren, Lasern, Schleifen, Ölen …)
     const packMin = a.fremd ? 0 : v(S.packMins);
@@ -2164,6 +2164,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
               ${settingsField("target", "Ziel-Marge", "%")}
               ${settingsField("qtyReal", "Verkäufe/Monat, alle Kanäle", "Stk", "für den Werkstattanteil, leer = aus Import")}
               ${settingsField("shipInDefault", "Versand vom Kunden", "€", "Standard für neue Artikel")}
+              ${settingsField("shipAdj", "Versand-Aufschlag laut Konto", "%", "Auf die Preisliste, für Auslandsversand (DHL Paket International ab 13,55 €) und Zuschläge. Mit dem Abgleich in der Auswertung gegen dein Konto prüfen.")}
             </div>
             <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück)</label>
           </section>
@@ -3184,7 +3185,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   const catPref = c => c.split(" ")[0], catOrder = c => ["E", "F", "A", "T", "P", "INTERN"].indexOf(catPref(c));
   const partnerKey = p => String(p || "").toLowerCase().replace(/\s+/g, " ").trim().slice(0, 40);
   const rx = (s, t) => new RegExp(s, "i").test(t);
-  const BANK_G_RULES = [["A Werkstattmiete", "apa grundst"], ["A Versand (Post/DHL/shipcloud)", "deutsche post|dhl|shipcloud|packs gmbh|ips karton"], ["A Material/Holz/Zubehör", "zeg zentral|hornbach|bauhaus|obi |toom|dehner|kassenklingeln|burnair"], ["A Zulieferer/Fertigung (Böttcher, Stauch)", "bottcher|stauch"], ["A Software/Abos/KI/Telefon", "billbee|haufe|buhl|anthropic|claude|openai|google workspace|congstar|e-plus|shopify\\*|n26|lexware|canva|adobe"], ["A Werbung (Google Ads)", "google ads|google \\*ads|pinterest"], ["A Shopify Capital (Rückzahlung)", "shopify capital"], ["A Ratenzahlung N26", "n26 ratenzahlung"], ["A Ladengemeinschaft Fünfeck", "f[uü]nfeck"], ["A Versicherung (HUK Betrieb)", "huk"], ["A Amazon/Temu/Einkäufe", "amazon|amzn|temu|b2b prime|aliexpress|ebay"], ["A Fahrzeug/Tanken/Maut", "tankstelle|orlen|jet-sb|total service|genol|asfinag|caravaning|aral|shell|agip"], ["A PayPal-Zahlungen", "paypal"], ["P Privates über Geschäftskonto (Lebensmittel, Freizeit)", "aldi|kaufland|gerlitzen|lidl|rewe|edeka"]];
+  const BANK_G_RULES = [["A Werkstattmiete", "apa grundst"], ["A Versand (Post/DHL/shipcloud)", "deutsche post|dhl|shipcloud|packs gmbh|ips karton"], ["A Material/Holz/Zubehör", "zeg zentral|hornbach|bauhaus|obi |toom|dehner|kassenklingeln|burnair"], ["A Zulieferer/Fertigung (Böttcher, Stauch)", "bottcher|stauch"], ["A Ratenzahlung N26", "n26 ratenzahlung"], ["A Software/Abos/KI/Telefon", "billbee|haufe|buhl|anthropic|claude|openai|google workspace|congstar|e-plus|shopify\\*|n26|lexware|canva|adobe"], ["A Werbung (Google Ads)", "google ads|google \\*ads|pinterest"], ["A Shopify Capital (Rückzahlung)", "shopify capital"], ["A Ratenzahlung N26", "n26 ratenzahlung"], ["A Ladengemeinschaft Fünfeck", "f[uü]nfeck"], ["A Versicherung (HUK Betrieb)", "huk"], ["A Amazon/Temu/Einkäufe", "amazon|amzn|temu|b2b prime|aliexpress|ebay"], ["A Fahrzeug/Tanken/Maut", "tankstelle|orlen|jet-sb|total service|genol|asfinag|caravaning|aral|shell|agip"], ["A PayPal-Zahlungen", "paypal"], ["P Privates über Geschäftskonto (Lebensmittel, Freizeit)", "aldi|kaufland|gerlitzen|lidl|rewe|edeka"]];
   const BANK_P_RULES = [["P Miete", "otto (gottlieb )?maier"], ["P Strom", "stadtwerke"], ["P Krankenversicherung (TK)", "techniker"], ["P Versicherungen", "gothaer|barmenia|cosmos|huk"], ["P Fitness", "fitness first"], ["P Sparen/ETF (Trade Republic)", "trade republic"], ["P Gleitschirm/Fliegen", "luftikus|hangegleiter|paraglid|adelboden|flugschule"], ["P Fahrschule C/CE (Datapart, erstattet)", "datapart"], ["P Reisen", "johannes blum|thailand|flug|bergbahn|gerlitzen|snocks"], ["P Lebensmittel", "aldi|rewe|kaufland|lidl|edeka|netto|penny|dm drogerie|mueller|müller|rossmann|baecker|metzger|pflanzen"], ["P Tanken/Auto", "tankstelle|orlen|aral|agip|total|jet |shell|trento|bolt|parkhaus|parken|park"], ["P Bargeld", "bargeld"], ["P Marlene Sophie", "marlene sophie"], ["P GEZ/Rundfunk", "rundfunk"], ["P PayPal/Online-Käufe", "paypal|otto payments|amazon|google|temu|decathlon|new yorker|deichmann|schuhhaus|fileworld|b2c|ebikes"]];
   function bankCat(r, acc, F) {
     const key = partnerKey(r.p); if (F.rules && F.rules[key]) return F.rules[key];
@@ -3468,7 +3469,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const app = { eing: T.gross - T.fees - T.ads, vers: T.porto * 1.19, mat: T.mat * 1.19, fixk: fix, unz: 0, gew: tx.base };
     real.gew = real.cash - zahl;
     const rows = [
-      ["Netto-Eingang (Umsatz abzüglich Etsy-/Shop-Gebühren und Werbung)", app.eing, real.eing, "mehr", "Die App rechnet mit Umsatz minus Gebühren. Auf dem Konto kommen die Auszahlungen an."],
+      ["Netto-Eingang (Umsatz abzüglich Etsy-/Shop-Gebühren und Werbung)", app.eing, real.eing, "mehr", `Die App rechnet Etsy und Shopify. Auf dem Konto kommen zusätzlich ${eur0(S1(/^E PayPal/))} aus PayPal und ${eur0(S1(/^E Sonstige/))} aus Ladengemeinschaft und Sonstigem an, die die Artikel-Statistik nicht kennt.`],
       ["Versand (inkl. USt)", app.vers, real.vers, "kosten", "Prüf unter Einstellungen → Versand & Kartons, ob die DHL-/Post-Preise stimmen und alle Versandarten berücksichtigt sind."],
       ["Material und Zulieferer (inkl. USt)", app.mat, real.mat, "kosten", "Es fehlen wahrscheinlich Zukäufe (Fertigung bei Böttcher/Stauch), Kleinteile oder höhere Holzpreise bei den Artikeln."],
       ["Fixkosten", app.fixk, real.fixk, "kosten", "Es fehlen laufende Posten: Software und Abos (KI, Google, Haufe, Shopify, Telefon), Fahrzeug und Kammerbeiträge."],
