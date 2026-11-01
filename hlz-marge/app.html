@@ -2946,20 +2946,33 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (view !== "finanzen") return;
     const t = e.target, d = t.dataset || {}, F = FIN(), val = t.type === "checkbox" ? t.checked : t.value;
     // Datum: der Browser meldet schon beim Tippen der ersten Jahresziffer. Nur gültige Jahre speichern, neu zeichnen erst beim Verlassen des Felds.
-    if (t.type === "date") {
-      const y = +String(val).slice(0, 4);
-      if (val && (y < 2000 || y > 2100)) return;
-      const [k, id, f] = (d.finl || "").split("|"), r = F[k] && F[k].find(x => x.id === id); if (!r) return;
-      r[f] = val; saveSettings(); t.dataset.finPending = "1"; return;
-    }
+    if (t.type === "date") { finCommitDates(); return; }
     if (d.fin) { F[d.fin] = val; if (["konto", "guthaben", "bar"].includes(d.fin)) F.stand = isoD(new Date()); }
     else if (d.finl) { const [k, id, f] = d.finl.split("|"), r = F[k].find(x => x.id === id); if (!r) return; if (f === "ust") r.typ = val ? "ust" : "sonst"; else r[f] = val; }
     else return;
     saveSettings(); renderFinance();
   });
+  // Datumsfelder sichern, ohne neu zu zeichnen: zweistelliges Jahr (26) wird 2026, unsinnige Jahre werden ignoriert
+  function finCommitDates() {
+    if (view !== "finanzen") return false;
+    let changed = false;
+    document.querySelectorAll('#view input[type=date][data-finl]').forEach(el => {
+      let val = el.value; if (!val) return;
+      let y = +val.slice(0, 4); if (y < 100) { y += 2000; val = y + val.slice(4); }
+      if (y < 2000 || y > 2100) return;
+      const [k, id, f] = el.dataset.finl.split("|"), r = FIN()[k].find(x => x.id === id);
+      if (r && r[f] !== val) { r[f] = val; changed = true; el.dataset.finPending = "1"; }
+    });
+    if (changed) saveSettings();
+    return changed;
+  }
+  document.addEventListener("input", e => { if (e.target.type === "date") finCommitDates(); });
+  window.addEventListener("blur", finCommitDates);
+  window.addEventListener("pagehide", finCommitDates);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) finCommitDates(); });
   document.addEventListener("focusout", e => {
-    if (view !== "finanzen" || !e.target.dataset || !e.target.dataset.finPending) return;
-    delete e.target.dataset.finPending; renderFinance();
+    if (view !== "finanzen" || !e.target.dataset || e.target.type !== "date") return;
+    finCommitDates(); if (e.target.dataset.finPending) { delete e.target.dataset.finPending; renderFinance(); }
   });
   document.addEventListener("click", e => {
     if (view !== "finanzen") return;
