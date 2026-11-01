@@ -409,7 +409,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 112 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 113 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -535,7 +535,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     async load() {
       const s = await db.doc("hlz/settings").get();
       const q = await db.collection("articles").get();
-      return { settings: s.exists ? s.data() : null, articles: q.docs.map(d => clone(d.data())) };
+      return { settings: s.exists ? clone(s.data()) : null, articles: q.docs.map(d => clone(d.data())) };
     },
     saveSettings: s => db.doc("hlz/settings").set(clone(s)),
     // Änderungen von anderen Geräten (oder von Claude) live übernehmen
@@ -2888,6 +2888,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     prow("p-rad", "vers", "Fahrradversicherung", 53.91, "y", 3), prow("p-kfz", "vers", "KFZ-Versicherung", 511.59, "y", 0), prow("p-kfzst", "vers", "KFZ-Steuer", 119, "y", 0), prow("p-tuev", "vers", "KFZ-TÜV", "", "y", 0)
   ];
   const FIN = () => {
+    if (S.fin && Object.isFrozen(S.fin)) S.fin = clone(S.fin);   // aus dem Online-Speicher kommen manchmal schreibgeschützte Objekte
     const F = (S.fin = S.fin || finDef());
     F.debts.forEach(d => { if (d.due && d.due < "2000-01-01") d.due = ""; });   // kaputte Jahreszahlen (z. B. 0002) aus der Eingabe entfernen
     // alte Liste (ein Betrag pro Monat) auf den Jahresplan umstellen; vorhandene Beträge bleiben als eigene Zeilen
@@ -3136,7 +3137,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         if (A.length) toast(`${A.length} Artikel aus der Vorversion übernommen`);
       }
     } else {
-      S = { ...SETTINGS_DEFAULT(), ...(data.settings || {}) }; A = data.articles || [];
+      S = { ...SETTINGS_DEFAULT(), ...clone(data.settings || {}) }; A = data.articles || [];
     }
     try { SUP = await store.loadSupport(); } catch (e) { SUP = []; }
     try { ORD = await store.loadOrders(); } catch (e) { ORD = []; }
