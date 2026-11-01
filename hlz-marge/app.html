@@ -410,7 +410,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 124 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 126 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -459,7 +459,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 
   // ---------- Vorgaben (ph = Platzhalter, noch nicht durch echte Werte ersetzt) ----------
   const SETTINGS_DEFAULT = () => ({
-    tax: "regel", hebesatz: "420", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90", wasteDefault: "7",
+    laserL: "49.8", laserB: "31.9", tax: "regel", hebesatz: "420", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90", wasteDefault: "7",
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
     bPayP: "12", bPayF: "0.45", bAds: "0",
@@ -2189,6 +2189,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
               ${settingsField("target", "Ziel-Marge", "%")}
               ${settingsField("qtyReal", "Verkäufe/Monat, alle Kanäle", "Stk", "für den Werkstattanteil, leer = aus Import")}
               ${settingsField("shipInDefault", "Versand vom Kunden", "€", "Standard für neue Artikel")}
+              ${settingsField("laserL", "Laser: Arbeitsfläche Länge", "cm", "xTool S1: 49,8 × 31,9 cm. Bitte mit deinem Gerät prüfen. Die Ideen prüfen damit, ob eine Gravur auf dein Teil passt.")}
+              ${settingsField("laserB", "Laser: Arbeitsfläche Breite", "cm")}
               ${settingsField("shipAdj", "Versand-Aufschlag laut Konto", "%", "Auf die Preisliste, für Auslandsversand (DHL Paket International ab 13,55 €) und Zuschläge. Mit dem Abgleich in der Auswertung gegen dein Konto prüfen.")}
             </div>
             <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück)</label>
@@ -3533,6 +3535,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
 MATERIAL: ${(S.plates || []).map(p => `${p.n} (${p.l} × ${p.b} cm, ${eur0(v(p.p))})`).join("; ")}.
 ROHLINGE (vorgesägte Teile, Name: Länge × Breite × Dicke in cm): ${(S.blanks || []).filter(b => b.n).map(b => `${b.n}: ${b.l} × ${b.h} × ${b.t}`).join("; ")}.
 KLEINTEILE (Name, Preis): ${(S.small || []).map(x => `${x.n} (${eur(v(x.p))})`).join("; ")}.
+LASER: xTool S1, Arbeitsfläche ${dec(v(S.laserL) || 49.8)} × ${dec(v(S.laserB) || 31.9)} cm. Er graviert die Eiche (Namen, Muster, Motive, Datum). Dicke Eichenbretter schneidet er nicht, er graviert sie nur. Ein Teil lässt sich nur dann vollständig gravieren, wenn es in diese Fläche passt.
 BESTSELLER (Name | Preis | Absatz | Marge):\n${top}
 KATEGORIEN:\n${cat}
 SCHON IM SORTIMENT (Namen ohne Größe): ${names}
@@ -3550,9 +3553,11 @@ AUFGABE: Schlage genau ${n} neue Produkte vor, die ich diesen Monat einführen s
 4. Rechne realistisch: Der Preis muss Material, Etsy-Gebühren (ca. 19 %), Versand und meine Zeit tragen. Personalisierung (Gravur) rechtfertigt höhere Preise.
 5. Nutze nur Kleinteile aus meiner Liste, mit realistischen Mengen.
 6. Nur Eiche, keine fremden Materialien, außer als Kleinteil.
+7. Nutze den Laser für Personalisierung und Motive, aber nur dort, wo das Teil in die Arbeitsfläche passt. Bei längeren Teilen graviert nur ein Teilstück, das sag dann im Feld risiko.
+8. Schreibe zu jedem Produkt 4 englische Prompts für eine Bild-KI (Produktfoto auf weißem Hintergrund, Lifestyle-Szene, Detail-Nahaufnahme, Anlass- oder Geschenkszene). Beschreibe Form, Maße als Verhältnis, helles geöltes Eichenholz mit sichtbarer Maserung, die Kleinteile und das Licht. Verlange in den Bildern keine lesbare Schrift, die setze ich später selbst ein.
 
 Antworte NUR mit JSON in dieser Form:
-{"ideen":[{"name":"kurzer Produktname","kategorie":"Schlüsselbrett|Garderobe|Regal|Knotenbrett|Haken|Deko & Zubehör","anlass":"Anlass oder ganzjährig","beschreibung":"2 Sätze, was es ist","warum":"1 bis 2 Sätze, warum es zu meinem Shop passt, mit Bezug auf meine Zahlen","teile":[{"rohling":"exakter Rohlingsname oder leer","l":Länge_cm,"b":Breite_cm,"q":Anzahl,"hinweis":"Funktion des Teils"}],"kleinteile":{"Kleinteilname":Menge},"gravur":true oder false,"minuten":Arbeitsminuten für Bohren, Schleifen, Montage und Gravur ohne Zuschnitt,"preis":Verkaufspreis_brutto_in_Euro,"etsyTitel":"Etsy-Titel mit den wichtigsten Suchwörtern, höchstens 140 Zeichen","tags":["13 Etsy-Tags, jeweils höchstens 20 Zeichen"],"risiko":"1 Satz, was schiefgehen kann"}]}`;
+{"ideen":[{"name":"kurzer Produktname","kategorie":"Schlüsselbrett|Garderobe|Regal|Knotenbrett|Haken|Deko & Zubehör","anlass":"Anlass oder ganzjährig","beschreibung":"2 Sätze, was es ist","warum":"1 bis 2 Sätze, warum es zu meinem Shop passt, mit Bezug auf meine Zahlen","teile":[{"rohling":"exakter Rohlingsname oder leer","l":Länge_cm,"b":Breite_cm,"q":Anzahl,"hinweis":"Funktion des Teils"}],"kleinteile":{"Kleinteilname":Menge},"gravur":true oder false,"minuten":Arbeitsminuten für Bohren, Schleifen, Montage und Gravur ohne Zuschnitt,"preis":Verkaufspreis_brutto_in_Euro,"etsyTitel":"Etsy-Titel mit den wichtigsten Suchwörtern, höchstens 140 Zeichen","tags":["13 Etsy-Tags, jeweils höchstens 20 Zeichen"],"risiko":"1 Satz, was schiefgehen kann","bilder":[{"typ":"Produktfoto|Lifestyle|Detail|Anlass","prompt":"englischer Prompt für eine Bild-KI"}]}]}`;
   }
   const num0 = (x, d) => { const f = parseFloat(String(x ?? "").replace(",", ".")); return isFinite(f) && f > 0 ? f : d; };
   function ideaParse(r, n) {
@@ -3564,7 +3569,7 @@ Antworte NUR mit JSON in dieser Form:
       const preis = num0(x.preis, 0); if (!teile.length || !(preis > 0)) return;
       if (used.has(baseName(x.name)) || out.some(o => baseName(o.name) === baseName(x.name))) return;
       const klein = {}; Object.entries(x.kleinteile || {}).forEach(([k, q]) => { const s = (S.small || []).find(y => norm(y.n) === norm(k)); if (s && num0(q, 0) > 0) klein[s.n] = Math.round(num0(q, 0)); });
-      out.push({ id: uid(), name: String(x.name).slice(0, 90), kat: String(x.kategorie || "Deko & Zubehör").slice(0, 40), anlass: String(x.anlass || "ganzjährig").slice(0, 90), besch: String(x.beschreibung || "").slice(0, 400), warum: String(x.warum || "").slice(0, 400), teile, klein, gravur: !!x.gravur, min: num0(x.minuten, 6), preis, titel: String(x.etsyTitel || "").slice(0, 140), tags: (Array.isArray(x.tags) ? x.tags : []).slice(0, 13).map(t => String(t).slice(0, 20)), risiko: String(x.risiko || "").slice(0, 200), status: "neu" });
+      out.push({ id: uid(), name: String(x.name).slice(0, 90), kat: String(x.kategorie || "Deko & Zubehör").slice(0, 40), anlass: String(x.anlass || "ganzjährig").slice(0, 90), besch: String(x.beschreibung || "").slice(0, 400), warum: String(x.warum || "").slice(0, 400), teile, klein, gravur: !!x.gravur, min: num0(x.minuten, 6), preis, titel: String(x.etsyTitel || "").slice(0, 140), tags: (Array.isArray(x.tags) ? x.tags : []).slice(0, 13).map(t => String(t).slice(0, 20)), risiko: String(x.risiko || "").slice(0, 200), bilder: (Array.isArray(x.bilder) ? x.bilder : []).filter(b => b && b.prompt).slice(0, 4).map(b => ({ typ: String(b.typ || "Bild").slice(0, 30), prompt: String(b.prompt).slice(0, 700) })), status: "neu" });
     });
     return out.slice(0, n);
   }
@@ -3585,6 +3590,21 @@ Antworte NUR mit JSON in dieser Form:
   function ideaFallback(mk, n) {
     const mo = +mk.split("-")[1], used = ideaUsed(), pool = IDEA_TPL.filter(t => t.m.includes(mo) && !used.has(baseName(t.name))).sort((a, b) => a.m.length - b.m.length);
     return pool.slice(0, n).map(t => ({ id: uid(), name: t.name, kat: t.kat, anlass: t.anlass, besch: t.besch, warum: t.warum, teile: t.teile.map(p => { const bl = (S.blanks || []).find(b => b.n === p.rohling); return { rohling: bl ? bl.n : "", l: bl ? v(bl.l) : 30, b: bl ? v(bl.h) : 8, q: p.q, hinweis: "" }; }), klein: t.klein, gravur: t.gravur, min: t.min, preis: t.preis, titel: "", tags: [], risiko: "", status: "neu" }));
+  }
+  const laserFit = t => { const L = v(S.laserL) || 49.8, B = v(S.laserB) || 31.9, hi = Math.max(L, B), lo = Math.min(L, B); return Math.max(t.l, t.b) <= hi + 0.01 && Math.min(t.l, t.b) <= lo + 0.01; };
+  // Bild-Prompts für eine Bild-KI (englisch). Kommen sie von Claude, werden die genommen, sonst baut die App sie aus den Daten der Idee.
+  function ideaImgPrompts(i) {
+    if (i.bilder && i.bilder.length) return i.bilder;
+    const kat = norm(i.kat + " " + i.name), obj = /garderobe/.test(kat) ? "wall-mounted coat rack" : /schl[uü]ssel/.test(kat) ? "wall-mounted key rack" : /regal|ablage/.test(kat) ? "small floating wall shelf" : /haken|leiste/.test(kat) ? "wall hook rail" : /set/.test(kat) ? "matching set of two small wall pieces" : "decorative wall board";
+    const cm = i.teile.map(t => `${dec(t.l)} x ${dec(t.b)} cm`).join(" and "), hk = Object.entries(i.klein || {}).filter(([k]) => /haken|öse|bolzen/i.test(k)).map(([k, q]) => `${q} ${/schl[uü]ssel/i.test(k) ? "small black metal key hooks" : /öse/i.test(k) ? "screw-in eye hooks" : /bolzen/i.test(k) ? "wooden pegs" : "black swan-neck coat hooks"}`).join(", ");
+    const base = `${obj} (${cm}, ${(i.teile[0].l / i.teile[0].b).toFixed(1)}:1 proportions), solid European oak, light natural oil finish, visible wood grain, softly rounded edges${hk ? ", with " + hk : ""}`;
+    const ev = i.anlass && !/ganzj/i.test(i.anlass) ? i.anlass : "";
+    return [
+      { typ: "Produktfoto", prompt: `Professional e-commerce product photo of a ${base}. Centered, seamless pure white background, soft diffused studio light, subtle natural shadow, sharp focus, photorealistic, square 1:1. No text, no logo, no watermark.` },
+      { typ: "Lifestyle", prompt: `Cozy Scandinavian entryway, a ${base} mounted on a light plaster wall, a few keys or a jacket hanging on it, a small green plant nearby, warm natural window light, shallow depth of field, photorealistic interior photography, 4:5. No readable text.` },
+      { typ: "Detail", prompt: `Macro close-up of the oak grain and the ${i.gravur ? "smooth engraving area" : hk ? "hook mounting" : "rounded edge"} of a ${obj}, solid European oak with natural oil finish, soft side light, very shallow depth of field, photorealistic, 1:1. No readable text.` },
+      { typ: "Anlass", prompt: `${ev ? `${ev}-themed g` : "G"}ift scene: a ${base} next to wrapping paper, a ribbon and small seasonal details${ev ? " fitting " + ev : ""}, warm light, wooden table, photorealistic, 4:5. No readable text, no watermark.` }
+    ];
   }
   // Ideen in einen Artikelentwurf umrechnen, damit die App die echte Marge ausrechnet
   function ideaDraft(i) {
@@ -3626,10 +3646,13 @@ Antworte NUR mit JSON in dieser Form:
         <div class="tile"><span class="label">Marge</span><span class="num" style="font-size:1.25rem;color:var(--${col === "muted" ? "fg" : col})">${pct(r.margin)}</span><span class="note">${label}, Ziel ${esc(S.target)} %</span></div>
         <div class="tile"><span class="label">Max. Rabatt</span><span class="num" style="font-size:1.25rem">${isFinite(c.dmax) && c.dmax > 0 ? "−" + c.dmax + " %" : "keiner"}</span><span class="note">hält die Ziel-Marge</span></div>
       </div>
-      ${anaTable(["Zutaten", ""], [["Rohlinge und Teile", blanks], ["Kleinteile", esc(small)], ["Gravur", i.gravur ? "ja (Laser)" : "nein"], ["Arbeitszeit", `${dec(i.min)} Min. plus Zuschnitt ${dec(r.rohMin)} Min.`], ["Versand", `${r.ship && r.ship.chosen ? esc(r.ship.chosen.o.n) : "keine Versandart passt, prüf die Maße"} (${dec(shipWeight(c.a) / 1000, 2)} kg)`]])}
+      ${anaTable(["Zutaten", ""], [["Rohlinge und Teile", blanks], ["Kleinteile", esc(small)], ["Gravur", !i.gravur ? "nein" : i.teile.every(laserFit) ? `ja, passt in deinen Laser (${dec(v(S.laserL) || 49.8)} × ${dec(v(S.laserB) || 31.9)} cm)` : `<span style="color:var(--warn)">ja, aber ein Teil ist größer als dein Laser (${dec(v(S.laserL) || 49.8)} × ${dec(v(S.laserB) || 31.9)} cm): nur ein Teilstück ist gravierbar, das Brett muss umgespannt werden</span>`], ["Arbeitszeit", `${dec(i.min)} Min. plus Zuschnitt ${dec(r.rohMin)} Min.`], ["Versand", `${r.ship && r.ship.chosen ? esc(r.ship.chosen.o.n) : "keine Versandart passt, prüf die Maße"} (${dec(shipWeight(c.a) / 1000, 2)} kg)`]])}
       ${i.titel ? `<div class="field"><label>Etsy-Titel</label><div class="inp"><input type="text" readonly value="${esc(i.titel)}" onclick="this.select()"></div></div>` : ""}
       ${i.tags.length ? `<div class="field"><label>Etsy-Tags (${i.tags.length})</label><div class="inp"><input type="text" readonly value="${esc(i.tags.join(", "))}" onclick="this.select()"></div></div>` : ""}
       ${i.risiko ? `<p class="note" style="margin:0">Achtung: ${esc(i.risiko)}</p>` : ""}
+      <h4 style="margin:6px 0 0">Bild-Prompts für eine KI</h4>
+      <p class="note" style="margin:0">Kopier sie in eine Bild-KI (z. B. ChatGPT, Gemini, Midjourney, Canva). Texte und Gravuren lässt du von der KI weg und setzt sie danach in Canva ein, KIs schreiben sie oft falsch. Am besten lädst du zusätzlich ein Foto eines ähnlichen Produkts von dir als Vorlage hoch, damit Holz und Haken stimmen.</p>
+      ${ideaImgPrompts(i).map((b, k) => `<div class="field"><label>${esc(b.typ)}</label><div class="inp"><textarea readonly rows="3" style="width:100%;font:inherit;resize:vertical" onclick="this.select()">${esc(b.prompt)}</textarea></div><div class="btns"><button class="btn" data-idea-copy="${i.id}:${k}">Kopieren</button></div></div>`).join("")}
       <div class="btns">${i.status === "angelegt" ? `<a class="btn primary" href="#artikel-${esc(i.aid)}">Artikel öffnen</a>` : `<button class="btn primary" data-idea-add="${i.id}">Als Artikel anlegen</button>`}<button class="btn" data-idea-other="${i.id}" ${ideaState.busy ? "disabled" : ""}>Andere Idee</button></div></section>`;
   }
   function renderIdeas() {
@@ -3649,8 +3672,14 @@ Antworte NUR mit JSON in dieser Form:
   }
   document.addEventListener("click", e => {
     if (view !== "ideen") return;
-    const t = e.target.closest("[data-idea-gen],[data-idea-add],[data-idea-other]"); if (!t) return;
+    const t = e.target.closest("[data-idea-gen],[data-idea-add],[data-idea-other],[data-idea-copy]"); if (!t) return;
     const d = t.dataset;
+    if (d.ideaCopy) {
+      const [iid, k] = d.ideaCopy.split(":"), idea = ((S.ideas || {})[monthKey(new Date())] || []).find(x => x.id === iid), b = idea && ideaImgPrompts(idea)[+k]; if (!b) return;
+      const ta = t.closest(".field").querySelector("textarea");
+      const ok = () => toast("Prompt kopiert"), fail = () => { ta.focus(); ta.select(); toast("Markiert, bitte mit Strg+C kopieren"); };
+      try { navigator.clipboard.writeText(b.prompt).then(ok, fail); } catch (er) { fail(); } return;
+    }
     if (d.ideaGen) return ideaGenerate(+d.ideaGen);
     const mk = monthKey(new Date()), cur = (S.ideas || {})[mk] || [], idea = cur.find(x => x.id === (d.ideaAdd || d.ideaOther)); if (!idea) return;
     if (d.ideaAdd) {
