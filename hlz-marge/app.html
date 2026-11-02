@@ -429,7 +429,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 131 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 132 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1036,7 +1036,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     { k: "note", l: () => "Notiz", hideSm: true, sort: x => norm(x.a.note), cell: x => `<span class="note">${esc(x.a.note || "")}</span>` },
   ];
   let colsOpen = false, abcF = "";
-  const ovCols = () => { const on = LS.get("hlz-app-cols"); return OV_COLS.filter(c => Array.isArray(on) ? on.includes(c.k) : c.def); };
+  const colDef = k => { const d = S.colDefaults && S.colDefaults[k]; return Array.isArray(d) ? d : null; };
+  const ovCols = () => { const on = LS.get("hlz-app-cols") || colDef("ov"); return OV_COLS.filter(c => Array.isArray(on) ? on.includes(c.k) : c.def); };
 
   function bulkPanel(list) {
     const fields = bulkFields().map(([k, l, type, opts]) => {
@@ -1454,7 +1455,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     { k: "reach", l: "Lager reicht für", def: false, th: () => `<th aria-sort="${pas("reach")}">${pth("reach", "Lager reicht")}</th>`, td: x => { const m = salesPerMonth(x.a); return `<td class="num">${m > 0 && v(x.a.stock) > 0 ? dec(v(x.a.stock) / m, 1) + " Mon." : '<span class="note">–</span>'}</td>`; } }
   ];
   let pcolsOpen = false;
-  const pvis = () => { const on = LS.get("hlz-app-prodcols"); return PCOLS.filter(c => c.lock || (Array.isArray(on) ? on.includes(c.k) : c.def)); };
+  const pvis = () => { const on = LS.get("hlz-app-prodcols") || colDef("prod"); return PCOLS.filter(c => c.lock || (Array.isArray(on) ? on.includes(c.k) : c.def)); };
 
   function renderProduction() {
     const all = prodRows(), cats = [...new Set(all.map(x => x.cat))].sort((a, b) => a.localeCompare(b, "de")), demand = ordDemand();
@@ -1481,7 +1482,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
           <button type="button" class="btn" data-act="prodClear" ${todo.length ? "" : "disabled"}>Liste leeren</button>
           <button type="button" class="btn${pcolsOpen ? " primary" : ""}" data-pcols="toggle" aria-expanded="${pcolsOpen}">Spalten</button>
         </div>
-        ${pcolsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-pcols="reset">Standard</button><button class="btn" data-pcols="toggle">Fertig</button></span></div>
+        ${pcolsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-pcols="save" title="Aktuelle Auswahl als Standard für alle Geräte speichern">Als Standard speichern</button><button class="btn" data-pcols="reset">Standard</button><button class="btn" data-pcols="toggle">Fertig</button></span></div>
           <div class="colpick-list">${PCOLS.map(c => `<label class="switch"><input type="checkbox" data-pcol="${c.k}" ${pvis().includes(c) ? "checked" : ""} ${c.lock ? "disabled" : ""}><span class="track"></span>${esc(c.l)}</label>`).join("")}</div></div>` : ""}
         ${prod.ask ? `<div class="selbar danger" style="position:static"><strong>${prod.ask === "book" ? `${dec(pcs, 0)} Stück ins Lager buchen und die Liste leeren?` : prod.ask === "suggest" ? `Für ${nDem} Artikel „Zu produzieren“ = offen bestellt minus Lager setzen? Vorhandene Mengen bei diesen Artikeln werden überschrieben.` : "Alle Mengen „Zu produzieren“ löschen?"}</strong><span class="btns"><button class="btn primary" data-act="prodYes">Ja</button><button class="btn" data-act="prodNo">Abbrechen</button></span></div>` : ""}
         ${prod.copy ? `<div class="field"><label for="prodCopyBox">Konnte nicht automatisch kopieren. Text markieren und mit Strg+C kopieren:</label><div class="inp"><textarea id="prodCopyBox" rows="8" readonly>${esc(prod.copy)}</textarea></div></div>` : ""}
@@ -1505,7 +1506,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     }
     const pc = e.target.closest("[data-pcols]");
     if (pc) {
-      if (pc.dataset.pcols === "reset") { try { localStorage.removeItem("hlz-app-prodcols"); } catch (er) {} } else pcolsOpen = !pcolsOpen;
+      if (pc.dataset.pcols === "save") { S.colDefaults = Object.assign({}, S.colDefaults, { prod: pvis().map(c => c.k) }); saveSettings(); toast("Als Standard gespeichert"); } else if (pc.dataset.pcols === "reset") { try { localStorage.removeItem("hlz-app-prodcols"); } catch (er) {} } else pcolsOpen = !pcolsOpen;
       return renderProduction();
     }
   });
@@ -1921,7 +1922,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <button class="btn${colsOpen ? " primary" : ""}" data-act="cols" aria-expanded="${colsOpen}">Spalten</button>
           </div>
         </div>
-        ${colsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-act="colsReset">Standard</button><button class="btn" data-act="cols">Fertig</button></span></div>
+        ${colsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-act="colsSave" title="Aktuelle Auswahl als Standard für alle Geräte speichern">Als Standard speichern</button><button class="btn" data-act="colsReset">Standard</button><button class="btn" data-act="cols">Fertig</button></span></div>
           <div class="colpick-list">${OV_COLS.map(c => `<label class="switch"><input type="checkbox" data-col="${c.k}" ${visCols.includes(c) ? "checked" : ""}><span class="track"></span>${esc(c.l())}</label>`).join("")}</div></div>` : ""}
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : k === "remove" ? "✕ " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
         <div class="seg" aria-label="ABC-Bewertung"><button type="button" data-abcf="" aria-pressed="${!abcF}" title="${esc(ABC_TIP)}">ABC: alle</button>${["A", "B", "C"].map(k => `<button type="button" data-abcf="${k}" aria-pressed="${abcF === k}"><span class="abc abc-${k} sm">${k}</span> ${nAbc[k]}</button>`).join("")}</div>
@@ -2577,6 +2578,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       }
       case "save": return doSave();
       case "cols": colsOpen = !colsOpen; return renderOverview();
+      case "colsSave": S.colDefaults = Object.assign({}, S.colDefaults, { ov: ovCols().map(c => c.k) }); saveSettings(); toast("Als Standard gespeichert"); return renderOverview();
       case "colsReset": try { localStorage.removeItem("hlz-app-cols"); } catch (e) {} return renderOverview();
       case "doneHome": clearTimeout(doneTimer); $("donePop").hidden = true; return go("uebersicht");
       case "doneClose": clearTimeout(doneTimer); $("donePop").hidden = true; return;
