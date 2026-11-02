@@ -121,6 +121,10 @@ tr.rmrow td:not(:first-child) { opacity: .6 }
 .mtab tr.off td { opacity: .5 }
 .mtab tr.tot td { border-top: 2px solid var(--line) }
 .mtab .btn { padding: 4px 8px; font-size: .78rem }
+.finrow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; align-items: start }
+@media (max-width: 1100px) { .finrow { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) } }
+.finsub { display: grid; gap: 8px; margin-top: 10px; padding-left: 10px; border-left: 3px solid var(--line) }
+.finsub label { font-size: 12.5px }
 .anagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
 .navbadge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: var(--warn); color: #fff; font-size: .72rem; font-weight: 700; line-height: 18px; text-align: center }
 .ordtable th, .ordtable td { text-align: left; vertical-align: top; padding-left: 8px; padding-right: 8px }
@@ -429,7 +433,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 132 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 133 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -3063,7 +3067,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   };
   function finCalc() {
     const F = FIN(), { T, m, fix } = anaCalc(), tx = afterTax(m), regel = S.tax !== "ku", today = new Date(), td = isoD(today);
-    const liquidG = v(F.kontoG) + v(F.guthaben), liquidP = v(F.kontoP) + v(F.bar), liquid = liquidG + liquidP;
+    const saved = v(F.spaceA) + v(F.spaceB), liquidG = v(F.kontoG) + v(F.guthaben), liquidP = v(F.kontoP) + v(F.bar), liquid = liquidG + liquidP;
     const ustOut = regel ? m.rev - m.rev / 1.19 : 0;
     const vorAuto = regel ? 0.19 * (T.mat + T.porto + T.pack) : 0, vor = F.vorsteuer !== "" && F.vorsteuer !== undefined ? v(F.vorsteuer) : vorAuto;
     const zahl = ustOut - vor;
@@ -3103,7 +3107,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const rateOf = list => list.reduce((s, d) => s + (v(d.raten) > 1 ? d.ea / Math.floor(v(d.raten)) : 0), 0);
     const monthlyRate = rateOf(open), rateP = rateOf(open.filter(d => d.acc === "p")), rateG = monthlyRate - rateP;
     const surplusP = ent + other - privSum - rateP, surplusG = tx.net - ent - rateG;
-    return { F, T, m, tx, regel, liquid, liquidG, liquidP, openG, openP, ent, rateP, rateG, surplusP, surplusG, open, openSum, ustOut, vor, vorAuto, zahl, privSum, sparM, other, income, proj, next, late, monthlyRate, td, surplus: surplusP + surplusG, lastUst };
+    return { F, T, m, tx, regel, saved, liquid, liquidG, liquidP, openG, openP, ent, rateP, rateG, surplusP, surplusG, open, openSum, ustOut, vor, vorAuto, zahl, privSum, sparM, other, income, proj, next, late, monthlyRate, td, surplus: surplusP + surplusG, lastUst };
   }
   const FTABS = [["uebersicht", "Auf einen Blick"], ["tipps", "Tipps zum Sparen"], ["schulden", "Was ich zahlen muss"], ["plan", "Mein Geld pro Monat"], ["konto", "Kontoauszüge"]];
   let finTab = LS.get("hlz-app-ftab") || "uebersicht"; if (!FTABS.some(x => x[0] === finTab)) finTab = "uebersicht";
@@ -3151,7 +3155,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       <section class="box" data-fs="uebersicht" style="border-color:var(--accent)">
         <span class="label" style="font-size:.85rem">Das kannst du gerade frei ausgeben${info("Alles Geld auf deinen Konten (inkl. Etsy/PayPal-Guthaben und Bargeld) minus alles, was du noch zahlen musst: Steuern, Schulden und Raten, auch die, die erst später fällig sind. Nicht abgezogen sind deine laufenden Ausgaben bis zum nächsten Geldeingang und die Steuerrücklage für das laufende Quartal.")}</span>
         <span class="num" style="font-size:2.4rem;color:var(--${noMoney ? "muted" : free < 0 ? "bad" : "good"})">${noMoney ? "–" : eur0(free)}</span>
-        ${anaTable(["", "Betrag"], [["Geld auf deinen Konten", eur0(c.liquid)], ["− offene Steuern und Schulden", eur0(-c.openSum).replace("−0 €", "0 €")], ["<strong>= frei verfügbar</strong>", `<strong>${noMoney ? "–" : eur0(free)}</strong>`]], [1])}
+        ${anaTable(["", "Betrag"], [["Geld auf deinen Konten", eur0(c.liquid)], ["− offene Steuern und Schulden", eur0(-c.openSum).replace("−0 €", "0 €")], ["<strong>= frei verfügbar</strong>", `<strong>${noMoney ? "–" : eur0(free)}</strong>`]].concat(c.saved ? [["Zusätzlich angespart (Spaces)", eur0(c.saved)], ["Mit Spaces zusammen", eur0(free + c.saved)]] : []), [1])}
         <p class="note">${noMoney ? "Trag unten bei „Wie viel Geld ist da?“ deine Kontostände ein, dann steht hier die Zahl." : free < 0 ? "Du hast weniger Geld als offene Zahlungen. Details zu Fristen und Raten im Reiter „Schulden und Steuern“." : "So viel bleibt dir nach allen bekannten Zahlungen."}</p>
       </section>
       <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Das heißt in einfachen Worten</h2>
@@ -3165,8 +3169,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       </div>
 
       <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Wie viel Geld ist da?</h2>
-        <div class="anagrid">
-          <div class="field"><label>Geschäftskonto</label>${inp('data-fin="kontoG"', F.kontoG, "€")}</div>
+        <div class="finrow">
+          <div><div class="field"><label>Geschäftskonto</label>${inp('data-fin="kontoG"', F.kontoG, "€")}</div>
+            <div class="finsub"><div class="field"><label>Space 1 (angespart)</label>${inp('data-fin="spaceA"', F.spaceA, "€")}</div><div class="field"><label>Space 2 (angespart)</label>${inp('data-fin="spaceB"', F.spaceB, "€")}</div>
+            <small>Schon angespart: <strong>${eur0(c.saved)}</strong>. Das liegt zusätzlich zum Kontostand.</small></div></div>
           <div class="field"><label>Privatkonto</label>${inp('data-fin="kontoP"', F.kontoP, "€")}</div>
           <div class="field"><label>Guthaben bei Etsy, PayPal, Shopify Payments (noch nicht ausgezahlt)</label>${inp('data-fin="guthaben"', F.guthaben, "€")}<small>Zählt zum Geschäftskonto.</small></div>
           <div class="field"><label>Entnahme aufs Privatkonto pro Monat</label>${inp('data-fin="entnahme"', F.entnahme, "€")}<small>Leer = das ganze Shop-Einkommen nach Steuer${hasSalesEnt ? " (aktuell " + eur0(c.tx.net) + ")" : ""}.</small></div>
@@ -3255,7 +3261,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const t = e.target, d = t.dataset || {}, F = FIN(), val = t.type === "checkbox" ? t.checked : t.value;
     // Datum: der Browser meldet schon beim Tippen der ersten Jahresziffer. Nur gültige Jahre speichern, neu zeichnen erst beim Verlassen des Felds.
     if (t.type === "date") { finCommitDates(); return; }
-    if (d.fin) { F[d.fin] = val; if (["kontoG", "kontoP", "guthaben", "bar"].includes(d.fin)) F.stand = isoD(new Date()); }
+    if (d.fin) { F[d.fin] = val; if (["kontoG", "kontoP", "guthaben", "bar", "spaceA", "spaceB"].includes(d.fin)) F.stand = isoD(new Date()); }
     else if (d.finl) { const [k, id, f] = d.finl.split("|"), r = F[k].find(x => x.id === id); if (!r) { toast("Die Liste wurde gerade aktualisiert, bitte nochmal eintragen."); return finDraw(); } if (f === "ust") r.typ = val ? "ust" : "sonst"; else if (/^m\d+$/.test(f)) { r.m = r.m || Array(12).fill(""); r.m[+f.slice(1)] = val; } else r[f] = val; }
     else return;
     saveSettings();
