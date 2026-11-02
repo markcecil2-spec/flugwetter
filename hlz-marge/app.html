@@ -137,7 +137,13 @@ tr.rmrow td:not(:first-child) { opacity: .6 }
 .prodtable .inp { max-width: 190px }
 .prodtable .inp.qprice { width: 112px }
 .prodtable .inp.qprice input { font-size: 1.05rem }
-.prodtable .inp.qprice input[type=number]::-webkit-inner-spin-button { opacity: 1; height: 26px; cursor: pointer }
+.prodtable .inp.qprice input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0 }
+.prodtable .inp.qprice input[type=number] { -moz-appearance: textfield; appearance: textfield; text-align: center }
+.stepper { display: inline-flex; align-items: center; gap: 6px }
+.stbtn { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: 600 1.6rem/1 var(--font-body); cursor: pointer; display: grid; place-items: center; padding: 0; user-select: none; touch-action: manipulation }
+.stbtn:hover { border-color: var(--accent) } .stbtn:active { background: var(--accent-soft); border-color: var(--accent) }
+.prodtable .stepper .inp.qprice { width: 84px }
+.prodtable .stepper .inp.qprice input { width: 100%; font-size: 1.15rem; font-weight: 600 }
 tr.prodon td { background: var(--accent-soft) }
 tr.prodon [data-q="prod"] { font-weight: 700 }
 #printArea { display: none }
@@ -423,7 +429,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 130 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 131 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1428,6 +1434,27 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   }
   const pth = (k, l) => `<button type="button" data-psort="${k}" aria-pressed="${psort.k === k}" title="Klicken zum Sortieren, nochmal klicken dreht die Reihenfolge">${l}${psort.k === k ? (PSORT[k].t === "text" ? (psort.d > 0 ? " A→Z" : " Z→A") : (psort.d > 0 ? " ↑" : " ↓")) : " ⇅"}</button>`;
   const pas = k => psort.k === k ? (psort.d > 0 ? "ascending" : "descending") : "none";
+  PSORT.weight = { t: "num", f: x => v(x.a.weight) > 0 ? v(x.a.weight) : autoWeight(x.a) };
+  PSORT.pm = { t: "num", f: x => salesPerMonth(x.a) };
+  PSORT.reach = { t: "num", f: x => { const m = salesPerMonth(x.a); return m > 0 ? v(x.a.stock) / m : 1e9; } };
+  // Eingabe mit großen − und + Tasten (Shift: 5er-Schritte)
+  const pstep = (f, a, label) => `<div class="stepper"><button type="button" class="stbtn" data-pstep="${f}|${a.id}|-1" aria-label="${label} weniger" title="Weniger (Umschalt: −5)">−</button><div class="inp qprice"><input type="number" min="0" step="1" inputmode="numeric" data-q="${f}" data-qid="${a.id}" value="${a[f] ? esc(a[f]) : ""}" placeholder="0" aria-label="${label} ${esc(a.name)}"><span>Stk</span></div><button type="button" class="stbtn" data-pstep="${f}|${a.id}|1" aria-label="${label} mehr" title="Mehr (Umschalt: +5)">+</button></div>`;
+  // Spalten der Produktionsliste: ein- und ausblendbar, pro Gerät gemerkt
+  const PCOLS = [
+    { k: "img", l: "Bild", def: true, th: () => `<th>Bild</th>`, td: x => `<td>${thumbHTML(x.a) || '<span class="thumb"></span>'}</td>` },
+    { k: "sku", l: "SKU / Name", lock: true, def: true, th: () => `<th aria-sort="${psort.k === "sku" || psort.k === "name" ? pas(psort.k) : "none"}">${pth("sku", "SKU")} <span class="note">/</span> ${pth("name", "Name")}</th>`,
+      td: x => `<td class="name"><strong class="num">${esc(x.a.sku || "ohne SKU")}</strong><br><span class="note">${esc(x.a.name)}</span>${x.a.fremd ? ' <span class="chip ex">Zukauf</span>' : ""}</td>` },
+    { k: "cat", l: "Kategorie", def: true, th: () => `<th aria-sort="${pas("cat")}">${pth("cat", "Kategorie")}</th>`, td: x => `<td><div class="inp"><input type="text" list="prodCats" data-q="cat" data-qid="${x.a.id}" value="${esc(x.cat)}" aria-label="Kategorie ${esc(x.a.name)}"></div></td>` },
+    { k: "demand", l: "Bestellt (offen)", def: true, th: () => `<th aria-sort="${pas("demand")}">${pth("demand", "Bestellt (offen)")}</th>`, td: (x, dm) => `<td class="num">${dm[x.a.id] ? `<strong>${dec(dm[x.a.id], 0)}</strong>` : '<span class="note">–</span>'}</td>` },
+    { k: "prod", l: "Zu produzieren", def: true, th: () => `<th aria-sort="${pas("prod")}">${pth("prod", "Zu produzieren")}</th>`, td: x => `<td>${pstep("prod", x.a, "Zu produzieren")}</td>` },
+    { k: "stock", l: "Lagerbestand", def: true, th: () => `<th aria-sort="${pas("stock")}">${pth("stock", "Lagerbestand")}</th>`, td: x => `<td>${pstep("stock", x.a, "Lagerbestand")}</td>` },
+    { k: "dims", l: "Maße", def: true, th: () => `<th aria-sort="${pas("dims")}">${pth("dims", "Maße")}</th>`, td: x => `<td class="num">${esc(prodDims(x.a)) || '<span class="note">–</span>'}</td>` },
+    { k: "weight", l: "Gewicht", def: false, th: () => `<th aria-sort="${pas("weight")}">${pth("weight", "Gewicht")}</th>`, td: x => { const w = v(x.a.weight) > 0 ? v(x.a.weight) : autoWeight(x.a); return `<td class="num">${w ? dec(w, 0) + " g" : '<span class="note">–</span>'}</td>`; } },
+    { k: "pm", l: "Verkäufe pro Monat", def: false, th: () => `<th aria-sort="${pas("pm")}">${pth("pm", "Verk./Mon.")}</th>`, td: x => { const m = salesPerMonth(x.a); return `<td class="num">${m ? dec(m, 1) : '<span class="note">–</span>'}</td>`; } },
+    { k: "reach", l: "Lager reicht für", def: false, th: () => `<th aria-sort="${pas("reach")}">${pth("reach", "Lager reicht")}</th>`, td: x => { const m = salesPerMonth(x.a); return `<td class="num">${m > 0 && v(x.a.stock) > 0 ? dec(v(x.a.stock) / m, 1) + " Mon." : '<span class="note">–</span>'}</td>`; } }
+  ];
+  let pcolsOpen = false;
+  const pvis = () => { const on = LS.get("hlz-app-prodcols"); return PCOLS.filter(c => c.lock || (Array.isArray(on) ? on.includes(c.k) : c.def)); };
 
   function renderProduction() {
     const all = prodRows(), cats = [...new Set(all.map(x => x.cat))].sort((a, b) => a.localeCompare(b, "de")), demand = ordDemand();
@@ -1452,19 +1479,15 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
           <button type="button" class="btn" data-act="prodCopy" ${todo.length ? "" : "disabled"}>Als Text kopieren</button>
           <button type="button" class="btn" data-act="prodBook" ${todo.length ? "" : "disabled"}>✓ Produziert → ins Lager</button>
           <button type="button" class="btn" data-act="prodClear" ${todo.length ? "" : "disabled"}>Liste leeren</button>
+          <button type="button" class="btn${pcolsOpen ? " primary" : ""}" data-pcols="toggle" aria-expanded="${pcolsOpen}">Spalten</button>
         </div>
+        ${pcolsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-pcols="reset">Standard</button><button class="btn" data-pcols="toggle">Fertig</button></span></div>
+          <div class="colpick-list">${PCOLS.map(c => `<label class="switch"><input type="checkbox" data-pcol="${c.k}" ${pvis().includes(c) ? "checked" : ""} ${c.lock ? "disabled" : ""}><span class="track"></span>${esc(c.l)}</label>`).join("")}</div></div>` : ""}
         ${prod.ask ? `<div class="selbar danger" style="position:static"><strong>${prod.ask === "book" ? `${dec(pcs, 0)} Stück ins Lager buchen und die Liste leeren?` : prod.ask === "suggest" ? `Für ${nDem} Artikel „Zu produzieren“ = offen bestellt minus Lager setzen? Vorhandene Mengen bei diesen Artikeln werden überschrieben.` : "Alle Mengen „Zu produzieren“ löschen?"}</strong><span class="btns"><button class="btn primary" data-act="prodYes">Ja</button><button class="btn" data-act="prodNo">Abbrechen</button></span></div>` : ""}
         ${prod.copy ? `<div class="field"><label for="prodCopyBox">Konnte nicht automatisch kopieren. Text markieren und mit Strg+C kopieren:</label><div class="inp"><textarea id="prodCopyBox" rows="8" readonly>${esc(prod.copy)}</textarea></div></div>` : ""}
         <div class="tablewrap"><table class="prodtable">
-          <thead><tr><th>Bild</th><th aria-sort="${PSORT[psort.k] && (psort.k === "sku" || psort.k === "name") ? pas(psort.k) : "none"}">${pth("sku", "SKU")} <span class="note">/</span> ${pth("name", "Name")}</th><th aria-sort="${pas("cat")}">${pth("cat", "Kategorie")}</th><th aria-sort="${pas("demand")}">${pth("demand", "Bestellt (offen)")}</th><th aria-sort="${pas("prod")}">${pth("prod", "Zu produzieren")}</th><th aria-sort="${pas("stock")}">${pth("stock", "Lagerbestand")}</th><th aria-sort="${pas("dims")}">${pth("dims", "Maße")}</th></tr></thead>
-          <tbody>${list.map(({ a, cat }) => `<tr class="prodrow${v(a.prod) > 0 ? " prodon" : ""}">
-            <td>${thumbHTML(a) || '<span class="thumb"></span>'}</td>
-            <td class="name"><strong class="num">${esc(a.sku || "ohne SKU")}</strong><br><span class="note">${esc(a.name)}</span>${a.fremd ? ' <span class="chip ex">Zukauf</span>' : ""}</td>
-            <td><div class="inp"><input type="text" list="prodCats" data-q="cat" data-qid="${a.id}" value="${esc(cat)}" aria-label="Kategorie ${esc(a.name)}"></div></td>
-            <td class="num">${demand[a.id] ? `<strong>${dec(demand[a.id], 0)}</strong>` : '<span class="note">–</span>'}</td>
-            <td><div class="inp qprice"><input type="number" min="0" step="1" inputmode="numeric" data-q="prod" data-qid="${a.id}" value="${a.prod ? esc(a.prod) : ""}" placeholder="0" aria-label="Zu produzieren ${esc(a.name)}"><span>Stk</span></div></td>
-            <td><div class="inp qprice"><input type="number" min="0" step="1" inputmode="numeric" data-q="stock" data-qid="${a.id}" value="${a.stock ? esc(a.stock) : ""}" placeholder="0" aria-label="Lagerbestand ${esc(a.name)}"><span>Stk</span></div></td>
-            <td class="num">${esc(prodDims(a)) || '<span class="note">–</span>'}</td></tr>`).join("") || `<tr><td colspan="7" class="note">${prod.only ? "Noch nichts zu produzieren eingetragen." : "Kein Artikel passt."}</td></tr>`}</tbody>
+          <thead><tr>${pvis().map(c => c.th()).join("")}</tr></thead>
+          <tbody>${list.map(x => `<tr class="prodrow${v(x.a.prod) > 0 ? " prodon" : ""}">${pvis().map(c => c.td(x, demand)).join("")}</tr>`).join("") || `<tr><td colspan="${pvis().length}" class="note">${prod.only ? "Noch nichts zu produzieren eingetragen." : "Kein Artikel passt."}</td></tr>`}</tbody>
         </table></div>
         <datalist id="prodCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
       </section>`;
@@ -1473,6 +1496,24 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     $("prodCat").addEventListener("change", e => { prod.cat = e.target.value; renderProduction(); });
   }
 
+  document.addEventListener("click", e => {
+    if (view !== "produktion") return;
+    const st = e.target.closest("[data-pstep]");
+    if (st) {   // große +/−: Wert ändern und wie eine normale Eingabe speichern
+      const [f, id, d] = st.dataset.pstep.split("|"), el = document.querySelector(`input[data-q="${f}"][data-qid="${id}"]`); if (!el) return;
+      el.value = String(Math.max(0, Math.round(v(el.value)) + (e.shiftKey ? 5 : 1) * +d)); prodChange(el, f, id); return;
+    }
+    const pc = e.target.closest("[data-pcols]");
+    if (pc) {
+      if (pc.dataset.pcols === "reset") { try { localStorage.removeItem("hlz-app-prodcols"); } catch (er) {} } else pcolsOpen = !pcolsOpen;
+      return renderProduction();
+    }
+  });
+  document.addEventListener("change", e => {
+    if (view !== "produktion" || !e.target.dataset || !e.target.dataset.pcol) return;
+    const on = new Set(pvis().map(c => c.k)); e.target.checked ? on.add(e.target.dataset.pcol) : on.delete(e.target.dataset.pcol);
+    LS.set("hlz-app-prodcols", PCOLS.filter(c => on.has(c.k)).map(c => c.k)); renderProduction();
+  });
   document.addEventListener("click", e => {
     const t = e.target.closest("[data-psort]"); if (!t || view !== "produktion") return;
     const k = t.dataset.psort; psort = psort.k === k ? { k, d: -psort.d } : { k, d: PSORT[k].t === "text" ? 1 : -1 };
