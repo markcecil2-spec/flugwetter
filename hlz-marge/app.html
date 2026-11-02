@@ -423,7 +423,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 128 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 129 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1403,12 +1403,34 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   let prod = { q: "", only: false, cat: "", ask: "", copy: "" };
   const prodRows = () => A.map(a => ({ a, cat: prodCat(a) })).sort((x, y) => (norm(x.a.sku) || "~").localeCompare(norm(y.a.sku) || "~", "de", { numeric: true }));
   const prodTodo = () => A.filter(a => v(a.prod) > 0);
+  // Sortierung der Produktionsliste: Klick auf die Spaltenüberschrift, nochmal Klick dreht um (wird pro Gerät gemerkt)
+  let psort = LS.get("hlz-app-psort") || { k: "sku", d: 1 };
+  const PSORT = {
+    sku: { t: "text", f: x => norm(x.a.sku) },
+    name: { t: "text", f: x => norm(x.a.name) },
+    cat: { t: "text", f: x => norm(x.cat) },
+    demand: { t: "num", f: (x, dm) => v(dm[x.a.id]) },
+    prod: { t: "num", f: x => v(x.a.prod) },
+    stock: { t: "num", f: x => v(x.a.stock) },
+    dims: { t: "num", f: x => { const p = (x.a.parts || []).find(q => v(q.l) * v(q.b) > 0); return p ? Math.max(v(p.l), v(p.b)) * 1000 + Math.min(v(p.l), v(p.b)) : 0; } }
+  };
+  function prodSorted(list, dm) {
+    const c = PSORT[psort.k] || PSORT.sku, key = x => c.f(x, dm), tie = (x, y) => (norm(x.a.sku) || "~").localeCompare(norm(y.a.sku) || "~", "de", { numeric: true });
+    return list.slice().sort((x, y) => {
+      const a = key(x), b = key(y);
+      // leere SKU / leerer Text kommt immer ans Ende
+      if (c.t === "text") { if (!a && b) return 1; if (a && !b) return -1; const r = String(a).localeCompare(String(b), "de", { numeric: true }); return (r * psort.d) || tie(x, y); }
+      return ((a - b) * psort.d) || tie(x, y);
+    });
+  }
+  const pth = (k, l) => `<button type="button" data-psort="${k}" aria-pressed="${psort.k === k}" title="Klicken zum Sortieren, nochmal klicken dreht die Reihenfolge">${l}${psort.k === k ? (PSORT[k].t === "text" ? (psort.d > 0 ? " A→Z" : " Z→A") : (psort.d > 0 ? " ↑" : " ↓")) : " ⇅"}</button>`;
+  const pas = k => psort.k === k ? (psort.d > 0 ? "ascending" : "descending") : "none";
 
   function renderProduction() {
-    const all = prodRows(), cats = [...new Set(all.map(x => x.cat))].sort((a, b) => a.localeCompare(b, "de"));
-    const list = all.filter(x => (!prod.cat || x.cat === prod.cat) && (!prod.only || v(x.a.prod) > 0)
+    const all = prodRows(), cats = [...new Set(all.map(x => x.cat))].sort((a, b) => a.localeCompare(b, "de")), demand = ordDemand();
+    const list = prodSorted(all, demand).filter(x => (!prod.cat || x.cat === prod.cat) && (!prod.only || v(x.a.prod) > 0)
       && (!prod.q || norm(x.a.name).includes(norm(prod.q)) || norm(x.a.sku).includes(norm(prod.q))));
-    const todo = prodTodo(), pcs = todo.reduce((n, a) => n + v(a.prod), 0), demand = ordDemand(), nDem = Object.keys(demand).filter(id => ordArt(id)).length;
+    const todo = prodTodo(), pcs = todo.reduce((n, a) => n + v(a.prod), 0), nDem = Object.keys(demand).filter(id => ordArt(id)).length;
     $("view").innerHTML = `
       <div class="row"><h1>Produktion</h1></div>
       <p class="note">Trag bei „Zu produzieren“ ein, wie viele du bauen willst. Mit Tab oder Enter geht es in die nächste Zeile. Alles wird automatisch gespeichert.</p>
@@ -1431,7 +1453,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         ${prod.ask ? `<div class="selbar danger" style="position:static"><strong>${prod.ask === "book" ? `${dec(pcs, 0)} Stück ins Lager buchen und die Liste leeren?` : prod.ask === "suggest" ? `Für ${nDem} Artikel „Zu produzieren“ = offen bestellt minus Lager setzen? Vorhandene Mengen bei diesen Artikeln werden überschrieben.` : "Alle Mengen „Zu produzieren“ löschen?"}</strong><span class="btns"><button class="btn primary" data-act="prodYes">Ja</button><button class="btn" data-act="prodNo">Abbrechen</button></span></div>` : ""}
         ${prod.copy ? `<div class="field"><label for="prodCopyBox">Konnte nicht automatisch kopieren. Text markieren und mit Strg+C kopieren:</label><div class="inp"><textarea id="prodCopyBox" rows="8" readonly>${esc(prod.copy)}</textarea></div></div>` : ""}
         <div class="tablewrap"><table class="prodtable">
-          <thead><tr><th>Bild</th><th>SKU</th><th>Kategorie</th><th>Bestellt (offen)</th><th>Zu produzieren</th><th>Lagerbestand</th><th>Maße</th></tr></thead>
+          <thead><tr><th>Bild</th><th aria-sort="${PSORT[psort.k] && (psort.k === "sku" || psort.k === "name") ? pas(psort.k) : "none"}">${pth("sku", "SKU")} <span class="note">/</span> ${pth("name", "Name")}</th><th aria-sort="${pas("cat")}">${pth("cat", "Kategorie")}</th><th aria-sort="${pas("demand")}">${pth("demand", "Bestellt (offen)")}</th><th aria-sort="${pas("prod")}">${pth("prod", "Zu produzieren")}</th><th aria-sort="${pas("stock")}">${pth("stock", "Lagerbestand")}</th><th aria-sort="${pas("dims")}">${pth("dims", "Maße")}</th></tr></thead>
           <tbody>${list.map(({ a, cat }) => `<tr class="prodrow${v(a.prod) > 0 ? " prodon" : ""}">
             <td>${thumbHTML(a) || '<span class="thumb"></span>'}</td>
             <td class="name"><strong class="num">${esc(a.sku || "ohne SKU")}</strong><br><span class="note">${esc(a.name)}</span>${a.fremd ? ' <span class="chip ex">Zukauf</span>' : ""}</td>
@@ -1448,6 +1470,11 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     $("prodCat").addEventListener("change", e => { prod.cat = e.target.value; renderProduction(); });
   }
 
+  document.addEventListener("click", e => {
+    const t = e.target.closest("[data-psort]"); if (!t || view !== "produktion") return;
+    const k = t.dataset.psort; psort = psort.k === k ? { k, d: -psort.d } : { k, d: PSORT[k].t === "text" ? 1 : -1 };
+    LS.set("hlz-app-psort", psort); renderProduction();
+  });
   // Eingabe in einer Zeile: speichern, ohne die Tabelle neu zu zeichnen (Cursor bleibt)
   function prodChange(el, f, id) {
     const a = A.find(x => x.id === id); if (!a) return;
