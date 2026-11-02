@@ -414,11 +414,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
       <a href="#auswertung" data-tab="auswertung">Auswertung</a>
-      <a href="#ideen" data-tab="ideen">Ideen<span class="navbadge" id="ideaBadge" hidden></span></a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
-      <a href="#import" data-tab="import">Import</a>
-      <a href="#shopcheck" data-tab="shopcheck">Shop-Check</a>
+      <a href="#shopcheck" data-tab="shopcheck">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
       <span class="navsep" aria-hidden="true"></span>
       <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion">Produktion</a>
@@ -434,7 +432,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 135 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 136 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -898,7 +896,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "todo", "tag", "shopcheck"].includes(h) ? h : "uebersicht";
-    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "finanzen" || view === "todo" || view === "tag" ? "privat" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "finanzen" || view === "todo" || view === "tag" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
     if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
@@ -2286,7 +2284,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const T = draftS || S;
     const ctx = volume();
     $("view").innerHTML = `
-      <div class="row"><h1>Einstellungen</h1></div>
+      ${setBar("einstellungen")}<div class="row"><h1>Einstellungen</h1></div>
       <p class="note">Gilt für alle Artikel. Änderungen werden automatisch gespeichert und alle Artikel neu gerechnet.</p>
       <div class="seg stabs" aria-label="Bereiche">${STABS.map(([k, l]) => `<button type="button" data-stab="${k}" aria-pressed="${stab === k}">${l}</button>`).join("")}</div>
       <div class="stack stackset">
@@ -2770,7 +2768,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   function renderImport() {
     if (imp) return renderImportPreview();
     $("view").innerHTML = `
-      <h1>Bestellungen importieren</h1>
+      ${setBar("import")}<h1>Bestellungen importieren</h1>
       <section class="box">
         <div class="drop" id="drop">
           <strong style="color:var(--fg)">CSV-Dateien hier ablegen</strong>
@@ -3910,7 +3908,7 @@ Antworte NUR mit JSON in dieser Form:
     const top = Object.entries(agg).sort((a, b) => b[1].w - a[1].w).slice(0, 6);
     const show = shopSt.all ? rows : rows.slice(0, 25);
     const dstr = x => x ? dDE(x.slice(0, 10)) : "";
-    $("view").innerHTML = `<div class="row"><h1>Shop-Check</h1></div>
+    $("view").innerHTML = `${shopBar("shopcheck")}<div class="row"><h1>Shop-Check</h1></div>
       <p class="note">Die App prüft deine Angebote auf das, was Käufer und Suchmaschinen sehen: Titel, Tags, Beschreibung, Fotos, SEO. Gewichtet wird nach Verkäufen und deiner Marge, oben steht also das, was sich am meisten lohnt. Das sind Regeln und Erfahrungswerte, keine echten Suchvolumen wie bei eRank.</p>
       <section class="box"><h2>Daten</h2>
         <div class="anagrid">
@@ -3985,7 +3983,7 @@ Antworte NUR mit JSON in dieser Form:
   }
   function renderIdeas() {
     const mk = monthKey(new Date()), cur = (S.ideas || {})[mk] || [], past = Object.entries(S.ideas || {}).filter(([k]) => k !== mk).sort().reverse();
-    $("view").innerHTML = `<div class="row"><h1>Ideen</h1></div>
+    $("view").innerHTML = `${shopBar("ideen")}<div class="row"><h1>Produktideen</h1></div>
       <p class="note">Dein Ziel: 2 neue Produkte pro Monat. Die Vorschläge kommen von Claude, aus deinen echten Verkaufszahlen, deinen Rohlingen, deinen Kleinteilen und den Anlässen der nächsten Monate. Die Marge rechnet die App mit deinen echten Kosten aus.</p>
       ${ideaState.busy ? `<section class="box empty"><p>${esc(ideaState.busy)}</p></section>` : ""}
       ${ideaState.msg ? `<p class="note"><strong>${esc(ideaState.msg)}</strong></p>` : ""}
@@ -4025,6 +4023,8 @@ Antworte NUR mit JSON in dieser Form:
   const todoNext = t => { const b = t.due || todayISO(); return t.rep === "w" ? addDays(b, 7) : t.rep === "m" ? addMonths(b, 1) : addMonths(b, 12); };
   const TODOS = () => (S.todos = S.todos || []);
   let todoSug = [], todoDoneOpen = false;
+  const subBar = (items, active) => `<div class="seg" style="margin-bottom:10px">${items.map(([h, l]) => `<a class="btn ${active === h ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div>`;
+  const setBar = a => subBar([["einstellungen", "Einstellungen"], ["import", "Import"]], a), shopBar = a => subBar([["shopcheck", "Shop-Check"], ["ideen", "Produktideen"]], a);
   const privBar = active => `<div class="seg privbar" aria-label="Privat" style="margin-bottom:10px"><span class="label" style="align-self:center;margin-right:4px;color:var(--walnut)">Privat</span>
       <a class="btn ${active === "finanzen" ? "primary" : ""}" href="#finanzen">Finanzen</a><a class="btn ${active === "todo" ? "primary" : ""}" href="#todo">To-do${todoOpenCount() ? ` <span class="navbadge" style="margin-left:2px">${todoOpenCount()}</span>` : ""}</a><a class="btn ${active === "tag" ? "primary" : ""}" href="#tag">Tagesplan</a></div>`;
   const todoOpenCount = () => TODOS().filter(t => !t.done && t.due && t.due <= todayISO()).length;
