@@ -433,7 +433,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 133 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 134 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -3532,7 +3532,14 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     L.push(`Pro Monat kommen privat ca. ${b(eur0(inc))} rein (Entnahme aus dem Shop plus weitere Einnahmen) und ca. ${b(eur0(out))} gehen raus${c.rateP > 0 ? `, dazu ${eur0(c.rateP)} Raten` : ""}. Es ${c.surplusP >= 0 ? `bleiben ${b(eur0(c.surplusP))}` : `fehlen ${b(eur0(-c.surplusP))}`} pro Monat auf dem Privatkonto.`);
     if (c.next) L.push(`Als Nächstes musst du zahlen: ${b(esc(c.next.n))} (${c.next.est ? "ca. " : ""}${b(eur0(c.next.ea))}), fällig am ${dDE(c.next.due)}.`);
     const lastNeg = c.proj.reduce((i, x, k) => x.bal < 0 ? k : i, -1), worst = c.proj.reduce((w, x) => Math.min(x.balG, x.balP) < Math.min(w.balG, w.balP) ? x : w, c.proj[0]);
-    if (Math.min(worst.balG, worst.balP) < 0) L.push(`Am knappsten wird es im ${b(monthName(worst.d))}: Privatkonto ${eur0(worst.balP)}, Geschäftskonto ${eur0(worst.balG)}.${lastNeg >= 0 && lastNeg < c.proj.length - 1 ? ` Zusammen genommen bist du ab ${b(monthName(c.proj[lastNeg + 1].d))} wieder im Plus.` : lastNeg === c.proj.length - 1 ? " In den nächsten 12 Monaten wirst du zusammen nicht mehr ins Plus kommen." : ""}`);
+    if (Math.min(worst.balG, worst.balP) < 0) {
+      const acc = (k, nm) => { const f = c.proj.findIndex(x => x[k] < 0); if (f < 0) return ""; const low = c.proj.reduce((w, x) => x[k] < w[k] ? x : w, c.proj[f]); return `${nm} rutscht ab ${b(monthName(c.proj[f].d))} ins Minus, am tiefsten im ${monthName(low.d)} mit ${b(eur0(low[k]))}. `; };
+      const tot = c.proj.reduce((w, x) => x.bal < w.bal ? x : w, c.proj[0]);
+      let t = acc("balG", "Das Geschäftskonto") + acc("balP", "Das Privatkonto");
+      if (tot.bal < 0) t += `Auch alles zusammen reicht nicht: im ${monthName(tot.d)} fehlen insgesamt ${b(eur0(-tot.bal))}. Dafür brauchst du mehr Einnahmen oder weniger Ausgaben.`;
+      else t += `Zusammen reicht das Geld aber (tiefster Stand ${b(eur0(tot.bal))} im ${monthName(tot.d)}). Du musst also Geld zwischen den Konten verschieben, zum Beispiel weniger aufs Privatkonto entnehmen.`;
+      L.push(t.trim());
+    }
     else L.push("In den nächsten 12 Monaten rutscht keines deiner Konten ins Minus.");
     const nk = nowYM();
     (F.income || []).filter(r => r.inc !== false && v(r.a) > 0 && r.from && ymKey(r.from) > nk).forEach(r => L.push(`Ab ${b(ymName(r.from))} kommen ${b(eur0(v(r.a)))} pro Monat dazu (${esc(r.n || "Einnahme")}).`));
