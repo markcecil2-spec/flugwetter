@@ -418,6 +418,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
       <a href="#import" data-tab="import">Import</a>
+      <a href="#shopcheck" data-tab="shopcheck">Shop-Check</a>
       <span class="navsep" aria-hidden="true"></span>
       <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion">Produktion</a>
@@ -433,7 +434,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 134 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 135 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -550,6 +551,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     async saveOrder() { LS.set("hlz-app-orders", ORD); },
     async deleteOrder() { LS.set("hlz-app-orders", ORD); },
     async loadBank() { return Object.values(LS.get("hlz-app-bank") || {}); },
+    async loadShop() { return Object.values(LS.get("hlz-app-shop") || {}); },
+    async saveShop(d) { const all = LS.get("hlz-app-shop") || {}; all[d.id] = d; LS.set("hlz-app-shop", all); },
     async saveBank(d) { const all = LS.get("hlz-app-bank") || {}; all[d.id] = d; LS.set("hlz-app-bank", all); },
     async deleteBank(id) { const all = LS.get("hlz-app-bank") || {}; delete all[id]; LS.set("hlz-app-bank", all); },
     async saveMsg() { LS.set("hlz-app-support", SUP); },
@@ -578,6 +581,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     deleteOrder: id => db.collection("orders").doc(id).delete(),
     async loadBank() { const q = await db.collection("bank").get(); return q.docs.map(d => clone(d.data())); },
     saveBank: d => db.collection("bank").doc(d.id).set(clone(d)),
+    async loadShop() { const q = await db.collection("shop").get(); return q.docs.map(d => clone(d.data())); },
+    saveShop: d => db.collection("shop").doc(d.id).set(clone(d)),
     deleteBank: id => db.collection("bank").doc(id).delete(),
     saveMsg: m => db.collection("support").doc(m.id).set(clone(m)),
     deleteMsg: id => db.collection("support").doc(id).delete()
@@ -892,7 +897,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "todo", "tag"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "todo", "tag", "shopcheck"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "finanzen" || view === "todo" || view === "tag" ? "privat" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -922,6 +927,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "auswertung") renderAnalysis();
     else if (view === "finanzen") finDraw();
     else if (view === "ideen") renderIdeas();
+    else if (view === "shopcheck") renderShop();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
     else renderOverview();
@@ -3741,6 +3747,209 @@ Antworte NUR mit JSON in dieser Form:
     const price = isFinite(np) ? Math.max(i.preis, np) : i.preis, rp = price === i.preis ? r : calc(a, "etsy", price, ctx);
     return { a, r, rp, price, np, dmax: maxDisc({ ...a, price: String(price) }, "etsy", ctx, tp) };
   }
+  // ---------- Shop-Check: Etsy (CSV) und Shopify (live) prüfen ----------
+  let SHOP = null, shopLoading = false;
+  const shopSt = { tab: "etsy", busy: "", msg: "", all: false, ai: {}, aiBusy: "" };
+  async function shopLoad() {
+    if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
+    try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
+    shopLoading = false; if (view === "shopcheck") renderShop();
+  }
+  const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
+  const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
+  const shortT = (s, n = 70) => s.length > n ? s.slice(0, n - 1) + "…" : s;
+  // Etsy: Spalten der Angebots-CSV finden (deutsch und englisch)
+  function etsyParseListings(text) {
+    const rows = parseCSV(text); if (rows.length < 2) throw new Error("Die Datei ist leer.");
+    const hdr = rows[0].map(h => h.trim().toLowerCase()), ix = (...k) => { for (const x of k) { const i = hdr.indexOf(x); if (i >= 0) return i; } return -1; };
+    const iT = ix("title", "titel"), iD = ix("description", "beschreibung"), iP = ix("price", "preis"), iQ = ix("quantity", "stückzahl", "anzahl"), iTg = ix("tags"), iM = ix("materials", "materialien"), iS = ix("sku");
+    if (iT < 0 || iTg < 0) throw new Error("Das sieht nicht nach der Etsy-Angebotsliste aus (Spalten Titel und Tags fehlen).");
+    const imgs = hdr.map((h, i) => /^(image|bild)\s*\d+/.test(h) ? i : -1).filter(i => i >= 0);
+    return rows.slice(1).filter(r => (r[iT] || "").trim()).map(r => ({
+      t: r[iT].trim(), dl: (iD >= 0 ? r[iD] : "").length, d: (iD >= 0 ? r[iD] : "").replace(/\s+/g, " ").slice(0, 400), price: iP >= 0 ? money(r[iP]) : NaN, qty: iQ >= 0 ? v(r[iQ]) : 0,
+      tags: (r[iTg] || "").split(",").map(x => x.trim()).filter(Boolean), mats: iM >= 0 ? (r[iM] || "").split(",").map(x => x.trim()).filter(Boolean) : [], img: imgs.filter(i => (r[i] || "").trim()).length, sku: iS >= 0 ? (r[iS] || "").trim() : ""
+    }));
+  }
+  function etsyParseSales(text) {
+    const rows = parseCSV(text), hdr = rows[0].map(h => h.trim().toLowerCase()), ix = (...k) => { for (const x of k) { const i = hdr.indexOf(x); if (i >= 0) return i; } return -1; };
+    const iN = ix("item name", "artikelname", "artikelbezeichnung"), iQ = ix("quantity", "menge", "anzahl"), iP = ix("price", "preis", "item total", "sold for"), iDt = ix("sale date", "verkaufsdatum", "datum");
+    if (iN < 0 || iQ < 0) throw new Error("Das sieht nicht nach „Bestellte Artikel“ aus (Spalten Artikelname und Menge fehlen).");
+    const items = {}; let from = "", to = "";
+    rows.slice(1).forEach(r => {
+      const n = (r[iN] || "").trim(); if (!n) return; const k = normTitle(n).slice(0, 60), it = items[k] = items[k] || { name: n, qty: 0, rev: 0 };
+      it.qty += v(r[iQ]) || 1; const p = iP >= 0 ? money(r[iP]) : NaN; if (isFinite(p)) it.rev += p * (iP === ix("price", "preis") ? (v(r[iQ]) || 1) : 1);
+      const d = iDt >= 0 ? pdate(r[iDt]) : null; if (d) { const s = isoD(d); if (!from || s < from) from = s; if (!to || s > to) to = s; }
+    });
+    return { items, from, to, n: rows.length - 1 };
+  }
+  async function shopFiles(files) {
+    await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
+    const msg = [];
+    for (const f of files) {
+      try {
+        const text = bankDecode(await f.arrayBuffer()), hdr = (parseCSV(text)[0] || []).map(h => h.trim().toLowerCase());
+        if (hdr.includes("tags") && (hdr.includes("title") || hdr.includes("titel"))) { const l = etsyParseListings(text); shopSave({ id: "etsy", at: isoD(new Date()), listings: l }); msg.push(`${f.name}: ${l.length} Etsy-Angebote geladen.`); shopSt.tab = "etsy"; }
+        else if (hdr.includes("item name") || hdr.includes("artikelname") || hdr.includes("artikelbezeichnung")) { const s = etsyParseSales(text); shopSave({ id: "sales", at: isoD(new Date()), items: s.items, from: s.from, to: s.to }); msg.push(`${f.name}: ${Object.keys(s.items).length} verkaufte Artikel (${s.n} Zeilen) geladen.`); }
+        else msg.push(`${f.name}: Datei nicht erkannt. Gebraucht werden „Artikel im Verkauf“ (Angebote) oder „Bestellte Artikel“.`);
+      } catch (e) { msg.push(`${f.name}: ${e.message || "Fehler beim Lesen."}`); }
+    }
+    shopSt.msg = msg.join(" "); renderShop();
+  }
+  // --- Bewertung ---
+  const SHOP_ISSUES = {};
+  function mkIssue(list, code, w, txt, tip) { list.push({ code, w, txt, tip }); SHOP_ISSUES[code] = tip; }
+  function etsyAudit(l) {
+    const I = [], tl = l.t.length;
+    if (tl < 70) mkIssue(I, "title-short", 14, `Titel nur ${tl} von 140 Zeichen`, "Titel auf 100–140 Zeichen ausbauen: Produktart, Material (Eiche), Maß, Anlass und Einsatzort einbauen. Etsy sucht in jedem Wort.");
+    else if (tl < 100) mkIssue(I, "title-short", 6, `Titel nur ${tl} von 140 Zeichen`, "Titel auf 100–140 Zeichen ausbauen: Produktart, Material (Eiche), Maß, Anlass und Einsatzort einbauen. Etsy sucht in jedem Wort.");
+    const cnt = {}; words(l.t).forEach(w => cnt[w] = (cnt[w] || 0) + 1); const rep = Object.entries(cnt).filter(([, n]) => n >= 3);
+    if (rep.length) mkIssue(I, "title-rep", 5, `Wort „${rep[0][0]}“ ${rep[0][1]}× im Titel`, "Wörter im Titel nicht wiederholen, jedes Wort sollte einen neuen Suchbegriff bringen.");
+    if (l.t.length > 12 && l.t === l.t.toUpperCase()) mkIssue(I, "title-caps", 4, "Titel nur in Großbuchstaben", "Normale Schreibweise nutzen, wirkt hochwertiger.");
+    const n = l.tags.length;
+    if (n < 13) mkIssue(I, "tags-few", Math.min(18, (13 - n) * 2), `${n} von 13 Tags`, "Alle 13 Tag-Plätze nutzen. Jeder freie Platz ist verschenkte Sichtbarkeit.");
+    if (l.tags.some(t => t.length > 20)) mkIssue(I, "tags-long", 3, "Tag über 20 Zeichen", "Tags dürfen maximal 20 Zeichen haben, längere zählen nicht richtig.");
+    if (new Set(l.tags.map(t => t.toLowerCase())).size < n) mkIssue(I, "tags-dup", 3, "doppelte Tags", "Jeden Tag nur einmal verwenden und stattdessen neue Begriffe einsetzen.");
+    if (n >= 5 && l.tags.filter(t => t.includes(" ")).length < n / 2) mkIssue(I, "tags-single", 4, "fast nur Ein-Wort-Tags", "Mehrwort-Tags wie „Garderobe Eiche massiv“ treffen echte Suchanfragen besser als einzelne Wörter.");
+    if (l.dl < 300) mkIssue(I, "desc-short", 10, `Beschreibung nur ${l.dl} Zeichen`, "Beschreibung auf mindestens 500 Zeichen ausbauen: Maße, Material, Montage, Pflege, Lieferumfang, Versand.");
+    else if (l.dl < 600) mkIssue(I, "desc-short", 4, `Beschreibung nur ${l.dl} Zeichen`, "Beschreibung auf mindestens 500 Zeichen ausbauen: Maße, Material, Montage, Pflege, Lieferumfang, Versand.");
+    if (l.dl >= 300 && !/\d\s?(cm|mm)/i.test(l.d + (l.dl > 400 ? " cm" : ""))) { /* Maße prüfen wir nur im sichtbaren Textanfang, daher kein Alarm */ }
+    if (!l.mats.length) mkIssue(I, "mats", 3, "Materialien leer", "Materialien eintragen (z. B. Eichenholz, Buche), Etsy nutzt sie für Filter.");
+    if (l.img < 5) mkIssue(I, "img-few", 12, `nur ${l.img} Fotos`, "Mindestens 8–10 Fotos: Frontansicht, Maße mit Maßband, Detail, Montage, Anwendung im Raum, Verpackung.");
+    else if (l.img < 8) mkIssue(I, "img-few", 5, `nur ${l.img} Fotos`, "Mindestens 8–10 Fotos: Frontansicht, Maße mit Maßband, Detail, Montage, Anwendung im Raum, Verpackung.");
+    return I;
+  }
+  function shopifyAudit(p) {
+    const I = [], st = p.st, sl = (p.seoT || "").length, dl = (p.seoD || "").length;
+    if (!sl) mkIssue(I, "s-seot", 8, "SEO-Titel fehlt", "Eigenen SEO-Titel mit dem wichtigsten Suchbegriff am Anfang eintragen (50–60 Zeichen), sonst nimmt Google nur den Produktnamen.");
+    else if (sl > 65) mkIssue(I, "s-seot", 4, `SEO-Titel ${sl} Zeichen (zu lang)`, "SEO-Titel auf maximal 60 Zeichen kürzen, sonst schneidet Google ihn ab.");
+    if (!dl) mkIssue(I, "s-seod", 10, "Meta-Beschreibung fehlt", "Meta-Beschreibung (120–155 Zeichen) schreiben: Was ist es, Material, Nutzen, Aufruf zum Klicken.");
+    else if (dl < 90) mkIssue(I, "s-seod", 4, `Meta-Beschreibung nur ${dl} Zeichen`, "Meta-Beschreibung (120–155 Zeichen) schreiben: Was ist es, Material, Nutzen, Aufruf zum Klicken.");
+    if (p.dl < 300) mkIssue(I, "s-desc", 10, `Beschreibung nur ${p.dl} Zeichen`, "Beschreibung auf mindestens 300 Zeichen ausbauen: Maße, Material, Montage, Pflege, Versand. Das hilft Google und Käufern.");
+    if (p.img < 4) mkIssue(I, "s-img", 10, `nur ${p.img} Bilder`, "Mindestens 5–8 Bilder zeigen, inklusive Maßbild und Anwendung im Raum.");
+    if (p.noAlt > 0) mkIssue(I, "s-alt", 6, `${p.noAlt} Bilder ohne Alt-Text`, "Alt-Texte ergänzen („Garderobe aus Eiche, 80 cm, mit 5 Haken“), gut für Google-Bildersuche und Barrierefreiheit.");
+    if (p.tags < 3) mkIssue(I, "s-tags", 3, `${p.tags} Tags`, "Ein paar Tags oder Kollektionen vergeben, damit die Produkte auffindbar und filterbar sind.");
+    if (st !== "ACTIVE") mkIssue(I, "s-draft", 0, `Status ${st}`, "Nicht aktiv, deshalb nicht im Shop sichtbar.");
+    return I;
+  }
+  const scoreOf = I => Math.max(0, 100 - I.reduce((s, x) => s + x.w, 0));
+  const amp = s => s >= 80 ? ["good", "Gut"] : s >= 60 ? ["warn", "Okay"] : ["bad", "Schwach"];
+  function shopMatchArt(title, sku) {
+    const ns = norm(sku); if (ns) { const a = A.find(x => norm(x.sku) === ns); if (a) return a; }
+    const tw = new Set(words(title)); let best = null, bs = 0;
+    A.forEach(a => { const aw = [...new Set(words(String(a.name).split(" · ")[0]))]; if (aw.length < 2) return; const hit = aw.filter(w => tw.has(w)).length / aw.length; if (hit >= 0.8 && aw.length > bs) { best = a; bs = aw.length; } });
+    return best;
+  }
+  function shopRows() {
+    const ctx = volume(), out = [];
+    if (shopSt.tab === "etsy") {
+      const L = SHOP.etsy ? SHOP.etsy.listings : [], S2 = SHOP.sales ? SHOP.sales.items : null, keys = S2 ? Object.keys(S2) : [];
+      L.forEach((l, i) => {
+        const I = etsyAudit(l), nk = normTitle(l.t).slice(0, 60); let q = null;
+        if (S2) { const it = S2[nk] || S2[keys.find(k => k.startsWith(nk.slice(0, 30)) || nk.startsWith(k.slice(0, 30))) || ""]; q = it ? it.qty : 0; }
+        const a = shopMatchArt(l.t, l.sku); let m = null; if (a && v(a.price) > 0) { try { m = calc(a, "etsy", undefined, ctx).margin; } catch (e) {} }
+        if (S2 && q === 0) mkIssue(I, "nosale", 0, "kein Verkauf im Zeitraum", "Ladenhüter: Titel und Hauptfoto überarbeiten, oder prüfen ob der Preis oder das Produkt überhaupt passt.");
+        out.push({ key: "e" + i, name: l.t, l, I, score: scoreOf(I), q, m, a });
+      });
+    } else {
+      const P = SHOP.shopify ? SHOP.shopify.products : [], sq = SHOP.shopify && SHOP.shopify.sales;
+      P.forEach((p, i) => { const I = shopifyAudit(p), q = sq ? sq[p.id] || 0 : null; if (q === 0 && p.st === "ACTIVE") mkIssue(I, "nosale", 0, "kein Verkauf in 12 Monaten", "Ladenhüter: Titel, Hauptbild und Preis überarbeiten oder aus dem Sortiment nehmen."); const a = shopMatchArt(p.title, p.sku); let m = null; if (a && v(a.price) > 0) { try { m = calc(a, "shopify", undefined, ctx).margin; } catch (e) {} } out.push({ key: "s" + i, name: p.title, p, I, score: scoreOf(I), q, m, a }); });
+    }
+    const pr = r => (100 - r.score) * (1 + Math.min(r.q || 0, 25) / 5) * (r.m !== null && r.m >= v(S.target) ? 1.2 : 1);
+    return out.sort((x, y) => pr(y) - pr(x));
+  }
+  // --- Shopify holen ---
+  async function shopifyCheck() {
+    await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
+    shopSt.busy = "Hole deine Produkte aus Shopify …"; shopSt.msg = ""; shopSt.tab = "shopify"; renderShop();
+    try {
+      const prods = []; let after = null;
+      for (let page = 0; page < 30; page++) {
+        const d = await shopify("graphql_query", { query: "query($after:String){ products(first:40, after:$after){ pageInfo{ hasNextPage endCursor } nodes{ id title handle status tags totalInventory descriptionHtml seo{ title description } media(first:20){ nodes{ ... on MediaImage{ alt } } } variants(first:1){ nodes{ sku } } } } }", after });
+        const pp = d.products; if (!pp) throw { code: "tool_error", message: "Unerwartete Antwort" };
+        pp.nodes.forEach(n => { const im = (n.media && n.media.nodes || []).filter(x => x && "alt" in x); prods.push({ id: n.id, title: n.title, handle: n.handle, st: n.status, tags: (n.tags || []).length, seoT: n.seo && n.seo.title || "", seoD: n.seo && n.seo.description || "", dl: String(n.descriptionHtml || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().length, img: im.length, noAlt: im.filter(x => !(x.alt || "").trim()).length, inv: n.totalInventory, sku: n.variants && n.variants.nodes[0] && n.variants.nodes[0].sku || "" }); });
+        shopSt.busy = `Hole deine Produkte aus Shopify … ${prods.length}`; renderShop();
+        if (!pp.pageInfo.hasNextPage) break; after = pp.pageInfo.endCursor;
+      }
+      let sales = null, note = "";
+      try {
+        shopSt.busy = "Hole die Verkäufe der letzten 12 Monate …"; renderShop();
+        sales = {}; let aft = null; const since = isoD(new Date(Date.now() - 365 * 864e5));
+        for (let page = 0; page < 25; page++) {
+          const d = await shopify("graphql_query", { query: "query($after:String,$q:String){ orders(first:100, after:$after, query:$q){ pageInfo{ hasNextPage endCursor } nodes{ lineItems(first:40){ nodes{ quantity product{ id } } } } } }", after: aft, q: "created_at:>=" + since });
+          const oo = d.orders; if (!oo) throw 0;
+          oo.nodes.forEach(o => o.lineItems.nodes.forEach(li => { if (li.product) sales[li.product.id] = (sales[li.product.id] || 0) + (li.quantity || 0); }));
+          if (!oo.pageInfo.hasNextPage) break; aft = oo.pageInfo.endCursor;
+        }
+      } catch (e) { sales = null; note = " Verkäufe konnten nicht gelesen werden, die Prüfung läuft ohne sie."; }
+      shopSave({ id: "shopify", at: new Date().toISOString(), products: prods, sales });
+      shopSt.msg = `${prods.length} Shopify-Produkte geprüft.` + note;
+    } catch (e) { shopSt.msg = syncErr(e); }
+    shopSt.busy = ""; renderShop();
+  }
+  // --- Claude-Vorschlag ---
+  async function shopAi(key) {
+    const r = shopRows().find(x => x.key === key); if (!r) return; const sample = await getSample();
+    if (!sample) { shopSt.ai[key] = { err: "Claude ist hier nicht verfügbar." }; return renderShop(); }
+    shopSt.aiBusy = key; renderShop();
+    const cur = r.l ? `Titel: ${r.l.t}\nTags: ${r.l.tags.join(", ")}\nMaterialien: ${r.l.mats.join(", ")}\nBeschreibungsanfang: ${r.l.d}` : `Titel: ${r.p.title}\nSEO-Titel: ${r.p.seoT}\nMeta-Beschreibung: ${r.p.seoD}`;
+    const prompt = `Du bist Etsy- und Shopify-SEO-Experte für einen deutschen Shop für Holzprodukte aus Eiche und Buche (Garderoben, Schlüsselbretter, Regale, Handtuchhalter, Deko). Die Produkte werden per Laser graviert und hier in Deutschland gefertigt. Verbessere dieses Angebot.\n\n${cur}\n\nGib NUR JSON zurück: {"titel": "neuer Etsy-Titel, 110-140 Zeichen, wichtigster Suchbegriff vorne, keine Wiederholungen", "tags": ["genau 13 Tags, je max. 20 Zeichen, bevorzugt Mehrwort-Begriffe, auf Deutsch"], "seoTitel": "max. 60 Zeichen", "meta": "Meta-Beschreibung 130-155 Zeichen", "beschreibung": "2-3 Sätze, die du als Einstieg in die Beschreibung setzen kannst"}. Erfinde keine Maße oder Eigenschaften, die nicht aus den Angaben hervorgehen.`;
+    try {
+      let o = await sample.json(prompt, { modelTier: "default" }); if (typeof o === "string") o = JSON.parse(o.slice(o.indexOf("{"), o.lastIndexOf("}") + 1));
+      const tags = [...new Set((o.tags || []).map(t => String(t).trim()).filter(t => t && t.length <= 20))].slice(0, 13);
+      shopSt.ai[key] = { titel: String(o.titel || "").slice(0, 140), tags, seoT: String(o.seoTitel || "").slice(0, 70), meta: String(o.meta || "").slice(0, 170), besch: String(o.beschreibung || "") };
+    } catch (e) { shopSt.ai[key] = { err: supErr(e) }; }
+    shopSt.aiBusy = ""; renderShop();
+  }
+  const copyIn = (label, val) => val ? `<div class="field"><label>${label}</label><div class="inp"><input type="text" readonly value="${esc(val)}" onclick="this.select()"></div></div>` : "";
+  function renderShop() {
+    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Shop-Check</h1><p class="note">Lade …</p>`; return; }
+    const E = SHOP.etsy, SA = SHOP.sales, SF = SHOP.shopify, tab = shopSt.tab, has = tab === "etsy" ? !!E : !!SF;
+    const rows = has ? shopRows() : [], avg = rows.length ? Math.round(rows.reduce((s, r) => s + r.score, 0) / rows.length) : 0;
+    const cnt = { good: 0, warn: 0, bad: 0 }; rows.forEach(r => cnt[amp(r.score)[0]]++);
+    const agg = {}; rows.forEach(r => r.I.forEach(i => { if (i.w > 0 || i.code === "nosale") (agg[i.code] = agg[i.code] || { n: 0, w: 0, tip: i.tip, txt: i.txt }).n++, agg[i.code].w += i.w; }));
+    const top = Object.entries(agg).sort((a, b) => b[1].w - a[1].w).slice(0, 6);
+    const show = shopSt.all ? rows : rows.slice(0, 25);
+    const dstr = x => x ? dDE(x.slice(0, 10)) : "";
+    $("view").innerHTML = `<div class="row"><h1>Shop-Check</h1></div>
+      <p class="note">Die App prüft deine Angebote auf das, was Käufer und Suchmaschinen sehen: Titel, Tags, Beschreibung, Fotos, SEO. Gewichtet wird nach Verkäufen und deiner Marge, oben steht also das, was sich am meisten lohnt. Das sind Regeln und Erfahrungswerte, keine echten Suchvolumen wie bei eRank.</p>
+      <section class="box"><h2>Daten</h2>
+        <div class="anagrid">
+          <div class="field"><label>Etsy: CSV-Dateien hochladen</label><input type="file" id="shopFile" accept=".csv,text/csv,.txt" multiple>
+            <small>In Etsy unter Einstellungen → Optionen → Daten herunterladen: „Artikel im Verkauf“ (CSV) und „Bestellte Artikel“ (Art der CSV-Datei, ganzes Jahr). Beide hier hochladen, die App erkennt sie selbst.</small>
+            <small>${E ? `Angebote: <strong>${E.listings.length}</strong> (Stand ${dstr(E.at)})` : "Angebote: noch nichts geladen"}<br>${SA ? `Verkäufe: <strong>${Object.keys(SA.items).length}</strong> Artikel${SA.from ? `, ${dstr(SA.from)} bis ${dstr(SA.to)}` : ""}` : "Verkäufe: noch nichts geladen (optional, aber sehr hilfreich)"}</small></div>
+          <div class="field"><label>Shopify: live aus deinem Shop</label><div class="btns"><button class="btn primary" data-shop="check" ${shopSt.busy ? "disabled" : ""}>Jetzt prüfen</button></div>
+            <small>Holt Produkte, SEO-Felder, Bilder und die Verkäufe der letzten 12 Monate direkt aus Shopify.</small>
+            <small>${SF ? `Zuletzt geprüft: <strong>${new Date(SF.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}</strong> (${SF.products.length} Produkte)` : "Noch nicht geprüft."}</small></div>
+        </div>
+        ${shopSt.busy ? `<p class="note"><strong>${esc(shopSt.busy)}</strong></p>` : ""}${shopSt.msg ? `<p class="note"><strong>${esc(shopSt.msg)}</strong></p>` : ""}
+      </section>
+      <div class="btns"><button class="btn${tab === "etsy" ? " primary" : ""}" data-shop="tab-etsy">Etsy</button><button class="btn${tab === "shopify" ? " primary" : ""}" data-shop="tab-shopify">Shopify</button></div>
+      ${!has ? `<section class="box empty"><p>${tab === "etsy" ? "Lade oben die Etsy-CSV „Artikel im Verkauf“ hoch, dann steht hier die Auswertung." : "Klick oben auf „Jetzt prüfen“."}</p></section>` : `
+      <div class="tiles t3" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+        <div class="tile hero"><span class="label">Gesamtnote</span><span class="num" style="color:var(--${amp(avg)[0]})">${avg} / 100</span><span class="note">Durchschnitt über ${rows.length} Angebote</span></div>
+        <div class="tile"><span class="label">Gut (ab 80)</span><span class="num" style="color:var(--good)">${cnt.good}</span></div>
+        <div class="tile"><span class="label">Okay (60–79)</span><span class="num" style="color:var(--warn)">${cnt.warn}</span></div>
+        <div class="tile"><span class="label">Schwach (unter 60)</span><span class="num" style="color:var(--bad)">${cnt.bad}</span></div>
+      </div>
+      <section class="box"><h2>Das solltest du zuerst tun</h2>
+        ${top.length ? `<ol style="margin:0;padding-left:20px;display:grid;gap:8px">${top.map(([c, x]) => `<li><strong>${x.n} ${x.n === 1 ? "Angebot" : "Angebote"}:</strong> ${esc(x.tip)}</li>`).join("")}</ol>` : `<p class="note">Nichts Auffälliges gefunden.</p>`}
+      </section>
+      <section class="box"><h2>Alle Angebote, wichtigste zuerst</h2>
+        <p class="note">Sortiert nach: wie viel fehlt, mal wie viel das Angebot verkauft, und ob die Marge stimmt.</p>
+        ${anaTable(["", "Angebot", "Note", "Verkäufe", "Marge", "Was fehlt"], show.map(r => { const [cl, lb] = amp(r.score), ai = shopSt.ai[r.key];
+          return [`<span class="pill ${cl}">${lb}</span>`, `<strong>${esc(shortT(r.name, 80))}</strong>${r.a ? `<br><span class="note num">${esc(r.a.sku || r.a.name)}</span>` : ""}`, `<strong>${r.score}</strong>`, r.q === null ? "–" : r.q, r.m === null ? "–" : pct(r.m),
+            `${r.I.filter(i => i.w > 0 || i.code === "nosale").map(i => esc(i.txt)).join(" · ") || "alles ok"}<br><button class="btn" data-shop="ai:${r.key}" ${shopSt.aiBusy ? "disabled" : ""}>${shopSt.aiBusy === r.key ? "Claude denkt …" : "Vorschlag von Claude"}</button>${ai ? (ai.err ? `<p class="note"><strong>${esc(ai.err)}</strong></p>` : `<div style="display:grid;gap:6px;margin-top:8px;min-width:280px">${copyIn("Neuer Titel (" + ai.titel.length + " Zeichen)", ai.titel)}${copyIn("Neue Tags (" + ai.tags.length + ")", ai.tags.join(", "))}${r.p ? copyIn("SEO-Titel", ai.seoT) + copyIn("Meta-Beschreibung", ai.meta) : ""}${copyIn("Einstieg Beschreibung", ai.besch)}</div>`) : ""}`];
+        }), [2, 3, 4])}
+        ${rows.length > 25 ? `<div class="btns"><button class="btn" data-shop="all">${shopSt.all ? "Nur die ersten 25" : "Alle " + rows.length + " anzeigen"}</button></div>` : ""}
+      </section>`}`;
+  }
+  document.addEventListener("change", e => { if (e.target && e.target.id === "shopFile" && e.target.files && e.target.files.length) { const fs = [...e.target.files]; e.target.value = ""; shopFiles(fs); } });
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-shop]"); if (!b || view !== "shopcheck") return; const k = b.dataset.shop;
+    if (k === "check") return shopifyCheck(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
+    if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
+    if (k.startsWith("ai:")) return shopAi(k.slice(3));
+  });
   async function ideaGenerate(n, replaceId) {
     const mk = monthKey(new Date()); ideaState.busy = "Claude schlägt Produkte vor …"; ideaState.msg = ""; renderIdeas();
     let list = [], src = "claude"; const sample = await getSample();
