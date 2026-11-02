@@ -423,7 +423,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 129 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 130 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -638,17 +638,20 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     return imp > 0 ? { vol: imp, src: "import" } : { vol: v(S.qtyManual), src: "manual" };
   }
   // Versandgewicht in g: eigene Eingabe, sonst berechnet aus Holz, Kleinteilen, Karton und Papier
+  // Gewichtsbausteine eines Artikels in g: Holz je Teil, Kleinteile, eigene Teile, Karton, Papier
+  function weightParts(a) {
+    const dens = v(S.woodDensity || 0.75);
+    const per = (a.parts || []).map(p => { const t = v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2; return v(p.l) * v(p.b) * t * v(p.q) * dens; });
+    const wood = per.reduce((n, x) => n + x, 0);
+    const smallItems = (S.small || []).map(x => [x.n, v(x.g) * v((a.small || {})[x.n]), v((a.small || {})[x.n]), v(x.g)]).filter(x => x[1] > 0);
+    const extra = (a.extra || []).reduce((n, x) => n + v(x.g) * v(x.q), 0), small = smallItems.reduce((n, x) => n + x[1], 0) + extra;
+    const box = v(((S.boxes || []).find(b => b.n === a.box) || {}).g), paper = v(S.paperG);
+    return { per, wood, smallItems, extra, small, box, paper, total: wood + small + box + paper };
+  }
   function autoWeight(a) {
     if (a.fremd) return 0;
-    let wood = 0;
-    (a.parts || []).forEach(p => {
-      const t = v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2;
-      wood += v(p.l) * v(p.b) * t * v(p.q);
-    });
-    if (!(wood > 0)) return 0;
-    const parts = (S.small || []).reduce((s, x) => s + v(x.g) * v((a.small || {})[x.n]), 0) + (a.extra || []).reduce((s, x) => s + v(x.g) * v(x.q), 0);
-    const box = v(((S.boxes || []).find(b => b.n === a.box) || {}).g);
-    return Math.round(wood * v(S.woodDensity || 0.75) + parts + box + v(S.paperG));
+    const w = weightParts(a);
+    return w.wood > 0 ? Math.round(w.total) : 0;
   }
   const shipWeight = a => v(a.weight) > 0 ? v(a.weight) : autoWeight(a);
   function pickShip(a) {
@@ -1917,7 +1920,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         ${numIn(`data-ap="${i}" data-f="q" aria-label="Stück"`, r.q, "Stk")}
         <button type="button" class="x" data-del-part="${i}" aria-label="Teil entfernen">×</button></div>`).join("");
     const sm = a.small || {};
-    const smallFields = S.small.map((x, i) => `<div class="field"><label for="sm-${i}">${esc(x.n)} <span class="num">· ${eur(v(x.p))}</span></label>${numIn(`id="sm-${i}" data-as="${esc(x.n)}"`, sm[x.n] ?? "", "Stk")}</div>`).join("");
+    const smallFields = S.small.map((x, i) => `<div class="field"><label for="sm-${i}">${esc(x.n)} <span class="num">· ${eur(v(x.p))}${v(x.g) ? " · " + dec(v(x.g), 0) + " g" : ""}</span></label>${numIn(`id="sm-${i}" data-as="${esc(x.n)}"`, sm[x.n] ?? "", "Stk")}</div>`).join("");
     // Maschinen mit Pauschale (Min je Artikel oder % der Rohling-Zeit) laufen automatisch, Eingabe nur für die übrigen (z. B. CNC, Laser)
     const machFields = S.mach.map((x, i) => [x, i]).filter(([x]) => !machAutoOn(x) || v((a.mach || {})[x.n]) > 0).map(([x, i]) => `<div class="field"><label for="mm-${i}">${esc(x.n)} <span class="num">· ${eur(v(x.r))}/h</span></label>${numIn(`id="mm-${i}" data-am="${esc(x.n)}"`, (a.mach || {})[x.n] ?? "", "Min")}</div>`).join("");
     const sales = Object.entries(a.sales || {});
@@ -1959,7 +1962,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
               ${partsRows}
             </div>
             <button class="btn add" data-act="addPart">+ Teil</button>
-            <div class="sumline"><span id="woodInfo"></span><span>Holz <strong id="woodSum"></strong> · Öl <strong id="oilSum"></strong></span></div>
+            <div class="sumline"><span id="woodInfo"></span><span>Holz <strong id="woodSum"></strong> · Öl <strong id="oilSum"></strong> · wiegt <strong id="woodG"></strong></span></div>
+            <p class="note" id="woodPartsG" style="margin:0"></p>
           </section>
 
           <section class="box">
@@ -1967,7 +1971,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <div class="grid3 keep">${smallFields || '<p class="note">Noch keine Kleinteile angelegt.</p>'}</div>
             ${(a.extra || []).length ? `<div class="rows"><div class="rowhead c-extra"><span>Eigenes Teil, nur hier</span><span>€ / Stk netto</span><span>Gewicht</span><span>Menge</span><span></span></div>${a.extra.map((x, i) => `<div class="rowline c-extra"><div class="inp"><input type="text" data-ax="${i}" data-f="n" value="${esc(x.n)}" aria-label="Teil" placeholder="z. B. Messinghaken"></div>${numIn(`data-ax="${i}" data-f="p" aria-label="Preis pro Stück netto" placeholder="Preis"`, x.p, "€")}${numIn(`data-ax="${i}" data-f="g" aria-label="Gewicht pro Stück" placeholder="Gewicht"`, x.g, "g")}${numIn(`data-ax="${i}" data-f="q" aria-label="Stück" placeholder="Menge"`, x.q, "Stk")}<button type="button" class="x" data-del-extra="${i}" aria-label="Teil entfernen">×</button></div>`).join("")}</div>` : ""}
             <button type="button" class="btn add" data-act="addExtra">+ Eigenes Teil (nur für diesen Artikel)</button>
-            <div class="sumline"><a class="note" href="#einstellungen">Preise und Teile unter Einstellungen pflegen</a><span>pro Stück <strong id="smallSum"></strong></span></div>
+            <div class="sumline"><a class="note" href="#einstellungen">Preise und Teile unter Einstellungen pflegen</a><span>pro Stück <strong id="smallSum"></strong> · wiegt <strong id="smallG"></strong></span></div>
+            <p class="note" id="smallGNote" style="margin:0"></p>
             <p class="note" id="smallFlatNote"></p>
           </section>
 
@@ -1990,6 +1995,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             </div>
             <div class="shipinfo" id="boxTip" hidden></div>
             <div class="shipinfo" id="shipInfo"></div>
+            <div class="shipinfo" id="wBreak"></div>
             <div class="grid3 keep">
               <div class="field"><label for="a-pack">Verpackung</label>${numIn(`id="a-pack" data-a="pack"`, a.pack, "€")}<small>Schrenzpapier ca. 4,5 ct/m · 2,5 m ≈ 0,11 €</small></div>
               <div class="field"><label for="a-outer">Umverpackung</label>${numIn(`id="a-outer" data-a="outer"`, a.outer, "€")}<small>Karton, Klebeband, Etikett</small></div>
@@ -2033,6 +2039,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
           <div class="kpis">
             <div class="kpi"><span class="label">Netto-Umsatz</span><span class="num" id="kNet"></span></div>
             <div class="kpi"><span class="label">Gebühren</span><span class="num" id="kFees"></span></div>
+            <div class="kpi"><span class="label">Versandgewicht</span><span class="num" id="kWeight"></span></div>
             <div class="kpi"><span class="label">Mindestpreis</span><span class="num" id="kMin"></span></div>
             <div class="kpi"><span class="label">Preis für ${esc(S.target)} % Marge</span><span class="num" id="kTarget" style="color:var(--accent)"></span></div>
             <div class="kpi"><span class="label">Max. Rabatt (hält ${esc(S.target)} %)</span><span class="num" id="kDisc" style="color:var(--accent)"></span></div>
@@ -2073,7 +2080,9 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   function suggestBox(a) {
     const opts = packOptions(a);
     if (!opts.length) return null;
-    const fits = (S.boxes || []).filter(b => b.n).filter(b => {
+    // Kartons ohne Preis lassen sich nicht vergleichen und werden nicht vorgeschlagen (wenn es überhaupt Kartons mit Preis gibt)
+    const priced = (S.boxes || []).some(b => b.n && v(b.p) > 0);
+    const fits = (S.boxes || []).filter(b => b.n && (!priced || v(b.p) > 0)).filter(b => {
       const inner = [v(b.l), v(b.b), v(b.h)].sort((x, y) => y - x).map(x => x - 1);
       return opts.some(need => need.every((n, i) => n <= inner[i]));
     });
@@ -2120,6 +2129,16 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const perPlate = pl && r.partsM2 > 0 ? Math.floor((v(pl.l) * v(pl.b) / 10000) / (r.partsM2 * (1 + v(S.wasteDefault) / 100))) : 0;
     $("woodInfo").textContent = r.partsM2 > 0 ? `${dec(r.partsM2, 3)} m² · ${eur(m2)}/m² · ca. ${perPlate} Stück pro Platte` : "Zuschnitt eintragen";
     $("woodSum").textContent = eur(r.wood); $("oilSum").textContent = eur(r.oil); $("smallSum").textContent = eur(r.small);
+    { const wp = weightParts(a), g = x => dec(Math.round(x), 0) + " g", nm = (p, i) => p.blank || p.n || "Teil " + (i + 1);
+      $("woodG").textContent = g(wp.wood);
+      $("woodPartsG").textContent = (a.parts || []).length > 1 ? "Gewicht je Teil: " + a.parts.map((p, i) => `${nm(p, i)} ${g(wp.per[i])}`).join(" · ") : "";
+      $("smallG").textContent = g(wp.small);
+      $("smallGNote").textContent = wp.smallItems.length || wp.extra ? "Gewicht: " + wp.smallItems.map(([n, gv, q, one]) => `${dec(q, 0)} × ${n} ${g(one)} = ${g(gv)}`).concat(wp.extra ? [`eigene Teile ${g(wp.extra)}`] : []).join(" · ") : "";
+      const aw2 = autoWeight(a), vw = v(a.weight) > 0 ? v(a.weight) : aw2;
+      $("kWeight").textContent = vw > 0 ? g(vw) : "–";
+      $("wBreak").textContent = a.fremd ? "Zukaufartikel: Die App kann das Gewicht nicht aus dem Holz berechnen, bitte oben „Gewicht verpackt“ eintragen."
+        : wp.wood > 0 ? `Gewicht berechnet: Holz ${g(wp.wood)} + Kleinteile ${g(wp.small)} + Karton ${g(wp.box)}${a.box ? "" : " (kein Karton gewählt)"} + Papier ${g(wp.paper)} = ${g(wp.total)}${v(a.weight) > 0 ? ` · eingetragen: ${g(v(a.weight))}` : ""}`
+        : "Trag den Zuschnitt ein, dann rechnet die App das Gewicht aus."; }
     $("smallFlatNote").textContent = !a.fremd && v(S.smallFlat) > 0 ? `inkl. ${eur(v(S.smallFlat))} Pauschale für Schrauben, Dübel und Scheiben` : ""; $("machSum").textContent = eur(r.mach);
     const autoNames = (S.mach || []).filter(machAutoOn).map(m => m.n);
     $("machNote").textContent = r.machAuto > 0 ? `inkl. ${dec(r.machAuto)} Min pauschal für ${autoNames.join(", ")} (aus den Einstellungen). Hier nur CNC, Laser o. Ä. eintragen.` : ""; $("timeSum").textContent = eur(r.time);
