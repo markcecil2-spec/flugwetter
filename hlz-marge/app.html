@@ -432,7 +432,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 136 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 137 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -3862,7 +3862,7 @@ Antworte NUR mit JSON in dieser Form:
     try {
       const prods = []; let after = null;
       for (let page = 0; page < 30; page++) {
-        const d = await shopify("graphql_query", { query: "query($after:String){ products(first:40, after:$after){ pageInfo{ hasNextPage endCursor } nodes{ id title handle status tags totalInventory descriptionHtml seo{ title description } media(first:20){ nodes{ ... on MediaImage{ alt } } } variants(first:1){ nodes{ sku } } } } }", after });
+        const d = await shopify("graphql_query", { query: "query($after:String){ products(first:40, after:$after){ pageInfo{ hasNextPage endCursor } nodes{ id title handle status tags totalInventory descriptionHtml seo{ title description } media(first:20){ nodes{ ... on MediaImage{ alt } } } variants(first:1){ nodes{ sku } } } } }", variables: { after } });
         const pp = d.products; if (!pp) throw { code: "tool_error", message: "Unerwartete Antwort" };
         pp.nodes.forEach(n => { const im = (n.media && n.media.nodes || []).filter(x => x && "alt" in x); prods.push({ id: n.id, title: n.title, handle: n.handle, st: n.status, tags: (n.tags || []).length, seoT: n.seo && n.seo.title || "", seoD: n.seo && n.seo.description || "", dl: String(n.descriptionHtml || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().length, img: im.length, noAlt: im.filter(x => !(x.alt || "").trim()).length, inv: n.totalInventory, sku: n.variants && n.variants.nodes[0] && n.variants.nodes[0].sku || "" }); });
         shopSt.busy = `Hole deine Produkte aus Shopify … ${prods.length}`; renderShop();
@@ -3873,7 +3873,7 @@ Antworte NUR mit JSON in dieser Form:
         shopSt.busy = "Hole die Verkäufe der letzten 12 Monate …"; renderShop();
         sales = {}; let aft = null; const since = isoD(new Date(Date.now() - 365 * 864e5));
         for (let page = 0; page < 25; page++) {
-          const d = await shopify("graphql_query", { query: "query($after:String,$q:String){ orders(first:100, after:$after, query:$q){ pageInfo{ hasNextPage endCursor } nodes{ lineItems(first:40){ nodes{ quantity product{ id } } } } } }", after: aft, q: "created_at:>=" + since });
+          const d = await shopify("graphql_query", { query: "query($after:String,$q:String){ orders(first:100, after:$after, query:$q){ pageInfo{ hasNextPage endCursor } nodes{ lineItems(first:40){ nodes{ quantity product{ id } } } } } }", variables: { after: aft, q: "created_at:>=" + since } });
           const oo = d.orders; if (!oo) throw 0;
           oo.nodes.forEach(o => o.lineItems.nodes.forEach(li => { if (li.product) sales[li.product.id] = (sales[li.product.id] || 0) + (li.quantity || 0); }));
           if (!oo.pageInfo.hasNextPage) break; aft = oo.pageInfo.endCursor;
