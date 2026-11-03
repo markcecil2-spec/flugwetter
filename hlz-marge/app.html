@@ -432,7 +432,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 139 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 140 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -895,8 +895,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "todo", "tag", "shopcheck", "seotexte"].includes(h) ? h : "uebersicht";
-    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "finanzen" || view === "todo" || view === "tag" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "seotexte" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "todo", "tag", "shopcheck", "seotexte", "projekte"].includes(h) ? h : "uebersicht";
+    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "finanzen" || view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "seotexte" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
     if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
@@ -927,6 +927,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
     else if (view === "seotexte") renderSeo();
+    else if (view === "projekte") renderProjects();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
     else renderOverview();
@@ -4147,7 +4148,87 @@ Antworte NUR mit JSON in dieser Form:
   const subBar = (items, active) => `<div class="seg" style="margin-bottom:10px">${items.map(([h, l]) => `<a class="btn ${active === h ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div>`;
   const setBar = a => subBar([["einstellungen", "Einstellungen"], ["import", "Import"]], a), shopBar = a => subBar([["shopcheck", "Shop-Check"], ["seotexte", "Texte aus Bildern"], ["ideen", "Produktideen"]], a);
   const privBar = active => `<div class="seg privbar" aria-label="Privat" style="margin-bottom:10px"><span class="label" style="align-self:center;margin-right:4px;color:var(--walnut)">Privat</span>
-      <a class="btn ${active === "finanzen" ? "primary" : ""}" href="#finanzen">Finanzen</a><a class="btn ${active === "todo" ? "primary" : ""}" href="#todo">To-do${todoOpenCount() ? ` <span class="navbadge" style="margin-left:2px">${todoOpenCount()}</span>` : ""}</a><a class="btn ${active === "tag" ? "primary" : ""}" href="#tag">Tagesplan</a></div>`;
+      <a class="btn ${active === "finanzen" ? "primary" : ""}" href="#finanzen">Finanzen</a><a class="btn ${active === "todo" ? "primary" : ""}" href="#todo">To-do${todoOpenCount() ? ` <span class="navbadge" style="margin-left:2px">${todoOpenCount()}</span>` : ""}</a><a class="btn ${active === "tag" ? "primary" : ""}" href="#tag">Tagesplan</a><a class="btn ${active === "projekte" ? "primary" : ""}" href="#projekte">Projekte</a></div>`;
+  // ---------- Projektplaner ----------
+  const PJ_AREAS = [["shop", "HLZLaden / Shop"], ["job", "Beruf / Berufskraftfahrer"], ["app", "Apps / Software"], ["camp", "AdVanShare / Camping"], ["fly", "Fliegen"], ["priv", "Privat / Haus"], ["sonst", "Sonstiges"]];
+  const PJ_ST = [["idee", "Idee"], ["geplant", "Geplant"], ["aktiv", "Aktiv"], ["pause", "Pausiert"], ["fertig", "Fertig"]];
+  const PJ_MAX = 3;
+  const PROJECTS = () => (S.projects = S.projects || []);
+  const pjSt = { open: "", area: "", doneOpen: false };
+  const pjArea = k => (PJ_AREAS.find(a => a[0] === k) || PJ_AREAS[6])[1];
+  const pjScore = p => { let s = (v(p.imp) || 3) / (v(p.eff) || 3) * 10; if (p.due) { const d = (new Date(p.due) - new Date(todayISO())) / 864e5; if (d < 0) s *= 1.5; else if (d <= 30) s *= 1.25; } return s; };
+  const pjProg = p => { const st = p.steps || []; return st.length ? Math.round(st.filter(x => x.done).length / st.length * 100) : null; };
+  const pjPills = p => `<span class="pill muted" title="Nutzen">Nutzen ${v(p.imp) || 3}/5</span> <span class="pill muted" title="Aufwand">Aufwand ${v(p.eff) || 3}/5</span>`;
+  function pjSeed() {
+    const mk = (n, area, st, imp, eff, next, note) => ({ id: uid(), n, area, st, imp, eff, due: "", next, note: note || "", steps: [], made: Date.now() });
+    PROJECTS().push(
+      mk("C/CE-Führerschein und Berufskraftfahrer-Qualifikation (BFD)", "job", "aktiv", 5, 4, "Beim BFD die Kostenübernahme und die Fahrschule klären"),
+      mk("Steuerschulden 2025 mit dem Finanzamt regeln", "priv", "aktiv", 5, 2, "Schriftlich Ratenzahlung oder Stundung beantragen"),
+      mk("Versandprofile bei Etsy und Shopify neu aufsetzen", "shop", "aktiv", 4, 2, "Etsy-Profile nach Gewicht anlegen und Artikel umhängen"),
+      mk("Shop-Check umsetzen (Titel, Tags, Fotos der A-Artikel)", "shop", "geplant", 4, 3, "Die 5 wichtigsten Artikel im Shop-Check öffnen"),
+      mk("2 neue Produkte pro Monat", "shop", "geplant", 3, 3, "Eine Idee aus den Produktideen auswählen"),
+      mk("Flugwetter-Webapp für Gleitschirm-Startplätze", "app", "idee", 3, 4, "Entscheiden, ob und für wen sie weiterläuft"),
+      mk("AdVanShare (Camping und Vermietung)", "camp", "idee", 3, 5, "Kurz aufschreiben, was der erste Test wäre"));
+    saveSettings(); renderProjects();
+  }
+  function pjCard(p) {
+    const open = pjSt.open === p.id, pr = pjProg(p), od = p.due && p.due < todayISO() && p.st !== "fertig";
+    return `<div class="box pjcard" data-pj-id="${p.id}" style="gap:8px;padding:12px">
+      <div class="row" style="align-items:flex-start;flex-wrap:nowrap"><strong style="flex:1;min-width:0">${esc(p.n)}</strong><button type="button" class="btn" data-pj="toggle|${p.id}" aria-expanded="${open}">${open ? "Schließen" : "Bearbeiten"}</button></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="pill muted">${esc(pjArea(p.area))}</span>${pjPills(p)}${p.due ? `<span class="pill ${od ? "bad" : "muted"}">bis ${dDE(p.due)}</span>` : ""}</div>
+      ${p.next ? `<p style="margin:0"><span class="note">Nächster Schritt:</span> ${esc(p.next)}</p>` : `<p class="note" style="margin:0">Noch kein nächster Schritt festgelegt.</p>`}
+      ${pr !== null ? `<div class="supbar-track" title="${pr} %"><div style="width:${pr}%"></div></div>` : ""}
+      ${open ? pjEdit(p) : ""}</div>`;
+  }
+  function pjEdit(p) {
+    const f = (k, label, inner) => `<div class="field"><label>${label}</label>${inner}</div>`, inp = (k, type = "text", ph = "") => `<div class="inp"><input type="${type}" data-pjf="${k}|${p.id}" value="${esc(p[k] || "")}" placeholder="${esc(ph)}"></div>`;
+    const sel = (k, opts) => `<div class="inp"><select data-pjf="${k}|${p.id}">${opts.map(([a, b]) => `<option value="${a}" ${String(p[k] ?? "") === String(a) ? "selected" : ""}>${b}</option>`).join("")}</select></div>`;
+    const five = [1, 2, 3, 4, 5].map(n => [n, String(n)]);
+    return `<div style="display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:10px">
+      <div class="grid2">${f("n", "Name", inp("n"))}${f("area", "Bereich", sel("area", PJ_AREAS))}</div>
+      <div class="grid3">${f("st", "Status", sel("st", PJ_ST))}${f("imp", "Nutzen (1 klein bis 5 groß)", sel("imp", five))}${f("eff", "Aufwand (1 klein bis 5 groß)", sel("eff", five))}</div>
+      <div class="grid2">${f("due", "Termin (optional)", inp("due", "date"))}${f("next", "Nächster Schritt (eine konkrete Aktion)", inp("next", "text", "z. B. Fahrschule anrufen"))}</div>
+      ${f("note", "Notiz", `<div class="inp"><textarea rows="3" data-pjf="note|${p.id}">${esc(p.note || "")}</textarea></div>`)}
+      <div><span class="label">Teilschritte</span>${(p.steps || []).map(x => `<div style="display:flex;gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-pjs="done|${p.id}|${x.id}" ${x.done ? "checked" : ""} aria-label="erledigt"><div class="inp" style="flex:1"><input type="text" data-pjs="t|${p.id}|${x.id}" value="${esc(x.t)}"></div><button type="button" class="x" data-pj="stepdel|${p.id}|${x.id}" aria-label="Löschen">×</button></div>`).join("")}
+        <div style="display:flex;gap:8px;margin-top:8px"><div class="inp" style="flex:1"><input type="text" id="pjStep-${p.id}" placeholder="Neuer Teilschritt" autocomplete="off"></div><button type="button" class="btn" data-pj="stepadd|${p.id}">+ Schritt</button></div></div>
+      <div class="btns"><button type="button" class="btn" data-pj="todo|${p.id}" ${p.next ? "" : "disabled"}>Nächsten Schritt als To-do anlegen</button><button type="button" class="btn danger" data-pj="del|${p.id}">Projekt löschen</button></div></div>`;
+  }
+  function renderProjects() {
+    const P = PROJECTS(), area = pjSt.area, list = P.filter(p => !area || p.area === area), act = P.filter(p => p.st === "aktiv");
+    const cand = P.filter(p => p.st === "geplant" || p.st === "idee").sort((a, b) => pjScore(b) - pjScore(a) || (a.st === "geplant" ? -1 : 1))[0];
+    const col = ([k, l]) => { const items = list.filter(p => p.st === k).sort((a, b) => k === "fertig" ? 0 : pjScore(b) - pjScore(a)); if (k === "fertig" && !pjSt.doneOpen) return `<section class="box" style="align-content:start"><div class="row"><h3>${l} <span class="note">${items.length}</span></h3>${items.length ? `<button type="button" class="btn" data-pj="doneopen">Anzeigen</button>` : ""}</div></section>`; return `<section class="box" style="align-content:start;gap:10px"><h3>${l} <span class="note">${items.length}</span></h3>${items.map(pjCard).join("") || `<p class="note">Leer</p>`}</section>`; };
+    $("view").innerHTML = `${privBar("projekte")}<div class="row"><h1>Projekte</h1></div>
+      <p class="note">Hier steht alles, was du vorhast, an einem Ort. Die Regel dahinter: höchstens ${PJ_MAX} Projekte gleichzeitig aktiv, alles andere wartet. So verzettelst du dich nicht. Jedes Projekt bekommt Nutzen und Aufwand (1 bis 5), daraus ergibt sich die Reihenfolge. Und jedes aktive Projekt hat genau einen nächsten Schritt.</p>
+      <section class="box" style="border-color:${act.length > PJ_MAX ? "var(--bad)" : "var(--accent)"}"><div class="row"><h2>Jetzt dran: aktiv ${act.length} von ${PJ_MAX}</h2></div>
+        ${act.length > PJ_MAX ? `<p class="note"><strong style="color:var(--bad)">Das sind zu viele. Pausiere ${act.length - PJ_MAX} Projekt(e), sonst bleibt alles halb fertig.</strong></p>` : ""}
+        ${act.length ? `<div class="grid3">${act.sort((a, b) => pjScore(b) - pjScore(a)).map(pjCard).join("")}</div>` : `<p class="note">Noch nichts aktiv. Setz bis zu ${PJ_MAX} Projekte auf "Aktiv", das sind deine Schwerpunkte der nächsten Wochen.</p>`}
+        ${cand ? `<div style="border-top:1px dashed var(--line);padding-top:10px"><span class="label">Als Nächstes anfangen</span><p style="margin:4px 0">${act.length < PJ_MAX ? `<strong>${esc(cand.n)}</strong> hat das beste Verhältnis aus Nutzen (${v(cand.imp) || 3}) und Aufwand (${v(cand.eff) || 3})${cand.due ? " und einen Termin" : ""}. <button type="button" class="btn primary" data-pj="activate|${cand.id}">Aktivieren</button>` : `<strong>${esc(cand.n)}</strong> wäre der nächste Kandidat. Erst wenn ein aktives Projekt fertig oder pausiert ist.`}</p></div>` : ""}
+      </section>
+      <section class="box"><div class="row"><h2>Neues Projekt</h2></div><div class="todoadd" style="grid-template-columns:minmax(180px,1fr) 220px auto"><div class="inp"><input type="text" id="pjNew" placeholder="Wie heißt das Projekt?" autocomplete="off"></div><div class="inp"><select id="pjNewArea">${PJ_AREAS.map(([k, l]) => `<option value="${k}">${l}</option>`).join("")}</select></div><button type="button" class="btn primary" data-pj="add">+ Projekt</button></div>
+        ${P.length ? "" : `<div class="btns"><button type="button" class="btn" data-pj="seed">Meine Projekte aus unserem Gespräch eintragen</button></div><p class="note">Das trägt 7 Projekte als Startpunkt ein (Führerschein, Steuern, Versand, Shop-Check, neue Produkte, Flugwetter-App, AdVanShare). Du kannst alles ändern oder löschen.</p>`}</section>
+      ${P.length ? `<div class="seg" aria-label="Bereich filtern"><button type="button" aria-pressed="${!area}" data-pj="area|">Alle</button>${PJ_AREAS.filter(([k]) => P.some(p => p.area === k)).map(([k, l]) => `<button type="button" aria-pressed="${area === k}" data-pj="area|${k}">${l}</button>`).join("")}</div>
+      <div class="pjboard" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;align-items:start">${PJ_ST.filter(([k]) => k !== "aktiv").map(col).join("")}</div>` : ""}`;
+  }
+  document.addEventListener("keydown", e => { if (view === "projekte" && e.key === "Enter" && e.target.id === "pjNew") { e.preventDefault(); const b = document.querySelector('[data-pj="add"]'); if (b) b.click(); } });
+  document.addEventListener("change", e => {
+    if (view !== "projekte") return; const t = e.target, f = t.dataset && t.dataset.pjf, s = t.dataset && t.dataset.pjs;
+    if (f) { const [k, id] = f.split("|"), p = PROJECTS().find(x => x.id === id); if (!p) return; p[k] = t.value; if (k === "st" && t.value === "aktiv" && PROJECTS().filter(x => x.st === "aktiv").length > PJ_MAX) toast(`Mehr als ${PJ_MAX} aktive Projekte: pausiere eins.`); saveSettings(); if (["st", "area", "imp", "eff", "due", "n"].includes(k)) renderProjects(); return; }
+    if (s) { const [k, id, sid] = s.split("|"), p = PROJECTS().find(x => x.id === id), x = p && (p.steps || []).find(y => y.id === sid); if (!x) return; if (k === "done") x.done = t.checked; else x.t = t.value; saveSettings(); renderProjects(); }
+  });
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-pj]"); if (!b || view !== "projekte") return; const [k, id, sid] = b.dataset.pj.split("|"), p = PROJECTS().find(x => x.id === id);
+    if (k === "seed") return pjSeed();
+    if (k === "add") { const n = $("pjNew"), t = n.value.trim(); if (!t) return toast("Schreib erst den Namen auf."); PROJECTS().push({ id: uid(), n: t, area: $("pjNewArea").value, st: "idee", imp: 3, eff: 3, due: "", next: "", note: "", steps: [], made: Date.now() }); saveSettings(); return renderProjects(); }
+    if (k === "area") { pjSt.area = id || ""; return renderProjects(); }
+    if (k === "doneopen") { pjSt.doneOpen = true; return renderProjects(); }
+    if (!p) return;
+    if (k === "toggle") { pjSt.open = pjSt.open === id ? "" : id; return renderProjects(); }
+    if (k === "activate") { if (PROJECTS().filter(x => x.st === "aktiv").length >= PJ_MAX) return toast(`Schon ${PJ_MAX} aktive Projekte.`); p.st = "aktiv"; saveSettings(); return renderProjects(); }
+    if (k === "stepadd") { const i = $("pjStep-" + id), t = i && i.value.trim(); if (!t) return; (p.steps = p.steps || []).push({ id: uid(), t, done: false }); saveSettings(); return renderProjects(); }
+    if (k === "stepdel") { p.steps = (p.steps || []).filter(x => x.id !== sid); saveSettings(); return renderProjects(); }
+    if (k === "todo") { TODOS().push({ id: uid(), t: `${p.n}: ${p.next}`, due: "", p: true, rep: "", done: false, made: Date.now() }); saveSettings(); todoBadge(); return toast("Im To-do angelegt"); }
+    if (k === "del") { if (!confirm(`„${p.n}“ löschen?`)) return; S.projects = PROJECTS().filter(x => x.id !== id); pjSt.open = ""; saveSettings(); return renderProjects(); }
+  });
   const todoOpenCount = () => TODOS().filter(t => !t.done && t.due && t.due <= todayISO()).length;
   function todoBadge() { const el = $("privBadge"); if (!el) return; const n = todoOpenCount(); el.hidden = !n; el.textContent = n; }
   function todoSuggestions() {
