@@ -417,12 +417,13 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
       <a href="#shopcheck" data-tab="shopcheck">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
+      <a href="#finanzen" data-tab="finanzen">Finanzen</a>
       <span class="navsep" aria-hidden="true"></span>
       <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion">Produktion</a>
       <a href="#support" data-tab="support">Support</a>
       <span class="navsep" aria-hidden="true"></span>
-      <a href="#finanzen" data-tab="privat" class="navpriv">Privat<span class="navbadge" id="privBadge" hidden></span></a>
+      <a href="#todo" data-tab="privat" class="navpriv">Privat<span class="navbadge" id="privBadge" hidden></span></a>
     </nav>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
   </div>
@@ -432,7 +433,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 140 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 141 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -896,7 +897,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "todo", "tag", "shopcheck", "seotexte", "projekte"].includes(h) ? h : "uebersicht";
-    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "finanzen" || view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "seotexte" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "seotexte" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
     if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
@@ -3155,7 +3156,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const firstNeg = c.proj.find(x => x.balP < 0 || x.balG < 0), negWho = firstNeg ? (firstNeg.balP < 0 && firstNeg.balG < 0 ? "auf beiden Konten" : firstNeg.balP < 0 ? "auf dem Privatkonto" : "auf dem Geschäftskonto") : "";
     const hasSales = c.T.qty > 0, hasSalesEnt = hasSales, noMoney = F.kontoG === "" && F.kontoP === "" && F.guthaben === "" && F.bar === "";
     $("view").innerHTML = `
-      ${privBar("finanzen")}<div class="row"><h1>Finanzen</h1></div>
+      <div class="row"><h1>Finanzen</h1></div>
       <div class="seg stabs" aria-label="Bereiche der Finanzen">${FTABS.map(([k, l]) => `<button type="button" data-ftab="${k}" aria-pressed="${finTab === k}">${l}</button>`).join("")}</div>
 
       <section class="box" data-fs="uebersicht" style="border-color:var(--accent)">
@@ -4148,7 +4149,7 @@ Antworte NUR mit JSON in dieser Form:
   const subBar = (items, active) => `<div class="seg" style="margin-bottom:10px">${items.map(([h, l]) => `<a class="btn ${active === h ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div>`;
   const setBar = a => subBar([["einstellungen", "Einstellungen"], ["import", "Import"]], a), shopBar = a => subBar([["shopcheck", "Shop-Check"], ["seotexte", "Texte aus Bildern"], ["ideen", "Produktideen"]], a);
   const privBar = active => `<div class="seg privbar" aria-label="Privat" style="margin-bottom:10px"><span class="label" style="align-self:center;margin-right:4px;color:var(--walnut)">Privat</span>
-      <a class="btn ${active === "finanzen" ? "primary" : ""}" href="#finanzen">Finanzen</a><a class="btn ${active === "todo" ? "primary" : ""}" href="#todo">To-do${todoOpenCount() ? ` <span class="navbadge" style="margin-left:2px">${todoOpenCount()}</span>` : ""}</a><a class="btn ${active === "tag" ? "primary" : ""}" href="#tag">Tagesplan</a><a class="btn ${active === "projekte" ? "primary" : ""}" href="#projekte">Projekte</a></div>`;
+      <a class="btn ${active === "todo" ? "primary" : ""}" href="#todo">To-do${todoOpenCount() ? ` <span class="navbadge" style="margin-left:2px">${todoOpenCount()}</span>` : ""}</a><a class="btn ${active === "tag" ? "primary" : ""}" href="#tag">Tagesplan</a><a class="btn ${active === "projekte" ? "primary" : ""}" href="#projekte">Projekte</a></div>`;
   // ---------- Projektplaner ----------
   const PJ_AREAS = [["shop", "HLZLaden / Shop"], ["job", "Beruf / Berufskraftfahrer"], ["app", "Apps / Software"], ["camp", "AdVanShare / Camping"], ["fly", "Fliegen"], ["priv", "Privat / Haus"], ["sonst", "Sonstiges"]];
   const PJ_ST = [["idee", "Idee"], ["geplant", "Geplant"], ["aktiv", "Aktiv"], ["pause", "Pausiert"], ["fertig", "Fertig"]];
