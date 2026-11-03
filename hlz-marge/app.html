@@ -422,8 +422,6 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion">Produktion</a>
       <a href="#support" data-tab="support">Support</a>
-      <span class="navsep" aria-hidden="true"></span>
-      <a href="#todo" data-tab="privat" class="navpriv">Privat<span class="navbadge" id="privBadge" hidden></span></a>
     </nav>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
   </div>
@@ -433,7 +431,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 141 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 143 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -896,8 +894,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "todo", "tag", "shopcheck", "seotexte", "projekte"].includes(h) ? h : "uebersicht";
-    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "seotexte" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck"].includes(h) ? h : "uebersicht";
+    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
     if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
@@ -927,7 +925,6 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "finanzen") finDraw();
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
-    else if (view === "seotexte") renderSeo();
     else if (view === "projekte") renderProjects();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
@@ -3969,108 +3966,6 @@ Antworte NUR mit JSON in dieser Form:
     if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
     if (k.startsWith("ai:")) return shopAi(k.slice(3));
   });
-  // ---------- Texte aus Bildern: Titel, Tags, Beschreibung per Claude (Bilder werden angeschaut) ----------
-  const seoSt = { files: [], urls: [], busy: false, err: "", res: null, vals: {}, ctl: null, f: { art: "", name: "", dims: "", mat: "Eichenholz massiv", extra: "", kw: "", ch: "beide" } };
-  const seoClip = s => { try { navigator.clipboard.writeText(s).then(() => toast("Kopiert"), () => toast("Kopieren geht hier nicht, bitte den Text markieren und Strg+C")); } catch (e) { toast("Kopieren geht hier nicht, bitte den Text markieren und Strg+C"); } };
-  function seoPrompt(f, n) {
-    const ch = f.ch;
-    const e = `"etsy": {"titel": "Etsy-Titel, 110 bis 140 Zeichen, wichtigste Suchbegriffe vorne, keine Wortwiederholungen, kein Großschreiben ganzer Wörter", "tags": ["genau 13 Etsy-Tags, jeder höchstens 20 Zeichen, überwiegend Mehrwort-Begriffe, deutsch, ohne Wiederholung der Titelwörter 1:1"], "materialien": ["2 bis 4 Materialien"], "beschreibung": "Etsy-Beschreibung, 600 bis 1200 Zeichen, Absätze durch eine Leerzeile getrennt, siehe Aufbau"}`;
-    const s = `"shopify": {"titel": "Produkttitel für den Shop, max. 70 Zeichen", "seoTitel": "SEO-Titel, max. 60 Zeichen, Hauptbegriff vorne", "meta": "Meta-Beschreibung, 130 bis 155 Zeichen, mit Nutzen und Aufruf zum Klicken", "beschreibung": "Produktbeschreibung für den Shop, 500 bis 1000 Zeichen, Absätze durch eine Leerzeile getrennt", "tags": ["5 bis 8 Tags"], "handle": "url-slug-in-kleinbuchstaben-mit-bindestrichen"}`;
-    return `Du bist SEO- und Texterexperte für kleine deutsche Online-Shops und schreibst für HLZLaden (Etsy und eigener Shopify-Shop). Der Shop verkauft handgefertigte Wohnaccessoires aus Eichen- und Buchenholz: Garderoben, Schlüsselbretter, Regale, Handtuchhalter, Deko, teils mit Lasergravur.\n\n`
-      + `Dir liegen ${n} Produktfoto(s) vor. Schau sie dir genau an: Produktart, Form, Holzton und Maserung, Haken oder Details, Gravur, Montageart, Stimmung. Schreibe daraus die Texte.\n\n`
-      + `Angaben des Verkäufers (haben Vorrang vor dem, was du im Bild vermutest):\n- Produktname: ${f.name || "(nicht angegeben, erkenne die Produktart aus den Bildern)"}\n- Maße: ${f.dims || "(nicht angegeben)"}\n- Material: ${f.mat || "(nicht angegeben)"}\n- Besonderheiten: ${f.extra || "(keine)"}\n- Gewünschte Suchbegriffe, falls vorhanden: ${f.kw || "(keine, wähle die besten selbst)"}\n\n`
-      + `Regeln:\n- Erfinde nichts. Maße, Gewicht, Befestigung, Oberfläche und Verarbeitung nennst du nur, wenn sie oben stehen oder im Bild eindeutig zu sehen sind. Alles, was du nur vermutest, kommt NICHT in die Texte, sondern in die Liste "pruefen".\n- Natürliches, warmes Deutsch, keine Floskeln, keine Übertreibungen, kein KI-Ton. Du-Ansprache ist in Ordnung.\n- Aufbau der Beschreibungen: 1. Einstieg mit Nutzen und Hauptbegriff in den ersten zwei Sätzen, 2. Details und Maße als kurze Aufzählung mit Spiegelstrichen, 3. Material und Pflege, 4. Montage oder Lieferumfang nur wenn bekannt, 5. kurzer Hinweis zu Versand und Geschenkidee. Wenn eine Angabe unbekannt ist, lass den Punkt weg.\n- Suchbegriffe, die Käufer wirklich eintippen (z. B. Produktart plus Material, Anlass, Raum). Keine Markennamen.\n- "bildAlt": für jedes Foto in der Reihenfolge ein Alt-Text, 60 bis 120 Zeichen, beschreibt das Bild sachlich mit dem Hauptbegriff.\n\n`
-      + `Antworte NUR mit JSON in dieser Form:\n{"produkt": "was du erkannt hast, ein Satz", ${ch !== "shopify" ? e + ", " : ""}${ch !== "etsy" ? s + ", " : ""}"bildAlt": ["Alt-Text Bild 1", "..."], "pruefen": ["Angaben, die du nicht sicher aus Bild oder Angaben ableiten konntest und die der Verkäufer prüfen soll"]}`;
-  }
-  function seoClamp(o) {
-    const cut = (s, n) => { s = String(s || "").trim(); if (s.length <= n) return s; const t = s.slice(0, n + 1); const i = t.lastIndexOf(" "); return (i > n * 0.6 ? t.slice(0, i) : s.slice(0, n)).replace(/[\s,;:–-]+$/, ""); };
-    const tg = (a, n) => [...new Set((Array.isArray(a) ? a : []).map(x => String(x).trim()).filter(x => x && x.length <= 20))].slice(0, n);
-    const r = { produkt: String(o.produkt || ""), bildAlt: (Array.isArray(o.bildAlt) ? o.bildAlt : []).map(x => cut(x, 125)), pruefen: (Array.isArray(o.pruefen) ? o.pruefen : []).map(String).filter(Boolean) };
-    if (o.etsy) r.etsy = { titel: cut(o.etsy.titel, 140), tags: tg(o.etsy.tags, 13), materialien: (Array.isArray(o.etsy.materialien) ? o.etsy.materialien : []).map(String).slice(0, 5), beschreibung: String(o.etsy.beschreibung || "").trim() };
-    if (o.shopify) r.shopify = { titel: cut(o.shopify.titel, 70), seoTitel: cut(o.shopify.seoTitel, 60), meta: cut(o.shopify.meta, 155), beschreibung: String(o.shopify.beschreibung || "").trim(), tags: tg(o.shopify.tags, 10), handle: String(o.shopify.handle || "").toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) };
-    return r;
-  }
-  async function seoGen() {
-    const f = seoSt.f; if (!seoSt.files.length) { seoSt.err = "Lade erst mindestens ein Produktbild hoch."; return renderSeo(); }
-    const sample = await getSample(); if (!sample) { seoSt.err = "Claude ist hier nicht verfügbar."; return renderSeo(); }
-    const lim = await sample.limits().catch(() => null);
-    if (!lim || !lim.images) { seoSt.err = "Der Bild-Upload an Claude ist in dieser Ansicht nicht freigegeben."; return renderSeo(); }
-    seoSt.busy = true; seoSt.err = ""; seoSt.ctl = new AbortController(); renderSeo();
-    try {
-      const imgs = seoSt.files.slice(0, lim.images.maxCount);
-      const o = await sample.json(seoPrompt(f, imgs.length), { images: imgs, modelTier: "default", cache: false, signal: seoSt.ctl.signal });
-      if (!o || typeof o !== "object") throw { code: "invalid_json" };
-      seoSt.res = seoClamp(o);
-      await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
-      const old = (SHOP.texts && SHOP.texts.items) || [];
-      shopSave({ id: "texts", items: [{ id: uid(), at: new Date().toISOString(), name: f.name || seoSt.res.produkt.slice(0, 60) || "Produkt", ch: f.ch, res: seoSt.res }, ...old].slice(0, 20) });
-    } catch (e) {
-      seoSt.err = e && e.code === "cancelled" ? "" : e && e.code === "image_rejected" ? "Eines der Bilder passt nicht (nur JPG, PNG, WebP oder GIF bis 20 MB)." : e && e.code === "invalid_json" ? "Die Antwort kam unvollständig an, bitte nochmal versuchen." : e && e.code === "rate_limited" ? "Gerade zu viele Anfragen, bitte kurz warten." : supErr(e);
-    }
-    seoSt.busy = false; seoSt.ctl = null; renderSeo();
-  }
-  function seoField(key, label, val, o = {}) {
-    seoSt.vals[key] = val; const len = o.max ? ` <span class="note num" style="${val.length > o.max ? "color:var(--bad)" : ""}">${val.length}/${o.max}</span>` : "";
-    return `<div class="field"><label>${esc(label)}${len}</label><div class="inp" style="align-items:stretch">${o.area ? `<textarea readonly rows="${o.rows || 8}" onclick="this.select()" style="width:100%">${esc(val)}</textarea>` : `<input type="text" readonly value="${esc(val)}" onclick="this.select()">`}<button type="button" class="btn" data-seo="copy:${key}" style="border:0;border-left:1px solid var(--line);border-radius:0">Kopieren</button></div></div>`;
-  }
-  function seoResult(r, pre) {
-    let h = "";
-    if (r.produkt) h += `<p class="note">Erkannt: ${esc(r.produkt)}</p>`;
-    if (r.etsy) h += `<section class="box"><h2>Etsy</h2>${seoField(pre + "e-t", "Titel", r.etsy.titel, { max: 140 })}${seoField(pre + "e-tags", `Tags (${r.etsy.tags.length} von 13, durch Komma getrennt, in Etsy einzeln einfügen)`, r.etsy.tags.join(", "))}${seoField(pre + "e-m", "Materialien", r.etsy.materialien.join(", "))}${seoField(pre + "e-d", "Beschreibung", r.etsy.beschreibung, { area: true, rows: 12, max: 1200 })}</section>`;
-    if (r.shopify) h += `<section class="box"><h2>Shopify</h2>${seoField(pre + "s-t", "Produkttitel", r.shopify.titel, { max: 70 })}${seoField(pre + "s-st", "SEO-Titel", r.shopify.seoTitel, { max: 60 })}${seoField(pre + "s-m", "Meta-Beschreibung", r.shopify.meta, { max: 155 })}${seoField(pre + "s-d", "Beschreibung", r.shopify.beschreibung, { area: true, rows: 10 })}${seoField(pre + "s-tags", "Tags", r.shopify.tags.join(", "))}${seoField(pre + "s-h", "URL-Name (Handle)", r.shopify.handle)}</section>`;
-    if (r.bildAlt.length) h += `<section class="box"><h2>Alt-Texte für die Bilder</h2><p class="note">In Shopify an das jeweilige Bild hängen, bei Etsy im Foto-Feld "Alt-Text".</p>${r.bildAlt.map((a, i) => seoField(pre + "alt" + i, "Bild " + (i + 1), a, { max: 125 })).join("")}</section>`;
-    if (r.pruefen.length) h += `<section class="box" style="border-color:var(--warn)"><h2>Bitte prüfen</h2><p class="note">Das konnte ich nicht sicher aus Bild oder deinen Angaben ableiten. Ich habe es nicht in die Texte geschrieben:</p><ul style="margin:0;padding-left:18px">${r.pruefen.map(x => `<li>${esc(x)}</li>`).join("")}</ul></section>`;
-    return h;
-  }
-  function renderSeo() {
-    const f = seoSt.f, hist = (SHOP && SHOP.texts && SHOP.texts.items) || [], busy = seoSt.busy;
-    if (!SHOP) shopLoad();
-    $("view").innerHTML = `${shopBar("seotexte")}<div class="row"><h1>Texte aus Bildern</h1></div>
-      <p class="note">Lade ein bis mehrere Produktbilder hoch. Claude schaut sie an und schreibt dir Titel, Tags, Beschreibung, SEO-Felder und Alt-Texte. Was er nur vermutet (Maße, Befestigung, Oberfläche), schreibt er nicht in den Text, sondern listet es unter "Bitte prüfen". Je mehr du unten angibst, desto genauer wird es. Die Texte sind Vorschläge, lies sie vor dem Einfügen durch.</p>
-      <section class="box"><h2>1. Bilder</h2>
-        <div class="drop" id="seoDrop"><input type="file" id="seoFile" accept="image/jpeg,image/png,image/webp,image/gif" multiple ${busy ? "disabled" : ""}><span class="note">Bis zu 8 Fotos auswählen oder hier hineinziehen (JPG, PNG, WebP). Das Hauptbild zuerst, dazu ein Bild mit Maßband oder im Raum hilft.</span></div>
-        ${seoSt.urls.length ? `<div style="display:flex;gap:10px;flex-wrap:wrap">${seoSt.urls.map((u, i) => `<div style="position:relative"><img src="${u}" alt="Vorschau ${i + 1}" style="width:92px;height:92px;object-fit:cover;border-radius:8px;border:1px solid var(--line)"><button type="button" class="x" data-seo="rm:${i}" title="Entfernen" style="position:absolute;top:-8px;right:-8px;background:var(--panel)">×</button></div>`).join("")}</div>` : ""}
-      </section>
-      <section class="box"><h2>2. Angaben (optional, aber hilfreich)</h2>
-        <div class="anagrid">
-          <div class="field"><label>Artikel aus der App</label><div class="inp"><select data-seof="art"><option value="">– keiner –</option>${A.slice().sort((a, b) => String(a.name).localeCompare(String(b.name), "de")).map(a => `<option value="${esc(a.id)}" ${f.art === a.id ? "selected" : ""}>${esc(a.name)}${a.sku ? " (" + esc(a.sku) + ")" : ""}</option>`).join("")}</select></div><small>Füllt Name und Gewicht vor.</small></div>
-          <div class="field"><label>Produktname</label><div class="inp"><input type="text" data-seof="name" value="${esc(f.name)}" placeholder="z. B. Wandgarderobe Eiche 80 cm"></div></div>
-          <div class="field"><label>Maße und Gewicht</label><div class="inp"><input type="text" data-seof="dims" value="${esc(f.dims)}" placeholder="z. B. 80 × 12 × 2 cm, 1,7 kg, 5 Haken"></div></div>
-          <div class="field"><label>Material</label><div class="inp"><input type="text" data-seof="mat" value="${esc(f.mat)}"></div></div>
-          <div class="field"><label>Besonderheiten</label><div class="inp"><input type="text" data-seof="extra" value="${esc(f.extra)}" placeholder="z. B. Gravur möglich, geölt, Befestigung im Lieferumfang"></div></div>
-          <div class="field"><label>Suchbegriffe (z. B. aus eRank)</label><div class="inp"><input type="text" data-seof="kw" value="${esc(f.kw)}" placeholder="z. B. garderobe eiche, flurgarderobe, wandgarderobe massiv"></div></div>
-          <div class="field"><label>Texte für</label><div class="inp"><select data-seof="ch">${[["beide", "Etsy und Shopify"], ["etsy", "nur Etsy"], ["shopify", "nur Shopify"]].map(([k, l]) => `<option value="${k}" ${f.ch === k ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
-        </div>
-        <div class="btns"><button class="btn primary" data-seo="gen" ${busy ? "disabled" : ""}>${busy ? "Claude schaut sich die Bilder an …" : "Texte erstellen"}</button>${busy ? `<button class="btn" data-seo="stop">Stopp</button>` : ""}${seoSt.files.length && !busy ? `<button class="btn" data-seo="clear">Alles zurücksetzen</button>` : ""}</div>
-        ${busy ? `<p class="note">Das dauert meist 20 bis 60 Sekunden. Beim ersten Mal fragt Claude nach deiner Freigabe.</p>` : ""}${seoSt.err ? `<p class="note"><strong>${esc(seoSt.err)}</strong></p>` : ""}
-      </section>
-      ${seoSt.res ? `<h2>Ergebnis</h2>${seoResult(seoSt.res, "cur-")}` : ""}
-      ${hist.length ? `<section class="box"><h2>Frühere Texte</h2>${anaTable(["Datum", "Produkt", "Für", ""], hist.map(h => [dDE(h.at.slice(0, 10)), esc(shortT(h.name, 70)), h.ch === "beide" ? "Etsy + Shopify" : h.ch === "etsy" ? "Etsy" : "Shopify", `<button class="btn" data-seo="open:${h.id}">Öffnen</button>`]))}</section>` : ""}`;
-    const dz = $("seoDrop"); if (dz) { dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("over"); }); dz.addEventListener("dragleave", () => dz.classList.remove("over")); dz.addEventListener("drop", e => { e.preventDefault(); dz.classList.remove("over"); seoAdd([...e.dataTransfer.files]); }); }
-  }
-  function seoAdd(list) {
-    const ok = list.filter(x => /^image\/(jpeg|png|webp|gif)$/.test(x.type)); if (ok.length < list.length) toast("Nur JPG, PNG, WebP oder GIF.");
-    ok.forEach(x => { if (seoSt.files.length < 8) { seoSt.files.push(x); seoSt.urls.push(URL.createObjectURL(x)); } }); if (list.length && seoSt.files.length >= 8) toast("Mehr als 8 Bilder nimmt Claude nicht an.");
-    renderSeo();
-  }
-  document.addEventListener("change", e => {
-    if (view !== "seotexte") return; const t = e.target;
-    if (t.id === "seoFile" && t.files && t.files.length) { const fs = [...t.files]; t.value = ""; seoAdd(fs); return; }
-    if (t.dataset && t.dataset.seof) {
-      const k = t.dataset.seof; seoSt.f[k] = t.value;
-      if (k === "art") { const a = A.find(x => x.id === t.value); if (a) { seoSt.f.name = a.name; const g = shipWeight(a); if (g > 0 && !seoSt.f.dims.includes("kg")) seoSt.f.dims = (seoSt.f.dims ? seoSt.f.dims + ", " : "") + dec(g / 1000, 2) + " kg"; } renderSeo(); }
-    }
-  });
-  document.addEventListener("input", e => { if (view === "seotexte" && e.target.dataset && e.target.dataset.seof && e.target.dataset.seof !== "art" && e.target.dataset.seof !== "ch") seoSt.f[e.target.dataset.seof] = e.target.value; });
-  document.addEventListener("click", e => {
-    const b = e.target.closest("[data-seo]"); if (!b || view !== "seotexte") return; const k = b.dataset.seo;
-    if (k === "gen") return seoGen();
-    if (k === "stop") { if (seoSt.ctl) seoSt.ctl.abort(); return; }
-    if (k === "clear") { seoSt.urls.forEach(u => URL.revokeObjectURL(u)); seoSt.files = []; seoSt.urls = []; seoSt.res = null; seoSt.err = ""; seoSt.f = { ...seoSt.f, art: "", name: "", dims: "", extra: "", kw: "" }; return renderSeo(); }
-    if (k.startsWith("rm:")) { const i = +k.slice(3); URL.revokeObjectURL(seoSt.urls[i]); seoSt.files.splice(i, 1); seoSt.urls.splice(i, 1); return renderSeo(); }
-    if (k.startsWith("copy:")) return seoClip(seoSt.vals[k.slice(5)] || "");
-    if (k.startsWith("open:")) { const h = ((SHOP && SHOP.texts && SHOP.texts.items) || []).find(x => x.id === k.slice(5)); if (h) { seoSt.res = h.res; seoSt.err = ""; renderSeo(); window.scrollTo(0, document.body.scrollHeight * 0); } }
-  });
   async function ideaGenerate(n, replaceId) {
     const mk = monthKey(new Date()); ideaState.busy = "Claude schlägt Produkte vor …"; ideaState.msg = ""; renderIdeas();
     let list = [], src = "claude"; const sample = await getSample();
@@ -4147,7 +4042,7 @@ Antworte NUR mit JSON in dieser Form:
   const TODOS = () => (S.todos = S.todos || []);
   let todoSug = [], todoDoneOpen = false;
   const subBar = (items, active) => `<div class="seg" style="margin-bottom:10px">${items.map(([h, l]) => `<a class="btn ${active === h ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div>`;
-  const setBar = a => subBar([["einstellungen", "Einstellungen"], ["import", "Import"]], a), shopBar = a => subBar([["shopcheck", "Shop-Check"], ["seotexte", "Texte aus Bildern"], ["ideen", "Produktideen"]], a);
+  const setBar = a => subBar([["einstellungen", "Einstellungen"], ["import", "Import"]], a), shopBar = a => subBar([["shopcheck", "Shop-Check"], ["ideen", "Produktideen"]], a);
   const privBar = active => `<div class="seg privbar" aria-label="Privat" style="margin-bottom:10px"><span class="label" style="align-self:center;margin-right:4px;color:var(--walnut)">Privat</span>
       <a class="btn ${active === "todo" ? "primary" : ""}" href="#todo">To-do${todoOpenCount() ? ` <span class="navbadge" style="margin-left:2px">${todoOpenCount()}</span>` : ""}</a><a class="btn ${active === "tag" ? "primary" : ""}" href="#tag">Tagesplan</a><a class="btn ${active === "projekte" ? "primary" : ""}" href="#projekte">Projekte</a></div>`;
   // ---------- Projektplaner ----------
