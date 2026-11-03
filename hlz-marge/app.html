@@ -432,7 +432,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 138 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 139 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -3842,9 +3842,12 @@ Antworte NUR mit JSON in dieser Form:
     const ctx = volume(), out = [];
     if (shopSt.tab === "etsy") {
       const L = SHOP.etsy ? SHOP.etsy.listings : [], S2 = SHOP.sales ? SHOP.sales.items : null, keys = S2 ? Object.keys(S2) : [];
+      const lks = L.map(l => normTitle(l.t).slice(0, 60)), mp = (SHOP.sales && SHOP.sales.map) || {}, byL = {}, unm = [];
+      keys.forEach(k => { const lk = lks.includes(k) ? k : lks.find(x => x.startsWith(k.slice(0, 30)) || k.startsWith(x.slice(0, 30))) || (lks.includes(mp[k]) ? mp[k] : ""); if (lk) byL[lk] = (byL[lk] || 0) + S2[k].qty; else unm.push(k); });
+      shopSt.unm = unm; const trust = S2 && keys.length && unm.length <= keys.length * 0.3;
       L.forEach((l, i) => {
-        const I = etsyAudit(l), nk = normTitle(l.t).slice(0, 60); let q = null;
-        if (S2) { const it = S2[nk] || S2[keys.find(k => k.startsWith(nk.slice(0, 30)) || nk.startsWith(k.slice(0, 30))) || ""]; q = it ? it.qty : 0; }
+        const I = etsyAudit(l), nk = lks[i]; let q = null;
+        if (trust) q = byL[nk] || 0;
         const a = shopMatchArt(l.t, l.sku); let m = null; if (a && v(a.price) > 0) { try { m = calc(a, "etsy", undefined, ctx).margin; } catch (e) {} }
         if (S2 && q === 0) mkIssue(I, "nosale", 0, "kein Verkauf im Zeitraum", "Ladenhüter: Titel und Hauptfoto überarbeiten, oder prüfen ob der Preis oder das Produkt überhaupt passt.");
         out.push({ key: "e" + i, name: l.t, l, I, score: scoreOf(I), q, m, a });
@@ -3886,6 +3889,20 @@ Antworte NUR mit JSON in dieser Form:
     shopSt.busy = ""; renderShop();
   }
   // --- Claude-Vorschlag ---
+  async function shopMatch() {
+    const L = SHOP.etsy ? SHOP.etsy.listings : [], SA = SHOP.sales; if (!L.length || !SA) return;
+    const sample = await getSample(); if (!sample) { shopSt.msg = "Claude ist hier nicht verfügbar."; return renderShop(); }
+    shopRows(); const un = (shopSt.unm || []).slice(0, 80); if (!un.length) return;
+    shopSt.busy = "Claude ordnet die Verkäufe den Angeboten zu …"; shopSt.msg = ""; renderShop();
+    try {
+      const a = un.map((k, i) => `${i}: ${SA.items[k].name}`).join("\n"), b = L.map((l, i) => `${i}: ${l.t}`).join("\n");
+      const o = await sample.json(`Ordne verkaufte Etsy-Artikel (Liste A, Namen oft englische Übersetzungen) den deutschen Angeboten (Liste B) zu. Ein Verkaufsname gehört zu dem Angebot, dessen Titel dieselbe Sache beschreibt (Produktart, Form, Besonderheit wie Gravur oder Material). Ist keine sichere Zuordnung möglich, setze null. Antworte nur mit JSON: [[indexA, indexB oder null], ...] für alle Einträge von A.\n\nListe A:\n${a}\n\nListe B:\n${b}`, { modelTier: "default", cache: false });
+      const map = Object.assign({}, SA.map); let n = 0;
+      (Array.isArray(o) ? o : []).forEach(x => { if (Array.isArray(x) && Number.isInteger(x[0]) && Number.isInteger(x[1]) && un[x[0]] && L[x[1]]) { map[un[x[0]]] = normTitle(L[x[1]].t).slice(0, 60); n++; } });
+      shopSave({ ...SA, map }); shopSt.msg = `${n} von ${un.length} Verkäufen zugeordnet.`;
+    } catch (e) { shopSt.msg = supErr(e); }
+    shopSt.busy = ""; renderShop();
+  }
   async function shopAi(key) {
     const r = shopRows().find(x => x.key === key); if (!r) return; const sample = await getSample();
     if (!sample) { shopSt.ai[key] = { err: "Claude ist hier nicht verfügbar." }; return renderShop(); }
@@ -3915,7 +3932,8 @@ Antworte NUR mit JSON in dieser Form:
         <div class="anagrid">
           <div class="field"><label>Etsy: CSV-Dateien hochladen</label><input type="file" id="shopFile" accept=".csv,text/csv,.txt" multiple>
             <small>In Etsy unter Einstellungen → Optionen → Daten herunterladen: „Artikel im Verkauf“ (CSV) und „Bestellte Artikel“ (Art der CSV-Datei, ganzes Jahr). Beide hier hochladen, die App erkennt sie selbst.</small>
-            <small>${E ? `Angebote: <strong>${E.listings.length}</strong> (Stand ${dstr(E.at)})` : "Angebote: noch nichts geladen"}<br>${SA ? `Verkäufe: <strong>${Object.keys(SA.items).length}</strong> Artikel${SA.from ? `, ${dstr(SA.from)} bis ${dstr(SA.to)}` : ""}` : "Verkäufe: noch nichts geladen (optional, aber sehr hilfreich)"}</small></div>
+            <small>${E ? `Angebote: <strong>${E.listings.length}</strong> (Stand ${dstr(E.at)})` : "Angebote: noch nichts geladen"}<br>${SA ? `Verkäufe: <strong>${Object.keys(SA.items).length}</strong> Artikel${SA.from ? `, ${dstr(SA.from)} bis ${dstr(SA.to)}` : ""}` : "Verkäufe: noch nichts geladen (optional, aber sehr hilfreich)"}</small>
+            ${E && SA && tab === "etsy" && shopSt.unm && shopSt.unm.length ? `<small><strong>${shopSt.unm.length} von ${Object.keys(SA.items).length}</strong> verkauften Artikeln konnte ich keinem Angebot zuordnen (Etsy schreibt die Namen in der CSV oft auf Englisch). Solange das so ist, zeige ich keine „kein Verkauf“-Warnungen.</small><div class="btns"><button class="btn" data-shop="match" ${shopSt.busy ? "disabled" : ""}>Verkäufe per Claude zuordnen</button></div>` : ""}</div>
           <div class="field"><label>Shopify: live aus deinem Shop</label><div class="btns"><button class="btn primary" data-shop="check" ${shopSt.busy ? "disabled" : ""}>Jetzt prüfen</button></div>
             <small>Holt Produkte, SEO-Felder, Bilder und die Verkäufe der letzten 12 Monate direkt aus Shopify.</small>
             <small>${SF ? `Zuletzt geprüft: <strong>${new Date(SF.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}</strong> (${SF.products.length} Produkte)` : "Noch nicht geprüft."}</small></div>
@@ -3945,7 +3963,7 @@ Antworte NUR mit JSON in dieser Form:
   document.addEventListener("change", e => { if (e.target && e.target.id === "shopFile" && e.target.files && e.target.files.length) { const fs = [...e.target.files]; e.target.value = ""; shopFiles(fs); } });
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-shop]"); if (!b || view !== "shopcheck") return; const k = b.dataset.shop;
-    if (k === "check") return shopifyCheck(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
+    if (k === "check") return shopifyCheck(); if (k === "match") return shopMatch(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
     if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
     if (k.startsWith("ai:")) return shopAi(k.slice(3));
   });
