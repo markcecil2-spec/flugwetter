@@ -440,7 +440,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 147 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 148 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -650,7 +650,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   }
 
   // ---------- Rechnung (reine Daten, kein DOM) ----------
-  const fixTotal = (s = S) => (s.fixed || []).reduce((a, r) => a + v(r.a), 0);
+  // Werkstattmiete & Co. gehören nur zur Eigenfertigung: bei Zukauf-Artikeln wird sie nicht auf den Verkauf umgelegt
+  const isProdFix = r => /werkstatt|miete/i.test(String(r.n || ""));
+  const fixTotal = (s = S, noProd = false) => (s.fixed || []).filter(r => !noProd || !isProdFix(r)).reduce((a, r) => a + v(r.a), 0);
   const salesPerMonth = a => Object.values(a.sales || {}).reduce((s, x) => s + (v(x.months) > 0 ? v(x.qty) / v(x.months) : 0), 0);
   function volume() {
     const imp = A.reduce((s, a) => s + salesPerMonth(a), 0);
@@ -752,7 +754,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     // Arbeitszeit = Vorfertigung der Rohlinge + Verpacken + eigene Eingabe (Bohren, Lasern, Schleifen, Ölen …)
     const packMin = a.fremd ? 0 : v(S.packMins);
     const time = (v(a.mins) + rohMin + packMin) / 60 * v(S.rate);
-    const fixShare = S.alloc && ctx.vol > 0 ? fixTotal() / ctx.vol : 0;
+    const fixShare = S.alloc && ctx.vol > 0 ? fixTotal(S, !!a.fremd) / ctx.vol : 0;
     const varCosts = wood + oil + small + ext + porto + pack + outer + time + mach + order;
     const db = net - fees - ads - varCosts;          // Deckungsbeitrag vor Fixkosten
     const profit = db - fixShare;
@@ -2426,7 +2428,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
               ${settingsField("laserB", "Laser: Arbeitsfläche Breite", "cm")}
               ${settingsField("shipAdj", "Versand-Aufschlag laut Konto", "%", "Auf die Preisliste, für Auslandsversand (DHL Paket International ab 13,55 €) und Zuschläge. Mit dem Abgleich in der Auswertung gegen dein Konto prüfen.")}
             </div>
-            <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück)</label>
+            <label class="check"><input type="checkbox" data-s="alloc" ${T.alloc ? "checked" : ""}> Fixkosten auf jeden Verkauf umlegen (aktuell ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T) / ctx.vol) : "–"} pro Stück, bei Zukauf-Artikeln ohne Werkstattmiete ${T.alloc && ctx.vol > 0 ? eur(fixTotal(T, true) / ctx.vol) : "–"})</label>
           </section>
           <section class="box" data-sec="betrieb">
             <h2>Einkommensteuer</h2>
