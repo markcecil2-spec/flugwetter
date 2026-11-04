@@ -126,6 +126,11 @@ tr.rmrow td:not(:first-child) { opacity: .6 }
 .finsub { display: grid; gap: 8px; margin-top: 10px; padding-left: 10px; border-left: 3px solid var(--line) }
 .finsub label { font-size: 12.5px }
 .anagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
+.tipbtn { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 4px; padding: 0; border-radius: 50%; border: 1.5px solid currentColor; background: transparent; font: 700 11px/1 var(--font-body); cursor: help; vertical-align: 1px }
+.tipbtn.good { color: var(--good) } .tipbtn.warn { color: var(--warn) } .tipbtn.bad { color: var(--bad) }
+#tipPop { position: fixed; z-index: 50; width: min(380px, calc(100vw - 16px)); max-height: 70vh; overflow: auto; padding: 12px 14px; border-radius: 10px; background: var(--panel); color: var(--fg); border: 1px solid var(--line); box-shadow: 0 10px 30px rgb(0 0 0 / .22); font-size: .85rem; line-height: 1.45 }
+#tipPop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px }
+#tipPop li { padding-left: 10px; border-left: 3px solid var(--line) } #tipPop li.good { border-color: var(--good) } #tipPop li.warn { border-color: var(--warn) } #tipPop li.bad { border-color: var(--bad) }
 .navbadge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: var(--warn); color: #fff; font-size: .72rem; font-weight: 700; line-height: 18px; text-align: center }
 .ordtable th, .ordtable td { text-align: left; vertical-align: top; padding-left: 8px; padding-right: 8px }
 .ordtable tr.orddone td { opacity: .55 }
@@ -431,7 +436,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 143 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 144 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1004,6 +1009,53 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // Spalten der Artikelliste: ein- und ausblendbar, pro Gerät gemerkt
   const pickWage = x => { const mins = v(x.a.mins) + x.r.rohMin + x.r.packMin; return mins > 0 ? (x.r.profit + x.r.time) / (mins / 60) : NaN; };
   const dash = (val, f) => val ? f(val) : "–";
+  // ---------- Verbesserungstipps pro Artikel (Infopunkt in der Artikelliste) ----------
+  const ARTTIPS = {};
+  function shopIssuesByArt() {
+    const m = {}; if (!SHOP) return m;
+    const base = a => String(a.name).split(" · ")[0];
+    const add = (a, src, I) => { if (!a) return; const issues = I.filter(i => i.w >= 4).map(i => ({ src, txt: i.txt, tip: i.tip })); if (!issues.length) return; A.filter(x => base(x) === base(a)).forEach(x => { const l = (m[x.id] = m[x.id] || []); issues.forEach(i => { if (!l.some(y => y.src === i.src && y.txt === i.txt)) l.push(i); }); }); };
+    try {
+      (SHOP.etsy ? SHOP.etsy.listings : []).forEach(l => add(shopMatchArt(l.t, l.sku), "Etsy", etsyAudit(l)));
+      (SHOP.shopify ? SHOP.shopify.products : []).filter(p => p.st === "ACTIVE").forEach(p => add(shopMatchArt(p.title, p.sku), "Shopify", shopifyAudit(p)));
+    } catch (e) { /* Shop-Daten unvollständig: Tipps laufen ohne */ }
+    return m;
+  }
+  function artTips(x, sIss, ctx) {
+    const { a, r, pm, t } = x, T = [], tg = v(S.target), m = r.margin, P = v(a.price), add = (sev, h) => T.push({ sev, h });
+    const good = isFinite(m) && m >= tg;
+    if (isFinite(m) && m < tg && isFinite(t)) {
+      const np = nicePrice(t); let gain = ""; try { gain = ` Das bringt ca. <strong>${eur(calc(a, x.ch, np, ctx).profit - r.profit)}</strong> mehr Gewinn pro Stück.`; } catch (e) {}
+      add(m < tg / 2 ? "bad" : "warn", `<strong>Preis zu niedrig.</strong> Marge ${pct(m)} statt ${pct(tg)}. Heb den Preis auf <strong>${eur(np)}</strong> an (+${eur(np - P)}).${gain} Solange er niedriger ist, keine Rabatt-Aktionen.`);
+    }
+    if (x.noSales) {
+      if (good) add("warn", `<strong>Kein Verkauf, aber die Marge stimmt.</strong> Am Preis liegt es nicht, es fehlt Sichtbarkeit: Hauptfoto auf hellem Hintergrund und eins im Raum, Titel auf 110 bis 140 Zeichen mit den wichtigsten Suchbegriffen vorne, alle 13 Tags nutzen. Tut sich nach 8 Wochen nichts, markier ihn zum Entfernen.`);
+      else add("bad", `<strong>Kein Verkauf und zu wenig Marge.</strong> Das lohnt sich nur, wenn der Preis steigt. Sonst markier den Artikel zum Entfernen.`);
+    } else if (x.abc === "A") add("good", `<strong>Bestseller</strong> (${dec(x.share, 1)} % deines Gewinns). Lager nie leer laufen lassen, Fotos und Video aufwerten und den Preis um 1 bis 2 € testen. Jeder Euro mehr wirkt hier am stärksten.`);
+    else if (x.abc === "B") add("good", `<strong>Gut dabei</strong> (${dec(x.share, 1)} % deines Gewinns). Mit besserem Titel, mehr Fotos und einem Set oder Aufpreis-Angebot (z. B. mit Gravur) wird daraus ein A-Artikel.`);
+    else if (pm > 0 && good) add("warn", `<strong>Verkauft kaum</strong> (${dec(pm)} pro Monat) bei guter Marge. Mehr Sichtbarkeit bringt hier am meisten: Titel, Tags und Fotos überarbeiten.`);
+    if (isFinite(x.dmax) && x.dmax >= 15) add("good", `<strong>Spielraum für Aktionen:</strong> bis −${x.dmax} % Rabatt (Preis ${eur(P * (1 - x.dmax / 100))}), ohne unter deine Ziel-Marge zu fallen.`);
+    const pr = r.P > 0 ? r.porto / r.P : 0; if (pr > 0.2) add("warn", `<strong>Der Versand frisst ${dec(pr * 100, 0)} % des Preises</strong> (${eur(r.porto)}${r.ship && r.ship.chosen ? ", " + esc(r.ship.chosen.o.n) : ""}). Prüf einen kleineren Karton oder eine günstigere Versandart.`);
+    const w = pickWage(x); if (pm > 0 && isFinite(w) && w < 15) add("warn", `<strong>Stundenlohn nur ${eur(w)}/h.</strong> Arbeitszeit senken (Zuschnitt, Schleifen) oder den Preis anheben.`);
+    if (x.miss && x.miss.length) add("warn", `<strong>Daten fehlen:</strong> ${x.miss.map(esc).join(", ")}. Ohne sie stimmen Versand und Marge nicht genau.`);
+    (sIss[a.id] || []).slice(0, 4).forEach(i => add("warn", `<strong>${i.src}:</strong> ${esc(i.txt)}. ${esc(i.tip)}`));
+    if (!T.length) add("good", `Nichts Auffälliges: Preis, Marge und Verkäufe passen.`);
+    return T;
+  }
+  const tipPop = (() => { let el = null; return { get() { if (!el) { el = document.createElement("div"); el.id = "tipPop"; el.hidden = true; el.setAttribute("role", "dialog"); document.body.appendChild(el); } return el; } }; })();
+  function showTip(btn) {
+    const id = btn.dataset.arttip, T = ARTTIPS[id]; if (!T) return; const a = A.find(x => x.id === id), el = tipPop.get();
+    el.innerHTML = `<strong style="display:block;margin-bottom:6px">So verkauft sich ${esc(a ? a.name : "der Artikel")} besser</strong><ul>${T.map(t => `<li class="${t.sev}">${t.h}</li>`).join("")}</ul>`;
+    el.hidden = false; const b = btn.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+    let left = Math.min(Math.max(8, b.left), window.innerWidth - w - 8), top = b.bottom + 8; if (top + h > window.innerHeight - 8) top = Math.max(8, b.top - h - 8);
+    el.style.left = left + "px"; el.style.top = top + "px"; el.dataset.for = id;
+  }
+  const hideTip = () => { const el = document.getElementById("tipPop"); if (el) el.hidden = true; };
+  document.addEventListener("mouseover", e => { const b = e.target.closest && e.target.closest("[data-arttip]"); if (b) showTip(b); else if (!e.target.closest("#tipPop")) hideTip(); });
+  document.addEventListener("focusin", e => { const b = e.target.closest && e.target.closest("[data-arttip]"); if (b) showTip(b); });
+  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-arttip]"); if (b) { e.preventDefault(); e.stopPropagation(); showTip(b); } else if (!e.target.closest("#tipPop")) hideTip(); }, true);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") hideTip(); });
+  window.addEventListener("scroll", hideTip, true);
   const OV_COLS = [
     { k: "abc", l: () => "ABC", def: true, tip: ABC_TIP, sort: x => ({ A: 3000, B: 2000, C: 1000 }[x.abc] || 0) + (x.share || 0),
       cell: x => `<div class="abccell"><span class="abc abc-${x.abc}" title="${esc(x.noSales ? "Keine Verkäufe" : dec(x.share, 1) + " % deines Gewinns")}">${x.abc}</span><small class="note">${x.noSales ? "kein Verkauf" : dec(x.share, 1) + " %"}</small></div>` },
@@ -1896,6 +1948,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       return { a, ch, r, pm: salesPerMonth(a), t, dmax: maxDisc(a, ch, ctx, t), miss: missing(a) };
     });
     const abc = abcInfo(); rows.forEach(x => Object.assign(x, abc[x.a.id] || { abc: "C", share: 0, noSales: true }));
+    if (!SHOP) shopLoad(); const sIss = shopIssuesByArt(); Object.keys(ARTTIPS).forEach(k => delete ARTTIPS[k]);
+    rows.forEach(x => { x.tips = ARTTIPS[x.a.id] = artTips(x, sIss, ctx); });
     const visCols = ovCols();
     const key = sortKey === "name" ? x => norm(x.a.name) : ((OV_COLS.find(c => c.k === sortKey) || {}).sort || (x => x.r.profit));
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
@@ -1943,7 +1997,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             const [c, w] = status(r.margin);
             return `<tr class="ovrow${sel.has(a.id) ? " selected" : ""}${a.remove ? " rmrow" : ""}">
               <td class="selcol"><div class="selstack"><button class="star" data-star="${a.id}" aria-pressed="${!!a.fav}" aria-label="${a.fav ? "Markierung entfernen" : "Markieren"}">${a.fav ? "★" : "☆"}</button><input type="checkbox" data-sel="${a.id}" aria-label="Auswählen" ${sel.has(a.id) ? "checked" : ""}></div></td>
-              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<a class="artlink" href="#artikel-${a.id}" data-open="${a.id}">${esc(a.name)}</a> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${a.remove ? '<span class="chip rm">Entfernen</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
+              <td class="name">${thumbHTML(a).replace("<img ", `<img data-open="${a.id}" title="Artikel öffnen" `)}<a class="artlink" href="#artikel-${a.id}" data-open="${a.id}">${esc(a.name)}</a> <button type="button" class="tipbtn ${x.tips.some(t => t.sev === "bad") ? "bad" : x.tips.some(t => t.sev === "warn") ? "warn" : "good"}" data-arttip="${a.id}" aria-label="Tipps: so verkauft sich der Artikel besser">i</button> <span class="show-sm note num">${eur(r.P)}</span><br>${a.sku ? `<span class="note num">${esc(a.sku)}</span> ` : ""}${a.example ? '<span class="chip ex">Beispiel</span>' : ""}${a.remove ? '<span class="chip rm">Entfernen</span>' : ""}${miss.map(x => `<span class="chip miss" data-open="${a.id}" data-focus="${x}" title="Zum Feld springen">${x} fehlt</span>`).join("")}${a.todo || a.note ? `<div class="todo-note">${a.todo ? "📝 " : ""}${esc(a.note || "Nochmal dran arbeiten")}</div>` : ""}</td>
               ${visCols.map(c => `<td class="${c.cls || ""}${c.hideSm ? " hide-sm" : ""}"${c.style ? ` style="${c.style(x)}"` : ""}>${c.cell(x)}</td>`).join("")}</tr>`;
           }).join("") || `<tr><td colspan="${visCols.length + 2}" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
@@ -3751,7 +3805,7 @@ Antworte NUR mit JSON in dieser Form:
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
-    shopLoading = false; if (view === "shopcheck") renderShop();
+    shopLoading = false; if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview();
   }
   const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
   const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
