@@ -103,6 +103,8 @@ table.ov td.name { white-space: normal; min-width: 260px }
 .abc-A { color: var(--good) } .abc-B { color: var(--warn) } .abc-C { color: var(--muted) }
 .rmbtn { font: 500 .78rem var(--font-body); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; white-space: nowrap }
 .rmbtn:hover { border-color: var(--bad); color: var(--bad) }
+.rmbtn.okon { border-color: var(--good); color: var(--good) } .rmbtn.okon:hover { border-color: var(--good) }
+.rmbtn.warnon { border-color: var(--warn); color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent) } .rmbtn.warnon:hover { border-color: var(--warn); color: var(--warn) }
 .rmbtn.on { border-color: var(--bad); background: var(--bad); color: #fff }
 tr.rmrow td:not(:first-child) { opacity: .6 }
 .chip.rm { color: var(--bad); font-weight: 600 }
@@ -440,7 +442,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 148 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 149 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1131,6 +1133,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       cell: x => `<div class="abccell"><span class="abc abc-${x.abc}" title="${esc(x.noSales ? "Keine Verkäufe" : dec(x.share, 1) + " % deines Gewinns")}">${x.abc}</span><small class="note">${x.noSales ? "kein Verkauf" : dec(x.share, 1) + " %"}</small></div>` },
     { k: "remove", l: () => "Entfernen", def: true, tip: "Artikel markieren, den du aus dem Sortiment nehmen willst", sort: x => x.a.remove ? 1 : 0,
       cell: x => `<button type="button" class="rmbtn${x.a.remove ? " on" : ""}" data-rm="${x.a.id}" aria-pressed="${!!x.a.remove}" title="${x.a.remove ? "Markierung entfernen" : "Zum Entfernen markieren"}">${x.a.remove ? "✕ Entfernen" : "Entfernen?"}</button>` },
+    { k: "stand", l: () => "Stand", def: true, fresh: "ok1", tip: "Merkzeichen: Hast du den Artikel bei Etsy und Shopify auf den neuesten Stand gebracht (Preis, Texte, Versand)? Klick zum Abhaken. Ändern sich danach Preis, Einkauf, Rabatt, Gewicht oder Karton, wird es orange.", sort: x => okState(x.a),
+      cell: x => { const st = okState(x.a), d = x.a.ok && x.a.ok.at ? dDE(x.a.ok.at).slice(0, 6) : ""; return st === 2 ? `<button type="button" class="rmbtn okon" data-ok="${x.a.id}" title="Erledigt am ${esc(dDE(x.a.ok.at))}. Klick nimmt das Häkchen zurück.">✓ ${esc(d)}</button>` : st === 1 ? `<button type="button" class="rmbtn warnon" data-ok="${x.a.id}" title="Seit dem Häkchen am ${esc(dDE(x.a.ok.at))} hat sich etwas geändert. Klick: wieder auf aktuell setzen.">⚠ geändert</button>` : `<button type="button" class="rmbtn" data-ok="${x.a.id}" title="Als auf dem neuesten Stand markieren">Aktuell?</button>`; } },
     { k: "price", l: () => "Preis", def: true, hideSm: true, cls: "num", sort: x => x.r.P,
       cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="price" data-qid="${x.a.id}" value="${v(x.a.price) ? v(x.a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(x.a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>` },
     { k: "pm", l: () => "Verk./Mon.", def: true, hideSm: true, cls: "num", sort: x => x.pm, cell: x => x.pm ? dec(x.pm) : "–" },
@@ -1167,7 +1171,19 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   ];
   let colsOpen = false, abcF = "";
   const colDef = k => { const d = S.colDefaults && S.colDefaults[k]; return Array.isArray(d) ? d : null; };
-  const ovCols = () => { const on = LS.get("hlz-app-cols") || colDef("ov"); return OV_COLS.filter(c => Array.isArray(on) ? on.includes(c.k) : c.def); };
+  const ovCols = () => {
+    // neue Spalten einmalig in deine gespeicherte Auswahl aufnehmen
+    const seen = LS.get("hlz-app-colseen") || [], saved = LS.get("hlz-app-cols"), dflt = colDef("ov");
+    OV_COLS.filter(c => c.fresh && !seen.includes(c.fresh)).forEach(c => {
+      if (Array.isArray(saved) && !saved.includes(c.k)) LS.set("hlz-app-cols", saved.concat(c.k));
+      if (dflt && !dflt.includes(c.k)) { S.colDefaults = Object.assign({}, S.colDefaults, { ov: dflt.concat(c.k) }); saveSettings(); }
+      seen.push(c.fresh); LS.set("hlz-app-colseen", seen);
+    });
+    const on = LS.get("hlz-app-cols") || colDef("ov"); return OV_COLS.filter(c => Array.isArray(on) ? on.includes(c.k) : c.def);
+  };
+  // "Auf dem neuesten Stand": Merkzeichen pro Artikel, wird orange, sobald sich Preis, Einkauf, Rabatt, Gewicht oder Karton danach ändern
+  const okSig = a => [a.price, a.ext, a.disc, a.weight, a.box, a.shipMode].map(x => x ?? "").join("|");
+  const okState = a => !a.ok ? 0 : a.ok.sig === okSig(a) ? 2 : 1;
 
   function bulkPanel(list) {
     const fields = bulkFields().map(([k, l, type, opts]) => {
@@ -2637,7 +2653,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
     if (e.target.closest("[data-q]")) return;
-    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel],[data-ordf],[data-orddone],[data-rm],[data-abcf],[data-step]");
+    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel],[data-ordf],[data-orddone],[data-rm],[data-ok],[data-abcf],[data-step]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.step !== undefined && t.hasAttribute("data-step")) { if (d.step) { pendingFocus = "auto"; go("artikel-" + d.step); } return; }
@@ -2662,6 +2678,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
     if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
     if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
+    if (d.ok !== undefined && d.ok) { const x = A.find(q => q.id === d.ok); if (x) { if (okState(x) === 2) { delete x.ok; toast("Häkchen entfernt"); } else { x.ok = { sig: okSig(x), at: isoD(new Date()) }; toast("Auf dem neuesten Stand"); } saveArticle(x); renderOverview(); } return; }
     if (d.rm !== undefined && d.rm) { const x = A.find(q => q.id === d.rm); if (x) { x.remove = !x.remove; if (!x.remove) delete x.remove; saveArticle(x); renderOverview(); } return; }
     if (d.abcf !== undefined && t.hasAttribute("data-abcf")) { abcF = d.abcf; return renderOverview(); }
     if (d.ordf) { ord.f = d.ordf; ord.ask = ""; return renderOrders(); }
