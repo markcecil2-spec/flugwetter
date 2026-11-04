@@ -447,7 +447,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 151 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 152 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1112,7 +1112,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <p class="note" style="margin:2px 0 8px">Gilt für ${esc(a.name)}. Das Fenster bleibt offen, bis du es schließt.</p>
       <div style="margin:4px 0 14px"><div class="row" style="margin-bottom:6px"><strong>Checkliste: Artikel auf den neuesten Stand bringen</strong><span class="note num">${chkN(a) || (standOf(a) === "ok" || standOf(a) === "changed" ? STEPS.length : 0)} von ${STEPS.length}</span></div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px">${STEPS.map(([k, l]) => { const on = !!(a.chk && a.chk[k]); return `<label class="chkitem${on ? " done" : ""}"><input type="checkbox" data-chk="${k}" ${on ? "checked" : ""}><span>${l}</span></label>`; }).join("")}</div>
-        <p class="note" style="margin:6px 0 0">Der erste Haken setzt den Artikel auf „In Bearbeitung“, alle fünf auf „✓ Aktuell“.${standOf(a) === "changed" ? ` <strong style="color:var(--warn)">Seit dem letzten Abhaken hat sich etwas geändert (Preis, Einkauf, Rabatt, Gewicht oder Karton). Prüf Etsy und Shopify nochmal.</strong>` : ""}</p></div>
+        <p class="note" style="margin:6px 0 0">Sind alle fünf Haken gesetzt, steht der Artikel auf „✓ Aktuell“.${standOf(a) === "changed" ? ` <strong style="color:var(--warn)">Seit dem letzten Abhaken hat sich etwas geändert (Preis, Einkauf, Rabatt, Gewicht oder Karton). Prüf Etsy und Shopify nochmal.</strong>` : ""}</p></div>
       <div class="tipgrid"><div><ul>${T.map(t => `<li class="t-${t.sev}">${t.h}</li>`).join("")}</ul>
       ${now.length ? `<h3 style="margin:14px 0 6px">So steht es aktuell bei dir</h3><div style="display:grid;gap:10px">${now.join("")}</div>` : `<p class="note" style="margin-top:12px">Zu diesem Produkt habe ich noch keine Etsy- oder Shopify-Daten. Lade im Shop-Check die Etsy-CSV hoch und klick bei Shopify auf „Jetzt prüfen“, dann vergleiche ich den aktuellen Stand.</p>`}
       </div><div>
@@ -1143,9 +1143,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         return `<button type="button" class="fortbtn" data-arttip="${x.a.id}" title="${n} von ${STEPS.length} Schritten erledigt. Klick öffnet die Checkliste."><span class="fortbar">${STEPS.map((_, i) => `<i style="${i < n ? "background:" + col : ""}"></i>`).join("")}</span><small class="note num">${n}/${STEPS.length}</small></button>`; } },
     { k: "abc", l: () => "ABC", def: true, tip: ABC_TIP, sort: x => ({ A: 3000, B: 2000, C: 1000 }[x.abc] || 0) + (x.share || 0),
       cell: x => `<div class="abccell"><span class="abc abc-${x.abc}" title="${esc(x.noSales ? "Keine Verkäufe" : dec(x.share, 1) + " % deines Gewinns")}">${x.abc}</span><small class="note">${x.noSales ? "kein Verkauf" : dec(x.share, 1) + " %"}</small></div>` },
-    { k: "stand", l: () => "Stand", def: true, fresh: "ok1", tip: "Ein Button, jeder Klick schaltet weiter: Aktuell? → Entfernen → In Bearbeitung → Aktuell (erledigt) → wieder leer. Umschalt + Klick geht einen Schritt zurück. Wird ein erledigter Artikel danach geändert (Preis, Einkauf, Rabatt, Gewicht, Karton), erscheint „geändert“.", sort: x => STAND_ORDER[standOf(x.a)],
-      cell: x => { const st = standOf(x.a), at = x.a.ok && x.a.ok.at ? dDE(x.a.ok.at) : "", t = "Klick: nächster Schritt (Aktuell? → Entfernen → In Bearbeitung → Aktuell). Umschalt + Klick: zurück.";
-        return st === "ok" ? `<button type="button" class="rmbtn okon" data-ok="${x.a.id}" title="Erledigt am ${esc(at)}. ${t}">✓ ${esc(at.slice(0, 6))}</button>` : st === "changed" ? `<button type="button" class="rmbtn warnon" data-ok="${x.a.id}" title="Seit dem Häkchen am ${esc(at)} hat sich etwas geändert. Klick: wieder auf aktuell setzen.">⚠ geändert</button>` : st === "bearb" ? `<button type="button" class="rmbtn bearb" data-ok="${x.a.id}" title="${t}">In Bearbeitung</button>` : st === "rm" ? `<button type="button" class="rmbtn on" data-ok="${x.a.id}" title="${t}">✕ Entfernen</button>` : `<button type="button" class="rmbtn" data-ok="${x.a.id}" title="${t}">Aktuell?</button>`; } },
+    { k: "stand", l: () => "Stand", def: true, fresh: "ok1", tip: "Ein Button, jeder Klick schaltet weiter: Aktuell? → Entfernen → Aktuell (erledigt) → wieder leer. Umschalt + Klick geht einen Schritt zurück. Wird ein erledigter Artikel danach geändert (Preis, Einkauf, Rabatt, Gewicht, Karton), erscheint „geändert“.", sort: x => STAND_ORDER[standOf(x.a)],
+      cell: x => { const st = standOf(x.a), at = x.a.ok && x.a.ok.at ? dDE(x.a.ok.at) : "", t = "Klick: nächster Schritt (Aktuell? → Entfernen → Aktuell). Umschalt + Klick: zurück.";
+        return st === "ok" ? `<button type="button" class="rmbtn okon" data-ok="${x.a.id}" title="Erledigt am ${esc(at)}. ${t}">✓ ${esc(at.slice(0, 6))}</button>` : st === "changed" ? `<button type="button" class="rmbtn warnon" data-ok="${x.a.id}" title="Seit dem Häkchen am ${esc(at)} hat sich etwas geändert. Klick: wieder auf aktuell setzen.">⚠ geändert</button>` : st === "rm" ? `<button type="button" class="rmbtn on" data-ok="${x.a.id}" title="${t}">✕ Entfernen</button>` : `<button type="button" class="rmbtn" data-ok="${x.a.id}" title="${t}">Aktuell?</button>`; } },
     { k: "price", l: () => "Preis", def: true, hideSm: true, cls: "num", sort: x => x.r.P,
       cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="price" data-qid="${x.a.id}" value="${v(x.a.price) ? v(x.a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(x.a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>` },
     { k: "pm", l: () => "Verk./Mon.", def: true, hideSm: true, cls: "num", sort: x => x.pm, cell: x => x.pm ? dec(x.pm) : "–" },
@@ -1194,28 +1194,27 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   };
   // "Auf dem neuesten Stand": Merkzeichen pro Artikel, wird orange, sobald sich Preis, Einkauf, Rabatt, Gewicht oder Karton danach ändern
   const okSig = a => [a.price, a.ext, a.disc, a.weight, a.box, a.shipMode].map(x => x ?? "").join("|");
-  // Stand pro Artikel, ein Button schaltet der Reihe nach weiter: offen → Entfernen → In Bearbeitung → Aktuell → offen
-  const standOf = a => a.remove ? "rm" : a.bearb ? "bearb" : a.ok ? (a.ok.sig === okSig(a) ? "ok" : "changed") : "none";
+  // Stand pro Artikel, ein Button schaltet der Reihe nach weiter: offen → Entfernen → Aktuell → offen
+  const standOf = a => a.remove ? "rm" : a.ok ? (a.ok.sig === okSig(a) ? "ok" : "changed") : "none";
   const STEPS = [["pe", "Preis bei Etsy angepasst"], ["ps", "Preis bei Shopify angepasst"], ["tx", "Titel, Tags und Beschreibung (SEO) geprüft"], ["fo", "Fotos geprüft"], ["vs", "Versandprofil geprüft"]];
   const chkN = a => STEPS.filter(([k]) => a.chk && a.chk[k]).length;
   const allChk = () => Object.fromEntries(STEPS.map(([k]) => [k, true]));
-  const STAND_ORDER = { none: 0, rm: 1, bearb: 2, changed: 3, ok: 4 };
+  const STAND_ORDER = { none: 0, rm: 1, changed: 2, ok: 3 };
   function standStep(a, back) {
-    const cur = standOf(a), fwd = { none: "rm", rm: "bearb", bearb: "ok", changed: "ok", ok: "none" }, bwd = { none: "ok", rm: "none", bearb: "rm", changed: "none", ok: "bearb" };
+    const cur = standOf(a), fwd = { none: "rm", rm: "ok", changed: "ok", ok: "none" }, bwd = { none: "ok", rm: "none", changed: "none", ok: "rm" };
     const nx = (back ? bwd : fwd)[cur];
     delete a.remove; delete a.bearb; if (nx !== "ok") delete a.ok;
-    if (nx === "rm") a.remove = true; else if (nx === "bearb") a.bearb = true; else if (nx === "ok") { a.ok = { sig: okSig(a), at: isoD(new Date()) }; a.chk = allChk(); }
+    if (nx === "rm") a.remove = true; else if (nx === "ok") { a.ok = { sig: okSig(a), at: isoD(new Date()) }; a.chk = allChk(); }
     if (nx === "none" && cur === "ok") delete a.chk;
-    if (nx === "bearb" && cur === "ok" && a.chk) a.chk.vs = false;
     return nx;
   }
-  // Checkliste: alle fünf Haken setzen den Artikel auf „Aktuell“, der erste Haken auf „In Bearbeitung“
+  // Checkliste: alle fünf Haken setzen den Artikel auf „Aktuell“
   function chkToggle(a, key) {
     a.chk = a.chk || {}; a.chk[key] = !a.chk[key]; const n = chkN(a);
-    if (n === STEPS.length) { delete a.remove; delete a.bearb; a.ok = { sig: okSig(a), at: isoD(new Date()) }; }
-    else { delete a.ok; if (!a.remove) { if (n > 0) a.bearb = true; else delete a.bearb; } }
+    delete a.bearb;
+    if (n === STEPS.length) { delete a.remove; a.ok = { sig: okSig(a), at: isoD(new Date()) }; } else delete a.ok;
   }
-  const STAND_TOAST = { none: "Zurückgesetzt", rm: "Zum Entfernen markiert", bearb: "In Bearbeitung", ok: "Auf dem neuesten Stand" };
+  const STAND_TOAST = { none: "Zurückgesetzt", rm: "Zum Entfernen markiert", ok: "Auf dem neuesten Stand" };
 
   function bulkPanel(list) {
     const fields = bulkFields().map(([k, l, type, opts]) => {
@@ -2104,9 +2103,9 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         </div>
         ${colsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-act="colsSave" title="Aktuelle Auswahl als Standard für alle Geräte speichern">Als Standard speichern</button><button class="btn" data-act="colsReset">Standard</button><button class="btn" data-act="cols">Fertig</button></span></div>
           <div class="colpick-list">${OV_COLS.map(c => `<label class="switch"><input type="checkbox" data-col="${c.k}" ${visCols.includes(c) ? "checked" : ""}><span class="track"></span>${esc(c.l())}</label>`).join("")}</div></div>` : ""}
-        ${(() => { const c = { ok: 0, changed: 0, bearb: 0, rm: 0, none: 0 }; rows.forEach(x => c[standOf(x.a)]++); const n = rows.length || 1, w = k => (c[k] / n * 100).toFixed(2) + "%";
-          return `<div style="display:grid;gap:6px"><div class="progbar" role="img" aria-label="${c.ok} von ${rows.length} Artikeln auf dem neuesten Stand"><div style="width:${w("ok")};background:var(--good)"></div><div style="width:${w("changed")};background:var(--warn)"></div><div style="width:${w("bearb")};background:var(--seg-ship)"></div><div style="width:${w("rm")};background:var(--bad);opacity:.6"></div></div>
-          <p class="note" style="margin:0"><strong>${c.ok} von ${rows.length}</strong> Artikeln auf dem neuesten Stand${c.bearb ? ` · ${c.bearb} in Bearbeitung` : ""}${c.changed ? ` · <span style="color:var(--warn)">${c.changed} geändert</span>` : ""}${c.rm ? ` · ${c.rm} zum Entfernen` : ""} · ${c.none} noch offen</p></div>`; })()}
+        ${(() => { const c = { ok: 0, changed: 0, rm: 0, none: 0 }; rows.forEach(x => c[standOf(x.a)]++); const n = rows.length || 1, w = k => (c[k] / n * 100).toFixed(2) + "%";
+          return `<div style="display:grid;gap:6px"><div class="progbar" role="img" aria-label="${c.ok} von ${rows.length} Artikeln auf dem neuesten Stand"><div style="width:${w("ok")};background:var(--good)"></div><div style="width:${w("changed")};background:var(--warn)"></div><div style="width:${w("rm")};background:var(--bad);opacity:.6"></div></div>
+          <p class="note" style="margin:0"><strong>${c.ok} von ${rows.length}</strong> Artikeln auf dem neuesten Stand${c.changed ? ` · <span style="color:var(--warn)">${c.changed} geändert</span>` : ""}${c.rm ? ` · ${c.rm} zum Entfernen` : ""} · ${c.none} noch offen</p></div>`; })()}
         <div class="seg" aria-label="Ordner">${folders.map(([k, l, n]) => `<button type="button" data-folder="${k}" aria-pressed="${f === k}">${k === "open" ? "⚠ " : k === "done" ? "✓ " : k === "todo" ? "📝 " : k === "remove" ? "✕ " : ""}${l} <span class="num">${n}</span></button>`).join("")}</div>
         <div class="seg" aria-label="ABC-Bewertung"><button type="button" data-abcf="" aria-pressed="${!abcF}" title="${esc(ABC_TIP)}">ABC: alle</button>${["A", "B", "C"].map(k => `<button type="button" data-abcf="${k}" aria-pressed="${abcF === k}"><span class="abc abc-${k} sm">${k}</span> ${nAbc[k]}</button>`).join("")}</div>
         ${sel.size ? (bulkDelAsk ? `<div class="selbar danger"><strong>${sel.size} Artikel wirklich löschen?</strong><span class="note">Lässt sich nicht rückgängig machen.</span><span class="btns"><button class="btn danger" data-act="bulkDelYes">Ja, löschen</button><button class="btn" data-act="bulkDelNo">Abbrechen</button></span></div>` : `<div class="selbar"><strong>${sel.size} ausgewählt</strong><span class="btns"><button class="btn${cmp ? " primary" : ""}" data-act="cmpOpen" ${sel.size < 2 ? 'disabled title="Mindestens 2 Artikel auswählen"' : ""}>Vergleichen</button><button class="btn" data-act="bulkEdit">Gemeinsam bearbeiten</button><button class="btn" data-act="exportSel">Exportieren</button><button class="btn" data-act="${[...sel].every(id => (ordArt(id) || {}).remove) ? "rmOff" : "rmOn"}">${[...sel].every(id => (ordArt(id) || {}).remove) ? "Markierung „Entfernen“ aufheben" : "✕ Zum Entfernen markieren"}</button><button class="btn danger" data-act="bulkDel">Löschen</button><button class="btn" data-act="selNone">Auswahl aufheben</button></span></div>`) : ""}
