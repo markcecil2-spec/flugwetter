@@ -128,7 +128,11 @@ tr.rmrow td:not(:first-child) { opacity: .6 }
 .anagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
 .tipbtn { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 4px; padding: 0; border-radius: 50%; border: 1.5px solid currentColor; background: transparent; font: 700 11px/1 var(--font-body); cursor: help; vertical-align: 1px }
 .tipbtn.good { color: var(--good) } .tipbtn.warn { color: var(--warn) } .tipbtn.bad { color: var(--bad) }
-#tipPop { position: fixed; z-index: 50; top: calc(var(--toph, 60px) + 8px); right: 12px; width: min(480px, calc(100vw - 24px)); max-height: calc(100vh - var(--toph, 60px) - 24px); overflow: auto; padding: 12px 14px; border-radius: 10px; background: var(--panel); color: var(--fg); border: 1px solid var(--line); box-shadow: 0 10px 30px rgb(0 0 0 / .22); font-size: .85rem; line-height: 1.45 }
+#tipPop { position: fixed; z-index: 50; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(1160px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; padding: 12px 14px; border-radius: 10px; background: var(--panel); color: var(--fg); border: 1px solid var(--line); box-shadow: 0 10px 30px rgb(0 0 0 / .22); font-size: .85rem; line-height: 1.45 }
+.tipgrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start }
+@media (min-width: 900px) { .tipgrid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) } }
+#tipPop { font-size: .92rem }
+#tipPop textarea { min-height: 220px }
 #tipPop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px }
 #tipPop li { padding-left: 10px; border-left: 3px solid var(--line) } #tipPop li.t-good { border-color: var(--good) } #tipPop li.t-warn { border-color: var(--warn) } #tipPop li.t-bad { border-color: var(--bad) }
 .navbadge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: var(--warn); color: #fff; font-size: .72rem; font-weight: 700; line-height: 18px; text-align: center }
@@ -436,7 +440,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 145 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 146 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1097,16 +1101,17 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (p) now.push(`<div class="field"><label>Shopify jetzt <span class="note num">SEO-Titel ${(p.seoT || "").length}/60 · Meta ${(p.seoD || "").length}/155 · Beschreibung ${p.dl} Zeichen · ${p.img} Bilder</span></label><p style="margin:0">${esc(p.title)}</p><p class="note" style="margin:4px 0 0">SEO-Titel: ${esc(p.seoT || "fehlt")}<br>Meta: ${esc(p.seoD || "fehlt")}</p></div>`);
     el.innerHTML = `<div class="row" style="flex-wrap:nowrap;align-items:flex-start"><strong style="flex:1;min-width:0">So verkauft sich ${esc(baseOf(a))} besser</strong><button type="button" class="x" data-tipclose="1" aria-label="Schließen" title="Schließen (Esc)">×</button></div>
       <p class="note" style="margin:2px 0 8px">Gilt für ${esc(a.name)}. Das Fenster bleibt offen, bis du es schließt.</p>
-      <ul>${T.map(t => `<li class="t-${t.sev}">${t.h}</li>`).join("")}</ul>
+      <div class="tipgrid"><div><ul>${T.map(t => `<li class="t-${t.sev}">${t.h}</li>`).join("")}</ul>
       ${now.length ? `<h3 style="margin:14px 0 6px">So steht es aktuell bei dir</h3><div style="display:grid;gap:10px">${now.join("")}</div>` : `<p class="note" style="margin-top:12px">Zu diesem Produkt habe ich noch keine Etsy- oder Shopify-Daten. Lade im Shop-Check die Etsy-CSV hoch und klick bei Shopify auf „Jetzt prüfen“, dann vergleiche ich den aktuellen Stand.</p>`}
-      <h3 style="margin:14px 0 6px">SEO-Vorschlag: Titel, Tags, Beschreibung</h3>
+      </div><div>
+      <h3 style="margin:0 0 6px">SEO-Vorschlag: Titel, Tags, Beschreibung</h3>
       <div class="btns"><button type="button" class="btn primary" data-tipseo="gen" ${tipSt.busy ? "disabled" : ""}>${tipSt.busy ? "Claude schreibt …" : res ? "Neuen Vorschlag erstellen" : "SEO-Vorschlag erstellen"}</button>${tipSt.busy ? `<button type="button" class="btn" data-tipseo="stop">Stopp</button>` : ""}</div>
       ${tipSt.busy ? `<p class="note">Dauert meist 20 bis 40 Sekunden. Beim ersten Mal fragt Claude nach deiner Freigabe.</p>` : ""}${tipSt.err ? `<p class="note"><strong>${esc(tipSt.err)}</strong></p>` : ""}
       ${res ? `<div style="display:grid;gap:10px;margin-top:10px">
         ${res.begruendung.length ? `<div><span class="label">Was ich geändert habe</span><ul style="margin:4px 0 0">${res.begruendung.map(b => `<li class="t-good">${esc(b)}</li>`).join("")}</ul></div>` : ""}
         <h4 style="margin:6px 0 0">Etsy</h4>${tipField("e-t", "Titel", res.etsy.titel, { max: 140 })}${tipField("e-tags", `Tags (${res.etsy.tags.length} von 13, in Etsy einzeln einfügen)`, res.etsy.tags.join(", "))}${tipField("e-m", "Materialien", res.etsy.materialien.join(", "))}${tipField("e-d", "Beschreibung", res.etsy.beschreibung, { area: true, rows: 10, max: 1400 })}
         <h4 style="margin:6px 0 0">Shopify</h4>${tipField("s-t", "Produkttitel", res.shopify.titel, { max: 70 })}${tipField("s-st", "SEO-Titel", res.shopify.seoTitel, { max: 60 })}${tipField("s-m", "Meta-Beschreibung", res.shopify.meta, { max: 155 })}${tipField("s-d", "Beschreibung", res.shopify.beschreibung, { area: true, rows: 8 })}${tipField("s-h", "URL-Name (Handle)", res.shopify.handle)}
-        <p class="note">Vorschläge von Claude aus den Daten oben, ohne erfundene Angaben. Lies sie vor dem Einfügen durch. Stand ${dDE(res.at.slice(0, 10))}.</p></div>` : ""}`;
+        <p class="note">Vorschläge von Claude aus den Daten oben, ohne erfundene Angaben. Lies sie vor dem Einfügen durch. Stand ${dDE(res.at.slice(0, 10))}.</p></div>` : ""}</div></div>`;
     el.hidden = false; el.scrollTop = sc;
   }
   function openTip(id) { tipSt.id = id; tipSt.err = ""; if (!SHOP) shopLoad().then(() => { if (!tipPop.get().hidden) renderTipPanel(); }); renderTipPanel(); }
