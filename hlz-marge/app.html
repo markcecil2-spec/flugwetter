@@ -128,9 +128,9 @@ tr.rmrow td:not(:first-child) { opacity: .6 }
 .anagrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px }
 .tipbtn { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-left: 4px; padding: 0; border-radius: 50%; border: 1.5px solid currentColor; background: transparent; font: 700 11px/1 var(--font-body); cursor: help; vertical-align: 1px }
 .tipbtn.good { color: var(--good) } .tipbtn.warn { color: var(--warn) } .tipbtn.bad { color: var(--bad) }
-#tipPop { position: fixed; z-index: 50; width: min(380px, calc(100vw - 16px)); max-height: 70vh; overflow: auto; padding: 12px 14px; border-radius: 10px; background: var(--panel); color: var(--fg); border: 1px solid var(--line); box-shadow: 0 10px 30px rgb(0 0 0 / .22); font-size: .85rem; line-height: 1.45 }
+#tipPop { position: fixed; z-index: 50; top: calc(var(--toph, 60px) + 8px); right: 12px; width: min(480px, calc(100vw - 24px)); max-height: calc(100vh - var(--toph, 60px) - 24px); overflow: auto; padding: 12px 14px; border-radius: 10px; background: var(--panel); color: var(--fg); border: 1px solid var(--line); box-shadow: 0 10px 30px rgb(0 0 0 / .22); font-size: .85rem; line-height: 1.45 }
 #tipPop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px }
-#tipPop li { padding-left: 10px; border-left: 3px solid var(--line) } #tipPop li.good { border-color: var(--good) } #tipPop li.warn { border-color: var(--warn) } #tipPop li.bad { border-color: var(--bad) }
+#tipPop li { padding-left: 10px; border-left: 3px solid var(--line) } #tipPop li.t-good { border-color: var(--good) } #tipPop li.t-warn { border-color: var(--warn) } #tipPop li.t-bad { border-color: var(--bad) }
 .navbadge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: var(--warn); color: #fff; font-size: .72rem; font-weight: 700; line-height: 18px; text-align: center }
 .ordtable th, .ordtable td { text-align: left; vertical-align: top; padding-left: 8px; padding-right: 8px }
 .ordtable tr.orddone td { opacity: .55 }
@@ -436,7 +436,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 144 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 145 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1042,20 +1042,83 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (!T.length) add("good", `Nichts Auffälliges: Preis, Marge und Verkäufe passen.`);
     return T;
   }
-  const tipPop = (() => { let el = null; return { get() { if (!el) { el = document.createElement("div"); el.id = "tipPop"; el.hidden = true; el.setAttribute("role", "dialog"); document.body.appendChild(el); } return el; } }; })();
-  function showTip(btn) {
-    const id = btn.dataset.arttip, T = ARTTIPS[id]; if (!T) return; const a = A.find(x => x.id === id), el = tipPop.get();
-    el.innerHTML = `<strong style="display:block;margin-bottom:6px">So verkauft sich ${esc(a ? a.name : "der Artikel")} besser</strong><ul>${T.map(t => `<li class="${t.sev}">${t.h}</li>`).join("")}</ul>`;
-    el.hidden = false; const b = btn.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
-    let left = Math.min(Math.max(8, b.left), window.innerWidth - w - 8), top = b.bottom + 8; if (top + h > window.innerHeight - 8) top = Math.max(8, b.top - h - 8);
-    el.style.left = left + "px"; el.style.top = top + "px"; el.dataset.for = id;
+  const tipPop = (() => { let el = null; return { get() { if (!el) { el = document.createElement("div"); el.id = "tipPop"; el.hidden = true; el.setAttribute("role", "dialog"); el.setAttribute("aria-label", "Verbesserungstipps"); document.body.appendChild(el); } return el; } }; })();
+  // Seitenpanel mit Tipps und SEO-Vorschlag: bleibt offen, bis du es schließt (× oder Esc)
+  const tipSt = { id: "", busy: false, err: "", ctl: null, vals: {} };
+  const baseOf = a => String(a.name).split(" · ")[0];
+  function shopFor(a) {
+    const ba = baseOf(a).toLowerCase(); let l = null, p = null;
+    try {
+      if (SHOP && SHOP.etsy) l = SHOP.etsy.listings.find(x => { const m = shopMatchArt(x.t, x.sku); return m && baseOf(m).toLowerCase() === ba; }) || null;
+      if (SHOP && SHOP.shopify) { const ps = SHOP.shopify.products.filter(x => { const m = shopMatchArt(x.title, x.sku); return m && baseOf(m).toLowerCase() === ba; }); p = ps.find(x => x.st === "ACTIVE") || ps[0] || null; }
+    } catch (e) {}
+    return { l, p };
   }
-  const hideTip = () => { const el = document.getElementById("tipPop"); if (el) el.hidden = true; };
-  document.addEventListener("mouseover", e => { const b = e.target.closest && e.target.closest("[data-arttip]"); if (b) showTip(b); else if (!e.target.closest("#tipPop")) hideTip(); });
-  document.addEventListener("focusin", e => { const b = e.target.closest && e.target.closest("[data-arttip]"); if (b) showTip(b); });
-  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-arttip]"); if (b) { e.preventDefault(); e.stopPropagation(); showTip(b); } else if (!e.target.closest("#tipPop")) hideTip(); }, true);
-  document.addEventListener("keydown", e => { if (e.key === "Escape") hideTip(); });
-  window.addEventListener("scroll", hideTip, true);
+  const seoCut = (s, n) => { s = String(s || "").trim(); if (s.length <= n) return s; const t = s.slice(0, n + 1), i = t.lastIndexOf(" "); return (i > n * 0.6 ? t.slice(0, i) : s.slice(0, n)).replace(/[\s,;:–-]+$/, ""); };
+  function seoPromptFor(a, l, p) {
+    const sizes = A.filter(x => baseOf(x) === baseOf(a)).map(x => String(x.name).split(" · ").slice(1).join(" · ")).filter(Boolean);
+    const cur = [];
+    if (l) cur.push(`Aktueller Etsy-Titel (${l.t.length} Zeichen): ${l.t}`, `Aktuelle Etsy-Tags (${l.tags.length}): ${l.tags.join(", ") || "keine"}`, `Aktuelle Materialien: ${l.mats.join(", ") || "keine"}`, `Beschreibungsanfang (gesamt ${l.dl} Zeichen): ${l.d}`);
+    if (p) cur.push(`Aktueller Shopify-Titel: ${p.title}`, `Aktueller SEO-Titel (${(p.seoT || "").length} Zeichen): ${p.seoT || "fehlt"}`, `Aktuelle Meta-Beschreibung (${(p.seoD || "").length} Zeichen): ${p.seoD || "fehlt"}`, `Beschreibung: ${p.dl} Zeichen, ${p.img} Bilder, ${p.noAlt} ohne Alt-Text`);
+    return `Du bist SEO- und Texterexperte für kleine deutsche Online-Shops und optimierst Angebote für HLZLaden (Etsy und Shopify). Der Shop verkauft handgefertigte Wohnaccessoires aus Eiche und Buche (Garderoben, Schlüsselbretter, Regale, Deko, teils mit Lasergravur).\n\nProdukt: ${baseOf(a)}\nGrößen/Varianten: ${sizes.join(", ") || "eine Größe"}\nVerkaufspreis: ${eur(v(a.price))}\n${cur.length ? "\nAktueller Stand:\n" + cur.join("\n") : "\n(Es liegen noch keine Etsy- oder Shopify-Daten zu diesem Produkt vor, schreib die Texte aus den Angaben oben.)"}\n\n`
+      + `Aufgabe: Mach daraus SEO-optimierte Texte, die besser gefunden werden und besser verkaufen. Regeln:\n- Erfinde keine Eigenschaften, Maße oder Materialien, die nicht oben stehen. Nutze die Größen, die oben genannt sind.\n- Etsy-Titel 110 bis 140 Zeichen, wichtigster Suchbegriff vorne (Produktart plus Material), danach Anlass, Einsatzort, Besonderheit. Keine Wortwiederholungen, kein Großschreiben ganzer Wörter.\n- Genau 13 Etsy-Tags, jeder höchstens 20 Zeichen, überwiegend Mehrwort-Begriffe, die Käufer wirklich eintippen. Keine Markennamen. Tags sollen Begriffe ergänzen, die im Titel nicht stehen.\n- Etsy-Beschreibung 800 bis 1400 Zeichen: Einstieg mit Nutzen und Hauptbegriff in den ersten zwei Sätzen, dann Aufzählung mit Spiegelstrichen (Größen, Material, Besonderheiten), Pflege, Montage oder Lieferumfang nur wenn bekannt, zum Schluss ein Satz zu Geschenk und Versand. Absätze durch eine Leerzeile.\n- Shopify: Produkttitel max. 70 Zeichen, SEO-Titel max. 60 Zeichen mit Hauptbegriff vorne, Meta-Beschreibung 130 bis 155 Zeichen mit Nutzen und Aufruf zum Klicken, Beschreibung 600 bis 1100 Zeichen, URL-Name (Handle).\n- "begruendung": 3 bis 5 kurze Punkte, was du gegenüber dem aktuellen Stand verbessert hast und warum (konkret, z. B. "Titel hatte nur 61 von 140 Zeichen").\n- Natürliches, warmes Deutsch ohne Floskeln.\n\n`
+      + `Antworte NUR mit JSON: {"etsy": {"titel": "...", "tags": ["..."], "materialien": ["..."], "beschreibung": "..."}, "shopify": {"titel": "...", "seoTitel": "...", "meta": "...", "beschreibung": "...", "handle": "..."}, "begruendung": ["..."]}`;
+  }
+  function seoClampFor(o) {
+    const tg = (a, n) => [...new Set((Array.isArray(a) ? a : []).map(x => String(x).trim()).filter(x => x && x.length <= 20))].slice(0, n), e = o.etsy || {}, s = o.shopify || {};
+    return { at: new Date().toISOString(), etsy: { titel: seoCut(e.titel, 140), tags: tg(e.tags, 13), materialien: (Array.isArray(e.materialien) ? e.materialien : []).map(String).slice(0, 5), beschreibung: String(e.beschreibung || "").trim() },
+      shopify: { titel: seoCut(s.titel, 70), seoTitel: seoCut(s.seoTitel, 60), meta: seoCut(s.meta, 155), beschreibung: String(s.beschreibung || "").trim(), handle: String(s.handle || "").toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) },
+      begruendung: (Array.isArray(o.begruendung) ? o.begruendung : []).map(String).filter(Boolean).slice(0, 6) };
+  }
+  async function seoSuggest() {
+    const a = A.find(x => x.id === tipSt.id); if (!a) return; const { l, p } = shopFor(a), sample = await getSample();
+    if (!sample) { tipSt.err = "Claude ist hier nicht verfügbar."; return renderTipPanel(); }
+    tipSt.busy = true; tipSt.err = ""; tipSt.ctl = new AbortController(); renderTipPanel();
+    try {
+      const o = await sample.json(seoPromptFor(a, l, p), { modelTier: "default", cache: false, signal: tipSt.ctl.signal });
+      if (!o || typeof o !== "object") throw { code: "invalid_json" };
+      await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
+      const items = Object.assign({}, SHOP.seo && SHOP.seo.items); items[baseOf(a).toLowerCase()] = seoClampFor(o);
+      shopSave({ id: "seo", items });
+    } catch (e) { tipSt.err = e && e.code === "cancelled" ? "" : e && e.code === "invalid_json" ? "Die Antwort kam unvollständig an, bitte nochmal versuchen." : e && e.code === "rate_limited" ? "Gerade zu viele Anfragen, bitte kurz warten." : supErr(e); }
+    tipSt.busy = false; tipSt.ctl = null; renderTipPanel();
+  }
+  const tipClip = s => { try { navigator.clipboard.writeText(s).then(() => toast("Kopiert"), () => toast("Kopieren geht hier nicht, bitte markieren und Strg+C")); } catch (e) { toast("Kopieren geht hier nicht, bitte markieren und Strg+C"); } };
+  function tipField(key, label, val, o = {}) {
+    tipSt.vals[key] = val; const cnt = o.max ? ` <span class="note num" style="${val.length > o.max ? "color:var(--bad)" : ""}">${val.length}/${o.max}</span>` : "";
+    return `<div class="field"><label>${esc(label)}${cnt}</label><div class="inp" style="align-items:stretch">${o.area ? `<textarea readonly rows="${o.rows || 7}" onclick="this.select()" style="width:100%">${esc(val)}</textarea>` : `<input type="text" readonly value="${esc(val)}" onclick="this.select()">`}<button type="button" class="btn" data-tipcopy="${key}" style="border:0;border-left:1px solid var(--line);border-radius:0">Kopieren</button></div></div>`;
+  }
+  function renderTipPanel() {
+    const el = tipPop.get(), a = A.find(x => x.id === tipSt.id), T = ARTTIPS[tipSt.id]; if (!a || !T) { el.hidden = true; return; }
+    const { l, p } = shopFor(a), res = SHOP && SHOP.seo && SHOP.seo.items && SHOP.seo.items[baseOf(a).toLowerCase()], sc = el.scrollTop;
+    tipSt.vals = {};
+    const now = [];
+    if (l) now.push(`<div class="field"><label>Etsy jetzt <span class="note num">Titel ${l.t.length}/140 · Tags ${l.tags.length}/13 · Beschreibung ${l.dl} Zeichen · ${l.img} Fotos</span></label><p style="margin:0">${esc(l.t)}</p><p class="note" style="margin:4px 0 0">${l.tags.length ? esc(l.tags.join(", ")) : "keine Tags"}</p></div>`);
+    if (p) now.push(`<div class="field"><label>Shopify jetzt <span class="note num">SEO-Titel ${(p.seoT || "").length}/60 · Meta ${(p.seoD || "").length}/155 · Beschreibung ${p.dl} Zeichen · ${p.img} Bilder</span></label><p style="margin:0">${esc(p.title)}</p><p class="note" style="margin:4px 0 0">SEO-Titel: ${esc(p.seoT || "fehlt")}<br>Meta: ${esc(p.seoD || "fehlt")}</p></div>`);
+    el.innerHTML = `<div class="row" style="flex-wrap:nowrap;align-items:flex-start"><strong style="flex:1;min-width:0">So verkauft sich ${esc(baseOf(a))} besser</strong><button type="button" class="x" data-tipclose="1" aria-label="Schließen" title="Schließen (Esc)">×</button></div>
+      <p class="note" style="margin:2px 0 8px">Gilt für ${esc(a.name)}. Das Fenster bleibt offen, bis du es schließt.</p>
+      <ul>${T.map(t => `<li class="t-${t.sev}">${t.h}</li>`).join("")}</ul>
+      ${now.length ? `<h3 style="margin:14px 0 6px">So steht es aktuell bei dir</h3><div style="display:grid;gap:10px">${now.join("")}</div>` : `<p class="note" style="margin-top:12px">Zu diesem Produkt habe ich noch keine Etsy- oder Shopify-Daten. Lade im Shop-Check die Etsy-CSV hoch und klick bei Shopify auf „Jetzt prüfen“, dann vergleiche ich den aktuellen Stand.</p>`}
+      <h3 style="margin:14px 0 6px">SEO-Vorschlag: Titel, Tags, Beschreibung</h3>
+      <div class="btns"><button type="button" class="btn primary" data-tipseo="gen" ${tipSt.busy ? "disabled" : ""}>${tipSt.busy ? "Claude schreibt …" : res ? "Neuen Vorschlag erstellen" : "SEO-Vorschlag erstellen"}</button>${tipSt.busy ? `<button type="button" class="btn" data-tipseo="stop">Stopp</button>` : ""}</div>
+      ${tipSt.busy ? `<p class="note">Dauert meist 20 bis 40 Sekunden. Beim ersten Mal fragt Claude nach deiner Freigabe.</p>` : ""}${tipSt.err ? `<p class="note"><strong>${esc(tipSt.err)}</strong></p>` : ""}
+      ${res ? `<div style="display:grid;gap:10px;margin-top:10px">
+        ${res.begruendung.length ? `<div><span class="label">Was ich geändert habe</span><ul style="margin:4px 0 0">${res.begruendung.map(b => `<li class="t-good">${esc(b)}</li>`).join("")}</ul></div>` : ""}
+        <h4 style="margin:6px 0 0">Etsy</h4>${tipField("e-t", "Titel", res.etsy.titel, { max: 140 })}${tipField("e-tags", `Tags (${res.etsy.tags.length} von 13, in Etsy einzeln einfügen)`, res.etsy.tags.join(", "))}${tipField("e-m", "Materialien", res.etsy.materialien.join(", "))}${tipField("e-d", "Beschreibung", res.etsy.beschreibung, { area: true, rows: 10, max: 1400 })}
+        <h4 style="margin:6px 0 0">Shopify</h4>${tipField("s-t", "Produkttitel", res.shopify.titel, { max: 70 })}${tipField("s-st", "SEO-Titel", res.shopify.seoTitel, { max: 60 })}${tipField("s-m", "Meta-Beschreibung", res.shopify.meta, { max: 155 })}${tipField("s-d", "Beschreibung", res.shopify.beschreibung, { area: true, rows: 8 })}${tipField("s-h", "URL-Name (Handle)", res.shopify.handle)}
+        <p class="note">Vorschläge von Claude aus den Daten oben, ohne erfundene Angaben. Lies sie vor dem Einfügen durch. Stand ${dDE(res.at.slice(0, 10))}.</p></div>` : ""}`;
+    el.hidden = false; el.scrollTop = sc;
+  }
+  function openTip(id) { tipSt.id = id; tipSt.err = ""; if (!SHOP) shopLoad().then(() => { if (!tipPop.get().hidden) renderTipPanel(); }); renderTipPanel(); }
+  document.addEventListener("click", e => {
+    const t = e.target.closest && e.target.closest("[data-arttip],[data-tipclose],[data-tipseo],[data-tipcopy]"); if (!t) return;
+    if (t.dataset.arttip) { e.preventDefault(); e.stopPropagation(); return openTip(t.dataset.arttip); }
+    if (t.dataset.tipclose) { if (tipSt.ctl) tipSt.ctl.abort(); tipPop.get().hidden = true; return; }
+    if (t.dataset.tipseo === "gen") return seoSuggest();
+    if (t.dataset.tipseo === "stop") { if (tipSt.ctl) tipSt.ctl.abort(); return; }
+    if (t.dataset.tipcopy) return tipClip(tipSt.vals[t.dataset.tipcopy] || "");
+  }, true);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { const el = document.getElementById("tipPop"); if (el && !el.hidden) { if (tipSt.ctl) tipSt.ctl.abort(); el.hidden = true; } } });
   const OV_COLS = [
     { k: "abc", l: () => "ABC", def: true, tip: ABC_TIP, sort: x => ({ A: 3000, B: 2000, C: 1000 }[x.abc] || 0) + (x.share || 0),
       cell: x => `<div class="abccell"><span class="abc abc-${x.abc}" title="${esc(x.noSales ? "Keine Verkäufe" : dec(x.share, 1) + " % deines Gewinns")}">${x.abc}</span><small class="note">${x.noSales ? "kein Verkauf" : dec(x.share, 1) + " %"}</small></div>` },
