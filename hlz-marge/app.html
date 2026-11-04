@@ -103,6 +103,7 @@ table.ov td.name { white-space: normal; min-width: 260px }
 .abc-A { color: var(--good) } .abc-B { color: var(--warn) } .abc-C { color: var(--muted) }
 .rmbtn { font: 500 .78rem var(--font-body); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; white-space: nowrap }
 .rmbtn:hover { border-color: var(--bad); color: var(--bad) }
+.rmbtn.bearb { border-color: var(--seg-ship); color: var(--seg-ship); background: color-mix(in srgb, var(--seg-ship) 12%, transparent) }
 .rmbtn.okon { border-color: var(--good); color: var(--good) } .rmbtn.okon:hover { border-color: var(--good) }
 .rmbtn.warnon { border-color: var(--warn); color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, transparent) } .rmbtn.warnon:hover { border-color: var(--warn); color: var(--warn) }
 .rmbtn.on { border-color: var(--bad); background: var(--bad); color: #fff }
@@ -442,7 +443,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 149 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 150 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1131,10 +1132,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const OV_COLS = [
     { k: "abc", l: () => "ABC", def: true, tip: ABC_TIP, sort: x => ({ A: 3000, B: 2000, C: 1000 }[x.abc] || 0) + (x.share || 0),
       cell: x => `<div class="abccell"><span class="abc abc-${x.abc}" title="${esc(x.noSales ? "Keine Verkäufe" : dec(x.share, 1) + " % deines Gewinns")}">${x.abc}</span><small class="note">${x.noSales ? "kein Verkauf" : dec(x.share, 1) + " %"}</small></div>` },
-    { k: "remove", l: () => "Entfernen", def: true, tip: "Artikel markieren, den du aus dem Sortiment nehmen willst", sort: x => x.a.remove ? 1 : 0,
-      cell: x => `<button type="button" class="rmbtn${x.a.remove ? " on" : ""}" data-rm="${x.a.id}" aria-pressed="${!!x.a.remove}" title="${x.a.remove ? "Markierung entfernen" : "Zum Entfernen markieren"}">${x.a.remove ? "✕ Entfernen" : "Entfernen?"}</button>` },
-    { k: "stand", l: () => "Stand", def: true, fresh: "ok1", tip: "Merkzeichen: Hast du den Artikel bei Etsy und Shopify auf den neuesten Stand gebracht (Preis, Texte, Versand)? Klick zum Abhaken. Ändern sich danach Preis, Einkauf, Rabatt, Gewicht oder Karton, wird es orange.", sort: x => okState(x.a),
-      cell: x => { const st = okState(x.a), d = x.a.ok && x.a.ok.at ? dDE(x.a.ok.at).slice(0, 6) : ""; return st === 2 ? `<button type="button" class="rmbtn okon" data-ok="${x.a.id}" title="Erledigt am ${esc(dDE(x.a.ok.at))}. Klick nimmt das Häkchen zurück.">✓ ${esc(d)}</button>` : st === 1 ? `<button type="button" class="rmbtn warnon" data-ok="${x.a.id}" title="Seit dem Häkchen am ${esc(dDE(x.a.ok.at))} hat sich etwas geändert. Klick: wieder auf aktuell setzen.">⚠ geändert</button>` : `<button type="button" class="rmbtn" data-ok="${x.a.id}" title="Als auf dem neuesten Stand markieren">Aktuell?</button>`; } },
+    { k: "stand", l: () => "Stand", def: true, fresh: "ok1", tip: "Ein Button, jeder Klick schaltet weiter: Aktuell? → Entfernen → In Bearbeitung → Aktuell (erledigt) → wieder leer. Umschalt + Klick geht einen Schritt zurück. Wird ein erledigter Artikel danach geändert (Preis, Einkauf, Rabatt, Gewicht, Karton), erscheint „geändert“.", sort: x => STAND_ORDER[standOf(x.a)],
+      cell: x => { const st = standOf(x.a), at = x.a.ok && x.a.ok.at ? dDE(x.a.ok.at) : "", t = "Klick: nächster Schritt (Aktuell? → Entfernen → In Bearbeitung → Aktuell). Umschalt + Klick: zurück.";
+        return st === "ok" ? `<button type="button" class="rmbtn okon" data-ok="${x.a.id}" title="Erledigt am ${esc(at)}. ${t}">✓ ${esc(at.slice(0, 6))}</button>` : st === "changed" ? `<button type="button" class="rmbtn warnon" data-ok="${x.a.id}" title="Seit dem Häkchen am ${esc(at)} hat sich etwas geändert. Klick: wieder auf aktuell setzen.">⚠ geändert</button>` : st === "bearb" ? `<button type="button" class="rmbtn bearb" data-ok="${x.a.id}" title="${t}">In Bearbeitung</button>` : st === "rm" ? `<button type="button" class="rmbtn on" data-ok="${x.a.id}" title="${t}">✕ Entfernen</button>` : `<button type="button" class="rmbtn" data-ok="${x.a.id}" title="${t}">Aktuell?</button>`; } },
     { k: "price", l: () => "Preis", def: true, hideSm: true, cls: "num", sort: x => x.r.P,
       cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="price" data-qid="${x.a.id}" value="${v(x.a.price) ? v(x.a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(x.a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>` },
     { k: "pm", l: () => "Verk./Mon.", def: true, hideSm: true, cls: "num", sort: x => x.pm, cell: x => x.pm ? dec(x.pm) : "–" },
@@ -1183,7 +1183,17 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   };
   // "Auf dem neuesten Stand": Merkzeichen pro Artikel, wird orange, sobald sich Preis, Einkauf, Rabatt, Gewicht oder Karton danach ändern
   const okSig = a => [a.price, a.ext, a.disc, a.weight, a.box, a.shipMode].map(x => x ?? "").join("|");
-  const okState = a => !a.ok ? 0 : a.ok.sig === okSig(a) ? 2 : 1;
+  // Stand pro Artikel, ein Button schaltet der Reihe nach weiter: offen → Entfernen → In Bearbeitung → Aktuell → offen
+  const standOf = a => a.remove ? "rm" : a.bearb ? "bearb" : a.ok ? (a.ok.sig === okSig(a) ? "ok" : "changed") : "none";
+  const STAND_ORDER = { none: 0, rm: 1, bearb: 2, changed: 3, ok: 4 };
+  function standStep(a, back) {
+    const cur = standOf(a), fwd = { none: "rm", rm: "bearb", bearb: "ok", changed: "ok", ok: "none" }, bwd = { none: "ok", rm: "none", bearb: "rm", changed: "none", ok: "bearb" };
+    const nx = (back ? bwd : fwd)[cur];
+    delete a.remove; delete a.bearb; if (nx !== "ok") delete a.ok;
+    if (nx === "rm") a.remove = true; else if (nx === "bearb") a.bearb = true; else if (nx === "ok") a.ok = { sig: okSig(a), at: isoD(new Date()) };
+    return nx;
+  }
+  const STAND_TOAST = { none: "Zurückgesetzt", rm: "Zum Entfernen markiert", bearb: "In Bearbeitung", ok: "Auf dem neuesten Stand" };
 
   function bulkPanel(list) {
     const fields = bulkFields().map(([k, l, type, opts]) => {
@@ -2678,7 +2688,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (d.tax) { draftS.tax = d.tax; draftS.feeVat = d.tax === "ku"; setDirty(true); return renderSettings(); }
     if (d.addRow) { draftS[d.addRow].push({ ...LISTS[d.addRow].blank }); setDirty(true); renderSettings(); const ins = document.querySelectorAll(`#list-${d.addRow} input[data-f="n"]`); ins[ins.length - 1]?.focus(); return; }
     if (d.delRow) { draftS[d.delRow].splice(+d.i, 1); setDirty(true); return renderSettings(); }
-    if (d.ok !== undefined && d.ok) { const x = A.find(q => q.id === d.ok); if (x) { if (okState(x) === 2) { delete x.ok; toast("Häkchen entfernt"); } else { x.ok = { sig: okSig(x), at: isoD(new Date()) }; toast("Auf dem neuesten Stand"); } saveArticle(x); renderOverview(); } return; }
+    if (d.ok !== undefined && d.ok) { const x = A.find(q => q.id === d.ok); if (x) { const nx = standStep(x, e.shiftKey); toast(STAND_TOAST[nx]); saveArticle(x); renderOverview(); } return; }
     if (d.rm !== undefined && d.rm) { const x = A.find(q => q.id === d.rm); if (x) { x.remove = !x.remove; if (!x.remove) delete x.remove; saveArticle(x); renderOverview(); } return; }
     if (d.abcf !== undefined && t.hasAttribute("data-abcf")) { abcF = d.abcf; return renderOverview(); }
     if (d.ordf) { ord.f = d.ordf; ord.ask = ""; return renderOrders(); }
