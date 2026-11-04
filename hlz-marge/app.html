@@ -440,7 +440,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 146 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 147 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -2021,7 +2021,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const visCols = ovCols();
     const key = sortKey === "name" ? x => norm(x.a.name) : ((OV_COLS.find(c => c.k === sortKey) || {}).sort || (x => x.r.profit));
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
-    rows.sort((x, y) => { const f = (y.a.fav ? 1 : 0) - (x.a.fav ? 1 : 0); if (f) return f; const p = key(x), q = key(y); return (p < q ? -1 : p > q ? 1 : 0) * sortDir; });
+    rows.sort((x, y) => { const f = (y.a.fav ? 1 : 0) - (x.a.fav ? 1 : 0); if (f) return f; const p = key(x), q = key(y), nat = (m, n) => String(m).localeCompare(String(n), "de", { numeric: true }), c = typeof p === "string" && typeof q === "string" ? nat(p, q) : (p < q ? -1 : p > q ? 1 : 0); return (c * sortDir) || nat(x.a.name, y.a.name); });
     const nOpen = rows.filter(x => x.miss.length).length, nDone = rows.length - nOpen, nTodo = rows.filter(x => x.a.todo).length, nRem = rows.filter(x => x.a.remove).length;
     const f = (folder === "todo" && !nTodo) || (folder === "remove" && !nRem) ? "all" : folder || (nOpen ? "open" : "done");
     const inFolder = x => f === "all" || (f === "remove" ? !!x.a.remove : f === "todo" ? !!x.a.todo : (f === "open") === (x.miss.length > 0));
