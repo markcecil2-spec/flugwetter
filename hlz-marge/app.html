@@ -448,7 +448,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 157 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 158 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -497,7 +497,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 
   // ---------- Vorgaben (ph = Platzhalter, noch nicht durch echte Werte ersetzt) ----------
   const SETTINGS_DEFAULT = () => ({
-    laserL: "49.8", laserB: "31.9", tax: "regel", hebesatz: "420", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90", wasteDefault: "7",
+    laserL: "49.8", laserB: "31.9", tax: "regel", hebesatz: "420", rate: "20", target: "35", qtyManual: "40", alloc: true, shipInDefault: "6.90", spKlein: "4.90", spP3: "6.90", spP5: "8.90", spP10: "11.90", wasteDefault: "7",
     eList: "0.19", eTrans: "6.5", ePayP: "4", ePayF: "0.30", eOff: "0", eAds: "2", feeVat: false,
     sPayP: "2.1", sPayF: "0.30", sAds: "6", dPayP: "0", dPayF: "0", dAds: "0",
     bPayP: "12", bPayF: "0.45", bAds: "0",
@@ -2551,6 +2551,10 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <p class="note">DHL Kleinpaket: nur Geschäftskunden, max. 1 kg und 35,3 × 25 × 8 cm. Preise aus deinem DHL-Vertrag eintragen. In der Spalte „ab 1.1.2027“ steht der neue Preis (Tarif S, inklusive Maut-Zuschlag), die App schaltet am 1. Januar 2027 automatisch um.${from27() ? " <strong>Der neue Preis gilt gerade.</strong>" : ""}</p></section>
           <section class="box" data-sec="versand"><h2>${LISTS.boxes.title}</h2>${listHTML("boxes")}
             <p class="note">Außenmaße deiner Kartons und was einer kostet. Im Artikel wählst du dann nur noch den Karton aus, Packmaße und Umverpackung werden übernommen. Das Kartongewicht steckt im „Gewicht verpackt“ des Artikels mit drin.</p></section>
+          <section class="box" data-sec="versand"><h2>Versand vom Kunden (deine Etsy- und Shopify-Versandprofile)</h2>
+            <p class="note">Was der Kunde bei Deutschland für den Versand zahlt, brutto. Ein Klick setzt das bei allen Artikeln: Kleinpaket → Klein, Paket bis 3 kg → Profil 2, bis 5 kg → Profil 3, ab 5 kg → Schwer. Welche Versandart ein Artikel hat, bestimmt die App aus Gewicht und Packmaß.</p>
+            <div class="grid2">${settingsField("spKlein", "Profil 1 · Klein (Kleinpaket)", "€")}${settingsField("spP3", "Profil 2 · Paket bis 3 kg", "€")}${settingsField("spP5", "Profil 3 · Paket bis 5 kg", "€")}${settingsField("spP10", "Profil 4 · Schwer (ab 5 kg)", "€")}</div>
+            <div class="btns"><button class="btn primary" data-act="setShipIn">Bei allen Artikeln setzen</button></div></section>
           ${docsBox()}
           <section class="box" data-sec="daten">
             <h2>Daten</h2>
@@ -2753,6 +2757,13 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       }
       case "exportCsv": return exportCSV("list", false);
       case "exportSel": return exportCSV("list", true);
+      case "setShipIn": {
+        const T = draftS || S, pr = { k: v(T.spKlein), 3: v(T.spP3), 5: v(T.spP5), 10: v(T.spP10) }, plan = [];
+        A.forEach(a => { const ch = pickShip(a).chosen; if (!ch) return; const n = ch.o.n, kgm = n.match(/bis (\d+(?:,\d+)?) kg/), key = /klein/i.test(n) ? "k" : kgm ? (parseFloat(kgm[1].replace(",", ".")) <= 3 ? 3 : parseFloat(kgm[1].replace(",", ".")) <= 5 ? 5 : 10) : null; if (key === null || !(pr[key] > 0)) return; const nv = pr[key].toFixed(2); if (v(a.shipIn).toFixed(2) !== nv) plan.push([a, nv]); });
+        if (!plan.length) { toast("Bei allen Artikeln steht schon der passende Betrag."); return; }
+        if (!confirm(`Bei ${plan.length} von ${A.length} Artikeln „Versand vom Kunden“ ändern?\n\nKlein ${eur(pr.k)}, bis 3 kg ${eur(pr[3])}, bis 5 kg ${eur(pr[5])}, ab 5 kg ${eur(pr[10])}.`)) return;
+        plan.forEach(([a, nv]) => { a.shipIn = nv; saveArticle(a); }); toast(`${plan.length} Artikel angepasst`); return;
+      }
       case "exportBillbee": return exportCSV("billbee", false);
       case "selNone": sel.clear(); bulk = null; bulkDelAsk = false; cmp = false; return renderOverview();
       case "bulkEdit": bulk = {}; bulkDelAsk = false; cmp = false; return renderOverview();
