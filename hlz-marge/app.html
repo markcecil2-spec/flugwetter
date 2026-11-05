@@ -264,7 +264,7 @@ main.wrap { padding-block: 20px 48px }
 .c-parts, .c-extra { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, .8fr) 32px }
 .c-2 { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.2fr) 32px }
 .c-plates { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, .8fr) minmax(0, .8fr) 32px }
-.c-ship { grid-template-columns: minmax(0, 2fr) repeat(5, minmax(0, 1fr)) 32px }
+.c-ship { grid-template-columns: minmax(0, 2fr) repeat(6, minmax(0, 1fr)) 32px }
 .c-small { grid-template-columns: minmax(0, 2.5fr) minmax(0, 1fr) minmax(0, 1fr) 32px }
 .c-mach { grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)) 32px }
 .c-blank { grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr)) 32px }
@@ -448,7 +448,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 155 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 156 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -664,7 +664,11 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // ---------- Rechnung (reine Daten, kein DOM) ----------
   // Werkstattmiete & Co. gehören nur zur Eigenfertigung: bei Zukauf-Artikeln wird sie nicht auf den Verkauf umgelegt
   const isProdFix = r => /werkstatt|miete/i.test(String(r.n || ""));
-  const fixTotal = (s = S, noProd = false) => (s.fixed || []).filter(r => !noProd || !isProdFix(r)).reduce((a, r) => a + v(r.a), 0);
+  // Preise, die erst ab 1.1.2027 gelten (neuer DHL-Vertrag, Tarif S): Feld „ab 2027“ bei Versandarten, a27 bei Fixkosten
+  const from27 = () => isoD(new Date()) >= "2027-01-01";
+  const shipP = o => from27() && String(o.p27 ?? "") !== "" ? v(o.p27) : v(o.p);
+  const fixV = r => from27() && String(r.a27 ?? "") !== "" ? v(r.a27) : v(r.a);
+  const fixTotal = (s = S, noProd = false) => (s.fixed || []).filter(r => !noProd || !isProdFix(r)).reduce((a, r) => a + fixV(r), 0);
   const salesPerMonth = a => Object.values(a.sales || {}).reduce((s, x) => s + (v(x.months) > 0 ? v(x.qty) / v(x.months) : 0), 0);
   function volume() {
     const imp = A.reduce((s, a) => s + salesPerMonth(a), 0);
@@ -696,7 +700,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       const lim = [v(o.l), v(o.b), v(o.h)].sort((x, y) => y - x), why = [];
       if (w > v(o.g)) why.push(`${kg(w)} statt max. ${kg(v(o.g))}`);
       pk.forEach((d, k) => { if (d > lim[k]) why.push(`${names[k]} ${dec(d)} cm statt max. ${dec(lim[k])} cm`); });
-      return { o, fits: !why.length, why, price: v(o.p) };
+      return { o, fits: !why.length, why, price: shipP(o) };
     });
     const fitting = opts.filter(x => x.fits).sort((x, y) => x.price - y.price);
     const manual = a.shipMode && a.shipMode !== "auto" ? opts.find(x => x.o.n === a.shipMode) : null;
@@ -2443,7 +2447,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     plates: { title: "Holzplatten", cls: "c-plates", head: ["Platte", "Preis netto", "Länge cm", "Breite cm"], cols: [["n", "text"], ["p", "number", "€"], ["l", "number", "L"], ["b", "number", "B"]], blank: { n: "", p: "", l: "", b: "" }, ref: "plate" },
     small: { title: "Beschläge & Kleinteile", cls: "c-small", head: ["Teil", "€ / Stk netto", "Gewicht"], cols: [["n", "text"], ["p", "number", "€"], ["g", "number", "g"]], blank: { n: "", p: "", g: "" }, ref: "small" },
     mach: { title: "Maschinen", cls: "c-mach", head: ["Maschine", "€ / Stunde", "Min je Artikel", "% der Rohling-Zeit"], cols: [["n", "text"], ["r", "number", "€/h"], ["a", "number", "Min"], ["s", "number", "%"]], blank: { n: "", r: "", a: "", s: "" }, ref: "mach" },
-    ship: { title: "Versandarten", cls: "c-ship", head: ["Versandart", "max g", "L cm", "B cm", "H cm", "€ netto"], cols: [["n", "text"], ["g", "number", "g"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"]], blank: { n: "", g: "", l: "", b: "", h: "", p: "" }, ref: "ship" },
+    ship: { title: "Versandarten", cls: "c-ship", head: ["Versandart", "max g", "L cm", "B cm", "H cm", "€ netto", "€ ab 1.1.2027"], cols: [["n", "text"], ["g", "number", "g"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["p", "number", "€"], ["p27", "number", "€"]], blank: { n: "", g: "", l: "", b: "", h: "", p: "", p27: "" }, ref: "ship" },
     blanks: { title: "Holzrohlinge", cls: "c-blank", head: ["Rohling", "Länge cm", "Höhe cm", "Stärke cm", "Vorfertigung"], cols: [["n", "text"], ["l", "number", "L"], ["h", "number", "H"], ["t", "number", "T"], ["m", "number", "Min"]], blank: { n: "", l: "", h: "", t: "", m: "" }, ref: "blank" },
     boxes: { title: "Kartons", cls: "c-box", head: ["Karton", "L cm", "B cm", "H cm", "Gewicht", "€ netto"], cols: [["n", "text"], ["l", "number", "L"], ["b", "number", "B"], ["h", "number", "H"], ["g", "number", "g"], ["p", "number", "€"]], blank: { n: "", l: "", b: "", h: "", g: "", p: "" }, ref: "box" }
   };
@@ -2504,7 +2508,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <label class="check"><input type="checkbox" data-s="taxChurch" ${T.taxChurch ? "checked" : ""}> Kirchensteuer (8 % in Baden-Württemberg)</label>
             <p class="note">Grundlage: Einkommensteuertarif 2026. Der Shop-Gewinn zählt inklusive deines eingerechneten Stundenlohns, denn den zahlst du dir ja selbst. Schätzung, kein Ersatz für die Steuererklärung.</p>
           </section>
-          <section class="box" data-sec="betrieb"><h2>${LISTS.fixed.title}</h2>${listHTML("fixed")}<div class="sumline"><span>Summe</span><strong id="fixSum">${eur(fixTotal(T))}</strong></div></section>
+          <section class="box" data-sec="betrieb"><h2>${LISTS.fixed.title}</h2>${listHTML("fixed")}<div class="sumline"><span>Summe</span><strong id="fixSum">${eur(fixTotal(T))}</strong></div>${(T.fixed || []).filter(x => String(x.a27 ?? "") !== "").map(x => `<p class="note">Ab 1.1.2027: ${esc(x.n)} ${eur(v(x.a27))} statt ${eur(v(x.a))} pro Monat${from27() ? " (gilt gerade)" : ""}.</p>`).join("")}</section>
           <section class="box" data-sec="betrieb"><h2>${LISTS.order.title}</h2>${listHTML("order")}<p class="note">Billbee: 53 € ÷ 113 Bestellungen = 0,47 €</p></section>
           <section class="box" data-sec="material"><h2>${LISTS.plates.title}</h2>${listHTML("plates")}
             <div class="grid3 keep" style="margin-top:12px">${settingsField("wasteDefault", "Holz-Verschnitt", "%", "gilt für alle Artikel")}${settingsField("oilM2", "Öl pro m² Oberfläche", "€", "wird aus den Holzmaßen berechnet")}${settingsField("woodDensity", "Holzgewicht", "g/cm³", "Eiche ca. 0,75")}</div>
@@ -2543,7 +2547,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
               <li>CNC: 8.000 € ÷ 5 J. + 400 € = 2.000 € ÷ 300 h = 6,67 €/h + 3 kW × 0,30 € = 7,57 €/h</li>
               <li>Die Miete gehört nicht hier rein, die steckt in den Fixkosten.</li></ul></details></section>
           <section class="box" data-sec="versand"><h2>${LISTS.ship.title}</h2>${listHTML("ship")}
-            <p class="note">DHL Kleinpaket: nur Geschäftskunden, max. 1 kg und 35,3 × 25 × 8 cm. Preise aus deinem DHL-Vertrag eintragen.</p></section>
+            <p class="note">DHL Kleinpaket: nur Geschäftskunden, max. 1 kg und 35,3 × 25 × 8 cm. Preise aus deinem DHL-Vertrag eintragen. In der Spalte „ab 1.1.2027“ steht der neue Preis (Tarif S, inklusive Maut-Zuschlag), die App schaltet am 1. Januar 2027 automatisch um.${from27() ? " <strong>Der neue Preis gilt gerade.</strong>" : ""}</p></section>
           <section class="box" data-sec="versand"><h2>${LISTS.boxes.title}</h2>${listHTML("boxes")}
             <p class="note">Außenmaße deiner Kartons und was einer kostet. Im Artikel wählst du dann nur noch den Karton aus, Packmaße und Umverpackung werden übernommen. Das Kartongewicht steckt im „Gewicht verpackt“ des Artikels mit drin.</p></section>
           ${docsBox()}
