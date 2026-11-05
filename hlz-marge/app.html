@@ -429,6 +429,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>Kalkulatte</strong></a>
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
+      <a href="#entwicklung" data-tab="entwicklung">Entwicklung</a>
       <a href="#auswertung" data-tab="auswertung">Auswertung</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
@@ -447,7 +448,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 152 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 154 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -565,6 +566,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     async deleteOrder() { LS.set("hlz-app-orders", ORD); },
     async loadBank() { return Object.values(LS.get("hlz-app-bank") || {}); },
     async loadShop() { return Object.values(LS.get("hlz-app-shop") || {}); },
+    async loadStats() { return Object.values(LS.get("hlz-app-stats") || {}); },
+    async saveStats(d) { const all = LS.get("hlz-app-stats") || {}; all[d.id] = d; LS.set("hlz-app-stats", all); },
     async saveShop(d) { const all = LS.get("hlz-app-shop") || {}; all[d.id] = d; LS.set("hlz-app-shop", all); },
     async saveBank(d) { const all = LS.get("hlz-app-bank") || {}; all[d.id] = d; LS.set("hlz-app-bank", all); },
     async deleteBank(id) { const all = LS.get("hlz-app-bank") || {}; delete all[id]; LS.set("hlz-app-bank", all); },
@@ -596,6 +599,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     saveBank: d => db.collection("bank").doc(d.id).set(clone(d)),
     async loadShop() { const q = await db.collection("shop").get(); return q.docs.map(d => clone(d.data())); },
     saveShop: d => db.collection("shop").doc(d.id).set(clone(d)),
+    async loadStats() { const q = await db.collection("stats").get(); return q.docs.map(d => clone(d.data())); },
+    saveStats: d => db.collection("stats").doc(d.id).set(clone(d)),
     deleteBank: id => db.collection("bank").doc(id).delete(),
     saveMsg: m => db.collection("support").doc(m.id).set(clone(m)),
     deleteMsg: id => db.collection("support").doc(id).delete()
@@ -912,7 +917,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -943,6 +948,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "finanzen") finDraw();
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
+    else if (view === "entwicklung") renderStats();
     else if (view === "projekte") renderProjects();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
@@ -2533,6 +2539,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <p class="note">DHL Kleinpaket: nur Geschäftskunden, max. 1 kg und 35,3 × 25 × 8 cm. Preise aus deinem DHL-Vertrag eintragen.</p></section>
           <section class="box" data-sec="versand"><h2>${LISTS.boxes.title}</h2>${listHTML("boxes")}
             <p class="note">Außenmaße deiner Kartons und was einer kostet. Im Artikel wählst du dann nur noch den Karton aus, Packmaße und Umverpackung werden übernommen. Das Kartongewicht steckt im „Gewicht verpackt“ des Artikels mit drin.</p></section>
+          ${docsBox()}
           <section class="box" data-sec="daten">
             <h2>Daten</h2>
             <p class="note">${mode === "cloud" ? "Deine Daten liegen online und sind auf Handy und PC gleich, wenn du diesen Link öffnest." : "Deine Daten liegen nur in diesem Browser. Mach ab und zu eine Sicherung."}</p>
@@ -3926,7 +3933,7 @@ Antworte NUR mit JSON in dieser Form:
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
-    shopLoading = false; if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview();
+    shopLoading = false; if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
   }
   const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
   const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
@@ -4140,6 +4147,196 @@ Antworte NUR mit JSON in dieser Form:
     if (k === "check") return shopifyCheck(); if (k === "match") return shopMatch(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
     if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
     if (k.startsWith("ai:")) return shopAi(k.slice(3));
+  });
+  // ---------- Entwicklung: geht es aufwärts oder abwärts? ----------
+  let STATS = null, statsLoading = false;
+  const stSt = { busy: "", msg: "", ai: "", aiBusy: false };
+  async function statsLoad() {
+    if (STATS || statsLoading) return; statsLoading = true; STATS = {};
+    try { (await store.loadStats()).forEach(d => STATS[d.id] = d); } catch (e) { toast("Statistik-Daten konnten nicht geladen werden."); }
+    statsLoading = false; if (view === "entwicklung") renderStats();
+  }
+  const statsSave = d => { STATS[d.id] = d; persist("st:" + d.id, () => store.saveStats(d)); };
+  const SHORT_M = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  const ymLab = ym => SHORT_M[+ym.slice(5) - 1] + " " + ym.slice(2, 4);
+  const ymAdd = (ym, n) => { const d = new Date(+ym.slice(0, 4), +ym.slice(5) - 1 + n, 1); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"); };
+  const curYM = () => isoD(new Date()).slice(0, 7);
+  const r2 = x => Math.round(x * 100) / 100;
+  const emptyM = () => ({ o: 0, q: 0, r: 0, d: 0, sh: 0, f: 0, k: {} });
+  const roundM = M => { Object.values(M).forEach(m => { ["r", "d", "sh", "f"].forEach(k => m[k] = r2(m[k])); Object.values(m.k).forEach(e => e.r = r2(e.r)); }); return M; };
+  // Etsy-CSV lesen: „Bestellte Artikel“ (je Artikel) oder „Bestellungen“ (je Bestellung)
+  function statEtsyParse(text) {
+    const rows = parseCSV(text); if (rows.length < 2) throw new Error("Die Datei ist leer.");
+    const hdr = rows[0].map(h => h.trim().toLowerCase()), ix = k => hdr.indexOf(k);
+    const items = ix("item total") >= 0 && ix("quantity") >= 0, orders = ix("order value") >= 0 && ix("number of items") >= 0;
+    if (!items && !orders) throw new Error("Das sieht nicht nach „Bestellte Artikel“ oder „Bestellungen“ von Etsy aus.");
+    const iD = ix("sale date"), M = {}, seen = {};
+    rows.slice(1).forEach(r => {
+      const dt = pdate(r[iD]); if (!dt) return; const m = M[isoD(dt).slice(0, 7)] || (M[isoD(dt).slice(0, 7)] = emptyM()), num = k => { const x = money(r[ix(k)]); return isFinite(x) ? x : 0; };
+      if (items) {
+        const q = v(r[ix("quantity")]) || 1, it = num("item total"), key = tkey(r[ix("sku")] || "?"), oid = r[ix("order id")];
+        m.q += q; m.r += it; m.d += num("discount amount"); if (!seen[oid]) { seen[oid] = 1; m.o++; m.sh += num("order shipping"); }
+        const e = m.k[key] || (m.k[key] = { q: 0, r: 0 }); e.q += q; e.r += it;
+      } else {
+        const n = v(r[ix("number of items")]) || 1, val = num("order value"); m.o++; m.q += n; m.r += val; m.d += num("discount amount"); m.sh += num("shipping"); m.f += num("card processing fees");
+        const skus = String(r[ix("sku")] || "").split(",").map(x => x.trim()).filter(Boolean), w = skus.map(sk => { const a = A.find(x => tkey(x.sku) === tkey(sk)); return v(a && a.price) || 1; }), sw = w.reduce((a, b) => a + b, 0) || 1;
+        skus.forEach((sk, i) => { const e = m.k[tkey(sk)] || (m.k[tkey(sk)] = { q: 0, r: 0 }); e.q += 1; e.r += val * w[i] / sw; });
+      }
+    });
+    return roundM(M);
+  }
+  async function statFiles(files) {
+    await statsLoad(); while (!STATS) await new Promise(r => setTimeout(r, 50));
+    const msg = [];
+    for (const f of files) {
+      try { const M = statEtsyParse(bankDecode(await f.arrayBuffer())), old = STATS.etsy ? STATS.etsy.months : {}; statsSave({ id: "etsy", at: new Date().toISOString(), months: Object.assign({}, old, M) }); msg.push(`${f.name}: ${Object.keys(M).length} Monate gelesen.`); }
+      catch (e) { msg.push(`${f.name}: ${e.message || "Fehler beim Lesen."}`); }
+    }
+    stSt.msg = msg.join(" "); renderStats();
+  }
+  async function statsShopify() {
+    await statsLoad(); while (!STATS) await new Promise(r => setTimeout(r, 50));
+    stSt.busy = "Hole Shopify-Bestellungen …"; stSt.msg = ""; renderStats();
+    try {
+      const since = ymAdd(curYM(), -24) + "-01", M = {}; let after = null, n = 0;
+      for (let page = 0; page < 60; page++) {
+        const d = await shopify("graphql_query", { query: "query($after:String,$q:String){ orders(first:100, after:$after, query:$q, sortKey:CREATED_AT){ pageInfo{ hasNextPage endCursor } nodes{ createdAt cancelledAt totalDiscountsSet{ shopMoney{ amount } } totalShippingPriceSet{ shopMoney{ amount } } lineItems(first:50){ nodes{ quantity sku title originalTotalSet{ shopMoney{ amount } } } } } } }", variables: { after, q: "created_at:>=" + since } });
+        const oo = d.orders; if (!oo) throw { code: "tool_error", message: "Unerwartete Antwort" };
+        oo.nodes.forEach(o => {
+          if (o.cancelledAt) return; const ym = String(o.createdAt).slice(0, 7), m = M[ym] || (M[ym] = emptyM()); n++;
+          m.o++; m.d += v(o.totalDiscountsSet && o.totalDiscountsSet.shopMoney.amount); m.sh += v(o.totalShippingPriceSet && o.totalShippingPriceSet.shopMoney.amount);
+          o.lineItems.nodes.forEach(li => { const q = li.quantity || 0, rv = v(li.originalTotalSet && li.originalTotalSet.shopMoney.amount), key = tkey(li.sku || li.title || "?"); m.q += q; m.r += rv; const e = m.k[key] || (m.k[key] = { q: 0, r: 0 }); e.q += q; e.r += rv; });
+        });
+        stSt.busy = `Hole Shopify-Bestellungen … ${n}`; renderStats();
+        if (!oo.pageInfo.hasNextPage) break; after = oo.pageInfo.endCursor;
+      }
+      statsSave({ id: "shopify", at: new Date().toISOString(), months: roundM(M) }); stSt.msg = `${n} Shopify-Bestellungen gelesen.`;
+    } catch (e) { stSt.msg = syncErr(e); }
+    stSt.busy = ""; renderStats();
+  }
+  // Auswertung
+  const netM = m => m ? m.r - m.d : 0;
+  function statData() {
+    const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, cur = curYM();
+    const keys = [...Object.keys(E), ...Object.keys(S2)].filter(k => k < cur).sort(); if (!keys.length) return null;
+    const months = []; for (let ym = keys[0]; ym <= keys[keys.length - 1]; ym = ymAdd(ym, 1)) months.push(ym);
+    const row = ym => ({ ym, e: netM(E[ym]), s: netM(S2[ym]), rev: netM(E[ym]) + netM(S2[ym]), q: (E[ym] ? E[ym].q : 0) + (S2[ym] ? S2[ym].q : 0), o: (E[ym] ? E[ym].o : 0) + (S2[ym] ? S2[ym].o : 0), sh: (E[ym] ? E[ym].sh : 0) + (S2[ym] ? S2[ym].sh : 0), f: E[ym] ? E[ym].f : 0 });
+    return { E, S2, months, rows: months.map(row), by: Object.fromEntries(months.map(m => [m, row(m)])) };
+  }
+  const dlt = (a, b) => b > 0 ? (a / b - 1) * 100 : null;
+  const dlTag = (x, label) => x === null ? "" : `<span style="color:var(--${x > 3 ? "good" : x < -3 ? "bad" : "muted"})">${x > 3 ? "▲" : x < -3 ? "▼" : "►"} ${x > 0 ? "+" : ""}${dec(x, 0)} % ${label}</span>`;
+  const sumRev = (D, list, k = "rev") => list.reduce((s, ym) => s + (D.by[ym] ? D.by[ym][k] : 0), 0);
+  function statVerdict(D) {
+    const n = D.months.length, l3 = D.months.slice(-3), p3 = D.months.slice(-6, -3), y3 = l3.map(m => ymAdd(m, -12));
+    const rl = sumRev(D, l3), rp = sumRev(D, p3), ry = sumRev(D, y3), qL = sumRev(D, l3, "q"), qP = sumRev(D, p3, "q"), qY = sumRev(D, y3, "q");
+    const tr = p3.length === 3 ? dlt(rl, rp) : null, yo = y3.every(m => D.by[m]) ? dlt(rl, ry) : null, sc = [tr, yo].filter(x => x !== null);
+    const rAvg = sc.length ? sc.reduce((a, b) => a + b, 0) / sc.length : null, qt = p3.length === 3 ? dlt(qL, qP) : null, qy = y3.every(m => D.by[m]) ? dlt(qL, qY) : null, qs = [qt, qy].filter(x => x !== null), qAvg = qs.length ? qs.reduce((a, b) => a + b, 0) / qs.length : null;
+    // Umsatz zählt am meisten, aber weniger verkaufte Stück ziehen die Bewertung runter
+    const avg = rAvg === null ? null : qAvg === null ? rAvg : 0.65 * rAvg + 0.35 * qAvg;
+    return { l3, p3, rl, rp, ry, qL, qP, qY, tr, yo, qt, qy, rAvg, qAvg, avg, dir: avg === null ? "none" : avg >= 5 ? "up" : avg <= -5 ? "down" : "side" };
+  }
+  function statChart(D, title, f, fmt) {
+    const rows = D.rows.slice(-24), W = 960, H = 230, pl = 52, pr = 8, pt = 10, pb = 26, bw = (W - pl - pr) / rows.length, tot = rows.map(r => f(r).e + f(r).s), top = Math.max(1, ...tot);
+    const raw = top / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(x => x >= raw), mx = step * 4, y = x => pt + (H - pt - pb) * (1 - x / mx);
+    const ma = tot.map((_, i) => i < 2 ? null : (tot[i] + tot[i - 1] + tot[i - 2]) / 3), pts = ma.map((m, i) => m === null ? null : `${pl + bw * i + bw / 2},${y(m)}`).filter(Boolean).join(" ");
+    const ticks = [0, 1, 2, 3, 4].map(i => step * i);
+    return `<section class="box"><h2>${title}</h2><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(title)}" style="max-width:100%;height:auto">
+      ${ticks.map(t => `<line x1="${pl}" x2="${W - pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${pl - 6}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(t)}</text>`).join("")}
+      ${rows.map((r, i) => { const x = pl + bw * i + 2, w = Math.max(2, bw - 4), a = f(r); return `<rect x="${x}" y="${y(a.e)}" width="${w}" height="${Math.max(0, y(0) - y(a.e))}" fill="var(--accent)" rx="2"><title>${ymLab(r.ym)}: Etsy ${fmt(a.e)}</title></rect><rect x="${x}" y="${y(a.e + a.s)}" width="${w}" height="${Math.max(0, y(a.e) - y(a.e + a.s))}" fill="var(--seg-ship)" rx="2"><title>${ymLab(r.ym)}: Shopify ${fmt(a.s)}</title></rect>${i % (rows.length > 14 ? 2 : 1) === 0 ? `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${ymLab(r.ym)}</text>` : ""}`; }).join("")}
+      ${pts ? `<polyline points="${pts}" fill="none" stroke="var(--warn)" stroke-width="2.5" stroke-linejoin="round"/>` : ""}</svg>
+      <p class="note" style="margin:0"><span style="color:var(--accent)">■</span> Etsy <span style="color:var(--seg-ship)">■</span> Shopify <span style="color:var(--warn)">━</span> Schnitt der letzten 3 Monate</p></section>`;
+  }
+  function statMovers(D, V) {
+    // alte oder abweichende SKUs (z. B. „keybrd-03-40-“ oder „…-g“) dem heutigen Artikel zuordnen
+    const loose = k => String(k).replace(/[^a-z0-9]/gi, "").toLowerCase(), known = new Map(A.filter(a => a.sku).map(a => [loose(a.sku), tkey(a.sku)]));
+    const canon = k => { const s0 = k.replace(/-+$/, ""); for (const t of [s0, s0.replace(/-(g|gr|grav|gravur|mit-gravur|ohne-gravur)$/i, "")]) { const m = known.get(loose(t)); if (m) return m; } return null; };
+    const acc = {}; const add = (ym, w) => { [D.E[ym], D.S2[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k), key = c || k, a = acc[key] || (acc[key] = { rl: 0, rp: 0, ql: 0, qp: 0, known: !!c }); a[w === "l" ? "rl" : "rp"] += e.r; a[w === "l" ? "ql" : "qp"] += e.q; })); };
+    V.l3.forEach(m => add(m, "l")); V.p3.forEach(m => add(m, "p"));
+    const nm = k => { const a = A.find(x => tkey(x.sku) === k); return a ? a.name : String(k).toUpperCase(); };
+    // Artikel, die nur früher verkauft wurden und heute keinem Artikel mehr entsprechen (umbenannte oder ausgelaufene SKUs), lassen wir weg
+    const list = Object.entries(acc).map(([k, a]) => ({ k, n: nm(k), ...a, d: a.rl - a.rp })).filter(x => x.rl + x.rp > 0 && (x.known || x.rl > 0));
+    const row = x => [esc(x.n), `${x.qp} → ${x.ql}`, `<span style="color:var(--${x.d > 0 ? "good" : "bad"})">${x.d > 0 ? "+" : ""}${eur0(x.d)}</span>`];
+    return { up: list.filter(x => x.d > 0).sort((a, b) => b.d - a.d).slice(0, 8).map(row), down: list.filter(x => x.d < 0).sort((a, b) => a.d - b.d).slice(0, 8).map(row), list };
+  }
+  async function statsAi(D, V, MV) {
+    const sample = await getSample(); if (!sample) { stSt.ai = "Claude ist hier nicht verfügbar."; return renderStats(); }
+    stSt.aiBusy = true; stSt.ai = ""; renderStats();
+    const tbl = D.rows.slice(-24).map(r => `${r.ym}: Etsy ${eur0(r.e)}, Shopify ${eur0(r.s)}, Stück ${r.q}, Bestellungen ${r.o}`).join("\n");
+    const top = x => x.slice(0, 5).map(r => r.join(" | ").replace(/<[^>]+>/g, "")).join("\n");
+    const prompt = `Du bist ein nüchterner Betriebsberater für einen kleinen Online-Shop (HLZLaden: Holz-Wohnaccessoires aus Eiche, Verkauf über Etsy und Shopify, Inhaber Mark). Beurteile anhand der Zahlen, ob es aufwärts oder abwärts geht. Sei ehrlich, direkt, ohne Schönfärberei.\n\nMonatsumsatz (brutto, nach Rabatt) und Stückzahlen:\n${tbl}\n\nLetzte 3 Monate: ${eur0(V.rl)}, davor ${eur0(V.rp)}${V.tr !== null ? ` (${dec(V.tr, 0)} %)` : ""}${V.yo !== null ? `, gleiche Monate Vorjahr ${eur0(V.ry)} (${dec(V.yo, 0)} %)` : ""}. Stück: ${V.qL} gegen ${V.qP}.\nGrößte Gewinner (Artikel | Stück davor → jetzt | Umsatz-Änderung):\n${top(MV.up)}\nGrößte Verlierer:\n${top(MV.down)}\n\nBekannter Kontext: Seit November 2026 wurden Versandprofile nach Gewicht umgestellt, die Einkaufspreise der Waldkante-Artikel gesenkt und die Preise der großen Garderoben gesenkt. Ab Winter ist Weihnachtsgeschäft.\n\nAntworte auf Deutsch, kurz und konkret: 1) Was ist passiert (3 Sätze mit Zahlen), 2) die drei wahrscheinlichsten Ursachen (als Vermutung kennzeichnen), 3) drei konkrete nächste Schritte. Erfinde keine Zahlen, die oben nicht stehen.`;
+    try { const { text } = await sample(prompt, { modelTier: "default", cache: false }); stSt.ai = text; } catch (e) { stSt.ai = supErr(e); }
+    stSt.aiBusy = false; renderStats();
+  }
+  function renderStats() {
+    if (!STATS) { statsLoad(); $("view").innerHTML = `<h1>Entwicklung</h1><p class="note">Lade …</p>`; return; }
+    const E = STATS.etsy, S2 = STATS.shopify, D = statData(), cov = c => c && Object.keys(c.months).length ? `${ymLab(Object.keys(c.months).sort()[0])} bis ${ymLab(Object.keys(c.months).sort().pop())}, ${Object.keys(c.months).length} Monate` : "keine Daten";
+    const data = `<section class="box"><h2>Daten</h2><div class="anagrid">
+        <div class="field"><label>Etsy: CSV hochladen</label><input type="file" id="statFile" accept=".csv,text/csv,.txt" multiple>
+          <small>Etsy → Einstellungen → Optionen → Daten herunterladen → Bestellungen: „Bestellte Artikel“ oder „Bestellungen“, ganzes Jahr oder Monat. Mehrere Dateien gehen auf einmal, vorhandene Monate werden aktualisiert.</small><small>Bisher: <strong>${cov(E)}</strong></small></div>
+        <div class="field"><label>Shopify: live holen</label><div class="btns"><button class="btn primary" data-stat="shopify" ${stSt.busy ? "disabled" : ""}>Shopify aktualisieren</button></div>
+          <small>Holt die Bestellungen der letzten 24 Monate.</small><small>Bisher: <strong>${cov(S2)}</strong>${S2 ? `, Stand ${new Date(S2.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}` : ""}</small></div></div>
+      ${stSt.busy ? `<p class="note"><strong>${esc(stSt.busy)}</strong></p>` : ""}${stSt.msg ? `<p class="note"><strong>${esc(stSt.msg)}</strong></p>` : ""}</section>`;
+    if (!D) { $("view").innerHTML = `<div class="row"><h1>Entwicklung</h1></div><p class="note">Hier siehst du, ob es aufwärts oder abwärts geht: Umsatz, Verkäufe, Warenkorb, Kanäle und welche Artikel zulegen oder einbrechen.</p>${data}<section class="box empty"><p>Lade oben die Etsy-CSV hoch oder hol die Shopify-Bestellungen, dann steht hier die Auswertung.</p></section>`; return; }
+    const V = statVerdict(D), last = D.rows[D.rows.length - 1], prev = D.rows[D.rows.length - 2], l3avg = k => { const r = D.rows.slice(-4, -1); return r.length ? r.reduce((s, x) => s + x[k], 0) / r.length : 0; }, yoy = D.by[ymAdd(last.ym, -12)];
+    let ratio = 0, fix = 0; try { const m = monthly(volume()); ratio = m.rev > 0 ? m.db / m.rev : 0; fix = fixTotal(); } catch (e) {}
+    const dbL = last.rev * ratio, tag3 = k => dlTag(dlt(last[k], l3avg(k)), "zum 3-Monats-Schnitt"), tags = (k, lab) => [prev ? dlTag(dlt(last[k], prev[k]), "zum Vormonat") : "", tag3(k), yoy ? dlTag(dlt(last[k], yoy[k]), "zum Vorjahr") : ""].filter(Boolean).join("");
+    const tile = (lab, val, sub, hero) => `<div class="tile${hero ? " hero" : ""}"><span class="label">${lab}</span><span class="num">${val}</span><span class="note" style="display:grid;gap:2px">${sub}</span></div>`;
+    const MV = statMovers(D, V), kan = (l, p) => `${eur0(l)} <span class="note">(${dec(p, 0)} %)</span>`, eL = sumRev(D, V.l3, "e"), sL = sumRev(D, V.l3, "s"), eP = sumRev(D, V.p3, "e"), sP = sumRev(D, V.p3, "s");
+    const WORD = { up: ["▲ Aufwärts", "good"], down: ["▼ Abwärts", "bad"], side: ["► Seitwärts", "warn"], none: ["Zu wenig Daten", "muted"] }[V.dir];
+    const kanalRow = (n, l, p, tot) => [n, eur0(l), p > 0 ? dlTag(dlt(l, p), "") : "–", tot > 0 ? dec(l / tot * 100, 0) + " %" : "–"];
+    $("view").innerHTML = `<div class="row"><h1>Entwicklung</h1></div>
+      <p class="note">Geht es aufwärts oder abwärts? Verglichen wird nicht nur mit dem letzten Monat (zu zappelig), sondern mit den 3 Monaten davor und mit dem Vorjahr. Alle Umsätze brutto, nach Rabatt, ohne Versand.</p>
+      <section class="box" style="border-color:var(--${WORD[1]})"><div class="row" style="justify-content:flex-start;gap:16px"><span class="num" style="font-size:2rem;color:var(--${WORD[1]})">${WORD[0]}</span><span class="note">${ymLab(V.l3[0])} bis ${ymLab(V.l3[2])}</span></div>
+        <p style="margin:0">Umsatz der letzten 3 Monate: <strong>${eur0(V.rl)}</strong>. ${V.tr !== null ? `Das sind ${dlTag(V.tr, "gegenüber den 3 Monaten davor (" + eur0(V.rp) + ")")}` : ""}${V.yo !== null ? `${V.tr !== null ? " und " : ""}${dlTag(V.yo, "gegenüber den gleichen Monaten im Vorjahr (" + eur0(V.ry) + ")")}` : ""}. Verkäufe: ${V.qL} Stück (davor ${V.qP}${V.qY ? `, Vorjahr ${V.qY}` : ""}).</p>
+        ${V.qAvg !== null && V.rAvg !== null && V.qAvg < -10 && V.rAvg > 0 ? `<p class="note" style="margin:0"><strong style="color:var(--warn)">Achtung:</strong> Der Umsatz hält, aber du verkaufst deutlich weniger Stück (${dlTag(V.qAvg, "im Schnitt")}). Das trägt gerade über größere und teurere Bestellungen. Fällt davon etwas weg, sinkt der Umsatz schnell.</p>` : ""}</section>
+      <div class="tiles">${tile(`Umsatz ${ymLab(last.ym)}`, eur0(last.rev), tags("rev"), true)}${tile("Verkäufe (Stück)", dec(last.q, 0), tags("q"))}${tile("Bestellungen", dec(last.o, 0), tags("o"))}${tile("Ø Warenkorb", eur(last.o ? last.rev / last.o : 0), last.o && prev && prev.o ? dlTag(dlt(last.rev / last.o, prev.rev / prev.o), "zum Vormonat") : "")}${tile("Geschätztes Ergebnis" + info("Geschätzt mit den heutigen Artikelkosten aus der App: Umsatz mal Deckungsbeitrags-Quote, minus alle Fixkosten. Kein Buchhaltungswert."), eur0(dbL - fix), `<span>Deckungsbeitrag ca. ${eur0(dbL)}, Fixkosten ${eur0(fix)}</span>`)}</div>
+      ${statChart(D, "Umsatz pro Monat", r => ({ e: r.e, s: r.s }), x => eur0(x))}
+      ${statChart(D, "Verkäufe pro Monat (Stück)", r => ({ e: E && E.months[r.ym] ? E.months[r.ym].q : 0, s: S2 && S2.months[r.ym] ? S2.months[r.ym].q : 0 }), x => dec(x, 0))}
+      <section class="box"><h2>Kanäle</h2>${anaTable(["Kanal", `Umsatz ${ymLab(V.l3[0])} bis ${ymLab(V.l3[2])}`, "gegenüber 3 Monaten davor", "Anteil"], [kanalRow("Etsy", eL, eP, eL + sL), kanalRow("Shopify", sL, sP, eL + sL)], [1, 3])}</section>
+      <div class="grid2"><section class="box"><h2>Gewinner</h2><p class="note">Artikel mit dem größten Umsatzplus, letzte 3 gegen die 3 Monate davor.</p>${anaTable(["Artikel", "Stück", "Umsatz"], MV.up, [1, 2])}</section>
+        <section class="box"><h2>Verlierer</h2><p class="note">Artikel mit dem größten Umsatzminus im gleichen Vergleich.</p>${anaTable(["Artikel", "Stück", "Umsatz"], MV.down, [1, 2])}</section></div>
+      <section class="box"><div class="row"><h2>Einschätzung von Claude</h2><button class="btn primary" data-stat="ai" ${stSt.aiBusy ? "disabled" : ""}>${stSt.aiBusy ? "Claude denkt …" : stSt.ai ? "Neu auswerten" : "Auswerten lassen"}</button></div>
+        ${stSt.ai ? `<div style="white-space:pre-wrap">${esc(stSt.ai)}</div>` : `<p class="note">Claude liest die Monatszahlen, nennt wahrscheinliche Ursachen und drei nächste Schritte. Das sind Vermutungen, keine Gewissheit.</p>`}</section>
+      ${data}`;
+    renderStats.last = { D, V, MV };
+  }
+  document.addEventListener("change", e => { if (e.target && e.target.id === "statFile" && e.target.files && e.target.files.length) { const fs = [...e.target.files]; e.target.value = ""; statFiles(fs); } });
+  document.addEventListener("click", e => { const b = e.target.closest("[data-stat]"); if (!b || view !== "entwicklung") return; if (b.dataset.stat === "shopify") statsShopify(); else if (b.dataset.stat === "ai" && renderStats.last) statsAi(renderStats.last.D, renderStats.last.V, renderStats.last.MV); });
+
+  // ---------- DHL-Verträge und Preislisten (Upload unter Einstellungen → Versand & Kartons) ----------
+  let docBusy = "";
+  const docKinds = ["Vertrag", "Preisliste", "Rechnung", "Sonstiges"];
+  const docSize = b => b > 1048576 ? dec(b / 1048576, 1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
+  function docsBox() {
+    if (!SHOP) shopLoad(); const items = (SHOP && SHOP.docs && SHOP.docs.items) || [];
+    return `<section class="box" data-sec="versand"><h2>DHL-Verträge und Preislisten</h2>
+      <p class="note">Leg hier deine DHL-Vertragsunterlagen, Preislisten und Preisanpassungen ab, damit alles an einem Ort liegt. Die Dateien werden nur für dich gespeichert, die App liest sie nicht aus. Die Preise trägst du oben unter „Versandarten“ ein.</p>
+      <div class="field"><label for="docFile">Dateien hochladen (PDF, Bild, CSV, Excel, bis 20 MB)</label><input type="file" id="docFile" accept=".pdf,image/*,.csv,.xlsx,.xls,.doc,.docx,.txt" multiple ${docBusy ? "disabled" : ""}></div>
+      ${docBusy ? `<p class="note"><strong>${esc(docBusy)}</strong></p>` : ""}
+      ${items.length ? anaTable(["Datei", "Art", "Hochgeladen", "Größe", "", ""], items.map(d => [esc(d.name), `<div class="inp"><select data-docsel="${esc(d.id)}">${docKinds.map(k => `<option ${d.kind === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>`, dDE(String(d.at).slice(0, 10)), docSize(d.size || 0), `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener">Öffnen</a>`, `<button type="button" class="btn danger" data-docdel="${esc(d.id)}">Löschen</button>`])) : `<p class="note">Noch nichts hochgeladen.</p>`}</section>`;
+  }
+  async function docUpload(files) {
+    const assets = window.claude && window.claude.use ? await window.claude.use("assets") : null;
+    if (!assets) { docBusy = ""; toast("Der Datei-Upload ist hier nicht verfügbar."); return renderSettings(); }
+    await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
+    const items = ((SHOP.docs && SHOP.docs.items) || []).slice();
+    for (const f of files) {
+      docBusy = `Lade ${f.name} hoch …`; renderSettings();
+      try { const res = await assets.upload(f), n = f.name.toLowerCase(); items.push({ id: res.id, url: res.url, name: f.name, size: f.size, at: new Date().toISOString(), kind: /vertrag/.test(n) ? "Vertrag" : /preis/.test(n) ? "Preisliste" : /rechnung|invoice/.test(n) ? "Rechnung" : "Sonstiges" }); }
+      catch (e) { toast(`${f.name}: Upload hat nicht geklappt${e && e.message ? " (" + e.message + ")" : ""}`); }
+    }
+    shopSave({ id: "docs", items }); docBusy = ""; renderSettings(); toast("Gespeichert");
+  }
+  document.addEventListener("change", e => {
+    const t = e.target; if (view !== "einstellungen" || !t) return;
+    if (t.id === "docFile" && t.files && t.files.length) { const fs = [...t.files]; t.value = ""; docUpload(fs); return; }
+    if (t.dataset && t.dataset.docsel) { const items = ((SHOP.docs && SHOP.docs.items) || []).map(d => d.id === t.dataset.docsel ? { ...d, kind: t.value } : d); shopSave({ id: "docs", items }); }
+  });
+  document.addEventListener("click", async e => {
+    const b = e.target.closest && e.target.closest("[data-docdel]"); if (!b || view !== "einstellungen") return;
+    const d = ((SHOP.docs && SHOP.docs.items) || []).find(x => x.id === b.dataset.docdel); if (!d || !confirm(`„${d.name}“ löschen?`)) return;
+    try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(d.id); } catch (er) { /* Datei war schon weg */ }
+    shopSave({ id: "docs", items: SHOP.docs.items.filter(x => x.id !== d.id) }); renderSettings(); toast("Gelöscht");
   });
   async function ideaGenerate(n, replaceId) {
     const mk = monthKey(new Date()); ideaState.busy = "Claude schlägt Produkte vor …"; ideaState.msg = ""; renderIdeas();
