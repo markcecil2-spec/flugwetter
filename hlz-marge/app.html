@@ -448,7 +448,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 154 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 155 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1074,12 +1074,16 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     return { l, p };
   }
   const seoCut = (s, n) => { s = String(s || "").trim(); if (s.length <= n) return s; const t = s.slice(0, n + 1), i = t.lastIndexOf(" "); return (i > n * 0.6 ? t.slice(0, i) : s.slice(0, n)).replace(/[\s,;:–-]+$/, ""); };
-  function seoPromptFor(a, l, p) {
+  const seoKey = a => baseOf(a).toLowerCase();
+  const seoNoteOf = a => (SHOP && SHOP.seo && SHOP.seo.notes && SHOP.seo.notes[seoKey(a)]) || "";
+  function seoNoteSave(a, text) { if (!SHOP) return; const notes = Object.assign({}, SHOP.seo && SHOP.seo.notes); if (text.trim()) notes[seoKey(a)] = text; else delete notes[seoKey(a)]; shopSave({ id: "seo", items: (SHOP.seo && SHOP.seo.items) || {}, notes }); }
+  function seoPromptFor(a, l, p, note) {
     const sizes = A.filter(x => baseOf(x) === baseOf(a)).map(x => String(x.name).split(" · ").slice(1).join(" · ")).filter(Boolean);
     const cur = [];
     if (l) cur.push(`Aktueller Etsy-Titel (${l.t.length} Zeichen): ${l.t}`, `Aktuelle Etsy-Tags (${l.tags.length}): ${l.tags.join(", ") || "keine"}`, `Aktuelle Materialien: ${l.mats.join(", ") || "keine"}`, `Beschreibungsanfang (gesamt ${l.dl} Zeichen): ${l.d}`);
     if (p) cur.push(`Aktueller Shopify-Titel: ${p.title}`, `Aktueller SEO-Titel (${(p.seoT || "").length} Zeichen): ${p.seoT || "fehlt"}`, `Aktuelle Meta-Beschreibung (${(p.seoD || "").length} Zeichen): ${p.seoD || "fehlt"}`, `Beschreibung: ${p.dl} Zeichen, ${p.img} Bilder, ${p.noAlt} ohne Alt-Text`);
-    return `Du bist SEO- und Texterexperte für kleine deutsche Online-Shops und optimierst Angebote für HLZLaden (Etsy und Shopify). Der Shop verkauft handgefertigte Wohnaccessoires aus Eiche und Buche (Garderoben, Schlüsselbretter, Regale, Deko, teils mit Lasergravur).\n\nProdukt: ${baseOf(a)}\nGrößen/Varianten: ${sizes.join(", ") || "eine Größe"}\nVerkaufspreis: ${eur(v(a.price))}\n${cur.length ? "\nAktueller Stand:\n" + cur.join("\n") : "\n(Es liegen noch keine Etsy- oder Shopify-Daten zu diesem Produkt vor, schreib die Texte aus den Angaben oben.)"}\n\n`
+    const noteTxt = note && note.trim() ? `\nAnmerkungen des Verkäufers (unbedingt berücksichtigen, sie haben Vorrang vor deinen Standardregeln, solange sie keine erfundenen Fakten verlangen und die Längengrenzen eingehalten werden):\n${note.trim()}\n` : "";
+    return `Du bist SEO- und Texterexperte für kleine deutsche Online-Shops und optimierst Angebote für HLZLaden (Etsy und Shopify). Der Shop verkauft handgefertigte Wohnaccessoires aus Eiche und Buche (Garderoben, Schlüsselbretter, Regale, Deko, teils mit Lasergravur).\n\nProdukt: ${baseOf(a)}\nGrößen/Varianten: ${sizes.join(", ") || "eine Größe"}\nVerkaufspreis: ${eur(v(a.price))}\n${cur.length ? "\nAktueller Stand:\n" + cur.join("\n") : "\n(Es liegen noch keine Etsy- oder Shopify-Daten zu diesem Produkt vor, schreib die Texte aus den Angaben oben.)"}\n${noteTxt}\n`
       + `Aufgabe: Mach daraus SEO-optimierte Texte, die besser gefunden werden und besser verkaufen. Regeln:\n- Erfinde keine Eigenschaften, Maße oder Materialien, die nicht oben stehen. Nutze die Größen, die oben genannt sind.\n- Etsy-Titel 110 bis 140 Zeichen, wichtigster Suchbegriff vorne (Produktart plus Material), danach Anlass, Einsatzort, Besonderheit. Keine Wortwiederholungen, kein Großschreiben ganzer Wörter.\n- Genau 13 Etsy-Tags, jeder höchstens 20 Zeichen, überwiegend Mehrwort-Begriffe, die Käufer wirklich eintippen. Keine Markennamen. Tags sollen Begriffe ergänzen, die im Titel nicht stehen.\n- Etsy-Beschreibung 800 bis 1400 Zeichen: Einstieg mit Nutzen und Hauptbegriff in den ersten zwei Sätzen, dann Aufzählung mit Spiegelstrichen (Größen, Material, Besonderheiten), Pflege, Montage oder Lieferumfang nur wenn bekannt, zum Schluss ein Satz zu Geschenk und Versand. Absätze durch eine Leerzeile.\n- Shopify: Produkttitel max. 70 Zeichen, SEO-Titel max. 60 Zeichen mit Hauptbegriff vorne, Meta-Beschreibung 130 bis 155 Zeichen mit Nutzen und Aufruf zum Klicken, Beschreibung 600 bis 1100 Zeichen, URL-Name (Handle).\n- "begruendung": 3 bis 5 kurze Punkte, was du gegenüber dem aktuellen Stand verbessert hast und warum (konkret, z. B. "Titel hatte nur 61 von 140 Zeichen").\n- Natürliches, warmes Deutsch ohne Floskeln.\n\n`
       + `Antworte NUR mit JSON: {"etsy": {"titel": "...", "tags": ["..."], "materialien": ["..."], "beschreibung": "..."}, "shopify": {"titel": "...", "seoTitel": "...", "meta": "...", "beschreibung": "...", "handle": "..."}, "begruendung": ["..."]}`;
   }
@@ -1090,18 +1094,20 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       begruendung: (Array.isArray(o.begruendung) ? o.begruendung : []).map(String).filter(Boolean).slice(0, 6) };
   }
   async function seoSuggest() {
-    const a = A.find(x => x.id === tipSt.id); if (!a) return; const { l, p } = shopFor(a), sample = await getSample();
+    const a = A.find(x => x.id === tipSt.id); if (!a) return; const { l, p } = shopFor(a), sample = await getSample(), noteEl = document.getElementById("tipNote"), note = noteEl ? noteEl.value : seoNoteOf(a);
+    await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50)); seoNoteSave(a, note);
     if (!sample) { tipSt.err = "Claude ist hier nicht verfügbar."; return renderTipPanel(); }
     tipSt.busy = true; tipSt.err = ""; tipSt.ctl = new AbortController(); renderTipPanel();
     try {
-      const o = await sample.json(seoPromptFor(a, l, p), { modelTier: "default", cache: false, signal: tipSt.ctl.signal });
+      const o = await sample.json(seoPromptFor(a, l, p, note), { modelTier: "default", cache: false, signal: tipSt.ctl.signal });
       if (!o || typeof o !== "object") throw { code: "invalid_json" };
       await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
       const items = Object.assign({}, SHOP.seo && SHOP.seo.items); items[baseOf(a).toLowerCase()] = seoClampFor(o);
-      shopSave({ id: "seo", items });
+      shopSave({ id: "seo", items, notes: Object.assign({}, SHOP.seo && SHOP.seo.notes) });
     } catch (e) { tipSt.err = e && e.code === "cancelled" ? "" : e && e.code === "invalid_json" ? "Die Antwort kam unvollständig an, bitte nochmal versuchen." : e && e.code === "rate_limited" ? "Gerade zu viele Anfragen, bitte kurz warten." : supErr(e); }
     tipSt.busy = false; tipSt.ctl = null; renderTipPanel();
   }
+  document.addEventListener("change", e => { if (e.target && e.target.id === "tipNote") { const a = A.find(x => x.id === tipSt.id); if (a) seoNoteSave(a, e.target.value); } });
   const tipClip = s => { try { navigator.clipboard.writeText(s).then(() => toast("Kopiert"), () => toast("Kopieren geht hier nicht, bitte markieren und Strg+C")); } catch (e) { toast("Kopieren geht hier nicht, bitte markieren und Strg+C"); } };
   function tipField(key, label, val, o = {}) {
     tipSt.vals[key] = val; const cnt = o.max ? ` <span class="note num" style="${val.length > o.max ? "color:var(--bad)" : ""}">${val.length}/${o.max}</span>` : "";
@@ -1123,6 +1129,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       ${now.length ? `<h3 style="margin:14px 0 6px">So steht es aktuell bei dir</h3><div style="display:grid;gap:10px">${now.join("")}</div>` : `<p class="note" style="margin-top:12px">Zu diesem Produkt habe ich noch keine Etsy- oder Shopify-Daten. Lade im Shop-Check die Etsy-CSV hoch und klick bei Shopify auf „Jetzt prüfen“, dann vergleiche ich den aktuellen Stand.</p>`}
       </div><div>
       <h3 style="margin:0 0 6px">SEO-Vorschlag: Titel, Tags, Beschreibung</h3>
+      <div class="field"><label for="tipNote">Anmerkungen für Claude (optional)</label><div class="inp"><textarea id="tipNote" rows="3" style="width:100%;min-height:0" placeholder="z. B. Titel soll „Waldkante“ enthalten, Zielgruppe Hundebesitzer, bitte kein „rustikal“, Beschreibung kürzer">${esc(seoNoteOf(a))}</textarea></div><small>Wird gespeichert und bei jedem neuen Vorschlag für dieses Produkt berücksichtigt (Titel, Tags und Beschreibung).</small></div>
       <div class="btns"><button type="button" class="btn primary" data-tipseo="gen" ${tipSt.busy ? "disabled" : ""}>${tipSt.busy ? "Claude schreibt …" : res ? "Neuen Vorschlag erstellen" : "SEO-Vorschlag erstellen"}</button>${tipSt.busy ? `<button type="button" class="btn" data-tipseo="stop">Stopp</button>` : ""}</div>
       ${tipSt.busy ? `<p class="note">Dauert meist 20 bis 40 Sekunden. Beim ersten Mal fragt Claude nach deiner Freigabe.</p>` : ""}${tipSt.err ? `<p class="note"><strong>${esc(tipSt.err)}</strong></p>` : ""}
       ${res ? `<div style="display:grid;gap:10px;margin-top:10px">
