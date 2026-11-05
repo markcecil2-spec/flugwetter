@@ -448,7 +448,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 158 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 159 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1167,6 +1167,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     { k: "price", l: () => "Preis", def: true, hideSm: true, cls: "num", sort: x => x.r.P,
       cell: x => `<div class="inp qprice"><input type="text" inputmode="decimal" data-q="price" data-qid="${x.a.id}" value="${v(x.a.price) ? v(x.a.price).toFixed(2).replace(".", ",") : ""}" aria-label="Verkaufspreis Etsy ${esc(x.a.name)}" title="Etsy-Preis, direkt änderbar"><span>€</span></div>` },
     { k: "pm", l: () => "Verk./Mon.", def: true, hideSm: true, cls: "num", sort: x => x.pm, cell: x => x.pm ? dec(x.pm) : "–" },
+    { k: "trend", l: () => "Trend", def: true, hideSm: true, fresh: "tr1", tip: "Verkaufstrend in Stück: die letzten 3 vollen Monate gegen die 3 Monate davor (Etsy + Shopify). Grün ▲ = ab +20 %, rot ▼ = ab −20 %, grau ► = ungefähr gleich oder zu wenig Verkäufe für eine Aussage.", sort: x => x.tr ? x.tr.pct : -1e9,
+      cell: x => { const t = x.tr; if (!t || (!t.l && !t.p)) return `<span class="note" title="Keine Verkäufe in den letzten 6 Monaten oder keine Daten (SKU fehlt?)">–</span>`; const col = t.dir > 0 ? "good" : t.dir < 0 ? "bad" : "muted", ar = t.dir > 0 ? "▲" : t.dir < 0 ? "▼" : "►", pc = t.p > 0 ? `${t.pct > 0 ? "+" : ""}${dec(t.pct, 0)} %` : "neu";
+        return `<span title="Letzte 3 Monate: ${t.l} Stück, davor: ${t.p} Stück${t.few ? ". Zu wenig Verkäufe für eine sichere Aussage." : ""}" style="color:var(--${col});display:grid;justify-items:center;gap:0"><strong style="font-size:1.2rem;line-height:1.1">${ar}</strong><small class="num" style="font-size:.72rem">${t.few ? `${t.l} ← ${t.p}` : pc}</small></span>`; } },
     { k: "cost", l: () => "Kosten", def: true, hideSm: true, cls: "num", sort: x => x.r.varCosts + x.r.fees + x.r.ads + x.r.fixShare, cell: x => eur(x.r.varCosts + x.r.fees + x.r.ads + x.r.fixShare) },
     { k: "profit", l: () => "Gewinn", def: true, cls: "num", sort: x => x.r.profit, style: x => { const [c] = status(x.r.margin); return `color:var(--${c === "muted" ? "fg" : c})`; }, cell: x => eur(x.r.profit) },
     { k: "margin", l: () => "Marge", def: true, sort: x => isFinite(x.r.margin) ? x.r.margin : -1e9,
@@ -2084,7 +2087,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     });
     const abc = abcInfo(); rows.forEach(x => Object.assign(x, abc[x.a.id] || { abc: "C", share: 0, noSales: true }));
     if (!SHOP) shopLoad(); const sIss = shopIssuesByArt(); Object.keys(ARTTIPS).forEach(k => delete ARTTIPS[k]);
-    rows.forEach(x => { x.tips = ARTTIPS[x.a.id] = artTips(x, sIss, ctx); });
+    if (!STATS) statsLoad(); const TR = trendMap();
+    rows.forEach(x => { x.tr = trendOf(x.a, TR); x.tips = ARTTIPS[x.a.id] = artTips(x, sIss, ctx); });
     const visCols = ovCols();
     const key = sortKey === "name" ? x => norm(x.a.name) : ((OV_COLS.find(c => c.k === sortKey) || {}).sort || (x => x.r.profit));
     // Markierte Artikel immer zuerst, danach die gewählte Sortierung
@@ -4177,7 +4181,7 @@ Antworte NUR mit JSON in dieser Form:
   async function statsLoad() {
     if (STATS || statsLoading) return; statsLoading = true; STATS = {};
     try { (await store.loadStats()).forEach(d => STATS[d.id] = d); } catch (e) { toast("Statistik-Daten konnten nicht geladen werden."); }
-    statsLoading = false; if (view === "entwicklung") renderStats();
+    statsLoading = false; if (view === "entwicklung") renderStats(); else if (view === "uebersicht") renderOverview();
   }
   const statsSave = d => { STATS[d.id] = d; persist("st:" + d.id, () => store.saveStats(d)); };
   const SHORT_M = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
@@ -4269,10 +4273,25 @@ Antworte NUR mit JSON in dieser Form:
       ${pts ? `<polyline points="${pts}" fill="none" stroke="var(--warn)" stroke-width="2.5" stroke-linejoin="round"/>` : ""}</svg>
       <p class="note" style="margin:0"><span style="color:var(--accent)">■</span> Etsy <span style="color:var(--seg-ship)">■</span> Shopify <span style="color:var(--warn)">━</span> Schnitt der letzten 3 Monate</p></section>`;
   }
-  function statMovers(D, V) {
-    // alte oder abweichende SKUs (z. B. „keybrd-03-40-“ oder „…-g“) dem heutigen Artikel zuordnen
+  // alte oder abweichende SKUs (z. B. „keybrd-03-40-“ oder „…-g“) dem heutigen Artikel zuordnen
+  function makeSkuCanon() {
     const loose = k => String(k).replace(/[^a-z0-9]/gi, "").toLowerCase(), known = new Map(A.filter(a => a.sku).map(a => [loose(a.sku), tkey(a.sku)]));
-    const canon = k => { const s0 = k.replace(/-+$/, ""); for (const t of [s0, s0.replace(/-(g|gr|grav|gravur|mit-gravur|ohne-gravur)$/i, "")]) { const m = known.get(loose(t)); if (m) return m; } return null; };
+    return k => { const s0 = k.replace(/-+$/, ""); for (const t of [s0, s0.replace(/-(g|gr|grav|gravur|mit-gravur|ohne-gravur)$/i, "")]) { const m = known.get(loose(t)); if (m) return m; } return null; };
+  }
+  // Verkaufstrend je Artikel: letzte 3 volle Monate gegen die 3 davor (Stück, Etsy + Shopify)
+  function trendMap() {
+    const out = {}; if (!STATS) return out; let D; try { D = statData(); } catch (e) { return out; } if (!D) return out;
+    const V = statVerdict(D); if (V.l3.length < 3) return out; const canon = makeSkuCanon();
+    const add = (ym, w) => [D.E[ym], D.S2[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k) || k, o = out[c] || (out[c] = { l: 0, p: 0 }); o[w] += e.q; }));
+    V.l3.forEach(m => add(m, "l")); V.p3.forEach(m => add(m, "p")); return out;
+  }
+  function trendOf(a, TR) {
+    const t = TR[tkey(a.sku)], none = { dir: 0, pct: -1e9, l: 0, p: 0 }; if (!t) return none; const { l, p } = t, tot = l + p; if (!tot) return none;
+    const pct = p > 0 ? (l / p - 1) * 100 : 1000 + l; let dir = 0; if (tot >= 4) dir = p === 0 ? 1 : pct >= 20 ? 1 : pct <= -20 ? -1 : 0;
+    return { dir, pct, l, p, few: tot < 4 };
+  }
+  function statMovers(D, V) {
+    const canon = makeSkuCanon();
     const acc = {}; const add = (ym, w) => { [D.E[ym], D.S2[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k), key = c || k, a = acc[key] || (acc[key] = { rl: 0, rp: 0, ql: 0, qp: 0, known: !!c }); a[w === "l" ? "rl" : "rp"] += e.r; a[w === "l" ? "ql" : "qp"] += e.q; })); };
     V.l3.forEach(m => add(m, "l")); V.p3.forEach(m => add(m, "p"));
     const nm = k => { const a = A.find(x => tkey(x.sku) === k); return a ? a.name : String(k).toUpperCase(); };
