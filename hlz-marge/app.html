@@ -448,7 +448,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 156 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 157 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1058,7 +1058,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (x.abc === "B") add("good", `<strong>Gut dabei</strong> (${dec(x.share, 1)} % deines Gewinns). Mit besserem Titel, mehr Fotos und einem Set oder Aufpreis-Angebot (z. B. mit Gravur) wird daraus ein A-Artikel.`);
     else if (pm > 0 && good) add("warn", `<strong>Verkauft kaum</strong> (${dec(pm)} pro Monat) bei guter Marge. Mehr Sichtbarkeit bringt hier am meisten: Titel, Tags und Fotos überarbeiten.`);
     if (isFinite(x.dmax) && x.dmax >= 15) add("good", `<strong>Spielraum für Aktionen:</strong> bis −${x.dmax} % Rabatt (Preis ${eur(P * (1 - x.dmax / 100))}), ohne unter deine Ziel-Marge zu fallen.`);
-    const pr = r.P > 0 ? r.porto / r.P : 0; if (pr > 0.2) add("warn", `<strong>Der Versand frisst ${dec(pr * 100, 0)} % des Preises</strong> (${eur(r.porto)}${r.ship && r.ship.chosen ? ", " + esc(r.ship.chosen.o.n) : ""}). Prüf einen kleineren Karton oder eine günstigere Versandart.`);
+    // Versand zählt nur als Problem, wenn er mehr kostet, als der Kunde dafür bezahlt
+    const shipPaid = v(a.shipIn) / (S.tax === "ku" ? 1 : 1.19), shipGap = r.porto - shipPaid; if (r.P > 0 && shipGap > 0.08 * r.P && shipGap > 1) add("warn", `<strong>Der Versand kostet dich ca. ${eur(shipGap)} mehr, als der Kunde zahlt</strong> (DHL ${eur(r.porto)}${r.ship && r.ship.chosen ? ", " + esc(r.ship.chosen.o.n) : ""}, Kunde zahlt ${eur(shipPaid)} netto). Prüf einen kleineren Karton, eine günstigere Versandart oder das Versandentgelt im Artikel (Feld „Versand vom Kunden“).`);
     const w = pickWage(x); if (pm > 0 && isFinite(w) && w < 15) add("warn", `<strong>Stundenlohn nur ${eur(w)}/h.</strong> Arbeitszeit senken (Zuschnitt, Schleifen) oder den Preis anheben.`);
     if (x.miss && x.miss.length) add("warn", `<strong>Daten fehlen:</strong> ${x.miss.map(esc).join(", ")}. Ohne sie stimmen Versand und Marge nicht genau.`);
     (sIss[a.id] || []).slice(0, 4).forEach(i => add("warn", `<strong>${i.src}:</strong> ${esc(i.txt)}. ${esc(i.tip)}`));
