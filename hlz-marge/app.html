@@ -448,7 +448,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 160 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">Kalkulatte · Version 161 · 01.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -3387,7 +3387,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <div class="finsub"><div class="field"><label>Space 1 (angespart)</label>${inp('data-fin="spaceA"', F.spaceA, "€")}</div><div class="field"><label>Space 2 (angespart)</label>${inp('data-fin="spaceB"', F.spaceB, "€")}</div>
             <small>Schon angespart: <strong>${eur0(c.saved)}</strong>. Das liegt zusätzlich zum Kontostand.</small></div></div>
           <div class="field"><label>Privatkonto</label>${inp('data-fin="kontoP"', F.kontoP, "€")}</div>
-          <div class="field"><label>Guthaben bei Etsy und PayPal (noch nicht ausgezahlt)</label>${inp('data-fin="guthaben"', F.guthaben, "€")}<small>Zählt zum Geschäftskonto.</small></div>
+          <div class="field"><label>Guthaben bei Etsy Payments (noch nicht ausgezahlt)</label>${inp('data-fin="guthaben"', F.guthaben, "€")}<small>Zählt zum Geschäftskonto.</small></div>
           <div class="field"><label>Guthaben bei Shopify Payments (noch nicht ausgezahlt)</label>${inp('data-fin="guthabenS"', F.guthabenS, "€")}<small>Zählt zum Geschäftskonto.</small></div>
           <div class="field"><label>Entnahme aufs Privatkonto pro Monat</label>${inp('data-fin="entnahme"', F.entnahme, "€")}<small>Leer = das ganze Shop-Einkommen nach Steuer${hasSalesEnt ? " (aktuell " + eur0(c.tx.net) + ")" : ""}.</small></div>
           <div class="field"><label>Bargeld / sonstiges (privat)</label>${inp('data-fin="bar"', F.bar, "€")}<small>${F.stand ? "Zuletzt geändert am " + dDE(F.stand) : "Trag den heutigen Stand ein."}</small></div>
