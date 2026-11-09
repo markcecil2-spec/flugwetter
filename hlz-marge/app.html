@@ -1551,7 +1551,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
       const fresh = await store.loadOrders();
       fresh.forEach(f => { const i = ORD.findIndex(x => x.id === f.id);
         if (i < 0) ORD.push(f);
-        else { const o = ORD[i]; ["bb", "bbState", "bbShipped"].forEach(k => { if (f[k] !== undefined && o[k] !== f[k]) o[k] = f[k]; }); if (f.bb && f.status === "erledigt" && o.status === "offen" && !o.manual) o.status = "erledigt"; } });
+        else { const o = ORD[i]; ["bb", "bbState", "bbShipped", "bbShip"].forEach(k => { if (f[k] !== undefined && o[k] !== f[k]) o[k] = f[k]; }); if (f.bb && f.status === "erledigt" && o.status === "offen" && !o.manual) o.status = "erledigt"; } });
     } catch (e) { /* offline: lokale Liste bleibt */ }
     ORD.forEach(o => { if (!o.bb) return; let ch = false; (o.lines || []).forEach(l => { if (!l.aid && l.sku) { const a = ordResolve(l.sku, l.variant); if (a) { l.aid = a.id; ch = true; } } }); if (ch) saveOrder(o); });
   }
@@ -1595,6 +1595,19 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     ordBadge(); renderOrders();
   }
 
+  // Versandprofil je Bestellung: automatisch aus Gewicht und Karton der Artikel (mehrere Teile: Gewichte addiert, Höhen gestapelt), von Hand änderbar
+  function ordShipAuto(o) {
+    const L = (o.lines || []).map(l => ({ a: ordArt(l.aid), q: v(l.qty) || 1 })); if (!L.length || L.some(x => !x.a)) return null;
+    const W = L.reduce((n, x) => n + shipWeight(x.a) * x.q, 0), big = L.reduce((m, x) => { const d = [v(x.a.pkL), v(x.a.pkB), v(x.a.pkH)].sort((p, q) => q - p); return d[0] * d[1] > m.k ? { k: d[0] * d[1], d } : m; }, { k: -1, d: [0, 0, 0] }).d;
+    const n = L.reduce((c, x) => c + x.q, 0), dim = [big[0], big[1], big[2] * Math.max(1, n)].sort((p, q) => q - p);
+    const fit = (S.ship || []).filter(x => W <= v(x.g) && dim.every((d, k) => d <= [v(x.l), v(x.b), v(x.h)].sort((p, q) => q - p)[k])).sort((x, y) => shipP(x) - shipP(y))[0];
+    return fit ? { o: fit, w: W, multi: n > 1 } : { o: null, w: W, multi: n > 1 };
+  }
+  function ordShipHTML(o) {
+    const au = ordShipAuto(o), sel = o.ship || "", cur = sel ? (S.ship || []).find(x => x.n === sel) : (au && au.o);
+    const opts = [`<option value="">Automatisch${au && au.o ? ": " + esc(au.o.n) : ""}</option>`].concat((S.ship || []).map(x => `<option value="${esc(x.n)}" ${sel === x.n ? "selected" : ""}>${esc(x.n)}</option>`)).join("");
+    return `<select data-ordship="${o.id}" aria-label="Versandart ${esc(o.no)}">${opts}</select>${cur ? `<div class="note">${eur(shipP(cur))} Porto${au && au.w ? " · " + kg(au.w) : ""}${!sel && au && au.multi ? " · mehrere Teile, bitte prüfen" : ""}</div>` : `<div class="note">${au ? "passt in keine Versandart, bitte wählen" : "Artikel zuordnen"}</div>`}${o.bbShip ? `<div class="note">Billbee: ${esc(o.bbShip)}</div>` : ""}`;
+  }
   function renderOrders() {
     const all = ORD.slice().sort((a, b) => (b.at || "").localeCompare(a.at || "") || String(b.no).localeCompare(String(a.no), "de", { numeric: true }));
     const live = all.filter(o => o.status !== "storniert"), open = live.filter(ordOpen), done = live.filter(o => o.status === "erledigt");
@@ -1615,15 +1628,16 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         <p class="note">Offene Bestellungen kommen automatisch aus Billbee. Wenn du eine abhakst (erledigt), setzt der Abgleich sie dort auf „Versendet“. Ist sie in Billbee schon versendet, setzt sie sich hier von allein auf erledigt. Mit „Neue Bestellungen holen“ lädst du den neuesten Stand.</p>
         ${list.length && ord.f === "open" ? `<div class="btns"><button type="button" class="btn" data-act="ordAllDone">Alle ${list.length} angezeigten als erledigt markieren</button></div>` : ""}
         ${ord.ask ? `<div class="selbar danger" style="position:static"><strong>${list.length} Bestellungen als erledigt markieren?</strong><span class="btns"><button class="btn primary" data-act="ordYes">Ja</button><button class="btn" data-act="ordNo">Abbrechen</button></span></div>` : ""}
-        <div class="tablewrap"><table class="ordtable"><thead><tr><th>✓</th><th>Datum</th><th>Bestellung</th><th>Artikel</th><th>Land</th><th>Versand bis</th><th>Betrag</th></tr></thead>
+        <div class="tablewrap"><table class="ordtable"><thead><tr><th>✓</th><th>Datum</th><th>Bestellung</th><th>Artikel</th><th>Versandart</th><th>Land</th><th>Versand bis</th><th>Betrag</th></tr></thead>
         <tbody>${list.map(o => `<tr class="${o.status === "erledigt" ? "orddone" : ""}">
           <td><input type="checkbox" data-orddone="${o.id}" ${o.status === "erledigt" ? "checked" : ""} aria-label="Erledigt ${esc(o.no)}"></td>
           <td class="num">${esc(o.at)}</td>
           <td><span class="chip ${o.src === "etsy" ? "miss" : "ex"}">${o.src === "etsy" ? "Etsy" : o.src === "billbee" ? "Billbee" : "Shopify"}</span> <span class="num">${esc(o.no)}</span>${o.bb ? `<div class="note">${o.status === "erledigt" ? (o.bbShipped ? "✓ in Billbee versendet" : "meldet sich gleich bei Billbee") : "aus Billbee"}</div>` : ""}</td>
           <td>${(o.lines || []).map((l, i) => lineHTML(o, l, i)).join("")}</td>
+          <td>${ordShipHTML(o)}</td>
           <td>${esc(o.country || "–")}</td>
           <td class="num" ${o.shipBy && o.shipBy < today && ordOpen(o) ? 'style="color:var(--bad);font-weight:700"' : ""}>${esc(o.shipBy || "–")}</td>
-          <td class="num">${o.total ? eur(o.total) : "–"}</td></tr>`).join("") || `<tr><td colspan="7" class="note">${ORD.length ? "Hier ist nichts." : "Noch keine Bestellungen. Klick oben auf „Neue Bestellungen holen“."}</td></tr>`}</tbody></table></div>
+          <td class="num">${o.total ? eur(o.total) : "–"}</td></tr>`).join("") || `<tr><td colspan="8" class="note">${ORD.length ? "Hier ist nichts." : "Noch keine Bestellungen. Klick oben auf „Neue Bestellungen holen“."}</td></tr>`}</tbody></table></div>
       </section>`;
   }
 
@@ -2827,6 +2841,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   const qFmt = { price: a => v(a.price) ? v(a.price).toFixed(2).replace(".", ",") : "", weight: a => v(a.weight) ? String(Math.round(v(a.weight))) : "", mins: a => v(a.mins) ? dec(v(a.mins)) : "" };
   document.addEventListener("change", e => {
     if (e.target.dataset && e.target.dataset.ana) { S[e.target.dataset.ana] = e.target.value; saveSettings(); return renderAnalysis(); }
+    if (e.target.dataset && e.target.dataset.ordship !== undefined) { const o = ORD.find(x => x.id === e.target.dataset.ordship); if (o) { if (e.target.value) o.ship = e.target.value; else delete o.ship; saveOrder(o); renderOrders(); } return; }
     if (e.target.dataset && e.target.dataset.ordmap) {
       const [oid, li] = e.target.dataset.ordmap.split(":"), o = ORD.find(x => x.id === oid), a = ordArt(e.target.value);
       if (o && a && o.lines[+li]) { const l = o.lines[+li]; l.aid = a.id; l.sku = a.sku || ""; (S.ordMap = S.ordMap || {})[ordKey(l.title, l.variant)] = a.id; saveSettings(); saveOrder(o); ordBadge(); renderOrders(); toast("Zuordnung gemerkt"); }

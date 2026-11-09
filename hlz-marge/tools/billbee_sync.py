@@ -52,7 +52,8 @@ def app_order(o):
         lines.append({"sku": p.get("SKU") or "", "title": p.get("Title") or "", "variant": variant, "qty": q, "price": round(((it.get("TotalPrice") or 0) / q), 2), "aid": ""})
     return {"id": oid, "src": src, "no": no, "at": (o.get("CreatedAt") or "")[:10], "shipBy": (o.get("ShipBy") or "")[:10] if o.get("ShipBy") else "",
             "total": round(o.get("TotalCost") or 0, 2), "country": ((o.get("ShippingAddress") or {}).get("CountryISO2") or ""), "status": "offen",
-            "manual": False, "lines": lines, "bb": bb, "bbState": o.get("State")}
+            "manual": False, "lines": lines, "bb": bb, "bbState": o.get("State"),
+            "bbShip": " ".join(x for x in [o.get("ShippingProviderName"), o.get("ShippingProviderProductName")] if x)}
 
 
 def fetch(days):
