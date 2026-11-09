@@ -1729,10 +1729,14 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     if (!P.hasD) { $("view").innerHTML = head + `<section class="box empty"><p>Dafür brauche ich Verkaufszahlen. Geh auf <a href="#entwicklung">Entwicklung</a>, lade die Etsy-CSV hoch und hol die Shopify-Bestellungen. Danach steht hier die Empfehlung.</p></section>`; return; }
     const R = P.rows, shown = prod.ppAll ? R : R.filter(x => x.lvl >= 1), buy = R.filter(x => x.need > 0), pcs = buy.reduce((s, x) => s + x.need, 0), hrs = buy.reduce((s, x) => s + x.need * x.mins / 60, 0), mat = buy.reduce((s, x) => s + x.need * x.mat, 0), max = Math.max(1, ...R.map(x => x.pm));
     // Nur Rohlinge: statt fertiger Artikel nur die Teile zuschneiden (Rohling × Stückzahl, dazu Platten-Bedarf)
-    const RB = {}, RP = {}; let rMin = 0;
+    const RB = {}, RP = {}; let rMin = 0, HAVE = S.rohStock || {};
     buy.forEach(x => (x.a.parts || []).forEach(pt => {
-      const q = x.need * Math.max(1, v(pt.q)), nm = pt.blank || pt.n || "Freies Teil", o = RB[nm] || (RB[nm] = { n: nm, q: 0, l: v(pt.l), b: v(pt.b), min: 0, arts: [] });
-      o.q += q; o.min += q * blankMin(pt); rMin += q * blankMin(pt); o.arts.push(x.a.sku + " ×" + q);
+      const q = x.need * Math.max(1, v(pt.q)), nm = pt.blank || pt.n || "Freies Teil", o = RB[nm] || (RB[nm] = { n: nm, q: 0, l: v(pt.l), b: v(pt.b), min1: blankMin(pt), arts: [] });
+      o.q += q; o.arts.push(x.a.sku + " ×" + q);
+    }));
+    Object.values(RB).forEach(o => { o.have = v(HAVE[o.n]); o.todo = Math.max(0, o.q - o.have); o.min = o.todo * o.min1; rMin += o.min; });
+    buy.forEach(x => (x.a.parts || []).forEach(pt => {
+      const nm = pt.blank || pt.n || "Freies Teil", o = RB[nm], q = x.need * Math.max(1, v(pt.q)) * (o.q ? o.todo / o.q : 0);
       if (pt.plate) { const pl = (S.plates || []).find(z => z.n === pt.plate), mm = String(pt.plate).match(/(\d+)\s*[×x]\s*(\d+)/), area = pl ? v(pl.l) * v(pl.b) : mm ? +mm[1] * +mm[2] : 0, w = 1 + v(x.a.waste) / 100, r = RP[pt.plate] || (RP[pt.plate] = { n: pt.plate, area: 0, plate: area, p: pl ? v(pl.p) : 0 }); r.area += v(pt.l) * v(pt.b) * q * w; }
     }));
     const rob = Object.values(RB).sort((a, b) => b.q - a.q), plt = Object.values(RP).map(r => ({ ...r, n2: r.plate > 0 ? Math.ceil(r.area / r.plate - 0.001) : 0 })), rKosten = plt.reduce((s, r) => s + r.n2 * r.p, 0);
@@ -1754,8 +1758,9 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
           <button type="button" class="btn" data-pp="print" ${buy.length ? "" : "disabled"}>🖨 Drucken</button>
           <button type="button" class="btn${prod.ppRoh ? " primary" : ""}" data-pp="roh" aria-pressed="${prod.ppRoh}" title="Nur die Teile zuschneiden, fertig gebaut wird erst auf Bestellung">Nur Rohlinge vorproduzieren</button>
           <button type="button" class="btn" data-pp="all" aria-pressed="${prod.ppAll}">${prod.ppAll ? "Nur Lohnendes zeigen" : "Auch Langsamdreher zeigen"}</button></div>
-        ${prod.ppRoh ? `<h2 style="margin:14px 0 4px">Zuschnitt-Liste (nur Rohlinge)</h2><p class="note">Du sägst nur die Teile vor, gebaut, geölt und verpackt wird erst, wenn die Bestellung da ist. Gerechnet für ${prod.mon} Monat${prod.mon > 1 ? "e" : ""} Vorrat, ${dec(rMin / 60, 1)} h Zuschnitt${rKosten ? `, Platten ca. ${eur0(rKosten)}` : ""}.</p>
-          ${anaTable(["Rohling", "Maß", "Stück zuschneiden", "Zeit", "für Artikel"], rob.map(o => [esc(o.n), o.l && o.b ? dec(o.l) + " × " + dec(o.b) + " cm" : "–", `<strong>${dec(o.q, 0)}</strong>`, o.min ? dec(o.min / 60, 1) + " h" : "–", `<span class="note">${esc(o.arts.join(", "))}</span>`]), [2, 3])}
+        ${prod.ppRoh ? `<h2 style="margin:14px 0 4px">Zuschnitt-Liste (nur Rohlinge)</h2><p class="note">Trag bei „Schon da“ ein, was du schon vorgesägt hast, dann sinkt „Noch zuschneiden“. Du sägst nur die Teile vor, gebaut, geölt und verpackt wird erst, wenn die Bestellung da ist. Gerechnet für ${prod.mon} Monat${prod.mon > 1 ? "e" : ""} Vorrat, ${dec(rMin / 60, 1)} h Zuschnitt${rKosten ? `, Platten ca. ${eur0(rKosten)}` : ""}.</p>
+          <div class="tablewrap"><table class="anatable"><thead><tr><th>Rohling</th><th>Maß</th><th class="r">Bedarf</th><th class="r">Schon da</th><th class="r">Noch zuschneiden</th><th class="r">Zeit</th><th>für Artikel</th></tr></thead><tbody>${rob.map(o => `<tr><td>${esc(o.n)}</td><td class="num">${o.l && o.b ? dec(o.l) + " × " + dec(o.b) + " cm" : "–"}</td><td class="r num">${dec(o.q, 0)}</td><td class="r"><div class="inp qprice" style="width:96px;margin-left:auto"><input type="number" min="0" step="1" inputmode="numeric" data-rohn="${esc(o.n)}" value="${o.have ? o.have : ""}" placeholder="0" aria-label="Schon produzierte ${esc(o.n)}"><span>Stk</span></div></td><td class="r num">${o.todo ? `<strong>${dec(o.todo, 0)}</strong>` : '<span style="color:var(--good)">genug da</span>'}</td><td class="r num">${o.min ? dec(o.min / 60, 1) + " h" : "–"}</td><td class="note">${esc(o.arts.join(", "))}</td></tr>`).join("")}</tbody></table></div>
+          <div class="btns"><button type="button" class="btn" data-pp="rohbook" ${rob.some(o => o.todo) ? "" : "disabled"} title="Bucht alles, was unter „Noch zuschneiden“ steht, als vorhanden">✓ Zugeschnitten → ins Rohling-Lager</button></div>
           ${plt.length ? anaTable(["Platte", "Bedarf (inkl. Verschnitt)", "Platten kaufen/bereitlegen", "Preis"], plt.map(r => [esc(r.n), r.area ? dec(r.area / 10000, 2) + " m²" : "–", r.n2 ? `<strong>${r.n2}</strong>` : "–", r.p && r.n2 ? eur0(r.n2 * r.p) : "–"]), [1, 2, 3]) : ""}` : ""}
         ${prod.ppMsg ? `<p class="note"><strong>${esc(prod.ppMsg)}</strong></p>` : ""}
         <div class="tablewrap"><table class="anatable"><thead><tr><th>#</th><th>Artikel</th><th class="r">pro Monat</th><th class="r">Verkauft</th><th class="r">Monate mit Verkauf</th><th>Trend</th><th class="r">Lager</th><th class="r">reicht</th><th>Urteil</th><th class="r">Soll-Vorrat</th><th class="r">Jetzt bauen</th><th class="r">Zeit</th><th></th></tr></thead>
@@ -1771,10 +1776,15 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         <p class="note">So lese ich das: <strong>Top</strong> = mindestens 3 Stück im Monat, <strong>Lohnt sich</strong> = ca. 1,5 pro Monat oder jeden zweiten Monat Verkauf, <strong>Eher nicht</strong> = unter 1 pro Monat (Material und Lager binden mehr, als es bringt). Zukauf und stark fallende Artikel bekommen keine Empfehlung. Weihnachten (Nov/Dez) und der Januar sind bei vielen Artikeln anders als der Schnitt, bei „Basis 12 Monate“ ist das ausgeglichen.</p>
       </section>`;
   }
+  document.addEventListener("change", e => {
+    const el = e.target; if (view !== "produktion" || !el.dataset || el.dataset.rohn === undefined) return;
+    const n = Math.max(0, Math.round(v(el.value))); S.rohStock = Object.assign({}, S.rohStock); if (n) S.rohStock[el.dataset.rohn] = n; else delete S.rohStock[el.dataset.rohn];
+    saveSettings(); renderPreprod();
+  });
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-pp]"); if (!b || view !== "produktion") return;
     const [k, val] = b.dataset.pp.split(":"); prod.ppMsg = "";
-    if (k === "tab") prod.tab = val; else if (k === "mon") prod.mon = +val; else if (k === "base") prod.base = +val; else if (k === "all") prod.ppAll = !prod.ppAll; else if (k === "roh") prod.ppRoh = !prod.ppRoh; else if (k === "print") { printHTML(ppPrintHTML(), prod.ppRoh ? "Zuschnitt-Liste" : "Vorproduktion"); return; }
+    if (k === "tab") prod.tab = val; else if (k === "mon") prod.mon = +val; else if (k === "base") prod.base = +val; else if (k === "all") prod.ppAll = !prod.ppAll; else if (k === "roh") prod.ppRoh = !prod.ppRoh; else if (k === "rohbook") { const P = ppData(); if (!P) return; S.rohStock = Object.assign({}, S.rohStock); ppLast.rob.forEach(o => { if (o.todo) S.rohStock[o.n] = o.q; }); saveSettings(); prod.ppMsg = "Als zugeschnitten gebucht."; } else if (k === "print") { printHTML(ppPrintHTML(), prod.ppRoh ? "Zuschnitt-Liste" : "Vorproduktion"); return; }
     else if (k === "one" || k === "apply") {
       const P = ppData(); if (!P) return; let n = 0, pcs = 0;
       P.rows.filter(x => x.need > 0 && (k === "apply" || x.a.id === val)).forEach(x => { x.a.prod = String(x.need); saveArticle(x.a); n++; pcs += x.need; });
@@ -1877,9 +1887,9 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     const L = ppLast; if (!L) return ""; const d = new Date().toLocaleDateString("de-DE"), sub = `Vorrat für ${prod.mon} Monat${prod.mon > 1 ? "e" : ""}, Basis: Verkäufe der letzten ${prod.base} Monate`;
     const tbl = (head, rows) => `<table><thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     if (prod.ppRoh) return `<h1>Zuschnitt-Liste (nur Rohlinge) · ${d}</h1><p>${sub}</p>
-      ${tbl(["✓", "Rohling", "Maß", "Stück zuschneiden", "Zeit", "für Artikel"], L.rob.map(o => ['<span class="chk">☐</span>', esc(o.n), o.l && o.b ? dec(o.l) + " × " + dec(o.b) + " cm" : "–", `<span class="qty">${dec(o.q, 0)}</span>`, o.min ? dec(o.min / 60, 1) + " h" : "–", esc(o.arts.join(", "))]))}
+      ${tbl(["✓", "Rohling", "Maß", "Bedarf", "Schon da", "Noch zuschneiden", "Zeit", "für Artikel"], L.rob.map(o => ['<span class="chk">☐</span>', esc(o.n), o.l && o.b ? dec(o.l) + " × " + dec(o.b) + " cm" : "–", dec(o.q, 0), dec(o.have, 0), `<span class="qty">${dec(o.todo, 0)}</span>`, o.min ? dec(o.min / 60, 1) + " h" : "–", esc(o.arts.join(", "))]))}
       ${L.plt.length ? `<h2>Platten</h2>` + tbl(["Platte", "Bedarf inkl. Verschnitt", "Platten"], L.plt.map(r => [esc(r.n), r.area ? dec(r.area / 10000, 2) + " m²" : "–", r.n2 ? dec(r.n2, 0) : "–"])) : ""}
-      <p>${dec(L.rob.reduce((n, o) => n + o.q, 0), 0)} Teile · ${dec(L.rMin / 60, 1)} h Zuschnitt</p>`;
+      <p>${dec(L.rob.reduce((n, o) => n + o.todo, 0), 0)} Teile · ${dec(L.rMin / 60, 1)} h Zuschnitt</p>`;
     return `<h1>Vorproduktion · ${d}</h1><p>${sub}</p>
       ${tbl(["✓", "SKU / Artikel", "pro Monat", "Lager", "Soll-Vorrat", "Jetzt bauen", "Zeit"], L.buy.map(x => ['<span class="chk">☐</span>', `<strong>${esc(x.a.sku || "")}</strong><br>${esc(x.a.name)}`, dec(x.pm, 1), dec(x.stock, 0), dec(x.soll, 0), `<span class="qty">${dec(x.need, 0)}</span>`, x.mins ? dec(x.need * x.mins / 60, 1) + " h" : "–"]))}
       <p>${dec(L.buy.reduce((n, x) => n + x.need, 0), 0)} Stück · ${L.buy.length} Artikel · ${dec(L.buy.reduce((n, x) => n + x.need * x.mins / 60, 0), 1)} h</p>`;
