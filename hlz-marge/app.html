@@ -1685,7 +1685,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         </div>
         ${pcolsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-pcols="save" title="Aktuelle Auswahl als Standard für alle Geräte speichern">Als Standard speichern</button><button class="btn" data-pcols="reset">Standard</button><button class="btn" data-pcols="toggle">Fertig</button></span></div>
           <div class="colpick-list">${PCOLS.map(c => `<label class="switch"><input type="checkbox" data-pcol="${c.k}" ${pvis().includes(c) ? "checked" : ""} ${c.lock ? "disabled" : ""}><span class="track"></span>${esc(c.l)}</label>`).join("")}</div></div>` : ""}
-        ${prod.ask ? `<div class="selbar danger" style="position:static"><strong>${prod.ask === "book" ? `${dec(pcs, 0)} Stück ins Lager buchen und die Liste leeren?` : prod.ask === "suggest" ? `Für ${nDem} Artikel „Zu produzieren“ = offen bestellt minus Lager setzen? Vorhandene Mengen bei diesen Artikeln werden überschrieben.` : "Alle Mengen „Zu produzieren“ löschen?"}</strong><span class="btns"><button class="btn primary" data-act="prodYes">Ja</button><button class="btn" data-act="prodNo">Abbrechen</button></span></div>` : ""}
+        ${prod.ask ? `<div class="selbar danger" style="position:static"><strong>${prod.ask === "book" ? `${dec(pcs, 0)} Stück ins Lager buchen und die Liste leeren? Vorhandene Rohlinge werden dabei abgezogen.` : prod.ask === "suggest" ? `Für ${nDem} Artikel „Zu produzieren“ = offen bestellt minus Lager setzen? Vorhandene Mengen bei diesen Artikeln werden überschrieben.` : "Alle Mengen „Zu produzieren“ löschen?"}</strong><span class="btns"><button class="btn primary" data-act="prodYes">Ja</button><button class="btn" data-act="prodNo">Abbrechen</button></span></div>` : ""}
         ${prod.copy ? `<div class="field"><label for="prodCopyBox">Konnte nicht automatisch kopieren. Text markieren und mit Strg+C kopieren:</label><div class="inp"><textarea id="prodCopyBox" rows="8" readonly>${esc(prod.copy)}</textarea></div></div>` : ""}
         <div class="tablewrap"><table class="prodtable">
           <thead><tr>${pvis().map(c => c.th()).join("")}</tr></thead>
@@ -1895,8 +1895,14 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
       <p>${dec(L.buy.reduce((n, x) => n + x.need, 0), 0)} Stück · ${L.buy.length} Artikel · ${dec(L.buy.reduce((n, x) => n + x.need * x.mins / 60, 0), 1)} h</p>`;
   }
   function prodBook() {
-    prodTodo().forEach(a => { a.stock = String(v(a.stock) + v(a.prod)); a.prod = ""; saveArticle(a); });
-    prod.ask = ""; renderProduction(); toast("Ins Lager gebucht, Liste geleert");
+    // verbrauchte Rohlinge aus dem Rohling-Lager abziehen (nicht unter 0)
+    const R = Object.assign({}, S.rohStock); let used = 0;
+    prodTodo().forEach(a => {
+      (a.parts || []).forEach(pt => { const nm = pt.blank || pt.n || "Freies Teil", have = v(R[nm]); if (have > 0) { const take = Math.min(have, v(a.prod) * Math.max(1, v(pt.q))); R[nm] = have - take; used += take; if (R[nm] <= 0) delete R[nm]; } });
+      a.stock = String(v(a.stock) + v(a.prod)); a.prod = ""; saveArticle(a);
+    });
+    if (used) { S.rohStock = R; saveSettings(); }
+    prod.ask = ""; renderProduction(); toast(used ? `Ins Lager gebucht, Liste geleert, ${dec(used, 0)} Rohlinge abgezogen` : "Ins Lager gebucht, Liste geleert");
   }
   function prodSuggest() {
     const d = ordDemand(); let n = 0;
