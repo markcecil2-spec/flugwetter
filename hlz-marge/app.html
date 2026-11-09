@@ -1608,7 +1608,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     const p = ps[0], t = v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2;
     return `${dec(v(p.l))} x ${dec(v(p.b))} x ${dec(t)} cm${v(p.q) > 1 ? " (" + dec(v(p.q), 0) + " Stk)" : ""}${ps.length > 1 ? " +" + (ps.length - 1) + " Teil" + (ps.length > 2 ? "e" : "") : ""}`;
   };
-  let prod = { q: "", only: false, cat: "", ask: "", copy: "", tab: "liste", mon: 2, base: 6, ppAll: false };
+  let prod = { q: "", only: false, cat: "", ask: "", copy: "", tab: "liste", mon: 2, base: 6, ppAll: false, ppRoh: false };
   const prodRows = () => A.map(a => ({ a, cat: prodCat(a) })).sort((x, y) => (norm(x.a.sku) || "~").localeCompare(norm(y.a.sku) || "~", "de", { numeric: true }));
   const prodTodo = () => A.filter(a => v(a.prod) > 0);
   // Sortierung der Produktionsliste: Klick auf die Spaltenüberschrift, nochmal Klick dreht um (wird pro Gerät gemerkt)
@@ -1727,6 +1727,14 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     if (!P) { $("view").innerHTML = head + `<p class="note">Lade Verkaufsdaten …</p>`; return; }
     if (!P.hasD) { $("view").innerHTML = head + `<section class="box empty"><p>Dafür brauche ich Verkaufszahlen. Geh auf <a href="#entwicklung">Entwicklung</a>, lade die Etsy-CSV hoch und hol die Shopify-Bestellungen. Danach steht hier die Empfehlung.</p></section>`; return; }
     const R = P.rows, shown = prod.ppAll ? R : R.filter(x => x.lvl >= 1), buy = R.filter(x => x.need > 0), pcs = buy.reduce((s, x) => s + x.need, 0), hrs = buy.reduce((s, x) => s + x.need * x.mins / 60, 0), mat = buy.reduce((s, x) => s + x.need * x.mat, 0), max = Math.max(1, ...R.map(x => x.pm));
+    // Nur Rohlinge: statt fertiger Artikel nur die Teile zuschneiden (Rohling × Stückzahl, dazu Platten-Bedarf)
+    const RB = {}, RP = {}; let rMin = 0;
+    buy.forEach(x => (x.a.parts || []).forEach(pt => {
+      const q = x.need * Math.max(1, v(pt.q)), nm = pt.blank || pt.n || "Freies Teil", o = RB[nm] || (RB[nm] = { n: nm, q: 0, l: v(pt.l), b: v(pt.b), min: 0, arts: [] });
+      o.q += q; o.min += q * blankMin(pt); rMin += q * blankMin(pt); o.arts.push(x.a.sku + " ×" + q);
+      if (pt.plate) { const pl = (S.plates || []).find(z => z.n === pt.plate), mm = String(pt.plate).match(/(\d+)\s*[×x]\s*(\d+)/), area = pl ? v(pl.l) * v(pl.b) : mm ? +mm[1] * +mm[2] : 0, w = 1 + v(x.a.waste) / 100, r = RP[pt.plate] || (RP[pt.plate] = { n: pt.plate, area: 0, plate: area, p: pl ? v(pl.p) : 0 }); r.area += v(pt.l) * v(pt.b) * q * w; }
+    }));
+    const rob = Object.values(RB).sort((a, b) => b.q - a.q), plt = Object.values(RP).map(r => ({ ...r, n2: r.plate > 0 ? Math.ceil(r.area / r.plate - 0.001) : 0 })), rKosten = plt.reduce((s, r) => s + r.n2 * r.p, 0);
     const seg = (k, vals, cur, fmt) => vals.map(n => `<button type="button" data-pp="${k}:${n}" aria-pressed="${cur === n}">${fmt(n)}</button>`).join("");
     const tile = (l, val, sub) => `<div class="tile"><span class="label">${l}</span><span class="num">${val}</span><span class="note">${sub}</span></div>`;
     const arrow = t => t.few ? '<span class="note">neu</span>' : t.dir > 0 ? '<span style="color:var(--good)">▲</span>' : t.dir < 0 ? '<span style="color:var(--bad)">▼</span>' : '<span class="note">►</span>';
@@ -1740,8 +1748,12 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
           ${tile("Arbeitszeit", dec(hrs, 1) + " h", "nur Bauzeit lt. Artikeldaten")}
           ${tile("Material gebunden", eur0(mat), "Holz, Öl, Kleinteile, Zukauf")}
         </div>
-        <div class="btns" style="margin-top:10px"><button type="button" class="btn primary" data-pp="apply" ${buy.length ? "" : "disabled"}>Empfehlung in „Zu produzieren“ übernehmen</button>
+        <div class="btns" style="margin-top:10px"><button type="button" class="btn primary" data-pp="apply" ${buy.length && !prod.ppRoh ? "" : "disabled"} ${prod.ppRoh ? 'title="Im Rohling-Modus nicht nötig, die Zuschnitt-Liste steht darunter"' : ""}>Empfehlung in „Zu produzieren“ übernehmen</button>
+          <button type="button" class="btn${prod.ppRoh ? " primary" : ""}" data-pp="roh" aria-pressed="${prod.ppRoh}" title="Nur die Teile zuschneiden, fertig gebaut wird erst auf Bestellung">Nur Rohlinge vorproduzieren</button>
           <button type="button" class="btn" data-pp="all" aria-pressed="${prod.ppAll}">${prod.ppAll ? "Nur Lohnendes zeigen" : "Auch Langsamdreher zeigen"}</button></div>
+        ${prod.ppRoh ? `<h2 style="margin:14px 0 4px">Zuschnitt-Liste (nur Rohlinge)</h2><p class="note">Du sägst nur die Teile vor, gebaut, geölt und verpackt wird erst, wenn die Bestellung da ist. Gerechnet für ${prod.mon} Monat${prod.mon > 1 ? "e" : ""} Vorrat, ${dec(rMin / 60, 1)} h Zuschnitt${rKosten ? `, Platten ca. ${eur0(rKosten)}` : ""}.</p>
+          ${anaTable(["Rohling", "Maß", "Stück zuschneiden", "Zeit", "für Artikel"], rob.map(o => [esc(o.n), o.l && o.b ? dec(o.l) + " × " + dec(o.b) + " cm" : "–", `<strong>${dec(o.q, 0)}</strong>`, o.min ? dec(o.min / 60, 1) + " h" : "–", `<span class="note">${esc(o.arts.join(", "))}</span>`]), [2, 3])}
+          ${plt.length ? anaTable(["Platte", "Bedarf (inkl. Verschnitt)", "Platten kaufen/bereitlegen", "Preis"], plt.map(r => [esc(r.n), r.area ? dec(r.area / 10000, 2) + " m²" : "–", r.n2 ? `<strong>${r.n2}</strong>` : "–", r.p && r.n2 ? eur0(r.n2 * r.p) : "–"]), [1, 2, 3]) : ""}` : ""}
         ${prod.ppMsg ? `<p class="note"><strong>${esc(prod.ppMsg)}</strong></p>` : ""}
         <div class="tablewrap"><table class="anatable"><thead><tr><th>#</th><th>Artikel</th><th class="r">pro Monat</th><th class="r">Verkauft</th><th class="r">Monate mit Verkauf</th><th>Trend</th><th class="r">Lager</th><th class="r">reicht</th><th>Urteil</th><th class="r">Soll-Vorrat</th><th class="r">Jetzt bauen</th><th class="r">Zeit</th><th></th></tr></thead>
         <tbody>${shown.map((x, i) => { const a = x.a, vd = PP_V[x.lvl];
@@ -1759,7 +1771,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-pp]"); if (!b || view !== "produktion") return;
     const [k, val] = b.dataset.pp.split(":"); prod.ppMsg = "";
-    if (k === "tab") prod.tab = val; else if (k === "mon") prod.mon = +val; else if (k === "base") prod.base = +val; else if (k === "all") prod.ppAll = !prod.ppAll;
+    if (k === "tab") prod.tab = val; else if (k === "mon") prod.mon = +val; else if (k === "base") prod.base = +val; else if (k === "all") prod.ppAll = !prod.ppAll; else if (k === "roh") prod.ppRoh = !prod.ppRoh;
     else if (k === "one" || k === "apply") {
       const P = ppData(); if (!P) return; let n = 0, pcs = 0;
       P.rows.filter(x => x.need > 0 && (k === "apply" || x.a.id === val)).forEach(x => { x.a.prod = String(x.need); saveArticle(x.a); n++; pcs += x.need; });
