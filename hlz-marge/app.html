@@ -1608,7 +1608,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     const p = ps[0], t = v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2;
     return `${dec(v(p.l))} x ${dec(v(p.b))} x ${dec(t)} cm${v(p.q) > 1 ? " (" + dec(v(p.q), 0) + " Stk)" : ""}${ps.length > 1 ? " +" + (ps.length - 1) + " Teil" + (ps.length > 2 ? "e" : "") : ""}`;
   };
-  let prod = { q: "", only: false, cat: "", ask: "", copy: "" };
+  let prod = { q: "", only: false, cat: "", ask: "", copy: "", tab: "liste", mon: 2, base: 6, ppAll: false };
   const prodRows = () => A.map(a => ({ a, cat: prodCat(a) })).sort((x, y) => (norm(x.a.sku) || "~").localeCompare(norm(y.a.sku) || "~", "de", { numeric: true }));
   const prodTodo = () => A.filter(a => v(a.prod) > 0);
   // Sortierung der Produktionsliste: Klick auf die Spaltenüberschrift, nochmal Klick dreht um (wird pro Gerät gemerkt)
@@ -1655,13 +1655,15 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   let pcolsOpen = false;
   const pvis = () => { const on = LS.get("hlz-app-prodcols") || colDef("prod"); return PCOLS.filter(c => c.lock || (Array.isArray(on) ? on.includes(c.k) : c.def)); };
 
+  const prodTabs = () => `<div class="seg" aria-label="Ansicht" style="margin:6px 0 10px"><button type="button" data-pp="tab:liste" aria-pressed="${prod.tab !== "vor"}">Produktionsliste</button><button type="button" data-pp="tab:vor" aria-pressed="${prod.tab === "vor"}">Vorproduktion</button></div>`;
   function renderProduction() {
+    if (prod.tab === "vor") return renderPreprod();
     const all = prodRows(), cats = [...new Set(all.map(x => x.cat))].sort((a, b) => a.localeCompare(b, "de")), demand = ordDemand();
     const list = prodSorted(all, demand).filter(x => (!prod.cat || x.cat === prod.cat) && (!prod.only || v(x.a.prod) > 0)
       && (!prod.q || norm(x.a.name).includes(norm(prod.q)) || norm(x.a.sku).includes(norm(prod.q))));
     const todo = prodTodo(), pcs = todo.reduce((n, a) => n + v(a.prod), 0), nDem = Object.keys(demand).filter(id => ordArt(id)).length;
     $("view").innerHTML = `
-      <div class="row"><h1>Produktion</h1></div>
+      <div class="row"><h1>Produktion</h1></div>${prodTabs()}
       <p class="note">Trag bei „Zu produzieren“ ein, wie viele du bauen willst. Mit Tab oder Enter geht es in die nächste Zeile. Alles wird automatisch gespeichert.</p>
       <section class="box">
         <div class="row">
@@ -1695,6 +1697,77 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     $("prodCat").addEventListener("change", e => { prod.cat = e.target.value; renderProduction(); });
   }
 
+
+  // ---------- Produktion: Vorproduktion (was verkauft sich so oft, dass sich Vorrat lohnt) ----------
+  const PERSO = /grvr|gravur|dog/i;   // nur echte Gravur-Artikel; „personalisierbar“ ist bei vielen nur eine Option
+  function ppData() {
+    if (!STATS) { statsLoad(); return null; }
+    let D = null; try { D = statData(); } catch (e) {}
+    const canon = makeSkuCanon(), months = D ? D.months.slice(-prod.base) : [], acc = {};
+    months.forEach(ym => [D.E[ym], D.S2[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => {
+      const c = canon(k) || k, o = acc[c] || (acc[c] = { q: 0, act: {}, r: 0 }); o.q += e.q; o.r += e.r; if (e.q > 0) o.act[ym] = 1;
+    })));
+    const TR = trendMap(), dm = ordDemand(), ctx = volume(), n = months.length, rows = [];
+    const seen = {}, stk = {}, dem = {}; A.forEach(a => { const k = tkey(a.sku); stk[k] = (stk[k] || 0) + v(a.stock); dem[k] = (dem[k] || 0) + v(dm[a.id]); });
+    A.forEach(a => {
+      const sk = tkey(a.sku); if (a.sku) { if (seen[sk]) return; seen[sk] = 1; }   // gleiche SKU in mehreren Artikeln (z. B. Hakenfarben): eine Zeile
+      const t = acc[sk], est = !t, pm = t ? t.q / Math.max(n, 1) : salesPerMonth(a); if (!(pm > 0)) return;
+      const actN = t ? Object.keys(t.act).length : 0, share = n ? actN / n : 0, tr = trendOf(a, TR), perso = PERSO.test(a.sku || "");
+      let lvl = a.fremd ? 0 : pm >= 3 ? 3 : (pm >= 1.5 || (pm >= 1 && (est || share >= 0.6))) ? 2 : pm >= 0.5 ? 1 : 0;
+      if (tr.dir < 0 && lvl > 1) lvl--;
+      const r = calc(a, "etsy", undefined, ctx), mat = r.wood + r.oil + r.small + r.ext, mins = v(a.mins) + r.rohMin + r.packMin;
+      const soll = Math.ceil(pm * prod.mon - 0.15), open = a.sku ? dem[sk] : v(dm[a.id]), stock = a.sku ? stk[sk] : v(a.stock), need = lvl >= 2 && !a.fremd ? Math.max(0, soll + open - stock) : 0;
+      rows.push({ a, pm, q: t ? t.q : null, actN, n, est, share, tr, perso, lvl, mat, mins, soll, open, stock, need, reach: pm > 0 ? stock / pm : 0 });
+    });
+    rows.sort((x, y) => y.pm - x.pm); return { rows, n, months, hasD: !!D };
+  }
+  const PP_V = [["Auf Bestellung", "muted"], ["Eher nicht", "muted"], ["Lohnt sich", "good"], ["Top, vorbauen", "good"]];
+  function renderPreprod() {
+    const head = `<div class="row"><h1>Produktion</h1></div>${prodTabs()}`, P = ppData();
+    if (!P) { $("view").innerHTML = head + `<p class="note">Lade Verkaufsdaten …</p>`; return; }
+    if (!P.hasD) { $("view").innerHTML = head + `<section class="box empty"><p>Dafür brauche ich Verkaufszahlen. Geh auf <a href="#entwicklung">Entwicklung</a>, lade die Etsy-CSV hoch und hol die Shopify-Bestellungen. Danach steht hier die Empfehlung.</p></section>`; return; }
+    const R = P.rows, shown = prod.ppAll ? R : R.filter(x => x.lvl >= 1), buy = R.filter(x => x.need > 0), pcs = buy.reduce((s, x) => s + x.need, 0), hrs = buy.reduce((s, x) => s + x.need * x.mins / 60, 0), mat = buy.reduce((s, x) => s + x.need * x.mat, 0), max = Math.max(1, ...R.map(x => x.pm));
+    const seg = (k, vals, cur, fmt) => vals.map(n => `<button type="button" data-pp="${k}:${n}" aria-pressed="${cur === n}">${fmt(n)}</button>`).join("");
+    const tile = (l, val, sub) => `<div class="tile"><span class="label">${l}</span><span class="num">${val}</span><span class="note">${sub}</span></div>`;
+    const arrow = t => t.few ? '<span class="note">neu</span>' : t.dir > 0 ? '<span style="color:var(--good)">▲</span>' : t.dir < 0 ? '<span style="color:var(--bad)">▼</span>' : '<span class="note">►</span>';
+    $("view").innerHTML = head + `
+      <p class="note">Rechnet aus Etsy- und Shopify-Verkäufen, wie viel du pro Monat absetzt, und sagt dir, wie viele Stück du bauen musst, damit du ${prod.mon} Monat${prod.mon > 1 ? "e" : ""} Vorrat hast. Offen bestellte Stücke sind schon eingerechnet.</p>
+      <section class="box">
+        <div class="btns"><span class="note">Vorrat für</span><div class="seg">${seg("mon", [1, 2, 3], prod.mon, n => n + " Mon.")}</div>
+          <span class="note">Basis: Verkäufe der letzten</span><div class="seg">${seg("base", [3, 6, 12], prod.base, n => n + " Mon.")}</div></div>
+        <div class="tiles" style="margin-top:10px">
+          ${tile("Jetzt vorbauen", dec(pcs, 0) + " Stück", buy.length + " Artikel")}
+          ${tile("Arbeitszeit", dec(hrs, 1) + " h", "nur Bauzeit lt. Artikeldaten")}
+          ${tile("Material gebunden", eur0(mat), "Holz, Öl, Kleinteile, Zukauf")}
+        </div>
+        <div class="btns" style="margin-top:10px"><button type="button" class="btn primary" data-pp="apply" ${buy.length ? "" : "disabled"}>Empfehlung in „Zu produzieren“ übernehmen</button>
+          <button type="button" class="btn" data-pp="all" aria-pressed="${prod.ppAll}">${prod.ppAll ? "Nur Lohnendes zeigen" : "Auch Langsamdreher zeigen"}</button></div>
+        ${prod.ppMsg ? `<p class="note"><strong>${esc(prod.ppMsg)}</strong></p>` : ""}
+        <div class="tablewrap"><table class="anatable"><thead><tr><th>#</th><th>Artikel</th><th class="r">pro Monat</th><th class="r">Verkauft</th><th class="r">Monate mit Verkauf</th><th>Trend</th><th class="r">Lager</th><th class="r">reicht</th><th>Urteil</th><th class="r">Soll-Vorrat</th><th class="r">Jetzt bauen</th><th class="r">Zeit</th><th></th></tr></thead>
+        <tbody>${shown.map((x, i) => { const a = x.a, vd = PP_V[x.lvl];
+          return `<tr><td class="num">${i + 1}</td><td class="name"><strong class="num">${esc(a.sku || "–")}</strong><br><span class="note">${anaName(a)}</span>${a.fremd ? ' <span class="chip ex">Zukauf</span>' : ""}${x.perso ? ' <span class="chip miss">personalisiert</span>' : ""}</td>
+            <td class="r num"><strong>${dec(x.pm, 1)}</strong> ${anaBar(x.pm, max)}</td><td class="r num">${x.q === null ? '<span class="note">Schätzung</span>' : dec(x.q, 0)}</td><td class="r num">${x.est ? "–" : x.actN + " von " + x.n}</td><td>${arrow(x.tr)}</td>
+            <td class="r num">${dec(x.stock, 0)}</td><td class="r num">${x.stock > 0 ? dec(x.reach, 1) + " Mon." : "–"}</td>
+            <td><span style="color:var(--${vd[1]});font-weight:700">${vd[0]}</span>${x.perso && x.lvl >= 2 ? '<br><span class="note">nur Rohling, Gravur auf Bestellung</span>' : ""}${x.tr.dir < 0 && x.lvl >= 1 ? '<br><span class="note">Trend fällt, vorsichtig</span>' : ""}</td>
+            <td class="r num">${x.lvl >= 2 && !a.fremd ? dec(x.soll, 0) : "–"}${x.open ? `<br><span class="note">+${dec(x.open, 0)} offen</span>` : ""}</td>
+            <td class="r num">${x.need > 0 ? `<strong style="font-size:1.1em">${dec(x.need, 0)}</strong>` : x.lvl >= 2 && !a.fremd ? '<span style="color:var(--good)">genug da</span>' : "–"}</td>
+            <td class="r num">${x.need > 0 && x.mins ? dec(x.need * x.mins / 60, 1) + " h" : "–"}</td>
+            <td>${x.need > 0 ? `<button type="button" class="btn" data-pp="one:${a.id}" title="In „Zu produzieren“ eintragen">→ Liste</button>` : ""}</td></tr>`; }).join("") || `<tr><td colspan="13" class="note">Keine Artikel mit Verkäufen im Zeitraum.</td></tr>`}</tbody></table></div>
+        <p class="note">So lese ich das: <strong>Top</strong> = mindestens 3 Stück im Monat, <strong>Lohnt sich</strong> = ca. 1,5 pro Monat oder jeden zweiten Monat Verkauf, <strong>Eher nicht</strong> = unter 1 pro Monat (Material und Lager binden mehr, als es bringt). Zukauf und stark fallende Artikel bekommen keine Empfehlung. Weihnachten (Nov/Dez) und der Januar sind bei vielen Artikeln anders als der Schnitt, bei „Basis 12 Monate“ ist das ausgeglichen.</p>
+      </section>`;
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-pp]"); if (!b || view !== "produktion") return;
+    const [k, val] = b.dataset.pp.split(":"); prod.ppMsg = "";
+    if (k === "tab") prod.tab = val; else if (k === "mon") prod.mon = +val; else if (k === "base") prod.base = +val; else if (k === "all") prod.ppAll = !prod.ppAll;
+    else if (k === "one" || k === "apply") {
+      const P = ppData(); if (!P) return; let n = 0, pcs = 0;
+      P.rows.filter(x => x.need > 0 && (k === "apply" || x.a.id === val)).forEach(x => { x.a.prod = String(x.need); saveArticle(x.a); n++; pcs += x.need; });
+      prod.ppMsg = n ? `${n} Artikel mit ${dec(pcs, 0)} Stück in „Zu produzieren“ eingetragen. Du siehst sie in der Produktionsliste.` : "";
+      if (k === "one") toast("In die Liste eingetragen");
+    }
+    renderProduction();
+  });
   document.addEventListener("click", e => {
     if (view !== "produktion") return;
     const st = e.target.closest("[data-pstep]");
@@ -4182,7 +4255,7 @@ Antworte NUR mit JSON in dieser Form:
   async function statsLoad() {
     if (STATS || statsLoading) return; statsLoading = true; STATS = {};
     try { (await store.loadStats()).forEach(d => STATS[d.id] = d); } catch (e) { toast("Statistik-Daten konnten nicht geladen werden."); }
-    statsLoading = false; if (view === "entwicklung") renderStats(); else if (view === "uebersicht") renderOverview();
+    statsLoading = false; if (view === "entwicklung") renderStats(); else if (view === "uebersicht") renderOverview(); else if (view === "produktion" && prod.tab === "vor") renderPreprod();
   }
   const statsSave = d => { STATS[d.id] = d; persist("st:" + d.id, () => store.saveStats(d)); };
   const SHORT_M = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
