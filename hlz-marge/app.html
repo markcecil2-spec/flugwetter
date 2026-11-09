@@ -435,6 +435,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#auswertung" data-tab="auswertung">Auswertung</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
+      <a href="#werbung" data-tab="werbung">Werbung</a>
       <a href="#shopcheck" data-tab="shopcheck">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
       <a href="#finanzen" data-tab="finanzen">Finanzen</a>
       <span class="navsep" aria-hidden="true"></span>
@@ -923,7 +924,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view === "entwicklung" ? "auswertung" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -955,6 +956,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
     else if (view === "entwicklung") renderStats();
+    else if (view === "werbung") renderAds();
     else if (view === "projekte") renderProjects();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
@@ -4330,6 +4332,131 @@ Antworte NUR mit JSON in dieser Form:
     if (k === "check") return shopifyCheck(); if (k === "match") return shopMatch(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
     if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
     if (k.startsWith("ai:")) return shopAi(k.slice(3));
+  });
+
+  // ---------- Werbung: Was lohnt sich zu bewerben, und wie? ----------
+  const ad = { q: "", all: false, sel: "", plans: {}, busy: "" };
+  const AD_DEF = { g: 4, m: 2.5, p: 3 };
+  const adRoas = () => Object.assign({}, AD_DEF, S.adRoas || {});
+  const AD_SEARCHY = /regal|garderobe|schlüsselbrett|schlüsselbalken|haken|bilderleiste|gewürz|knotenbrett/i;
+  const AD_XMAS = /teelicht|glöck|advent|kerzen|stern|weihnacht/i;
+  const AD_FORMAT = a => /gravur|grvr|dog|personal/i.test((a.sku || "") + " " + a.name) ? "Reel: Gravur-Prozess (Laser, Close-up), dann das fertige Teil an der Wand. Geschenk-Anlass nennen."
+    : /schlüsselbrett|schlüsselbalken|garderobe|haken/i.test(a.name) ? "Reel: 15 Sekunden Montage im Flur, vorher/nachher, Chaos-Flur zu Ordnung."
+    : /regal|bilderleiste|gewürz/i.test(a.name) ? "Reel oder Pin: Regal bestückt mit Pflanzen, Büchern, Kerzen. Maserung im Nahbild, Stylingidee."
+    : AD_XMAS.test(a.name) ? "Reel: Tisch oder Fensterbank mit Kerzenlicht, Adventsstimmung, Geschenkidee."
+    : "Reel: Entstehung (Zuschnitt, Schleifen, Ölen) in 10 Sekunden, dann das fertige Stück in Szene.";
+  function adRows() {
+    const ctx = volume(), R = adRoas(), xmas = [9, 10, 11].includes(new Date().getMonth());
+    let TR = {}; try { if (STATS) TR = trendMap(); } catch (e) {}
+    return A.filter(a => v(a.price) > 0 && !a.remove).map(a => {
+      const r = calc(a, "shopify", undefined, ctx), db0 = r.db + r.ads, net = r.net, mp = net > 0 ? db0 / net * 100 : 0, pm = salesPerMonth(a), tr = trendOf(a, TR);
+      const re = a.sales && a.sales.etsy ? calc(a, "etsy", undefined, ctx) : null, dbE = re ? re.db + re.ads : 0;
+      const prof = k => db0 - net / R[k];
+      const ch = []; const searchy = AD_SEARCHY.test(a.name), imp = db0 >= 12;
+      if (db0 >= 14 && v(a.price) >= 30 && searchy && prof("g") >= 3) ch.push(["Google Shopping", "g"]);
+      if (db0 >= 14 && prof("m") >= 3) ch.push(["Meta (Insta/FB)", "m"]);
+      if (db0 >= 9 && prof("p") >= 2) ch.push(["Pinterest Ads", "p"]);
+      if (re && dbE >= 9) ch.push(["Etsy Ads", "e"]);
+      const org = db0 >= 4;
+      // Ads nur für Artikel, die sich nachweislich verkaufen (mind. 1 pro Monat). Wer kaum verkauft, wird erst über Posts getestet.
+      const lvl = db0 < 6 || mp < 20 ? 0 : db0 < 14 || mp < 35 || pm < 1 ? 1 : 2, thin = lvl === 1 && db0 >= 14 && mp >= 35 && pm < 1;
+      ch.sort((a1, b1) => (b1[1] === "e" ? -1 : prof(b1[1])) - (a1[1] === "e" ? -1 : prof(a1[1])));
+      const ads2 = ch.filter(c => c[1] !== "e").slice(0, 2).concat(ch.filter(c => c[1] === "e"));
+      ch.length = 0; ads2.forEach(c => ch.push(c));
+      const hot = xmas && AD_XMAS.test(a.name);
+      const score = Math.max(0, db0) * (pm > 0 ? 1 + Math.min(pm, 10) / 5 : 0.6) * (lvl === 2 ? 1 : lvl === 1 ? 0.4 : 0.05) * (hot ? 1.5 : 1);
+      return { a, r, db0, net, mp, pm, tr, ch, thin, org, lvl, hot, searchy, maxCpa: db0 * 0.6, beRoas: db0 > 0 ? net / db0 : Infinity, tgtRoas: db0 > 0 ? net / (db0 * 0.6) : Infinity, score, stock: v(a.stock) };
+    }).sort((x, y) => y.score - x.score);
+  }
+  const AD_V = [["Nicht bewerben", "bad"], ["Nur organisch", "warn"], ["Bewerben, Ads testen", "good"]];
+  function adWhy(x) {
+    if (x.lvl === 0) return x.db0 < 6 ? `Bleibt vor Werbung nur ${eur(x.db0)} pro Verkauf. Jeder Ad-Euro wäre Verlust.` : `Marge vor Werbung nur ${dec(x.mp, 0)} %. Erst Preis oder Kosten anpassen.`;
+    if (x.thin) return `Marge ist gut (${eur(x.db0)} pro Verkauf), aber er verkauft sich kaum (${dec(x.pm, 1)} pro Monat). Erst über Posts testen, ob er ankommt, dann erst Geld für Ads.`;
+    if (x.lvl === 1) return `${eur(x.db0)} pro Verkauf vor Werbung: zu wenig Luft für bezahlte Ads. Posts kosten nur Zeit und passen.`;
+    return `${eur(x.db0)} pro Verkauf (${dec(x.mp, 0)} %). Du darfst bis ${eur(x.maxCpa)} pro Verkauf ausgeben und verdienst noch.`;
+  }
+  function adFallback(x) {
+    const a = x.a, L = [`Entscheidung: ${AD_V[x.lvl][0]}. ${adWhy(x)}`, ""];
+    if (x.lvl === 2) { L.push(`Ads-Test (14 Tage): ${x.ch.map(c => c[0]).join(", ") || "Meta"}. Start mit 5 € pro Tag je Kanal, Ziel-ROAS mindestens ${dec(x.tgtRoas, 1)} (Break-even ${dec(x.beRoas, 1)}). Nach 14 Tagen ohne Verkauf bei 70 € Ausgaben: stoppen.`, `Landingpage: Produktseite im Shop, nicht Etsy, damit keine Etsy-Gebühren dazukommen.`); }
+    if (x.lvl === 1) L.push("Statt Ads: 3 Posts pro Woche (Reel + Pin), Link in Bio auf die Produktseite.");
+    L.push("", "Content-Idee: " + AD_FORMAT(a), "Hashtags: #" + ["eichenholz", "handgemacht", "holzliebe", "wohnideen", "einzugsgeschenk", "madeingermany"].join(" #"));
+    if (x.hot) L.push("", "Saison: Weihnachtsware jetzt bewerben, Bestellschluss für Lieferung vor Weihnachten Mitte Dezember nennen.");
+    return L.join("\n");
+  }
+  async function adPlan(id) {
+    const x = adRows().find(r => r.a.id === id); if (!x) return;
+    const sample = await getSample(); ad.busy = id;
+    if (!sample) { ad.plans[id] = adFallback(x) + "\n\n(Claude ist hier nicht verfügbar, das ist die Standard-Empfehlung.)"; ad.busy = ""; return renderAds(); }
+    renderAds(); const a = x.a, R = adRoas();
+    const prompt = `Du bist Marketing-Berater für einen kleinen deutschen Holzwerkstatt-Shop (HLZLaden, Inhaber Mark, Eiche, handgemacht, Etsy + eigener Shopify-Shop hlzladen.de). Mark arbeitet allein, hat wenig Zeit und kein großes Budget. Erstelle einen konkreten Werbeplan für genau diesen Artikel.
+
+Artikel: ${a.name} (SKU ${a.sku || "–"}), Preis im Shop ca. ${eur(x.r.P)}, Netto ${eur(x.net)}.
+Deckungsbeitrag vor Werbung: ${eur(x.db0)} pro Verkauf (${dec(x.mp, 0)} % vom Netto). Maximal sinnvolle Werbekosten pro Verkauf: ${eur(x.maxCpa)}. Break-even-ROAS (Netto-Umsatz durch Werbekosten): ${dec(x.beRoas, 1)}.
+Verkäufe pro Monat bisher: ${dec(x.pm, 1)}. Lager: ${dec(x.stock, 0)} Stück. Fertigung ca. ${dec(v(a.mins), 0)} Minuten.
+Annahmen für ROAS: Google ${R.g}, Meta ${R.m}, Pinterest ${R.p}. Mein automatisches Urteil: ${AD_V[x.lvl][0]}. Passende Ads-Kanäle: ${x.ch.map(c => c[0]).join(", ") || "keine"}.
+${x.hot ? "Saison: Weihnachtsartikel, Geschenkzeit läuft jetzt." : ""}
+Heute ist ${new Date().toLocaleDateString("de-DE")}.
+
+Antworte auf Deutsch, kurz, direkt, ohne Floskeln, in genau diesen Abschnitten:
+1) ENTSCHEIDUNG: bewerben oder nicht, ein Satz mit Zahl. Wenn Ads sich nicht lohnen, sag das ehrlich und nenne nur die organische Variante.
+2) ADS (nur wenn sinnvoll): welcher Kanal zuerst, Kampagnentyp, Tagesbudget, Testdauer, Zielgruppe oder Suchbegriffe, Abbruchregel in Euro.
+3) ANZEIGENTEXT: 3 kurze Überschriften und 2 Primärtexte.
+4) POSTS: 5 konkrete Ideen für Instagram/Pinterest/TikTok mit Hook (erste Sekunde), Ablauf in einem Satz und Bildidee.
+5) HASHTAGS: 12 passende.
+Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
+    try { const { text } = await sample(prompt, { modelTier: "default", cache: false }); ad.plans[id] = text; }
+    catch (e) { ad.plans[id] = adFallback(x) + "\n\n(" + supErr(e) + ")"; }
+    ad.busy = ""; renderAds();
+  }
+  function renderAds() {
+    if (!STATS) statsLoad();
+    const R = adRoas(), rows = adRows(), shown = rows.filter(x => (ad.all || x.lvl >= 1) && (!ad.q || norm(x.a.name + " " + x.a.sku).includes(norm(ad.q))));
+    const yes = rows.filter(x => x.lvl === 2), top5 = new Set(yes.slice(0, 5).map(x => x.a.id)), maybe = rows.filter(x => x.lvl === 1), no = rows.filter(x => x.lvl === 0), best = yes[0];
+    const tile = (l, val, sub) => `<div class="tile"><span class="label">${l}</span><span class="num">${val}</span><span class="note">${sub}</span></div>`;
+    const sel = ad.sel ? rows.find(x => x.a.id === ad.sel) : null;
+    $("view").innerHTML = `<div class="row"><h1>Werbung</h1></div>
+      <p class="note">Hier siehst du, welche Artikel sich zu bewerben lohnen und wie. Grundlage ist, was nach allen Kosten pro Verkauf übrig bleibt, <strong>bevor</strong> Werbung bezahlt wird (Deckungsbeitrag). Nur davon kannst du Anzeigen bezahlen. Alles darüber hinaus ist Verlust.</p>
+      <div class="tiles">
+        ${tile("Ads lohnen sich", yes.length + " Artikel", "gute Marge und läuft schon (ab 1 Verkauf pro Monat)")}
+        ${tile("Nur Posts", maybe.length + " Artikel", "Marge knapp oder verkauft sich kaum")}
+        ${tile("Nicht bewerben", no.length + " Artikel", "erst Preis oder Kosten ändern")}
+        ${best ? tile("Bester Kandidat", esc(best.a.sku || best.a.name.slice(0, 18)), `${eur(best.db0)} pro Verkauf, bis ${eur(best.maxCpa)} Werbung`) : ""}
+      </div>
+      <section class="box"><h2>Welcher Kanal wofür</h2>${anaTable(["Kanal", "Passt zu", "Rechnet sich ab", "Erwartung"], [
+        ["Google Shopping", "Artikel, die Leute suchen (Wandregal, Garderobe, Schlüsselbrett). Braucht den Google-&-YouTube-Kanal in Shopify.", "ca. 14 € pro Verkauf vor Werbung, Preis ab 30 €", `ROAS ca. ${R.g}`],
+        ["Meta (Instagram / Facebook)", "Optisch starke Stücke und Geschenke, Gravur-Artikel. Erst Reels testen, dann Anzeigen auf die Gewinner.", "ca. 14 € pro Verkauf", `ROAS ca. ${R.m}`],
+        ["Pinterest Ads", "Wohnideen und Einzugsgeschenke, wirkt lange nach, Klicks sind günstig.", "ca. 9 € pro Verkauf", `ROAS ca. ${R.p}`],
+        ["Etsy Ads", "Nur für Artikel, die auf Etsy schon laufen. Klein halten (1 bis 3 € pro Tag).", "ca. 9 € pro Verkauf auf Etsy", "schwer vorherzusagen"],
+        ["Posts (Insta, Pinterest, TikTok)", "Alles mit ordentlicher Marge. Kostet nur Zeit: 3 Reels pro Woche reichen.", "ab ca. 4 € pro Verkauf", "langsam, aber gratis"]])}
+        <p class="note">ROAS = Netto-Umsatz geteilt durch Werbekosten. Die Zahlen sind Erfahrungswerte für kleine Shops, <strong>keine Garantie</strong>. Du kannst sie ändern: <span class="btns" style="display:inline-flex">Google <input type="number" step="0.1" min="0.5" data-adroas="g" value="${R.g}" style="width:62px"> Meta <input type="number" step="0.1" min="0.5" data-adroas="m" value="${R.m}" style="width:62px"> Pinterest <input type="number" step="0.1" min="0.5" data-adroas="p" value="${R.p}" style="width:62px"></span></p></section>
+      <section class="box"><div class="row"><h2 style="margin:0">Artikel</h2><div class="btns"><div class="inp" style="min-width:0;width:170px"><input id="adSearch" type="search" placeholder="Name oder SKU" value="${esc(ad.q)}"></div>
+        <div class="seg"><button type="button" data-ad="show:gut" aria-pressed="${!ad.all}">Nur bewerbbare</button><button type="button" data-ad="show:alle" aria-pressed="${ad.all}">Alle</button></div></div></div>
+        <div class="tablewrap"><table class="anatable adtable"><thead><tr><th>Artikel</th><th class="r">Bleibt pro Verkauf (vor Werbung)</th><th class="r">Max. Werbung pro Verkauf</th><th class="r">Ziel-ROAS</th><th>Urteil</th><th>Wo bewerben</th><th></th></tr></thead>
+        <tbody>${shown.map(x => { const a = x.a, vd = AD_V[x.lvl];
+          return `<tr${ad.sel === a.id ? ' style="background:var(--accent-soft, rgba(0,0,0,.04))"' : ""}><td class="name"><strong class="num">${esc(a.sku || "–")}</strong><br><span class="note">${anaName(a)}</span>${top5.has(a.id) ? ' <span class="chip ex" style="font-weight:700">★ Start hier</span>' : ""}${x.hot ? ' <span class="chip miss">Saison</span>' : ""}<div class="note">${x.pm > 0 ? dec(x.pm, 1) + " Verk./Mon." : "noch keine Verkäufe"}${x.tr.dir > 0 ? " ▲" : x.tr.dir < 0 ? " ▼" : ""} · Lager ${dec(x.stock, 0)}</div></td>
+            <td class="r num"><strong style="color:var(--${x.db0 >= 14 ? "good" : x.db0 >= 6 ? "warn" : "bad"})">${eur(x.db0)}</strong><div class="note">${dec(x.mp, 0)} %</div></td>
+            <td class="r num">${x.lvl === 2 ? `<strong>${eur(x.maxCpa)}</strong>` : x.lvl === 1 ? '<span class="note">nur Posts</span>' : "–"}</td>
+            <td class="r num">${x.lvl === 2 && isFinite(x.tgtRoas) ? dec(x.tgtRoas, 1) + "<div class=\"note\">Break-even " + dec(x.beRoas, 1) + "</div>" : "–"}</td>
+            <td><span style="color:var(--${vd[1]});font-weight:700">${vd[0]}</span><div class="note">${esc(adWhy(x))}</div></td>
+            <td>${x.ch.map(c => `<span class="chip ex">${c[0]}</span>`).join(" ")}${x.org ? ' <span class="chip">Posts</span>' : ""}${!x.ch.length && !x.org ? '<span class="note">–</span>' : ""}</td>
+            <td><button type="button" class="btn${ad.sel === a.id ? " primary" : ""}" data-ad="plan:${a.id}">Plan</button></td></tr>`; }).join("") || `<tr><td colspan="7" class="note">Nichts gefunden.</td></tr>`}</tbody></table></div></section>
+      ${sel ? `<section class="box" id="adPlanBox"><div class="row"><h2 style="margin:0">Werbeplan: ${esc(sel.a.name)}</h2><div class="btns"><button type="button" class="btn" data-ad="copy:${sel.a.id}" ${ad.plans[sel.a.id] ? "" : "disabled"}>Kopieren</button><button type="button" class="btn" data-ad="regen:${sel.a.id}" ${ad.busy ? "disabled" : ""}>${ad.plans[sel.a.id] ? "Neu schreiben" : "Ausführlicher Plan von Claude"}</button><button type="button" class="btn" data-ad="close:">Schließen</button></div></div>
+        <p class="note"><strong>Idee für Inhalte:</strong> ${esc(AD_FORMAT(sel.a))}</p>
+        ${ad.busy === sel.a.id ? `<p class="note"><strong>Claude schreibt den Plan …</strong></p>` : `<div style="white-space:pre-wrap">${esc(ad.plans[sel.a.id] || adFallback(sel))}</div>${ad.plans[sel.a.id] ? "" : `<p class="note">Das ist die Standard-Empfehlung. Mit „Ausführlicher Plan von Claude“ erstellt Claude einen ausführlichen Plan mit Anzeigentexten und Post-Ideen.</p>`}`}</section>` : ""}`;
+    const e = $("adSearch"); if (e) e.addEventListener("input", () => { ad.q = e.value; const pos = e.selectionStart; renderAds(); const n = $("adSearch"); n.focus(); n.setSelectionRange(pos, pos); });
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-ad]"); if (!b || view !== "werbung") return;
+    const [k, val] = [b.dataset.ad.split(":")[0], b.dataset.ad.split(":").slice(1).join(":")];
+    if (k === "show") { ad.all = val === "alle"; return renderAds(); }
+    if (k === "close") { ad.sel = ""; return renderAds(); }
+    if (k === "plan") { ad.sel = ad.sel === val ? "" : val; renderAds(); if (ad.sel) setTimeout(() => $("adPlanBox")?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50); return; }
+    if (k === "regen") { return adPlan(val); }
+    if (k === "copy") { const t = ad.plans[val] || ""; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Plan kopiert")).catch(() => toast("Konnte nicht kopieren, bitte markieren und Strg+C")); }
+  });
+  document.addEventListener("change", e => {
+    const el = e.target; if (view !== "werbung" || !el.dataset || !el.dataset.adroas) return;
+    const n = Math.max(0.5, v(el.value)); S.adRoas = Object.assign({}, S.adRoas, { [el.dataset.adroas]: n }); saveSettings(); renderAds();
   });
   // ---------- Entwicklung: geht es aufwärts oder abwärts? ----------
   let STATS = null, statsLoading = false;
