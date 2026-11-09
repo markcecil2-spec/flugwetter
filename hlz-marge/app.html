@@ -1923,9 +1923,12 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   const SUP_CATS = [["lieferzeit", "Lieferzeit / Wo ist mein Paket?"], ["reklamation", "Reklamation / Fehlteil / Defekt"], ["widerruf", "Widerruf / Rückgabe"],
     ["montage", "Montage / Wandeignung"], ["mass", "Sondermaß / Angebot"], ["versandkosten", "Versandkosten"], ["bewertung", "Bewertung / Beschwerde"],
     ["produktfrage", "Frage vor dem Kauf"], ["sonstiges", "Sonstiges"]];
-  const SUP_CAUSES = [["", "–"], ["schrauben", "Schrauben/Beschläge defekt"], ["fehlteil", "Fehlteil / falsche Teile"], ["menge", "Falsche Menge"],
-    ["gravur", "Gravur fehlt / falsch"], ["transport", "Transportschaden"], ["nichtangekommen", "Nicht angekommen"], ["holz", "Holz / Verarbeitung"],
-    ["erwartung", "Erwartung anders"], ["sonstiges", "Sonstiges"]];
+  const SUP_CAUSES = [["", "–"],
+    ["fehlteil", "Teil fehlt im Paket (z. B. 1 von 2 Teilen)"], ["menge", "Stückzahl falsch / Set unvollständig"], ["falsch", "Falscher Artikel, falsche Größe oder Variante"],
+    ["schrauben", "Schrauben / Beschläge defekt"], ["befestigung", "Befestigung fehlt (Dübel, Schrauben, Anleitung)"],
+    ["gravur", "Gravur fehlt, falscher Text oder schief"], ["holz", "Holz / Verarbeitung (Riss, Ast, Kratzer, Öl)"], ["mass", "Maße weichen ab / passt nicht"],
+    ["transport", "Transportschaden (Karton oder Holz beschädigt)"], ["nichtangekommen", "Nicht angekommen / Paket verloren"], ["verspaetung", "Lieferung zu spät"],
+    ["adresse", "Zustellproblem / falsche Adresse"], ["erwartung", "Erwartung anders (Farbe, Optik, Größe)"], ["sonstiges", "Sonstiges"]];
   const SUP_LANGS = { de: "Deutsch", en: "Englisch", fr: "Französisch", pl: "Polnisch", it: "Italienisch", es: "Spanisch", nl: "Niederländisch", andere: "Andere" };
   const SUP_CHANNELS = ["Etsy", "Shopify", "eBay", "E-Mail", "Instagram", "Sonstiges"];
   // Was gegen wiederkehrende Themen hilft (aus der Auswertung Oktober 2026)
@@ -1941,6 +1944,11 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     fehlteil: "Packliste vor jedem Paket abhaken.", menge: "Packliste vor jedem Paket abhaken.",
     gravur: "Gravur-Aufträge separat markieren und vor dem Packen prüfen.",
     nichtangekommen: "Ab ca. 30 € immer Paket mit Tracking statt Warensendung.",
+    falsch: "Beim Packen Etikett mit SKU und Größe gegen die Bestellung prüfen (Zettel ins Paket).",
+    befestigung: "Befestigungsset und Montagezettel als feste Position auf die Packliste.",
+    mass: "Maße (Länge, Tiefe, Stärke) in Titel-Bild und Beschreibung nennen, Foto mit Maßband.",
+    verspaetung: "Realistische Lieferzeit im Listing, bei Verzug aktiv vorher Bescheid geben.",
+    adresse: "Adresse bei Bestellungen mit Auffälligkeiten (Packstation, Zusatz) kurz bestätigen lassen.",
     erwartung: "Fotos und Beschreibung ehrlicher machen (Maße, Holzbild, „abstrahiert“)."
   };
   const SUP_FACTS_DEFAULT = `Shop: HlzLaden (hlzladen.de, Etsy), handgemachte Holzprodukte aus Eiche, Inhaber Mark.
