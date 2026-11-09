@@ -1545,9 +1545,20 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     const last = S.ordLast || ORD.filter(o => o.src === "etsy").map(o => o.at).sort().pop() || "";
     return isoDay(last ? new Date(last + "T00:00:00").getTime() - 2 * 864e5 : Date.now() - 30 * 864e5);
   }
+  // Billbee-Abgleich (läuft außerhalb der App): neue Felder aus der Datenbank übernehmen und Artikel über die SKU zuordnen
+  async function ordBbMerge() {
+    try {
+      const fresh = await store.loadOrders();
+      fresh.forEach(f => { const i = ORD.findIndex(x => x.id === f.id);
+        if (i < 0) ORD.push(f);
+        else { const o = ORD[i]; ["bb", "bbState", "bbShipped"].forEach(k => { if (f[k] !== undefined && o[k] !== f[k]) o[k] = f[k]; }); if (f.bb && f.status === "erledigt" && o.status === "offen" && !o.manual) o.status = "erledigt"; } });
+    } catch (e) { /* offline: lokale Liste bleibt */ }
+    ORD.forEach(o => { if (!o.bb) return; let ch = false; (o.lines || []).forEach(l => { if (!l.aid && l.sku) { const a = ordResolve(l.sku, l.variant); if (a) { l.aid = a.id; ch = true; } } }); if (ch) saveOrder(o); });
+  }
   async function ordSync(daysBack) {
     if (ord.busy) return;
-    ord.busy = true; ord.err = ""; ord.msg = "Shopify wird gelesen …"; renderOrders();
+    ord.busy = true; ord.err = ""; ord.msg = "Billbee-Stand wird geladen …"; renderOrders();
+    await ordBbMerge(); ord.msg = "Shopify wird gelesen …"; renderOrders();
     const errs = []; let nNew = 0;
     try {
       // Shopify: neue Bestellungen plus alle noch offenen (damit „versendet“ ankommt)
@@ -1601,14 +1612,14 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
       <section class="box">
         <div class="row"><strong>${open.length} offen · ${dec(pcs, 0)} Stück</strong>
           <div class="seg" aria-label="Anzeige">${[["open", "Offen (" + open.length + ")"], ["done", "Erledigt (" + done.length + ")"], ["all", "Alle"]].map(([k, l]) => `<button type="button" data-ordf="${k}" aria-pressed="${ord.f === k}">${l}</button>`).join("")}</div></div>
-        <p class="note">Etsy verrät in den Mails nicht, ob schon verschickt ist: hak erledigte Bestellungen selbst ab. Shopify-Bestellungen setzen sich von allein auf erledigt, sobald sie dort versendet sind.</p>
+        <p class="note">Offene Bestellungen kommen automatisch aus Billbee. Wenn du eine abhakst (erledigt), setzt der Abgleich sie dort auf „Versendet“. Ist sie in Billbee schon versendet, setzt sie sich hier von allein auf erledigt. Mit „Neue Bestellungen holen“ lädst du den neuesten Stand.</p>
         ${list.length && ord.f === "open" ? `<div class="btns"><button type="button" class="btn" data-act="ordAllDone">Alle ${list.length} angezeigten als erledigt markieren</button></div>` : ""}
         ${ord.ask ? `<div class="selbar danger" style="position:static"><strong>${list.length} Bestellungen als erledigt markieren?</strong><span class="btns"><button class="btn primary" data-act="ordYes">Ja</button><button class="btn" data-act="ordNo">Abbrechen</button></span></div>` : ""}
         <div class="tablewrap"><table class="ordtable"><thead><tr><th>✓</th><th>Datum</th><th>Bestellung</th><th>Artikel</th><th>Land</th><th>Versand bis</th><th>Betrag</th></tr></thead>
         <tbody>${list.map(o => `<tr class="${o.status === "erledigt" ? "orddone" : ""}">
           <td><input type="checkbox" data-orddone="${o.id}" ${o.status === "erledigt" ? "checked" : ""} aria-label="Erledigt ${esc(o.no)}"></td>
           <td class="num">${esc(o.at)}</td>
-          <td><span class="chip ${o.src === "etsy" ? "miss" : "ex"}">${o.src === "etsy" ? "Etsy" : "Shopify"}</span> <span class="num">${esc(o.no)}</span></td>
+          <td><span class="chip ${o.src === "etsy" ? "miss" : "ex"}">${o.src === "etsy" ? "Etsy" : o.src === "billbee" ? "Billbee" : "Shopify"}</span> <span class="num">${esc(o.no)}</span>${o.bb ? `<div class="note">${o.status === "erledigt" ? (o.bbShipped ? "✓ in Billbee versendet" : "meldet sich gleich bei Billbee") : "aus Billbee"}</div>` : ""}</td>
           <td>${(o.lines || []).map((l, i) => lineHTML(o, l, i)).join("")}</td>
           <td>${esc(o.country || "–")}</td>
           <td class="num" ${o.shipBy && o.shipBy < today && ordOpen(o) ? 'style="color:var(--bad);font-weight:700"' : ""}>${esc(o.shipBy || "–")}</td>
@@ -5217,6 +5228,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     }
     try { SUP = await store.loadSupport(); } catch (e) { SUP = []; }
     try { ORD = await store.loadOrders(); } catch (e) { ORD = []; }
+    try { await ordBbMerge(); } catch (e) {}
     ordBadge();
     setSync("ok");
     route();
