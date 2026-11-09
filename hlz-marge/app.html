@@ -4510,7 +4510,7 @@ Antworte NUR mit JSON in dieser Form:
         const chunk = F.items.slice(i, i + 8), vars = {}, defs = [], body = [];
         chunk.forEach((it, k) => {
           if (it.kind === "page") { if (!it.on) return; defs.push(`$g${k}:ID!`, `$h${k}:PageUpdateInput!`); body.push(`u${k}: pageUpdate(id:$g${k}, page:$h${k}){ userErrors{ message } }`); vars["g" + k] = it.id; vars["h" + k] = { isPublished: true }; }
-          else if (it.kind === "col") { defs.push(`$c${k}:CollectionInput!`); body.push(`u${k}: collectionUpdate(input:$c${k}){ userErrors{ message } }`); vars["c" + k] = code === "w-coltext" ? { id: it.id, descriptionHtml: it.html } : { id: it.id, seo: { title: it.seoT, description: it.meta } }; }
+          else if (it.kind === "col") { defs.push(`$c${k}:CollectionUpdateInput`); body.push(`u${k}: collectionUpdate(collection:$c${k}){ userErrors{ message } }`); vars["c" + k] = code === "w-coltext" ? { id: it.id, descriptionHtml: it.html } : { id: it.id, seo: { title: it.seoT, description: it.meta } }; }
           else if (code === "s-alt") { defs.push(`$f${k}:[FileUpdateInput!]!`); body.push(`u${k}: fileUpdate(files:$f${k}){ userErrors{ message } }`); vars["f" + k] = it.alts.map(a => ({ id: a.id, alt: a.alt })); }
           else { const inp = { id: it.id }; if (code === "s-seod") inp.seo = { title: it.oldT || null, description: it.meta }; else if (code === "s-seot") inp.seo = { title: it.seoT, description: it.oldD || null }; else if (code === "s-tags") inp.tags = [...it.oldTags, ...it.tags]; else if (code === "s-desc") inp.descriptionHtml = it.html;
             defs.push(`$p${k}:ProductUpdateInput!`); body.push(`u${k}: productUpdate(product:$p${k}){ userErrors{ message } }`); vars["p" + k] = inp; }
