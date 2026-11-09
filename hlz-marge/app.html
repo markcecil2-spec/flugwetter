@@ -168,6 +168,8 @@ tr.prodon td { background: var(--accent-soft) }
 tr.prodon [data-q="prod"] { font-weight: 700 }
 .ppneed strong { font-size: 1.6em; color: var(--accent) }
 .pptable td { vertical-align: middle }
+.shopfix { margin: 4px 0 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+.fixhtml { font-size: .86rem; max-height: 140px; overflow: auto; border-left: 3px solid var(--line); padding-left: 8px }
 .shoptasks { margin: 0; padding-left: 22px; display: grid; gap: 10px }
 .shopman { display: grid; gap: 8px; margin-top: 8px }
 #printArea { display: none }
@@ -4222,7 +4224,7 @@ Antworte NUR mit JSON in dieser Form:
       });
     } else {
       const P = SHOP.shopify ? SHOP.shopify.products : [], sq = SHOP.shopify && SHOP.shopify.sales;
-      P.forEach((p, i) => { const I = shopifyAudit(p), q = sq ? sq[p.id] || 0 : null; if (q === 0 && p.st === "ACTIVE") mkIssue(I, "nosale", 0, "kein Verkauf in 12 Monaten", "Ladenhüter: Titel, Hauptbild und Preis überarbeiten oder aus dem Sortiment nehmen."); const a = shopMatchArt(p.title, p.sku); let m = null; if (a && v(a.price) > 0) { try { m = calc(a, "shopify", undefined, ctx).margin; } catch (e) {} } out.push({ key: "s" + i, name: p.title, p, I, score: scoreOf(I), q, m, a }); });
+      P.filter(p => p.st === "ACTIVE").forEach((p, i) => { const I = shopifyAudit(p), q = sq ? sq[p.id] || 0 : null; if (q === 0 && p.st === "ACTIVE") mkIssue(I, "nosale", 0, "kein Verkauf in 12 Monaten", "Ladenhüter: Titel, Hauptbild und Preis überarbeiten oder aus dem Sortiment nehmen."); const a = shopMatchArt(p.title, p.sku); let m = null; if (a && v(a.price) > 0) { try { m = calc(a, "shopify", undefined, ctx).margin; } catch (e) {} } out.push({ key: "s" + i, name: p.title, p, I, score: scoreOf(I), q, m, a }); });
     }
     const pr = r => (100 - r.score) * (1 + Math.min(r.q || 0, 25) / 5) * (r.m !== null && r.m >= v(S.target) ? 1.2 : 1);
     return out.sort((x, y) => pr(y) - pr(x));
@@ -4309,7 +4311,7 @@ Antworte NUR mit JSON in dieser Form:
     const dstr = x => x ? dDE(x.slice(0, 10)) : "";
     $("view").innerHTML = `${shopBar("shopcheck")}<div class="row"><h1>Shop-Check</h1></div>
       ${shopTabs()}
-      ${shopDataHTML(E, SA, SF, tab, dstr)}
+      ${fixHTML()}${shopDataHTML(E, SA, SF, tab, dstr)}
       ${!has ? `<section class="box empty"><p>${tab === "etsy" ? "Lade oben die Etsy-CSV „Artikel im Verkauf“ hoch, dann steht hier die Auswertung." : "Klick oben auf „Jetzt prüfen“."}</p></section>` : `
       <div class="tiles t3" style="grid-template-columns:repeat(4,minmax(0,1fr))">
         <div class="tile hero"><span class="label">Gesamtnote</span><span class="num" style="color:var(--${amp(avg)[0]})">${avg} / 100</span><span class="note">Durchschnitt über ${rows.length} Angebote</span></div>
@@ -4318,7 +4320,7 @@ Antworte NUR mit JSON in dieser Form:
         <div class="tile"><span class="label">Schwach (unter 60)</span><span class="num" style="color:var(--bad)">${cnt.bad}</span></div>
       </div>
       <section class="box"><h2>Das solltest du zuerst tun</h2>
-        ${top.length ? `<ol style="margin:0;padding-left:20px;display:grid;gap:8px">${top.map(([c, x]) => `<li><strong>${x.n} ${x.n === 1 ? "Angebot" : "Angebote"}:</strong> ${esc(x.tip)}</li>`).join("")}</ol>` : `<p class="note">Nichts Auffälliges gefunden.</p>`}
+        ${top.length ? `<ol style="margin:0;padding-left:20px;display:grid;gap:8px">${top.map(([c, x]) => `<li><strong>${x.n} ${x.n === 1 ? "Angebot" : "Angebote"}:</strong> ${esc(x.tip)}<div class="shopfix">${tab === "shopify" ? verdictHTML(c) : verdictHTML("etsy-" + c)}</div></li>`).join("")}</ol>` : `<p class="note">Nichts Auffälliges gefunden.</p>`}
       </section>
       <section class="box"><h2>Alle Angebote, wichtigste zuerst</h2>
         <p class="note">Sortiert nach: wie viel fehlt, mal wie viel das Angebot verkauft, und ob die Marge stimmt.</p>
@@ -4379,40 +4381,40 @@ Antworte NUR mit JSON in dieser Form:
   function webAudit(W) {
     const I = [], add = (g, ok, w, t, fix) => I.push({ g, ok: !!ok, w, t, fix });
     const pol = W.pol || {}, len = k => pol[k] || 0, foot = ((W.menus || {}).footer || []).map(i => i.u).join(" ") + " " + (W.pages || []).map(x => x.h).join(" ");
-    add("Recht & Vertrauen", len("LEGAL_NOTICE") > 300, 10, "Impressum fehlt oder ist leer", "Einstellungen → Richtlinien: Impressum eintragen (Abmahnrisiko).");
-    add("Recht & Vertrauen", len("PRIVACY_POLICY") > 1500, 8, "Datenschutzerklärung fehlt oder ist zu kurz", "Datenschutzerklärung (z. B. von eRecht24) eintragen.");
-    add("Recht & Vertrauen", len("REFUND_POLICY") > 500, 8, "Widerrufsbelehrung fehlt", "Widerrufsbelehrung mit Muster-Formular eintragen.");
-    add("Recht & Vertrauen", len("TERMS_OF_SERVICE") > 500, 4, "AGB fehlen", "AGB eintragen.");
-    add("Recht & Vertrauen", len("SHIPPING_POLICY") > 300, 4, "Versandinfos fehlen", "Versandkosten und Lieferzeit als Richtlinie eintragen.");
-    const fm = JSON.stringify((W.menus || {}).footer || []); add("Recht & Vertrauen", /legal-notice/.test(fm) && /privacy-policy/.test(fm), 6, "Impressum oder Datenschutz nicht im Footer verlinkt", "Footer-Menü: Impressum, Datenschutz, Widerruf, AGB verlinken.");
-    const pg = h => (W.pages || []).find(x => h.test(x.h + " " + x.t)), pubPg = h => { const x = pg(h); return x && x.pub; };
-    add("Recht & Vertrauen", pubPg(/kontakt|contact/i), 4, "Keine veröffentlichte Kontaktseite", "Kontaktseite mit E-Mail und Antwortzeit veröffentlichen.");
-    add("Recht & Vertrauen", pubPg(/frag|faq/i), 3, "Keine FAQ-Seite", "FAQ mit Versand, Pflege, Montage, Rückgabe anlegen. Spart Support-Mails.");
-    add("Recht & Vertrauen", pubPg(/über|uber|about/i), 3, "Keine „Über uns“-Seite veröffentlicht", "Über-uns-Seite mit Foto von dir veröffentlichen, das schafft Vertrauen.");
-    (W.pages || []).filter(x => !x.pub).forEach(x => add("Recht & Vertrauen", false, 2, `Seite „${x.t}“ ist nicht veröffentlicht`, /maß|mass/i.test(x.t + x.h) ? "Veröffentlichen: Sondermaß-Anfragen sind bei dir ein Dauerthema." : "Veröffentlichen oder löschen."));
+    add("Recht & Vertrauen", len("LEGAL_NOTICE") > 300, 10, "Impressum fehlt oder ist leer", "Einstellungen → Richtlinien: Impressum eintragen (Abmahnrisiko)."); I[I.length - 1].code = "w-legal";
+    add("Recht & Vertrauen", len("PRIVACY_POLICY") > 1500, 8, "Datenschutzerklärung fehlt oder ist zu kurz", "Datenschutzerklärung (z. B. von eRecht24) eintragen."); I[I.length - 1].code = "w-legal";
+    add("Recht & Vertrauen", len("REFUND_POLICY") > 500, 8, "Widerrufsbelehrung fehlt", "Widerrufsbelehrung mit Muster-Formular eintragen."); I[I.length - 1].code = "w-legal";
+    add("Recht & Vertrauen", len("TERMS_OF_SERVICE") > 500, 4, "AGB fehlen", "AGB eintragen."); I[I.length - 1].code = "w-legal";
+    add("Recht & Vertrauen", len("SHIPPING_POLICY") > 300, 4, "Versandinfos fehlen", "Versandkosten und Lieferzeit als Richtlinie eintragen."); I[I.length - 1].code = "w-legal";
+    const fm = JSON.stringify((W.menus || {}).footer || []); add("Recht & Vertrauen", /legal-notice/.test(fm) && /privacy-policy/.test(fm), 6, "Impressum oder Datenschutz nicht im Footer verlinkt", "Footer-Menü: Impressum, Datenschutz, Widerruf, AGB verlinken."); I[I.length - 1].code = "w-menu";
+    const pubPg = h => (W.pages || []).some(x => x.pub && h.test(x.h + " " + x.t));
+    add("Recht & Vertrauen", pubPg(/kontakt|contact/i), 4, "Keine veröffentlichte Kontaktseite", "Kontaktseite mit E-Mail und Antwortzeit veröffentlichen."); I[I.length - 1].code = "w-newpage";
+    add("Recht & Vertrauen", pubPg(/frag|faq/i), 3, "Keine FAQ-Seite", "FAQ mit Versand, Pflege, Montage, Rückgabe anlegen. Spart Support-Mails."); I[I.length - 1].code = "w-newpage";
+    add("Recht & Vertrauen", pubPg(/über|uber|about/i), 3, "Keine „Über uns“-Seite veröffentlicht", "Über-uns-Seite mit Foto von dir veröffentlichen, das schafft Vertrauen."); I[I.length - 1].code = "w-newpage";
+    (W.pages || []).filter(x => !x.pub).forEach(x => add("Recht & Vertrauen", false, 2, `Seite „${x.t}“ ist nicht veröffentlicht`, /maß|mass/i.test(x.t + x.h) ? "Veröffentlichen: Sondermaß-Anfragen sind bei dir ein Dauerthema." : "Veröffentlichen oder löschen.")); I.filter(x => /ist nicht veröffentlicht/.test(x.t)).forEach(x => x.code = "w-pub");
     const main = (W.menus || {})["main-menu"] || [], cols = (W.cols || []);
     add("Aufbau & Navigation", main.length >= 3 && main.length <= 7, 3, `Hauptmenü hat ${main.length} Punkte`, "3 bis 7 Punkte, sonst verliert man den Überblick.");
-    add("Aufbau & Navigation", main.reduce((n, i) => n + (i.n || 0), 0) >= 3, 4, "Keine Kategorien im Hauptmenü", "Kategorien (Regale, Schlüsselbretter, Garderoben) direkt im Menü zeigen.");
-    add("Aufbau & Navigation", (W.articles || 0) >= 10, 3, `Blog hat nur ${W.articles || 0} Beiträge`, "Mindestens 10 Beiträge: Pflege, Montage, Ideen. Bringt Google-Besucher.");
+    add("Aufbau & Navigation", main.reduce((n, i) => n + (i.n || 0), 0) >= 3, 4, "Keine Kategorien im Hauptmenü", "Kategorien (Regale, Schlüsselbretter, Garderoben) direkt im Menü zeigen."); I[I.length - 1].code = "w-menu";
+    add("Aufbau & Navigation", (W.articles || 0) >= 10, 3, `Blog hat nur ${W.articles || 0} Beiträge`, "Mindestens 10 Beiträge: Pflege, Montage, Ideen. Bringt Google-Besucher."); I[I.length - 1].code = "w-blog";
     const th = W.th;
     if (th) {
-      add("Startseite", th.sections <= 14, 6, `Startseite hat ${th.sections} Abschnitte`, "Auf 8 bis 12 kürzen. Mobil scrollt niemand so weit, und sie lädt schneller.");
-      add("Startseite", th.liquid < 3, 5, `${th.liquid} selbstgebaute Abschnitte (Custom Liquid)`, "Auf normale Theme-Abschnitte umbauen. Eigener Code ist langsamer und bricht bei Theme-Updates.");
-      add("Startseite", th.reviews, 6, "Keine Bewertungen auf der Startseite", "Bewertungs-Block (Judge.me) auf die Startseite setzen. Bewertungen verkaufen.");
-      add("Kasse & Versand", th.goals.length < 2 || new Set(th.goals).size === 1, 6, `Zwei verschiedene Gratis-Versand-Grenzen im Theme (${th.goals.map(x => dec(x, 0) + " €").join(" und ")})`, "Eine Grenze festlegen, sonst verwirrt es Kunden und kostet Umsatz.");
-      add("Kasse & Versand", !th.demo, 3, "Reste aus dem Demo-Theme (englische Texte, Beispielfarben, fremde Kollektion)", "Theme-Einstellungen durchsehen und Reste löschen.");
-      add("Sichtbarkeit", !th.favWhite, 3, "Favicon ist das weiße Logo, im Browser-Tab kaum sichtbar", "Dunkles Favicon (32×32 PNG) hochladen.");
-      add("Sichtbarkeit", th.social.ig && th.social.fb && th.social.pin, 2, "Nicht alle Social-Links gesetzt (Instagram, Facebook, Pinterest)", "Fehlende Profile im Theme eintragen.");
+      add("Startseite", th.sections <= 14, 6, `Startseite hat ${th.sections} Abschnitte`, "Auf 8 bis 12 kürzen. Mobil scrollt niemand so weit, und sie lädt schneller."); I[I.length - 1].code = "w-theme";
+      add("Startseite", th.liquid < 3, 5, `${th.liquid} selbstgebaute Abschnitte (Custom Liquid)`, "Auf normale Theme-Abschnitte umbauen. Eigener Code ist langsamer und bricht bei Theme-Updates."); I[I.length - 1].code = "w-theme";
+      add("Startseite", th.reviews, 6, "Keine Bewertungen auf der Startseite", "Bewertungs-Block (Judge.me) auf die Startseite setzen. Bewertungen verkaufen."); I[I.length - 1].code = "w-theme";
+      add("Kasse & Versand", th.goals.length < 2 || new Set(th.goals).size === 1, 6, `Zwei verschiedene Gratis-Versand-Grenzen im Theme (${th.goals.map(x => dec(x, 0) + " €").join(" und ")})`, "Eine Grenze festlegen, sonst verwirrt es Kunden und kostet Umsatz."); I[I.length - 1].code = "w-theme";
+      add("Kasse & Versand", !th.demo, 3, "Reste aus dem Demo-Theme (englische Texte, Beispielfarben, fremde Kollektion)", "Theme-Einstellungen durchsehen und Reste löschen."); I[I.length - 1].code = "w-theme";
+      add("Sichtbarkeit", !th.favWhite, 3, "Favicon ist das weiße Logo, im Browser-Tab kaum sichtbar", "Dunkles Favicon (32×32 PNG) hochladen."); I[I.length - 1].code = "w-theme";
+      add("Sichtbarkeit", th.social.ig && th.social.fb && th.social.pin, 2, "Nicht alle Social-Links gesetzt (Instagram, Facebook, Pinterest)", "Fehlende Profile im Theme eintragen."); I[I.length - 1].code = "w-theme";
     }
     const wal = (W.shop || {}).wallets || [];
-    add("Kasse & Versand", ["SHOPIFY_PAY", "APPLE_PAY", "GOOGLE_PAY"].every(x => wal.includes(x)), 5, "Shop Pay, Apple Pay oder Google Pay fehlt", "Im Checkout aktivieren, schnelle Zahlung hebt die Abschlussrate.");
-    add("Kasse & Versand", (W.shop || {}).ships && W.shop.ships.length > 3, 2, `Versand nur nach ${(W.shop.ships || []).join(", ")}`, "Weitere EU-Länder prüfen, wenn der DHL-Tarif es hergibt. Etsy-Kunden kommen auch von dort.");
-    add("Kasse & Versand", (W.shop || {}).ssl !== false, 10, "Shop ohne SSL (https)", "SSL in den Domain-Einstellungen aktivieren.");
+    add("Kasse & Versand", ["SHOPIFY_PAY", "APPLE_PAY", "GOOGLE_PAY"].every(x => wal.includes(x)), 5, "Shop Pay, Apple Pay oder Google Pay fehlt", "Im Checkout aktivieren, schnelle Zahlung hebt die Abschlussrate."); I[I.length - 1].code = "w-settings";
+    add("Kasse & Versand", (W.shop || {}).ships && W.shop.ships.length > 3, 2, `Versand nur nach ${(W.shop.ships || []).join(", ")}`, "Weitere EU-Länder prüfen, wenn der DHL-Tarif es hergibt. Etsy-Kunden kommen auch von dort."); I[I.length - 1].code = "w-settings";
+    add("Kasse & Versand", (W.shop || {}).ssl !== false, 10, "Shop ohne SSL (https)", "SSL in den Domain-Einstellungen aktivieren."); I[I.length - 1].code = "w-settings";
     const noSeo = cols.filter(c => !c.seoT || !c.seoD), thin = cols.filter(c => c.dl < 80), noImg = cols.filter(c => !c.img);
-    add("Sichtbarkeit", !noSeo.length, Math.min(8, noSeo.length * 2), `${noSeo.length} Kollektion${noSeo.length === 1 ? "" : "en"} ohne SEO-Titel oder -Beschreibung: ${noSeo.slice(0, 3).map(c => c.t).join(", ")}${noSeo.length > 3 ? " …" : ""}`, "SEO-Titel (bis 60 Zeichen) und Beschreibung (bis 155) ergänzen.");
-    add("Sichtbarkeit", !thin.length, Math.min(5, thin.length * 2), `${thin.length} Kollektion${thin.length === 1 ? "" : "en"} mit zu wenig Text: ${thin.slice(0, 3).map(c => c.t).join(", ")}`, "Je Kollektion 2 bis 3 Sätze Text schreiben.");
-    add("Sichtbarkeit", !noImg.length, Math.min(4, noImg.length * 2), `${noImg.length} Kollektion${noImg.length === 1 ? "" : "en"} ohne Bild: ${noImg.slice(0, 3).map(c => c.t).join(", ")}`, "Titelbild hinterlegen.");
-    add("Sichtbarkeit", (W.themes || {}).unpub < 3, 1, `${W.themes.unpub} ungenutzte Themes`, "Alte Themes löschen, das hält den Shop aufgeräumt.");
+    add("Sichtbarkeit", !noSeo.length, Math.min(8, noSeo.length * 2), `${noSeo.length} Kollektion${noSeo.length === 1 ? "" : "en"} ohne SEO-Titel oder -Beschreibung: ${noSeo.slice(0, 3).map(c => c.t).join(", ")}${noSeo.length > 3 ? " …" : ""}`, "SEO-Titel (bis 60 Zeichen) und Beschreibung (bis 155) ergänzen."); I[I.length - 1].code = "w-colseo";
+    add("Sichtbarkeit", !thin.length, Math.min(5, thin.length * 2), `${thin.length} Kollektion${thin.length === 1 ? "" : "en"} mit zu wenig Text: ${thin.slice(0, 3).map(c => c.t).join(", ")}`, "Je Kollektion 2 bis 3 Sätze Text schreiben."); I[I.length - 1].code = "w-coltext";
+    add("Sichtbarkeit", !noImg.length, Math.min(4, noImg.length * 2), `${noImg.length} Kollektion${noImg.length === 1 ? "" : "en"} ohne Bild: ${noImg.slice(0, 3).map(c => c.t).join(", ")}`, "Titelbild hinterlegen."); I[I.length - 1].code = "w-colimg";
+    add("Sichtbarkeit", (W.themes || {}).unpub < 3, 1, `${W.themes.unpub} ungenutzte Themes`, "Alte Themes löschen, das hält den Shop aufgeräumt."); I[I.length - 1].code = "w-del";
     return I;
   }
   const webScore = I => Math.max(0, 100 - I.filter(x => !x.ok).reduce((n, x) => n + x.w, 0));
@@ -4427,32 +4429,127 @@ Antworte NUR mit JSON in dieser Form:
     const head = `${shopBar("shopcheck")}<div class="row"><h1>Shop-Check</h1></div>${shopTabs()}`;
     if (shopSt.tab === "start") {
       // wichtigste Aufgaben aus allen drei Bereichen, nach Wirkung
-      const T = wBad.map(x => ({ area: "Webshop", imp: x.w * 1.6, t: x.t, fix: x.fix }));
-      const prod = (rows, area) => { const agg = {}; rows.forEach(r => r.I.forEach(i => { if (i.w > 0) (agg[i.code] = agg[i.code] || { n: 0, w: 0, tip: i.tip }).n++, agg[i.code].w += i.w; })); Object.values(agg).forEach(x => T.push({ area, imp: x.w / Math.max(rows.length, 1) * 1.2, t: `${x.n} von ${rows.length} Angeboten`, fix: String(x.tip).split(/(?<=\.)\s/)[0] })); };
+      const T = wBad.map(x => ({ area: "Webshop", imp: x.w * 1.6, t: x.t, fix: x.fix, code: x.code || "" }));
+      const prod = (rows, area) => { const agg = {}; rows.forEach(r => r.I.forEach(i => { if (i.w > 0) (agg[i.code] = agg[i.code] || { n: 0, w: 0, tip: i.tip, code: i.code }).n++, agg[i.code].w += i.w; })); Object.values(agg).forEach(x => T.push({ area, imp: x.w / Math.max(rows.length, 1) * 1.2, t: `${x.n} von ${rows.length} Angeboten`, fix: String(x.tip).split(/(?<=\.)\s/)[0], code: area === "Shopify" ? x.code : "" })); };
       prod(rS, "Shopify"); prod(rE, "Etsy"); T.sort((a, b) => b.imp - a.imp);
       const done = WEB_MANUAL.filter(m => (S.webChecks || {})[m[0]]).length;
-      $("view").innerHTML = `${head}${shopDataHTML(E, SA, SF, "start", dstr)}
+      $("view").innerHTML = `${head}${fixHTML()}${shopDataHTML(E, SA, SF, "start", dstr)}
         <div class="tiles t3" style="grid-template-columns:repeat(3,minmax(0,1fr))">${sc("Webshop", wScore, W ? `${wBad.length} Punkte offen` : "noch nicht geprüft", "web")}${sc("Shopify-Artikel", aS, SF ? `${rS.length} Produkte` : "noch nicht geprüft", "shopify")}${sc("Etsy-Artikel", aE, E ? `${rE.length} Angebote` : "CSV hochladen", "etsy")}</div>
-        <section class="box"><h2>Das solltest du zuerst tun</h2>${T.length ? `<ol class="shoptasks">${T.slice(0, 8).map(x => `<li><span class="chip ${x.area === "Webshop" ? "ex" : x.area === "Etsy" ? "miss" : ""}">${x.area}</span> <strong>${esc(x.t)}</strong><br><span class="note">${esc(x.fix)}</span></li>`).join("")}</ol>` : `<p class="note">Noch keine Daten. Klick oben auf „Alles prüfen“.</p>`}</section>
+        <section class="box"><h2>Das solltest du zuerst tun</h2>${T.length ? `<ol class="shoptasks">${T.slice(0, 8).map(x => `<li><span class="chip ${x.area === "Webshop" ? "ex" : x.area === "Etsy" ? "miss" : ""}">${x.area}</span> <strong>${esc(x.t)}</strong><br><span class="note">${esc(x.fix)}</span><div class="shopfix">${verdictHTML(x.code || "")}</div></li>`).join("")}</ol>` : `<p class="note">Noch keine Daten. Klick oben auf „Alles prüfen“.</p>`}</section>
         <section class="box"><h2>Manuell prüfen <span class="note">${done} von ${WEB_MANUAL.length} erledigt</span></h2><p class="note">Das kann die App nicht messen. Hak ab, was du kontrolliert hast.</p>${shopManualHTML()}</section>`;
       return;
     }
     // Webshop-Tab
     const groups = [...new Set(WI.map(x => x.g))];
-    $("view").innerHTML = `${head}${shopDataHTML(E, SA, SF, "web", dstr)}
+    $("view").innerHTML = `${head}${fixHTML()}${shopDataHTML(E, SA, SF, "web", dstr)}
       ${!W ? `<section class="box empty"><p>Klick auf „Alles prüfen“, dann siehst du hier, was Kunden an deinem Shop stört.</p><div class="btns"><button class="btn primary" data-shop="web" ${shopSt.busy ? "disabled" : ""}>Webshop prüfen</button></div></section>` : `
       <div class="tiles t3" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="tile hero"><span class="label">Note Webshop</span><span class="num" style="color:var(--${amp(wScore)[0]})">${wScore} / 100</span><span class="note">geprüft ${new Date(W.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}${W.th ? ` · Theme „${esc(W.th.name)}“` : ""}</span></div>
         <div class="tile"><span class="label">Offen</span><span class="num" style="color:var(--${wBad.length ? "warn" : "good"})">${wBad.length}</span></div><div class="tile"><span class="label">In Ordnung</span><span class="num" style="color:var(--good)">${WI.length - wBad.length}</span></div></div>
       <section class="box"><div class="row"><h2 style="margin:0">Das musst du ändern</h2><button class="btn" data-shop="web" ${shopSt.busy ? "disabled" : ""}>Neu prüfen</button></div>
-        ${wBad.length ? `<ol class="shoptasks">${wBad.map(x => `<li><span class="chip ${x.w >= 6 ? "miss" : ""}">${esc(x.g)}</span> <strong>${esc(x.t)}</strong><br><span class="note">${esc(x.fix)}</span></li>`).join("")}</ol>` : `<p class="note">Alles in Ordnung.</p>`}</section>
+        ${wBad.length ? `<ol class="shoptasks">${wBad.map(x => `<li><span class="chip ${x.w >= 6 ? "miss" : ""}">${esc(x.g)}</span> <strong>${esc(x.t)}</strong><br><span class="note">${esc(x.fix)}</span><div class="shopfix">${verdictHTML(x.code || "")}</div></li>`).join("")}</ol>` : `<p class="note">Alles in Ordnung.</p>`}</section>
       <section class="box"><details><summary><strong>${WI.length - wBad.length} Punkte sind in Ordnung</strong></summary><ul>${groups.map(g => `<li><strong>${esc(g)}:</strong> ${esc(WI.filter(x => x.g === g && x.ok).map(x => x.t.replace(/ fehlt.*| ist .*| hat .*| nicht .*/, "")).join(", ") || "–")}</li>`).join("")}</ul></details></section>
       <section class="box"><h2>Manuell prüfen</h2><p class="note">Das kann die App nicht messen. Hak ab, was du kontrolliert hast.</p>${shopManualHTML()}</section>`}`;
   }
+
+  // ---------- Shop-Check: „Mit Claude regeln“ (Vorschlag prüfen, dann in Shopify eintragen) ----------
+  const FIXABLE = { "s-seod": ["Ja", "Meta-Beschreibungen"], "s-seot": ["Ja", "SEO-Titel"], "s-alt": ["Ja", "Alt-Texte"], "s-tags": ["Ja", "Tags"], "s-desc": ["Zum Teil", "Beschreibungen"], "w-colseo": ["Ja", "Kollektions-SEO"], "w-coltext": ["Ja", "Kollektions-Texte"], "w-pub": ["Zum Teil", "Seiten veröffentlichen"] };
+  const WHY_NO = { "s-img": "Fotos musst du selbst machen", "w-legal": "Rechtstext: Generator oder Anwalt, nicht ich", "w-menu": "im Menü-Editor von Shopify", "w-newpage": "du legst die Seite an, den Text kann ich dir schreiben", "w-blog": "Beiträge brauchen deine Fotos und Erfahrung", "w-theme": "Das aktive Theme darf ich nicht ändern, du im Theme-Editor", "w-settings": "Shopify-Einstellung, du klickst sie selbst", "w-colimg": "Titelbild musst du hochladen", "w-del": "Löschen ist mir gesperrt, du in Shopify" };
+  const verdictOf = code => (FIXABLE[code] || ["Nein"])[0];
+  const verdictHTML = (code, extra) => { const vd = verdictOf(code), cl = vd === "Ja" ? "good" : vd === "Zum Teil" ? "warn" : "muted", why = vd === "Nein" ? (WHY_NO[code] || (/^etsy-/.test(code || "") ? "Etsy ist nicht verbunden, Vorschlag pro Angebot unten" : "musst du selbst in Shopify ändern")) : vd === "Zum Teil" ? "Entwurf von Claude, du prüfst die Fakten" : "Claude trägt es ein";
+    return `<span class="pill ${cl}" title="${esc(why)}">${vd}</span> ${vd !== "Nein" ? `<button type="button" class="btn" data-shop="fix:${code}" ${shopSt.fix && shopSt.fix.busy ? "disabled" : ""}>Mit Claude regeln</button>` : `<span class="note">${esc(why)}</span>`}`; };
+  const shopStrip = h => String(h || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  async function fixRun(code) {
+    const sample = await getSample(); if (!sample) { shopSt.fix = { code, err: "Claude ist hier nicht verfügbar." }; return renderShop(); }
+    shopSt.fix = { code, busy: "Hole die Daten aus Shopify …", items: [] }; renderShop();
+    try {
+      const items = [], LIM = 24;
+      if (code === "w-pub") {
+        const d = await shopify("graphql_query", { query: `{ pages(first:50){ nodes{ id title handle isPublished } } }` });
+        d.pages.nodes.filter(x => !x.isPublished).forEach(x => items.push({ id: x.id, kind: "page", title: x.title, on: !d.pages.nodes.some(o => o.isPublished && o.handle.replace(/\d+$/, "") === x.handle.replace(/\d+$/, "")) }));
+      } else if (code === "w-coltext") {
+        const d = await shopify("graphql_query", { query: `{ collections(first:100){ nodes{ id title descriptionHtml productsCount{ count } } } }` });
+        const cs = d.collections.nodes.filter(c => shopStrip(c.descriptionHtml).length < 80).slice(0, LIM);
+        shopSt.fix.busy = "Claude schreibt …"; renderShop();
+        const o = await sample.json(`Du bist Texter für einen deutschen Shop (HlzLaden, handgefertigte Holzprodukte aus Eiche, Werkstatt in Fellbach). Schreibe für diese Shopify-Kollektionen je 2 bis 3 kurze Sätze als einfaches HTML (<p>), freundlich, ohne erfundene Fakten.\n${cs.map(c => `- id ${c.id} | ${c.title} | bisheriger Text: ${shopStrip(c.descriptionHtml)} | ${c.productsCount.count} Produkte`).join("\n")}\nGib NUR JSON: {"items":[{"id":"...","html":"<p>...</p>"}]}`, { modelTier: "default", cache: false });
+        (o.items || []).forEach(x => { const c = cs.find(k => k.id === x.id); if (c && x.html) items.push({ id: c.id, kind: "col", title: c.title, html: String(x.html) }); });
+      } else if (code === "w-colseo") {
+        const d = await shopify("graphql_query", { query: `{ collections(first:100){ nodes{ id title descriptionHtml productsCount{ count } seo{ title description } } } }` });
+        const cs = d.collections.nodes.filter(c => !(c.seo && c.seo.title && c.seo.description)).slice(0, LIM);
+        shopSt.fix.busy = "Claude schreibt …"; renderShop();
+        const o = await sample.json(`Du bist SEO-Experte für einen deutschen Shop (HlzLaden, handgefertigte Holzprodukte aus Eiche). Schreibe für diese Shopify-Kollektionen SEO-Titel (maximal 60 Zeichen, wichtigster Suchbegriff vorn, am Ende " | HlzLaden") und Meta-Beschreibung (120 bis 155 Zeichen: was ist es, Material, Nutzen, Aufruf). Erfinde nichts.\n${cs.map(c => `- id ${c.id} | ${c.title} | ${shopStrip(c.descriptionHtml).slice(0, 220)}`).join("\n")}\nGib NUR JSON: {"items":[{"id":"...","seoT":"...","meta":"..."}]}`, { modelTier: "default", cache: false });
+        (o.items || []).forEach(x => { const c = cs.find(k => k.id === x.id); if (c) items.push({ id: c.id, kind: "col", title: c.title, seoT: String(x.seoT || "").slice(0, 65), meta: String(x.meta || "").slice(0, 160), oldT: c.seo && c.seo.title || "", oldD: c.seo && c.seo.description || "" }); });
+      } else {
+        const SF = SHOP.shopify, ids = SF.products.filter(p => p.st === "ACTIVE" && shopifyAudit(p).some(i => i.code === code)).slice(0, LIM).map(p => p.id);
+        for (let i = 0; i < ids.length; i += 8) {
+          const chunk = ids.slice(i, i + 8);
+          shopSt.fix.busy = `Hole Produktdaten … ${Math.min(i + 8, ids.length)} von ${ids.length}`; renderShop();
+          const d = await shopify("graphql_query", { query: `query($ids:[ID!]!){ nodes(ids:$ids){ ... on Product{ id title productType tags seo{ title description } descriptionHtml variants(first:8){ nodes{ title } } collections(first:4){ nodes{ title } } media(first:20){ nodes{ id ... on MediaImage{ alt } } } } } }`, variables: { ids: chunk } });
+          const P = (d.nodes || []).filter(Boolean);
+          shopSt.fix.busy = `Claude schreibt … ${Math.min(i + 8, ids.length)} von ${ids.length}`; renderShop();
+          const ctx = P.map(x => `- id ${x.id} | Titel: ${x.title} | Typ: ${x.productType || "–"} | Varianten: ${x.variants.nodes.map(v2 => v2.title).join(", ")} | Kollektionen: ${x.collections.nodes.map(c => c.title).join(", ")} | Tags: ${x.tags.join(", ") || "keine"} | Beschreibung: ${shopStrip(x.descriptionHtml).slice(0, 700)}${code === "s-alt" ? ` | Bilder ohne Alt-Text: ${x.media.nodes.filter(m => m && "alt" in m && !m.alt).map((m, k) => m.id).join(", ")}` : ""}`).join("\n");
+          const spec = { "s-seod": `"meta": Meta-Beschreibung, 120 bis 155 Zeichen: was es ist, Material (nur wenn genannt), Nutzen, kurzer Aufruf. Kein Titel wiederholen.`, "s-seot": `"seoT": SEO-Titel, 50 bis 60 Zeichen, wichtigster Suchbegriff am Anfang, am Ende " | HlzLaden".`, "s-tags": `"tags": 8 bis 12 neue Tags (kleingeschrieben, auf Deutsch, höchstens 20 Zeichen, bevorzugt Mehrwort-Begriffe wie "garderobe eiche massiv"), die nicht schon in den Tags stehen.`, "s-alt": `"alts": Liste {"id":"<Bild-id>","alt":"..."} je Bild ohne Alt-Text. Alt-Texte beschreiben das Produkt knapp (maximal 110 Zeichen), jeder anders: Bild-Reihenfolge nutzen (Hauptansicht, Detail der Maserung, im Einsatz an der Wand, Maßangabe). Beschreibe nur, was sicher stimmt; erfinde keine Details.`, "s-desc": `"html": neue Produktbeschreibung als einfaches HTML (p, ul, li, strong), 500 bis 900 Zeichen: Einstieg, Material, Maße und Varianten NUR wenn oben genannt, Lieferumfang nur wenn genannt, Pflege, Geschenkidee. Erfinde keine Zahlen, Maße oder Eigenschaften. Wenn etwas unbekannt ist, lass es weg. Übernimm Fakten aus der bisherigen Beschreibung.` }[code];
+          const o = await sample.json(`Du bist SEO-Texter für einen deutschen Shop (HlzLaden, handgefertigte Holzprodukte aus Eiche, hergestellt in Deutschland). Schreibe für diese Shopify-Produkte jeweils ${spec}\n\n${ctx}\n\nGib NUR JSON zurück: {"items":[{"id":"<Produkt-id>", ...}]}`, { modelTier: "default", cache: false });
+          (o.items || []).forEach(x => { const pr = P.find(k => k.id === x.id); if (!pr) return; const it = { id: pr.id, kind: "prod", title: pr.title, oldT: pr.seo && pr.seo.title || "", oldD: pr.seo && pr.seo.description || "", oldTags: pr.tags };
+            if (code === "s-seod") it.meta = String(x.meta || "").slice(0, 160); else if (code === "s-seot") it.seoT = String(x.seoT || "").slice(0, 65);
+            else if (code === "s-tags") it.tags = [...new Set((x.tags || []).map(t => String(t).trim().toLowerCase()).filter(t => t && t.length <= 20))].filter(t => !pr.tags.map(z => z.toLowerCase()).includes(t)).slice(0, 12);
+            else if (code === "s-alt") it.alts = (x.alts || []).map(a => ({ id: a.id, alt: String(a.alt || "").slice(0, 125) })).filter(a => a.alt && pr.media.nodes.some(m => m && m.id === a.id));
+            else if (code === "s-desc") it.html = String(x.html || "");
+            const ok = it.meta || it.seoT || (it.tags && it.tags.length) || (it.alts && it.alts.length) || it.html; if (ok) items.push(it); });
+        }
+      }
+      shopSt.fix = { code, items, msg: items.length ? "" : "Claude hat nichts Brauchbares geliefert, bitte nochmal versuchen." };
+    } catch (e) { shopSt.fix = { code, err: syncErr(e) || supErr(e) }; }
+    renderShop();
+  }
+  async function fixApply() {
+    const F = shopSt.fix; if (!F || !F.items || !F.items.length) return; F.busy = "Trage in Shopify ein …"; F.applying = true; renderShop();
+    const code = F.code; let done = 0, fails = [];
+    try {
+      const SFp = SHOP.shopify && SHOP.shopify.products || [];
+      for (let i = 0; i < F.items.length; i += 8) {
+        const chunk = F.items.slice(i, i + 8), vars = {}, defs = [], body = [];
+        chunk.forEach((it, k) => {
+          if (it.kind === "page") { if (!it.on) return; defs.push(`$g${k}:ID!`, `$h${k}:PageUpdateInput!`); body.push(`u${k}: pageUpdate(id:$g${k}, page:$h${k}){ userErrors{ message } }`); vars["g" + k] = it.id; vars["h" + k] = { isPublished: true }; }
+          else if (it.kind === "col") { defs.push(`$c${k}:CollectionInput!`); body.push(`u${k}: collectionUpdate(input:$c${k}){ userErrors{ message } }`); vars["c" + k] = code === "w-coltext" ? { id: it.id, descriptionHtml: it.html } : { id: it.id, seo: { title: it.seoT, description: it.meta } }; }
+          else if (code === "s-alt") { defs.push(`$f${k}:[FileUpdateInput!]!`); body.push(`u${k}: fileUpdate(files:$f${k}){ userErrors{ message } }`); vars["f" + k] = it.alts.map(a => ({ id: a.id, alt: a.alt })); }
+          else { const inp = { id: it.id }; if (code === "s-seod") inp.seo = { title: it.oldT || null, description: it.meta }; else if (code === "s-seot") inp.seo = { title: it.seoT, description: it.oldD || null }; else if (code === "s-tags") inp.tags = [...it.oldTags, ...it.tags]; else if (code === "s-desc") inp.descriptionHtml = it.html;
+            defs.push(`$p${k}:ProductUpdateInput!`); body.push(`u${k}: productUpdate(product:$p${k}){ userErrors{ message } }`); vars["p" + k] = inp; }
+        });
+        F.busy = `Trage ein … ${Math.min(i + 8, F.items.length)} von ${F.items.length}`; renderShop();
+        if (!body.length) continue;
+        const d = await shopify("graphql_mutation", { query: `mutation(${defs.join(",")}){ ${body.join(" ")} }`, variables: vars });
+        chunk.forEach((it, k) => { if (it.kind === "page" && !it.on) return; const r = d["u" + k], er = r && r.userErrors && r.userErrors[0]; if (er) fails.push(`${shortT(it.title, 40)}: ${er.message}`); else { done++; const lp = SFp.find(z => z.id === it.id); if (lp) { if (code === "s-seod") lp.seoD = it.meta; else if (code === "s-seot") lp.seoT = it.seoT; else if (code === "s-tags") lp.tags = (lp.tags || 0) + it.tags.length; else if (code === "s-alt") lp.noAlt = Math.max(0, lp.noAlt - it.alts.length); else if (code === "s-desc") lp.dl = shopStrip(it.html).length; } } });
+      }
+      if (SHOP.shopify) shopSave(SHOP.shopify);
+      shopSt.msg = `${done} von ${F.items.length} in Shopify eingetragen.${fails.length ? " Fehler: " + fails.slice(0, 3).join("; ") : ""}${/^w-/.test(code) ? " Klick „Neu prüfen“, dann verschwindet der Punkt." : ""}`; shopSt.fix = null;
+    } catch (e) { F.busy = ""; F.applying = false; F.err = syncErr(e); }
+    renderShop();
+  }
+  function fixHTML() {
+    const F = shopSt.fix; if (!F) return "";
+    const name = (FIXABLE[F.code] || [0, F.code])[1];
+    if (F.err) return `<section class="box"><h2>${name}: Fehler</h2><p class="note"><strong>${esc(F.err)}</strong></p><div class="btns"><button class="btn" data-shop="fixno">Schließen</button></div></section>`;
+    if (F.busy && !F.items.length || F.applying) return `<section class="box"><h2>${name}</h2><p class="note"><strong>${esc(F.busy || "")}</strong></p></section>`;
+    const val = it => F.code === "s-seod" || F.code === "w-colseo" && false ? it.meta : "";
+    const cell = it => { const bits = [];
+      if (it.kind === "page") return `<label class="switch"><input type="checkbox" data-fixpage="${it.id}" ${it.on ? "checked" : ""}><span class="track"></span>veröffentlichen</label> <span class="note">Sichtbar für Kunden. Doppelte oder alte Seiten lieber abwählen und löschen.</span>`;
+      if (it.kind === "col" && it.html) return `<div class="fixhtml">${it.html}</div>`;
+      if (it.kind === "col") return `<div><strong>SEO-Titel:</strong> ${esc(it.seoT)} <span class="note">(${it.seoT.length})</span><br><strong>Meta:</strong> ${esc(it.meta)} <span class="note">(${it.meta.length})</span></div>`;
+      if (it.meta) bits.push(`${esc(it.meta)} <span class="note">(${it.meta.length} Zeichen)</span>`); if (it.seoT) bits.push(`${esc(it.seoT)} <span class="note">(${it.seoT.length} Zeichen)</span>`);
+      if (it.tags) bits.push(it.tags.map(t => `<span class="chip">${esc(t)}</span>`).join(" ")); if (it.alts) bits.push(it.alts.map(a => `• ${esc(a.alt)}`).join("<br>")); if (it.html) bits.push(`<div class="fixhtml">${it.html}</div>`);
+      return bits.join("<br>"); };
+    return `<section class="box"><div class="row"><h2 style="margin:0">Claude-Vorschlag: ${name} <span class="note">${F.items.length} Produkte</span></h2><div class="btns"><button class="btn primary" data-shop="fixyes" ${F.items.length ? "" : "disabled"}>Alles in Shopify eintragen</button><button class="btn" data-shop="fixno">Verwerfen</button></div></div>
+      ${F.msg ? `<p class="note"><strong>${esc(F.msg)}</strong></p>` : ""}<p class="note">Schau kurz drüber. Es wird nichts überschrieben, was schon gefüllt ist${F.code === "s-tags" ? ", die neuen Tags kommen zu den bestehenden dazu" : ""}.${F.code === "s-desc" ? " Prüf vor allem Maße und Fakten." : ""}</p>
+      ${anaTable(["Produkt", "Neu"], F.items.map(it => [`<strong>${esc(shortT(it.title, 60))}</strong>`, cell(it)]))}</section>`;
+  }
   const shopManualHTML = () => `<div class="shopman">${WEB_MANUAL.map(([k, t]) => `<label class="switch"><input type="checkbox" data-webchk="${k}" ${(S.webChecks || {})[k] ? "checked" : ""}><span class="track"></span>${esc(t)}</label>`).join("")}</div>`;
+  document.addEventListener("change", e => { const el = e.target; if (view === "shopcheck" && el.dataset && el.dataset.fixpage && shopSt.fix) { const it = shopSt.fix.items.find(x => x.id === el.dataset.fixpage); if (it) it.on = el.checked; return; }
+  });
   document.addEventListener("change", e => { const el = e.target; if (view !== "shopcheck" || !el.dataset || !el.dataset.webchk) return; S.webChecks = Object.assign({}, S.webChecks, { [el.dataset.webchk]: el.checked }); saveSettings(); renderShop(); });
   document.addEventListener("change", e => { if (e.target && e.target.id === "shopFile" && e.target.files && e.target.files.length) { const fs = [...e.target.files]; e.target.value = ""; shopFiles(fs); } });
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-shop]"); if (!b || view !== "shopcheck") return; const k = b.dataset.shop;
+    if (k === "fixno") { shopSt.fix = null; return renderShop(); } if (k === "fixyes") return fixApply(); if (k.startsWith("fix:")) return fixRun(k.slice(4));
     if (k === "check") return shopifyCheck().then(() => webCheck()); if (k === "web") return webCheck(); if (k === "match") return shopMatch(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
     if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
     if (k.startsWith("ai:")) return shopAi(k.slice(3));
