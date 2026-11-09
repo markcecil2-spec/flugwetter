@@ -171,6 +171,7 @@ tr.prodon [data-q="prod"] { font-weight: 700 }
   body > *:not(#printArea) { display: none !important }
   #printArea { display: block !important; padding: 8px; color: #000; background: #fff }
   #printArea h1 { font: 700 20px sans-serif; margin: 0 0 12px }
+  #printArea h2 { font: 700 16px sans-serif; margin: 16px 0 6px }
   #printArea table { border-collapse: collapse; width: 100% }
   #printArea th, #printArea td { border: 1px solid #888; padding: 6px 8px; font: 14px sans-serif; text-align: left; vertical-align: middle }
   #printArea img { width: 56px; height: 56px; object-fit: cover; float: none; display: block }
@@ -1735,6 +1736,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
       if (pt.plate) { const pl = (S.plates || []).find(z => z.n === pt.plate), mm = String(pt.plate).match(/(\d+)\s*[×x]\s*(\d+)/), area = pl ? v(pl.l) * v(pl.b) : mm ? +mm[1] * +mm[2] : 0, w = 1 + v(x.a.waste) / 100, r = RP[pt.plate] || (RP[pt.plate] = { n: pt.plate, area: 0, plate: area, p: pl ? v(pl.p) : 0 }); r.area += v(pt.l) * v(pt.b) * q * w; }
     }));
     const rob = Object.values(RB).sort((a, b) => b.q - a.q), plt = Object.values(RP).map(r => ({ ...r, n2: r.plate > 0 ? Math.ceil(r.area / r.plate - 0.001) : 0 })), rKosten = plt.reduce((s, r) => s + r.n2 * r.p, 0);
+    ppLast = { buy, rob, plt, rMin };
     const seg = (k, vals, cur, fmt) => vals.map(n => `<button type="button" data-pp="${k}:${n}" aria-pressed="${cur === n}">${fmt(n)}</button>`).join("");
     const tile = (l, val, sub) => `<div class="tile"><span class="label">${l}</span><span class="num">${val}</span><span class="note">${sub}</span></div>`;
     const arrow = t => t.few ? '<span class="note">neu</span>' : t.dir > 0 ? '<span style="color:var(--good)">▲</span>' : t.dir < 0 ? '<span style="color:var(--bad)">▼</span>' : '<span class="note">►</span>';
@@ -1749,6 +1751,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
           ${tile("Material gebunden", eur0(mat), "Holz, Öl, Kleinteile, Zukauf")}
         </div>
         <div class="btns" style="margin-top:10px"><button type="button" class="btn primary" data-pp="apply" ${buy.length && !prod.ppRoh ? "" : "disabled"} ${prod.ppRoh ? 'title="Im Rohling-Modus nicht nötig, die Zuschnitt-Liste steht darunter"' : ""}>Empfehlung in „Zu produzieren“ übernehmen</button>
+          <button type="button" class="btn" data-pp="print" ${buy.length ? "" : "disabled"}>🖨 Drucken</button>
           <button type="button" class="btn${prod.ppRoh ? " primary" : ""}" data-pp="roh" aria-pressed="${prod.ppRoh}" title="Nur die Teile zuschneiden, fertig gebaut wird erst auf Bestellung">Nur Rohlinge vorproduzieren</button>
           <button type="button" class="btn" data-pp="all" aria-pressed="${prod.ppAll}">${prod.ppAll ? "Nur Lohnendes zeigen" : "Auch Langsamdreher zeigen"}</button></div>
         ${prod.ppRoh ? `<h2 style="margin:14px 0 4px">Zuschnitt-Liste (nur Rohlinge)</h2><p class="note">Du sägst nur die Teile vor, gebaut, geölt und verpackt wird erst, wenn die Bestellung da ist. Gerechnet für ${prod.mon} Monat${prod.mon > 1 ? "e" : ""} Vorrat, ${dec(rMin / 60, 1)} h Zuschnitt${rKosten ? `, Platten ca. ${eur0(rKosten)}` : ""}.</p>
@@ -1771,7 +1774,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-pp]"); if (!b || view !== "produktion") return;
     const [k, val] = b.dataset.pp.split(":"); prod.ppMsg = "";
-    if (k === "tab") prod.tab = val; else if (k === "mon") prod.mon = +val; else if (k === "base") prod.base = +val; else if (k === "all") prod.ppAll = !prod.ppAll; else if (k === "roh") prod.ppRoh = !prod.ppRoh;
+    if (k === "tab") prod.tab = val; else if (k === "mon") prod.mon = +val; else if (k === "base") prod.base = +val; else if (k === "all") prod.ppAll = !prod.ppAll; else if (k === "roh") prod.ppRoh = !prod.ppRoh; else if (k === "print") { printHTML(ppPrintHTML(), prod.ppRoh ? "Zuschnitt-Liste" : "Vorproduktion"); return; }
     else if (k === "one" || k === "apply") {
       const P = ppData(); if (!P) return; let n = 0, pcs = 0;
       P.rows.filter(x => x.need > 0 && (k === "apply" || x.a.id === val)).forEach(x => { x.a.prod = String(x.need); saveArticle(x.a); n++; pcs += x.need; });
@@ -1827,7 +1830,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     const im = new Image(); im.onload = () => { try { const c = document.createElement("canvas"); c.width = c.height = 96; c.getContext("2d").drawImage(im, 0, 0, 96, 96); res(c.toDataURL("image/jpeg", .8)); } catch (e) { res(""); } };
     im.onerror = () => res(""); im.src = src;
   });
-  const PRINT_CSS = `body{font:14px sans-serif;color:#000;margin:20px}h1{font:700 20px sans-serif;margin:0 0 12px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:6px 8px;text-align:left;vertical-align:middle}
+  const PRINT_CSS = `body{font:14px sans-serif;color:#000;margin:20px}h1{font:700 20px sans-serif;margin:0 0 12px}h2{font:700 16px sans-serif;margin:16px 0 6px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:6px 8px;text-align:left;vertical-align:middle}
     img{width:56px;height:56px;object-fit:cover;display:block}.chk{font-size:22px;text-align:center}.qty{font:700 20px sans-serif;text-align:center}tr{break-inside:avoid}p{margin-top:10px}`;
   function prodListHTML(rows, imgs) {
     const pcs = rows.reduce((n, x) => n + v(x.a.prod), 0);
@@ -1853,6 +1856,33 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     const imgs = await Promise.all(rows.map(({ a }) => { const t = thumbOf(a); return t ? imgData(t) : ""; }));
     const html = `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Produktionsliste</title><style>${PRINT_CSS}</style></head><body>${prodListHTML(rows, imgs)}<script>addEventListener("load",function(){setTimeout(function(){print()},400)})<\/script></body></html>`;
     offerFile("Produktionsliste.html", html, "text/html");
+  }
+  // Druck für beliebigen Inhalt (wie die Produktionsliste: erst normal drucken, sonst Druckdatei)
+  async function printHTML(html, title) {
+    let box = $("printArea"); if (!box) { box = document.createElement("div"); box.id = "printArea"; document.body.appendChild(box); }
+    box.innerHTML = html;
+    window.addEventListener("afterprint", () => { box.innerHTML = ""; }, { once: true });
+    let fired = false; const mark = () => { fired = true; };
+    window.addEventListener("beforeprint", mark, { once: true });
+    try { window.print(); } catch (e) { /* gesperrt */ }
+    await new Promise(r => setTimeout(r, 600));
+    window.removeEventListener("beforeprint", mark);
+    if (fired) return;
+    box.innerHTML = "";
+    toast("Drucken ist hier gesperrt, ich speichere eine Druckdatei …");
+    offerFile(title + ".html", `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${PRINT_CSS}</style></head><body>${html}<script>addEventListener("load",function(){setTimeout(function(){print()},400)})<\/script></body></html>`, "text/html");
+  }
+  let ppLast = null;
+  function ppPrintHTML() {
+    const L = ppLast; if (!L) return ""; const d = new Date().toLocaleDateString("de-DE"), sub = `Vorrat für ${prod.mon} Monat${prod.mon > 1 ? "e" : ""}, Basis: Verkäufe der letzten ${prod.base} Monate`;
+    const tbl = (head, rows) => `<table><thead><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    if (prod.ppRoh) return `<h1>Zuschnitt-Liste (nur Rohlinge) · ${d}</h1><p>${sub}</p>
+      ${tbl(["✓", "Rohling", "Maß", "Stück zuschneiden", "Zeit", "für Artikel"], L.rob.map(o => ['<span class="chk">☐</span>', esc(o.n), o.l && o.b ? dec(o.l) + " × " + dec(o.b) + " cm" : "–", `<span class="qty">${dec(o.q, 0)}</span>`, o.min ? dec(o.min / 60, 1) + " h" : "–", esc(o.arts.join(", "))]))}
+      ${L.plt.length ? `<h2>Platten</h2>` + tbl(["Platte", "Bedarf inkl. Verschnitt", "Platten"], L.plt.map(r => [esc(r.n), r.area ? dec(r.area / 10000, 2) + " m²" : "–", r.n2 ? dec(r.n2, 0) : "–"])) : ""}
+      <p>${dec(L.rob.reduce((n, o) => n + o.q, 0), 0)} Teile · ${dec(L.rMin / 60, 1)} h Zuschnitt</p>`;
+    return `<h1>Vorproduktion · ${d}</h1><p>${sub}</p>
+      ${tbl(["✓", "SKU / Artikel", "pro Monat", "Lager", "Soll-Vorrat", "Jetzt bauen", "Zeit"], L.buy.map(x => ['<span class="chk">☐</span>', `<strong>${esc(x.a.sku || "")}</strong><br>${esc(x.a.name)}`, dec(x.pm, 1), dec(x.stock, 0), dec(x.soll, 0), `<span class="qty">${dec(x.need, 0)}</span>`, x.mins ? dec(x.need * x.mins / 60, 1) + " h" : "–"]))}
+      <p>${dec(L.buy.reduce((n, x) => n + x.need, 0), 0)} Stück · ${L.buy.length} Artikel · ${dec(L.buy.reduce((n, x) => n + x.need * x.mins / 60, 0), 1)} h</p>`;
   }
   function prodBook() {
     prodTodo().forEach(a => { a.stock = String(v(a.stock) + v(a.prod)); a.prod = ""; saveArticle(a); });
