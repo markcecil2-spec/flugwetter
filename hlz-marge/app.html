@@ -432,7 +432,6 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>Kalkulatte</strong></a>
     <nav class="tabs" aria-label="Bereiche">
       <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
-      <a href="#entwicklung" data-tab="entwicklung">Entwicklung</a>
       <a href="#auswertung" data-tab="auswertung">Auswertung</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
@@ -925,7 +924,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung"].includes(h) ? h : "uebersicht";
-    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view === "entwicklung" ? "auswertung" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
     if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
@@ -1284,7 +1283,16 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     return { ctx, T, rows, m: monthly(ctx), fix: fixTotal() };
   }
 
-  function renderAnalysis() {
+  // Auswertung und Entwicklung sind ein Reiter mit zwei Ansichten
+  function anaSwitch() {
+    const el = $("view"); if (!el || (view !== "auswertung" && view !== "entwicklung") || el.querySelector(".anaswitch")) return;
+    const d = document.createElement("div"); d.className = "seg anaswitch"; d.setAttribute("aria-label", "Ansicht"); d.style.margin = "4px 0 12px";
+    d.innerHTML = `<button type="button" data-anaview="auswertung" aria-pressed="${view === "auswertung"}">Gesamtbild &amp; Hebel</button><button type="button" data-anaview="entwicklung" aria-pressed="${view === "entwicklung"}">Entwicklung: geht es auf oder ab?</button>`;
+    el.insertBefore(d, el.firstChild);
+  }
+  document.addEventListener("click", e => { const b = e.target.closest("[data-anaview]"); if (b) go(b.dataset.anaview); });
+  function renderAnalysis() { renderAnalysis0(); anaSwitch(); }
+  function renderAnalysis0() {
     const { ctx, T, rows, m, fix } = anaCalc(), tx = afterTax(m), target = v(S.target) || 40, abc = abcInfo();
     if (BANK === null) bankLoad();
     const noSales = A.filter(a => !(salesPerMonth(a) > 0)), hasSales = T.qty > 0;
@@ -1728,7 +1736,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   function renderPreprod() {
     const head = `<div class="row"><h1>Produktion</h1></div>${prodTabs()}`, P = ppData();
     if (!P) { $("view").innerHTML = head + `<p class="note">Lade Verkaufsdaten …</p>`; return; }
-    if (!P.hasD) { $("view").innerHTML = head + `<section class="box empty"><p>Dafür brauche ich Verkaufszahlen. Geh auf <a href="#entwicklung">Entwicklung</a>, lade die Etsy-CSV hoch und hol die Shopify-Bestellungen. Danach steht hier die Empfehlung.</p></section>`; return; }
+    if (!P.hasD) { $("view").innerHTML = head + `<section class="box empty"><p>Dafür brauche ich Verkaufszahlen. Geh auf <a href="#entwicklung">Auswertung → Entwicklung</a>, lade die Etsy-CSV hoch und hol die Shopify-Bestellungen. Danach steht hier die Empfehlung.</p></section>`; return; }
     const R = P.rows, shown = prod.ppAll ? R : R.filter(x => x.lvl >= 1), buy = R.filter(x => x.need > 0), pcs = buy.reduce((s, x) => s + x.need, 0), hrs = buy.reduce((s, x) => s + x.need * x.mins / 60, 0), mat = buy.reduce((s, x) => s + x.need * x.mat, 0), max = Math.max(1, ...R.map(x => x.pm));
     // Nur Rohlinge: statt fertiger Artikel nur die Teile zuschneiden (Rohling × Stückzahl, dazu Platten-Bedarf)
     const RB = {}, RP = {}; let rMin = 0, HAVE = S.rohStock || {};
@@ -4457,8 +4465,9 @@ Antworte NUR mit JSON in dieser Form:
     try { const { text } = await sample(prompt, { modelTier: "default", cache: false }); stSt.ai = text; } catch (e) { stSt.ai = supErr(e); }
     stSt.aiBusy = false; renderStats();
   }
-  function renderStats() {
-    if (!STATS) { statsLoad(); $("view").innerHTML = `<h1>Entwicklung</h1><p class="note">Lade …</p>`; return; }
+  function renderStats() { renderStats0(); anaSwitch(); }
+  function renderStats0() {
+    if (!STATS) { statsLoad(); $("view").innerHTML = `<h1>Auswertung</h1><p class="note">Lade …</p>`; return; }
     const E = STATS.etsy, S2 = STATS.shopify, D = statData(), cov = c => c && Object.keys(c.months).length ? `${ymLab(Object.keys(c.months).sort()[0])} bis ${ymLab(Object.keys(c.months).sort().pop())}, ${Object.keys(c.months).length} Monate` : "keine Daten";
     const data = `<section class="box"><h2>Daten</h2><div class="anagrid">
         <div class="field"><label>Etsy: CSV hochladen</label><input type="file" id="statFile" accept=".csv,text/csv,.txt" multiple>
@@ -4466,7 +4475,7 @@ Antworte NUR mit JSON in dieser Form:
         <div class="field"><label>Shopify: live holen</label><div class="btns"><button class="btn primary" data-stat="shopify" ${stSt.busy ? "disabled" : ""}>Shopify aktualisieren</button></div>
           <small>Holt die Bestellungen der letzten 24 Monate.</small><small>Bisher: <strong>${cov(S2)}</strong>${S2 ? `, Stand ${new Date(S2.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}` : ""}</small></div></div>
       ${stSt.busy ? `<p class="note"><strong>${esc(stSt.busy)}</strong></p>` : ""}${stSt.msg ? `<p class="note"><strong>${esc(stSt.msg)}</strong></p>` : ""}</section>`;
-    if (!D) { $("view").innerHTML = `<div class="row"><h1>Entwicklung</h1></div><p class="note">Hier siehst du, ob es aufwärts oder abwärts geht: Umsatz, Verkäufe, Warenkorb, Kanäle und welche Artikel zulegen oder einbrechen.</p>${data}<section class="box empty"><p>Lade oben die Etsy-CSV hoch oder hol die Shopify-Bestellungen, dann steht hier die Auswertung.</p></section>`; return; }
+    if (!D) { $("view").innerHTML = `<div class="row"><h1>Auswertung</h1></div><p class="note">Hier siehst du, ob es aufwärts oder abwärts geht: Umsatz, Verkäufe, Warenkorb, Kanäle und welche Artikel zulegen oder einbrechen.</p>${data}<section class="box empty"><p>Lade oben die Etsy-CSV hoch oder hol die Shopify-Bestellungen, dann steht hier die Auswertung.</p></section>`; return; }
     const V = statVerdict(D), last = D.rows[D.rows.length - 1], prev = D.rows[D.rows.length - 2], l3avg = k => { const r = D.rows.slice(-4, -1); return r.length ? r.reduce((s, x) => s + x[k], 0) / r.length : 0; }, yoy = D.by[ymAdd(last.ym, -12)];
     let ratio = 0, fix = 0; try { const m = monthly(volume()); ratio = m.rev > 0 ? m.db / m.rev : 0; fix = fixTotal(); } catch (e) {}
     const dbL = last.rev * ratio, tag3 = k => dlTag(dlt(last[k], l3avg(k)), "zum 3-Monats-Schnitt"), tags = (k, lab) => [prev ? dlTag(dlt(last[k], prev[k]), "zum Vormonat") : "", tag3(k), yoy ? dlTag(dlt(last[k], yoy[k]), "zum Vorjahr") : ""].filter(Boolean).join("");
@@ -4474,7 +4483,7 @@ Antworte NUR mit JSON in dieser Form:
     const MV = statMovers(D, V), kan = (l, p) => `${eur0(l)} <span class="note">(${dec(p, 0)} %)</span>`, eL = sumRev(D, V.l3, "e"), sL = sumRev(D, V.l3, "s"), eP = sumRev(D, V.p3, "e"), sP = sumRev(D, V.p3, "s");
     const WORD = { up: ["▲ Aufwärts", "good"], down: ["▼ Abwärts", "bad"], side: ["► Seitwärts", "warn"], none: ["Zu wenig Daten", "muted"] }[V.dir];
     const kanalRow = (n, l, p, tot) => [n, eur0(l), p > 0 ? dlTag(dlt(l, p), "") : "–", tot > 0 ? dec(l / tot * 100, 0) + " %" : "–"];
-    $("view").innerHTML = `<div class="row"><h1>Entwicklung</h1></div>
+    $("view").innerHTML = `<div class="row"><h1>Auswertung</h1></div>
       <p class="note">Geht es aufwärts oder abwärts? Verglichen wird nicht nur mit dem letzten Monat (zu zappelig), sondern mit den 3 Monaten davor und mit dem Vorjahr. Alle Umsätze brutto, nach Rabatt, ohne Versand.</p>
       <section class="box" style="border-color:var(--${WORD[1]})"><div class="row" style="justify-content:flex-start;gap:16px"><span class="num" style="font-size:2rem;color:var(--${WORD[1]})">${WORD[0]}</span><span class="note">${ymLab(V.l3[0])} bis ${ymLab(V.l3[2])}</span></div>
         <p style="margin:0">Umsatz der letzten 3 Monate: <strong>${eur0(V.rl)}</strong>. ${V.tr !== null ? `Das sind ${dlTag(V.tr, "gegenüber den 3 Monaten davor (" + eur0(V.rp) + ")")}` : ""}${V.yo !== null ? `${V.tr !== null ? " und " : ""}${dlTag(V.yo, "gegenüber den gleichen Monaten im Vorjahr (" + eur0(V.ry) + ")")}` : ""}. Verkäufe: ${V.qL} Stück (davor ${V.qP}${V.qY ? `, Vorjahr ${V.qY}` : ""}).</p>
