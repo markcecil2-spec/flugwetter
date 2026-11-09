@@ -168,6 +168,8 @@ tr.prodon td { background: var(--accent-soft) }
 tr.prodon [data-q="prod"] { font-weight: 700 }
 .ppneed strong { font-size: 1.6em; color: var(--accent) }
 .pptable td { vertical-align: middle }
+.shoptasks { margin: 0; padding-left: 22px; display: grid; gap: 10px }
+.shopman { display: grid; gap: 8px; margin-top: 8px }
 #printArea { display: none }
 @media print {
   body > *:not(#printArea) { display: none !important }
@@ -4114,7 +4116,7 @@ Antworte NUR mit JSON in dieser Form:
   }
   // ---------- Shop-Check: Etsy (CSV) und Shopify (live) prüfen ----------
   let SHOP = null, shopLoading = false;
-  const shopSt = { tab: "etsy", busy: "", msg: "", all: false, ai: {}, aiBusy: "" };
+  const shopSt = { tab: "start", busy: "", msg: "", all: false, ai: {}, aiBusy: "" };
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
@@ -4204,9 +4206,9 @@ Antworte NUR mit JSON in dieser Form:
     A.forEach(a => { const aw = [...new Set(words(String(a.name).split(" · ")[0]))]; if (aw.length < 2) return; const hit = aw.filter(w => tw.has(w)).length / aw.length; if (hit >= 0.8 && aw.length > bs) { best = a; bs = aw.length; } });
     return best;
   }
-  function shopRows() {
-    const ctx = volume(), out = [];
-    if (shopSt.tab === "etsy") {
+  function shopRows(tab) {
+    tab = tab || shopSt.tab; const ctx = volume(), out = [];
+    if (tab === "etsy") {
       const L = SHOP.etsy ? SHOP.etsy.listings : [], S2 = SHOP.sales ? SHOP.sales.items : null, keys = S2 ? Object.keys(S2) : [];
       const lks = L.map(l => normTitle(l.t).slice(0, 60)), mp = (SHOP.sales && SHOP.sales.map) || {}, byL = {}, unm = [];
       keys.forEach(k => { const lk = lks.includes(k) ? k : lks.find(x => x.startsWith(k.slice(0, 30)) || k.startsWith(x.slice(0, 30))) || (lks.includes(mp[k]) ? mp[k] : ""); if (lk) byL[lk] = (byL[lk] || 0) + S2[k].qty; else unm.push(k); });
@@ -4228,7 +4230,7 @@ Antworte NUR mit JSON in dieser Form:
   // --- Shopify holen ---
   async function shopifyCheck() {
     await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
-    shopSt.busy = "Hole deine Produkte aus Shopify …"; shopSt.msg = ""; shopSt.tab = "shopify"; renderShop();
+    shopSt.busy = "Hole deine Produkte aus Shopify …"; shopSt.msg = ""; if (shopSt.tab === "etsy") shopSt.tab = "shopify"; renderShop();
     try {
       const prods = []; let after = null;
       for (let page = 0; page < 30; page++) {
@@ -4283,8 +4285,21 @@ Antworte NUR mit JSON in dieser Form:
     shopSt.aiBusy = ""; renderShop();
   }
   const copyIn = (label, val) => val ? `<div class="field"><label>${label}</label><div class="inp"><input type="text" readonly value="${esc(val)}" onclick="this.select()"></div></div>` : "";
-  function renderShop() {
-    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Shop-Check</h1><p class="note">Lade …</p>`; return; }
+  function shopDataHTML(E, SA, SF, tab, dstr) {
+    return `<section class="box"><details${(E && SF) ? "" : " open"}><summary><strong>Daten aktualisieren</strong> <span class="note">Etsy-CSV hochladen, Shopify live prüfen</span></summary>
+        <div class="anagrid">
+          <div class="field"><label>Etsy: CSV-Dateien hochladen</label><input type="file" id="shopFile" accept=".csv,text/csv,.txt" multiple>
+            <small>In Etsy unter Einstellungen → Optionen → Daten herunterladen: „Artikel im Verkauf“ (CSV) und „Bestellte Artikel“ (Art der CSV-Datei, ganzes Jahr). Beide hier hochladen, die App erkennt sie selbst.</small>
+            <small>${E ? `Angebote: <strong>${E.listings.length}</strong> (Stand ${dstr(E.at)})` : "Angebote: noch nichts geladen"}<br>${SA ? `Verkäufe: <strong>${Object.keys(SA.items).length}</strong> Artikel${SA.from ? `, ${dstr(SA.from)} bis ${dstr(SA.to)}` : ""}` : "Verkäufe: noch nichts geladen (optional, aber sehr hilfreich)"}</small>
+            ${E && SA && tab === "etsy" && shopSt.unm && shopSt.unm.length ? `<small><strong>${shopSt.unm.length} von ${Object.keys(SA.items).length}</strong> verkauften Artikeln konnte ich keinem Angebot zuordnen (Etsy schreibt die Namen in der CSV oft auf Englisch). Solange das so ist, zeige ich keine „kein Verkauf“-Warnungen.</small><div class="btns"><button class="btn" data-shop="match" ${shopSt.busy ? "disabled" : ""}>Verkäufe per Claude zuordnen</button></div>` : ""}</div>
+          <div class="field"><label>Shopify: live aus deinem Shop</label><div class="btns"><button class="btn primary" data-shop="check" ${shopSt.busy ? "disabled" : ""}>Alles prüfen (Shopify live)</button></div>
+            <small>Holt Produkte, Seiten, Menüs, Kollektionen und Theme-Einstellungen aus Shopify.</small>
+            <small>${SF ? `Zuletzt geprüft: <strong>${new Date(SF.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}</strong> (${SF.products.length} Produkte)` : "Noch nicht geprüft."}</small></div>
+        </div>
+        ${shopSt.busy ? `<p class="note"><strong>${esc(shopSt.busy)}</strong></p>` : ""}${shopSt.msg ? `<p class="note"><strong>${esc(shopSt.msg)}</strong></p>` : ""}
+      </details></section>`;
+  }
+  function renderShopList() {
     const E = SHOP.etsy, SA = SHOP.sales, SF = SHOP.shopify, tab = shopSt.tab, has = tab === "etsy" ? !!E : !!SF;
     const rows = has ? shopRows() : [], avg = rows.length ? Math.round(rows.reduce((s, r) => s + r.score, 0) / rows.length) : 0;
     const cnt = { good: 0, warn: 0, bad: 0 }; rows.forEach(r => cnt[amp(r.score)[0]]++);
@@ -4293,20 +4308,8 @@ Antworte NUR mit JSON in dieser Form:
     const show = shopSt.all ? rows : rows.slice(0, 25);
     const dstr = x => x ? dDE(x.slice(0, 10)) : "";
     $("view").innerHTML = `${shopBar("shopcheck")}<div class="row"><h1>Shop-Check</h1></div>
-      <p class="note">Die App prüft deine Angebote auf das, was Käufer und Suchmaschinen sehen: Titel, Tags, Beschreibung, Fotos, SEO. Gewichtet wird nach Verkäufen und deiner Marge, oben steht also das, was sich am meisten lohnt. Das sind Regeln und Erfahrungswerte, keine echten Suchvolumen wie bei eRank.</p>
-      <section class="box"><h2>Daten</h2>
-        <div class="anagrid">
-          <div class="field"><label>Etsy: CSV-Dateien hochladen</label><input type="file" id="shopFile" accept=".csv,text/csv,.txt" multiple>
-            <small>In Etsy unter Einstellungen → Optionen → Daten herunterladen: „Artikel im Verkauf“ (CSV) und „Bestellte Artikel“ (Art der CSV-Datei, ganzes Jahr). Beide hier hochladen, die App erkennt sie selbst.</small>
-            <small>${E ? `Angebote: <strong>${E.listings.length}</strong> (Stand ${dstr(E.at)})` : "Angebote: noch nichts geladen"}<br>${SA ? `Verkäufe: <strong>${Object.keys(SA.items).length}</strong> Artikel${SA.from ? `, ${dstr(SA.from)} bis ${dstr(SA.to)}` : ""}` : "Verkäufe: noch nichts geladen (optional, aber sehr hilfreich)"}</small>
-            ${E && SA && tab === "etsy" && shopSt.unm && shopSt.unm.length ? `<small><strong>${shopSt.unm.length} von ${Object.keys(SA.items).length}</strong> verkauften Artikeln konnte ich keinem Angebot zuordnen (Etsy schreibt die Namen in der CSV oft auf Englisch). Solange das so ist, zeige ich keine „kein Verkauf“-Warnungen.</small><div class="btns"><button class="btn" data-shop="match" ${shopSt.busy ? "disabled" : ""}>Verkäufe per Claude zuordnen</button></div>` : ""}</div>
-          <div class="field"><label>Shopify: live aus deinem Shop</label><div class="btns"><button class="btn primary" data-shop="check" ${shopSt.busy ? "disabled" : ""}>Jetzt prüfen</button></div>
-            <small>Holt Produkte, SEO-Felder, Bilder und die Verkäufe der letzten 12 Monate direkt aus Shopify.</small>
-            <small>${SF ? `Zuletzt geprüft: <strong>${new Date(SF.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}</strong> (${SF.products.length} Produkte)` : "Noch nicht geprüft."}</small></div>
-        </div>
-        ${shopSt.busy ? `<p class="note"><strong>${esc(shopSt.busy)}</strong></p>` : ""}${shopSt.msg ? `<p class="note"><strong>${esc(shopSt.msg)}</strong></p>` : ""}
-      </section>
-      <div class="btns"><button class="btn${tab === "etsy" ? " primary" : ""}" data-shop="tab-etsy">Etsy</button><button class="btn${tab === "shopify" ? " primary" : ""}" data-shop="tab-shopify">Shopify</button></div>
+      ${shopTabs()}
+      ${shopDataHTML(E, SA, SF, tab, dstr)}
       ${!has ? `<section class="box empty"><p>${tab === "etsy" ? "Lade oben die Etsy-CSV „Artikel im Verkauf“ hoch, dann steht hier die Auswertung." : "Klick oben auf „Jetzt prüfen“."}</p></section>` : `
       <div class="tiles t3" style="grid-template-columns:repeat(4,minmax(0,1fr))">
         <div class="tile hero"><span class="label">Gesamtnote</span><span class="num" style="color:var(--${amp(avg)[0]})">${avg} / 100</span><span class="note">Durchschnitt über ${rows.length} Angebote</span></div>
@@ -4326,10 +4329,131 @@ Antworte NUR mit JSON in dieser Form:
         ${rows.length > 25 ? `<div class="btns"><button class="btn" data-shop="all">${shopSt.all ? "Nur die ersten 25" : "Alle " + rows.length + " anzeigen"}</button></div>` : ""}
       </section>`}`;
   }
+
+  // ---------- Shop-Check: Webshop (was Kunden sehen) + Übersicht ----------
+  const WEB_MANUAL = [
+    ["speed", "Ladezeit mobil messen (pagespeed.web.dev), Ziel: über 70 Punkte"],
+    ["handy", "Shop auf dem Handy durchklicken: Startseite, Produkt, Warenkorb, Kasse"],
+    ["gsc", "Google Search Console eingerichtet und Sitemap eingereicht"],
+    ["gmc", "Google-&-YouTube-Kanal in Shopify verbunden (kostenlose Produkt-Listings)"],
+    ["paypal", "PayPal als Zahlungsart im Checkout aktiv"],
+    ["abandon", "E-Mail für abgebrochene Warenkörbe aktiv"],
+    ["bew", "Bewertungen (Judge.me) sind auf den Produktseiten sichtbar"],
+    ["fotos", "Jede Produktseite: Hauptfoto hell, ein Foto im Raum, ein Maßbild"],
+    ["lieferzeit", "Lieferzeit steht auf der Produktseite, nicht erst im Checkout"],
+    ["news", "Newsletter-Anmeldung im Footer (mit kleinem Anreiz)"],
+    ["pixel", "Meta-Pixel / Pinterest-Tag installiert (nötig für spätere Ads)"]
+  ];
+  async function webCheck() {
+    await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
+    shopSt.busy = "Prüfe deinen Webshop …"; shopSt.msg = ""; renderShop();
+    try {
+      const d = await shopify("graphql_query", { query: `{ shop{ name url contactEmail currencyCode taxesIncluded primaryDomain{ url sslEnabled } paymentSettings{ supportedDigitalWallets } shipsToCountries shopPolicies{ type body } }
+        pages(first:50){ nodes{ title handle isPublished } } menus(first:10){ nodes{ handle items{ title url items{ title url } } } }
+        collections(first:100){ nodes{ title handle productsCount{ count } descriptionHtml seo{ title description } image{ url } } } blogs(first:5){ nodes{ articlesCount{ count } } } themes(first:20){ nodes{ id name role } } }` });
+      if (!d.shop) throw { code: "tool_error", message: "Unerwartete Antwort" };
+      const W = { id: "web", at: new Date().toISOString(), shop: { url: d.shop.url, ssl: !!(d.shop.primaryDomain && d.shop.primaryDomain.sslEnabled), wallets: (d.shop.paymentSettings || {}).supportedDigitalWallets || [], ships: d.shop.shipsToCountries || [], email: d.shop.contactEmail || "" },
+        pol: Object.fromEntries((d.shop.shopPolicies || []).map(x => [x.type, String(x.body || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().length])),
+        pages: d.pages.nodes.map(x => ({ t: x.title, h: x.handle, pub: !!x.isPublished })),
+        menus: Object.fromEntries(d.menus.nodes.map(m => [m.handle, m.items.map(i => ({ t: i.title, u: i.url, n: (i.items || []).length, sub: (i.items || []).map(z => z.url) }))])),
+        cols: d.collections.nodes.map(c => ({ t: c.title, h: c.handle, n: c.productsCount ? c.productsCount.count : 0, seoT: (c.seo && c.seo.title || "").trim().length, seoD: (c.seo && c.seo.description || "").trim().length, img: !!c.image, dl: String(c.descriptionHtml || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().length })),
+        articles: d.blogs.nodes.reduce((n, b) => n + (b.articlesCount ? b.articlesCount.count : 0), 0), themes: { total: d.themes.nodes.length, unpub: d.themes.nodes.filter(t => t.role !== "MAIN").length }, th: null };
+      const main = d.themes.nodes.find(t => t.role === "MAIN");
+      if (main) {
+        try {
+          const t = await shopify("graphql_query", { query: `query($id:ID!){ theme(id:$id){ files(filenames:["config/settings_data.json","templates/index.json"]){ nodes{ filename body{ ... on OnlineStoreThemeFileBodyText{ content } } } } } }`, variables: { id: main.id } });
+          const files = {}; ((t.theme && t.theme.files && t.theme.files.nodes) || []).forEach(f => files[f.filename] = f.body && f.body.content || "");
+          const J = x => { try { return JSON.parse(x); } catch (e) { try { return JSON.parse(x.replace(/\/\*[\s\S]*?\*\//g, "")); } catch (e2) { return null; } } };
+          const sd = J(files["config/settings_data.json"]) || {}, cur = sd.current && typeof sd.current === "object" ? sd.current : {}, ix = J(files["templates/index.json"]) || {}, secs = Object.values(ix.sections || {}), raw = files["config/settings_data.json"] + files["templates/index.json"];
+          const gl = [cur.cart_progress_goal_threshold_1, cur.fsb_goal].map(x => v(x)).filter(x => x > 0);
+          W.th = { name: main.name, sections: (ix.order || []).length, liquid: secs.filter(x => x.type === "custom-liquid").length, reviews: /judge-?me|judgeme|yotpo|loox|stamped|trustpilot/i.test(raw), goals: gl,
+            favWhite: /white/i.test(String(cur.favicon || "")), demo: /hair-removal/.test(String(cur.cart_drawer_collection || "")) || /Dusty Rose/.test(String(cur.swatchColors || "")) || /Order over \(x\)/.test(String(cur.fsb_headline_start || "")),
+            social: { ig: !!cur.social_instagram_link, fb: !!cur.social_facebook_link, pin: !!cur.social_pinterest_link, tt: !!cur.social_tiktok_link } };
+        } catch (e) { /* Theme-Dateien nicht lesbar: der Rest läuft trotzdem */ }
+      }
+      shopSave(W); shopSt.msg = "Webshop geprüft.";
+    } catch (e) { shopSt.msg = syncErr(e); }
+    shopSt.busy = ""; renderShop();
+  }
+  // Prüfpunkte: g = Gruppe, w = Gewicht, ok = in Ordnung, t = was ist los, fix = was tun
+  function webAudit(W) {
+    const I = [], add = (g, ok, w, t, fix) => I.push({ g, ok: !!ok, w, t, fix });
+    const pol = W.pol || {}, len = k => pol[k] || 0, foot = ((W.menus || {}).footer || []).map(i => i.u).join(" ") + " " + (W.pages || []).map(x => x.h).join(" ");
+    add("Recht & Vertrauen", len("LEGAL_NOTICE") > 300, 10, "Impressum fehlt oder ist leer", "Einstellungen → Richtlinien: Impressum eintragen (Abmahnrisiko).");
+    add("Recht & Vertrauen", len("PRIVACY_POLICY") > 1500, 8, "Datenschutzerklärung fehlt oder ist zu kurz", "Datenschutzerklärung (z. B. von eRecht24) eintragen.");
+    add("Recht & Vertrauen", len("REFUND_POLICY") > 500, 8, "Widerrufsbelehrung fehlt", "Widerrufsbelehrung mit Muster-Formular eintragen.");
+    add("Recht & Vertrauen", len("TERMS_OF_SERVICE") > 500, 4, "AGB fehlen", "AGB eintragen.");
+    add("Recht & Vertrauen", len("SHIPPING_POLICY") > 300, 4, "Versandinfos fehlen", "Versandkosten und Lieferzeit als Richtlinie eintragen.");
+    const fm = JSON.stringify((W.menus || {}).footer || []); add("Recht & Vertrauen", /legal-notice/.test(fm) && /privacy-policy/.test(fm), 6, "Impressum oder Datenschutz nicht im Footer verlinkt", "Footer-Menü: Impressum, Datenschutz, Widerruf, AGB verlinken.");
+    const pg = h => (W.pages || []).find(x => h.test(x.h + " " + x.t)), pubPg = h => { const x = pg(h); return x && x.pub; };
+    add("Recht & Vertrauen", pubPg(/kontakt|contact/i), 4, "Keine veröffentlichte Kontaktseite", "Kontaktseite mit E-Mail und Antwortzeit veröffentlichen.");
+    add("Recht & Vertrauen", pubPg(/frag|faq/i), 3, "Keine FAQ-Seite", "FAQ mit Versand, Pflege, Montage, Rückgabe anlegen. Spart Support-Mails.");
+    add("Recht & Vertrauen", pubPg(/über|uber|about/i), 3, "Keine „Über uns“-Seite veröffentlicht", "Über-uns-Seite mit Foto von dir veröffentlichen, das schafft Vertrauen.");
+    (W.pages || []).filter(x => !x.pub).forEach(x => add("Recht & Vertrauen", false, 2, `Seite „${x.t}“ ist nicht veröffentlicht`, /maß|mass/i.test(x.t + x.h) ? "Veröffentlichen: Sondermaß-Anfragen sind bei dir ein Dauerthema." : "Veröffentlichen oder löschen."));
+    const main = (W.menus || {})["main-menu"] || [], cols = (W.cols || []);
+    add("Aufbau & Navigation", main.length >= 3 && main.length <= 7, 3, `Hauptmenü hat ${main.length} Punkte`, "3 bis 7 Punkte, sonst verliert man den Überblick.");
+    add("Aufbau & Navigation", main.reduce((n, i) => n + (i.n || 0), 0) >= 3, 4, "Keine Kategorien im Hauptmenü", "Kategorien (Regale, Schlüsselbretter, Garderoben) direkt im Menü zeigen.");
+    add("Aufbau & Navigation", (W.articles || 0) >= 10, 3, `Blog hat nur ${W.articles || 0} Beiträge`, "Mindestens 10 Beiträge: Pflege, Montage, Ideen. Bringt Google-Besucher.");
+    const th = W.th;
+    if (th) {
+      add("Startseite", th.sections <= 14, 6, `Startseite hat ${th.sections} Abschnitte`, "Auf 8 bis 12 kürzen. Mobil scrollt niemand so weit, und sie lädt schneller.");
+      add("Startseite", th.liquid < 3, 5, `${th.liquid} selbstgebaute Abschnitte (Custom Liquid)`, "Auf normale Theme-Abschnitte umbauen. Eigener Code ist langsamer und bricht bei Theme-Updates.");
+      add("Startseite", th.reviews, 6, "Keine Bewertungen auf der Startseite", "Bewertungs-Block (Judge.me) auf die Startseite setzen. Bewertungen verkaufen.");
+      add("Kasse & Versand", th.goals.length < 2 || new Set(th.goals).size === 1, 6, `Zwei verschiedene Gratis-Versand-Grenzen im Theme (${th.goals.map(x => dec(x, 0) + " €").join(" und ")})`, "Eine Grenze festlegen, sonst verwirrt es Kunden und kostet Umsatz.");
+      add("Kasse & Versand", !th.demo, 3, "Reste aus dem Demo-Theme (englische Texte, Beispielfarben, fremde Kollektion)", "Theme-Einstellungen durchsehen und Reste löschen.");
+      add("Sichtbarkeit", !th.favWhite, 3, "Favicon ist das weiße Logo, im Browser-Tab kaum sichtbar", "Dunkles Favicon (32×32 PNG) hochladen.");
+      add("Sichtbarkeit", th.social.ig && th.social.fb && th.social.pin, 2, "Nicht alle Social-Links gesetzt (Instagram, Facebook, Pinterest)", "Fehlende Profile im Theme eintragen.");
+    }
+    const wal = (W.shop || {}).wallets || [];
+    add("Kasse & Versand", ["SHOPIFY_PAY", "APPLE_PAY", "GOOGLE_PAY"].every(x => wal.includes(x)), 5, "Shop Pay, Apple Pay oder Google Pay fehlt", "Im Checkout aktivieren, schnelle Zahlung hebt die Abschlussrate.");
+    add("Kasse & Versand", (W.shop || {}).ships && W.shop.ships.length > 3, 2, `Versand nur nach ${(W.shop.ships || []).join(", ")}`, "Weitere EU-Länder prüfen, wenn der DHL-Tarif es hergibt. Etsy-Kunden kommen auch von dort.");
+    add("Kasse & Versand", (W.shop || {}).ssl !== false, 10, "Shop ohne SSL (https)", "SSL in den Domain-Einstellungen aktivieren.");
+    const noSeo = cols.filter(c => !c.seoT || !c.seoD), thin = cols.filter(c => c.dl < 80), noImg = cols.filter(c => !c.img);
+    add("Sichtbarkeit", !noSeo.length, Math.min(8, noSeo.length * 2), `${noSeo.length} Kollektion${noSeo.length === 1 ? "" : "en"} ohne SEO-Titel oder -Beschreibung: ${noSeo.slice(0, 3).map(c => c.t).join(", ")}${noSeo.length > 3 ? " …" : ""}`, "SEO-Titel (bis 60 Zeichen) und Beschreibung (bis 155) ergänzen.");
+    add("Sichtbarkeit", !thin.length, Math.min(5, thin.length * 2), `${thin.length} Kollektion${thin.length === 1 ? "" : "en"} mit zu wenig Text: ${thin.slice(0, 3).map(c => c.t).join(", ")}`, "Je Kollektion 2 bis 3 Sätze Text schreiben.");
+    add("Sichtbarkeit", !noImg.length, Math.min(4, noImg.length * 2), `${noImg.length} Kollektion${noImg.length === 1 ? "" : "en"} ohne Bild: ${noImg.slice(0, 3).map(c => c.t).join(", ")}`, "Titelbild hinterlegen.");
+    add("Sichtbarkeit", (W.themes || {}).unpub < 3, 1, `${W.themes.unpub} ungenutzte Themes`, "Alte Themes löschen, das hält den Shop aufgeräumt.");
+    return I;
+  }
+  const webScore = I => Math.max(0, 100 - I.filter(x => !x.ok).reduce((n, x) => n + x.w, 0));
+  const shopTabs = () => `<div class="seg" aria-label="Bereich" style="margin:4px 0 12px">${[["start", "Übersicht"], ["web", "Webshop"], ["shopify", "Shopify-Artikel"], ["etsy", "Etsy-Artikel"]].map(([k, l]) => `<button type="button" data-shop="tab-${k}" aria-pressed="${shopSt.tab === k}">${l}</button>`).join("")}</div>`;
+  function renderShop() {
+    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Shop-Check</h1><p class="note">Lade …</p>`; return; }
+    if (shopSt.tab !== "start" && shopSt.tab !== "web") return renderShopList();
+    const E = SHOP.etsy, SA = SHOP.sales, SF = SHOP.shopify, W = SHOP.web, dstr = x => x ? dDE(x.slice(0, 10)) : "";
+    const WI = W ? webAudit(W) : [], wBad = WI.filter(x => !x.ok).sort((a, b) => b.w - a.w), wScore = W ? webScore(WI) : null;
+    const rE = E ? shopRows("etsy") : [], rS = SF ? shopRows("shopify") : [], avg = r => r.length ? Math.round(r.reduce((s, x) => s + x.score, 0) / r.length) : null, aE = avg(rE), aS = avg(rS);
+    const sc = (l, n, sub, tab) => `<div class="tile${n !== null ? "" : " empty"}"><span class="label">${l}</span><span class="num" style="color:var(--${n === null ? "muted" : amp(n)[0]})">${n === null ? "–" : n + " / 100"}</span><span class="note">${sub}</span><button type="button" class="btn" data-shop="tab-${tab}" style="margin-top:6px">Öffnen</button></div>`;
+    const head = `${shopBar("shopcheck")}<div class="row"><h1>Shop-Check</h1></div>${shopTabs()}`;
+    if (shopSt.tab === "start") {
+      // wichtigste Aufgaben aus allen drei Bereichen, nach Wirkung
+      const T = wBad.map(x => ({ area: "Webshop", imp: x.w * 1.6, t: x.t, fix: x.fix }));
+      const prod = (rows, area) => { const agg = {}; rows.forEach(r => r.I.forEach(i => { if (i.w > 0) (agg[i.code] = agg[i.code] || { n: 0, w: 0, tip: i.tip }).n++, agg[i.code].w += i.w; })); Object.values(agg).forEach(x => T.push({ area, imp: x.w / Math.max(rows.length, 1) * 1.2, t: `${x.n} von ${rows.length} Angeboten`, fix: String(x.tip).split(/(?<=\.)\s/)[0] })); };
+      prod(rS, "Shopify"); prod(rE, "Etsy"); T.sort((a, b) => b.imp - a.imp);
+      const done = WEB_MANUAL.filter(m => (S.webChecks || {})[m[0]]).length;
+      $("view").innerHTML = `${head}${shopDataHTML(E, SA, SF, "start", dstr)}
+        <div class="tiles t3" style="grid-template-columns:repeat(3,minmax(0,1fr))">${sc("Webshop", wScore, W ? `${wBad.length} Punkte offen` : "noch nicht geprüft", "web")}${sc("Shopify-Artikel", aS, SF ? `${rS.length} Produkte` : "noch nicht geprüft", "shopify")}${sc("Etsy-Artikel", aE, E ? `${rE.length} Angebote` : "CSV hochladen", "etsy")}</div>
+        <section class="box"><h2>Das solltest du zuerst tun</h2>${T.length ? `<ol class="shoptasks">${T.slice(0, 8).map(x => `<li><span class="chip ${x.area === "Webshop" ? "ex" : x.area === "Etsy" ? "miss" : ""}">${x.area}</span> <strong>${esc(x.t)}</strong><br><span class="note">${esc(x.fix)}</span></li>`).join("")}</ol>` : `<p class="note">Noch keine Daten. Klick oben auf „Alles prüfen“.</p>`}</section>
+        <section class="box"><h2>Manuell prüfen <span class="note">${done} von ${WEB_MANUAL.length} erledigt</span></h2><p class="note">Das kann die App nicht messen. Hak ab, was du kontrolliert hast.</p>${shopManualHTML()}</section>`;
+      return;
+    }
+    // Webshop-Tab
+    const groups = [...new Set(WI.map(x => x.g))];
+    $("view").innerHTML = `${head}${shopDataHTML(E, SA, SF, "web", dstr)}
+      ${!W ? `<section class="box empty"><p>Klick auf „Alles prüfen“, dann siehst du hier, was Kunden an deinem Shop stört.</p><div class="btns"><button class="btn primary" data-shop="web" ${shopSt.busy ? "disabled" : ""}>Webshop prüfen</button></div></section>` : `
+      <div class="tiles t3" style="grid-template-columns:repeat(3,minmax(0,1fr))"><div class="tile hero"><span class="label">Note Webshop</span><span class="num" style="color:var(--${amp(wScore)[0]})">${wScore} / 100</span><span class="note">geprüft ${new Date(W.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}${W.th ? ` · Theme „${esc(W.th.name)}“` : ""}</span></div>
+        <div class="tile"><span class="label">Offen</span><span class="num" style="color:var(--${wBad.length ? "warn" : "good"})">${wBad.length}</span></div><div class="tile"><span class="label">In Ordnung</span><span class="num" style="color:var(--good)">${WI.length - wBad.length}</span></div></div>
+      <section class="box"><div class="row"><h2 style="margin:0">Das musst du ändern</h2><button class="btn" data-shop="web" ${shopSt.busy ? "disabled" : ""}>Neu prüfen</button></div>
+        ${wBad.length ? `<ol class="shoptasks">${wBad.map(x => `<li><span class="chip ${x.w >= 6 ? "miss" : ""}">${esc(x.g)}</span> <strong>${esc(x.t)}</strong><br><span class="note">${esc(x.fix)}</span></li>`).join("")}</ol>` : `<p class="note">Alles in Ordnung.</p>`}</section>
+      <section class="box"><details><summary><strong>${WI.length - wBad.length} Punkte sind in Ordnung</strong></summary><ul>${groups.map(g => `<li><strong>${esc(g)}:</strong> ${esc(WI.filter(x => x.g === g && x.ok).map(x => x.t.replace(/ fehlt.*| ist .*| hat .*| nicht .*/, "")).join(", ") || "–")}</li>`).join("")}</ul></details></section>
+      <section class="box"><h2>Manuell prüfen</h2><p class="note">Das kann die App nicht messen. Hak ab, was du kontrolliert hast.</p>${shopManualHTML()}</section>`}`;
+  }
+  const shopManualHTML = () => `<div class="shopman">${WEB_MANUAL.map(([k, t]) => `<label class="switch"><input type="checkbox" data-webchk="${k}" ${(S.webChecks || {})[k] ? "checked" : ""}><span class="track"></span>${esc(t)}</label>`).join("")}</div>`;
+  document.addEventListener("change", e => { const el = e.target; if (view !== "shopcheck" || !el.dataset || !el.dataset.webchk) return; S.webChecks = Object.assign({}, S.webChecks, { [el.dataset.webchk]: el.checked }); saveSettings(); renderShop(); });
   document.addEventListener("change", e => { if (e.target && e.target.id === "shopFile" && e.target.files && e.target.files.length) { const fs = [...e.target.files]; e.target.value = ""; shopFiles(fs); } });
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-shop]"); if (!b || view !== "shopcheck") return; const k = b.dataset.shop;
-    if (k === "check") return shopifyCheck(); if (k === "match") return shopMatch(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
+    if (k === "check") return shopifyCheck().then(() => webCheck()); if (k === "web") return webCheck(); if (k === "match") return shopMatch(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
     if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
     if (k.startsWith("ai:")) return shopAi(k.slice(3));
   });
