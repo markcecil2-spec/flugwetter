@@ -1611,7 +1611,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     const p = ps[0], t = v(((S.blanks || []).find(b => b.n === p.blank) || {}).t) || 2;
     return `${dec(v(p.l))} x ${dec(v(p.b))} x ${dec(t)} cm${v(p.q) > 1 ? " (" + dec(v(p.q), 0) + " Stk)" : ""}${ps.length > 1 ? " +" + (ps.length - 1) + " Teil" + (ps.length > 2 ? "e" : "") : ""}`;
   };
-  let prod = { q: "", only: false, cat: "", ask: "", copy: "", tab: "liste", mon: 2, base: 6, ppAll: false, ppRoh: false };
+  let prod = { q: "", only: false, cat: "", ask: "", copy: "", tab: "liste", mon: 1, base: 3, ppAll: false, ppRoh: false };
   const prodRows = () => A.map(a => ({ a, cat: prodCat(a) })).sort((x, y) => (norm(x.a.sku) || "~").localeCompare(norm(y.a.sku) || "~", "de", { numeric: true }));
   const prodTodo = () => A.filter(a => v(a.prod) > 0);
   // Sortierung der Produktionsliste: Klick auf die Spaltenüberschrift, nochmal Klick dreht um (wird pro Gerät gemerkt)
