@@ -175,6 +175,7 @@ tr.prodon [data-q="prod"] { font-weight: 700 }
 .shopfix { margin: 4px 0 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
 .fixhtml { font-size: .86rem; max-height: 140px; overflow: auto; border-left: 3px solid var(--line); padding-left: 8px }
 .debttable td:nth-child(2) .inp { min-width: 110px } .debttable td:nth-child(4) .inp { width: 100px } .debttable td:nth-child(3) .inp { min-width: 140px } .debttable td:nth-child(1) .inp { min-width: 150px }
+.dcbtn { padding: 2px 8px; min-height: 26px; font-size: .78rem }
 .chkcol { display: grid; gap: 4px; white-space: nowrap }
 .mvbtns { display: inline-flex; flex-direction: column; gap: 2px; vertical-align: middle; margin-right: 4px }
 .mvbtns .btn { padding: 0 8px; min-height: 20px; line-height: 1; font-size: .7rem }
@@ -445,6 +446,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#werbung" data-tab="werbung">Werbung</a>
       <a href="#shopcheck" data-tab="shopcheck">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
       <a href="#finanzen" data-tab="finanzen">Finanzen</a>
+      <a href="#dokumente" data-tab="dokumente">Dokumente</a>
       <span class="navsep" aria-hidden="true"></span>
       <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion">Produktion</a>
@@ -952,7 +954,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -986,6 +988,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "entwicklung") renderStats();
     else if (view === "werbung") renderAds();
     else if (view === "datencheck") renderCheck();
+    else if (view === "dokumente") renderDocs();
     else if (view === "projekte") renderProjects();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
@@ -2835,7 +2838,6 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
             <p class="note">Was der Kunde bei Deutschland für den Versand zahlt, brutto. Ein Klick setzt das bei allen Artikeln: Kleinpaket → Klein, Paket bis 3 kg → Profil 2, bis 5 kg → Profil 3, ab 5 kg → Schwer. Welche Versandart ein Artikel hat, bestimmt die App aus Gewicht und Packmaß.</p>
             <div class="grid2">${settingsField("spKlein", "Profil 1 · Klein (Kleinpaket)", "€")}${settingsField("spP3", "Profil 2 · Paket bis 3 kg", "€")}${settingsField("spP5", "Profil 3 · Paket bis 5 kg", "€")}${settingsField("spP10", "Profil 4 · Schwer (ab 5 kg)", "€")}</div>
             <div class="btns"><button class="btn primary" data-act="setShipIn">Bei allen Artikeln setzen</button></div></section>
-          ${docsBox()}
           <section class="box" data-sec="daten">
             <h2>Daten</h2>
             <p class="note">${mode === "cloud" ? "Deine Daten liegen online und sind auf Handy und PC gleich, wenn du diesen Link öffnest." : "Deine Daten liegen nur in diesem Browser. Mach ab und zu eine Sicherung."}</p>
@@ -3881,7 +3883,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   async function bankImport(files) {
     const acc = bankAcc; let added = 0, dup = 0, n = 0, ignored = 0, saldo = null, from = "", to = "";
     for (const f of files) {
-      let res; try { res = bankParse(bankDecode(await f.arrayBuffer())); } catch (e) { bankMsg = `${f.name}: ${e.message}`; finDraw(); return; }
+      let res; try { res = bankParse(bankDecode(await f.arrayBuffer())); } catch (e) { bankMsg = `${f.name}: ${e.message}`; if (view === "finanzen") finDraw(); return bankMsg; }
       n += res.rows.length; ignored += res.ignored; if (res.saldo !== null) saldo = res.saldo;
       from = !from || (res.from && res.from < from) ? res.from : from; to = res.to > to ? res.to : to;
       const seen = {}, byMonth = {};
@@ -3896,7 +3898,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (saldo !== null && $("bankSaldo") && $("bankSaldo").checked) { F[acc === "g" ? "kontoG" : "kontoP"] = String(saldo); F.stand = isoD(new Date()); saveSettings(); note = ` Kontostand ${eur(saldo)} übernommen.`; }
     bankView = acc; LS.set("hlz-app-bankview", bankView);
     bankMsg = `${n} Buchungen gelesen (${dDE(from)} bis ${dDE(to)}): ${added} neu, ${dup} schon vorhanden${ignored ? `, ${ignored} Buchungen aus Unterkonten übersprungen` : ""}.${note}`;
-    finDraw();
+    if (view === "finanzen") finDraw();
+    return bankMsg;
   }
   // --- Auswertung ---
   function bankRows(acc) { const F = FIN(), out = []; Object.values(BANK || {}).filter(d => d.acc === acc).forEach(d => d.rows.forEach(r => out.push({ ...r, cat: bankCat(r, acc, F) }))); return out; }
@@ -3914,13 +3917,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   }
   function bankHTML() {
     const F = FIN(), rowsAll = Object.values(BANK || {}), nTot = rowsAll.reduce((n, d) => n + d.rows.length, 0);
-    let h = `<section class="box" data-fs="konto"><h2>Kontoauszug importieren</h2>
-      <p class="note">CSV aus dem Online-Banking hochladen (N26, ING u. a.). Doppelte Buchungen erkennt die App selbst, du kannst jeden Monat die neue Datei nehmen.</p>
-      <div class="anagrid">
-        <div class="field"><label for="bankAccSel">Von welchem Konto ist die Datei?</label><div class="inp"><select id="bankAccSel"><option value="g" ${bankAcc === "g" ? "selected" : ""}>Geschäftskonto</option><option value="p" ${bankAcc === "p" ? "selected" : ""}>Privatkonto</option></select></div></div>
-        <div class="field"><label for="bankFile">CSV-Datei(en)</label><input type="file" id="bankFile" accept=".csv,text/csv,.txt" multiple></div>
-        <div class="field"><label><input type="checkbox" id="bankSaldo" checked> Kontostand aus der Datei übernehmen</label></div>
-      </div>
+    let h = `<section class="box" data-fs="konto"><h2>Kontoauszüge</h2>
+      <p class="note">Neue Kontoauszüge lädst du unter <a href="#dokumente">Dokumente</a> hoch, die Buchungen landen automatisch hier.</p>
       ${bankMsg ? `<p><strong>${esc(bankMsg)}</strong></p>` : ""}
       <div class="field"><label for="bankSelf">Deine Namen (Komma getrennt)</label><div class="inp"><input type="text" id="bankSelf" data-fin="selfNames" value="${esc(F.selfNames || "")}"></div><small>Überweisungen an diese Namen sind Umbuchungen, keine Ausgaben.</small></div>
     </section>`;
@@ -4237,7 +4235,7 @@ Antworte NUR mit JSON in dieser Form:
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
-    shopLoading = false; if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
+    shopLoading = false; if (view === "dokumente") renderDocs(); else if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
   }
   const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
   const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
@@ -4277,7 +4275,8 @@ Antworte NUR mit JSON in dieser Form:
         else msg.push(`${f.name}: Datei nicht erkannt. Gebraucht werden „Artikel im Verkauf“ (Angebote) oder „Bestellte Artikel“.`);
       } catch (e) { msg.push(`${f.name}: ${e.message || "Fehler beim Lesen."}`); }
     }
-    shopSt.msg = msg.join(" "); renderShop();
+    shopSt.msg = msg.join(" "); if (view === "shopcheck") renderShop();
+    return msg.join(" ");
   }
   // --- Bewertung ---
   const SHOP_ISSUES = {};
@@ -4405,11 +4404,10 @@ Antworte NUR mit JSON in dieser Form:
   function shopDataHTML(E, SA, SF, tab, dstr) {
     return `<section class="box"><details${(E && SF) ? "" : " open"}><summary><strong>Daten aktualisieren</strong> <span class="note">Etsy-CSV hochladen, Shopify live prüfen</span></summary>
         <div class="anagrid">
-          <div class="field"><label>Etsy: CSV-Dateien hochladen</label><input type="file" id="shopFile" accept=".csv,text/csv,.txt" multiple>
-            <small>In Etsy unter Einstellungen → Optionen → Daten herunterladen: „Artikel im Verkauf“ (CSV) und „Bestellte Artikel“ (Art der CSV-Datei, ganzes Jahr). Beide hier hochladen, die App erkennt sie selbst.</small>
-            <small>${E ? `Angebote: <strong>${E.listings.length}</strong> (Stand ${dstr(E.at)})` : "Angebote: noch nichts geladen"}<br>${SA ? `Verkäufe: <strong>${Object.keys(SA.items).length}</strong> Artikel${SA.from ? `, ${dstr(SA.from)} bis ${dstr(SA.to)}` : ""}` : "Verkäufe: noch nichts geladen (optional, aber sehr hilfreich)"}</small>
-            ${E && SA && tab === "etsy" && shopSt.unm && shopSt.unm.length ? `<small><strong>${shopSt.unm.length} von ${Object.keys(SA.items).length}</strong> verkauften Artikeln konnte ich keinem Angebot zuordnen (Etsy schreibt die Namen in der CSV oft auf Englisch). Solange das so ist, zeige ich keine „kein Verkauf“-Warnungen.</small><div class="btns"><button class="btn" data-shop="match" ${shopSt.busy ? "disabled" : ""}>Verkäufe per Claude zuordnen</button></div>` : ""}</div>
-          <div class="field"><label>Shopify: live aus deinem Shop</label><div class="btns"><button class="btn primary" data-shop="check" ${shopSt.busy ? "disabled" : ""}>Alles prüfen (Shopify live)</button></div>
+          <div class="field"><label>Etsy-Daten</label><a class="btn" href="#dokumente">Dateien hochladen unter „Dokumente“</a>
+            <small>${E ? `Angebote: <strong>${E.listings.length}</strong> (Stand ${dstr(E.at)})` : "Angebote: noch nichts geladen"}<br>${SA ? `Verkäufe: <strong>${Object.keys(SA.items).length}</strong> Artikel${SA.from ? `, ${dstr(SA.from)} bis ${dstr(SA.to)}` : ""}` : "Verkäufe: noch nichts geladen"}</small>
+            ${E && SA && tab === "etsy" && shopSt.unm && shopSt.unm.length ? `<small><strong>${shopSt.unm.length} von ${Object.keys(SA.items).length}</strong> verkauften Artikeln konnte ich keinem Angebot zuordnen. Solange das so ist, zeige ich keine „kein Verkauf“-Warnungen.</small><div class="btns"><button class="btn" data-shop="match" ${shopSt.busy ? "disabled" : ""}>Mit Claude zuordnen</button></div>` : ""}</div>
+                    <div class="field"><label>Shopify: live aus deinem Shop</label><div class="btns"><button class="btn primary" data-shop="check" ${shopSt.busy ? "disabled" : ""}>Alles prüfen (Shopify live)</button></div>
             <small>Holt Produkte, Seiten, Menüs, Kollektionen und Theme-Einstellungen aus Shopify.</small>
             <small>${SF ? `Zuletzt geprüft: <strong>${new Date(SF.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}</strong> (${SF.products.length} Produkte)` : "Noch nicht geprüft."}</small></div>
         </div>
@@ -4838,7 +4836,8 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
       try { const M = statEtsyParse(bankDecode(await f.arrayBuffer())), old = STATS.etsy ? STATS.etsy.months : {}; statsSave({ id: "etsy", at: new Date().toISOString(), months: Object.assign({}, old, M) }); msg.push(`${f.name}: ${Object.keys(M).length} Monate gelesen.`); }
       catch (e) { msg.push(`${f.name}: ${e.message || "Fehler beim Lesen."}`); }
     }
-    stSt.msg = msg.join(" "); renderStats();
+    stSt.msg = msg.join(" "); if (view === "entwicklung") renderStats();
+    return msg.join(" ");
   }
   async function statsShopify() {
     await statsLoad(); while (!STATS) await new Promise(r => setTimeout(r, 50));
@@ -4933,8 +4932,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     if (!STATS) { statsLoad(); $("view").innerHTML = `<h1>Auswertung</h1><p class="note">Lade …</p>`; return; }
     const E = STATS.etsy, S2 = STATS.shopify, D = statData(), cov = c => c && Object.keys(c.months).length ? `${ymLab(Object.keys(c.months).sort()[0])} bis ${ymLab(Object.keys(c.months).sort().pop())}, ${Object.keys(c.months).length} Monate` : "keine Daten";
     const data = `<section class="box"><h2>Daten</h2><div class="anagrid">
-        <div class="field"><label>Etsy: CSV hochladen</label><input type="file" id="statFile" accept=".csv,text/csv,.txt" multiple>
-          <small>Etsy → Einstellungen → Optionen → Daten herunterladen → Bestellungen: „Bestellte Artikel“ oder „Bestellungen“, ganzes Jahr oder Monat. Mehrere Dateien gehen auf einmal, vorhandene Monate werden aktualisiert.</small><small>Bisher: <strong>${cov(E)}</strong></small></div>
+        <div class="field"><label>Etsy-Daten</label><a class="btn" href="#dokumente">Dateien hochladen unter „Dokumente“</a><small>Bisher: <strong>${cov(E)}</strong></small></div>
         <div class="field"><label>Shopify: live holen</label><div class="btns"><button class="btn primary" data-stat="shopify" ${stSt.busy ? "disabled" : ""}>Shopify aktualisieren</button></div>
           <small>Holt die Bestellungen der letzten 24 Monate.</small><small>Bisher: <strong>${cov(S2)}</strong>${S2 ? `, Stand ${new Date(S2.at).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" })}` : ""}</small></div></div>
       ${stSt.busy ? `<p class="note"><strong>${esc(stSt.busy)}</strong></p>` : ""}${stSt.msg ? `<p class="note"><strong>${esc(stSt.msg)}</strong></p>` : ""}</section>`;
@@ -4966,39 +4964,117 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   document.addEventListener("click", e => { const b = e.target.closest("[data-stat]"); if (!b || view !== "entwicklung") return; if (b.dataset.stat === "shopify") statsShopify(); else if (b.dataset.stat === "ai" && renderStats.last) statsAi(renderStats.last.D, renderStats.last.V, renderStats.last.MV); });
 
   // ---------- DHL-Verträge und Preislisten (Upload unter Einstellungen → Versand & Kartons) ----------
-  let docBusy = "";
-  const docKinds = ["Vertrag", "Preisliste", "Rechnung", "Sonstiges"];
+  // ---------- Dokumente: ein Ort für alle Uploads, mit Monats-Checkliste ----------
+  const DOC_KINDS = [["bankG", "Kontoauszug Geschäft"], ["bankP", "Kontoauszug Privat"], ["etsyTax", "Etsy Steuerabrechnung"], ["etsyOrd", "Etsy Bestellungen"], ["etsyList", "Etsy Angebote"], ["dhl", "DHL Rechnung / Vertrag"], ["shopPay", "Shopify Auszahlungen"], ["lex", "Lexware / Steuerbescheid"], ["other", "Sonstiges"]];
+  const DOC_MONTHLY = ["bankG", "bankP", "etsyTax", "etsyOrd", "dhl", "shopPay"];
+  const DOC_SHORT = { bankG: "Konto Geschäft", bankP: "Konto Privat", etsyTax: "Etsy Steuer", etsyOrd: "Etsy Bestellungen", dhl: "DHL", shopPay: "Shopify Auszahlung" };
+  const DOC_NEED = [
+    ["Kontoauszug Geschäft und Privat (CSV)", "Online-Banking → Umsätze exportieren", "Echte Einnahmen und Ausgaben, damit Finanzen stimmt"],
+    ["Etsy Steuerabrechnung (PDF)", "Etsy → Finanzen → Rechnungen (Datei tax_statement)", "Echte Gebühren, Offsite- und Etsy-Ads"],
+    ["Etsy Bestellungen (CSV „Bestellte Artikel“)", "Etsy → Einstellungen → Optionen → Daten herunterladen", "Verkäufe pro Artikel, Trend, Daten-Check"],
+    ["DHL Rechnung (PDF)", "DHL Geschäftskundenportal → Rechnungen", "Echtes Porto, stimmt der Aufschlag?"],
+    ["Shopify Auszahlungen (CSV)", "Shopify → Finanzen → Auszahlungen → Exportieren", "Wann welches Geld aufs Konto kommt"],
+    ["Steuerbescheide, Voranmeldungen", "Lexware oder Finanzamt (PDF)", "Echte Umsatzsteuer statt Schätzung"]
+  ];
+  let docBusy = "", docMsg = "", docAcc = LS.get("hlz-app-docacc") || "g", docPreset = null;
   const docSize = b => b > 1048576 ? dec(b / 1048576, 1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
-  function docsBox() {
-    if (!SHOP) shopLoad(); const items = (SHOP && SHOP.docs && SHOP.docs.items) || [];
-    return `<section class="box" data-sec="versand"><h2>DHL-Verträge und Preislisten</h2>
-      <p class="note">Leg hier deine DHL-Vertragsunterlagen, Preislisten und Preisanpassungen ab, damit alles an einem Ort liegt. Die Dateien werden nur für dich gespeichert, die App liest sie nicht aus. Die Preise trägst du oben unter „Versandarten“ ein.</p>
-      <div class="field"><label for="docFile">Dateien hochladen (PDF, Bild, CSV, Excel, bis 20 MB)</label><input type="file" id="docFile" accept=".pdf,image/*,.csv,.xlsx,.xls,.doc,.docx,.txt" multiple ${docBusy ? "disabled" : ""}></div>
-      ${docBusy ? `<p class="note"><strong>${esc(docBusy)}</strong></p>` : ""}
-      ${items.length ? anaTable(["Datei", "Art", "Hochgeladen", "Größe", "", ""], items.map(d => [esc(d.name), `<div class="inp"><select data-docsel="${esc(d.id)}">${docKinds.map(k => `<option ${d.kind === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>`, dDE(String(d.at).slice(0, 10)), docSize(d.size || 0), `<a class="btn" href="${esc(d.url)}" target="_blank" rel="noopener">Öffnen</a>`, `<button type="button" class="btn danger" data-docdel="${esc(d.id)}">Löschen</button>`])) : `<p class="note">Noch nichts hochgeladen.</p>`}</section>`;
+  const docKindOf = d => { const k = d.kind; if (DOC_KINDS.some(x => x[0] === k)) return k; return /vertrag|preis|rechnung/i.test(k || "") ? "dhl" : "other"; };
+  const docMonths = d => (d.months && d.months.length) ? d.months : [String(d.at || "").slice(0, 7)];
+  const docItems = () => (SHOP && SHOP.docs && SHOP.docs.items) || [];
+  const docSave = items => shopSave({ id: "docs", items });
+  function docDetect(f) {
+    const n = f.name.toLowerCase(), m = n.match(/(20\d{2})[-_.](\d{2})/), d = new Date(f.lastModified || Date.now()), lm = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+    const month = m ? m[1] + "-" + m[2] : lm;
+    if (/tax_statement|etsy.*(statement|rechnung)/.test(n)) return { kind: "etsyTax", months: [month] };
+    if (/dhl|paket.*rechnung|rechnung.*dhl/.test(n)) return { kind: "dhl", months: [month] };
+    if (/bescheid|voranmeldung|lexware|ust/.test(n)) return { kind: "lex", months: [month] };
+    if (/auszahlung|payout/.test(n)) return { kind: "shopPay", months: [month] };
+    return { kind: "other", months: [month] };
   }
-  async function docUpload(files) {
+  async function docsHandle(files, preset) {
     const assets = window.claude && window.claude.use ? await window.claude.use("assets") : null;
-    if (!assets) { docBusy = ""; toast("Der Datei-Upload ist hier nicht verfügbar."); return renderSettings(); }
+    if (!assets) { docMsg = "Der Datei-Upload ist hier nicht verfügbar."; return renderDocs(); }
     await shopLoad(); while (!SHOP) await new Promise(r => setTimeout(r, 50));
-    const items = ((SHOP.docs && SHOP.docs.items) || []).slice();
+    const items = docItems().slice(), msg = [];
     for (const f of files) {
-      docBusy = `Lade ${f.name} hoch …`; renderSettings();
-      try { const res = await assets.upload(f), n = f.name.toLowerCase(); items.push({ id: res.id, url: res.url, name: f.name, size: f.size, at: new Date().toISOString(), kind: /vertrag/.test(n) ? "Vertrag" : /preis/.test(n) ? "Preisliste" : /rechnung|invoice/.test(n) ? "Rechnung" : "Sonstiges" }); }
-      catch (e) { toast(`${f.name}: Upload hat nicht geklappt${e && e.message ? " (" + e.message + ")" : ""}`); }
+      docBusy = `Verarbeite ${f.name} …`; renderDocs();
+      let kind = preset && preset.kind, months = preset && preset.month ? [preset.month] : null, note = "";
+      const isCsv = /\.(csv|txt)$/i.test(f.name) || f.type === "text/csv";
+      try {
+        if (isCsv) {
+          const text = bankDecode(await f.arrayBuffer()), hdr = (parseCSV(text)[0] || []).map(h => h.trim().toLowerCase());
+          const listings = hdr.includes("tags") && (hdr.includes("title") || hdr.includes("titel")), orderItems = hdr.includes("item name") || hdr.includes("artikelname") || hdr.includes("artikelbezeichnung"), orders = hdr.includes("order value") && hdr.includes("number of items");
+          if (listings) { kind = "etsyList"; months = months || [curYM()]; note = await shopFiles([f]); }
+          else if (orderItems || orders || kind === "etsyOrd") {
+            kind = "etsyOrd"; if (orderItems) note = await shopFiles([f]);
+            const st = await statFiles([f]); note = (note ? note + " " : "") + st;
+            try { months = Object.keys(statEtsyParse(text)).sort(); } catch (e) { /* Monate bleiben leer */ }
+          } else {
+            let rows = null; try { rows = bankParse(text); } catch (e) { /* kein Kontoauszug */ }
+            if (rows && rows.rows.length) {
+              const acc = kind === "bankP" ? "p" : kind === "bankG" ? "g" : docAcc; kind = acc === "p" ? "bankP" : "bankG"; bankAcc = acc;
+              await bankLoad(); while (!BANK) await new Promise(r => setTimeout(r, 50));
+              note = await bankImport([f]); months = [...new Set(rows.rows.map(r => r.d.slice(0, 7)))].sort();
+            }
+          }
+        }
+        if (!kind) { const dd = docDetect(f); kind = dd.kind; months = months || dd.months; }
+        if (!months || !months.length) months = [docDetect(f).months[0]];
+        const res = await assets.upload(f);
+        items.push({ id: res.id, url: res.url, name: f.name, size: f.size, at: new Date().toISOString(), kind, months });
+        msg.push(`${f.name}: ${DOC_KINDS.find(k => k[0] === kind)[1]}, ${months.length > 1 ? ymLab(months[0]) + " bis " + ymLab(months[months.length - 1]) : ymLab(months[0])}.${note ? " " + note : ""}`);
+      } catch (e) { msg.push(`${f.name}: ${e && e.message ? e.message : "Hat nicht geklappt."}`); }
     }
-    shopSave({ id: "docs", items }); docBusy = ""; renderSettings(); toast("Gespeichert");
+    docSave(items); docBusy = ""; docMsg = msg.join(" "); renderDocs();
+  }
+  function renderDocs() {
+    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Dokumente</h1><p class="note">Lade …</p>`; return; }
+    const items = docItems(), cur = curYM(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i));
+    const have = (k, m) => items.filter(d => docKindOf(d) === k && docMonths(d).includes(m)), mk = (m, k) => (S.docMark || {})[m + "|" + k];
+    const cell = (m, k) => { const h = have(k, m), sk = mk(m, k) === "skip";
+      if (h.length) return `<span style="color:var(--good);font-weight:700">✓ ${h.length > 1 ? h.length : ""}</span> <button class="btn dcbtn" data-docadd="${k}|${m}" title="Weitere Datei">+</button>`;
+      if (sk) return `<span class="note">nicht nötig</span> <button class="btn dcbtn" data-docskip="${k}|${m}" title="Doch nötig">↺</button>`;
+      return `<button class="btn dcbtn" data-docadd="${k}|${m}" title="Datei hochladen">+ Datei</button> <button class="btn dcbtn" data-docskip="${k}|${m}" title="Gibt es diesen Monat nicht">–</button>`; };
+    const done = m => DOC_MONTHLY.every(k => have(k, m).length || mk(m, k) === "skip");
+    const rows = months.map(m => { const ok = done(m), closed = (S.docMark || {})[m] === "done";
+      return [`<strong>${ymLab(m)}</strong>${m === cur ? ' <span class="note">läuft</span>' : ""}`].concat(DOC_MONTHLY.map(k => cell(m, k)), [closed ? `<button class="btn dcbtn" data-docclose="${m}">✓ erledigt</button>` : `<button class="btn dcbtn${ok && m !== cur ? " primary" : ""}" data-docclose="${m}" ${ok ? "" : 'title="Es fehlen noch Dateien"'}>erledigt?</button>`]); });
+    const nDone = months.filter(m => (S.docMark || {})[m] === "done").length;
+    $("view").innerHTML = `<div class="row"><h1>Dokumente</h1></div>
+      <section class="box"><h2>Alles hochladen</h2>
+        <div class="btns"><label class="btn primary" for="docFile">Dateien auswählen</label><input type="file" id="docFile" multiple style="position:absolute;opacity:0;width:1px;height:1px" accept=".pdf,image/*,.csv,.xlsx,.xls,.doc,.docx,.txt" ${docBusy ? "disabled" : ""}>
+          <span class="note">Kontoauszug-CSV ist von</span><div class="seg"><button type="button" data-docacc="g" aria-pressed="${docAcc === "g"}">Geschäft</button><button type="button" data-docacc="p" aria-pressed="${docAcc === "p"}">Privat</button></div>
+          <label class="note" style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" id="bankSaldo" checked> Kontostand übernehmen</label></div>
+        <p class="note">Ich erkenne Etsy-Dateien, Kontoauszüge und Rechnungen selbst und trage die Zahlen ein. Alles andere lege ich nur ab. Der Monat kommt aus Dateiname oder Inhalt. Die Verkaufszahlen der Artikel (für die Margen) aktualisierst du weiter unter <a href="#import">Einstellungen → Import</a>.</p>
+        ${docBusy ? `<p class="note"><strong>${esc(docBusy)}</strong></p>` : ""}${docMsg ? `<p class="note"><strong>${esc(docMsg)}</strong></p>` : ""}
+      </section>
+      <section class="box"><h2>Monats-Checkliste <span class="note">${nDone} von 12 erledigt</span></h2>
+        <div class="tablewrap">${anaTable(["Monat"].concat(DOC_MONTHLY.map(k => DOC_SHORT[k]), [""]), rows)}</div>
+        <p class="note">„+ Datei“ lädt direkt für diesen Monat hoch, „–“ heißt: gibt es diesen Monat nicht. Wenn alles da ist, klickst du „erledigt?“.</p>
+      </section>
+      <section class="box"><details><summary><strong>Was ich brauche, und wofür</strong></summary>${anaTable(["Dokument", "Wo bekommst du es", "Wofür"], DOC_NEED.map(r => r.map(esc)))}</details></section>
+      <section class="box"><h2>Alle Dateien <span class="note">${items.length}</span></h2>
+        ${items.length ? anaTable(["Datei", "Art", "Monat", "Hochgeladen", "Größe", ""], items.slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).map(d => [`<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.name)}</a>`,
+          `<div class="inp"><select data-docsel="${esc(d.id)}">${DOC_KINDS.map(k => `<option value="${k[0]}" ${docKindOf(d) === k[0] ? "selected" : ""}>${k[1]}</option>`).join("")}</select></div>`,
+          `<div class="inp"><select data-docmon="${esc(d.id)}">${docMonths(d).length > 1 ? `<option value="">${ymLab(docMonths(d)[0])} bis ${ymLab(docMonths(d)[docMonths(d).length - 1])}</option>` : ""}${[...new Set(months.concat(docMonths(d)))].sort().reverse().map(m => `<option value="${m}" ${docMonths(d).length === 1 && docMonths(d)[0] === m ? "selected" : ""}>${ymLab(m)}</option>`).join("")}</select></div>`,
+          dDE(String(d.at).slice(0, 10)), docSize(d.size || 0), `<button class="btn" data-docdel="${esc(d.id)}" aria-label="Löschen">×</button>`])) : `<p class="note">Noch keine Dateien.</p>`}
+      </section>
+      <input type="file" id="docFilePre" style="position:absolute;opacity:0;width:1px;height:1px" multiple>`;
   }
   document.addEventListener("change", e => {
-    const t = e.target; if (view !== "einstellungen" || !t) return;
-    if (t.id === "docFile" && t.files && t.files.length) { const fs = [...t.files]; t.value = ""; docUpload(fs); return; }
-    if (t.dataset && t.dataset.docsel) { const items = ((SHOP.docs && SHOP.docs.items) || []).map(d => d.id === t.dataset.docsel ? { ...d, kind: t.value } : d); shopSave({ id: "docs", items }); }
+    const t = e.target; if (view !== "dokumente" || !t) return;
+    if (t.id === "docFile" && t.files && t.files.length) { const fs = [...t.files]; t.value = ""; docsHandle(fs, null); return; }
+    if (t.id === "docFilePre" && t.files && t.files.length) { const fs = [...t.files], p = docPreset; t.value = ""; docsHandle(fs, p); return; }
+    if (t.dataset && t.dataset.docsel) { docSave(docItems().map(d => d.id === t.dataset.docsel ? { ...d, kind: t.value } : d)); renderDocs(); }
+    if (t.dataset && t.dataset.docmon && t.value) { docSave(docItems().map(d => d.id === t.dataset.docmon ? { ...d, months: [t.value] } : d)); renderDocs(); }
   });
   document.addEventListener("click", async e => {
-    const b = e.target.closest && e.target.closest("[data-docdel]"); if (!b || view !== "einstellungen") return;
-    const d = ((SHOP.docs && SHOP.docs.items) || []).find(x => x.id === b.dataset.docdel); if (!d || !confirm(`„${d.name}“ löschen?`)) return;
-    try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(d.id); } catch (er) { /* Datei war schon weg */ }
-    shopSave({ id: "docs", items: SHOP.docs.items.filter(x => x.id !== d.id) }); renderSettings(); toast("Gelöscht");
+    if (view !== "dokumente") return;
+    const c = e.target.closest && e.target.closest("[data-docadd],[data-docskip],[data-docclose],[data-docdel],[data-docacc]"); if (!c) return; const d = c.dataset;
+    if (d.docacc) { docAcc = d.docacc; LS.set("hlz-app-docacc", docAcc); return renderDocs(); }
+    if (d.docadd) { const [kind, month] = d.docadd.split("|"); docPreset = { kind, month }; $("docFilePre").click(); return; }
+    if (d.docskip) { S.docMark = Object.assign({}, S.docMark); const key = d.docskip.split("|").reverse().join("|"), [k, m] = d.docskip.split("|"), kk = m + "|" + k; if (S.docMark[kk] === "skip") delete S.docMark[kk]; else S.docMark[kk] = "skip"; saveSettings(); return renderDocs(); }
+    if (d.docclose) { S.docMark = Object.assign({}, S.docMark); if (S.docMark[d.docclose] === "done") delete S.docMark[d.docclose]; else S.docMark[d.docclose] = "done"; saveSettings(); return renderDocs(); }
+    if (d.docdel) { const f = docItems().find(x => x.id === d.docdel); if (!f || !confirm(`„${f.name}“ löschen?`)) return; try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(f.id); } catch (er) { /* war schon weg */ } docSave(docItems().filter(x => x.id !== f.id)); renderDocs(); toast("Gelöscht"); }
   });
   async function ideaGenerate(n, replaceId) {
     const mk = monthKey(new Date()); ideaState.busy = "Claude schlägt Produkte vor …"; ideaState.msg = ""; renderIdeas();
