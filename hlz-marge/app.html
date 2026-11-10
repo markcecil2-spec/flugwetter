@@ -170,6 +170,8 @@ tr.prodon [data-q="prod"] { font-weight: 700 }
 .pptable td { vertical-align: middle }
 .shopfix { margin: 4px 0 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
 .fixhtml { font-size: .86rem; max-height: 140px; overflow: auto; border-left: 3px solid var(--line); padding-left: 8px }
+.mvbtns { display: inline-flex; flex-direction: column; gap: 2px; vertical-align: middle; margin-right: 4px }
+.mvbtns .btn { padding: 0 8px; min-height: 20px; line-height: 1; font-size: .7rem }
 .shoptasks { margin: 0; padding-left: 22px; display: grid; gap: 10px }
 .shopman { display: grid; gap: 8px; margin-top: 8px }
 #printArea { display: none }
@@ -3520,7 +3522,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const days = ds => Math.round((new Date(ds + "T00:00:00") - new Date(td + "T00:00:00")) / 864e5);
     const when = ds => { if (!ds) return `<strong style="color:var(--bad)">sofort</strong>`; const n = days(ds); return n < 0 ? `<strong style="color:var(--bad)">${-n} Tage überfällig</strong>` : n === 0 ? "heute" : `in ${n} Tagen`; };
     const row = (k, r, cols) => cols;
-    const debtRows = F.debts.map(d => [
+    const debtRows = F.debts.map((d, i, arr) => [
       `<div class="inp"><input type="text" data-finl="debts|${d.id}|n" value="${esc(d.n)}"></div>`,
       inp(`data-finl="debts|${d.id}|a"`, d.a, "€"),
       `<div class="inp"><input type="date" data-finl="debts|${d.id}|due" value="${esc(d.due)}"></div>`,
@@ -3529,7 +3531,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       `<label class="note"><input type="checkbox" data-finl="debts|${d.id}|ust" ${d.typ === "ust" ? "checked" : ""}> USt</label>`,
       d.paid ? `<span class="note">bezahlt</span>` : (v(d.a) > 0 ? when(d.due) : (c.open.find(o => o.id === d.id) || {}).est ? `${when(d.due)}<br><span class="note">geschätzt ${eur0(c.open.find(o => o.id === d.id).ea)}</span>` : `<span class="note">Betrag fehlt</span>`),
       `<label class="note"><input type="checkbox" data-finl="debts|${d.id}|paid" ${d.paid ? "checked" : ""}> bezahlt</label>`,
-      `<button class="btn" data-fin-del="debts|${d.id}" aria-label="Löschen">×</button>`
+      `<span style="white-space:nowrap"><span class="mvbtns"><button type="button" class="btn" data-fin-move="debts|${d.id}|-1" aria-label="Nach oben" title="Nach oben">▲</button><button type="button" class="btn" data-fin-move="debts|${d.id}|1" aria-label="Nach unten" title="Nach unten">▼</button></span> <button class="btn" data-fin-del="debts|${d.id}" aria-label="Löschen">×</button></span>`
     ]);
     const monthOpts = (sel, blank) => { const base = nowYM(), keys = Array.from({ length: 36 }, (_, i) => base + i); if (sel && !keys.includes(ymKey(sel))) keys.unshift(ymKey(sel));
       return `<option value="">${blank}</option>` + keys.map(k => `<option value="${ymVal(k)}" ${ymVal(k) === sel ? "selected" : ""}>${MN[k % 12]} ${Math.floor(k / 12)}</option>`).join(""); };
@@ -3708,6 +3710,8 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   });
   document.addEventListener("click", e => {
     if (view !== "finanzen") return;
+    const mvb = e.target.closest("[data-fin-move]");
+    if (mvb) { const [k, id, d] = mvb.dataset.finMove.split("|"), L = FIN()[k], i = L.findIndex(x => x.id === id), j = i + (+d); if (i < 0 || j < 0 || j >= L.length) return; [L[i], L[j]] = [L[j], L[i]]; saveSettings(); finRerender(); return; }
     const t = e.target.closest("[data-fin-add],[data-fin-del]"); if (!t) return;
     const F = FIN();
     if (t.dataset.finAdd) { const [k, g] = t.dataset.finAdd.split(":"); F[k].push(k === "debts" ? { id: uid(), n: "", a: "", due: "", typ: "sonst", raten: "", paid: false } : k === "income" ? { id: uid(), n: "", a: "", from: "", to: "" } : prow(uid(), g, "", "")); }
