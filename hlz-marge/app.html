@@ -365,12 +365,7 @@ main.wrap { padding-block: 20px 48px }
 .info { display: inline-grid; place-items: center; width: 16px; height: 16px; margin-left: 2px; border-radius: 50%; border: 1px solid currentColor;
   font: 600 10px/1 var(--font-body); text-transform: none; letter-spacing: 0; cursor: help; vertical-align: 1px; color: var(--muted) }
 /* Erklärung hängt an der Kachel, links- oder rechtsbündig, damit sie nicht aus dem Bildschirm ragt */
-.info::after { content: attr(data-tip); position: absolute; z-index: 10; top: 40px; left: 8px; width: min(260px, 70vw); padding: 10px 12px; border-radius: 8px;
-  background: var(--fg); color: var(--bg); font: 400 .82rem/1.4 var(--font-body); text-align: left; white-space: normal; box-shadow: 0 6px 20px rgba(0,0,0,.18);
-  opacity: 0; visibility: hidden; transition: opacity .12s; pointer-events: none }
-.info:hover::after, .info:focus::after { opacity: 1; visibility: visible }
-.tile:nth-child(even) .info::after { left: auto; right: 8px }
-@media (min-width: 761px) { .tile:nth-child(n) .info::after { left: 8px; right: auto } .tile:nth-last-child(-n+2) .info::after { left: auto; right: 8px } }
+#infoTip { position: fixed; z-index: 1000; max-width: min(300px, calc(100vw - 24px)); padding: 10px 12px; border-radius: 8px; background: var(--fg); color: var(--bg); font: 400 .82rem/1.4 var(--font-body); text-align: left; box-shadow: 0 6px 20px rgba(0,0,0,.25); pointer-events: none; display: none }
 .tablewrap { overflow-x: auto }
 table { width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 640px }
 table.imp { min-width: 520px }
@@ -503,6 +498,27 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     return "";
   };
   // Infopunkt: Erklärung beim Drüberfahren (am Handy: antippen)
+
+  // „i“-Erklärungen: ein schwebendes Feld am Symbol, per Maus, Tastatur und Antippen (funktioniert überall, auch in Tabellen)
+  (function () {
+    let tip = null, cur = null;
+    const el = () => tip || (tip = Object.assign(document.createElement("div"), { id: "infoTip", role: "tooltip" }), document.body.appendChild(tip), tip);
+    const hide = () => { cur = null; if (tip) tip.style.display = "none"; };
+    const show = i => {
+      const t = el(); cur = i; t.textContent = i.dataset.tip || ""; t.style.display = "block";
+      const r = i.getBoundingClientRect(), w = t.offsetWidth, h = t.offsetHeight;
+      let x = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), window.innerWidth - w - 8), y = r.bottom + 8;
+      if (y + h > window.innerHeight - 8) y = Math.max(8, r.top - h - 8);
+      t.style.left = x + "px"; t.style.top = y + "px";
+    };
+    const ic = e => e.target && e.target.closest ? e.target.closest(".info") : null;
+    document.addEventListener("mouseover", e => { const i = ic(e); if (i) show(i); });
+    document.addEventListener("mouseout", e => { if (ic(e) && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".info"))) hide(); });
+    document.addEventListener("focusin", e => { const i = ic(e); if (i) show(i); });
+    document.addEventListener("focusout", e => { if (ic(e)) hide(); });
+    document.addEventListener("click", e => { const i = ic(e); if (i) { e.preventDefault(); e.stopPropagation(); show(i); } else hide(); }, true);
+    window.addEventListener("scroll", () => { if (cur && document.body.contains(cur)) show(cur); else hide(); }, true);
+  })();
   const info = t => ` <span class="info" tabindex="0" role="note" aria-label="${esc(t)}" data-tip="${esc(t)}">i</span>`;
   const thumbHTML = a => { const t = thumbOf(a); return t ? `<img class="thumb" src="${t}" alt="" loading="lazy" onerror="this.remove()">` : ""; };
   const loose = s => norm(s).replace(/[^a-z0-9äöüß]/g, "");   // Abgleich ohne Satz- und Leerzeichen
