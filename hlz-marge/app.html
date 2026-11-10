@@ -5041,8 +5041,8 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     const nDone = months.filter(m => (S.docMark || {})[m] === "done").length;
     $("view").innerHTML = `<div class="row"><h1>Dokumente</h1></div>
       <section class="box"><h2>Alles hochladen</h2>
-        <div class="btns"><label class="btn primary" for="docFile">Dateien auswählen</label><input type="file" id="docFile" multiple style="position:absolute;opacity:0;width:1px;height:1px" accept=".pdf,image/*,.csv,.xlsx,.xls,.doc,.docx,.txt" ${docBusy ? "disabled" : ""}>
-          <span class="note">Kontoauszug-CSV ist von</span><div class="seg"><button type="button" data-docacc="g" aria-pressed="${docAcc === "g"}">Geschäft</button><button type="button" data-docacc="p" aria-pressed="${docAcc === "p"}">Privat</button></div>
+        <div class="drop" id="docDrop"><strong style="color:var(--fg)">Dateien hierher ziehen</strong><span>PDF, CSV, Bilder, Excel, mehrere auf einmal</span><span>oder</span><label class="btn primary" for="docFile">Dateien auswählen</label><input type="file" id="docFile" multiple style="position:absolute;opacity:0;width:1px;height:1px" accept=".pdf,image/*,.csv,.xlsx,.xls,.doc,.docx,.txt" ${docBusy ? "disabled" : ""}></div>
+        <div class="btns" style="margin-top:10px"><span class="note">Kontoauszug-CSV ist von</span><div class="seg"><button type="button" data-docacc="g" aria-pressed="${docAcc === "g"}">Geschäft</button><button type="button" data-docacc="p" aria-pressed="${docAcc === "p"}">Privat</button></div>
           <label class="note" style="display:inline-flex;gap:4px;align-items:center"><input type="checkbox" id="bankSaldo" checked> Kontostand übernehmen</label></div>
         <p class="note">Ich erkenne Etsy-Dateien, Kontoauszüge und Rechnungen selbst und trage die Zahlen ein. Alles andere lege ich nur ab. Der Monat kommt aus Dateiname oder Inhalt. Die Verkaufszahlen der Artikel (für die Margen) aktualisierst du weiter unter <a href="#import">Einstellungen → Import</a>.</p>
         ${docBusy ? `<p class="note"><strong>${esc(docBusy)}</strong></p>` : ""}${docMsg ? `<p class="note"><strong>${esc(docMsg)}</strong></p>` : ""}
@@ -5060,6 +5060,13 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
       </section>
       <input type="file" id="docFilePre" style="position:absolute;opacity:0;width:1px;height:1px" multiple>`;
   }
+  ["dragenter", "dragover"].forEach(ev => document.addEventListener(ev, e => { if (view !== "dokumente" || !(e.dataTransfer && [...(e.dataTransfer.types || [])].includes("Files"))) return; e.preventDefault(); const z = $("docDrop"); if (z) z.classList.add("over"); }));
+  document.addEventListener("dragleave", e => { if (view !== "dokumente") return; const z = $("docDrop"); if (z && !e.relatedTarget) z.classList.remove("over"); });
+  document.addEventListener("drop", e => {
+    if (view !== "dokumente" || !(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length)) return;
+    e.preventDefault(); const z = $("docDrop"); if (z) z.classList.remove("over");
+    if (docBusy) return toast("Moment, die vorige Datei wird noch verarbeitet."); docsHandle([...e.dataTransfer.files], null);
+  });
   document.addEventListener("change", e => {
     const t = e.target; if (view !== "dokumente" || !t) return;
     if (t.id === "docFile" && t.files && t.files.length) { const fs = [...t.files]; t.value = ""; docsHandle(fs, null); return; }
