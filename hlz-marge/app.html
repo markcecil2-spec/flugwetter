@@ -799,7 +799,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const porto = (ship.chosen ? ship.chosen.price : 0) * (1 + v(S.shipAdj) / 100) * inK;   // shipAdj: Aufschlag auf die Preisliste (Ausland, Zuschläge), aus dem Kontoauszug abgeleitet
     const pack = v(a.pack) * inK, outer = v(a.outer) * inK, ext = a.fremd ? v(a.ext) * inK : 0;
     // Arbeitszeit = Vorfertigung der Rohlinge + Verpacken + eigene Eingabe (Bohren, Lasern, Schleifen, Ölen …)
-    const packMin = a.fremd ? 0 : v(S.packMins);
+    const packMin = (a.fremd ? 0 : v(S.packMins)) + v(S.extraMins);   // Zusatzzeit (Büro, Service) gilt für jeden Verkauf
     const time = (v(a.mins) + rohMin + packMin) / 60 * v(S.rate);
     const fixShare = S.alloc && ctx.vol > 0 ? fixTotal(S, !!a.fremd) / ctx.vol : 0;
     const varCosts = wood + oil + small + ext + porto + pack + outer + time + mach + order;
@@ -952,8 +952,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung"].includes(h) ? h : "uebersicht";
-    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view === "entwicklung" ? "auswertung" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck"].includes(h) ? h : "uebersicht";
+    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
     if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
@@ -985,6 +985,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "shopcheck") renderShop();
     else if (view === "entwicklung") renderStats();
     else if (view === "werbung") renderAds();
+    else if (view === "datencheck") renderCheck();
     else if (view === "projekte") renderProjects();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
@@ -1313,11 +1314,62 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     return { ctx, T, rows, m: monthly(ctx), fix: fixTotal() };
   }
 
+
+  // ---------- Daten-Check: Auffälligkeiten in Artikeln und Annahmen ----------
+  function dataChecks() {
+    const ctx = volume(), L = [], add = (sev, grp, a, t, fix) => L.push({ sev, grp, a, t, fix });
+    const arts = A.filter(a => v(a.price) > 0 && !a.remove);
+    const fam = sku => { const m = String(sku || "").match(/^(.*)-(\d{1,3})(-[^\d].*)?$/); return m && +m[2] >= 9 ? { key: m[1] + "|" + (m[3] || ""), size: +m[2] } : null; };
+    const G = {}; arts.forEach(a => { const f = fam(a.sku); if (f) (G[f.key] = G[f.key] || []).push({ a, size: f.size }); });
+    Object.values(G).forEach(list => {
+      const bySize = {}; list.forEach(x => { if (!bySize[x.size]) bySize[x.size] = x; });
+      const L2 = Object.values(bySize).sort((x, y) => x.size - y.size);
+      for (let i = 1; i < L2.length; i++) {
+        const p = L2[i - 1].a, c = L2[i].a, wp = shipWeight(p), wc = shipWeight(c);
+        if (wp > 0 && wc > 0 && wc < wp * 0.95) add("bad", "Gewicht", c, `${esc(c.sku)} wiegt ${dec(wc, 0)} g, die kleinere Größe ${esc(p.sku)} aber ${dec(wp, 0)} g`, "Tippfehler? Gewicht im Artikel prüfen, es bestimmt die Versandart.");
+        if (v(c.price) < v(p.price)) add("warn", "Preis", c, `${esc(c.sku)} kostet ${eur(v(c.price))}, die kleinere Größe ${esc(p.sku)} aber ${eur(v(p.price))}`, "Größere Größe sollte nicht billiger sein.");
+      }
+    });
+    arts.forEach(a => {
+      const r = calc(a, "etsy", undefined, ctx);
+      if (!a.fremd) {
+        const auto = autoWeight(a), man = v(a.weight);
+        if (man > 0 && auto > 0 && Math.abs(man - auto) / auto > 0.4) add("warn", "Gewicht", a, `Eingetragen ${dec(man, 0)} g, aus Holz, Teilen und Karton berechnet ${dec(auto, 0)} g`, "Eine der beiden Zahlen stimmt nicht. Einmal wiegen und eintragen.");
+        if (v(a.mins) + r.rohMin < 3) add("warn", "Arbeitszeit", a, `Nur ${dec(v(a.mins) + r.rohMin, 1)} Min. Arbeitszeit pro Stück`, "Unrealistisch wenig, die Marge sieht dadurch zu gut aus. Zeit im Artikel eintragen.");
+        if ((a.parts || []).some(p => !(v(p.l) * v(p.b) > 0))) add("warn", "Material", a, "Holzteil ohne Maße", "Ohne Maße fehlen Holzkosten und Gewicht.");
+      } else if (!(v(a.ext) > 0)) add("bad", "Material", a, "Zukauf ohne Einkaufspreis", "Einkaufspreis eintragen, sonst ist die Marge falsch.");
+      if (!(v(a.pkL) * v(a.pkB) * v(a.pkH) > 0) && !a.box) add("warn", "Versand", a, "Keine Paketmaße und kein Karton", "Ohne Maße kann die App die Versandart nicht richtig wählen.");
+      if (r.net > 0 && r.profit < 0) add("bad", "Marge", a, `Verlust ${eur(r.profit)} pro Verkauf (Marge ${dec(r.margin, 0)} %)`, "Preis erhöhen oder Artikel auslaufen lassen.");
+      if (/gravur|-g$/i.test(a.sku || "")) { const base = String(a.sku).replace(/-?(mit-)?gravur$|-g$/i, ""), plain = arts.find(x => x !== a && norm(x.sku) === norm(base)); if (plain && v(plain.price) >= v(a.price)) add("warn", "Preis", a, `Mit Gravur ${eur(v(a.price))}, ohne Gravur ${eur(v(plain.price))}`, "Die Gravur kostet Zeit, sie sollte etwas kosten.");
+      }
+    });
+    // Versand: Kunde zahlt weniger, als das Porto kostet
+    const shipLoss = arts.map(a => { const r = calc(a, "etsy", undefined, ctx), paid = v(a.shipIn) / (S.tax === "ku" ? 1 : 1.19); return { a, d: r.porto - paid, pm: salesPerMonth(a) }; }).filter(x => x.d > 0.3);
+    // Annahmen
+    const H = [];
+    const etsyGross = A.reduce((n, a) => { const x = (a.sales || {}).etsy; if (!x || !(v(x.months) > 0)) return n; return n + v(x.qty) / v(x.months) * calc(a, "etsy", v(x.avg) || v(a.price), ctx, v(x.avg) > 0).gross; }, 0);
+    if (v(S.eOff) > 0) H.push({ sev: v(S.eOff) >= 4 ? "bad" : "warn", t: `Offsite-Ads-Gebühr: ${dec(v(S.eOff), 1)} % auf <strong>jeden</strong> Etsy-Verkauf, das sind ca. ${eur0(etsyGross * v(S.eOff) / 100)} pro Monat`, fix: "Etsy berechnet 12 bis 15 % nur auf Verkäufe, die über Offsite Ads kamen. Schau in deiner Etsy-Monatsabrechnung, wie viel du wirklich gezahlt hast, und trag den Anteil unter Einstellungen → Gebühren ein (Gebühr ÷ Etsy-Umsatz × 100)." });
+    const m = monthly(ctx), realH = v(S.anaReal), modelMin = m.qty > 0 ? A.reduce((n, a) => { const pm = salesPerMonth(a); if (!pm) return n; const r = calc(a, "etsy", undefined, ctx); return n + pm * (v(a.mins) + r.rohMin + r.packMin); }, 0) / m.qty : 0;
+    if (realH > 0 && m.qty > 0) { const realMin = realH * 52 / 12 * 60 / m.qty; if (realMin > modelMin * 1.3) H.push({ sev: "bad", t: `Arbeitszeit: Die Artikel rechnen im Schnitt mit ${dec(modelMin, 0)} Min. pro Stück, du arbeitest aber real ca. ${dec(realMin, 0)} Min. pro verkauftem Stück (${dec(realH, 0)} Std. pro Woche)`, fix: `Die Margen pro Artikel sind dadurch um ca. ${eur((realMin - modelMin) / 60 * v(S.rate))} pro Stück zu hoch. Büro, Kundenservice, Fotos und Einkauf fehlen in den Artikeln. Trag bei Einstellungen → „Zusatzzeit pro Verkauf“ die fehlenden Minuten ein.` }); }
+    if (shipLoss.length) { const sum = shipLoss.reduce((n, x) => n + x.d * x.pm, 0); H.push({ sev: "warn", t: `Versand: Bei ${shipLoss.length} Artikeln zahlt der Kunde weniger als das Porto (inkl. ${dec(v(S.shipAdj), 0)} % Aufschlag für Ausland und Zuschläge), ca. ${eur0(sum)} pro Monat`, fix: "Versandpreise bei Etsy/Shopify anheben oder unter Einstellungen → Versand „Versand vom Kunden“ neu setzen." }); }
+    if (v(S.kvMonth) > 0 && (S.fin && (S.fin.priv || []).some(r => /kranken/i.test(r.n || "") && r.inc !== false))) H.push({ sev: "bad", t: "Krankenversicherung doppelt: in den Steuer-Einstellungen und in den privaten Ausgaben", fix: "Nur an einer Stelle eintragen." });
+    return { L, H, ctxVol: ctx.vol };
+  }
+  function renderCheck() {
+    const { L, H } = dataChecks(), ord = { bad: 0, warn: 1 }, grps = [...new Set(L.map(x => x.grp))];
+    const pill = s => `<span class="pill ${s}">${s === "bad" ? "Fehler" : "Prüfen"}</span>`;
+    $("view").innerHTML = `<div class="row"><h1>Auswertung</h1></div>
+      <section class="box"><h2>Annahmen, die viel ausmachen</h2>${H.length ? `<ul class="fintips">${H.map(h => `<li>${pill(h.sev)} ${h.t}<br><span class="note">${h.fix}</span></li>`).join("")}</ul>` : `<p class="note">Nichts Auffälliges.</p>`}</section>
+      <section class="box"><h2>Auffällige Artikel <span class="note">${L.length}</span></h2>
+        ${L.length ? anaTable(["", "Artikel", "Was ist auffällig", "Was tun"], L.sort((x, y) => ord[x.sev] - ord[y.sev] || x.grp.localeCompare(y.grp)).map(x => [pill(x.sev) + ` <span class="note">${x.grp}</span>`, `<a class="artlink" href="#artikel-${x.a.id}" data-open="${x.a.id}">${esc(x.a.sku || x.a.name)}</a><br><span class="note">${esc(x.a.name)}</span>`, x.t, `<span class="note">${x.fix}</span>`])) : `<p class="note">Keine Auffälligkeiten.</p>`}
+      </section>`;
+    anaSwitch();
+  }
   // Auswertung und Entwicklung sind ein Reiter mit zwei Ansichten
   function anaSwitch() {
-    const el = $("view"); if (!el || (view !== "auswertung" && view !== "entwicklung") || el.querySelector(".anaswitch")) return;
+    const el = $("view"); if (!el || (view !== "auswertung" && view !== "entwicklung" && view !== "datencheck") || el.querySelector(".anaswitch")) return;
     const d = document.createElement("div"); d.className = "seg anaswitch"; d.setAttribute("aria-label", "Ansicht"); d.style.margin = "4px 0 12px";
-    d.innerHTML = `<button type="button" data-anaview="auswertung" aria-pressed="${view === "auswertung"}">Gesamtbild &amp; Hebel</button><button type="button" data-anaview="entwicklung" aria-pressed="${view === "entwicklung"}">Entwicklung: geht es auf oder ab?</button>`;
+    d.innerHTML = `<button type="button" data-anaview="auswertung" aria-pressed="${view === "auswertung"}">Gesamtbild &amp; Hebel</button><button type="button" data-anaview="entwicklung" aria-pressed="${view === "entwicklung"}">Entwicklung: geht es auf oder ab?</button><button type="button" data-anaview="datencheck" aria-pressed="${view === "datencheck"}">Daten-Check</button>`;
     el.insertBefore(d, el.firstChild);
   }
   document.addEventListener("click", e => { const b = e.target.closest("[data-anaview]"); if (b) go(b.dataset.anaview); });
@@ -1781,7 +1833,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
       const actN = t ? Object.keys(t.act).length : 0, share = n ? actN / n : 0, tr = trendOf(a, TR), perso = PERSO.test(a.sku || "");
       let lvl = a.fremd ? 0 : pm >= 3 ? 3 : (pm >= 1.5 || (pm >= 1 && (est || share >= 0.6))) ? 2 : pm >= 0.5 ? 1 : 0;
       if (tr.dir < 0 && lvl > 1) lvl--;
-      const r = calc(a, "etsy", undefined, ctx), mat = r.wood + r.oil + r.small + r.ext, mins = v(a.mins) + r.rohMin + r.packMin;
+      const r = calc(a, "etsy", undefined, ctx), mat = r.wood + r.oil + r.small + r.ext, mins = v(a.mins) + r.rohMin + r.packMin - v(S.extraMins);
       const soll = Math.ceil(pm * prod.mon - 0.15), open = a.sku ? dem[sk] : v(dm[a.id]), stock = a.sku ? stk[sk] : v(a.stock), need = lvl >= 2 && !a.fremd ? Math.max(0, soll + open - stock) : 0;
       rows.push({ a, pm, q: t ? t.q : null, actN, n, est, share, tr, perso, lvl, mat, mins, soll, open, stock, need, reach: pm > 0 ? stock / pm : 0 });
     });
@@ -1802,7 +1854,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     Object.values(RB).forEach(o => { o.have = v(HAVE[o.n]); o.todo = Math.max(0, o.q - o.have); o.min = o.todo * o.min1; rMin += o.min; });
     buy.forEach(x => (x.a.parts || []).forEach(pt => {
       const nm = pt.blank || pt.n || "Freies Teil", o = RB[nm], q = x.need * Math.max(1, v(pt.q)) * (o.q ? o.todo / o.q : 0);
-      if (pt.plate) { const pl = (S.plates || []).find(z => z.n === pt.plate), mm = String(pt.plate).match(/(\d+)\s*[×x]\s*(\d+)/), area = pl ? v(pl.l) * v(pl.b) : mm ? +mm[1] * +mm[2] : 0, w = 1 + v(x.a.waste) / 100, r = RP[pt.plate] || (RP[pt.plate] = { n: pt.plate, area: 0, plate: area, p: pl ? v(pl.p) : 0 }); r.area += v(pt.l) * v(pt.b) * q * w; }
+      if (pt.plate) { const pl = (S.plates || []).find(z => z.n === pt.plate), mm = String(pt.plate).match(/(\d+)\s*[×x]\s*(\d+)/), area = pl ? v(pl.l) * v(pl.b) : mm ? +mm[1] * +mm[2] : 0, w = 1 + v(S.wasteDefault) / 100, r = RP[pt.plate] || (RP[pt.plate] = { n: pt.plate, area: 0, plate: area, p: pl ? v(pl.p) : 0 }); r.area += v(pt.l) * v(pt.b) * q * w; }
     }));
     const rob = Object.values(RB).sort((a, b) => b.q - a.q), plt = Object.values(RP).map(r => ({ ...r, n2: r.plate > 0 ? Math.ceil(r.area / r.plate - 0.001) : 0 })), rKosten = plt.reduce((s, r) => s + r.n2 * r.p, 0);
     ppLast = { buy, rob, plt, rMin };
@@ -2715,7 +2767,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
               <small>${T.tax === "ku" ? "Keine USt auf Verkäufe, aber kein Vorsteuerabzug: die App rechnet 19 % auf deine Einkaufspreise." : "19 % vom Bruttopreis gehen ans Finanzamt, Vorsteuer auf Einkäufe holst du zurück."}</small></div>
             <div class="grid3 keep">
               ${settingsField("rate", "Dein Stundensatz", "€/h")}
-              ${settingsField("packMins", "Verpacken pro Paket", "Min", "kommt bei jedem eigenen Artikel dazu")}
+              ${settingsField("packMins", "Verpacken pro Paket", "Min", "kommt bei jedem eigenen Artikel dazu")}${settingsField("extraMins", "Zusatzzeit pro Verkauf", "Min", "Büro, Kundenservice, Fotos, Einkauf. Vorschlag steht im Daten-Check.")}
               ${settingsField("paperG", "Papier pro Paket", "g", "für das automatische Gewicht")}
               ${settingsField("target", "Ziel-Marge", "%")}
               ${settingsField("qtyReal", "Verkäufe/Monat, alle Kanäle", "Stk", "für den Werkstattanteil, leer = aus Import")}
