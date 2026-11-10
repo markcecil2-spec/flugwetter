@@ -1355,7 +1355,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const sortedC = rows.map(x => x.pm * x.r.profit).sort((a, b) => b - a), posTot = sum(sortedC, c => Math.max(0, c)), top10 = sum(sortedC.slice(0, 10), c => Math.max(0, c));
     const nA = Object.values(abc).filter(x => x.abc === "A").length, nB = Object.values(abc).filter(x => x.abc === "B").length;
     // Qualität / Service
-    const since = new Date(Date.now() - 31 * 864e5).toISOString().slice(0, 10), recl = SUP.filter(x => x.cat === "reklamation" && (x.at || "") >= since).length, reclAll = SUP.filter(x => x.cat === "reklamation").length;
+    const since = new Date(Date.now() - 31 * 864e5).toISOString().slice(0, 10), recl = SUP.filter(x => x.cat === "reklamation" && !x.follow && (x.at || "") >= since).length, reclAll = SUP.filter(x => x.cat === "reklamation").length;
     const reclRate = T.qty > 0 ? recl / T.qty * 100 : 0, reclCost = recl * 12;
     // Bestellungen im Verlauf
     const live = ORD.filter(o => o.status !== "storniert");
@@ -2052,8 +2052,14 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
     const open = SUP.filter(m => m.status !== "erledigt").sort((a, b) => (b.at || "").localeCompare(a.at || ""));
     return `
       <div class="stack">
+        <section class="box"><details ${sup.q || f.thread ? "open" : ""}><summary><strong>Frühere Nachricht wieder aufgreifen</strong> <span class="note">${SUP.length} gespeichert</span></summary>
+          <div class="field" style="margin-top:8px"><div class="inp"><input type="search" id="s-search" data-sup="q" value="${esc(sup.q || "")}" placeholder="Name, Artikel oder Stichwort" aria-label="Frühere Nachrichten suchen"></div></div>
+          ${(() => { const q = norm(sup.q || ""), L = SUP.filter(x => !x.follow).filter(x => !q || norm([x.customer, x.sku, x.msg, x.summary, x.reply].join(" ")).includes(q)).sort((a, b) => (b.at || "").localeCompare(a.at || "")).slice(0, 8);
+            return L.length ? `<div class="tablewrap"><table class="suptable"><tbody>${L.map(m => { const n = supCase(supThread(m)).length; return `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(m.customer || "–")} <span class="note">${esc(m.channel || "")}${m.sku ? " · " + esc(m.sku) : ""}</span><br><span class="note">${esc((m.summary || m.msg || "").slice(0, 90))}</span></td><td>${n > 1 ? `<span class="note">${n} Nachrichten</span>` : ""}</td><td><button class="btn" data-supfollow="${m.id}">Nachfrage</button></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="note">${SUP.length ? "Nichts gefunden." : "Noch nichts gespeichert."}</p>`; })()}
+        </details></section>
+        ${f.thread ? `<section class="box" style="border-color:var(--accent)"><div class="row"><strong>Verlauf mit ${esc(f.customer || "dem Kunden")}</strong><button type="button" class="btn" data-act="supUnfollow">Kein Verlauf</button></div>${supCase(f.thread).filter(x => x.id !== f.id).map(x => `<details><summary class="note">${esc(x.at)}: ${esc((x.summary || x.msg || "").slice(0, 80))}</summary><p class="note" style="white-space:pre-wrap"><strong>Kunde:</strong> ${esc(x.msg || "")}</p><p class="note" style="white-space:pre-wrap"><strong>Du:</strong> ${esc(x.reply || "")}</p></details>`).join("")}</section>` : ""}
         <section class="box">
-          <h2>Kundennachricht</h2>
+          <h2>Kundennachricht${f.thread ? " (neue Nachfrage)" : ""}</h2>
           <div class="grid3 keep">
             <div class="field"><label for="s-customer">Kunde</label><div class="inp"><input type="text" id="s-customer" data-sup="customer" value="${esc(f.customer)}" placeholder="Name"></div></div>
             <div class="field"><label for="s-channel">Kanal</label>${sel("s-channel", SUP_CHANNELS.map(c => [c, c]), f.channel)}</div>
@@ -2079,13 +2085,13 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
           ${f.summary ? `<p class="note">Kurz: ${esc(f.summary)}</p>` : ""}
           <div class="btns"><button type="button" class="btn primary" data-act="supCopy">Antwort kopieren</button><button type="button" class="btn" data-act="supDone">✓ Erledigt, in Auswertung</button><button type="button" class="btn" data-act="supKeep">Offen merken</button></div>
         </section>
-        ${open.length ? `<section class="box"><h2>Offen gemerkt</h2><div class="tablewrap"><table class="suptable"><thead><tr><th>Datum</th><th>Kunde</th><th>Thema</th><th></th></tr></thead><tbody>${open.map(m => `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(m.customer || "–")}<br><span class="note">${esc((m.summary || m.msg).slice(0, 80))}</span></td><td>${esc(supTextOf(m.cat))}</td><td><button class="btn" data-supopen="${m.id}">Öffnen</button></td></tr>`).join("")}</tbody></table></div></section>` : ""}
+        ${open.length ? `<section class="box"><h2>Offen gemerkt</h2><div class="tablewrap"><table class="suptable"><thead><tr><th>Datum</th><th>Kunde</th><th>Thema</th><th></th></tr></thead><tbody>${open.map(m => `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(m.customer || "–")}<br><span class="note">${esc((m.summary || m.msg).slice(0, 80))}</span></td><td>${esc(supTextOf(m.cat))}</td><td><div class="btns" style="flex-wrap:nowrap"><button class="btn" data-supopen="${m.id}">Öffnen</button><button class="btn" data-supfollow="${m.id}">Nachfrage</button></div></td></tr>`).join("")}</tbody></table></div></section>` : ""}
       </div>`;
   }
 
   function supStatsHTML() {
     const days = sup.period === "all" ? null : +sup.period, from = days ? new Date(Date.now() - days * 864e5).toISOString().slice(0, 10) : "";
-    const L = SUP.filter(m => m.cat && (!from || (m.at || "") >= from));
+    const L = SUP.filter(m => m.cat && !m.follow && (!from || (m.at || "") >= from));
     const count = key => L.reduce((o, m) => (o[m[key] || ""] = (o[m[key] || ""] || 0) + 1, o), {});
     const bars = (obj, label, tips) => {
       const rows = Object.entries(obj).filter(([k]) => k).sort((a, b) => b[1] - a[1]), max = Math.max(1, ...rows.map(r => r[1]));
@@ -2114,7 +2120,7 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
           ${sup.ai ? `<div class="note" style="white-space:pre-wrap;color:var(--fg)" id="supAi">${esc(sup.ai)}</div>` : '<div id="supAi"></div>'}
         </section>
         <section class="box"><h2>Alle Nachrichten</h2>
-          ${L.length ? `<div class="tablewrap"><table class="suptable"><thead><tr><th>Datum</th><th>Kunde</th><th>Thema</th><th>Sprache</th><th></th></tr></thead><tbody>${L.slice().sort((a, b) => (b.at || "").localeCompare(a.at || "")).map(m => `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(m.customer || "–")} <span class="note">${esc(m.channel || "")}${m.sku ? " · " + esc(m.sku) : ""}</span><br><span class="note">${esc((m.summary || m.msg || "").slice(0, 90))}</span></td><td>${esc(supTextOf(m.cat))}${m.cause ? `<br><span class="note">${esc(supCauseOf(m.cause))}</span>` : ""}</td><td>${esc(SUP_LANGS[m.lang] || m.lang || "–")}</td><td><div class="btns" style="flex-wrap:nowrap"><button class="btn" data-supopen="${m.id}">Öffnen</button><button class="x" data-supdel="${m.id}" aria-label="Löschen">×</button></div></td></tr>`).join("")}</tbody></table></div>` : '<p class="note">Beantworte Nachrichten unter „Beantworten“ und klick auf „Erledigt“, dann tauchen sie hier auf.</p>'}
+          ${L.length ? `<div class="tablewrap"><table class="suptable"><thead><tr><th>Datum</th><th>Kunde</th><th>Thema</th><th>Sprache</th><th></th></tr></thead><tbody>${L.slice().sort((a, b) => (b.at || "").localeCompare(a.at || "")).map(m => `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(m.customer || "–")} <span class="note">${esc(m.channel || "")}${m.sku ? " · " + esc(m.sku) : ""}</span><br><span class="note">${esc((m.summary || m.msg || "").slice(0, 90))}</span></td><td>${esc(supTextOf(m.cat))}${m.cause ? `<br><span class="note">${esc(supCauseOf(m.cause))}</span>` : ""}</td><td>${esc(SUP_LANGS[m.lang] || m.lang || "–")}</td><td><div class="btns" style="flex-wrap:nowrap"><button class="btn" data-supopen="${m.id}">Öffnen</button><button class="btn" data-supfollow="${m.id}">Nachfrage</button><button class="x" data-supdel="${m.id}" aria-label="Löschen">×</button></div></td></tr>`).join("")}</tbody></table></div>` : '<p class="note">Beantworte Nachrichten unter „Beantworten“ und klick auf „Erledigt“, dann tauchen sie hier auf.</p>'}
         </section>
       </div>`;
   }
@@ -2126,6 +2132,14 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
       <p class="note">Wird automatisch gespeichert.</p></section>`;
   }
 
+  // Frühere Nachrichten wieder aufgreifen: Verlauf eines Falls = alle Einträge mit gleichem Fall (thread)
+  const supThread = m => m.thread || m.id;
+  const supCase = key => SUP.filter(x => supThread(x) === key).sort((a, b) => (a.at || "").localeCompare(b.at || "") || String(a.id).localeCompare(String(b.id)));
+  function supFollow(id) {
+    const m = SUP.find(x => x.id === id); if (!m) return;
+    sup.f = { ...supBlank(), customer: m.customer || "", channel: m.channel || "Etsy", sku: m.sku || "", cat: m.cat || "", cause: m.cause || "", lang: m.lang || "", thread: supThread(m), follow: true };
+    sup.tab = "antwort"; sup.err = ""; renderSupport(); window.scrollTo(0, 0); setTimeout(() => $("s-msg") && $("s-msg").focus(), 50);
+  }
   async function supAsk() {
     const f = sup.f;
     if (!f.msg.trim()) { $("s-msg").focus(); return toast("Bitte erst die Kundennachricht einfügen"); }
@@ -2138,7 +2152,7 @@ SHOP-INFOS:
 ${S.supFacts || SUP_FACTS_DEFAULT}
 
 KANAL: ${f.channel}${f.customer ? "\nKUNDE: " + f.customer : ""}${art ? `\nARTIKEL: ${art.name} (SKU ${art.sku}), Preis ${eur(v(art.price))}` : f.sku ? "\nARTIKEL/SKU: " + f.sku : ""}
-${f.hint ? "ANWEISUNG DES INHABERS: " + f.hint + "\n" : ""}
+${f.hint ? "ANWEISUNG DES INHABERS: " + f.hint + "\n" : ""}${f.thread ? "\nBISHERIGER VERLAUF MIT DIESEM KUNDEN (älteste zuerst; der Kunde schreibt jetzt erneut, knüpf daran an und wiederhole nichts unnötig):\n" + supCase(f.thread).filter(x => x.id !== f.id).map(x => `[${x.at}] Kunde: ${String(x.msg || "").slice(0, 1500)}\nAntwort: ${String(x.reply || "").slice(0, 1500)}`).join("\n---\n") + "\n" : ""}
 KUNDENNACHRICHT:
 """
 ${f.msg.slice(0, 12000)}
@@ -2161,7 +2175,7 @@ Gib NUR dieses JSON zurück:
     const sample = await getSample();
     if (!sample) { sup.ai = "Claude ist hier nicht verfügbar."; return renderSupport(); }
     const days = sup.period === "all" ? null : +sup.period, from = days ? new Date(Date.now() - days * 864e5).toISOString().slice(0, 10) : "";
-    const L = SUP.filter(m => m.cat && (!from || (m.at || "") >= from)).slice(-300);
+    const L = SUP.filter(m => m.cat && !m.follow && (!from || (m.at || "") >= from)).slice(-300);
     const lines = L.map(m => `${m.at} | ${supTextOf(m.cat)}${m.cause ? " / " + supCauseOf(m.cause) : ""} | ${SUP_LANGS[m.lang] || "?"} | ${m.channel || ""}${m.sku ? " | " + m.sku : ""} | ${(m.summary || m.msg || "").slice(0, 200).replace(/\s+/g, " ")}`).join("\n");
     sup.aiBusy = true; sup.ai = ""; renderSupport();
     try {
@@ -2823,6 +2837,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     const a = view === "artikel" ? draft : null;
     if (d.col) { const on = new Set(ovCols().map(c => c.k)); t.checked ? on.add(d.col) : on.delete(d.col); LS.set("hlz-app-cols", OV_COLS.filter(c => on.has(c.k)).map(c => c.k)); return renderOverview(); }
     if (view === "support") {
+      if (t.id === "s-search") { sup.q = val; const pos = t.selectionStart; renderSupport(); const n = $("s-search"); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
       if (d.sup && sup.f) sup.f[d.sup] = val;
       if (t.id === "supFacts") { S.supFacts = val; saveSettings(); }
       return;
@@ -2925,7 +2940,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
   // ---------- Klicks ----------
   document.addEventListener("click", e => {
     if (e.target.closest("[data-q]")) return;
-    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supdel],[data-ordf],[data-orddone],[data-rm],[data-ok],[data-abcf],[data-step]");
+    const t = e.target.closest("[data-syncpick],[data-syncall],[data-sel],[data-selall],[data-jump],[data-star],[data-folder],[data-stab],[data-act],[data-open],[data-sort],[data-tax],[data-add-row],[data-del-row],[data-del-part],[data-del-extra],[data-suptab],[data-supperiod],[data-supopen],[data-supfollow],[data-supdel],[data-ordf],[data-orddone],[data-rm],[data-ok],[data-abcf],[data-step]");
     if (!t) return;
     const d = t.dataset, a = view === "artikel" ? draft : null;
     if (d.step !== undefined && t.hasAttribute("data-step")) { if (d.step) { pendingFocus = "auto"; go("artikel-" + d.step); } return; }
@@ -2957,6 +2972,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (d.orddone) { const o = ORD.find(x => x.id === d.orddone); if (o) { o.status = o.status === "offen" ? "erledigt" : "offen"; o.manual = true; saveOrder(o); ordBadge(); renderOrders(); } return; }
     if (d.suptab) { sup.tab = d.suptab; return renderSupport(); }
     if (d.supperiod) { sup.period = d.supperiod; sup.ai = ""; return renderSupport(); }
+    if (d.supfollow) return supFollow(d.supfollow);
     if (d.supopen) { const m = SUP.find(x => x.id === d.supopen); if (m) { sup.f = { ...supBlank(), ...clone(m) }; sup.tab = "antwort"; renderSupport(); window.scrollTo(0, 0); } return; }
     if (d.supdel) { removeMsg(d.supdel); renderSupport(); return toast("Nachricht gelöscht"); }
     if (d.delExtra !== undefined && a) { a.extra.splice(+d.delExtra, 1); setDirty(true); return renderEditor(a); }
@@ -3034,6 +3050,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       case "prodYes": return prod.ask === "book" ? prodBook() : prod.ask === "suggest" ? prodSuggest() : prodClearAll();
       case "supAsk": return supAsk();
       case "supStop": sup.ctl?.abort(); return;
+      case "supUnfollow": delete sup.f.thread; delete sup.f.follow; return renderSupport();
       case "supNew": sup.f = supBlank(); sup.err = ""; renderSupport(); return $("s-msg").focus();
       case "supDone": return supSave("erledigt");
       case "supKeep": return supSave("offen");
