@@ -4982,14 +4982,17 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   const docMonths = d => (d.months && d.months.length) ? d.months : [String(d.at || "").slice(0, 7)];
   const docItems = () => (SHOP && SHOP.docs && SHOP.docs.items) || [];
   const docSave = items => shopSave({ id: "docs", items });
+  const docRange = (a, b) => { const out = []; for (let m = a; m <= b && out.length < 36; m = ymAdd(m, 1)) out.push(m); return out; };
+  const docNameMonths = n => [...String(n).matchAll(/(20\d{2})[-_.](\d{1,2})(?!\d)/g)].map(x => x[1] + "-" + String(x[2]).padStart(2, "0")).filter(m => +m.slice(5) >= 1 && +m.slice(5) <= 12);
   function docDetect(f) {
-    const n = f.name.toLowerCase(), m = n.match(/(20\d{2})[-_.](\d{2})/), d = new Date(f.lastModified || Date.now()), lm = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-    const month = m ? m[1] + "-" + m[2] : lm;
-    if (/tax_statement|etsy.*(statement|rechnung)/.test(n)) return { kind: "etsyTax", months: [month] };
-    if (/dhl|paket.*rechnung|rechnung.*dhl/.test(n)) return { kind: "dhl", months: [month] };
-    if (/bescheid|voranmeldung|lexware|ust/.test(n)) return { kind: "lex", months: [month] };
-    if (/auszahlung|payout/.test(n)) return { kind: "shopPay", months: [month] };
-    return { kind: "other", months: [month] };
+    const n = f.name.toLowerCase(), d = new Date(f.lastModified || Date.now()), lm = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"), nm = docNameMonths(n).sort();
+    const months = nm.length > 1 ? docRange(nm[0], nm[nm.length - 1]) : nm.length ? [nm[0]] : [lm];
+    if (/tax_statement|etsy.*(statement|rechnung)/.test(n)) return { kind: "etsyTax", months: [months[0]] };
+    if (/dhl|paket.*rechnung|rechnung.*dhl/.test(n)) return { kind: "dhl", months: [months[0]] };
+    if (/kontoauszug|kontoumsatz|umsatz|n26|ing-?diba|sparkasse|bank/.test(n)) return { kind: docAcc === "p" ? "bankP" : "bankG", months };
+    if (/bescheid|voranmeldung|lexware|ust/.test(n)) return { kind: "lex", months: [months[0]] };
+    if (/auszahlung|payout/.test(n)) return { kind: "shopPay", months };
+    return { kind: "other", months: [months[0]] };
   }
   async function docsHandle(files, preset) {
     const assets = window.claude && window.claude.use ? await window.claude.use("assets") : null;
@@ -5019,7 +5022,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
           }
         }
         if (!kind) { const dd = docDetect(f); kind = dd.kind; months = months || dd.months; }
-        if (!months || !months.length) months = [docDetect(f).months[0]];
+        if (!months || !months.length) months = docDetect(f).months;
         const res = await assets.upload(f);
         items.push({ id: res.id, url: res.url, name: f.name, size: f.size, at: new Date().toISOString(), kind, months });
         msg.push(`${f.name}: ${DOC_KINDS.find(k => k[0] === kind)[1]}, ${months.length > 1 ? ymLab(months[0]) + " bis " + ymLab(months[months.length - 1]) : ymLab(months[0])}.${note ? " " + note : ""}`);
@@ -5029,7 +5032,11 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   }
   function renderDocs() {
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Dokumente</h1><p class="note">Lade …</p>`; return; }
-    const items = docItems(), cur = curYM(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i));
+    let items = docItems(); const cur = curYM(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i));
+    if (!S.docFix1) { // frühere Fehlzuordnung korrigieren: Monat steht im Dateinamen (auch einstellig, z. B. 2026-3)
+      const fixed = items.map(d => { if (docKindOf(d) !== "etsyTax") return d; const nm = docNameMonths(d.name); return nm.length && docMonths(d)[0] !== nm[0] ? { ...d, months: [nm[0]] } : d; });
+      if (JSON.stringify(fixed) !== JSON.stringify(items)) { docSave(fixed); items = fixed; } S.docFix1 = true; saveSettings();
+    }
     const have = (k, m) => items.filter(d => docKindOf(d) === k && docMonths(d).includes(m)), mk = (m, k) => (S.docMark || {})[m + "|" + k];
     const cell = (m, k) => { const h = have(k, m), sk = mk(m, k) === "skip";
       if (h.length) return `<span style="color:var(--good);font-weight:700">✓ ${h.length > 1 ? h.length : ""}</span> <button class="btn dcbtn" data-docadd="${k}|${m}" title="Weitere Datei">+</button>`;
@@ -5053,9 +5060,10 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
       </section>
       <section class="box"><details><summary><strong>Was ich brauche, und wofür</strong></summary>${anaTable(["Dokument", "Wo bekommst du es", "Wofür"], DOC_NEED.map(r => r.map(esc)))}</details></section>
       <section class="box"><h2>Alle Dateien <span class="note">${items.length}</span></h2>
-        ${items.length ? anaTable(["Datei", "Art", "Monat", "Hochgeladen", "Größe", ""], items.slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).map(d => [`<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.name)}</a>`,
+        ${items.length ? anaTable(["Datei", "Art", "Zeitraum (von bis)", "Hochgeladen", "Größe", ""], items.slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).map(d => [`<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.name)}</a>`,
           `<div class="inp"><select data-docsel="${esc(d.id)}">${DOC_KINDS.map(k => `<option value="${k[0]}" ${docKindOf(d) === k[0] ? "selected" : ""}>${k[1]}</option>`).join("")}</select></div>`,
-          `<div class="inp"><select data-docmon="${esc(d.id)}">${docMonths(d).length > 1 ? `<option value="">${ymLab(docMonths(d)[0])} bis ${ymLab(docMonths(d)[docMonths(d).length - 1])}</option>` : ""}${[...new Set(months.concat(docMonths(d)))].sort().reverse().map(m => `<option value="${m}" ${docMonths(d).length === 1 && docMonths(d)[0] === m ? "selected" : ""}>${ymLab(m)}</option>`).join("")}</select></div>`,
+          (() => { const all = [...new Set(docRange(ymAdd(cur, -23), cur).concat(docMonths(d)))].sort(), mm = docMonths(d), opt = (sel) => all.slice().reverse().map(m => `<option value="${m}" ${m === sel ? "selected" : ""}>${ymLab(m)}</option>`).join("");
+            return `<div class="btns" style="flex-wrap:nowrap"><div class="inp"><select data-docfrom="${esc(d.id)}" aria-label="von">${opt(mm[0])}</select></div><span class="note">bis</span><div class="inp"><select data-docto="${esc(d.id)}" aria-label="bis">${opt(mm[mm.length - 1])}</select></div></div>`; })(),
           dDE(String(d.at).slice(0, 10)), docSize(d.size || 0), `<button class="btn" data-docdel="${esc(d.id)}" aria-label="Löschen">×</button>`])) : `<p class="note">Noch keine Dateien.</p>`}
       </section>
       <input type="file" id="docFilePre" style="position:absolute;opacity:0;width:1px;height:1px" multiple>`;
@@ -5072,7 +5080,11 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     if (t.id === "docFile" && t.files && t.files.length) { const fs = [...t.files]; t.value = ""; docsHandle(fs, null); return; }
     if (t.id === "docFilePre" && t.files && t.files.length) { const fs = [...t.files], p = docPreset; t.value = ""; docsHandle(fs, p); return; }
     if (t.dataset && t.dataset.docsel) { docSave(docItems().map(d => d.id === t.dataset.docsel ? { ...d, kind: t.value } : d)); renderDocs(); }
-    if (t.dataset && t.dataset.docmon && t.value) { docSave(docItems().map(d => d.id === t.dataset.docmon ? { ...d, months: [t.value] } : d)); renderDocs(); }
+    if (t.dataset && (t.dataset.docfrom || t.dataset.docto)) {
+      const id = t.dataset.docfrom || t.dataset.docto, d = docItems().find(x => x.id === id); if (!d) return; const mm = docMonths(d);
+      let a = t.dataset.docfrom ? t.value : mm[0], z = t.dataset.docto ? t.value : mm[mm.length - 1]; if (a > z) { if (t.dataset.docfrom) z = a; else a = z; }
+      docSave(docItems().map(x => x.id === id ? { ...x, months: docRange(a, z) } : x)); renderDocs();
+    }
   });
   document.addEventListener("click", async e => {
     if (view !== "dokumente") return;
