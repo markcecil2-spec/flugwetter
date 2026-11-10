@@ -4982,6 +4982,8 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   const docMonths = d => (d.months && d.months.length) ? d.months : [String(d.at || "").slice(0, 7)];
   const docItems = () => (SHOP && SHOP.docs && SHOP.docs.items) || [];
   const docSave = items => shopSave({ id: "docs", items });
+  const docBase = n => String(n).toLowerCase().replace(/\s*\(\d+\)(?=\.[a-z0-9]+$)/, "").replace(/\s+/g, " ");
+  const docDupes = items => { const seen = {}, out = []; items.slice().sort((a, b) => String(a.at).localeCompare(String(b.at))).forEach(d => { const k = docBase(d.name) + "|" + docKindOf(d) + "|" + docMonths(d).join(","); if (seen[k]) out.push(d); else seen[k] = d; }); return out; };
   const docRange = (a, b) => { const out = []; for (let m = a; m <= b && out.length < 36; m = ymAdd(m, 1)) out.push(m); return out; };
   const docNameMonths = n => [...String(n).matchAll(/(20\d{2})[-_.](\d{1,2})(?!\d)/g)].map(x => x[1] + "-" + String(x[2]).padStart(2, "0")).filter(m => +m.slice(5) >= 1 && +m.slice(5) <= 12);
   function docDetect(f) {
@@ -5023,6 +5025,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
         }
         if (!kind) { const dd = docDetect(f); kind = dd.kind; months = months || dd.months; }
         if (!months || !months.length) months = docDetect(f).months;
+        if (items.some(d => docBase(d.name) === docBase(f.name) && docKindOf(d) === kind && docMonths(d).join(",") === months.join(","))) { msg.push(`${f.name}: war schon da, übersprungen.`); continue; }
         const res = await assets.upload(f);
         items.push({ id: res.id, url: res.url, name: f.name, size: f.size, at: new Date().toISOString(), kind, months });
         msg.push(`${f.name}: ${DOC_KINDS.find(k => k[0] === kind)[1]}, ${months.length > 1 ? ymLab(months[0]) + " bis " + ymLab(months[months.length - 1]) : ymLab(months[0])}.${note ? " " + note : ""}`);
@@ -5059,7 +5062,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
         <p class="note">„+ Datei“ lädt direkt für diesen Monat hoch, „–“ heißt: gibt es diesen Monat nicht. Wenn alles da ist, klickst du „erledigt?“.</p>
       </section>
       <section class="box"><details><summary><strong>Was ich brauche, und wofür</strong></summary>${anaTable(["Dokument", "Wo bekommst du es", "Wofür"], DOC_NEED.map(r => r.map(esc)))}</details></section>
-      <section class="box"><h2>Alle Dateien <span class="note">${items.length}</span></h2>
+      <section class="box"><div class="row"><h2 style="margin:0">Alle Dateien <span class="note">${items.length}</span></h2>${docDupes(items).length ? `<button class="btn" data-docdupes="1">${docDupes(items).length} doppelte entfernen</button>` : ""}</div>
         ${items.length ? anaTable(["Datei", "Art", "Zeitraum (von bis)", "Hochgeladen", "Größe", ""], items.slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).map(d => [`<a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.name)}</a>`,
           `<div class="inp"><select data-docsel="${esc(d.id)}">${DOC_KINDS.map(k => `<option value="${k[0]}" ${docKindOf(d) === k[0] ? "selected" : ""}>${k[1]}</option>`).join("")}</select></div>`,
           (() => { const all = [...new Set(docRange(ymAdd(cur, -23), cur).concat(docMonths(d)))].sort(), mm = docMonths(d), opt = (sel) => all.slice().reverse().map(m => `<option value="${m}" ${m === sel ? "selected" : ""}>${ymLab(m)}</option>`).join("");
@@ -5088,7 +5091,8 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   });
   document.addEventListener("click", async e => {
     if (view !== "dokumente") return;
-    const c = e.target.closest && e.target.closest("[data-docadd],[data-docskip],[data-docclose],[data-docdel],[data-docacc]"); if (!c) return; const d = c.dataset;
+    const c = e.target.closest && e.target.closest("[data-docdupes],[data-docadd],[data-docskip],[data-docclose],[data-docdel],[data-docacc]"); if (!c) return; const d = c.dataset;
+    if (d.docdupes) { const dup = docDupes(docItems()); if (!dup.length || !confirm(`${dup.length} doppelte Datei(en) löschen? Die erste Kopie bleibt.`)) return; for (const x of dup) { try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(x.id); } catch (er) { /* war schon weg */ } } const ids = new Set(dup.map(x => x.id)); docSave(docItems().filter(x => !ids.has(x.id))); renderDocs(); return toast("Doppelte entfernt"); }
     if (d.docacc) { docAcc = d.docacc; LS.set("hlz-app-docacc", docAcc); return renderDocs(); }
     if (d.docadd) { const [kind, month] = d.docadd.split("|"); docPreset = { kind, month }; $("docFilePre").click(); return; }
     if (d.docskip) { S.docMark = Object.assign({}, S.docMark); const key = d.docskip.split("|").reverse().join("|"), [k, m] = d.docskip.split("|"), kk = m + "|" + k; if (S.docMark[kk] === "skip") delete S.docMark[kk]; else S.docMark[kk] = "skip"; saveSettings(); return renderDocs(); }
