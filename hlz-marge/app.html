@@ -5025,7 +5025,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
           } else {
             let rows = null; try { rows = bankParse(text); } catch (e) { /* kein Kontoauszug */ }
             if (rows && rows.rows.length) {
-              const auto = hdr.includes("partner name") || hdr.includes("booking date") ? "g" : hdr.includes("valuta") || hdr.some(h => h.startsWith("auftraggeber")) ? "p" : null;
+              const head = text.slice(0, 6000).toLowerCase(), auto = /partner name|booking date|iban des kontoinhabers/.test(head) ? "g" : /valuta|auftraggeber\/empf/.test(head) ? "p" : null;   // ING hat Kopfzeilen vor der Tabelle, darum den Textanfang prüfen
               const acc = auto || (kind === "bankP" ? "p" : kind === "bankG" ? "g" : docAcc); kind = acc === "p" ? "bankP" : "bankG"; bankAcc = acc;
               await bankLoad(); while (!BANK) await new Promise(r => setTimeout(r, 50));
               note = await bankImport([f]); months = [...new Set(rows.rows.map(r => r.d.slice(0, 7)))].sort();
