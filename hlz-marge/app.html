@@ -5337,7 +5337,8 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <div class="grid3 keep"><div class="field"><label>Verkauft über</label><div class="inp"><select data-msf="ch">${[["shopify", "Eigener Shop"], ["etsy", "Etsy"]].map(([k, l]) => `<option value="${k}" ${ms.ch === k ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
         ${inp("sp", "Aufschlag Sondermaß für Thomas (%, mind. 10)", "10")}${inp("mt", "Zielmarge bei Sondermaß (%)", "20")}${inp("ship", "Versand, den der Kunde zahlt (€)", String(S.shipInDefault ?? "6,90"))}${inp("port", "Porto für uns (€), nur wenn bekannt", "automatisch")}</div>`;
     if (!m) return `<section class="box"><h2>Regal nach Maß</h2>${form}<p class="note">Trag eine Länge ein. Grundlage ist Thomas‘ Preisliste für ARUH-01 (Tab „Rechnung Thomas“).</p></section>`;
-    const r = m.r, big = m.L > 120, ok = r && isFinite(r.margin) && r.margin >= m.tgt - 0.05;
+    if (m.L > 120) return `<section class="box"><h2>Regal nach Maß</h2>${form}<p class="note" style="color:var(--bad)">Über 120 cm verkaufen wir nicht. Länger als 120 cm passt außerdem in keinen Paket-Tarif. Bitte höchstens 120 cm eintragen.</p></section>`;
+    const r = m.r, big = false, ok = r && isFinite(r.margin) && r.margin >= m.tgt - 0.05;
     const cell = (l, v2, sub = "", hl = false) => `<div class="tile${hl ? " hero" : ""}"><span class="note">${l}</span><span class="num">${v2}</span><span class="note">${sub}</span></div>`;
     return `<section class="box"><h2>Regal nach Maß: Preis rechnen</h2><p class="note">Die Basis ist Thomas‘ Preisliste fürs Regal. Zwischen den Längen rechne ich linear, darüber hinaus mit der Steigung der letzten Stufe. Gewicht, Porto, Gebühren und Zusatzzeit kommen aus deinen Einstellungen.</p>${form}
       ${big ? `<p class="note" style="color:var(--warn,#b45309)">Über 120 cm gibt es keinen Preis in seiner Liste. Der Wert ist hochgerechnet, bitte mit Thomas abstimmen.</p>` : ""}
