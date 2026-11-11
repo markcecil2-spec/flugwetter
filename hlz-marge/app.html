@@ -5220,9 +5220,9 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <div class="btns"><button type="button" class="btn" data-buadd="txt">+ Textbaustein</button></div></section>`;
   }
   // ---------- Rechnung Thomas (Lieferant fertigt, Mark schreibt die Rechnung) ----------
-  let tbS = { ym: "", qty: {}, extra: [], delAsk: "", sel: "", xAsk: "", pAsk: "" };
+  let tbS = { ym: "", delAsk: "", sel: "", pAsk: "", qAsk: "" };
   const tbAsk = (key, cur, act, label) => cur === key ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-tbact="${act}ok:${key}" aria-label="Löschen bestätigen" title="Ja, löschen">✓</button><button type="button" class="btn" data-tbact="${act}no" aria-label="Abbrechen" title="Nicht löschen">×</button></span>` : `<button type="button" class="btn" data-tbact="${act}:${key}" aria-label="${label}" title="${label}">×</button>`;
-  const tbData = () => { const t = (SHOP && SHOP.tb) || {}; return { id: "tb", ven: t.ven || {}, me: t.me || {}, prices: t.prices || [], hook: t.hook === undefined ? 0.65 : t.hook, a02: !!t.a02, pend: t.pend || [], inv: t.inv || [], seq: t.seq || 1 }; };
+  const tbData = () => { const t = (SHOP && SHOP.tb) || {}; return { id: "tb", ven: t.ven || {}, me: t.me || {}, prices: t.prices || [], hook: t.hook === undefined ? 0.65 : t.hook, a02: !!t.a02, pend: t.pend || [], qo: t.qo || {}, inv: t.inv || [], seq: t.seq || 1 }; };
   const tbSave = d => shopSave(d);
   const tbNum = x => parseFloat(String(x ?? "").replace(",", ".")) || 0;
   const tbKeys = sku => { const s = String(sku).toLowerCase(), out = [s]; if (/^aruh-01-/.test(s) && tbData().a02) out.push(s.replace("aruh-01-", "aruh-02-")); if (/^aruh-06-/.test(s)) out.push(s.replace("aruh-06-", "bilei-")); return out; };   // Bilderleiste heißt im Shop BILEI
@@ -5231,12 +5231,11 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     [E[ym], S2[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) q += e.q || 0; }); });
     return q;
   }
-  function tbLines(d, ym) {
+  function tbLines(d, ym, all) {
     const L = []; let hooks = 0;
-    d.prices.forEach(p => { const q = tbS.qty[p.sku] !== undefined ? tbNum(tbS.qty[p.sku]) : tbSold(ym, p.sku); if (q > 0) { L.push({ sku: p.sku, t: p.name, q, p: tbNum(p.price) }); hooks += q * tbNum(p.hk); } });
+    d.prices.forEach(p => { const k = ym + "|" + p.sku, q = d.qo[k] !== undefined ? tbNum(d.qo[k]) : tbSold(ym, p.sku); if (q > 0) { L.push({ sku: p.sku, t: p.name, q, p: tbNum(p.price), pl: 1 }); hooks += q * tbNum(p.hk); } });
     if (hooks > 0) L.push({ sku: "", t: "Drechselhaken", q: hooks, p: tbNum(d.hook) });
-    d.pend.filter(x => x.ym === ym).forEach(x => L.push({ sku: "Sondermaß", t: x.t, q: tbNum(x.q), p: tbNum(x.p), pid: x.id }));
-    tbS.extra.forEach(x => { if (x.t && tbNum(x.q)) L.push({ sku: "", t: x.t, q: tbNum(x.q), p: tbNum(x.p) }); });
+    d.pend.filter(x => x.ym === ym).forEach(x => { if (all || (x.t && tbNum(x.q))) L.push({ sku: "Zusatz", t: x.t, q: tbNum(x.q), p: tbNum(x.p), pid: x.id, qs: x.q, ps: x.p }); });
     return L;
   }
   const tbMonthLab = ym => ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"][+ym.slice(5) - 1] + " " + ym.slice(0, 4);
@@ -5253,7 +5252,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   function buTb(d0) {
     if (!STATS) { statsLoad().then(() => { if (view === "buchhaltung") renderBuch(); }); return `<section class="box"><p class="note">Lade Verkaufsdaten …</p></section>`; }
     const d = tbData(), cur = curYM(); if (!tbS.ym) tbS.ym = ymAdd(cur, -1);
-    const months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i - 0)), lines = tbLines(d, tbS.ym), net = lines.reduce((s, l) => s + l.q * l.p, 0), have = d.inv.find(x => x.ym === tbS.ym);
+    const months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i - 0)), lines = tbLines(d, tbS.ym, true), valid = tbLines(d, tbS.ym), net = valid.reduce((s, l) => s + l.q * l.p, 0), have = d.inv.find(x => x.ym === tbS.ym);
     const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, data = !!(E[tbS.ym] || S2[tbS.ym]), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0;
     const miss = []; if (!d.ven.name) miss.push("Name"); if (!d.ven.addr) miss.push("Adresse"); if (!d.ven.tax && !d.ven.ust) miss.push("Steuernummer"); 
     const fld = (k, l, ph = "") => `<div class="field"><label>${l}</label><div class="inp"><input type="text" data-tbf="ven.${k}" value="${esc(d.ven[k] || "")}" placeholder="${ph}"></div></div>`;
@@ -5262,20 +5261,22 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <p class="note">Was Thomas im Monat hergestellt hat, nehme ich aus deinen Verkäufen (Etsy und Shopify) und seiner Preisliste. Du prüfst die Mengen, dann erstellst du die Rechnung. Ich gehe davon aus, dass alles in dem Monat Verkaufte von ihm kam.</p>
       <div class="grid3 keep"><div class="field"><label>Monat</label><div class="inp"><select data-tbf="ym">${months.map(m => `<option value="${m}" ${m === tbS.ym ? "selected" : ""}>${tbMonthLab(m)}</option>`).join("")}</select></div></div></div>
       ${!data ? `<p class="note" style="color:var(--bad)">Für ${tbMonthLab(tbS.ym)} liegen noch keine Verkaufsdaten vor. Lad unter Dokumente die Etsy-Bestellungen (CSV) hoch und hol unter Entwicklung die Shopify-Bestellungen.</p>` : ""}
-      ${have ? `<p>Für diesen Monat gibt es schon die Rechnung <strong>${esc(have.no)}</strong> vom ${buDe(have.date)} (${eur(have.total)}).</p>` : ""}
-      <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th style="text-align:left">Bezeichnung</th><th class="r">Menge</th><th class="r">Preis</th><th class="r">Summe</th><th></th></tr></thead><tbody>${lines.map(l => { const isP = d.prices.some(p => p.sku === l.sku && l.sku);
-        return `<tr><td class="num">${esc(l.sku)}</td><td style="text-align:left">${esc(l.t)}</td><td class="r" style="width:90px">${isP ? `<div class="inp"><input type="text" inputmode="decimal" data-tbq="${esc(l.sku)}" value="${l.q}"></div>` : String(l.q).replace(".", ",")}</td><td class="r num">${eur(l.p)}</td><td class="r num">${eur(l.q * l.p)}</td><td>${l.pid && !have ? tbAsk(l.pid, tbS.pAsk, "pdel", "Zeile entfernen") : ""}</td></tr>`; }).join("") || `<tr><td colspan="6" class="note">Keine Verkäufe seiner Artikel in diesem Monat.</td></tr>`}</tbody></table></div>
-      <div class="field"><label>Weitere Zeile (optional, z. B. Sonderanfertigung)</label>${tbS.extra.map((x, i) => `<div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:center;margin-top:8px"><div class="inp"><input type="text" data-tbx="${i}|t" value="${esc(x.t)}" placeholder="Bezeichnung"></div><div class="inp"><input type="text" data-tbx="${i}|q" value="${esc(x.q)}" placeholder="Menge"></div><div class="inp"><input type="text" data-tbx="${i}|p" value="${esc(x.p)}" placeholder="Preis netto"></div>${tbAsk(String(i), tbS.xAsk, "xdel", "Zeile löschen")}</div>`).join("")}<div class="btns"><button type="button" class="btn" data-tbact="addx">+ Zeile</button></div></div>
+      ${have ? `<p>Für diesen Monat gibt es schon die Rechnung <strong>${esc(have.no)}</strong> vom ${buDe(have.date)} (${eur(have.total)}). Änderungen unten übernimmst du mit „Rechnung aktualisieren“.</p>` : ""}
+      <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th style="text-align:left">Bezeichnung</th><th class="r">Menge</th><th class="r">Preis</th><th class="r">Summe</th><th></th></tr></thead><tbody>${lines.map(l => `<tr><td class="num">${esc(l.sku)}</td><td style="text-align:left">${l.pid ? `<div class="inp"><input type="text" data-tbpf="${l.pid}|t" value="${esc(l.t)}" placeholder="Bezeichnung"></div>` : esc(l.t)}</td>
+        <td class="r" style="width:90px"><div class="inp"><input type="text" inputmode="decimal" ${l.pid ? `data-tbpf="${l.pid}|q" value="${esc(l.qs)}"` : l.pl ? `data-tbq="${esc(l.sku)}" value="${l.q}"` : `value="${l.q}" disabled`}></div></td>
+        <td class="r num" style="width:100px">${l.pid ? `<div class="inp"><input type="text" inputmode="decimal" data-tbpf="${l.pid}|p" value="${esc(l.ps)}" placeholder="netto"></div>` : eur(l.p)}</td><td class="r num">${eur(l.q * l.p)}</td>
+        <td>${l.pid ? tbAsk(l.pid, tbS.pAsk, "pdel", "Zeile entfernen") : l.pl ? tbAsk(l.sku, tbS.qAsk, "qdel", "Zeile entfernen") : ""}</td></tr>`).join("") || `<tr><td colspan="6" class="note">Keine Verkäufe seiner Artikel in diesem Monat.</td></tr>`}
+        <tr><td colspan="6"><div class="btns"><button type="button" class="btn" data-tbact="addx">+ Zeile</button><div class="inp" style="min-width:0;width:260px"><select data-tbadd="1"><option value="">+ Artikel aus der Liste …</option>${d.prices.filter(p => !lines.some(l => l.sku === p.sku)).map(p => `<option value="${esc(p.sku)}">${esc(p.sku)} · ${esc(p.name)}</option>`).join("")}</select></div></div></td></tr></tbody></table></div>
       <p>${vat ? `Netto ${eur(net)} · MwSt ${vat} % ${eur(net * vat / 100)} · ` : ""}<strong>Summe ${eur(net + net * vat / 100)}</strong></p>
       ${unk.length ? `<p class="note" style="color:var(--warn,#b45309)">Drechselhaken: Trag unten in der Preisliste ein, wie viele Haken pro Garderobe oder Schlüsselbrett dazugehören, sonst fehlen sie in der Rechnung.</p>` : ""}
       ${miss.length ? `<p class="note" style="color:var(--bad)">In den Angaben zu Thomas fehlt noch: ${miss.join(", ")}. Trag es unten ein, sonst ist die Rechnung unvollständig.</p>` : ""}
-      <div class="btns"><button type="button" class="btn primary" data-tbact="make" ${lines.length && !have ? "" : "disabled"}>Rechnung erstellen</button>${have ? `<button type="button" class="btn" data-tbact="print:${have.id}">Drucken / Speichern</button>` : ""}</div></section>
+      <div class="btns"><button type="button" class="btn primary" data-tbact="make" ${lines.length ? "" : "disabled"}>${have ? "Rechnung aktualisieren" : "Rechnung erstellen"}</button>${have ? `<button type="button" class="btn" data-tbact="print:${have.id}">Drucken / Speichern</button>` : ""}</div></section>
       <section class="box"><h2>Erstellte Rechnungen</h2>${d.inv.length ? `<div class="tablewrap"><table><tbody>${d.inv.slice().sort((a, b) => b.ym.localeCompare(a.ym)).map(x => `<tr><td class="name"><strong>${esc(x.no)}</strong></td><td>${tbMonthLab(x.ym)}</td><td class="r num">${eur(x.total)}</td><td><button type="button" class="btn" data-tbact="print:${x.id}">Drucken</button></td><td>${tbS.delAsk === x.id ? `<button type="button" class="btn primary" data-tbact="delok:${x.id}" title="Ja, löschen">✓</button><button type="button" class="btn" data-tbact="delno" title="Abbrechen">×</button>` : `<button type="button" class="btn" data-tbact="del:${x.id}" aria-label="Löschen">×</button>`}</td></tr>`).join("")}</tbody></table></div>` : `<p class="note">Noch keine.</p>`}</section>
       <section class="box"><h2>Angaben zu Thomas & Preisliste</h2><div class="grid3 keep">${fld("name", "Name")}${fld("tax", "Steuernummer")}${fld("ust", "USt-IdNr. (falls vorhanden)")}${fld("iban", "IBAN")}${fld("pay", "Zahlungsziel (Tage)", "14")}</div>
         <div class="field"><label>Adresse</label><div class="inp"><textarea rows="2" data-tbf="ven.addr" placeholder="Straße, PLZ Ort">${esc(d.ven.addr || "")}</textarea></div></div>
         <label style="display:flex;gap:8px"><input type="checkbox" data-tbf="ven.kleinunt" ${d.ven.kleinunt === false ? "" : "checked"}> Kleinunternehmer (keine Umsatzsteuer auf der Rechnung)</label>
         ${d.ven.kleinunt === false ? `<div class="grid3 keep">${fld("vat", "MwSt-Satz %", "19")}</div>` : ""}
-        <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th>Bezeichnung</th><th class="r">Preis €</th><th class="r">Haken pro Stück</th></tr></thead><tbody>${d.prices.map((p, i) => `<tr><td class="num">${esc(p.sku)}</td><td>${esc(p.name)}</td><td style="width:110px"><div class="inp"><input type="text" inputmode="decimal" data-tbp="${i}|price" value="${esc(p.price)}"></div></td><td style="width:110px"><div class="inp"><input type="text" inputmode="numeric" data-tbp="${i}|hk" value="${esc(p.hk || "")}" placeholder="0"></div></td></tr>`).join("")}</tbody></table></div>
+        <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th style="text-align:left">Bezeichnung</th><th class="r">Preis €</th><th class="r">Haken pro Stück</th></tr></thead><tbody>${d.prices.map((p, i) => `<tr><td class="num">${esc(p.sku)}</td><td style="text-align:left">${esc(p.name)}</td><td style="width:110px"><div class="inp"><input type="text" inputmode="decimal" data-tbp="${i}|price" value="${esc(p.price)}"></div></td><td style="width:110px"><div class="inp"><input type="text" inputmode="numeric" data-tbp="${i}|hk" value="${esc(p.hk || "")}" placeholder="0"></div></td></tr>`).join("")}</tbody></table></div>
         <label style="display:flex;gap:8px"><input type="checkbox" data-tbf="a02" ${d.a02 ? "checked" : ""}> Auch ARUH-02 (Wandregal schwebend) zählt als sein Regal, gleicher Preis wie ARUH-01</label>
         <div class="grid3 keep"><div class="field"><label>Preis Drechselhaken €</label><div class="inp"><input type="text" inputmode="decimal" data-tbf="hook" value="${esc(d.hook)}"></div></div></div></section>`;
   }
@@ -5284,24 +5285,25 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const [k, val] = [t.dataset.tbact.split(":")[0], t.dataset.tbact.split(":").slice(1).join(":")], d = tbData();
     if (k === "pdel") { tbS.pAsk = val; return renderBuch(); } if (k === "pdelno") { tbS.pAsk = ""; return renderBuch(); }
     if (k === "pdelok") { tbS.pAsk = ""; d.pend = d.pend.filter(x => x.id !== val); tbSave(d); return renderBuch(); }
-    if (k === "xdel") { tbS.xAsk = val; return renderBuch(); } if (k === "xdelno") { tbS.xAsk = ""; return renderBuch(); }
-    if (k === "xdelok") { tbS.xAsk = ""; tbS.extra.splice(+val, 1); return renderBuch(); }
-    if (k === "addx") { tbS.extra.push({ t: "", q: "", p: "" }); return renderBuch(); }
+    if (k === "qdel") { tbS.qAsk = val; return renderBuch(); } if (k === "qdelno") { tbS.qAsk = ""; return renderBuch(); }
+    if (k === "qdelok") { tbS.qAsk = ""; d.qo = Object.assign({}, d.qo, { [tbS.ym + "|" + val]: "0" }); tbSave(d); return renderBuch(); }
+    if (k === "addx") { d.pend = d.pend.concat([{ id: uid(), ym: tbS.ym, t: "", q: "1", p: "" }]); tbSave(d); return renderBuch(); }
     if (k === "del") { tbS.delAsk = val; return renderBuch(); } if (k === "delno") { tbS.delAsk = ""; return renderBuch(); }
     if (k === "delok") { tbS.delAsk = ""; d.inv = d.inv.filter(x => x.id !== val); tbSave(d); return renderBuch(); }
     if (k === "print") { const inv = d.inv.find(x => x.id === val); if (inv) printHTML(tbInvoiceHTML(d, inv), "Rechnung " + inv.no); return; }
     if (k === "make") {
-      const lines = tbLines(d, tbS.ym); if (!lines.length || d.inv.some(x => x.ym === tbS.ym)) return;
-      const no = "BO-" + tbS.ym.replace("-", "") + "-" + String(d.seq).padStart(2, "0"), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0, net = lines.reduce((s, l) => s + l.q * l.p, 0);
-      const inv = { id: uid(), no, ym: tbS.ym, date: todayISO(), lines, total: Math.round(net * (1 + vat / 100) * 100) / 100 };
-      d.inv = d.inv.concat([inv]); d.seq = d.seq + 1; d.pend = d.pend.filter(x => x.ym !== tbS.ym); tbSave(d); tbS.qty = {}; tbS.extra = []; renderBuch(); toast("Rechnung " + no + " erstellt"); printHTML(tbInvoiceHTML(d, inv), "Rechnung " + no);
+      const lines = tbLines(d, tbS.ym); if (!lines.length) return; const old = d.inv.find(x => x.ym === tbS.ym);
+      const no = old ? old.no : "BO-" + tbS.ym.replace("-", "") + "-" + String(d.seq).padStart(2, "0"), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0, net = lines.reduce((s, l) => s + l.q * l.p, 0);
+      const inv = { id: old ? old.id : uid(), no, ym: tbS.ym, date: old ? old.date : todayISO(), lines, total: Math.round(net * (1 + vat / 100) * 100) / 100 };
+      d.inv = old ? d.inv.map(x => x.id === old.id ? inv : x) : d.inv.concat([inv]); if (!old) d.seq = d.seq + 1; tbSave(d); renderBuch(); toast("Rechnung " + no + (old ? " aktualisiert" : " erstellt")); printHTML(tbInvoiceHTML(d, inv), "Rechnung " + no);
     }
   });
   document.addEventListener("change", e => {
     if (view !== "buchhaltung" || bu.tab !== "tb") return; const t = e.target, x = t.dataset || {};
-    if (x.tbq !== undefined) { tbS.qty[x.tbq] = t.value; return renderBuch(); }
-    if (x.tbx !== undefined) { const [i, f] = x.tbx.split("|"); tbS.extra[+i][f] = t.value; return renderBuch(); }
-    if (x.tbf === "ym") { tbS.ym = t.value; tbS.qty = {}; tbS.extra = []; return renderBuch(); }
+    if (x.tbq !== undefined) { const d0 = tbData(); d0.qo = Object.assign({}, d0.qo, { [tbS.ym + "|" + x.tbq]: t.value }); tbSave(d0); return renderBuch(); }
+    if (x.tbpf !== undefined) { const d0 = tbData(), [id, f] = x.tbpf.split("|"), o = d0.pend.find(y => y.id === id); if (o) { o[f] = t.value; tbSave(d0); } return renderBuch(); }
+    if (x.tbadd !== undefined) { if (!t.value) return; const d0 = tbData(); d0.qo = Object.assign({}, d0.qo, { [tbS.ym + "|" + t.value]: "1" }); tbSave(d0); return renderBuch(); }
+    if (x.tbf === "ym") { tbS.ym = t.value; return renderBuch(); }
     const d = tbData();
     if (x.tbp !== undefined) { const [i, f] = x.tbp.split("|"); d.prices[+i][f] = t.value; tbSave(d); return renderBuch(); }
     if (x.tbf) { if (x.tbf === "hook") d.hook = t.value; else if (x.tbf === "a02") d.a02 = t.checked; else { const f = x.tbf.slice(4); d.ven = Object.assign({}, d.ven, { [f]: t.type === "checkbox" ? t.checked : t.value }); } tbSave(d); renderBuch(); }
@@ -5369,7 +5371,6 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   document.addEventListener("click", e => {
     if (view !== "buchhaltung" || bu.tab !== "mass") return; const t = e.target.closest && e.target.closest("[data-msact]"); if (!t) return; const m = msCalc(); if (!m) return;
     if (t.dataset.msact === "book") { const d = tbData(), q = tbNum(ms.qty) || 1, ym = ms.bym || curYM(), dim = [m.L, m.dep, m.th].map(x => dec(x)).join(" × ");
-      if (d.inv.some(x => x.ym === ym)) return toast("Für diesen Monat gibt es schon eine Rechnung. Wähl einen anderen Monat.");
       d.pend = d.pend.concat([{ id: uid(), ym, t: `Regal nach Maß ${dim} cm, Eiche`, q: String(q), p: String(m.thomas) }]); tbSave(d); toast("In die Rechnung für " + tbMonthLab(ym) + " gebucht"); return; }
     const txt = `Hallo Thomas, kannst du mir ein Regal nach Maß anfertigen? Maße: ${dec(m.L)} × ${dec(m.dep)} × ${dec(m.th)} cm, Eiche. Mein Vorschlag für den Preis: ${eur(m.thomas)} netto (${eur(m.thomas * 1.19)} mit USt). Passt das für dich? Gruß Mark`;
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht"));
