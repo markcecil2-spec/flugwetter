@@ -5041,9 +5041,9 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     docSave(items); docBusy = ""; docMsg = msg.join(" "); renderDocs();
   }
   // ---------- Buchhaltung / Steuer ----------
-  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"]];
+  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"], ["oss", "One-Stop-Shop"]];
   let bu = { tab: "uebersicht", busy: false, ctl: null, err: "", q: "" };
-  const buData = () => { const b = (SHOP && SHOP.buch) || {}; return { id: "buch", pay: b.pay || [], dl: b.dl || [], todo: b.todo || [], acc: b.acc || [], txt: b.txt || [], rl: b.rl || { inc: 6500, pct: 10 }, chat: b.chat || [] }; };
+  const buData = () => { const b = (SHOP && SHOP.buch) || {}; return { id: "buch", pay: b.pay || [], dl: b.dl || [], todo: b.todo || [], acc: b.acc || [], txt: b.txt || [], rl: b.rl || { inc: 6500, pct: 10 }, chat: b.chat || [], oss: b.oss || { status: "nicht angemeldet", since: "", note: "" } }; };
   const buSave = d => shopSave(d);
   const buDays = iso => iso ? Math.round((new Date(iso + "T12:00:00") - new Date(todayISO() + "T12:00:00")) / 864e5) : null;
   const buDe = iso => iso ? iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4) : "–";
@@ -5059,9 +5059,9 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><p class="note">Lade …</p>`; return; }
     const d = buData(), n = (d.pay.length + d.dl.length + d.todo.length + d.acc.length);
     const body = !n && bu.tab !== "texte" ? `<section class="box"><p>Hier ist noch nichts eingetragen. Leg Posten, Fristen und To-dos an, oder lass Claude unten im Chat beim Einrichten helfen.</p></section>` : "";
-    const tabHtml = { uebersicht: buOverview, zahlungen: buPay, fristen: buDl, todos: buTodo, konten: buAcc, texte: buTxt }[bu.tab](d);
-    $("view").innerHTML = `<div class="row"><h1>Buchhaltung / Steuer</h1><div class="seg" aria-label="Bereich">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${bu.tab === k}">${l}</button>`).join("")}</div></div>
-      <div class="stack">${body}${tabHtml}${buChatHTML(d)}</div>`;
+    const tabHtml = { uebersicht: buOverview, zahlungen: buPay, fristen: buDl, todos: buTodo, konten: buAcc, texte: buTxt, oss: buOss }[bu.tab](d);
+    $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${bu.tab === k}">${l}</button>`).join("")}</div>
+      <div class="stack" style="margin-top:14px">${body}${tabHtml}${buChatHTML(d)}</div>`;
     const lg = $("buLog"); if (lg) lg.scrollTop = lg.scrollHeight;
   }
   function buOverview(d) {
@@ -5105,6 +5105,25 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     return `<section class="box"><h2>Textbausteine</h2>${d.txt.map((x, i) => `<div class="field"><div class="row">${buIn(`txt.${i}.t`, x.t, 'placeholder="Titel"')}<button type="button" class="btn" data-bucopy="${i}">Kopieren</button><button type="button" class="btn" data-budel="txt|${i}" aria-label="Löschen">×</button></div><div class="inp"><textarea rows="5" data-bf="txt.${i}.body">${esc(x.body || "")}</textarea></div></div>`).join("") || `<p class="note">Noch keine Textbausteine, z. B. für Nachrichten ans Finanzamt.</p>`}
       <div class="btns"><button type="button" class="btn" data-buadd="txt">+ Textbaustein</button></div></section>`;
   }
+  function buOss(d) {
+    const o = d.oss;
+    return `<section class="box"><h2>One-Stop-Shop (OSS): EU-Umsatzsteuer bei Verkäufen an Privatkunden</h2>
+      <div class="grid3 keep"><div class="field"><label>Status</label><div class="inp"><select data-bf="oss.status">${["nicht angemeldet", "Antrag gestellt", "angemeldet"].map(x => `<option ${x === o.status ? "selected" : ""}>${x}</option>`).join("")}</select></div></div>
+        <div class="field"><label>Gilt ab</label><div class="inp"><input type="date" data-bf="oss.since" value="${esc(o.since || "")}"></div></div></div>
+      <div class="field"><label>Eigene Notizen</label><div class="inp"><textarea rows="3" data-bf="oss.note" placeholder="z. B. Antrag am … gestellt, Rückfrage Finanzamt …">${esc(o.note || "")}</textarea></div></div>
+      <h3>Muss ich das?</h3>
+      <ul class="note"><li>Verkaufst du an Privatkunden in anderen EU-Ländern mehr als <strong>10.000 € netto im Jahr</strong> (alle Länder zusammen, Waren + Versand), gilt dort ab dem Überschreiten die Umsatzsteuer des Ziellandes, nicht mehr die deutsche.</li>
+      <li>Mit OSS meldest du das gesammelt beim Bundeszentralamt für Steuern. Ohne OSS müsstest du dich in jedem Land einzeln registrieren. OSS ist also die einfache Lösung, aber freiwillig.</li>
+      <li>Schweiz zählt nicht dazu (Ausfuhr, kein OSS). Nur EU-Länder außer Deutschland.</li>
+      <li>Die Schwelle zählt für das laufende <em>und</em> das Vorjahr. Waren 2025 die EU-Verkäufe schon über 10.000 €, gilt OSS schon seit Jahresanfang 2026.</li></ul>
+      <h3>So geht es</h3>
+      <ol class="note"><li>Anmelden im Online-Portal des Bundeszentralamts für Steuern (BZSt). Du brauchst dafür deine Steuernummer und ein ELSTER-Zertifikat.</li>
+      <li>Gilt ab dem Quartal nach der Anmeldung. Wurde die Schwelle überschritten, geht es rückwirkend ab dem ersten Verkauf drüber, wenn du bis zum 10. des Folgemonats anmeldest.</li>
+      <li>Danach pro Quartal eine OSS-Meldung plus Zahlung, jeweils bis 30.04., 31.07., 31.10. und 31.01. Auch ohne Umsatz, und ohne Fristverlängerung.</li>
+      <li>Verkäufe nach Zielland aufsplitten (Frankreich 20 %, Niederlande 21 %, Österreich 20 % usw.). Das ist die eigentliche Arbeit.</li></ol>
+      <div class="btns"><button type="button" class="btn" data-buoss="1">OSS-Quartalsfristen anlegen</button></div>
+      <p class="note">Frag den Chat unten, wenn du Zahlen für dein Zielland-Splitting brauchst. Verbindlich klären kannst du es beim Finanzamt Waiblingen oder beim Steuerberater.</p></section>`;
+  }
   function buChatHTML(d) {
     return `<section class="box"><h2>Mit Claude über Steuer & Buchhaltung quatschen</h2>
       <div id="buLog" style="max-height:340px;overflow:auto;display:grid;gap:8px">${d.chat.map(m => `<div style="justify-self:${m.r === "u" ? "end" : "start"};max-width:90%;padding:8px 12px;border-radius:12px;background:${m.r === "u" ? "var(--accent-soft,#efe6d8)" : "var(--panel2,#f4f1ea)"};white-space:pre-wrap">${esc(m.t)}</div>`).join("") || `<p class="note">Frag z. B.: „Was muss ich bis Januar zahlen?“ oder „Wie buche ich die Shopify-Auszahlung?“. Claude kennt deine Zahlungen, Fristen und To-dos von oben.</p>`}${bu.busy ? `<div style="white-space:pre-wrap" id="buLive" class="note">${esc(bu.live || "Claude schreibt …")}</div>` : ""}</div>
@@ -5120,7 +5139,8 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     const ctx = `ZAHLUNGEN: ${JSON.stringify(d.pay.map(p => ({ posten: p.n, betrag: p.amt, faellig: p.due, art: p.kind, status: p.status, notiz: p.note })))}
 FRISTEN: ${JSON.stringify(d.dl.map(x => ({ datum: x.d, was: x.t })))}
 TODOS (offen): ${JSON.stringify(d.todo.filter(x => !x.done).map(x => ({ was: x.t, notiz: x.note })))}
-NUMMERN & KONTEN: ${JSON.stringify(d.acc.map(x => ({ wofuer: x.k, nummer: x.v, hinweis: x.note })))}`;
+NUMMERN & KONTEN: ${JSON.stringify(d.acc.map(x => ({ wofuer: x.k, nummer: x.v, hinweis: x.note })))}
+ONE-STOP-SHOP (OSS): ${JSON.stringify(d.oss)}`;
     const prompt = `Du bist der Steuer- und Buchhaltungs-Berater von Mark, Inhaber eines kleinen Holz-Shops (Etsy + eigener Shopify-Shop, Billbee, Lexware Office, Einzelunternehmen, Umsatzsteuer-Voranmeldung vierteljährlich, Einnahmen-Überschuss-Rechnung, Deutschland, Finanzamt Waiblingen für USt). Antworte auf Deutsch, locker, direkt, ehrlich und kurz. Erkläre ohne Fachchinesisch, mit konkreten Zahlen und Schritten. Wenn du etwas nicht sicher weißt oder es auf den Einzelfall ankommt, sag das offen und nenne, wen er fragen soll (Finanzamt, Steuerberater). Erfinde keine Zahlen oder Rechtsstände. Heutiges Datum: ${todayISO()}.
 
 STAND SEINER DATEN:
@@ -5140,12 +5160,13 @@ Claude:`;
     renderBuch();
   }
   document.addEventListener("click", e => {
-    if (view !== "buchhaltung") return; const c = e.target.closest && e.target.closest("[data-butab],[data-buadd],[data-budel],[data-buclean],[data-bukask],[data-bustop],[data-buclr],[data-bucopy]"); if (!c) return; const x = c.dataset;
+    if (view !== "buchhaltung") return; const c = e.target.closest && e.target.closest("[data-butab],[data-buoss],[data-buadd],[data-budel],[data-buclean],[data-bukask],[data-bustop],[data-buclr],[data-bucopy]"); if (!c) return; const x = c.dataset;
     if (x.butab) { bu.tab = x.butab; return renderBuch(); }
     if (x.bukask) return buAsk();
     if (x.bustop) { bu.ctl && bu.ctl.abort(); return; }
     const d = buData();
     if (x.buclr) { d.chat = []; buSave(d); return renderBuch(); }
+    if (x.buoss) { const add = [["2027-01-31", "OSS-Meldung Q4 2026 abgeben und zahlen"], ["2027-04-30", "OSS-Meldung Q1 2027 abgeben und zahlen"], ["2027-07-31", "OSS-Meldung Q2 2027 abgeben und zahlen"], ["2027-10-31", "OSS-Meldung Q3 2027 abgeben und zahlen"]].filter(([dt]) => !d.dl.some(y => y.d === dt && /OSS/.test(y.t))); add.forEach(([dt, t]) => d.dl.push({ id: uid(), d: dt, t })); buSave(d); toast(add.length ? add.length + " OSS-Fristen angelegt" : "Schon vorhanden"); return renderBuch(); }
     if (x.buclean) { d.todo = d.todo.filter(t => !t.done); buSave(d); return renderBuch(); }
     if (x.bucopy) { const t = (d.txt[+x.bucopy] || {}).body || ""; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht")); return; }
     if (x.buadd) { const blank = { pay: { id: uid(), n: "", amt: "", due: todayISO(), kind: "Steuer", status: "offen", note: "" }, dl: { id: uid(), d: todayISO(), t: "" }, todo: { id: uid(), t: "Neues To-do", note: "", done: false }, acc: { id: uid(), k: "", v: "", note: "" }, txt: { id: uid(), t: "Neuer Baustein", body: "" } }[x.buadd]; d[x.buadd].push(blank); buSave(d); return renderBuch(); }
@@ -5154,7 +5175,7 @@ Claude:`;
   document.addEventListener("change", e => {
     if (view !== "buchhaltung") return; const t = e.target, f = t.dataset && t.dataset.bf; if (!f) return;
     const d = buData(), p = f.split("."), val = t.type === "checkbox" ? t.checked : t.value;
-    if (p[0] === "rl") d.rl = Object.assign({}, d.rl, { [p[1]]: val }); else { const o = d[p[0]][+p[1]]; if (!o) return; o[p[2]] = val; }
+    if (p[0] === "oss") d.oss = Object.assign({}, d.oss, { [p[1]]: val }); else if (p[0] === "rl") d.rl = Object.assign({}, d.rl, { [p[1]]: val }); else { const o = d[p[0]][+p[1]]; if (!o) return; o[p[2]] = val; }
     buSave(d); renderBuch();
   });
   document.addEventListener("input", e => { if (view === "buchhaltung" && e.target.id === "buMsg") bu.draft = e.target.value; });
