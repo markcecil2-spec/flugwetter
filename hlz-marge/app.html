@@ -5155,7 +5155,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     docSave(items); docBusy = ""; docMsg = msg.join(" "); renderDocs();
   }
   // ---------- Buchhaltung / Steuer ----------
-  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"], ["oss", "One-Stop-Shop"], ["tb", "Rechnung Thomas"]];
+  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"], ["oss", "One-Stop-Shop"], ["tb", "Rechnung Thomas"], ["mass", "Regal nach Maß"]];
   let bu = { tab: "uebersicht", busy: false, ctl: null, err: "", q: "" };
   const buData = () => { const b = (SHOP && SHOP.buch) || {}; return { id: "buch", pay: b.pay || [], dl: b.dl || [], todo: b.todo || [], acc: b.acc || [], txt: b.txt || [], rl: b.rl || { inc: 6500, pct: 10 }, chat: b.chat || [], oss: b.oss || { status: "nicht angemeldet", since: "", note: "" } }; };
   const buSave = d => shopSave(d);
@@ -5173,7 +5173,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><p class="note">Lade …</p>`; return; }
     const d = buData(), n = (d.pay.length + d.dl.length + d.todo.length + d.acc.length);
     const body = !n && bu.tab !== "texte" ? `<section class="box"><p>Hier ist noch nichts eingetragen. Leg Posten, Fristen und To-dos an, oder lass Claude unten im Chat beim Einrichten helfen.</p></section>` : "";
-    const tabHtml = { uebersicht: buOverview, zahlungen: buPay, fristen: buDl, todos: buTodo, konten: buAcc, texte: buTxt, oss: buOss, tb: buTb }[bu.tab](d);
+    const tabHtml = { uebersicht: buOverview, zahlungen: buPay, fristen: buDl, todos: buTodo, konten: buAcc, texte: buTxt, oss: buOss, tb: buTb, mass: buMass }[bu.tab](d);
     $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${bu.tab === k}">${l}</button>`).join("")}</div>
       <div class="stack" style="margin-top:14px">${body}${tabHtml}${buChatHTML(d)}</div>`;
     const lg = $("buLog"); if (lg) lg.scrollTop = lg.scrollHeight;
@@ -5299,6 +5299,69 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const d = tbData();
     if (x.tbp !== undefined) { const [i, f] = x.tbp.split("|"); d.prices[+i][f] = t.value; tbSave(d); return renderBuch(); }
     if (x.tbf) { if (x.tbf === "hook") d.hook = t.value; else if (x.tbf === "a02") d.a02 = t.checked; else { const f = x.tbf.slice(4); d.ven = Object.assign({}, d.ven, { [f]: t.type === "checkbox" ? t.checked : t.value }); } tbSave(d); renderBuch(); }
+  });
+  // ---------- Regal nach Maß: Preis für Thomas, dich und den Kunden ----------
+  let ms = { len: "135", dep: "20", thick: "4", ch: "shopify", ship: "", port: "", thomas: "", fixed: "", copy: "" };
+  const msInterp = (pts, x) => {   // pts: [[x,y]] sortiert; lineare Zwischenwerte, außerhalb mit der Steigung des letzten Stücks
+    if (pts.length < 2) return pts.length ? pts[0][1] : 0;
+    let i = pts.findIndex(p => p[0] >= x); if (i < 0) i = pts.length - 1; if (i === 0) i = 1;
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i]; return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
+  };
+  const msUp5 = p => Math.ceil((p + 1) / 5 - 1e-9) * 5 - 1;   // nächster Preis auf …4 oder …9
+  function msCalc() {
+    const d = tbData(), L = tbNum(ms.len), dep = tbNum(ms.dep) || 20, th = tbNum(ms.thick) || 4;
+    const R = d.prices.filter(p => /^ARUH-01-\d+$/.test(p.sku)).map(p => ({ l: +p.sku.split("-")[2], p: tbNum(p.price), kg: tbNum(p.kg) })).sort((a, b) => a.l - b.l);
+    if (!(L > 0) || R.length < 2) return null;
+    const base = msInterp(R.map(r => [r.l, r.p]), L), sec = (dep * th) / 80;   // Zuschnitt: 50 % Material (wächst mit Querschnitt), 50 % Arbeit
+    const sug = Math.round(Math.max(0, base * (0.5 + 0.5 * sec)) * 2) / 2, thomas = ms.thomas !== "" ? tbNum(ms.thomas) : sug;
+    const kgBase = R.every(r => r.kg > 0) ? msInterp(R.map(r => [r.l, r.kg]), L) : L * 0.0625, g = Math.round(kgBase * sec * 1000 + 300);
+    const shipIn = ms.ship !== "" ? tbNum(ms.ship) : v(S.shipInDefault ?? 6.9);
+    const mk = (price, ext) => { const a = { fremd: true, ext: String(ext), shipIn: String(shipIn), pkL: String(L), pkB: String(dep), pkH: String(th), weight: String(g), pack: "0", outer: "0", mins: "", parts: [], small: {}, extra: [], shipMode: "auto", price: String(price), disc: "0" };
+      const sh = pickShip(a); if (ms.port !== "") a.extra = [{ p: String(tbNum(ms.port) - (sh.chosen ? (sh.chosen.price * (1 + v(S.shipAdj) / 100)) : 0)), q: "1" }]; return a; };
+    const ctx = volume(), ch = ms.ch, tgt = v(S.target) || 25;
+    const a0 = mk(0, thomas), ship = pickShip(a0), noTariff = !ship.chosen && ms.port === "";
+    const tp = solvePrice(a0, ch, tgt, ctx), minCust = isFinite(tp) ? msUp5(tp) : NaN;
+    const shopPts = A.filter(a => /^ARUH-01-\d+$/.test(a.sku || "") && v(a.price) > 0).map(a => [+a.sku.split("-")[2], v(a.price)]).sort((x, y) => x[0] - y[0]);
+    const cmp = shopPts.length > 1 ? Math.round(msInterp(shopPts, L) * (0.5 + 0.5 * sec)) : NaN;   // dein Shop-Preis für ähnliche Länge, bei anderem Querschnitt angepasst
+    const sugCust = isFinite(cmp) ? Math.max(minCust, msUp5(cmp - 0.5)) : minCust, cust = ms.fixed !== "" ? tbNum(ms.fixed) : sugCust;
+    const r = isFinite(cust) ? calc(mk(cust, thomas), ch, undefined, ctx) : null;
+    // Höchstpreis für Thomas bei diesem Kundenpreis und Zielmarge (Gewinn ist linear im Einkaufspreis)
+    let maxT = NaN; if (isFinite(cust)) { const f = e => { const q = calc(mk(cust, e), ch, undefined, ctx); return q.profit - tgt / 100 * q.net; }, f0 = f(0), sl = f(10) - f0; maxT = sl < 0 ? Math.max(0, f0 / -sl * 10) : NaN; }
+    return { d, L, dep, th, base, sug, thomas, g, shipIn, ship, noTariff, tgt, minCust, cmp, sugCust, cust, r, maxT, ch };
+  }
+  function buMass() {
+    if (!SHOP) { shopLoad(); return `<section class="box"><p class="note">Lade …</p></section>`; }
+    const m = msCalc(), inp = (k, l, ph = "", w = "") => `<div class="field"><label>${l}</label><div class="inp"><input type="text" inputmode="decimal" data-msf="${k}" value="${esc(ms[k])}" placeholder="${ph}"></div></div>`;
+    const form = `<div class="grid3 keep">${inp("len", "Länge (cm)")}${inp("dep", "Tiefe (cm)")}${inp("thick", "Stärke (cm)")}</div>
+      <div class="grid3 keep"><div class="field"><label>Verkauft über</label><div class="inp"><select data-msf="ch">${[["shopify", "Eigener Shop"], ["etsy", "Etsy"]].map(([k, l]) => `<option value="${k}" ${ms.ch === k ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
+        ${inp("ship", "Versand, den der Kunde zahlt (€)", String(S.shipInDefault ?? "6,90"))}${inp("port", "Porto für uns (€), nur wenn bekannt", "automatisch")}</div>`;
+    if (!m) return `<section class="box"><h2>Regal nach Maß</h2>${form}<p class="note">Trag eine Länge ein. Grundlage ist Thomas‘ Preisliste für ARUH-01 (Tab „Rechnung Thomas“).</p></section>`;
+    const r = m.r, big = m.L > 120, ok = r && isFinite(r.margin) && r.margin >= m.tgt - 0.05;
+    const cell = (l, v2, sub = "", hl = false) => `<div class="tile${hl ? " hero" : ""}"><span class="note">${l}</span><span class="num">${v2}</span><span class="note">${sub}</span></div>`;
+    return `<section class="box"><h2>Regal nach Maß: Preis rechnen</h2><p class="note">Die Basis ist Thomas‘ Preisliste fürs Regal. Zwischen den Längen rechne ich linear, darüber hinaus mit der Steigung der letzten Stufe. Gewicht, Porto, Gebühren und Zusatzzeit kommen aus deinen Einstellungen.</p>${form}
+      ${big ? `<p class="note" style="color:var(--warn,#b45309)">Über 120 cm gibt es keinen Preis in seiner Liste. Der Wert ist hochgerechnet, bitte mit Thomas abstimmen.</p>` : ""}
+      ${m.noTariff ? `<p class="note" style="color:var(--bad)">Dieses Maß passt in keinen deiner Paket-Tarife (Länge ${dec(m.L)} cm, ca. ${dec(m.g / 1000, 1)} kg). Das Porto ist hier mit 0 € gerechnet. Trag oben das echte Porto ein (Spedition oder Sperrgut), sonst stimmt die Marge nicht.</p>` : ""}</section>
+      <section class="box"><h2>Die drei Preise</h2><div class="tiles t3">
+        ${cell("Thomas bekommt (netto)", eur(m.thomas), `mit USt ${eur(m.thomas * 1.19)} · Liste hochgerechnet ${eur(m.base)}`)}
+        ${cell("Kunde zahlt (brutto)", r ? eur(m.cust) : "–", r ? `+ ${eur(m.shipIn)} Versand · netto ${eur(r.net - m.shipIn / 1.19)}` : "", true)}
+        ${cell("Du behältst", r ? eur(r.profit) : "–", r ? `${dec(r.margin, 1)} % Marge (Ziel ${m.tgt} %)` : "")}</div>
+        <div class="grid3 keep">${`<div class="field"><label>Preis für Thomas ändern (netto €)</label><div class="inp"><input type="text" inputmode="decimal" data-msf="thomas" value="${esc(ms.thomas)}" placeholder="${dec(m.sug, 2)}"></div></div>
+          <div class="field"><label>Kundenpreis festlegen (brutto €)</label><div class="inp"><input type="text" inputmode="decimal" data-msf="fixed" value="${esc(ms.fixed)}" placeholder="${isFinite(m.sugCust) ? dec(m.sugCust, 0) : ""}"></div></div>`}</div>
+        ${r ? `<p><strong>${ok ? "Passt:" : "Zu knapp:"}</strong> ${ok ? "Du erreichst deine Zielmarge." : "Du liegst unter deiner Zielmarge von " + m.tgt + " %."} Bei diesem Kundenpreis dürfte Thomas höchstens <strong>${isFinite(m.maxT) ? eur(m.maxT) : "–"}</strong> netto bekommen, damit die Marge ${m.tgt} % hält.</p>
+        <p class="note">Mindestpreis für deine Zielmarge: <strong>${isFinite(m.minCust) ? eur(m.minCust) : "–"}</strong>${isFinite(m.cmp) ? ` · Dein Shop-Preis für ein ähnliches Regal liegt bei ca. ${eur(m.cmp)}. Der Vorschlag oben ist der höhere von beiden` : ""}. Preise enden auf …4 oder …9.</p>` : ""}</section>
+      ${r ? `<section class="box"><h2>Wohin das Geld geht (pro Verkauf, netto)</h2><div class="tablewrap"><table><tbody>
+        ${[["Kunde zahlt netto (Preis + Versand)", r.net], ["− Thomas", -r.ext], ["− Porto", -r.porto], ["− Gebühren (Zahlung/Etsy)", -r.fees], ["− Werbung (Durchschnitt)", -r.ads], ["− Zusatzzeit (Verpacken, Büro)", -r.time], ["− Kleinkram", -r.small], ["− Werkstatt-Anteil", -r.fixShare]].map(([l, x]) => `<tr><td>${l}</td><td class="r num">${eur(x)}</td></tr>`).join("")}
+        <tr><td><strong>= Du behältst</strong></td><td class="r num"><strong>${eur(r.profit)}</strong></td></tr></tbody></table></div>
+        <div class="btns"><button type="button" class="btn" data-msact="copy">Vorschlag für Thomas kopieren</button></div></section>` : ""}`;
+  }
+  document.addEventListener("click", e => {
+    if (view !== "buchhaltung" || bu.tab !== "mass") return; const t = e.target.closest && e.target.closest("[data-msact]"); if (!t) return; const m = msCalc(); if (!m) return;
+    const txt = `Hallo Thomas, kannst du mir ein Regal nach Maß anfertigen? Maße: ${dec(m.L)} × ${dec(m.dep)} × ${dec(m.th)} cm, Eiche. Mein Vorschlag für den Preis: ${eur(m.thomas)} netto (${eur(m.thomas * 1.19)} mit USt). Passt das für dich? Gruß Mark`;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht"));
+  });
+  document.addEventListener("change", e => {
+    if (view !== "buchhaltung" || bu.tab !== "mass") return; const t = e.target, k = t.dataset && t.dataset.msf; if (!k) return; ms[k] = t.value;
+    if (["len", "dep", "thick"].includes(k)) ms.thomas = ""; renderBuch();
   });
   function buOss(d) {
     const o = d.oss;
