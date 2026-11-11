@@ -443,7 +443,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#auswertung" data-tab="auswertung">Auswertung</a>
       <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
       <a href="#preise" data-tab="preise">Preise</a>
-      <a href="#werbung" data-tab="werbung">Werbung</a>
+      <a href="#werbung" data-tab="werbung">Marketing</a>
       <a href="#shopcheck" data-tab="shopcheck">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
       <a href="#finanzen" data-tab="finanzen">Finanzen</a>
       <a href="#dokumente" data-tab="dokumente">Dokumente</a>
@@ -989,7 +989,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
     else if (view === "entwicklung") renderStats();
-    else if (view === "werbung") renderAds();
+    else if (view === "werbung") renderMkt();
     else if (view === "datencheck") renderCheck();
     else if (view === "dokumente") renderDocs();
     else if (view === "buchhaltung") renderBuch();
@@ -4239,7 +4239,7 @@ Antworte NUR mit JSON in dieser Form:
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
-    shopLoading = false; if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
+    shopLoading = false; if (view === "werbung" && mk.tab !== "werbung") renderMkt(); else if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
   }
   const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
   const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
@@ -4746,13 +4746,125 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     catch (e) { ad.plans[id] = adFallback(x) + "\n\n(" + supErr(e) + ")"; }
     ad.busy = ""; renderAds();
   }
+  // ---------- Marketing (Werbung + Content + Kalender + Kanäle) ----------
+  const MK_TABS = [["werbung", "Werbung"], ["content", "Content-Ideen"], ["kalender", "Kalender"], ["kanaele", "Kanäle & To-dos"]];
+  let mk = { tab: "werbung", ch: "Instagram Reel", sku: "", out: "", busy: false, err: "", ctl: null, hint: "" };
+  const mkData = () => { const m = (SHOP && SHOP.mkt) || {}; return { id: "mkt", ch: m.ch || {}, done: m.done || {}, saved: m.saved || [] }; };
+  const mkSave = d => shopSave(d);
+  function mkHead() {
+    return `<h1>Marketing</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap;margin-bottom:14px">${MK_TABS.map(([k, l]) => `<button type="button" data-mktab="${k}" aria-pressed="${mk.tab === k}">${l}</button>`).join("")}</div>`;
+  }
+  function renderMkt() {
+    if (mk.tab === "werbung") return renderAds();
+    if (!SHOP) { shopLoad(); $("view").innerHTML = mkHead() + `<p class="note">Lade …</p>`; return; }
+    const d = mkData();
+    $("view").innerHTML = mkHead() + { content: mkContent, kalender: mkCal, kanaele: mkChan }[mk.tab](d);
+  }
+  const MK_CH = ["Instagram Reel", "Instagram Post", "Pinterest Pin", "Facebook Post", "TikTok / Kurzvideo", "Google Unternehmensprofil", "Newsletter", "Etsy Shop-Update"];
+  function mkContent(d) {
+    const arts = A.filter(a => a.sku).slice().sort((a, b) => String(a.sku).localeCompare(String(b.sku))), cur = arts.find(a => a.sku === mk.sku) || arts[0] || null;
+    return `<div class="stack"><section class="box"><h2>Post-Entwurf von Claude</h2>
+      <p class="note">Wähl einen Artikel und einen Kanal. Claude schreibt dir einen fertigen Entwurf im Ton von HlzLaden: handgefertigt, Eiche, persönlich, nicht nach Werbung klingend.</p>
+      <div class="grid3 keep"><div class="field"><label>Artikel</label><div class="inp"><select data-mkf="sku">${arts.map(a => `<option value="${esc(a.sku)}" ${cur && cur.sku === a.sku ? "selected" : ""}>${esc(a.sku)} · ${esc(a.name.slice(0, 50))}</option>`).join("")}</select></div></div>
+        <div class="field"><label>Kanal</label><div class="inp"><select data-mkf="ch">${MK_CH.map(c => `<option ${c === mk.ch ? "selected" : ""}>${c}</option>`).join("")}</select></div></div></div>
+      <div class="field"><label>Anlass oder Winkel (optional)</label><div class="inp"><input type="text" data-mkf="hint" value="${esc(mk.hint)}" placeholder="z. B. Einzugsgeschenk, Weihnachten, Hinter den Kulissen"></div></div>
+      <div class="btns"><button type="button" class="btn primary" data-mk="ask" ${mk.busy || !cur ? "disabled" : ""}>${mk.busy ? "Claude schreibt …" : "✨ Entwurf schreiben"}</button>${mk.busy ? '<button type="button" class="btn" data-mk="stop">Stopp</button>' : ""}</div>
+      ${mk.err ? `<p class="note" style="color:var(--bad)">${esc(mk.err)}</p>` : ""}
+      ${mk.out ? `<div style="white-space:pre-wrap;border:1px solid var(--line);border-radius:10px;padding:12px" id="mkOut">${esc(mk.out)}</div><div class="btns"><button type="button" class="btn" data-mk="copy">Kopieren</button><button type="button" class="btn" data-mk="keep">Merken</button></div>` : ""}</section>
+      <section class="box"><h2>Gemerkte Entwürfe</h2>${d.saved.length ? d.saved.slice().reverse().map((x, i) => `<div style="border-top:1px solid var(--line);padding:10px 0"><div class="row"><strong>${esc(x.sku)} · ${esc(x.ch)}</strong><span class="note">${esc(x.at)}</span><button type="button" class="btn" data-mk="copysv:${x.id}">Kopieren</button>${mk.delAsk === x.id ? `<button type="button" class="btn primary" data-mk="delok:${x.id}" title="Ja, löschen">✓</button><button type="button" class="btn" data-mk="delno" title="Abbrechen">×</button>` : `<button type="button" class="btn" data-mk="del:${x.id}" aria-label="Löschen">×</button>`}</div><div style="white-space:pre-wrap" class="note">${esc(x.t)}</div></div>`).join("") : `<p class="note">Noch nichts gemerkt.</p>`}</section>
+      <section class="box"><h2>Wochenrhythmus, der reicht</h2><ul class="note"><li><strong>Montag:</strong> 1 Pinterest-Pin (Artikel mit guter Marge, Wohnidee statt Produktfoto).</li><li><strong>Mittwoch:</strong> 1 Reel (Herstellung, Verpacken, vorher/nachher an der Wand).</li><li><strong>Freitag:</strong> 1 Post oder Story (Kundenfoto, Frage, Angebot).</li><li>Mehr bringt wenig. Wichtiger ist, dass es jede Woche passiert.</li></ul></section></div>`;
+  }
+  async function mkAsk() {
+    const arts = A.filter(a => a.sku), a = arts.find(x => x.sku === mk.sku) || arts[0]; if (!a) return;
+    const sample = await getSample(); if (!sample) { mk.err = "Claude ist hier nicht verfügbar."; return renderMkt(); }
+    const fmt = { "Instagram Reel": "Reel-Idee mit Szenenablauf (Hook in den ersten 2 Sekunden, 4 bis 6 Szenen, Text-Einblendungen), Caption, 8 bis 12 Hashtags", "Instagram Post": "Caption mit Hook, 3 bis 5 Zeilen, Call-to-Action, 8 bis 12 Hashtags und Bildidee", "Pinterest Pin": "Pin-Titel (max. 100 Zeichen, Suchbegriff vorn), Beschreibung (max. 500 Zeichen mit Suchwörtern), Bildidee, Board-Vorschlag", "Facebook Post": "kurzer Post, persönlich, 1 Frage am Ende", "TikTok / Kurzvideo": "Video-Idee mit Hook, Ablauf und Text, ca. 20 Sekunden", "Google Unternehmensprofil": "kurzer Beitrag (max. 150 Wörter) mit Angebot und Button-Text", "Newsletter": "Betreffzeile, Vorschautext und kurzer Mailtext mit einem Button", "Etsy Shop-Update": "kurzes Shop-Update (max. 200 Zeichen) das neugierig macht" }[mk.ch];
+    const prompt = `Du schreibst Marketing-Texte für HlzLaden (hlzladen.de und Etsy), einen kleinen Shop von Mark: handgefertigte Eichenholz-Regale, Garderoben und Wohnaccessoires aus Deutschland. Ton: persönlich, warm, ehrlich, kurz, auf Deutsch (Du), nicht nach Werbeagentur, keine leeren Floskeln, keine Emojis-Flut (maximal 2).
+
+ARTIKEL: ${a.name} (SKU ${a.sku}), Preis ${eur(v(a.price))}
+KANAL: ${mk.ch}
+${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib nur den fertigen Text aus, ohne Erklärung davor oder danach. Erfinde keine Eigenschaften, Maße oder Preise, die oben nicht stehen.`;
+    mk.busy = true; mk.err = ""; mk.out = ""; mk.ctl = new AbortController(); renderMkt();
+    try { await sample(prompt, { cache: false, signal: mk.ctl.signal, onText: ({ text }) => { mk.out = text; const el = $("mkOut"); if (el) el.textContent = text; } }); }
+    catch (e) { if (!e || e.code !== "cancelled") mk.err = supErr(e); }
+    mk.busy = false; mk.ctl = null; renderMkt();
+  }
+  // Feste und bewegliche Termine, nächstes Vorkommen ab heute
+  function mkEaster(y) { const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1; return new Date(y, mo - 1, da); }
+  const mkNth = (y, mo, wd, n) => { const d = new Date(y, mo, 1); d.setDate(1 + (wd - d.getDay() + 7) % 7 + (n - 1) * 7); return d; };
+  const mkAdd = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  function mkEvents() {
+    const t0 = new Date(todayISO() + "T12:00:00"), out = [];
+    for (const y of [t0.getFullYear(), t0.getFullYear() + 1]) {
+      const E = [
+        ["Neujahr: Ordnung & Aufräumen", new Date(y, 0, 1), 3, "Garderoben, Schlüsselbretter, Regale als Ordnungs-Lösung. Pins mit „Ordnung im Flur“."],
+        ["Valentinstag", new Date(y, 1, 14), 4, "Gravur-Artikel und Geschenke zu zweit. Versandschluss einplanen."],
+        ["Ostern", mkEaster(y), 4, "Dekoration, kleine Geschenke, Frühlings-Pins."],
+        ["Muttertag", mkNth(y, 4, 0, 2), 5, "Pflanzenregale, Teelichthalter, Gravur. Bestellschluss für Lieferung vor dem Tag nennen."],
+        ["Vatertag / Himmelfahrt", mkAdd(mkEaster(y), 39), 3, "Eher Camping, Werkstatt, Schlüsselbretter mit Gravur."],
+        ["Hochzeits- & Einzugssaison Start", new Date(y, 4, 15), 4, "Einzugsgeschenke, Hochzeitsgeschenke mit Gravur. Läuft bis September."],
+        ["Sommerferien / Balkon & Garten", new Date(y, 5, 20), 3, "Pflanzenregale, Außen-Deko, Reels vom Balkon."],
+        ["Herbst: Gemütlichkeit", new Date(y, 8, 22), 4, "Teelichthalter, Regale, Garderoben. Wohnideen-Pins."],
+        ["Black Friday / Cyber Monday", mkNth(y, 10, 5, 4), 3, "Ein klares Angebot statt Dauerrabatt. Newsletter vorher ankündigen."],
+        ["Nikolaus", new Date(y, 11, 6), 3, "Kleine Geschenke bis 30 €."],
+        ["Weihnachtsgeschäft: Bestellschluss", new Date(y, 11, 10), 6, "Letzten Bestelltag für Lieferung vor Heiligabend nennen. Gravur braucht Vorlauf."],
+        ["Weihnachten", new Date(y, 11, 24), 8, "Ab Oktober Geschenk-Content, ab November Ads. Bestellschluss klar kommunizieren."]
+      ];
+      E.forEach(([n, dt, wk, tip]) => { dt.setHours(12); const start = mkAdd(dt, -wk * 7); if (dt >= mkAdd(t0, -3)) out.push({ n, dt, start, wk, tip, key: y + "|" + n }); });
+    }
+    return out.sort((a, b) => a.dt - b.dt).slice(0, 10);
+  }
+  const mkDe = dt => String(dt.getDate()).padStart(2, "0") + "." + String(dt.getMonth() + 1).padStart(2, "0") + "." + dt.getFullYear();
+  function mkCal(d) {
+    const t0 = new Date(todayISO() + "T12:00:00"), ev = mkEvents();
+    return `<div class="stack"><section class="box"><h2>Anlässe, die für HlzLaden zählen</h2><p class="note">Mit Start-Termin: ab dann solltest du Inhalte posten und Anzeigen vorbereiten. Haken setzen, wenn es erledigt ist.</p>
+      <div class="tablewrap"><table><thead><tr><th></th><th>Anlass</th><th>Datum</th><th>Starten</th><th>Was machen</th></tr></thead><tbody>${ev.map(e => { const days = Math.round((e.start - t0) / 864e5), run = days <= 0 && e.dt >= t0, done = d.done[e.key];
+        return `<tr><td><input type="checkbox" data-mkdone="${esc(e.key)}" ${done ? "checked" : ""} aria-label="Erledigt"></td><td class="name"><strong>${esc(e.n)}</strong></td><td class="num">${mkDe(e.dt)}</td><td><span style="${run ? "color:var(--bad);font-weight:700" : days <= 14 ? "color:var(--warn,#b45309);font-weight:700" : ""}">${run ? "jetzt!" : days > 0 ? "in " + days + " Tagen" : "vorbei"}</span><div class="note">${mkDe(e.start)} (${e.wk} Wo. vorher)</div></td><td class="note">${esc(e.tip)}</td></tr>`; }).join("")}</tbody></table></div></section></div>`;
+  }
+  const MK_TASKS = [
+    ["Pinterest", "Business-Konto, Shop-Katalog verbinden, 1 Pin pro Woche", "Pinterest bringt bei Wohn-Produkten den längsten Nachlauf, Klicks sind günstig."],
+    ["Instagram / Facebook", "3 Reels pro Woche, Shop-Verknüpfung, Highlights (Herstellung, Kundenfotos)", "Zeigt die Handarbeit, das ist dein Unterschied zu Massenware."],
+    ["Google Shopping", "Google-&-YouTube-Kanal in Shopify einrichten, Merchant Center prüfen", "Leute, die „Wandregal Eiche“ suchen, kaufen. Ads erst, wenn der Feed fehlerfrei ist."],
+    ["Google Search Console & Analytics", "Beides einrichten, Sitemap einreichen, Verkäufe nach Quelle prüfen", "Ohne Zahlen weißt du nicht, welcher Kanal Geld bringt."],
+    ["Meta Pixel / Tracking", "Pixel und Conversions-API in Shopify prüfen", "Pflicht, bevor du Meta-Ads bezahlst."],
+    ["E-Mail", "Newsletter-Anmeldung mit Willkommens-Gutschein, Warenkorb-Erinnerung, 1 Mail pro Monat", "Eigene Kundenliste gehört dir, Plattformen können Reichweite jederzeit kappen."],
+    ["Bewertungen", "Nach jeder Lieferung um Bewertung bitten (Shop und Etsy), Fotos erlauben", "Bewertungen mit Fotos verkaufen besser als jede Anzeige."],
+    ["Etsy", "Titel und Tags pflegen, Etsy Ads nur klein, Sale-Aktionen zu Anlässen", "Etsy bringt den größten Teil deiner Verkäufe, kleine Pflege lohnt hier am meisten."],
+    ["Einzugs- & Hochzeitsgeschenke", "Eigene Seite und Pins für Geschenkideen mit Gravur", "Gutes Geschenk-Thema, hohe Marge bei Gravur."],
+    ["Kooperationen", "5 Wohn- und DIY-Blogger oder Creator anschreiben, Produkt gegen Foto/Beitrag", "Günstigster Weg zu neuen Zielgruppen, wenn du Erlaubnis zum Teilen der Bilder bekommst."],
+    ["Google Unternehmensprofil", "Nur anlegen, wenn Kunden die Werkstatt besuchen oder abholen dürfen", "Lokale Suche bringt nur etwas mit echtem Standort."],
+    ["Blog / Ratgeber", "2 bis 3 Anleitungen: Regal aufhängen, Wandmaterial, Eiche pflegen", "Bringt Suchtreffer und weniger Support-Fragen."]
+  ];
+  function mkChan(d) {
+    const st = k => d.ch[k] || { s: "offen", n: "" }, cnt = MK_TASKS.filter(([k]) => st(k).s === "fertig").length;
+    return `<div class="stack"><section class="box"><h2>Kanäle & To-dos</h2><p class="note">${cnt} von ${MK_TASKS.length} fertig. Fang oben an, nicht überall gleichzeitig.</p>
+      <div class="tablewrap"><table><thead><tr><th>Kanal</th><th>Was</th><th>Status</th><th>Notiz</th></tr></thead><tbody>${MK_TASKS.map(([k, t, why]) => `<tr><td class="name"><strong>${esc(k)}</strong></td><td>${esc(t)}<div class="note">${esc(why)}</div></td><td style="width:130px"><div class="inp"><select data-mkch="${esc(k)}|s">${["offen", "läuft", "fertig"].map(x => `<option ${x === st(k).s ? "selected" : ""}>${x}</option>`).join("")}</select></div></td><td><div class="inp"><input type="text" data-mkch="${esc(k)}|n" value="${esc(st(k).n)}" placeholder="Notiz"></div></td></tr>`).join("")}</tbody></table></div></section></div>`;
+  }
+  document.addEventListener("click", e => {
+    if (view !== "werbung") return; const t = e.target.closest && e.target.closest("[data-mktab],[data-mk]"); if (!t) return;
+    if (t.dataset.mktab) { mk.tab = t.dataset.mktab; return renderMkt(); }
+    const [k, val] = [t.dataset.mk.split(":")[0], t.dataset.mk.split(":").slice(1).join(":")];
+    if (k === "ask") return mkAsk();
+    if (k === "stop") { mk.ctl && mk.ctl.abort(); return; }
+    if (k === "copy" || k === "copysv") { const x = k === "copy" ? mk.out : ((mkData().saved.find(y => y.id === val) || {}).t || ""); (navigator.clipboard ? navigator.clipboard.writeText(x) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht")); return; }
+    const d = mkData();
+    if (k === "keep") { const a = A.find(x => x.sku === mk.sku) || A.find(x => x.sku); d.saved.push({ id: uid(), at: todayISO(), sku: a ? a.sku : "", ch: mk.ch, t: mk.out }); mkSave(d); toast("Gemerkt"); return renderMkt(); }
+    if (k === "del") { mk.delAsk = val; return renderMkt(); } if (k === "delno") { mk.delAsk = ""; return renderMkt(); }
+    if (k === "delok") { mk.delAsk = ""; d.saved = d.saved.filter(x => x.id !== val); mkSave(d); return renderMkt(); }
+  });
+  document.addEventListener("change", e => {
+    if (view !== "werbung" || mk.tab === "werbung") return; const t = e.target, x = t.dataset || {};
+    if (x.mkf) { mk[x.mkf] = t.value; if (x.mkf === "sku") renderMkt(); return; }
+    const d = mkData();
+    if (x.mkdone) { d.done = Object.assign({}, d.done, { [x.mkdone]: t.checked }); mkSave(d); return renderMkt(); }
+    if (x.mkch) { const [k, f] = x.mkch.split("|"); d.ch = Object.assign({}, d.ch, { [k]: Object.assign({ s: "offen", n: "" }, d.ch[k], { [f]: t.value }) }); mkSave(d); renderMkt(); }
+  });
   function renderAds() {
     if (!STATS) statsLoad();
     const R = adRoas(), rows = adRows(), shown = rows.filter(x => (ad.all || x.lvl >= 1) && (!ad.q || norm(x.a.name + " " + x.a.sku).includes(norm(ad.q))));
     const yes = rows.filter(x => x.lvl === 2), top5 = new Set(yes.slice(0, 5).map(x => x.a.id)), maybe = rows.filter(x => x.lvl === 1), no = rows.filter(x => x.lvl === 0), best = yes[0];
     const tile = (l, val, sub) => `<div class="tile"><span class="label">${l}</span><span class="num">${val}</span><span class="note">${sub}</span></div>`;
     const sel = ad.sel ? rows.find(x => x.a.id === ad.sel) : null;
-    $("view").innerHTML = `<div class="row"><h1>Werbung</h1></div>
+    $("view").innerHTML = mkHead() + `
       <p class="note">Hier siehst du, welche Artikel sich zu bewerben lohnen und wie. Grundlage ist, was nach allen Kosten pro Verkauf übrig bleibt, <strong>bevor</strong> Werbung bezahlt wird (Deckungsbeitrag). Nur davon kannst du Anzeigen bezahlen. Alles darüber hinaus ist Verlust.</p>
       <div class="tiles">
         ${tile("Ads lohnen sich", yes.length + " Artikel", "gute Marge und läuft schon (ab 1 Verkauf pro Monat)")}
