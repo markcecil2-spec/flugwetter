@@ -4987,7 +4987,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   const docRange = (a, b) => { const out = []; for (let m = a; m <= b && out.length < 36; m = ymAdd(m, 1)) out.push(m); return out; };
   const docNameMonths = n => [...String(n).matchAll(/(20\d{2})[-_.](\d{1,2})(?!\d)/g)].map(x => x[1] + "-" + String(x[2]).padStart(2, "0")).filter(m => +m.slice(5) >= 1 && +m.slice(5) <= 12);
   function docDetect(f) {
-    const n = f.name.toLowerCase(), d = new Date(f.lastModified || Date.now()), lm = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"), nm = docNameMonths(n).sort();
+    const n = f.name.toLowerCase(), d = new Date(f.lastModified || Date.now()), lm = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"), nm = docNameMonths(n).sort(); if (!nm.length) { const y = n.match(/(20\d{2})(\d{2})(\d{2})(?!\d)/); if (y && +y[2] >= 1 && +y[2] <= 12) nm.push(y[1] + "-" + y[2]); }
     const months = nm.length > 1 ? docRange(nm[0], nm[nm.length - 1]) : nm.length ? [nm[0]] : [lm];
     if (/tax_statement|etsy.*(statement|rechnung)/.test(n)) return { kind: "etsyTax", months: [months[0]] };
     if (/dhl|paket.*rechnung|rechnung.*dhl/.test(n)) return { kind: "dhl", months: [months[0]] };
@@ -5009,7 +5009,11 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
         if (isCsv) {
           const text = bankDecode(await f.arrayBuffer()), hdr = (parseCSV(text)[0] || []).map(h => h.trim().toLowerCase());
           const listings = hdr.includes("tags") && (hdr.includes("title") || hdr.includes("titel")), orderItems = hdr.includes("item name") || hdr.includes("artikelname") || hdr.includes("artikelbezeichnung"), orders = hdr.includes("order value") && hdr.includes("number of items");
-          if (listings) { kind = "etsyList"; months = months || [curYM()]; note = await shopFiles([f]); }
+          const payout = hdr.includes("payout date") && hdr.includes("total");
+          if (payout) {
+            kind = "shopPay"; const di = hdr.indexOf("payout date"), t = parseCSV(text).slice(1);
+            const ms = t.map(r => String(r[di] || "").slice(0, 7)).filter(x => /^20\d\d-\d\d$/.test(x)).sort(); months = ms.length ? docRange(ms[0] < "2026-01" ? "2026-01" : ms[0], ms[ms.length - 1]) : null; note = `${t.length} Auszahlungen.`;
+          } else if (listings) { kind = "etsyList"; months = months || [curYM()]; note = await shopFiles([f]); }
           else if (orderItems || orders || kind === "etsyOrd") {
             kind = "etsyOrd"; if (orderItems) note = await shopFiles([f]);
             const st = await statFiles([f]); note = (note ? note + " " : "") + st;
@@ -5017,7 +5021,8 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
           } else {
             let rows = null; try { rows = bankParse(text); } catch (e) { /* kein Kontoauszug */ }
             if (rows && rows.rows.length) {
-              const acc = kind === "bankP" ? "p" : kind === "bankG" ? "g" : docAcc; kind = acc === "p" ? "bankP" : "bankG"; bankAcc = acc;
+              const auto = hdr.includes("partner name") || hdr.includes("booking date") ? "g" : hdr.includes("valuta") || hdr.some(h => h.startsWith("auftraggeber")) ? "p" : null;
+              const acc = auto || (kind === "bankP" ? "p" : kind === "bankG" ? "g" : docAcc); kind = acc === "p" ? "bankP" : "bankG"; bankAcc = acc;
               await bankLoad(); while (!BANK) await new Promise(r => setTimeout(r, 50));
               note = await bankImport([f]); months = [...new Set(rows.rows.map(r => r.d.slice(0, 7)))].sort();
             }
