@@ -5221,7 +5221,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   }
   // ---------- Rechnung Thomas (Lieferant fertigt, Mark schreibt die Rechnung) ----------
   let tbS = { ym: "", qty: {}, extra: [], delAsk: "", sel: "" };
-  const tbData = () => { const t = (SHOP && SHOP.tb) || {}; return { id: "tb", ven: t.ven || {}, me: t.me || {}, prices: t.prices || [], hook: t.hook === undefined ? 0.65 : t.hook, a02: !!t.a02, inv: t.inv || [], seq: t.seq || 1 }; };
+  const tbData = () => { const t = (SHOP && SHOP.tb) || {}; return { id: "tb", ven: t.ven || {}, me: t.me || {}, prices: t.prices || [], hook: t.hook === undefined ? 0.65 : t.hook, a02: !!t.a02, pend: t.pend || [], inv: t.inv || [], seq: t.seq || 1 }; };
   const tbSave = d => shopSave(d);
   const tbNum = x => parseFloat(String(x ?? "").replace(",", ".")) || 0;
   const tbKeys = sku => { const s = String(sku).toLowerCase(), out = [s]; if (/^aruh-01-/.test(s) && tbData().a02) out.push(s.replace("aruh-01-", "aruh-02-")); if (/^aruh-06-/.test(s)) out.push(s.replace("aruh-06-", "bilei-")); return out; };   // Bilderleiste heißt im Shop BILEI
@@ -5234,6 +5234,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const L = []; let hooks = 0;
     d.prices.forEach(p => { const q = tbS.qty[p.sku] !== undefined ? tbNum(tbS.qty[p.sku]) : tbSold(ym, p.sku); if (q > 0) { L.push({ sku: p.sku, t: p.name, q, p: tbNum(p.price) }); hooks += q * tbNum(p.hk); } });
     if (hooks > 0) L.push({ sku: "", t: "Drechselhaken", q: hooks, p: tbNum(d.hook) });
+    d.pend.filter(x => x.ym === ym).forEach(x => L.push({ sku: "Sondermaß", t: x.t, q: tbNum(x.q), p: tbNum(x.p), pid: x.id }));
     tbS.extra.forEach(x => { if (x.t && tbNum(x.q)) L.push({ sku: "", t: x.t, q: tbNum(x.q), p: tbNum(x.p) }); });
     return L;
   }
@@ -5261,8 +5262,8 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <div class="grid3 keep"><div class="field"><label>Monat</label><div class="inp"><select data-tbf="ym">${months.map(m => `<option value="${m}" ${m === tbS.ym ? "selected" : ""}>${tbMonthLab(m)}</option>`).join("")}</select></div></div></div>
       ${!data ? `<p class="note" style="color:var(--bad)">Für ${tbMonthLab(tbS.ym)} liegen noch keine Verkaufsdaten vor. Lad unter Dokumente die Etsy-Bestellungen (CSV) hoch und hol unter Entwicklung die Shopify-Bestellungen.</p>` : ""}
       ${have ? `<p>Für diesen Monat gibt es schon die Rechnung <strong>${esc(have.no)}</strong> vom ${buDe(have.date)} (${eur(have.total)}).</p>` : ""}
-      <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th>Bezeichnung</th><th class="r">Menge</th><th class="r">Preis</th><th class="r">Summe</th></tr></thead><tbody>${lines.map(l => { const isP = d.prices.some(p => p.sku === l.sku && l.sku);
-        return `<tr><td class="num">${esc(l.sku)}</td><td>${esc(l.t)}</td><td class="r" style="width:90px">${isP ? `<div class="inp"><input type="text" inputmode="decimal" data-tbq="${esc(l.sku)}" value="${l.q}"></div>` : String(l.q).replace(".", ",")}</td><td class="r num">${eur(l.p)}</td><td class="r num">${eur(l.q * l.p)}</td></tr>`; }).join("") || `<tr><td colspan="5" class="note">Keine Verkäufe seiner Artikel in diesem Monat.</td></tr>`}</tbody></table></div>
+      <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th>Bezeichnung</th><th class="r">Menge</th><th class="r">Preis</th><th class="r">Summe</th><th></th></tr></thead><tbody>${lines.map(l => { const isP = d.prices.some(p => p.sku === l.sku && l.sku);
+        return `<tr><td class="num">${esc(l.sku)}</td><td>${esc(l.t)}</td><td class="r" style="width:90px">${isP ? `<div class="inp"><input type="text" inputmode="decimal" data-tbq="${esc(l.sku)}" value="${l.q}"></div>` : String(l.q).replace(".", ",")}</td><td class="r num">${eur(l.p)}</td><td class="r num">${eur(l.q * l.p)}</td><td>${l.pid && !have ? `<button type="button" class="btn" data-tbact="pdel:${l.pid}" aria-label="Zeile entfernen" title="Zeile entfernen">×</button>` : ""}</td></tr>`; }).join("") || `<tr><td colspan="6" class="note">Keine Verkäufe seiner Artikel in diesem Monat.</td></tr>`}</tbody></table></div>
       <div class="field"><label>Weitere Zeile (optional, z. B. Sonderanfertigung)</label><div class="grid3 keep">${tbS.extra.map((x, i) => `<div class="inp"><input type="text" data-tbx="${i}|t" value="${esc(x.t)}" placeholder="Bezeichnung"></div><div class="inp"><input type="text" data-tbx="${i}|q" value="${esc(x.q)}" placeholder="Menge"></div><div class="inp"><input type="text" data-tbx="${i}|p" value="${esc(x.p)}" placeholder="Preis"></div>`).join("")}</div><div class="btns"><button type="button" class="btn" data-tbact="addx">+ Zeile</button></div></div>
       <p>${vat ? `Netto ${eur(net)} · MwSt ${vat} % ${eur(net * vat / 100)} · ` : ""}<strong>Summe ${eur(net + net * vat / 100)}</strong></p>
       ${unk.length ? `<p class="note" style="color:var(--warn,#b45309)">Drechselhaken: Trag unten in der Preisliste ein, wie viele Haken pro Garderobe oder Schlüsselbrett dazugehören, sonst fehlen sie in der Rechnung.</p>` : ""}
@@ -5280,6 +5281,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   document.addEventListener("click", e => {
     if (view !== "buchhaltung" || bu.tab !== "tb") return; const t = e.target.closest && e.target.closest("[data-tbact]"); if (!t) return;
     const [k, val] = [t.dataset.tbact.split(":")[0], t.dataset.tbact.split(":").slice(1).join(":")], d = tbData();
+    if (k === "pdel") { d.pend = d.pend.filter(x => x.id !== val); tbSave(d); return renderBuch(); }
     if (k === "addx") { tbS.extra.push({ t: "", q: "", p: "" }); return renderBuch(); }
     if (k === "del") { tbS.delAsk = val; return renderBuch(); } if (k === "delno") { tbS.delAsk = ""; return renderBuch(); }
     if (k === "delok") { tbS.delAsk = ""; d.inv = d.inv.filter(x => x.id !== val); tbSave(d); return renderBuch(); }
@@ -5288,7 +5290,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       const lines = tbLines(d, tbS.ym); if (!lines.length || d.inv.some(x => x.ym === tbS.ym)) return;
       const no = "BO-" + tbS.ym.replace("-", "") + "-" + String(d.seq).padStart(2, "0"), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0, net = lines.reduce((s, l) => s + l.q * l.p, 0);
       const inv = { id: uid(), no, ym: tbS.ym, date: todayISO(), lines, total: Math.round(net * (1 + vat / 100) * 100) / 100 };
-      d.inv = d.inv.concat([inv]); d.seq = d.seq + 1; tbSave(d); tbS.qty = {}; tbS.extra = []; renderBuch(); toast("Rechnung " + no + " erstellt"); printHTML(tbInvoiceHTML(d, inv), "Rechnung " + no);
+      d.inv = d.inv.concat([inv]); d.seq = d.seq + 1; d.pend = d.pend.filter(x => x.ym !== tbS.ym); tbSave(d); tbS.qty = {}; tbS.extra = []; renderBuch(); toast("Rechnung " + no + " erstellt"); printHTML(tbInvoiceHTML(d, inv), "Rechnung " + no);
     }
   });
   document.addEventListener("change", e => {
@@ -5301,7 +5303,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     if (x.tbf) { if (x.tbf === "hook") d.hook = t.value; else if (x.tbf === "a02") d.a02 = t.checked; else { const f = x.tbf.slice(4); d.ven = Object.assign({}, d.ven, { [f]: t.type === "checkbox" ? t.checked : t.value }); } tbSave(d); renderBuch(); }
   });
   // ---------- Regal nach Maß: Preis für Thomas, dich und den Kunden ----------
-  let ms = { mt: "20", sp: "10", len: "135", dep: "20", thick: "4", ch: "shopify", ship: "", port: "", thomas: "", fixed: "", copy: "" };
+  let ms = { qty: "1", bym: "", mt: "20", sp: "10", len: "135", dep: "20", thick: "4", ch: "shopify", ship: "", port: "", thomas: "", fixed: "", copy: "" };
   const msInterp = (pts, x) => {   // pts: [[x,y]] sortiert; lineare Zwischenwerte, außerhalb mit der Steigung des letzten Stücks
     if (pts.length < 2) return pts.length ? pts[0][1] : 0;
     let i = pts.findIndex(p => p[0] >= x); if (i < 0) i = pts.length - 1; if (i === 0) i = 1;
@@ -5354,10 +5356,17 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       ${r ? `<section class="box"><h2>Wohin das Geld geht (pro Verkauf, netto)</h2><div class="tablewrap"><table><tbody>
         ${[["Kunde zahlt netto (Preis + Versand)", r.net], ["− Thomas", -r.ext], ["− Porto", -r.porto], ["− Gebühren (Zahlung/Etsy)", -r.fees], ["− Werbung (Durchschnitt)", -r.ads], ["− Zusatzzeit (Verpacken, Büro)", -r.time], ["− Kleinkram", -r.small], ["− Werkstatt-Anteil", -r.fixShare]].map(([l, x]) => `<tr><td>${l}</td><td class="r num">${eur(x)}</td></tr>`).join("")}
         <tr><td><strong>= Du behältst</strong></td><td class="r num"><strong>${eur(r.profit)}</strong></td></tr></tbody></table></div>
-        <div class="btns"><button type="button" class="btn" data-msact="copy">Vorschlag für Thomas kopieren</button></div></section>` : ""}`;
+        <div class="btns"><button type="button" class="btn" data-msact="copy">Vorschlag für Thomas kopieren</button></div></section>
+      <section class="box"><h2>In die Rechnung von Thomas buchen</h2><div class="grid3 keep"><div class="field"><label>Anzahl</label><div class="inp"><input type="text" inputmode="numeric" data-msf="qty" value="${esc(ms.qty)}"></div></div>
+        <div class="field"><label>Für Monat</label><div class="inp"><select data-msf="bym">${Array.from({ length: 4 }, (_, i) => ymAdd(curYM(), -i + 1)).map(x => `<option value="${x}" ${(ms.bym || curYM()) === x ? "selected" : ""}>${tbMonthLab(x)}</option>`).join("")}</select></div></div></div>
+        <div class="btns"><button type="button" class="btn primary" data-msact="book">Zur Rechnung hinzufügen (${eur(m.thomas * (tbNum(ms.qty) || 1))} netto)</button></div>
+        <p class="note">Die Zeile erscheint im Reiter „Rechnung Thomas“ für diesen Monat und kommt automatisch in die Rechnung, wenn du sie erstellst.</p></section>` : ""}`;
   }
   document.addEventListener("click", e => {
     if (view !== "buchhaltung" || bu.tab !== "mass") return; const t = e.target.closest && e.target.closest("[data-msact]"); if (!t) return; const m = msCalc(); if (!m) return;
+    if (t.dataset.msact === "book") { const d = tbData(), q = tbNum(ms.qty) || 1, ym = ms.bym || curYM(), dim = [m.L, m.dep, m.th].map(x => dec(x)).join(" × ");
+      if (d.inv.some(x => x.ym === ym)) return toast("Für diesen Monat gibt es schon eine Rechnung. Wähl einen anderen Monat.");
+      d.pend = d.pend.concat([{ id: uid(), ym, t: `Regal nach Maß ${dim} cm, Eiche`, q: String(q), p: String(m.thomas) }]); tbSave(d); toast("In die Rechnung für " + tbMonthLab(ym) + " gebucht"); return; }
     const txt = `Hallo Thomas, kannst du mir ein Regal nach Maß anfertigen? Maße: ${dec(m.L)} × ${dec(m.dep)} × ${dec(m.th)} cm, Eiche. Mein Vorschlag für den Preis: ${eur(m.thomas)} netto (${eur(m.thomas * 1.19)} mit USt). Passt das für dich? Gruß Mark`;
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht"));
   });
