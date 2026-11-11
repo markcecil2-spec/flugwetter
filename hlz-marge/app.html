@@ -447,6 +447,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#shopcheck" data-tab="shopcheck">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
       <a href="#finanzen" data-tab="finanzen">Finanzen</a>
       <a href="#dokumente" data-tab="dokumente">Dokumente</a>
+      <a href="#buchhaltung" data-tab="buchhaltung">Buchhaltung</a>
       <span class="navsep" aria-hidden="true"></span>
       <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion">Produktion</a>
@@ -954,7 +955,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung"].includes(h) ? h : "uebersicht";
     document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     render();
     window.scrollTo(0, 0);
@@ -989,6 +990,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "werbung") renderAds();
     else if (view === "datencheck") renderCheck();
     else if (view === "dokumente") renderDocs();
+    else if (view === "buchhaltung") renderBuch();
     else if (view === "projekte") renderProjects();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
@@ -4235,7 +4237,7 @@ Antworte NUR mit JSON in dieser Form:
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
-    shopLoading = false; if (view === "dokumente") renderDocs(); else if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
+    shopLoading = false; if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "shopcheck") renderShop(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
   }
   const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
   const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
@@ -5038,6 +5040,125 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     }
     docSave(items); docBusy = ""; docMsg = msg.join(" "); renderDocs();
   }
+  // ---------- Buchhaltung / Steuer ----------
+  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"]];
+  let bu = { tab: "uebersicht", busy: false, ctl: null, err: "", q: "" };
+  const buData = () => { const b = (SHOP && SHOP.buch) || {}; return { id: "buch", pay: b.pay || [], dl: b.dl || [], todo: b.todo || [], acc: b.acc || [], txt: b.txt || [], rl: b.rl || { inc: 6500, pct: 10 }, chat: b.chat || [] }; };
+  const buSave = d => shopSave(d);
+  const buDays = iso => iso ? Math.round((new Date(iso + "T12:00:00") - new Date(todayISO() + "T12:00:00")) / 864e5) : null;
+  const buDe = iso => iso ? iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4) : "–";
+  const buWhen = iso => { const n = buDays(iso); return n === null ? "" : n < 0 ? `überfällig (${-n} T)` : n === 0 ? "heute" : n + (n === 1 ? " Tag" : " Tage"); };
+  const buTone = iso => { const n = buDays(iso); return n === null ? "" : n < 0 ? "color:var(--bad);font-weight:700" : n <= 14 ? "color:var(--warn,#b45309);font-weight:700" : "color:var(--good)"; };
+  const buIn = (cls, v, extra = "") => `<div class="inp"><input type="text" ${extra} value="${esc(v)}" data-bf="${cls}"></div>`;
+  function buTotals(d) {
+    const sum = f => d.pay.filter(f).reduce((s, p) => s + (parseFloat(String(p.amt).replace(",", ".")) || 0), 0);
+    return { openTax: sum(p => p.status !== "bezahlt" && p.kind === "Steuer"), openAll: sum(p => p.status !== "bezahlt"), paid: sum(p => p.status === "bezahlt") };
+  }
+  const buRow = (arr, i, cols) => cols;
+  function renderBuch() {
+    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><p class="note">Lade …</p>`; return; }
+    const d = buData(), n = (d.pay.length + d.dl.length + d.todo.length + d.acc.length);
+    const body = !n && bu.tab !== "texte" ? `<section class="box"><p>Hier ist noch nichts eingetragen. Leg Posten, Fristen und To-dos an, oder lass Claude unten im Chat beim Einrichten helfen.</p></section>` : "";
+    const tabHtml = { uebersicht: buOverview, zahlungen: buPay, fristen: buDl, todos: buTodo, konten: buAcc, texte: buTxt }[bu.tab](d);
+    $("view").innerHTML = `<div class="row"><h1>Buchhaltung / Steuer</h1><div class="seg" aria-label="Bereich">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${bu.tab === k}">${l}</button>`).join("")}</div></div>
+      <div class="stack">${body}${tabHtml}${buChatHTML(d)}</div>`;
+    const lg = $("buLog"); if (lg) lg.scrollTop = lg.scrollHeight;
+  }
+  function buOverview(d) {
+    const t = buTotals(d), open = d.pay.filter(p => p.status !== "bezahlt").sort((a, b) => String(a.due).localeCompare(String(b.due))), nd = d.dl.slice().sort((a, b) => String(a.d).localeCompare(String(b.d)))[0];
+    const tile = (l, v, s = "") => `<div class="tile"><span class="note">${l}</span><span class="num">${v}</span>${s}</div>`;
+    const inc = parseFloat(String(d.rl.inc).replace(",", ".")) || 0, pct = parseFloat(String(d.rl.pct).replace(",", ".")) || 0;
+    return `<div class="tiles t3">${tile("Noch offen (Steuer)", eur(t.openTax))}${tile("Noch offen (alles)", eur(t.openAll), '<span class="note">inkl. Darlehen</span>')}${tile("Schon bezahlt", `<span style="color:var(--good)">${eur(t.paid)}</span>`)}
+      ${tile("Nächste Zahlung", open[0] ? eur(parseFloat(String(open[0].amt).replace(",", ".")) || 0) : "–", open[0] ? `<span class="note">${esc(open[0].n)} · ${buDe(open[0].due)}</span>` : "")}
+      ${tile("Nächste Frist", nd ? buDe(nd.d) : "–", nd ? `<span class="note" style="${buTone(nd.d)}">${esc(nd.t)} · ${buWhen(nd.d)}</span>` : "")}</div>
+      <div class="grid2">
+        <section class="box"><h2>Offene Zahlungen</h2>${open.length ? `<div class="tablewrap"><table><tbody>${open.map(p => `<tr><td class="name">${esc(p.n)}${p.note ? `<div class="note">${esc(p.note)}</div>` : ""}</td><td><span style="${buTone(p.due)}">${buWhen(p.due)}</span><div class="note">${buDe(p.due)}</div></td><td class="num" style="white-space:nowrap;padding-right:14px">${eur(parseFloat(String(p.amt).replace(",", ".")) || 0)}</td></tr>`).join("")}</tbody></table></div>` : `<p class="note">Nichts offen.</p>`}</section>
+        <section class="box"><h2>Rücklage für die Steuer</h2>
+          <div class="field"><label>Einnahmen pro Monat (brutto, ca.)</label>${buIn("rl.inc", d.rl.inc, 'inputmode="decimal"')}</div>
+          <div class="field"><label>Rücklage in %</label>${buIn("rl.pct", d.rl.pct, 'inputmode="decimal"')}</div>
+          <p><strong>Monatlich zurücklegen: ${eur(inc * pct / 100)}</strong></p>
+          <p class="note">Die laufende Umsatzsteuer liegt bei ca. 8–8,5 % der Brutto-Einnahmen. Mit 10 % hast du Puffer.</p></section>
+      </div>`;
+  }
+  function buPay(d) {
+    const t = buTotals(d), sel = (name, list, cur, i) => `<div class="inp"><select data-bf="pay.${i}.${name}">${list.map(x => `<option ${x === cur ? "selected" : ""}>${x}</option>`).join("")}</select></div>`;
+    const rows = d.pay.map((p, i) => `<tr><td>${buIn(`pay.${i}.n`, p.n)}${buIn(`pay.${i}.note`, p.note || "", 'placeholder="Notiz"')}</td><td style="width:110px">${buIn(`pay.${i}.amt`, p.amt, 'inputmode="decimal"')}</td><td style="width:150px"><div class="inp"><input type="date" data-bf="pay.${i}.due" value="${esc(p.due || "")}"></div></td><td style="width:120px">${sel("kind", ["Steuer", "Darlehen", "Sonstiges"], p.kind, i)}</td><td style="width:120px">${sel("status", ["offen", "bezahlt"], p.status, i)}</td><td><button type="button" class="btn" data-budel="pay|${i}" aria-label="Löschen">×</button></td></tr>`).join("");
+    return `<section class="box"><h2>Was ich noch zahlen muss</h2><div class="tablewrap"><table><thead><tr><th>Posten</th><th>Betrag (€)</th><th>Fällig am</th><th>Art</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p>Noch offen (Steuer): <strong>${eur(t.openTax)}</strong> · Noch offen (alles): <strong>${eur(t.openAll)}</strong> · Bezahlt: <strong>${eur(t.paid)}</strong></p>
+      <div class="btns"><button type="button" class="btn" data-buadd="pay">+ Posten</button></div></section>`;
+  }
+  function buDl(d) {
+    const L = d.dl.map((x, i) => ({ x, i })).sort((a, b) => String(a.x.d).localeCompare(String(b.x.d)));
+    return `<section class="box"><h2>Fristen</h2><div class="tablewrap"><table><thead><tr><th>Datum</th><th>Was</th><th>Noch</th><th></th></tr></thead><tbody>${L.map(({ x, i }) => `<tr><td style="width:150px"><div class="inp"><input type="date" data-bf="dl.${i}.d" value="${esc(x.d || "")}"></div></td><td>${buIn(`dl.${i}.t`, x.t)}</td><td style="${buTone(x.d)}">${buWhen(x.d)}</td><td><button type="button" class="btn" data-budel="dl|${i}" aria-label="Löschen">×</button></td></tr>`).join("")}</tbody></table></div>
+      <div class="btns"><button type="button" class="btn" data-buadd="dl">+ Frist</button></div>
+      <p class="note">Umsatzsteuer-Voranmeldung: vierteljährlich bis zum 10. des Folgemonats abgeben und zahlen (ohne Dauerfristverlängerung).</p></section>`;
+  }
+  function buTodo(d) {
+    return `<section class="box"><h2>To-dos</h2>${d.todo.map((x, i) => `<div class="row" style="align-items:flex-start;gap:10px"><label style="display:flex;gap:8px;flex:1"><input type="checkbox" data-bf="todo.${i}.done" ${x.done ? "checked" : ""}><span style="${x.done ? "text-decoration:line-through;opacity:.6" : ""}"><strong>${esc(x.t)}</strong>${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}</span></label><button type="button" class="btn" data-budel="todo|${i}" aria-label="Löschen">×</button></div>`).join("") || `<p class="note">Keine To-dos.</p>`}
+      <div class="btns"><button type="button" class="btn" data-buadd="todo">+ To-do</button>${d.todo.some(x => x.done) ? `<button type="button" class="btn" data-buclean="1">Erledigte entfernen</button>` : ""}</div></section>`;
+  }
+  function buAcc(d) {
+    return `<section class="box"><h2>Steuernummern & Konten</h2><div class="tablewrap"><table><thead><tr><th>Wofür</th><th>Nummer</th><th>Hinweis</th><th></th></tr></thead><tbody>${d.acc.map((x, i) => `<tr><td>${buIn(`acc.${i}.k`, x.k)}</td><td>${buIn(`acc.${i}.v`, x.v)}</td><td>${buIn(`acc.${i}.note`, x.note || "")}</td><td><button type="button" class="btn" data-budel="acc|${i}" aria-label="Löschen">×</button></td></tr>`).join("")}</tbody></table></div>
+      <div class="btns"><button type="button" class="btn" data-buadd="acc">+ Zeile</button></div><p class="note">Vor jeder Überweisung die IBAN mit dem Brief vom Finanzamt abgleichen.</p></section>`;
+  }
+  function buTxt(d) {
+    return `<section class="box"><h2>Textbausteine</h2>${d.txt.map((x, i) => `<div class="field"><div class="row">${buIn(`txt.${i}.t`, x.t, 'placeholder="Titel"')}<button type="button" class="btn" data-bucopy="${i}">Kopieren</button><button type="button" class="btn" data-budel="txt|${i}" aria-label="Löschen">×</button></div><div class="inp"><textarea rows="5" data-bf="txt.${i}.body">${esc(x.body || "")}</textarea></div></div>`).join("") || `<p class="note">Noch keine Textbausteine, z. B. für Nachrichten ans Finanzamt.</p>`}
+      <div class="btns"><button type="button" class="btn" data-buadd="txt">+ Textbaustein</button></div></section>`;
+  }
+  function buChatHTML(d) {
+    return `<section class="box"><h2>Mit Claude über Steuer & Buchhaltung quatschen</h2>
+      <div id="buLog" style="max-height:340px;overflow:auto;display:grid;gap:8px">${d.chat.map(m => `<div style="justify-self:${m.r === "u" ? "end" : "start"};max-width:90%;padding:8px 12px;border-radius:12px;background:${m.r === "u" ? "var(--accent-soft,#efe6d8)" : "var(--panel2,#f4f1ea)"};white-space:pre-wrap">${esc(m.t)}</div>`).join("") || `<p class="note">Frag z. B.: „Was muss ich bis Januar zahlen?“ oder „Wie buche ich die Shopify-Auszahlung?“. Claude kennt deine Zahlungen, Fristen und To-dos von oben.</p>`}${bu.busy ? `<div style="white-space:pre-wrap" id="buLive" class="note">${esc(bu.live || "Claude schreibt …")}</div>` : ""}</div>
+      ${bu.err ? `<p class="note" style="color:var(--bad)">${esc(bu.err)}</p>` : ""}
+      <div class="field"><div class="inp"><textarea id="buMsg" rows="3" placeholder="Deine Frage … (Strg+Enter zum Senden)">${esc(bu.draft || "")}</textarea></div></div>
+      <div class="btns"><button type="button" class="btn primary" data-bukask="1" ${bu.busy ? "disabled" : ""}>${bu.busy ? "Claude schreibt …" : "Senden"}</button>${bu.busy ? '<button type="button" class="btn" data-bustop="1">Stopp</button>' : ""}${d.chat.length && !bu.busy ? '<button type="button" class="btn" data-buclr="1">Chat leeren</button>' : ""}</div>
+      <p class="note">Claude ist kein Steuerberater. Bei Fristen, Beträgen und Bescheiden im Zweifel beim Finanzamt oder Steuerberater nachfragen.</p></section>`;
+  }
+  async function buAsk() {
+    const el = $("buMsg"), q = (el ? el.value : "").trim(); if (!q || bu.busy) return;
+    const sample = await getSample(); if (!sample) { bu.err = "Claude ist hier nicht verfügbar."; return renderBuch(); }
+    const d = buData(), hist = d.chat.slice(-12);
+    const ctx = `ZAHLUNGEN: ${JSON.stringify(d.pay.map(p => ({ posten: p.n, betrag: p.amt, faellig: p.due, art: p.kind, status: p.status, notiz: p.note })))}
+FRISTEN: ${JSON.stringify(d.dl.map(x => ({ datum: x.d, was: x.t })))}
+TODOS (offen): ${JSON.stringify(d.todo.filter(x => !x.done).map(x => ({ was: x.t, notiz: x.note })))}
+NUMMERN & KONTEN: ${JSON.stringify(d.acc.map(x => ({ wofuer: x.k, nummer: x.v, hinweis: x.note })))}`;
+    const prompt = `Du bist der Steuer- und Buchhaltungs-Berater von Mark, Inhaber eines kleinen Holz-Shops (Etsy + eigener Shopify-Shop, Billbee, Lexware Office, Einzelunternehmen, Umsatzsteuer-Voranmeldung vierteljährlich, Einnahmen-Überschuss-Rechnung, Deutschland, Finanzamt Waiblingen für USt). Antworte auf Deutsch, locker, direkt, ehrlich und kurz. Erkläre ohne Fachchinesisch, mit konkreten Zahlen und Schritten. Wenn du etwas nicht sicher weißt oder es auf den Einzelfall ankommt, sag das offen und nenne, wen er fragen soll (Finanzamt, Steuerberater). Erfinde keine Zahlen oder Rechtsstände. Heutiges Datum: ${todayISO()}.
+
+STAND SEINER DATEN:
+${ctx}
+
+BISHERIGER CHAT:
+${hist.map(m => (m.r === "u" ? "Mark: " : "Claude: ") + m.t).join("\n")}
+
+Mark: ${q}
+Claude:`;
+    d.chat = hist.concat([{ r: "u", t: q }]); bu.busy = true; bu.err = ""; bu.live = ""; bu.draft = ""; bu.ctl = new AbortController(); buSave(d); renderBuch();
+    let out = "";
+    try {
+      await sample(prompt, { cache: false, signal: bu.ctl.signal, onText: ({ text }) => { out = text; bu.live = text; const l = $("buLive"); if (l) { l.textContent = text; const lg = $("buLog"); if (lg) lg.scrollTop = lg.scrollHeight; } } });
+    } catch (e) { if (!e || e.code !== "cancelled") bu.err = supErr(e); }
+    bu.busy = false; bu.ctl = null; if (out.trim()) { const d2 = buData(); d2.chat = d2.chat.concat([{ r: "c", t: out.trim() }]).slice(-40); buSave(d2); }
+    renderBuch();
+  }
+  document.addEventListener("click", e => {
+    if (view !== "buchhaltung") return; const c = e.target.closest && e.target.closest("[data-butab],[data-buadd],[data-budel],[data-buclean],[data-bukask],[data-bustop],[data-buclr],[data-bucopy]"); if (!c) return; const x = c.dataset;
+    if (x.butab) { bu.tab = x.butab; return renderBuch(); }
+    if (x.bukask) return buAsk();
+    if (x.bustop) { bu.ctl && bu.ctl.abort(); return; }
+    const d = buData();
+    if (x.buclr) { d.chat = []; buSave(d); return renderBuch(); }
+    if (x.buclean) { d.todo = d.todo.filter(t => !t.done); buSave(d); return renderBuch(); }
+    if (x.bucopy) { const t = (d.txt[+x.bucopy] || {}).body || ""; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht")); return; }
+    if (x.buadd) { const blank = { pay: { id: uid(), n: "", amt: "", due: todayISO(), kind: "Steuer", status: "offen", note: "" }, dl: { id: uid(), d: todayISO(), t: "" }, todo: { id: uid(), t: "Neues To-do", note: "", done: false }, acc: { id: uid(), k: "", v: "", note: "" }, txt: { id: uid(), t: "Neuer Baustein", body: "" } }[x.buadd]; d[x.buadd].push(blank); buSave(d); return renderBuch(); }
+    if (x.budel) { const [k, i] = x.budel.split("|"); if (!confirm("Wirklich löschen?")) return; d[k].splice(+i, 1); buSave(d); return renderBuch(); }
+  });
+  document.addEventListener("change", e => {
+    if (view !== "buchhaltung") return; const t = e.target, f = t.dataset && t.dataset.bf; if (!f) return;
+    const d = buData(), p = f.split("."), val = t.type === "checkbox" ? t.checked : t.value;
+    if (p[0] === "rl") d.rl = Object.assign({}, d.rl, { [p[1]]: val }); else { const o = d[p[0]][+p[1]]; if (!o) return; o[p[2]] = val; }
+    buSave(d); renderBuch();
+  });
+  document.addEventListener("input", e => { if (view === "buchhaltung" && e.target.id === "buMsg") bu.draft = e.target.value; });
+  document.addEventListener("keydown", e => { if (view === "buchhaltung" && e.target.id === "buMsg" && e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); buAsk(); } });
   function renderDocs() {
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Dokumente</h1><p class="note">Lade …</p>`; return; }
     let items = docItems(); const cur = curYM(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i));
