@@ -5301,7 +5301,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     if (x.tbf) { if (x.tbf === "hook") d.hook = t.value; else if (x.tbf === "a02") d.a02 = t.checked; else { const f = x.tbf.slice(4); d.ven = Object.assign({}, d.ven, { [f]: t.type === "checkbox" ? t.checked : t.value }); } tbSave(d); renderBuch(); }
   });
   // ---------- Regal nach Maß: Preis für Thomas, dich und den Kunden ----------
-  let ms = { len: "135", dep: "20", thick: "4", ch: "shopify", ship: "", port: "", thomas: "", fixed: "", copy: "" };
+  let ms = { sp: "10", len: "135", dep: "20", thick: "4", ch: "shopify", ship: "", port: "", thomas: "", fixed: "", copy: "" };
   const msInterp = (pts, x) => {   // pts: [[x,y]] sortiert; lineare Zwischenwerte, außerhalb mit der Steigung des letzten Stücks
     if (pts.length < 2) return pts.length ? pts[0][1] : 0;
     let i = pts.findIndex(p => p[0] >= x); if (i < 0) i = pts.length - 1; if (i === 0) i = 1;
@@ -5313,7 +5313,8 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const R = d.prices.filter(p => /^ARUH-01-\d+$/.test(p.sku)).map(p => ({ l: +p.sku.split("-")[2], p: tbNum(p.price), kg: tbNum(p.kg) })).sort((a, b) => a.l - b.l);
     if (!(L > 0) || R.length < 2) return null;
     const base = msInterp(R.map(r => [r.l, r.p]), L), sec = (dep * th) / 80;   // Zuschnitt: 50 % Material (wächst mit Querschnitt), 50 % Arbeit
-    const sug = Math.round(Math.max(0, base * (0.5 + 0.5 * sec)) * 2) / 2, thomas = ms.thomas !== "" ? tbNum(ms.thomas) : sug;
+    const special = !R.some(r => r.l === L) || dep !== 20 || th !== 4, spPct = special ? Math.max(10, tbNum(ms.sp)) : 0;   // Sondermaß: mindestens 10 % mehr für Thomas
+    const sug = Math.ceil(Math.max(0, base * (0.5 + 0.5 * sec)) * (1 + spPct / 100) * 2 - 1e-9) / 2, thomas = ms.thomas !== "" ? tbNum(ms.thomas) : sug;
     const kgBase = R.every(r => r.kg > 0) ? msInterp(R.map(r => [r.l, r.kg]), L) : L * 0.0625, g = Math.round(kgBase * sec * 1000 + 300);
     const shipIn = ms.ship !== "" ? tbNum(ms.ship) : v(S.shipInDefault ?? 6.9);
     const mk = (price, ext) => { const a = { fremd: true, ext: String(ext), shipIn: String(shipIn), pkL: String(L), pkB: String(dep), pkH: String(th), weight: String(g), pack: "0", outer: "0", mins: "", parts: [], small: {}, extra: [], shipMode: "auto", price: String(price), disc: "0" };
@@ -5327,14 +5328,14 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const r = isFinite(cust) ? calc(mk(cust, thomas), ch, undefined, ctx) : null;
     // Höchstpreis für Thomas bei diesem Kundenpreis und Zielmarge (Gewinn ist linear im Einkaufspreis)
     let maxT = NaN; if (isFinite(cust)) { const f = e => { const q = calc(mk(cust, e), ch, undefined, ctx); return q.profit - tgt / 100 * q.net; }, f0 = f(0), sl = f(10) - f0; maxT = sl < 0 ? Math.max(0, f0 / -sl * 10) : NaN; }
-    return { d, L, dep, th, base, sug, thomas, g, shipIn, ship, noTariff, tgt, minCust, cmp, sugCust, cust, r, maxT, ch };
+    return { special, spPct, d, L, dep, th, base, sug, thomas, g, shipIn, ship, noTariff, tgt, minCust, cmp, sugCust, cust, r, maxT, ch };
   }
   function buMass() {
     if (!SHOP) { shopLoad(); return `<section class="box"><p class="note">Lade …</p></section>`; }
     const m = msCalc(), inp = (k, l, ph = "", w = "") => `<div class="field"><label>${l}</label><div class="inp"><input type="text" inputmode="decimal" data-msf="${k}" value="${esc(ms[k])}" placeholder="${ph}"></div></div>`;
     const form = `<div class="grid3 keep">${inp("len", "Länge (cm)")}${inp("dep", "Tiefe (cm)")}${inp("thick", "Stärke (cm)")}</div>
       <div class="grid3 keep"><div class="field"><label>Verkauft über</label><div class="inp"><select data-msf="ch">${[["shopify", "Eigener Shop"], ["etsy", "Etsy"]].map(([k, l]) => `<option value="${k}" ${ms.ch === k ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
-        ${inp("ship", "Versand, den der Kunde zahlt (€)", String(S.shipInDefault ?? "6,90"))}${inp("port", "Porto für uns (€), nur wenn bekannt", "automatisch")}</div>`;
+        ${inp("sp", "Aufschlag Sondermaß für Thomas (%, mind. 10)", "10")}${inp("ship", "Versand, den der Kunde zahlt (€)", String(S.shipInDefault ?? "6,90"))}${inp("port", "Porto für uns (€), nur wenn bekannt", "automatisch")}</div>`;
     if (!m) return `<section class="box"><h2>Regal nach Maß</h2>${form}<p class="note">Trag eine Länge ein. Grundlage ist Thomas‘ Preisliste für ARUH-01 (Tab „Rechnung Thomas“).</p></section>`;
     const r = m.r, big = m.L > 120, ok = r && isFinite(r.margin) && r.margin >= m.tgt - 0.05;
     const cell = (l, v2, sub = "", hl = false) => `<div class="tile${hl ? " hero" : ""}"><span class="note">${l}</span><span class="num">${v2}</span><span class="note">${sub}</span></div>`;
@@ -5342,7 +5343,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       ${big ? `<p class="note" style="color:var(--warn,#b45309)">Über 120 cm gibt es keinen Preis in seiner Liste. Der Wert ist hochgerechnet, bitte mit Thomas abstimmen.</p>` : ""}
       ${m.noTariff ? `<p class="note" style="color:var(--bad)">Dieses Maß passt in keinen deiner Paket-Tarife (Länge ${dec(m.L)} cm, ca. ${dec(m.g / 1000, 1)} kg). Das Porto ist hier mit 0 € gerechnet. Trag oben das echte Porto ein (Spedition oder Sperrgut), sonst stimmt die Marge nicht.</p>` : ""}</section>
       <section class="box"><h2>Die drei Preise</h2><div class="tiles t3">
-        ${cell("Thomas bekommt (netto)", eur(m.thomas), `mit USt ${eur(m.thomas * 1.19)} · Liste hochgerechnet ${eur(m.base)}`)}
+        ${cell("Thomas bekommt (netto)", eur(m.thomas), `mit USt ${eur(m.thomas * 1.19)} · ${m.special ? `Sondermaß: +${dec(m.spPct, 0)} %` : "Maß aus seiner Liste"}`)}
         ${cell("Kunde zahlt (brutto)", r ? eur(m.cust) : "–", r ? `+ ${eur(m.shipIn)} Versand · netto ${eur(r.net - m.shipIn / 1.19)}` : "", true)}
         ${cell("Du behältst", r ? eur(r.profit) : "–", r ? `${dec(r.margin, 1)} % Marge (Ziel ${m.tgt} %)` : "")}</div>
         <div class="grid3 keep">${`<div class="field"><label>Preis für Thomas ändern (netto €)</label><div class="inp"><input type="text" inputmode="decimal" data-msf="thomas" value="${esc(ms.thomas)}" placeholder="${dec(m.sug, 2)}"></div></div>
@@ -5361,7 +5362,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   });
   document.addEventListener("change", e => {
     if (view !== "buchhaltung" || bu.tab !== "mass") return; const t = e.target, k = t.dataset && t.dataset.msf; if (!k) return; ms[k] = t.value;
-    if (["len", "dep", "thick"].includes(k)) ms.thomas = ""; renderBuch();
+    if (["len", "dep", "thick", "sp"].includes(k)) ms.thomas = ""; renderBuch();
   });
   function buOss(d) {
     const o = d.oss;
