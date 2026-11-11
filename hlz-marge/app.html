@@ -4980,7 +4980,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     ["Shopify Auszahlungen (CSV)", "Shopify → Finanzen → Auszahlungen → Exportieren", "Wann welches Geld aufs Konto kommt"],
     ["Steuerbescheide, Voranmeldungen", "Lexware oder Finanzamt (PDF)", "Echte Umsatzsteuer statt Schätzung"]
   ];
-  let docBusy = "", docMsg = "", docAcc = LS.get("hlz-app-docacc") || "g", docPreset = null;
+  let docAsk = "", docBusy = "", docMsg = "", docAcc = LS.get("hlz-app-docacc") || "g", docPreset = null;
   const docSize = b => b > 1048576 ? dec(b / 1048576, 1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
   const docKindOf = d => { const k = d.kind; if (DOC_KINDS.some(x => x[0] === k)) return k; return /vertrag|preis|rechnung/i.test(k || "") ? "dhl" : "other"; };
   const docMonths = d => (d.months && d.months.length) ? d.months : [String(d.at || "").slice(0, 7)];
@@ -5056,7 +5056,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     const sum = f => d.pay.filter(f).reduce((s, p) => s + (parseFloat(String(p.amt).replace(",", ".")) || 0), 0);
     return { openTax: sum(p => p.status !== "bezahlt" && p.kind === "Steuer"), openAll: sum(p => p.status !== "bezahlt"), paid: sum(p => p.status === "bezahlt") };
   }
-  const buRow = (arr, i, cols) => cols;
+  const buDel = (k, i) => bu.delAsk === k + "|" + i ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-buok="${k}|${i}" aria-label="Löschen bestätigen" title="Ja, löschen">✓</button><button type="button" class="btn" data-buno="1" aria-label="Abbrechen" title="Nicht löschen">×</button></span>` : `<button type="button" class="btn" data-budel="${k}|${i}" aria-label="Löschen">×</button>`;
   function renderBuch() {
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><p class="note">Lade …</p>`; return; }
     const d = buData(), n = (d.pay.length + d.dl.length + d.todo.length + d.acc.length);
@@ -5084,27 +5084,27 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   }
   function buPay(d) {
     const t = buTotals(d), sel = (name, list, cur, i) => `<div class="inp"><select data-bf="pay.${i}.${name}">${list.map(x => `<option ${x === cur ? "selected" : ""}>${x}</option>`).join("")}</select></div>`;
-    const rows = d.pay.map((p, i) => `<tr><td>${buIn(`pay.${i}.n`, p.n)}${buIn(`pay.${i}.note`, p.note || "", 'placeholder="Notiz"')}</td><td style="width:110px">${buIn(`pay.${i}.amt`, p.amt, 'inputmode="decimal"')}</td><td style="width:150px"><div class="inp"><input type="date" data-bf="pay.${i}.due" value="${esc(p.due || "")}"></div></td><td style="width:120px">${sel("kind", ["Steuer", "Darlehen", "Sonstiges"], p.kind, i)}</td><td style="width:120px">${sel("status", ["offen", "bezahlt"], p.status, i)}</td><td><button type="button" class="btn" data-budel="pay|${i}" aria-label="Löschen">×</button></td></tr>`).join("");
+    const rows = d.pay.map((p, i) => `<tr><td>${buIn(`pay.${i}.n`, p.n)}${buIn(`pay.${i}.note`, p.note || "", 'placeholder="Notiz"')}</td><td style="width:110px">${buIn(`pay.${i}.amt`, p.amt, 'inputmode="decimal"')}</td><td style="width:150px"><div class="inp"><input type="date" data-bf="pay.${i}.due" value="${esc(p.due || "")}"></div></td><td style="width:120px">${sel("kind", ["Steuer", "Darlehen", "Sonstiges"], p.kind, i)}</td><td style="width:120px">${sel("status", ["offen", "bezahlt"], p.status, i)}</td><td>${buDel("pay", i)}</td></tr>`).join("");
     return `<section class="box"><h2>Was ich noch zahlen muss</h2><div class="tablewrap"><table><thead><tr><th>Posten</th><th>Betrag (€)</th><th>Fällig am</th><th>Art</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
       <p>Noch offen (Steuer): <strong>${eur(t.openTax)}</strong> · Noch offen (alles): <strong>${eur(t.openAll)}</strong> · Bezahlt: <strong>${eur(t.paid)}</strong></p>
       <div class="btns"><button type="button" class="btn" data-buadd="pay">+ Posten</button></div></section>`;
   }
   function buDl(d) {
     const L = d.dl.map((x, i) => ({ x, i })).sort((a, b) => String(a.x.d).localeCompare(String(b.x.d)));
-    return `<section class="box"><h2>Fristen</h2><div class="tablewrap"><table><thead><tr><th>Datum</th><th>Was</th><th>Noch</th><th></th></tr></thead><tbody>${L.map(({ x, i }) => `<tr><td style="width:150px"><div class="inp"><input type="date" data-bf="dl.${i}.d" value="${esc(x.d || "")}"></div></td><td>${buIn(`dl.${i}.t`, x.t)}</td><td style="${buTone(x.d)}">${buWhen(x.d)}</td><td><button type="button" class="btn" data-budel="dl|${i}" aria-label="Löschen">×</button></td></tr>`).join("")}</tbody></table></div>
+    return `<section class="box"><h2>Fristen</h2><div class="tablewrap"><table><thead><tr><th>Datum</th><th>Was</th><th>Noch</th><th></th></tr></thead><tbody>${L.map(({ x, i }) => `<tr><td style="width:150px"><div class="inp"><input type="date" data-bf="dl.${i}.d" value="${esc(x.d || "")}"></div></td><td>${buIn(`dl.${i}.t`, x.t)}</td><td style="${buTone(x.d)}">${buWhen(x.d)}</td><td>${buDel("dl", i)}</td></tr>`).join("")}</tbody></table></div>
       <div class="btns"><button type="button" class="btn" data-buadd="dl">+ Frist</button></div>
       <p class="note">Umsatzsteuer-Voranmeldung: vierteljährlich bis zum 10. des Folgemonats abgeben und zahlen (ohne Dauerfristverlängerung).</p></section>`;
   }
   function buTodo(d) {
-    return `<section class="box"><h2>To-dos</h2>${d.todo.map((x, i) => `<div class="row" style="align-items:flex-start;gap:10px"><label style="display:flex;gap:8px;flex:1"><input type="checkbox" data-bf="todo.${i}.done" ${x.done ? "checked" : ""}><span style="${x.done ? "text-decoration:line-through;opacity:.6" : ""}"><strong>${esc(x.t)}</strong>${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}</span></label><button type="button" class="btn" data-budel="todo|${i}" aria-label="Löschen">×</button></div>`).join("") || `<p class="note">Keine To-dos.</p>`}
+    return `<section class="box"><h2>To-dos</h2>${d.todo.map((x, i) => `<div class="row" style="align-items:flex-start;gap:10px"><label style="display:flex;gap:8px;flex:1"><input type="checkbox" data-bf="todo.${i}.done" ${x.done ? "checked" : ""}><span style="${x.done ? "text-decoration:line-through;opacity:.6" : ""}"><strong>${esc(x.t)}</strong>${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}</span></label>${buDel("todo", i)}</div>`).join("") || `<p class="note">Keine To-dos.</p>`}
       <div class="btns"><button type="button" class="btn" data-buadd="todo">+ To-do</button>${d.todo.some(x => x.done) ? `<button type="button" class="btn" data-buclean="1">Erledigte entfernen</button>` : ""}</div></section>`;
   }
   function buAcc(d) {
-    return `<section class="box"><h2>Steuernummern & Konten</h2><div class="tablewrap"><table><thead><tr><th>Wofür</th><th>Nummer</th><th>Hinweis</th><th></th></tr></thead><tbody>${d.acc.map((x, i) => `<tr><td>${buIn(`acc.${i}.k`, x.k)}</td><td>${buIn(`acc.${i}.v`, x.v)}</td><td>${buIn(`acc.${i}.note`, x.note || "")}</td><td><button type="button" class="btn" data-budel="acc|${i}" aria-label="Löschen">×</button></td></tr>`).join("")}</tbody></table></div>
+    return `<section class="box"><h2>Steuernummern & Konten</h2><div class="tablewrap"><table><thead><tr><th>Wofür</th><th>Nummer</th><th>Hinweis</th><th></th></tr></thead><tbody>${d.acc.map((x, i) => `<tr><td>${buIn(`acc.${i}.k`, x.k)}</td><td>${buIn(`acc.${i}.v`, x.v)}</td><td>${buIn(`acc.${i}.note`, x.note || "")}</td><td>${buDel("acc", i)}</td></tr>`).join("")}</tbody></table></div>
       <div class="btns"><button type="button" class="btn" data-buadd="acc">+ Zeile</button></div><p class="note">Vor jeder Überweisung die IBAN mit dem Brief vom Finanzamt abgleichen.</p></section>`;
   }
   function buTxt(d) {
-    return `<section class="box"><h2>Textbausteine</h2>${d.txt.map((x, i) => `<div class="field"><div class="row">${buIn(`txt.${i}.t`, x.t, 'placeholder="Titel"')}<button type="button" class="btn" data-bucopy="${i}">Kopieren</button><button type="button" class="btn" data-budel="txt|${i}" aria-label="Löschen">×</button></div><div class="inp"><textarea rows="5" data-bf="txt.${i}.body">${esc(x.body || "")}</textarea></div></div>`).join("") || `<p class="note">Noch keine Textbausteine, z. B. für Nachrichten ans Finanzamt.</p>`}
+    return `<section class="box"><h2>Textbausteine</h2>${d.txt.map((x, i) => `<div class="field"><div class="row">${buIn(`txt.${i}.t`, x.t, 'placeholder="Titel"')}<button type="button" class="btn" data-bucopy="${i}">Kopieren</button>${buDel("txt", i)}</div><div class="inp"><textarea rows="5" data-bf="txt.${i}.body">${esc(x.body || "")}</textarea></div></div>`).join("") || `<p class="note">Noch keine Textbausteine, z. B. für Nachrichten ans Finanzamt.</p>`}
       <div class="btns"><button type="button" class="btn" data-buadd="txt">+ Textbaustein</button></div></section>`;
   }
   function buOss(d) {
@@ -5162,7 +5162,7 @@ Claude:`;
     renderBuch();
   }
   document.addEventListener("click", e => {
-    if (view !== "buchhaltung") return; const c = e.target.closest && e.target.closest("[data-butab],[data-buoss],[data-buadd],[data-budel],[data-buclean],[data-bukask],[data-bustop],[data-buclr],[data-bucopy]"); if (!c) return; const x = c.dataset;
+    if (view !== "buchhaltung") return; const c = e.target.closest && e.target.closest("[data-butab],[data-buoss],[data-buok],[data-buno],[data-buadd],[data-budel],[data-buclean],[data-bukask],[data-bustop],[data-buclr],[data-bucopy]"); if (!c) return; const x = c.dataset;
     if (x.butab) { bu.tab = x.butab; return renderBuch(); }
     if (x.bukask) return buAsk();
     if (x.bustop) { bu.ctl && bu.ctl.abort(); return; }
@@ -5172,7 +5172,9 @@ Claude:`;
     if (x.buclean) { d.todo = d.todo.filter(t => !t.done); buSave(d); return renderBuch(); }
     if (x.bucopy) { const t = (d.txt[+x.bucopy] || {}).body || ""; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht")); return; }
     if (x.buadd) { const blank = { pay: { id: uid(), n: "", amt: "", due: todayISO(), kind: "Steuer", status: "offen", note: "" }, dl: { id: uid(), d: todayISO(), t: "" }, todo: { id: uid(), t: "Neues To-do", note: "", done: false }, acc: { id: uid(), k: "", v: "", note: "" }, txt: { id: uid(), t: "Neuer Baustein", body: "" } }[x.buadd]; d[x.buadd].push(blank); buSave(d); return renderBuch(); }
-    if (x.budel) { const [k, i] = x.budel.split("|"); if (!sure("Wirklich löschen? (" + x.budel + ")")) return; d[k].splice(+i, 1); buSave(d); return renderBuch(); }
+    if (x.budel) { bu.delAsk = x.budel; return renderBuch(); }
+    if (x.buno) { bu.delAsk = ""; return renderBuch(); }
+    if (x.buok) { const [k, i] = x.buok.split("|"); bu.delAsk = ""; d[k].splice(+i, 1); buSave(d); return renderBuch(); }
   });
   document.addEventListener("change", e => {
     if (view !== "buchhaltung") return; const t = e.target, f = t.dataset && t.dataset.bf; if (!f) return;
@@ -5216,7 +5218,7 @@ Claude:`;
           `<div class="inp"><select data-docsel="${esc(d.id)}">${DOC_KINDS.map(k => `<option value="${k[0]}" ${docKindOf(d) === k[0] ? "selected" : ""}>${k[1]}</option>`).join("")}</select></div>`,
           (() => { const all = [...new Set(docRange(ymAdd(cur, -23), cur).concat(docMonths(d)))].sort(), mm = docMonths(d), opt = (sel) => all.slice().reverse().map(m => `<option value="${m}" ${m === sel ? "selected" : ""}>${ymLab(m)}</option>`).join("");
             return `<div class="btns" style="flex-wrap:nowrap"><div class="inp"><select data-docfrom="${esc(d.id)}" aria-label="von">${opt(mm[0])}</select></div><span class="note">bis</span><div class="inp"><select data-docto="${esc(d.id)}" aria-label="bis">${opt(mm[mm.length - 1])}</select></div></div>`; })(),
-          dDE(String(d.at).slice(0, 10)), docSize(d.size || 0), `<button class="btn" data-docdel="${esc(d.id)}" aria-label="Löschen">×</button>`])) : `<p class="note">Noch keine Dateien.</p>`}
+          dDE(String(d.at).slice(0, 10)), docSize(d.size || 0), docAsk === d.id ? `<span class="btns" style="flex-wrap:nowrap"><button class="btn primary" data-docok="${esc(d.id)}" aria-label="Löschen bestätigen" title="Ja, löschen">✓</button><button class="btn" data-docno="1" aria-label="Abbrechen" title="Nicht löschen">×</button></span>` : `<button class="btn" data-docdel="${esc(d.id)}" aria-label="Löschen">×</button>`])) : `<p class="note">Noch keine Dateien.</p>`}
       </section>
       <input type="file" id="docFilePre" style="position:absolute;opacity:0;width:1px;height:1px" multiple>`;
   }
@@ -5240,13 +5242,15 @@ Claude:`;
   });
   document.addEventListener("click", async e => {
     if (view !== "dokumente") return;
-    const c = e.target.closest && e.target.closest("[data-docdupes],[data-docadd],[data-docskip],[data-docclose],[data-docdel],[data-docacc]"); if (!c) return; const d = c.dataset;
+    const c = e.target.closest && e.target.closest("[data-docdupes],[data-docadd],[data-docskip],[data-docclose],[data-docdel],[data-docok],[data-docno],[data-docacc]"); if (!c) return; const d = c.dataset;
     if (d.docdupes) { const dup = docDupes(docItems()); if (!dup.length || !sure(`${dup.length} doppelte Datei(en) löschen? Die erste Kopie bleibt.`)) return; for (const x of dup) { try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(x.id); } catch (er) { /* war schon weg */ } } const ids = new Set(dup.map(x => x.id)); docSave(docItems().filter(x => !ids.has(x.id))); renderDocs(); return toast("Doppelte entfernt"); }
     if (d.docacc) { docAcc = d.docacc; LS.set("hlz-app-docacc", docAcc); return renderDocs(); }
     if (d.docadd) { const [kind, month] = d.docadd.split("|"); docPreset = { kind, month }; $("docFilePre").click(); return; }
     if (d.docskip) { S.docMark = Object.assign({}, S.docMark); const key = d.docskip.split("|").reverse().join("|"), [k, m] = d.docskip.split("|"), kk = m + "|" + k; if (S.docMark[kk] === "skip") delete S.docMark[kk]; else S.docMark[kk] = "skip"; saveSettings(); return renderDocs(); }
     if (d.docclose) { S.docMark = Object.assign({}, S.docMark); if (S.docMark[d.docclose] === "done") delete S.docMark[d.docclose]; else S.docMark[d.docclose] = "done"; saveSettings(); return renderDocs(); }
-    if (d.docdel) { const f = docItems().find(x => x.id === d.docdel); if (!f || !sure(`„${f.name}“ löschen?`)) return; try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(f.id); } catch (er) { /* war schon weg */ } docSave(docItems().filter(x => x.id !== f.id)); renderDocs(); toast("Gelöscht"); }
+    if (d.docdel) { docAsk = d.docdel; return renderDocs(); }
+    if (d.docno) { docAsk = ""; return renderDocs(); }
+    if (d.docok) { docAsk = ""; const f = docItems().find(x => x.id === d.docok); if (!f) return; try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(f.id); } catch (er) { /* war schon weg */ } docSave(docItems().filter(x => x.id !== f.id)); renderDocs(); toast("Gelöscht"); }
   });
   async function ideaGenerate(n, replaceId) {
     const mk = monthKey(new Date()); ideaState.busy = "Claude schlägt Produkte vor …"; ideaState.msg = ""; renderIdeas();
