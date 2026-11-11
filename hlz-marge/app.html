@@ -528,6 +528,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const CH_NAMES = { etsy: "Etsy", etsyOff: "Etsy + Offsite Ads 15 %", shopify: "Shopify", ebay: "eBay", direkt: "Direktverkauf" };
   const CHANNELS = ["etsy", "shopify", "ebay", "direkt"];
   const toast = t => { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2600); };
+  // confirm() ist in der eingebetteten Seite gesperrt: zweiter Klick innerhalb von 5 s bestätigt
+  const sure = msg => { const k = String(msg); if (sure.k === k && Date.now() - sure.t < 5000) { sure.k = ""; return true; } sure.k = k; sure.t = Date.now(); toast(k.split("\n")[0].replace(/ \(\w+\|\d+\)$/, "") + " Zum Bestätigen nochmal klicken."); clearTimeout(toast.t); toast.t = setTimeout(() => $("toast").hidden = true, 4800); return false; };
 
   // ---------- Vorgaben (ph = Platzhalter, noch nicht durch echte Werte ersetzt) ----------
   const SETTINGS_DEFAULT = () => ({
@@ -3048,7 +3050,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
         const T = draftS || S, pr = { k: v(T.spKlein), 3: v(T.spP3), 5: v(T.spP5), 10: v(T.spP10) }, plan = [];
         A.forEach(a => { const ch = pickShip(a).chosen; if (!ch) return; const n = ch.o.n, kgm = n.match(/bis (\d+(?:,\d+)?) kg/), key = /klein/i.test(n) ? "k" : kgm ? (parseFloat(kgm[1].replace(",", ".")) <= 3 ? 3 : parseFloat(kgm[1].replace(",", ".")) <= 5 ? 5 : 10) : null; if (key === null || !(pr[key] > 0)) return; const nv = pr[key].toFixed(2); if (v(a.shipIn).toFixed(2) !== nv) plan.push([a, nv]); });
         if (!plan.length) { toast("Bei allen Artikeln steht schon der passende Betrag."); return; }
-        if (!confirm(`Bei ${plan.length} von ${A.length} Artikeln „Versand vom Kunden“ ändern?\n\nKlein ${eur(pr.k)}, bis 3 kg ${eur(pr[3])}, bis 5 kg ${eur(pr[5])}, ab 5 kg ${eur(pr[10])}.`)) return;
+        if (!sure(`Bei ${plan.length} von ${A.length} Artikeln „Versand vom Kunden“ ändern?\n\nKlein ${eur(pr.k)}, bis 3 kg ${eur(pr[3])}, bis 5 kg ${eur(pr[5])}, ab 5 kg ${eur(pr[10])}.`)) return;
         plan.forEach(([a, nv]) => { a.shipIn = nv; saveArticle(a); }); toast(`${plan.length} Artikel angepasst`); return;
       }
       case "exportBillbee": return exportCSV("billbee", false);
@@ -5170,7 +5172,7 @@ Claude:`;
     if (x.buclean) { d.todo = d.todo.filter(t => !t.done); buSave(d); return renderBuch(); }
     if (x.bucopy) { const t = (d.txt[+x.bucopy] || {}).body || ""; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht")); return; }
     if (x.buadd) { const blank = { pay: { id: uid(), n: "", amt: "", due: todayISO(), kind: "Steuer", status: "offen", note: "" }, dl: { id: uid(), d: todayISO(), t: "" }, todo: { id: uid(), t: "Neues To-do", note: "", done: false }, acc: { id: uid(), k: "", v: "", note: "" }, txt: { id: uid(), t: "Neuer Baustein", body: "" } }[x.buadd]; d[x.buadd].push(blank); buSave(d); return renderBuch(); }
-    if (x.budel) { const [k, i] = x.budel.split("|"); if (!confirm("Wirklich löschen?")) return; d[k].splice(+i, 1); buSave(d); return renderBuch(); }
+    if (x.budel) { const [k, i] = x.budel.split("|"); if (!sure("Wirklich löschen? (" + x.budel + ")")) return; d[k].splice(+i, 1); buSave(d); return renderBuch(); }
   });
   document.addEventListener("change", e => {
     if (view !== "buchhaltung") return; const t = e.target, f = t.dataset && t.dataset.bf; if (!f) return;
@@ -5239,12 +5241,12 @@ Claude:`;
   document.addEventListener("click", async e => {
     if (view !== "dokumente") return;
     const c = e.target.closest && e.target.closest("[data-docdupes],[data-docadd],[data-docskip],[data-docclose],[data-docdel],[data-docacc]"); if (!c) return; const d = c.dataset;
-    if (d.docdupes) { const dup = docDupes(docItems()); if (!dup.length || !confirm(`${dup.length} doppelte Datei(en) löschen? Die erste Kopie bleibt.`)) return; for (const x of dup) { try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(x.id); } catch (er) { /* war schon weg */ } } const ids = new Set(dup.map(x => x.id)); docSave(docItems().filter(x => !ids.has(x.id))); renderDocs(); return toast("Doppelte entfernt"); }
+    if (d.docdupes) { const dup = docDupes(docItems()); if (!dup.length || !sure(`${dup.length} doppelte Datei(en) löschen? Die erste Kopie bleibt.`)) return; for (const x of dup) { try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(x.id); } catch (er) { /* war schon weg */ } } const ids = new Set(dup.map(x => x.id)); docSave(docItems().filter(x => !ids.has(x.id))); renderDocs(); return toast("Doppelte entfernt"); }
     if (d.docacc) { docAcc = d.docacc; LS.set("hlz-app-docacc", docAcc); return renderDocs(); }
     if (d.docadd) { const [kind, month] = d.docadd.split("|"); docPreset = { kind, month }; $("docFilePre").click(); return; }
     if (d.docskip) { S.docMark = Object.assign({}, S.docMark); const key = d.docskip.split("|").reverse().join("|"), [k, m] = d.docskip.split("|"), kk = m + "|" + k; if (S.docMark[kk] === "skip") delete S.docMark[kk]; else S.docMark[kk] = "skip"; saveSettings(); return renderDocs(); }
     if (d.docclose) { S.docMark = Object.assign({}, S.docMark); if (S.docMark[d.docclose] === "done") delete S.docMark[d.docclose]; else S.docMark[d.docclose] = "done"; saveSettings(); return renderDocs(); }
-    if (d.docdel) { const f = docItems().find(x => x.id === d.docdel); if (!f || !confirm(`„${f.name}“ löschen?`)) return; try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(f.id); } catch (er) { /* war schon weg */ } docSave(docItems().filter(x => x.id !== f.id)); renderDocs(); toast("Gelöscht"); }
+    if (d.docdel) { const f = docItems().find(x => x.id === d.docdel); if (!f || !sure(`„${f.name}“ löschen?`)) return; try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(f.id); } catch (er) { /* war schon weg */ } docSave(docItems().filter(x => x.id !== f.id)); renderDocs(); toast("Gelöscht"); }
   });
   async function ideaGenerate(n, replaceId) {
     const mk = monthKey(new Date()); ideaState.busy = "Claude schlägt Produkte vor …"; ideaState.msg = ""; renderIdeas();
@@ -5403,7 +5405,7 @@ Claude:`;
     if (k === "stepadd") { const i = $("pjStep-" + id), t = i && i.value.trim(); if (!t) return; (p.steps = p.steps || []).push({ id: uid(), t, done: false }); saveSettings(); return renderProjects(); }
     if (k === "stepdel") { p.steps = (p.steps || []).filter(x => x.id !== sid); saveSettings(); return renderProjects(); }
     if (k === "todo") { TODOS().push({ id: uid(), t: `${p.n}: ${p.next}`, due: "", p: true, rep: "", done: false, made: Date.now() }); saveSettings(); todoBadge(); return toast("Im To-do angelegt"); }
-    if (k === "del") { if (!confirm(`„${p.n}“ löschen?`)) return; S.projects = PROJECTS().filter(x => x.id !== id); pjSt.open = ""; saveSettings(); return renderProjects(); }
+    if (k === "del") { if (!sure(`„${p.n}“ löschen?`)) return; S.projects = PROJECTS().filter(x => x.id !== id); pjSt.open = ""; saveSettings(); return renderProjects(); }
   });
   const todoOpenCount = () => TODOS().filter(t => !t.done && t.due && t.due <= todayISO()).length;
   function todoBadge() { const el = $("privBadge"); if (!el) return; const n = todoOpenCount(); el.hidden = !n; el.textContent = n; }
