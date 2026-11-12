@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Billbee <-> Kalkulatte Abgleich (nur lesen und Status setzen, keine Zugangsdaten im Code).
+"""Billbee <-> HLZ-Dashboard Abgleich (nur lesen und Status setzen, keine Zugangsdaten im Code).
 
-  fetch  [--days 60]      offene Bestellungen aus Billbee als Kalkulatte-Bestellungen (JSON)
+  fetch  [--days 60]      offene Bestellungen aus Billbee als HLZ-Dashboard-Bestellungen (JSON)
   states ID,ID,...        aktueller Billbee-Status je Bestellung (BillBeeOrderId)
   ship   ID,ID,...        Bestellungen in Billbee auf "Versendet" setzen
 
