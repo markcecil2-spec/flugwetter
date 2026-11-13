@@ -2134,7 +2134,7 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
         <section class="box">
           <h2>Antwort</h2>
           ${f.msgDe ? `<details><summary class="note">Kundennachricht auf Deutsch</summary><p class="note" style="white-space:pre-wrap">${esc(f.msgDe)}</p></details>` : ""}
-          <div class="field"><label for="s-reply">Antwort${f.lang && f.lang !== "de" ? ` auf ${esc(SUP_LANGS[f.lang] || f.lang)}` : ""}, kannst du direkt ändern</label><div class="inp"><textarea id="s-reply" data-sup="reply" rows="10" placeholder="Hier erscheint der Vorschlag …">${esc(f.reply)}</textarea></div></div>
+          <div class="field"><label for="s-reply">Antwort${f.lang && f.lang !== "de" ? ` auf ${esc(SUP_LANGS[f.lang] || f.lang)}` : ""}, kannst du direkt ändern (Enter = kopieren und erledigt, Shift+Enter = neue Zeile)</label><div class="inp"><textarea id="s-reply" data-sup="reply" rows="10" placeholder="Hier erscheint der Vorschlag …">${esc(f.reply)}</textarea></div></div>
           ${f.replyDe ? `<details><summary class="note">Antwort auf Deutsch (zur Kontrolle)</summary><p class="note" style="white-space:pre-wrap">${esc(f.replyDe)}</p></details>` : ""}
           <div class="grid3 keep">
             <div class="field"><label for="s-cat">Thema</label>${sel("s-cat", [["", "– wählen –"], ...SUP_CATS], f.cat)}</div>
@@ -5455,6 +5455,15 @@ Claude:`;
     buSave(d); renderBuch();
   });
   document.addEventListener("input", e => { if (view === "buchhaltung" && e.target.id === "buMsg") bu.draft = e.target.value; });
+  // Support: Enter in der Antwort = kopieren und, wenn das Thema gewählt ist, als erledigt speichern (Shift+Enter = neue Zeile); Enter im Hinweisfeld = Antwort vorschlagen
+  document.addEventListener("keydown", e => {
+    if (view !== "support" || e.key !== "Enter" || e.shiftKey || e.isComposing || !sup.f) return;
+    if (e.target.id === "s-hint") { e.preventDefault(); return supAsk(); }
+    if (e.target.id !== "s-reply") return; e.preventDefault();
+    const txt = sup.f.reply; if (!txt.trim()) return toast("Noch keine Antwort da");
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => {}, () => toast("Kopieren ging nicht, bitte von Hand markieren"));
+    if (sup.f.cat) supSave("erledigt"); else toast("Antwort kopiert. Wähl noch das Thema, dann Enter nochmal, damit sie in der Auswertung zählt.");
+  });
   document.addEventListener("keydown", e => { if (view === "buchhaltung" && e.target.id === "buMsg" && e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); buAsk(); } });
   function renderDocs() {
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Dokumente</h1><p class="note">Lade …</p>`; return; }
