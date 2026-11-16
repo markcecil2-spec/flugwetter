@@ -3648,6 +3648,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   function liveRefresh() {
     if (typing()) return;
     if (view === "uebersicht") renderOverview();
+    else if (view === "gravuren") renderGrav();
     else if (view === "produktion") renderProduction();
     else if (view === "finanzen") finDraw();
     else if (view === "todo") renderTodo();
