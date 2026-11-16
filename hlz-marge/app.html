@@ -5244,7 +5244,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   const curYM = () => isoD(new Date()).slice(0, 7);
   const r2 = x => Math.round(x * 100) / 100;
   const emptyM = () => ({ o: 0, q: 0, r: 0, d: 0, sh: 0, f: 0, k: {} });
-  const stNo = (e, no) => { no = String(no || "").trim(); if (!no) return; (e.n || (e.n = [])).indexOf(no) < 0 && e.n.push(no); };
+  const stNo = (e, no, at) => { no = String(no || "").trim(); if (!no) return; const t = no + (at ? "|" + String(at).slice(0, 10) : ""); if (!(e.n || (e.n = [])).some(x => x.split("|")[0] === no)) e.n.push(t); };
   const roundM = M => { Object.values(M).forEach(m => { ["r", "d", "sh", "f"].forEach(k => m[k] = r2(m[k])); Object.values(m.k).forEach(e => e.r = r2(e.r)); }); return M; };
   // Etsy-CSV lesen: „Bestellte Artikel“ (je Artikel) oder „Bestellungen“ (je Bestellung)
   function statEtsyParse(text) {
@@ -5258,11 +5258,11 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       if (items) {
         const q = v(r[ix("quantity")]) || 1, it = num("item total"), key = tkey(r[ix("sku")] || "?"), oid = r[ix("order id")];
         m.q += q; m.r += it; m.d += num("discount amount"); if (!seen[oid]) { seen[oid] = 1; m.o++; m.sh += num("order shipping"); }
-        const e = m.k[key] || (m.k[key] = { q: 0, r: 0 }); e.q += q; e.r += it; stNo(e, oid);
+        const e = m.k[key] || (m.k[key] = { q: 0, r: 0 }); e.q += q; e.r += it; stNo(e, oid, isoD(dt));
       } else {
         const n = v(r[ix("number of items")]) || 1, val = num("order value"); m.o++; m.q += n; m.r += val; m.d += num("discount amount"); m.sh += num("shipping"); m.f += num("card processing fees");
         const skus = String(r[ix("sku")] || "").split(",").map(x => x.trim()).filter(Boolean), w = skus.map(sk => { const a = A.find(x => tkey(x.sku) === tkey(sk)); return v(a && a.price) || 1; }), sw = w.reduce((a, b) => a + b, 0) || 1;
-        skus.forEach((sk, i) => { const e = m.k[tkey(sk)] || (m.k[tkey(sk)] = { q: 0, r: 0 }); e.q += 1; e.r += val * w[i] / sw; stNo(e, r[ix("order id")]); });
+        skus.forEach((sk, i) => { const e = m.k[tkey(sk)] || (m.k[tkey(sk)] = { q: 0, r: 0 }); e.q += 1; e.r += val * w[i] / sw; stNo(e, r[ix("order id")], isoD(dt)); });
       }
     });
     return roundM(M);
@@ -5288,7 +5288,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
         oo.nodes.forEach(o => {
           if (o.cancelledAt) return; const ym = String(o.createdAt).slice(0, 7), m = M[ym] || (M[ym] = emptyM()); n++;
           m.o++; m.d += v(o.totalDiscountsSet && o.totalDiscountsSet.shopMoney.amount); m.sh += v(o.totalShippingPriceSet && o.totalShippingPriceSet.shopMoney.amount);
-          o.lineItems.nodes.forEach(li => { const q = li.quantity || 0, rv = v(li.originalTotalSet && li.originalTotalSet.shopMoney.amount), key = tkey(li.sku || li.title || "?"); m.q += q; m.r += rv; const e = m.k[key] || (m.k[key] = { q: 0, r: 0 }); e.q += q; e.r += rv; stNo(e, o.name); });
+          o.lineItems.nodes.forEach(li => { const q = li.quantity || 0, rv = v(li.originalTotalSet && li.originalTotalSet.shopMoney.amount), key = tkey(li.sku || li.title || "?"); m.q += q; m.r += rv; const e = m.k[key] || (m.k[key] = { q: 0, r: 0 }); e.q += q; e.r += rv; stNo(e, o.name, o.createdAt); });
         });
         stSt.busy = `Hole Shopify-Bestellungen … ${n}`; renderStats();
         if (!oo.pageInfo.hasNextPage) break; after = oo.pageInfo.endCursor;
@@ -5555,10 +5555,11 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   }
   function tbOrders(ym, sku) {
     const E = STATS && STATS.etsy ? STATS.etsy.months : {}, S2 = STATS && STATS.shopify ? STATS.shopify.months : {}, keys = tbKeys(sku), out = [];
-    [E[ym], S2[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) (e.n || []).forEach(n => out.indexOf(n) < 0 && out.push(n)); }); });
-    (ORD || []).forEach(o => { if (String(o.at || "").slice(0, 7) === ym && o.no && (o.lines || []).some(l => { const k = String(l.sku || "").toLowerCase(); return keys.some(x => k === x || k.startsWith(x + "-")); })) { const n = String(o.no); out.indexOf(n) < 0 && out.push(n); } });
+    [E[ym], S2[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) (e.n || []).forEach(n => out.some(x => x.split("|")[0] === n.split("|")[0]) || out.push(n)); }); });
+    (ORD || []).forEach(o => { if (String(o.at || "").slice(0, 7) === ym && o.no && (o.lines || []).some(l => { const k = String(l.sku || "").toLowerCase(); return keys.some(x => k === x || k.startsWith(x + "-")); })) { const n = String(o.no) + (o.at ? "|" + String(o.at).slice(0, 10) : ""); out.some(x => x.split("|")[0] === String(o.no)) || out.push(n); } });
     return out;
   }
+  const tbNoTxt = n => { const [no, at] = String(n).split("|"); return at ? `${no} (${buDe(at)})` : no; };
   function tbLines(d, ym, all) {
     const L = []; let hooks = 0;
     d.prices.forEach(p => { const k = ym + "|" + p.sku, q = d.qo[k] !== undefined ? tbNum(d.qo[k]) : tbSold(ym, p.sku); if (q > 0) { L.push({ sku: p.sku, t: p.name, q, p: tbNum(p.price), pl: 1, nos: tbOrders(ym, p.sku) }); hooks += q * tbNum(p.hk); } });
@@ -5572,7 +5573,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const addr = o => [o.name, ...(String(o.addr || "").split(/\n|,\s*/)), o.tax ? "Steuernr.: " + o.tax : "", o.ust ? "USt-IdNr.: " + o.ust : ""].filter(Boolean).map(esc).join("<br>");
     return `<div style="font:14px sans-serif;color:#000"><div style="display:flex;justify-content:space-between;gap:24px"><div><strong>Rechnungssteller</strong><br>${addr(v)}</div><div><strong>Rechnungsempfänger</strong><br>${addr(m)}</div></div>
       <h1 style="margin-top:28px">Rechnung ${esc(inv.no)}</h1><p>Rechnungsdatum: ${buDe(inv.date)}<br>Leistungszeitraum: ${tbMonthLab(inv.ym)}</p>
-      <table><thead><tr><th>Pos.</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Bestellnr.</th><th style="text-align:right">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead><tbody>${inv.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${esc(l.sku)}</td><td>${esc(l.t)}</td><td style="font-size:12px">${esc((l.nos || []).join(", "))}</td><td style="text-align:right">${String(l.q).replace(".", ",")}</td><td style="text-align:right">${eur(l.p)}</td><td style="text-align:right">${eur(l.q * l.p)}</td></tr>`).join("")}</tbody></table>
+      <table><thead><tr><th>Pos.</th><th>Art.-Nr.</th><th>Bezeichnung</th><th>Bestellnr.</th><th style="text-align:right">Menge</th><th style="text-align:right">Einzelpreis</th><th style="text-align:right">Gesamt</th></tr></thead><tbody>${inv.lines.map((l, i) => `<tr><td>${i + 1}</td><td>${esc(l.sku)}</td><td>${esc(l.t)}</td><td style="font-size:12px">${(l.nos || []).map(n => esc(tbNoTxt(n))).join("<br>")}</td><td style="text-align:right">${String(l.q).replace(".", ",")}</td><td style="text-align:right">${eur(l.p)}</td><td style="text-align:right">${eur(l.q * l.p)}</td></tr>`).join("")}</tbody></table>
       <p style="text-align:right;margin-top:12px">${vat ? `Zwischensumme netto: ${eur(net)}<br>Umsatzsteuer ${vat} %: ${eur(tax)}<br>` : ""}<strong style="font-size:16px">Gesamtbetrag: ${eur(net + tax)}</strong></p>
       ${vat ? "" : `<p>Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.</p>`}
       <p>Zahlbar innerhalb von ${esc(v.pay || "14")} Tagen${v.iban ? " auf IBAN " + esc(v.iban) : ""}.</p></div>`;
@@ -5590,7 +5591,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <div class="grid3 keep"><div class="field"><label>Monat</label><div class="inp"><select data-tbf="ym">${months.map(m => `<option value="${m}" ${m === tbS.ym ? "selected" : ""}>${tbMonthLab(m)}</option>`).join("")}</select></div></div></div>
       ${!data ? `<p class="note" style="color:var(--bad)">Für ${tbMonthLab(tbS.ym)} liegen noch keine Verkaufsdaten vor. Lad unter Dokumente die Etsy-Bestellungen (CSV) hoch und hol unter Entwicklung die Shopify-Bestellungen.</p>` : ""}
       ${have ? `<p>Für diesen Monat gibt es schon die Rechnung <strong>${esc(have.no)}</strong> vom ${buDe(have.date)} (${eur(have.total)}). Änderungen unten übernimmst du mit „Rechnung aktualisieren“.</p>` : ""}
-      <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th style="text-align:left">Bezeichnung</th><th class="r">Menge</th><th class="r">Preis</th><th class="r">Summe</th><th></th></tr></thead><tbody>${lines.map(l => `<tr><td class="num">${esc(l.sku)}</td><td style="text-align:left">${l.pid ? `<div class="inp"><input type="text" data-tbpf="${l.pid}|t" value="${esc(l.t)}" placeholder="Bezeichnung"></div>` : esc(l.t)}${l.nos && l.nos.length ? `<div class="note" style="margin:2px 0 0">Bestellnr.: ${esc(l.nos.join(", "))}</div>` : ""}</td>
+      <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th style="text-align:left">Bezeichnung</th><th class="r">Menge</th><th class="r">Preis</th><th class="r">Summe</th><th></th></tr></thead><tbody>${lines.map(l => `<tr><td class="num">${esc(l.sku)}</td><td style="text-align:left">${l.pid ? `<div class="inp"><input type="text" data-tbpf="${l.pid}|t" value="${esc(l.t)}" placeholder="Bezeichnung"></div>` : esc(l.t)}${l.nos && l.nos.length ? `<div class="note" style="margin:2px 0 0">Bestellnr.: ${esc(l.nos.map(tbNoTxt).join(", "))}</div>` : ""}</td>
         <td class="r" style="width:90px"><div class="inp"><input type="text" inputmode="decimal" ${l.pid ? `data-tbpf="${l.pid}|q" value="${esc(l.qs)}"` : l.pl ? `data-tbq="${esc(l.sku)}" value="${l.q}"` : `value="${l.q}" disabled`}></div></td>
         <td class="r num" style="width:100px">${l.pid ? `<div class="inp"><input type="text" inputmode="decimal" data-tbpf="${l.pid}|p" value="${esc(l.ps)}" placeholder="netto"></div>` : eur(l.p)}</td><td class="r num">${eur(l.q * l.p)}</td>
         <td>${l.pid ? tbAsk(l.pid, tbS.pAsk, "pdel", "Zeile entfernen") : l.pl ? tbAsk(l.sku, tbS.qAsk, "qdel", "Zeile entfernen") : ""}</td></tr>`).join("") || `<tr><td colspan="6" class="note">Keine Verkäufe seiner Artikel in diesem Monat.</td></tr>`}
