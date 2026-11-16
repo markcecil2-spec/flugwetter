@@ -1331,6 +1331,24 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const anaTable = (head, rows, right = []) => `<div class="tablewrap"><table class="anatable"><thead><tr>${head.map((h, i) => `<th class="${right.includes(i) ? "r" : ""}">${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td class="${right.includes(i) ? "r num" : ""}">${c}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${head.length}" class="note">Keine Daten.</td></tr>`}</tbody></table></div>`;
   const anaName = a => esc(a.name.length > 46 ? a.name.slice(0, 45) + "…" : a.name);
 
+  // Trend der Kostenverteilung: Anteile am Netto-Umsatz in den letzten 3 vollen Monaten gegen die 3 davor,
+  // gerechnet mit den heutigen Stückkosten und Preisen (verändert sich also nur durch Menge, Mix und Kanal)
+  function anaWindow(D, months, canon, ctx, fix) {
+    const o = { net: 0, fees: 0, ads: 0, porto: 0, mat: 0, pack: 0, time: 0, db: 0, qty: 0 }, byA = {};
+    months.forEach(ym => [["etsy", D.E[ym]], ["shopify", D.S2[ym]]].forEach(([ch, m]) => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k); if (!c || !(e.q > 0)) return; byA[c + "|" + ch] = (byA[c + "|" + ch] || 0) + e.q; })));
+    Object.entries(byA).forEach(([key, q]) => {
+      const [c, ch] = key.split("|"), a = A.find(x => tkey(x.sku) === c); if (!a || !(v(a.price) > 0)) return;
+      const sx = (a.sales || {})[ch], r = calc(a, ch, (sx && v(sx.avg)) || v(a.price), ctx, !!(sx && v(sx.avg) > 0)), qm = q / months.length;
+      o.qty += qm; o.net += qm * r.net; o.fees += qm * r.fees; o.ads += qm * r.ads; o.porto += qm * r.porto; o.mat += qm * (r.wood + r.oil + r.small + r.ext); o.pack += qm * (r.pack + r.outer + r.order); o.time += qm * (r.time + r.mach); o.db += qm * r.db;
+    });
+    o.fix = fix; o.result = o.db - fix; o.list = [o.fees, o.ads, o.porto, o.mat, o.pack, o.time, fix, o.result]; return o;
+  }
+  function anaTrend(ctx, fix) {
+    if (!STATS) return null; let D; try { D = statData(); } catch (e) { return null; } if (!D) return null;
+    const V = statVerdict(D); if (V.l3.length < 3 || V.p3.length < 3) return null; const canon = makeSkuCanon();
+    const L = anaWindow(D, V.l3, canon, ctx, fix), P = anaWindow(D, V.p3, canon, ctx, fix); if (!(L.net > 0) || !(P.net > 0)) return null;
+    return { L, P, ml: V.l3.map(ymLab).join("/"), mp: V.p3.map(ymLab).join("/") };
+  }
   function anaCalc() {
     const ctx = volume(), T = { qty: 0, gross: 0, net: 0, fees: 0, ads: 0, porto: 0, mat: 0, pack: 0, time: 0, db: 0, byCh: {} }, rows = [];
     A.forEach(a => {
@@ -1451,6 +1469,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const best = [...flops].sort((x, y) => y.wage - x.wage).slice(0, 6), worst = [...flops].sort((x, y) => x.wage - y.wage).slice(0, 6);
     const missN = rows.filter(x => missing(x.a).length).length;
     const kost = [["Etsy-Gebühren", T.fees, "--seg-fee"], ["Werbung (Ads)", T.ads, "--seg-fee"], ["Versand", T.porto, "--seg-ship"], ["Material", T.mat, "--seg-make"], ["Verpackung & Billbee", T.pack, "--seg-pack"], ["Deine Zeit & Maschinen", T.time, "--seg-time"], ["Werkstatt & Fixkosten", fix, "--seg-other"], ["Bleibt (Ergebnis)", m.result, "--seg-profit"]];
+    if (!STATS) statsLoad(); const TRD = anaTrend(ctx, fix);
+    const trendCell = (idx) => { if (!TRD) return ["", "", ""]; const sl = TRD.L.list[idx] / TRD.L.net * 100, sp = TRD.P.list[idx] / TRD.P.net * 100, d = sl - sp, good = idx === 7 ? d > 0 : d < 0, tone = Math.abs(d) < 0.5 ? "muted" : good ? "good" : "bad"; return [pct(sp), pct(sl), `<span style="color:var(--${tone});font-weight:600">${Math.abs(d) < 0.5 ? "→ stabil" : (d > 0 ? "▲ +" : "▼ −") + dec(Math.abs(d), 1) + " Pkt"}</span>`]; };
     // Hebel, nach Wirkung sortiert
     const lever = [
       { t: "Preise sanft anheben (+10 %) bei Artikeln unter Zielmarge", g: pS, g2: pS10, how: `${priceRows.length} Artikel mit Verkäufen liegen unter ${target} % Marge. Ergebnis, wenn alle gleich viel verkaufen (rechts: wenn 10 % weniger gekauft wird).` },
@@ -1480,8 +1500,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       </div>
 
       <section class="box" style="margin-top:12px"><h2>Wohin geht jeder Euro?</h2>
-        <p class="note">Anteil am Netto-Umsatz (${eur0(T.net)} pro Monat).</p>
-        ${anaTable(["Posten", "Euro/Monat", "Anteil", ""], kost.map(([l, x, c]) => [esc(l), eur0(x), pct(x / T.net * 100), anaBar(Math.abs(x), T.net, c)]), [1, 2])}
+        <p class="note">Anteil am Netto-Umsatz (${eur0(T.net)} pro Monat).${TRD ? ` Trend: Anteil in den letzten 3 vollen Monaten (${TRD.ml}) gegen die 3 davor (${TRD.mp}). Netto-Umsatz pro Monat ${eur0(TRD.P.net)} → ${eur0(TRD.L.net)}. Gerechnet mit deinen heutigen Preisen und Stückkosten, es zählen also nur Menge, Mix und Kanal. Grün = für dich besser, Rot = schlechter. Artikel ohne passende SKU fehlen.` : ` Der Trend erscheint, sobald die Verkaufsstatistik geladen ist und mindestens 6 volle Monate vorliegen.`}</p>
+        ${anaTable(TRD ? ["Posten", "Euro/Monat", "Anteil", "", "Davor", "Letzte 3 Mon.", "Trend"] : ["Posten", "Euro/Monat", "Anteil", ""], kost.map(([l, x, c], i) => [esc(l), eur0(x), pct(x / T.net * 100), anaBar(Math.abs(x), T.net, c), ...(TRD ? trendCell(i) : [])]), TRD ? [1, 2, 4, 5, 6] : [1, 2])}
       </section>
 
       <section class="box" style="margin-top:12px"><h2>Sortiment: wo kommt der Gewinn her?</h2>
@@ -5262,7 +5282,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   async function statsLoad() {
     if (STATS || statsLoading) return; statsLoading = true; STATS = {};
     try { (await store.loadStats()).forEach(d => STATS[d.id] = d); } catch (e) { toast("Statistik-Daten konnten nicht geladen werden."); }
-    statsLoading = false; if (view === "entwicklung") renderStats(); else if (view === "uebersicht") renderOverview(); else if (view === "produktion" && prod.tab === "vor") renderPreprod();
+    statsLoading = false; if (view === "entwicklung") renderStats(); else if (view === "uebersicht") renderOverview(); else if (view === "auswertung") renderAnalysis(); else if (view === "produktion" && prod.tab === "vor") renderPreprod();
   }
   const statsSave = d => { STATS[d.id] = d; persist("st:" + d.id, () => store.saveStats(d)); };
   const SHORT_M = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
