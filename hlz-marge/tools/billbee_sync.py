@@ -4,6 +4,7 @@
   fetch  [--days 60]      offene Bestellungen aus Billbee als HLZ-Dashboard-Bestellungen (JSON)
   states ID,ID,...        aktueller Billbee-Status je Bestellung (BillBeeOrderId)
   ship   ID,ID,...        Bestellungen in Billbee auf "Versendet" setzen
+  month  YYYY-MM [--out DIR]  Bestellnummern + Datum je SKU fuer stats/etsy und stats/shopify (Dateien in DIR)
 
 Umgebung:
   BILLBEE_KEY            API-Key (Pflicht)
@@ -74,11 +75,40 @@ def fetch(days):
     return out
 
 
+def month_numbers(ym, outdir):
+    """Alle Bestellungen eines Monats (auch versendete): Bestellnummer + Datum je Artikel-SKU, als Update-Dateien fuer stats/etsy und stats/shopify."""
+    y, m = int(ym[:4]), int(ym[5:7]); nxt = f"{y + (m == 12)}-{(m % 12) + 1:02d}-01"
+    res = {"etsy": {}, "shopify": {}}; page = 1; n = 0
+    while True:
+        d = call("GET", f"/orders?minOrderDate={ym}-01&maxOrderDate={nxt}&pageSize=250&page={page}")
+        for o in d.get("Data") or []:
+            if o.get("State") in (6, 8) or (o.get("TotalCost") or 0) <= 0: continue   # gelöscht, storniert, Gutschriften
+            seller = ((o.get("Seller") or {}).get("Platform") or "").lower()
+            if seller not in res: continue
+            a = app_order(o); at = (o.get("CreatedAt") or "")[:10]
+            if not a["at"].startswith(ym): continue
+            n += 1
+            for l in a["lines"]:
+                key = "-".join(str(l["sku"]).strip().lower().split()).replace("_", "-")
+                if not key: continue
+                lst = res[seller].setdefault(key, [])
+                t = f"{a['no']}|{at}"
+                if not any(x.split("|")[0] == a["no"] for x in lst): lst.append(t)
+        if page >= (d.get("Paging") or {}).get("TotalPages", 1): break
+        page += 1
+    os.makedirs(outdir, exist_ok=True)
+    for src, ks in res.items():
+        with open(os.path.join(outdir, src + ".json"), "w", encoding="utf-8") as f:
+            json.dump({"months": {ym: {"k": {k: {"n": v} for k, v in ks.items()}}}}, f, ensure_ascii=False)
+    return {"orders": n, "etsy_skus": len(res["etsy"]), "shopify_skus": len(res["shopify"]), "dir": outdir}
+
+
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("cmd", choices=["fetch", "states", "ship"]); ap.add_argument("ids", nargs="?", default=""); ap.add_argument("--days", type=int, default=60)
+    ap = argparse.ArgumentParser(); ap.add_argument("cmd", choices=["fetch", "states", "ship", "month"]); ap.add_argument("ids", nargs="?", default=""); ap.add_argument("--days", type=int, default=60); ap.add_argument("--out", default="stats_out")
     a = ap.parse_args()
     if "BILLBEE_KEY" not in os.environ: sys.exit("BILLBEE_KEY fehlt")
     ids = [x for x in a.ids.split(",") if x.strip()]
+    if a.cmd == "month": print(json.dumps(month_numbers(a.ids, a.out), ensure_ascii=False)); return
     if a.cmd == "fetch": print(json.dumps({"orders": fetch(a.days)}, ensure_ascii=False))
     elif a.cmd == "states": print(json.dumps({i: (call("GET", f"/orders/{i}").get("Data") or {}).get("State") for i in ids}))
     else:
