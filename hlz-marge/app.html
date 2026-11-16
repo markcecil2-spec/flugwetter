@@ -220,6 +220,11 @@ label.check small { font-weight: 400; color: var(--muted) }
 nav.tabs { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center }
 nav.tabs a { text-decoration: none; color: var(--muted); font-weight: 500; font-size: .9rem; padding: 6px 12px; border-radius: 999px }
 nav.tabs a.navpriv { color: var(--walnut) }
+.navwrap { display: grid; gap: 4px; justify-items: center; min-width: 0 }
+nav.grps a { font-weight: 600; border: 1px solid var(--line) }
+nav.grps a[aria-current=page] { border-color: var(--accent) }
+nav.subs a { font-size: .85rem; padding: 4px 11px }
+nav.subs a[hidden] { display: none }
 .todorow { display: grid; grid-template-columns: 28px minmax(160px, 1fr) 150px 130px 40px 40px; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--line) }
 .todorow.done .inp input[type=text] { text-decoration: line-through; color: var(--muted) }
 .dayrow { display: grid; grid-template-columns: 26px 128px 128px 84px minmax(150px, 1fr) 132px 100px 40px; gap: 8px; align-items: center; padding: 6px 8px; border-bottom: 1px solid var(--line); border-radius: 4px }
@@ -239,7 +244,8 @@ nav.tabs a[aria-current=page] { background: var(--accent-soft); color: var(--acc
 .sync.saving .dot { background: var(--warn) } .sync.err .dot { background: var(--bad) }
 @media (max-width: 720px) {
   .top .wrap { grid-template-columns: 1fr auto; row-gap: 6px }
-  nav.tabs { grid-column: 1 / -1; justify-content: flex-start; order: 3 }
+  .navwrap { grid-column: 1 / -1; order: 3; justify-items: start }
+  nav.tabs { justify-content: flex-start }
   .navsep { display: none }
 }
 main.wrap { padding-block: 20px 48px }
@@ -438,21 +444,28 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 <header class="top gutter">
   <div class="wrap">
     <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>HLZ-Dashboard</strong></a>
-    <nav class="tabs" aria-label="Bereiche">
-      <a href="#uebersicht" data-tab="uebersicht">Dashboard</a>
-      <a href="#auswertung" data-tab="auswertung">Auswertung</a>
-      <a href="#einstellungen" data-tab="einstellungen">Einstellungen</a>
-      <a href="#preise" data-tab="preise">Preise</a>
-      <a href="#werbung" data-tab="werbung">Marketing</a>
-      <a href="#shopcheck" data-tab="shopcheck">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
-      <a href="#finanzen" data-tab="finanzen">Finanzen</a>
-      <a href="#dokumente" data-tab="dokumente">Dokumente</a>
-      <a href="#buchhaltung" data-tab="buchhaltung">Buchhaltung</a>
-      <span class="navsep" aria-hidden="true"></span>
-      <a href="#bestellungen" data-tab="bestellungen">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
-      <a href="#produktion" data-tab="produktion">Produktion</a>
-      <a href="#support" data-tab="support">Support</a>
+    <div class="navwrap">
+    <nav class="tabs grps" aria-label="Bereiche">
+      <a href="#uebersicht" data-grp="kalk">Kalkulation</a>
+      <a href="#bestellungen" data-grp="betr">Betrieb<span class="navbadge" id="grpBadgebetr" hidden></span></a>
+      <a href="#werbung" data-grp="mark">Marketing<span class="navbadge" id="grpBadgemark" hidden></span></a>
+      <a href="#finanzen" data-grp="geld" class="navpriv">Geld &amp; Steuer</a>
     </nav>
+    <nav class="tabs subs" aria-label="Seiten">
+      <a href="#uebersicht" data-tab="uebersicht" data-g="kalk">Dashboard</a>
+      <a href="#preise" data-tab="preise" data-g="kalk">Preise</a>
+      <a href="#auswertung" data-tab="auswertung" data-g="kalk">Auswertung</a>
+      <a href="#einstellungen" data-tab="einstellungen" data-g="kalk">Einstellungen</a>
+      <a href="#bestellungen" data-tab="bestellungen" data-g="betr">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
+      <a href="#produktion" data-tab="produktion" data-g="betr">Produktion</a>
+      <a href="#support" data-tab="support" data-g="betr">Support</a>
+      <a href="#werbung" data-tab="werbung" data-g="mark">Marketing</a>
+      <a href="#shopcheck" data-tab="shopcheck" data-g="mark">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
+      <a href="#finanzen" data-tab="finanzen" data-g="geld">Finanzen</a>
+      <a href="#buchhaltung" data-tab="buchhaltung" data-g="geld">Buchhaltung</a>
+      <a href="#dokumente" data-tab="dokumente" data-g="geld">Dokumente</a>
+    </nav>
+    </div>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
   </div>
 </header>
@@ -967,7 +980,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung"].includes(h) ? h : "uebersicht";
-    document.querySelectorAll("nav.tabs a").forEach(l => { if (l.dataset.tab === (view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view)) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
+    document.querySelectorAll("nav.subs a").forEach(l => { if (l.dataset.tab === actTab) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    navGroups(actTab);
     render();
     window.scrollTo(0, 0);
     if (view === "artikel" && pendingFocus && draft) { const w = pendingFocus; setTimeout(() => focusMissing(draft, w === "auto" ? null : w), 60); }
@@ -1526,9 +1541,21 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const ordKey = (title, variant) => normTitle(title) + "|" + normTitle(variant);
   const ordOpen = o => o.status === "offen";
   const ordPcs = o => (o.lines || []).reduce((n, l) => n + v(l.qty), 0);
+  // Bereiche: oben die Gruppe, darunter nur die Seiten dieser Gruppe
+  const NAV_LAST = {};
+  function navGroups(act) {
+    const cur = document.querySelector('nav.subs a[data-tab="' + act + '"]'); const g = cur ? cur.dataset.g : (navGroups.g || "kalk");
+    navGroups.g = g; if (cur) NAV_LAST[g] = "#" + act;
+    document.querySelectorAll("nav.subs a").forEach(l => { l.hidden = l.dataset.g !== g; });
+    document.querySelectorAll("nav.grps a").forEach(l => { if (l.dataset.grp === g) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); if (NAV_LAST[l.dataset.grp]) l.setAttribute("href", NAV_LAST[l.dataset.grp]); });
+    navBadges();
+  }
+  function navBadges() {
+    ["betr", "mark"].forEach(g => { const el = $("grpBadge" + g); if (!el) return; const n = [...document.querySelectorAll('nav.subs a[data-g="' + g + '"] .navbadge')].filter(b => !b.hidden); el.hidden = !n.length; el.textContent = n.length === 1 && /^\d+$/.test(n[0].textContent) ? n[0].textContent : "•"; });
+  }
   function ordBadge() {
     const el = $("ordBadge"); if (!el) return; const n = ORD.filter(ordOpen).length;
-    el.textContent = n || ""; el.hidden = !n;
+    el.textContent = n || ""; el.hidden = !n; navBadges();
   }
   // Artikel zu einer SKU; bei mehreren Varianten mit gleicher SKU entscheidet der Variantentext
   function ordResolve(sku, variant) {
@@ -5981,7 +6008,7 @@ Claude:`;
   }
   function ideaBadge() {
     const el = $("ideaBadge"); if (!el) return;
-    const need = ((S.ideas || {})[monthKey(new Date())] || []).length < 2; el.hidden = !need; el.textContent = "neu";
+    const need = ((S.ideas || {})[monthKey(new Date())] || []).length < 2; el.hidden = !need; el.textContent = "neu"; navBadges();
   }
   document.addEventListener("click", e => {
     if (view !== "ideen") return;
