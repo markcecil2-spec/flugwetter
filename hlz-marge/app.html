@@ -255,6 +255,8 @@ main.wrap { padding-block: 20px 48px }
 .stack { display: grid; gap: 18px; min-width: 0 }
 @media (max-width: 860px) { .cols { grid-template-columns: minmax(0, 1fr) } }
 .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px }
+.sc-hit { fill: transparent } .sc-hit:hover { fill: rgba(128,128,128,.13) }
+@media (max-width: 900px) { .grid2.charts { grid-template-columns: 1fr } }
 .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 14px }
 @media (max-width: 520px) { .grid2, .grid3 { grid-template-columns: minmax(0, 1fr) } .grid3.keep { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
 .field { display: grid; gap: 4px; min-width: 0; align-content: start }
@@ -1335,7 +1337,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // gerechnet mit den heutigen Stückkosten und Preisen (verändert sich also nur durch Menge, Mix und Kanal)
   function anaWindow(D, months, canon, ctx, fix) {
     const o = { net: 0, fees: 0, ads: 0, porto: 0, mat: 0, pack: 0, time: 0, db: 0, qty: 0 }, byA = {};
-    months.forEach(ym => [["etsy", D.E[ym]], ["shopify", D.S2[ym]]].forEach(([ch, m]) => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k); if (!c || !(e.q > 0)) return; byA[c + "|" + ch] = (byA[c + "|" + ch] || 0) + e.q; })));
+    months.forEach(ym => [["etsy", D.E[ym]], ["shopify", D.S2[ym]], ["shopify", D.EB[ym]]].forEach(([ch, m]) => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k); if (!c || !(e.q > 0)) return; byA[c + "|" + ch] = (byA[c + "|" + ch] || 0) + e.q; })));
     Object.entries(byA).forEach(([key, q]) => {
       const [c, ch] = key.split("|"), a = A.find(x => tkey(x.sku) === c); if (!a || !(v(a.price) > 0)) return;
       const sx = (a.sales || {})[ch], r = calc(a, ch, (sx && v(sx.avg)) || v(a.price), ctx, !!(sx && v(sx.avg) > 0)), qm = q / months.length;
@@ -1885,7 +1887,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     if (!STATS) { statsLoad(); return null; }
     let D = null; try { D = statData(); } catch (e) {}
     const canon = makeSkuCanon(), months = D ? D.months.slice(-prod.base) : [], acc = {};
-    months.forEach(ym => [D.E[ym], D.S2[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => {
+    months.forEach(ym => [D.E[ym], D.S2[ym], D.EB[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => {
       const c = canon(k) || k, o = acc[c] || (acc[c] = { q: 0, act: {}, r: 0 }); o.q += e.q; o.r += e.r; if (e.q > 0) o.act[ym] = 1;
     })));
     const TR = trendMap(), dm = ordDemand(), ctx = volume(), n = months.length, rows = [];
@@ -5328,30 +5330,30 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     await statsLoad(); while (!STATS) await new Promise(r => setTimeout(r, 50));
     stSt.busy = "Hole Shopify-Bestellungen …"; stSt.msg = ""; renderStats();
     try {
-      const since = ymAdd(curYM(), -24) + "-01", M = {}; let after = null, n = 0;
+      const since = ymAdd(curYM(), -24) + "-01", M = {}, MB = {}; let after = null, n = 0, nb = 0;
       for (let page = 0; page < 60; page++) {
-        const d = await shopify("graphql_query", { query: "query($after:String,$q:String){ orders(first:100, after:$after, query:$q, sortKey:CREATED_AT){ pageInfo{ hasNextPage endCursor } nodes{ name createdAt cancelledAt totalDiscountsSet{ shopMoney{ amount } } totalShippingPriceSet{ shopMoney{ amount } } lineItems(first:50){ nodes{ quantity sku title originalTotalSet{ shopMoney{ amount } } } } } } }", variables: { after, q: "created_at:>=" + since } });
+        const d = await shopify("graphql_query", { query: "query($after:String,$q:String){ orders(first:100, after:$after, query:$q, sortKey:CREATED_AT){ pageInfo{ hasNextPage endCursor } nodes{ name createdAt cancelledAt sourceName tags totalDiscountsSet{ shopMoney{ amount } } totalShippingPriceSet{ shopMoney{ amount } } lineItems(first:50){ nodes{ quantity sku title originalTotalSet{ shopMoney{ amount } } } } } } }", variables: { after, q: "created_at:>=" + since } });
         const oo = d.orders; if (!oo) throw { code: "tool_error", message: "Unerwartete Antwort" };
         oo.nodes.forEach(o => {
-          if (o.cancelledAt) return; const ym = String(o.createdAt).slice(0, 7), m = M[ym] || (M[ym] = emptyM()); n++;
+          if (o.cancelledAt) return; const eb = String(o.sourceName).toLowerCase() === "ebay" || (o.tags || []).some(t => String(t).toLowerCase() === "ebay"), MM = eb ? MB : M, ym = String(o.createdAt).slice(0, 7), m = MM[ym] || (MM[ym] = emptyM()); n++; if (eb) nb++;
           m.o++; m.d += v(o.totalDiscountsSet && o.totalDiscountsSet.shopMoney.amount); m.sh += v(o.totalShippingPriceSet && o.totalShippingPriceSet.shopMoney.amount);
           o.lineItems.nodes.forEach(li => { const q = li.quantity || 0, rv = v(li.originalTotalSet && li.originalTotalSet.shopMoney.amount), key = tkey(li.sku || li.title || "?"); m.q += q; m.r += rv; const e = m.k[key] || (m.k[key] = { q: 0, r: 0 }); e.q += q; e.r += rv; stNo(e, o.name, o.createdAt); });
         });
         stSt.busy = `Hole Shopify-Bestellungen … ${n}`; renderStats();
         if (!oo.pageInfo.hasNextPage) break; after = oo.pageInfo.endCursor;
       }
-      statsSave({ id: "shopify", at: new Date().toISOString(), months: roundM(M) }); stSt.msg = `${n} Shopify-Bestellungen gelesen.`;
+      statsSave({ id: "shopify", at: new Date().toISOString(), months: roundM(M) }); statsSave({ id: "ebay", at: new Date().toISOString(), months: roundM(MB) }); stSt.msg = `${n} Shopify-Bestellungen gelesen, davon ${nb} von eBay.`;
     } catch (e) { stSt.msg = syncErr(e); }
     stSt.busy = ""; renderStats();
   }
   // Auswertung
   const netM = m => m ? m.r - m.d : 0;
   function statData() {
-    const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, cur = curYM();
-    const keys = [...Object.keys(E), ...Object.keys(S2)].filter(k => k < cur).sort(); if (!keys.length) return null;
+    const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, EB = STATS.ebay ? STATS.ebay.months : {}, cur = curYM(), g = (M, ym, k) => M[ym] ? M[ym][k] : 0;
+    const keys = [...Object.keys(E), ...Object.keys(S2), ...Object.keys(EB)].filter(k => k < cur).sort(); if (!keys.length) return null;
     const months = []; for (let ym = keys[0]; ym <= keys[keys.length - 1]; ym = ymAdd(ym, 1)) months.push(ym);
-    const row = ym => ({ ym, e: netM(E[ym]), s: netM(S2[ym]), rev: netM(E[ym]) + netM(S2[ym]), q: (E[ym] ? E[ym].q : 0) + (S2[ym] ? S2[ym].q : 0), o: (E[ym] ? E[ym].o : 0) + (S2[ym] ? S2[ym].o : 0), sh: (E[ym] ? E[ym].sh : 0) + (S2[ym] ? S2[ym].sh : 0), f: E[ym] ? E[ym].f : 0 });
-    return { E, S2, months, rows: months.map(row), by: Object.fromEntries(months.map(m => [m, row(m)])) };
+    const row = ym => ({ ym, e: netM(E[ym]), s: netM(S2[ym]), eb: netM(EB[ym]), rev: netM(E[ym]) + netM(S2[ym]) + netM(EB[ym]), q: g(E, ym, "q") + g(S2, ym, "q") + g(EB, ym, "q"), o: g(E, ym, "o") + g(S2, ym, "o") + g(EB, ym, "o"), sh: g(E, ym, "sh") + g(S2, ym, "sh") + g(EB, ym, "sh"), f: g(E, ym, "f") });
+    return { E, S2, EB, months, rows: months.map(row), by: Object.fromEntries(months.map(m => [m, row(m)])) };
   }
   const dlt = (a, b) => b > 0 ? (a / b - 1) * 100 : null;
   const dlTag = (x, label) => x === null ? "" : `<span style="color:var(--${x > 3 ? "good" : x < -3 ? "bad" : "muted"})">${x > 3 ? "▲" : x < -3 ? "▼" : "►"} ${x > 0 ? "+" : ""}${dec(x, 0)} % ${label}</span>`;
@@ -5365,17 +5367,30 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const avg = rAvg === null ? null : qAvg === null ? rAvg : 0.65 * rAvg + 0.35 * qAvg;
     return { l3, p3, rl, rp, ry, qL, qP, qY, tr, yo, qt, qy, rAvg, qAvg, avg, dir: avg === null ? "none" : avg >= 5 ? "up" : avg <= -5 ? "down" : "side" };
   }
-  function statChart(D, title, f, fmt) {
-    const rows = D.rows.slice(-24), W = 960, H = 230, pl = 52, pr = 8, pt = 10, pb = 26, bw = (W - pl - pr) / rows.length, tot = rows.map(r => f(r).e + f(r).s), top = Math.max(1, ...tot);
+  function statChart(D, title, f, fmt, unit) {
+    const rows = D.rows.slice(-24), W = 640, H = 290, pl = 58, pr = 12, pt = 26, pb = 30, bw = (W - pl - pr) / rows.length, tot = rows.map(r => f(r).e + f(r).s + f(r).b), top = Math.max(1, ...tot);
     const raw = top / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(x => x >= raw), mx = step * 4, y = x => pt + (H - pt - pb) * (1 - x / mx);
-    const ma = tot.map((_, i) => i < 2 ? null : (tot[i] + tot[i - 1] + tot[i - 2]) / 3), pts = ma.map((m, i) => m === null ? null : `${pl + bw * i + bw / 2},${y(m)}`).filter(Boolean).join(" ");
-    const ticks = [0, 1, 2, 3, 4].map(i => step * i);
-    return `<section class="box"><h2>${title}</h2><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(title)}" style="max-width:100%;height:auto">
-      ${ticks.map(t => `<line x1="${pl}" x2="${W - pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${pl - 6}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(t)}</text>`).join("")}
-      ${rows.map((r, i) => { const x = pl + bw * i + 2, w = Math.max(2, bw - 4), a = f(r); return `<rect x="${x}" y="${y(a.e)}" width="${w}" height="${Math.max(0, y(0) - y(a.e))}" fill="var(--accent)" rx="2"><title>${ymLab(r.ym)}: Etsy ${fmt(a.e)}</title></rect><rect x="${x}" y="${y(a.e + a.s)}" width="${w}" height="${Math.max(0, y(a.e) - y(a.e + a.s))}" fill="var(--seg-ship)" rx="2"><title>${ymLab(r.ym)}: Shopify ${fmt(a.s)}</title></rect>${i % (rows.length > 14 ? 2 : 1) === 0 ? `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${ymLab(r.ym)}</text>` : ""}`; }).join("")}
-      ${pts ? `<polyline points="${pts}" fill="none" stroke="var(--warn)" stroke-width="2.5" stroke-linejoin="round"/>` : ""}</svg>
-      <p class="note" style="margin:0"><span style="color:var(--accent)">■</span> Etsy <span style="color:var(--seg-ship)">■</span> Shopify <span style="color:var(--warn)">━</span> Schnitt der letzten 3 Monate</p></section>`;
+    const ma = tot.map((_, i) => i < 2 ? null : (tot[i] + tot[i - 1] + tot[i - 2]) / 3), cx = i => pl + bw * i + bw / 2;
+    const pts = ma.map((m, i) => m === null ? null : `${cx(i)},${y(m)}`).filter(Boolean).join(" "), li = rows.length - 1, lastMa = ma[li];
+    const hasB = rows.some(r => f(r).b > 0), seg = (x, w, v1, v2, round, col) => { const y1 = y(v1), y2 = y(v2), h = y1 - y2; if (h <= 0.1) return ""; const r = round ? Math.min(4, w / 2, h) : 0; return `<path d="M${x},${y1}V${y2 + r}${r ? `Q${x},${y2} ${x + r},${y2}H${x + w - r}Q${x + w},${y2} ${x + w},${y2 + r}` : `H${x + w}`}V${y1}Z" fill="${col || "var(--accent)"}"/>`; };
+    const ticks = [0, 1, 2, 3, 4].map(i => step * i), yr = new Set(); rows.forEach((r, i) => { if (r.ym.endsWith("-01") && i > 0) yr.add(i); });
+    const sum12 = rows.slice(-12).reduce((q, r) => q + f(r).e + f(r).s + f(r).b, 0), tip = (r, a, i) => `${ymLab(r.ym)}\nEtsy: ${fmt(a.e)}\nShopify: ${fmt(a.s)}${hasB ? "\neBay: " + fmt(a.b) : ""}\nGesamt: ${fmt(a.e + a.s + a.b)}${ma[i] !== null ? "\nSchnitt 3 Monate: " + fmt(ma[i]) : ""}`;
+    return `<section class="box schart"><div class="row" style="align-items:baseline"><h2 style="margin:0">${title}</h2><span class="note">Letzte 12 Monate: <strong>${fmt(sum12)}</strong></span></div>
+      <p class="note" style="margin:4px 0 6px;display:flex;gap:14px;flex-wrap:wrap"><span><span style="color:var(--accent)">■</span> Etsy</span><span><span style="color:var(--seg-ship)">■</span> Shopify</span>${hasB ? `<span><span style="color:var(--seg-time)">■</span> eBay</span>` : ""}<span><span style="color:var(--warn)">●</span> Schnitt der letzten 3 Monate</span></p>
+      <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(title)}" style="max-width:100%;height:auto;display:block">
+      ${ticks.map(t => `<line x1="${pl}" x2="${W - pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" ${t ? 'stroke-dasharray="3 4" opacity=".7"' : ""}/><text x="${pl - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(t)}</text>`).join("")}
+      ${[...yr].map(i => `<line x1="${pl + bw * i}" x2="${pl + bw * i}" y1="${pt}" y2="${y(0) + 6}" stroke="var(--line)"/>`).join("")}
+      ${rows.map((r, i) => { const x = pl + bw * i + bw * 0.14, w = Math.max(3, bw * 0.72), a = f(r), t = a.e + a.s + a.b, lab = (rows.length - 1 - i) % 3 === 0; return `<g><rect class="sc-hit" x="${pl + bw * i}" y="${pt - 6}" width="${bw}" height="${H - pt - pb + 12}" data-tip="${esc(tip(r, a, i))}"/>${seg(x, w, 0, a.e, a.s + a.b <= 0 ? 1 : 0)}${seg(x, w, a.e, a.e + a.s, a.b <= 0 ? 1 : 0, "var(--seg-ship)")}${seg(x, w, a.e + a.s, t, 1, "var(--seg-time)")}${lab ? `<text x="${x + w / 2}" y="${H - 11}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${ymLab(r.ym)}</text>` : ""}</g>`; }).join("")}
+      ${pts ? `<polyline points="${pts}" fill="none" stroke="var(--warn)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" pointer-events="none"/>` : ""}
+      ${lastMa !== null ? `<circle cx="${cx(li)}" cy="${y(lastMa)}" r="4" fill="var(--warn)" stroke="var(--bg, #fff)" stroke-width="1.5" pointer-events="none"/><text x="${cx(li)}" y="${y(lastMa) - 9}" text-anchor="end" font-size="11.5" font-weight="700" fill="var(--warn)" pointer-events="none">Ø ${fmt(lastMa)}</text>` : ""}</svg></section>`;
   }
+  (function () {
+    let tipEl = null;
+    const show = e => { const h = e.target.closest && e.target.closest(".sc-hit"); if (!h) { if (tipEl) tipEl.style.display = "none"; return; }
+      if (!tipEl) { tipEl = document.createElement("div"); tipEl.style.cssText = "position:fixed;z-index:50;pointer-events:none;background:var(--fg,#222);color:var(--bg,#fff);padding:8px 10px;border-radius:8px;font-size:12px;line-height:1.5;white-space:pre;box-shadow:0 4px 14px rgba(0,0,0,.25)"; document.body.appendChild(tipEl); }
+      tipEl.textContent = h.dataset.tip; tipEl.style.display = "block"; const w = tipEl.offsetWidth, x = e.clientX + 14 + w > innerWidth ? e.clientX - w - 14 : e.clientX + 14; tipEl.style.left = Math.max(4, x) + "px"; tipEl.style.top = Math.max(4, e.clientY - 20) + "px"; };
+    document.addEventListener("mousemove", show); document.addEventListener("click", show);
+  })();
   // alte oder abweichende SKUs (z. B. „keybrd-03-40-“ oder „…-g“) dem heutigen Artikel zuordnen
   function makeSkuCanon() {
     const loose = k => String(k).replace(/[^a-z0-9]/gi, "").toLowerCase(), known = new Map(A.filter(a => a.sku).map(a => [loose(a.sku), tkey(a.sku)]));
@@ -5385,7 +5400,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   function trendMap() {
     const out = {}; if (!STATS) return out; let D; try { D = statData(); } catch (e) { return out; } if (!D) return out;
     const V = statVerdict(D); if (V.l3.length < 3) return out; const canon = makeSkuCanon();
-    const add = (ym, w) => [D.E[ym], D.S2[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k) || k, o = out[c] || (out[c] = { l: 0, p: 0 }); o[w] += e.q; }));
+    const add = (ym, w) => [D.E[ym], D.S2[ym], D.EB[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k) || k, o = out[c] || (out[c] = { l: 0, p: 0 }); o[w] += e.q; }));
     V.l3.forEach(m => add(m, "l")); V.p3.forEach(m => add(m, "p")); return out;
   }
   function trendOf(a, TR) {
@@ -5395,7 +5410,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   }
   function statMovers(D, V) {
     const canon = makeSkuCanon();
-    const acc = {}; const add = (ym, w) => { [D.E[ym], D.S2[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k), key = c || k, a = acc[key] || (acc[key] = { rl: 0, rp: 0, ql: 0, qp: 0, known: !!c }); a[w === "l" ? "rl" : "rp"] += e.r; a[w === "l" ? "ql" : "qp"] += e.q; })); };
+    const acc = {}; const add = (ym, w) => { [D.E[ym], D.S2[ym], D.EB[ym]].forEach(m => m && Object.entries(m.k).forEach(([k, e]) => { const c = canon(k), key = c || k, a = acc[key] || (acc[key] = { rl: 0, rp: 0, ql: 0, qp: 0, known: !!c }); a[w === "l" ? "rl" : "rp"] += e.r; a[w === "l" ? "ql" : "qp"] += e.q; })); };
     V.l3.forEach(m => add(m, "l")); V.p3.forEach(m => add(m, "p"));
     const nm = k => { const a = A.find(x => tkey(x.sku) === k); return a ? a.name : String(k).toUpperCase(); };
     // Artikel, die nur früher verkauft wurden und heute keinem Artikel mehr entsprechen (umbenannte oder ausgelaufene SKUs), lassen wir weg
@@ -5426,7 +5441,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     let ratio = 0, fix = 0; try { const m = monthly(volume()); ratio = m.rev > 0 ? m.db / m.rev : 0; fix = fixTotal(); } catch (e) {}
     const dbL = last.rev * ratio, tag3 = k => dlTag(dlt(last[k], l3avg(k)), "zum 3-Monats-Schnitt"), tags = (k, lab) => [prev ? dlTag(dlt(last[k], prev[k]), "zum Vormonat") : "", tag3(k), yoy ? dlTag(dlt(last[k], yoy[k]), "zum Vorjahr") : ""].filter(Boolean).join("");
     const tile = (lab, val, sub, hero) => `<div class="tile${hero ? " hero" : ""}"><span class="label">${lab}</span><span class="num">${val}</span><span class="note" style="display:grid;gap:2px">${sub}</span></div>`;
-    const MV = statMovers(D, V), kan = (l, p) => `${eur0(l)} <span class="note">(${dec(p, 0)} %)</span>`, eL = sumRev(D, V.l3, "e"), sL = sumRev(D, V.l3, "s"), eP = sumRev(D, V.p3, "e"), sP = sumRev(D, V.p3, "s");
+    const MV = statMovers(D, V), kan = (l, p) => `${eur0(l)} <span class="note">(${dec(p, 0)} %)</span>`, eL = sumRev(D, V.l3, "e"), sL = sumRev(D, V.l3, "s"), eP = sumRev(D, V.p3, "e"), sP = sumRev(D, V.p3, "s"), bL = sumRev(D, V.l3, "eb"), bP = sumRev(D, V.p3, "eb"), tL = eL + sL + bL;
     const WORD = { up: ["▲ Aufwärts", "good"], down: ["▼ Abwärts", "bad"], side: ["► Seitwärts", "warn"], none: ["Zu wenig Daten", "muted"] }[V.dir];
     const kanalRow = (n, l, p, tot) => [n, eur0(l), p > 0 ? dlTag(dlt(l, p), "") : "–", tot > 0 ? dec(l / tot * 100, 0) + " %" : "–"];
     $("view").innerHTML = `<div class="row"><h1>Auswertung</h1></div>
@@ -5435,9 +5450,9 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
         <p style="margin:0">Umsatz der letzten 3 Monate: <strong>${eur0(V.rl)}</strong>. ${V.tr !== null ? `Das sind ${dlTag(V.tr, "gegenüber den 3 Monaten davor (" + eur0(V.rp) + ")")}` : ""}${V.yo !== null ? `${V.tr !== null ? " und " : ""}${dlTag(V.yo, "gegenüber den gleichen Monaten im Vorjahr (" + eur0(V.ry) + ")")}` : ""}. Verkäufe: ${V.qL} Stück (davor ${V.qP}${V.qY ? `, Vorjahr ${V.qY}` : ""}).</p>
         ${V.qAvg !== null && V.rAvg !== null && V.qAvg < -10 && V.rAvg > 0 ? `<p class="note" style="margin:0"><strong style="color:var(--warn)">Achtung:</strong> Der Umsatz hält, aber du verkaufst deutlich weniger Stück (${dlTag(V.qAvg, "im Schnitt")}). Das trägt gerade über größere und teurere Bestellungen. Fällt davon etwas weg, sinkt der Umsatz schnell.</p>` : ""}</section>
       <div class="tiles">${tile(`Umsatz ${ymLab(last.ym)}`, eur0(last.rev), tags("rev"), true)}${tile("Verkäufe (Stück)", dec(last.q, 0), tags("q"))}${tile("Bestellungen", dec(last.o, 0), tags("o"))}${tile("Ø Warenkorb", eur(last.o ? last.rev / last.o : 0), last.o && prev && prev.o ? dlTag(dlt(last.rev / last.o, prev.rev / prev.o), "zum Vormonat") : "")}${tile("Geschätztes Ergebnis" + info("Geschätzt mit den heutigen Artikelkosten aus der App: Umsatz mal Deckungsbeitrags-Quote, minus alle Fixkosten. Kein Buchhaltungswert."), eur0(dbL - fix), `<span>Deckungsbeitrag ca. ${eur0(dbL)}, Fixkosten ${eur0(fix)}</span>`)}</div>
-      ${statChart(D, "Umsatz pro Monat", r => ({ e: r.e, s: r.s }), x => eur0(x))}
-      ${statChart(D, "Verkäufe pro Monat (Stück)", r => ({ e: E && E.months[r.ym] ? E.months[r.ym].q : 0, s: S2 && S2.months[r.ym] ? S2.months[r.ym].q : 0 }), x => dec(x, 0))}
-      <section class="box"><h2>Kanäle</h2>${anaTable(["Kanal", `Umsatz ${ymLab(V.l3[0])} bis ${ymLab(V.l3[2])}`, "gegenüber 3 Monaten davor", "Anteil"], [kanalRow("Etsy", eL, eP, eL + sL), kanalRow("Shopify", sL, sP, eL + sL)], [1, 3])}</section>
+      <div class="grid2 charts">${statChart(D, "Umsatz pro Monat", r => ({ e: r.e, s: r.s, b: r.eb }), x => eur0(x))}
+      ${statChart(D, "Verkäufe pro Monat (Stück)", r => ({ e: E && E.months[r.ym] ? E.months[r.ym].q : 0, s: S2 && S2.months[r.ym] ? S2.months[r.ym].q : 0, b: D.EB[r.ym] ? D.EB[r.ym].q : 0 }), x => dec(x, 0))}</div>
+      <section class="box"><h2>Kanäle</h2>${anaTable(["Kanal", `Umsatz ${ymLab(V.l3[0])} bis ${ymLab(V.l3[2])}`, "gegenüber 3 Monaten davor", "Anteil"], [kanalRow("Etsy", eL, eP, tL), kanalRow("Shopify (eigener Shop)", sL, sP, tL), ...(bL > 0 || bP > 0 ? [kanalRow("eBay", bL, bP, tL)] : [])], [1, 3])}</section>
       <div class="grid2"><section class="box"><h2>Gewinner</h2><p class="note">Artikel mit dem größten Umsatzplus, letzte 3 gegen die 3 Monate davor.</p>${anaTable(["Artikel", "Stück", "Umsatz"], MV.up, [1, 2])}</section>
         <section class="box"><h2>Verlierer</h2><p class="note">Artikel mit dem größten Umsatzminus im gleichen Vergleich.</p>${anaTable(["Artikel", "Stück", "Umsatz"], MV.down, [1, 2])}</section></div>
       <section class="box"><div class="row"><h2>Einschätzung von Claude</h2><button class="btn primary" data-stat="ai" ${stSt.aiBusy ? "disabled" : ""}>${stSt.aiBusy ? "Claude denkt …" : stSt.ai ? "Neu auswerten" : "Auswerten lassen"}</button></div>
@@ -5596,13 +5611,13 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   const tbNum = x => parseFloat(String(x ?? "").replace(",", ".")) || 0;
   const tbKeys = sku => { const s = String(sku).toLowerCase(), out = [s]; if (/^aruh-01-/.test(s) && tbData().a02) out.push(s.replace("aruh-01-", "aruh-02-")); if (/^aruh-06-/.test(s)) out.push(s.replace("aruh-06-", "bilei-")); return out; };   // Bilderleiste heißt im Shop BILEI
   function tbSold(ym, sku) {
-    const E = STATS && STATS.etsy ? STATS.etsy.months : {}, S2 = STATS && STATS.shopify ? STATS.shopify.months : {}, keys = tbKeys(sku); let q = 0;
-    [E[ym], S2[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) q += e.q || 0; }); });
+    const E = STATS && STATS.etsy ? STATS.etsy.months : {}, S2 = STATS && STATS.shopify ? STATS.shopify.months : {}, EB = STATS && STATS.ebay ? STATS.ebay.months : {}, keys = tbKeys(sku); let q = 0;
+    [E[ym], S2[ym], EB[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) q += e.q || 0; }); });
     return q;
   }
   function tbOrders(ym, sku) {
-    const E = STATS && STATS.etsy ? STATS.etsy.months : {}, S2 = STATS && STATS.shopify ? STATS.shopify.months : {}, keys = tbKeys(sku), out = [];
-    [E[ym], S2[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) (e.n || []).forEach(n => out.some(x => x.split("|")[0] === n.split("|")[0]) || out.push(n)); }); });
+    const E = STATS && STATS.etsy ? STATS.etsy.months : {}, S2 = STATS && STATS.shopify ? STATS.shopify.months : {}, EB = STATS && STATS.ebay ? STATS.ebay.months : {}, keys = tbKeys(sku), out = [];
+    [E[ym], S2[ym], EB[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) (e.n || []).forEach(n => out.some(x => x.split("|")[0] === n.split("|")[0]) || out.push(n)); }); });
     (ORD || []).forEach(o => { if (String(o.at || "").slice(0, 7) === ym && o.no && (o.lines || []).some(l => { const k = String(l.sku || "").toLowerCase(); return keys.some(x => k === x || k.startsWith(x + "-")); })) { const n = String(o.no) + (o.at ? "|" + String(o.at).slice(0, 10) : ""); out.some(x => x.split("|")[0] === String(o.no)) || out.push(n); } });
     return out;
   }
@@ -5698,7 +5713,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     if (!STATS) { statsLoad().then(() => { if (view === "buchhaltung") renderBuch(); }); return `<section class="box"><p class="note">Lade Verkaufsdaten …</p></section>`; }
     const d = tbData(), cur = curYM(); if (!tbS.ym) tbS.ym = ymAdd(cur, -1);
     const months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i - 0)), lines = tbLines(d, tbS.ym, true), valid = tbLines(d, tbS.ym), net = valid.reduce((s, l) => s + l.q * l.p, 0), have = d.inv.find(x => x.ym === tbS.ym);
-    const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, data = !!(E[tbS.ym] || S2[tbS.ym]), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0;
+    const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, EB = STATS.ebay ? STATS.ebay.months : {}, data = !!(E[tbS.ym] || S2[tbS.ym] || EB[tbS.ym]), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0;
     const miss = []; if (!d.ven.name) miss.push("Name"); if (!d.ven.addr) miss.push("Adresse"); if (!d.ven.tax && !d.ven.ust) miss.push("Steuernummer"); 
     const fld = (k, l, ph = "") => `<div class="field"><label>${l}</label><div class="inp"><input type="text" data-tbf="ven.${k}" value="${esc(d.ven[k] || "")}" placeholder="${ph}"></div></div>`;
     const unk = d.prices.filter(p => /^(waldo|keybrd-05)/i.test(p.sku) && !String(p.hk || "").trim());
