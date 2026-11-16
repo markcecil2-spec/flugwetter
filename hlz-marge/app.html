@@ -5572,7 +5572,6 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   const tbMoney = x => { const [a, b] = (Math.round(x * 100) / 100).toFixed(2).split("."); return a.replace(/\B(?=(\d{3})+$)/g, ".") + "," + b + " €"; };
   const tbNoList = l => (l.nos || []).map(tbNoTxt);
   const tbCalc = (d, inv) => { const net = inv.lines.reduce((s, l) => s + l.q * l.p, 0), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0, tax = Math.round(net * vat) / 100; return { net, vat, tax, gross: net + tax }; };
-  const tbDue = (d, inv) => { const t = new Date(inv.date + "T12:00:00"); t.setDate(t.getDate() + (parseInt(d.ven.pay) || 14)); return isoD(t); };
   const tbAddr = o => String(o.addr || "").split(/\n|,\s*/).map(x => x.trim()).filter(Boolean);
   function tbInvoiceHTML(d, inv) {
     const v = d.ven, m = d.me, c = tbCalc(d, inv), nl = o => [o.name, ...tbAddr(o)].filter(Boolean).map(esc).join("<br>");
@@ -5585,7 +5584,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <table style="width:100%;border-collapse:collapse"><thead><tr><th style="${th}">Pos.</th><th style="${th}">Art.-Nr.</th><th style="${th}">Bezeichnung</th><th style="${th}text-align:right">Menge</th><th style="${th}text-align:right">Einzelpreis</th><th style="${th}text-align:right">Gesamt</th></tr></thead><tbody>${inv.lines.map((l, i) => `<tr><td style="${td}">${i + 1}</td><td style="${td}">${esc(l.sku)}</td><td style="${td}">${esc(l.t)}${tbNoList(l).length ? `<div style="font-size:11px;color:#666;margin-top:2px">Bestellung: ${tbNoList(l).map(esc).join(", ")}</div>` : ""}</td><td style="${td}text-align:right">${String(l.q).replace(".", ",")}</td><td style="${td}text-align:right">${tbMoney(l.p)}</td><td style="${td}text-align:right">${tbMoney(l.q * l.p)}</td></tr>`).join("")}</tbody></table>
       <p style="text-align:right;margin-top:14px;line-height:1.7">${c.vat ? `Zwischensumme netto: ${tbMoney(c.net)}<br>Umsatzsteuer ${c.vat} %: ${tbMoney(c.tax)}<br>` : ""}<strong style="font-size:17px">Gesamtbetrag: ${tbMoney(c.gross)}</strong></p>
       ${c.vat ? "" : `<p style="font-size:12px">Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.</p>`}
-      <p>Der Betrag wird innerhalb von ${esc(v.pay || "14")} Tagen (bis ${buDe(tbDue(d, inv))}) überwiesen${v.iban ? " auf IBAN " + esc(v.iban) : ""}.</p>
+      <p>Der Betrag wird nach Rechnungserstellung überwiesen${v.iban ? " auf IBAN " + esc(v.iban) : ""}.</p>
       <p style="margin-top:30px;font-size:11px;color:#777">${esc(m.name || "")} · ${tbAddr(m).map(esc).join(", ")}${m.tax ? " · Steuernr. " + esc(m.tax) : ""}</p></div>`;
   }
   function tbLoadPdf() {
@@ -5623,14 +5622,14 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     if (c.vat) { txt("Zwischensumme netto", 135, y, { align: "right" }); txt(tbMoney(c.net), R - 1, y, { align: "right" }); y += 6; txt("Umsatzsteuer " + c.vat + " %", 135, y, { align: "right" }); txt(tbMoney(c.tax), R - 1, y, { align: "right" }); y += 3; doc.line(112, y, R, y); y += 6; }
     doc.setFont("helvetica", "bold"); doc.setFontSize(12); txt("Gesamtbetrag", 135, y, { align: "right" }); txt(tbMoney(c.gross), R - 1, y, { align: "right" }); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
     y += 14; if (!c.vat) { doc.setFontSize(9); txt("Gemäß § 19 UStG wird keine Umsatzsteuer ausgewiesen.", L, y); y += 7; doc.setFontSize(10); }
-    const pay = doc.splitTextToSize("Der Betrag wird innerhalb von " + (v.pay || "14") + " Tagen (bis " + buDe(tbDue(d, inv)) + ") überwiesen" + (v.iban ? " auf IBAN " + v.iban : "") + ".", R - L); doc.text(pay, L, y);
+    const pay = doc.splitTextToSize("Der Betrag wird nach Rechnungserstellung überwiesen" + (v.iban ? " auf IBAN " + v.iban : "") + ".", R - L); doc.text(pay, L, y);
     foot(); return doc;
   }
   async function tbMail(d, inv) {
     const v = d.ven, to = String(v.email || "").trim();
     if (!to) { toast("Trag unten bei Thomas erst die E-Mail-Adresse ein"); return; }
     const first = String(v.name || "").split(" ")[0] || "", subj = "Gutschrift " + inv.no + " – " + tbMonthLab(inv.ym);
-    const body = "Hallo " + first + ",\n\nanbei die Gutschrift " + inv.no + " für " + tbMonthLab(inv.ym) + " über " + tbMoney(inv.total) + ". Das Geld überweise ich dir bis " + buDe(tbDue(d, inv)) + ".\n\nViele Grüße\nMark";
+    const body = "Hallo " + first + ",\n\nanbei die Gutschrift " + inv.no + " für " + tbMonthLab(inv.ym) + " über " + tbMoney(inv.total) + ". Das Geld überweise ich dir jetzt direkt.\n\nViele Grüße\nMark";
     try {
       toast("Entwurf wird angelegt …");
       const doc = await tbPdf(d, inv), b64 = doc.output("datauristring").split(",")[1];
@@ -5673,7 +5672,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <section class="box"><h2>Erstellte Rechnungen</h2>${(() => { const open = d.inv.filter(x => !x.paid).sort((a, b) => b.ym.localeCompare(a.ym)), done = d.inv.filter(x => x.paid).sort((a, b) => b.ym.localeCompare(a.ym));
         const row = x => `<tr><td class="name"><strong>${esc(x.no)}</strong></td><td>${tbMonthLab(x.ym)}</td><td class="r num">${eur(x.total)}</td><td><button type="button" class="btn" data-tbact="pdf:${x.id}">PDF</button> <button type="button" class="btn" data-tbact="mail:${x.id}">Gmail-Entwurf</button></td><td>${x.paid ? `<span class="note">bezahlt ${buDe(x.paid)}</span> <button type="button" class="btn" data-tbact="unpaid:${x.id}" title="Wieder als offen markieren">↩</button>` : `<button type="button" class="btn primary" data-tbact="paid:${x.id}" title="Thomas ist bezahlt, Rechnung ablegen">Bezahlt</button>`}</td><td>${tbS.delAsk === x.id ? `<button type="button" class="btn primary" data-tbact="delok:${x.id}" title="Ja, löschen">✓</button><button type="button" class="btn" data-tbact="delno" title="Abbrechen">×</button>` : `<button type="button" class="btn" data-tbact="del:${x.id}" aria-label="Löschen">×</button>`}</td></tr>`;
         return (open.length ? `<div class="tablewrap"><table><tbody>${open.map(row).join("")}</tbody></table></div>` : `<p class="note">Keine offene Rechnung.</p>`) + (done.length ? `<details style="margin-top:12px"><summary>Abgelegt, bezahlt (${done.length})</summary><div class="tablewrap"><table><tbody>${done.map(row).join("")}</tbody></table></div></details>` : ""); })()}</section>
-      <section class="box"><h2>Angaben zu Thomas & Preisliste</h2><div class="grid3 keep">${fld("name", "Name")}${fld("tax", "Steuernummer")}${fld("ust", "USt-IdNr. (falls vorhanden)")}${fld("iban", "IBAN")}${fld("email", "E-Mail", "name@beispiel.de")}${fld("pay", "Zahlungsziel (Tage)", "14")}</div>
+      <section class="box"><h2>Angaben zu Thomas & Preisliste</h2><div class="grid3 keep">${fld("name", "Name")}${fld("tax", "Steuernummer")}${fld("ust", "USt-IdNr. (falls vorhanden)")}${fld("iban", "IBAN")}${fld("email", "E-Mail", "name@beispiel.de")}</div>
         <div class="field"><label>Adresse</label><div class="inp"><textarea rows="2" data-tbf="ven.addr" placeholder="Straße, PLZ Ort">${esc(d.ven.addr || "")}</textarea></div></div>
         <label style="display:flex;gap:8px"><input type="checkbox" data-tbf="ven.kleinunt" ${d.ven.kleinunt === false ? "" : "checked"}> Kleinunternehmer (keine Umsatzsteuer auf der Rechnung)</label>
         ${d.ven.kleinunt === false ? `<div class="grid3 keep">${fld("vat", "MwSt-Satz %", "19")}</div>` : ""}
