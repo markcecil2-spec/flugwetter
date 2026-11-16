@@ -461,7 +461,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-Dashboard · Version 161 · 01.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-Dashboard · Version 163 · 14.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -591,6 +591,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   let A = [];                   // Artikel
   let store = null, mode = "local";
   let SUP = [];                 // Kundennachrichten (Support)
+  let ANF = [];                 // Anfertigungen (geprüfte Aufträge für Billbee)
 
   // ---------- Speicher: Cloud (Artifact-Datenbank, Handy & PC) oder lokal im Browser ----------
   const LS = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, x) { try { localStorage.setItem(k, JSON.stringify(x)); } catch (e) {} } };
@@ -609,6 +610,9 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     async deleteBank(id) { const all = LS.get("hlz-app-bank") || {}; delete all[id]; LS.set("hlz-app-bank", all); },
     async saveMsg() { LS.set("hlz-app-support", SUP); },
     async deleteMsg() { LS.set("hlz-app-support", SUP); },
+    async loadAnf() { return LS.get("hlz-app-anf") || []; },
+    async saveAnf() { LS.set("hlz-app-anf", ANF); },
+    async deleteAnf() { LS.set("hlz-app-anf", ANF); },
     async saveSettings(s) { LS.set("hlz-app-settings", s); },
     async saveArticle() { LS.set("hlz-app-articles", A); },
     async deleteArticle() { LS.set("hlz-app-articles", A); }
@@ -639,7 +643,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     saveStats: d => db.collection("stats").doc(d.id).set(clone(d)),
     deleteBank: id => db.collection("bank").doc(id).delete(),
     saveMsg: m => db.collection("support").doc(m.id).set(clone(m)),
-    deleteMsg: id => db.collection("support").doc(id).delete()
+    deleteMsg: id => db.collection("support").doc(id).delete(),
+    async loadAnf() { const q = await db.collection("anfertigung").get(); return q.docs.map(d => clone(d.data())); },
+    saveAnf: d => db.collection("anfertigung").doc(d.id).set(clone(d)),
+    deleteAnf: id => db.collection("anfertigung").doc(id).delete()
   });
   // pro Dokument: Eingaben bündeln, immer nur ein Schreibvorgang gleichzeitig
   const timers = {}, chains = {};
@@ -666,6 +673,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const saveMsg = m => persist("m:" + m.id, () => store.saveMsg(m));
   const saveOrder = o => persist("o:" + o.id, () => store.saveOrder(o));
   const removeMsg = id => { SUP = SUP.filter(m => m.id !== id); persist("m:" + id, () => store.deleteMsg(id)); };
+  const saveAnf = m => persist("f:" + m.id, () => store.saveAnf(m));
+  const removeAnf = id => { ANF = ANF.filter(m => m.id !== id); persist("f:" + id, () => store.deleteAnf(id)); };
   const removeArticle = id => { A = A.filter(a => a.id !== id); persist("a:" + id, () => store.deleteArticle(id)); };
 
   // Übernahme aus der Vorversion (einzelner Rechner, gleicher Browser)
@@ -2081,7 +2090,7 @@ Reklamation: fehlende oder defekte Teile schicken wir kostenlos nach, bitte Foto
 Montage: Wandhalterungen nur an massiven Wänden (Beton, Ziegel). Bei Gipskarton passende Hohlraumdübel nötig. Schrauben und Dübel liegen bei.
 Sondermaße: auf Anfrage, bitte Maße und Anzahl schicken, dann kommt ein Angebot.
 Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn der Kunde siezt). Unterschrift: Viele Grüße, Mark`;
-  let sup = { tab: "antwort", f: null, busy: false, ctl: null, err: "", period: "90", ai: "", aiBusy: false };
+  let sup = { tab: "antwort", f: null, busy: false, ctl: null, err: "", period: "90", ai: "", aiBusy: false, a: null, anfBusy: false, anfErr: "" };
   let sampleFn;
   async function getSample() {
     if (sampleFn !== undefined) return sampleFn;
@@ -2099,10 +2108,11 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
 
   function renderSupport() {
     if (!sup.f) sup.f = supBlank();
-    const tabs = [["antwort", "Beantworten"], ["auswertung", "Auswertung"], ["wissen", "Shop-Infos"]];
+    const nReady = ANF.filter(x => x.status === "geprueft").length;
+    const tabs = [["antwort", "Beantworten"], ["anfertigung", "Anfertigungen" + (nReady ? ` (${nReady})` : "")], ["auswertung", "Auswertung"], ["wissen", "Shop-Infos"]];
     $("view").innerHTML = `
       <div class="row"><h1>Support</h1><div class="seg" aria-label="Bereich">${tabs.map(([k, l]) => `<button type="button" data-suptab="${k}" aria-pressed="${sup.tab === k}">${l}</button>`).join("")}</div></div>
-      ${sup.tab === "antwort" ? supAnswerHTML() : sup.tab === "auswertung" ? supStatsHTML() : supFactsHTML()}`;
+      ${sup.tab === "antwort" ? supAnswerHTML() : sup.tab === "anfertigung" ? supAnfHTML() : sup.tab === "auswertung" ? supStatsHTML() : supFactsHTML()}`;
     getSample().then(f => { const n = $("supNoAi"); if (n) n.hidden = !!f; });
   }
 
@@ -2127,10 +2137,12 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
           <datalist id="supSkus">${A.filter(a => a.sku).map(a => `<option value="${esc(a.sku)}">${esc(a.name)}</option>`).join("")}</datalist>
           <div class="field"><label for="s-msg">Nachricht (einfach reinkopieren, auch der ganze Verlauf)</label><div class="inp"><textarea id="s-msg" data-sup="msg" rows="7" placeholder="Hallo, mein Paket ist noch nicht da …">${esc(f.msg)}</textarea></div></div>
           <div class="field"><label for="s-hint">Was soll in die Antwort? (optional)</label><div class="inp"><input type="text" id="s-hint" data-sup="hint" value="${esc(f.hint)}" placeholder="z. B. Ersatzschrauben schicken, 10 % Gutschein anbieten"></div></div>
-          <div class="btns"><button type="button" class="btn primary" data-act="supAsk" ${sup.busy ? "disabled" : ""}>${sup.busy ? "Claude schreibt …" : f.reply ? "↻ Neuer Vorschlag" : "✨ Antwort vorschlagen"}</button>${sup.busy ? '<button type="button" class="btn" data-act="supStop">Stopp</button>' : ""}<button type="button" class="btn" data-act="supNew">Neue Nachricht</button></div>
+          <div class="btns"><button type="button" class="btn primary" data-act="supAsk" ${sup.busy ? "disabled" : ""}>${sup.busy ? "Claude schreibt …" : f.reply ? "↻ Neuer Vorschlag" : "✨ Antwort vorschlagen"}</button><button type="button" class="btn" data-act="anfAsk" ${sup.anfBusy || sup.busy ? "disabled" : ""}>${sup.anfBusy ? "Claude liest …" : "🛠 Neue Anfertigung daraus"}</button>${sup.busy || sup.anfBusy ? '<button type="button" class="btn" data-act="supStop">Stopp</button>' : ""}<button type="button" class="btn" data-act="supNew">Neue Nachricht</button></div>
           <p class="note" id="supNoAi" hidden>Claude ist hier nicht verfügbar. Du kannst die Antwort selbst schreiben und die Nachricht trotzdem für die Auswertung erfassen.</p>
           ${sup.err ? `<p class="note" style="color:var(--bad)">${esc(sup.err)}</p>` : ""}
+          ${sup.anfErr ? `<p class="note" style="color:var(--bad)">${esc(sup.anfErr)}</p>` : ""}
         </section>
+        ${sup.a ? anfFormHTML() : ""}
         <section class="box">
           <h2>Antwort</h2>
           ${f.msgDe ? `<details><summary class="note">Kundennachricht auf Deutsch</summary><p class="note" style="white-space:pre-wrap">${esc(f.msgDe)}</p></details>` : ""}
@@ -2248,6 +2260,124 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
 3. Ein Satz, was sich gegenüber früher verbessert oder verschlechtert hat, falls erkennbar.`, { cache: false, onText: ({ text }) => { sup.ai = text; const el = $("supAi"); if (el) { el.textContent = text; el.className = "note"; el.style.whiteSpace = "pre-wrap"; el.style.color = "var(--fg)"; } } });
     } catch (e) { if (!sup.ai) sup.ai = supErr(e); }
     sup.aiBusy = false; renderSupport();
+  }
+
+  // ---------- Support: Neue Anfertigung (Kundentext → geprüfter Auftrag für Billbee) ----------
+  // Die Felder heißen wie im Billbee-Auftrags-Skill (vorname, nachname, strasse, hausnummer, plz, ort, land, produkt, menge, preis, versandkosten, notiz),
+  // damit Claude die geprüften Aufträge direkt aus der Datenbank (Sammlung „anfertigung“) weitergeben kann.
+  const ANF_ST = { entwurf: ["Entwurf", "muted"], geprueft: ["Bereit für Billbee", "warn"], billbee: ["In Billbee angelegt", "good"] };
+  const anfBlank = () => ({ id: uid(), at: isoD(new Date()), status: "entwurf", channel: "", vorname: "", nachname: "", email: "", telefon: "", strasse: "", hausnummer: "", plz: "", ort: "", land: "DE", produkt: "", menge: "1", preis: "", versandkosten: "", notiz: "", preisInfo: "", msg: "" });
+  const ANF_REQ = [["vorname", "Vorname"], ["nachname", "Nachname"], ["strasse", "Straße"], ["plz", "PLZ"], ["ort", "Ort"], ["produkt", "Produkt"]];
+  const anfMissing = a => ANF_REQ.filter(([k]) => !String(a[k] || "").trim());
+  const anfQty = a => Math.max(1, Math.round(v(a.menge)) || 1);
+  const anfTotal = a => anfQty(a) * v(a.preis) + v(a.versandkosten);
+  const anfName = a => [a.vorname, a.nachname].filter(Boolean).join(" ") || "Ohne Namen";
+  const anfCopyTxt = txt => (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht"));
+  const anfText = a => `Auftrag erstellen (Anfertigung):
+Kunde: ${anfName(a)}
+E-Mail: ${a.email || "–"}
+Telefon: ${a.telefon || "–"}
+Adresse: ${[a.strasse, a.hausnummer].filter(Boolean).join(" ")}, ${[a.plz, a.ort].filter(Boolean).join(" ")} (${a.land || "DE"})
+Produkt: ${a.produkt}
+Menge: ${anfQty(a)}
+Preis pro Stück (brutto): ${v(a.preis) ? eur(v(a.preis)) : "noch offen (0,00 €)"}
+Versand: ${eur(v(a.versandkosten))}
+Notiz: ${a.notiz || "–"}`;
+  // Preis für ein einfaches Regal nach Maß aus der vorhandenen Kalkulation (Reiter „Regal nach Maß“), ohne deren Eingaben zu verändern
+  function anfRegalPrice(len, dep, th) {
+    const keep = { ...ms };
+    try {
+      Object.assign(ms, { len: String(len), dep: String(dep || 20), thick: String(th || 4), thomas: "", fixed: "", ship: "", port: "" });
+      const m = msCalc();
+      if (!m || !m.r || !isFinite(m.cust) || m.L > 120) return null;
+      return { price: m.cust, ship: m.shipIn, info: `Preisvorschlag aus deiner Kalkulation „Regal nach Maß“ (${dec(m.L)} × ${dec(m.dep)} × ${dec(m.th)} cm${m.special ? ", Sondermaß" : ""}, Marge ${dec(m.r.margin, 1)} %). Bitte prüfen.` };
+    } catch (e) { return null; } finally { Object.assign(ms, keep); }
+  }
+  async function anfAsk() {
+    const f = sup.f;
+    if (!f.msg.trim()) { $("s-msg").focus(); return toast("Bitte erst den Kundentext einfügen"); }
+    const sample = await getSample();
+    if (!sample) { sup.a = Object.assign(anfBlank(), { channel: f.channel || "", msg: f.msg.slice(0, 8000) }); sup.anfErr = "Claude ist hier nicht verfügbar. Trag die Daten unten selbst ein."; return renderSupport(); }
+    const prompt = `Du hilfst dem Inhaber einer kleinen Holzwerkstatt (Eiche, handgefertigt). Aus der Kundennachricht unten sollst du die Angaben für einen Auftrag (Sonderanfertigung) herausziehen. Erfinde nichts: Was nicht in der Nachricht steht, bleibt leer (Text) oder null (Zahl).
+
+KANAL: ${f.channel}${f.customer ? "\nNAME (vom Inhaber eingetragen): " + f.customer : ""}${f.sku ? "\nARTIKEL/SKU (vom Inhaber eingetragen): " + f.sku : ""}${f.hint ? "\nHINWEIS DES INHABERS: " + f.hint : ""}
+KUNDENNACHRICHT (kann ein ganzer Verlauf sein, gilt der zuletzt vereinbarte Stand):
+"""
+${f.msg.slice(0, 12000)}
+"""
+
+Gib NUR dieses JSON zurück:
+{"vorname": "", "nachname": "", "email": "", "telefon": "", "strasse": "Straße ohne Hausnummer", "hausnummer": "", "plz": "", "ort": "", "land": "ISO-Kürzel mit 2 Buchstaben, Standard DE", "produkt": "kurze Bezeichnung mit Maßen, z. B. Wandregal Eiche 90 × 20 × 4 cm, geölt", "menge": 1, "preis": null, "versandkosten": null, "notiz": "alle Details für die Fertigung als kurze Stichpunkte auf Deutsch: Maße, Holz, Oberfläche, Farbe oder Haken, Gravurtext genau wie geschrieben, Wunschtermin, Besonderheiten", "typ": "regal oder anderes", "laenge_cm": null, "tiefe_cm": null, "staerke_cm": null}
+Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Preis in der Nachricht genannt oder vereinbart wird, sonst null. "typ" ist "regal" nur bei einem einfachen Wandregal oder Board aus Eiche mit Länge, Tiefe und Stärke, sonst "anderes". Maße in cm nur bei "regal".`;
+    sup.anfBusy = true; sup.anfErr = ""; sup.ctl = new AbortController(); renderSupport();
+    try {
+      const r = await sample.json(prompt, { signal: sup.ctl.signal, cache: false });
+      if (!r || typeof r !== "object") throw { code: "invalid_json" };
+      const s = x => x == null ? "" : String(x).trim(), num = x => { const n = typeof x === "number" ? x : parseFloat(String(x == null ? "" : x).replace(",", ".")); return isFinite(n) && n > 0 ? n : 0; };
+      const a = Object.assign(anfBlank(), { channel: f.channel || "", msg: f.msg.slice(0, 8000), vorname: s(r.vorname), nachname: s(r.nachname), email: s(r.email), telefon: s(r.telefon),
+        strasse: s(r.strasse), hausnummer: s(r.hausnummer), plz: s(r.plz), ort: s(r.ort), land: /^[A-Za-z]{2}$/.test(s(r.land)) ? s(r.land).toUpperCase() : "DE",
+        produkt: s(r.produkt), menge: String(Math.max(1, Math.round(num(r.menge)) || 1)), notiz: s(r.notiz) });
+      if (!a.vorname && !a.nachname && (f.customer || "").trim()) { const p = f.customer.trim().split(/\s+/); a.nachname = p.pop(); a.vorname = p.join(" "); }
+      const ship = r.versandkosten == null || r.versandkosten === "" ? null : Math.max(0, parseFloat(String(r.versandkosten).replace(",", ".")) || 0), p0 = num(r.preis);
+      if (p0) { a.preis = p0.toFixed(2); a.preisInfo = "Dieser Preis steht so in der Kundennachricht. Bitte prüfen."; }
+      else if (s(r.typ) === "regal" && num(r.laenge_cm)) {
+        if (!SHOP) await shopLoad();
+        const rp = anfRegalPrice(num(r.laenge_cm), num(r.tiefe_cm), num(r.staerke_cm));
+        if (rp) { a.preis = rp.price.toFixed(2); if (ship === null) a.versandkosten = rp.ship.toFixed(2); a.preisInfo = rp.info; }
+      }
+      if (ship !== null) a.versandkosten = ship.toFixed(2);
+      if (!a.preis) a.preisInfo = "In der Nachricht steht kein Preis. Trag ihn selbst ein. Bleibt das Feld leer, geht der Auftrag mit 0,00 € („Preis offen“) nach Billbee.";
+      sup.a = a;
+      setTimeout(() => { const el = $("anf-form"); if (el) el.scrollIntoView({ behavior: "smooth", block: "start" }); }, 60);
+    } catch (e) { if (!e || e.code !== "cancelled") sup.anfErr = supErr(e); }
+    sup.anfBusy = false; sup.ctl = null; renderSupport();
+  }
+  function anfSave(status) {
+    const a = sup.a; if (!a) return;
+    if (a.status === "billbee") status = "billbee";
+    if (status !== "entwurf") {
+      const miss = anfMissing(a);
+      if (miss.length) { toast("Es fehlt noch: " + miss.map(x => x[1]).join(", ")); const el = $("anf-" + miss[0][0]); if (el) el.focus(); return; }
+    }
+    const m = clone(a); m.status = status; m.menge = String(anfQty(a)); m.preis = v(a.preis) ? v(a.preis).toFixed(2) : ""; m.versandkosten = v(a.versandkosten) ? v(a.versandkosten).toFixed(2) : "";
+    if (status === "geprueft") m.checked = new Date().toISOString();
+    const i = ANF.findIndex(x => x.id === m.id); if (i >= 0) ANF[i] = m; else ANF.push(m);
+    saveAnf(m); sup.a = null; sup.anfErr = ""; if (status === "geprueft") sup.tab = "anfertigung";
+    renderSupport(); window.scrollTo(0, 0);
+    toast(status === "geprueft" ? "Bereit für Billbee. Sag Claude: „Anfertigungen an Billbee senden“" : status === "billbee" ? "Änderungen gespeichert" : "Entwurf gespeichert");
+  }
+  function anfFormHTML() {
+    const a = sup.a, miss = anfMissing(a), done = a.status === "billbee";
+    const inp = (k, l, ph = "") => `<div class="field"><label for="anf-${k}">${l}</label><div class="inp"><input type="text" id="anf-${k}" data-anf="${k}" value="${esc(a[k])}" placeholder="${esc(ph)}"></div></div>`;
+    const money = (k, l) => `<div class="field"><label for="anf-${k}">${l}</label><div class="inp"><input type="text" inputmode="decimal" id="anf-${k}" data-anf="${k}" value="${esc(a[k])}"><span>€</span></div></div>`;
+    return `<section class="box" id="anf-form" style="border-color:var(--accent)">
+      <h2>Neue Anfertigung${a.status !== "entwurf" ? ` <span class="note">(${esc(ANF_ST[a.status][0])})</span>` : ""}</h2>
+      <p class="note">Claude hat die Angaben aus dem Kundentext gezogen. Prüf alles, ändere was nicht stimmt und klick dann auf „Geprüft“. Erst dann ist der Auftrag für Billbee freigegeben.</p>
+      ${done ? `<p class="note" style="color:var(--warn)">Dieser Auftrag ist schon in Billbee angelegt. Änderungen hier ändern den Auftrag in Billbee nicht.</p>` : ""}
+      ${miss.length ? `<p class="note" style="color:var(--warn)">Das fehlt noch: <strong>${esc(miss.map(x => x[1]).join(", "))}</strong></p>` : ""}
+      <div class="grid2">${inp("vorname", "Vorname")}${inp("nachname", "Nachname")}${inp("email", "E-Mail")}${inp("telefon", "Telefon")}</div>
+      <div class="grid3 keep">${inp("strasse", "Straße")}${inp("hausnummer", "Nr.")}${inp("plz", "PLZ")}</div>
+      <div class="grid2">${inp("ort", "Ort")}${inp("land", "Land (Kürzel, z. B. DE)")}</div>
+      ${inp("produkt", "Produkt")}
+      <div class="grid3 keep">${inp("menge", "Menge")}${money("preis", "Preis pro Stück (brutto)")}${money("versandkosten", "Versand")}</div>
+      ${a.preisInfo ? `<p class="note">${esc(a.preisInfo)}</p>` : ""}
+      <p class="note">Gesamt: <strong id="anf-sum">${eur(anfTotal(a))}</strong> (Menge × Preis + Versand)</p>
+      <div class="field"><label for="anf-notiz">Details für die Fertigung (Maße, Holz, Gravur, Wunschtermin)</label><div class="inp"><textarea id="anf-notiz" data-anf="notiz" rows="6">${esc(a.notiz)}</textarea></div></div>
+      <div class="btns"><button type="button" class="btn primary" data-act="anfReady">${done ? "Änderungen speichern" : "✓ Geprüft, bereit für Billbee"}</button>${done ? "" : '<button type="button" class="btn" data-act="anfDraft">Entwurf speichern</button>'}<button type="button" class="btn" data-act="anfCopy">Als Text kopieren</button><button type="button" class="btn" data-act="anfDrop">Verwerfen</button></div>
+    </section>`;
+  }
+  function supAnfHTML() {
+    const L = ANF.slice().sort((x, y) => (y.at || "").localeCompare(x.at || "") || String(y.id).localeCompare(String(x.id))), ready = L.filter(x => x.status === "geprueft").length;
+    return `<div class="stack" style="margin-top:12px">
+      <section class="box"><h2>So kommt eine Anfertigung nach Billbee</h2>
+        <ol class="note" style="margin:0;padding-left:20px;display:grid;gap:4px"><li>Im Reiter „Beantworten“ den Kundentext einfügen und auf „Neue Anfertigung daraus“ klicken.</li>
+          <li>Angaben prüfen, ändern und auf „Geprüft“ klicken. Der Auftrag steht dann hier als „Bereit für Billbee“.</li>
+          <li>Sag Claude im Chat: <strong>„Anfertigungen an Billbee senden“</strong>. Claude liest die geprüften Aufträge, zeigt sie dir noch einmal und legt sie nach deinem Ja in Billbee an. Danach markiert Claude sie hier als „In Billbee angelegt“.</li></ol>
+        <p class="note">Das Dashboard selbst kann Billbee nicht ansprechen. Ohne diesen Umweg geht es auch: „Als Text kopieren“, in den Chat einfügen und „Auftrag erstellen“ sagen.</p></section>
+      <section class="box"><div class="row"><h2 style="margin:0">Anfertigungen <span class="note">${ready} bereit</span></h2>${ready ? '<button type="button" class="btn" data-act="anfCopyAll">Alle bereiten als Text kopieren</button>' : ""}</div>
+        ${L.length ? `<div class="tablewrap"><table class="suptable"><thead><tr><th>Datum</th><th>Kunde</th><th>Produkt</th><th>Summe</th><th>Status</th><th></th></tr></thead><tbody>${L.map(m => { const st = ANF_ST[m.status] || ANF_ST.entwurf;
+          return `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(anfName(m))}<br><span class="note">${esc([m.plz, m.ort].filter(Boolean).join(" ") || m.channel || "")}</span></td><td>${esc(shortT(m.produkt || "–", 60))}<br><span class="note">${anfQty(m)} Stück${v(m.preis) ? "" : " · Preis offen"}</span></td><td class="num">${eur(anfTotal(m))}</td><td><span class="chip" style="color:var(--${st[1]})">${esc(st[0])}</span></td><td><div class="btns"><button class="btn" data-act="anfOpen" data-aid="${m.id}">Öffnen</button>${m.status === "geprueft" ? `<button class="btn" data-act="anfBb" data-aid="${m.id}" title="Markiert den Auftrag als in Billbee angelegt">✓ In Billbee</button>` : ""}<button class="x" data-act="anfDel" data-aid="${m.id}" aria-label="Löschen">×</button></div></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="note">Noch keine Anfertigung. Füg im Reiter „Beantworten“ einen Kundentext ein und klick auf „Neue Anfertigung daraus“.</p>`}
+      </section></div>`;
   }
 
   function supSave(status) {
@@ -2896,6 +3026,7 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
     if (d.col) { const on = new Set(ovCols().map(c => c.k)); t.checked ? on.add(d.col) : on.delete(d.col); LS.set("hlz-app-cols", OV_COLS.filter(c => on.has(c.k)).map(c => c.k)); return renderOverview(); }
     if (view === "support") {
       if (t.id === "s-search") { sup.q = val; const pos = t.selectionStart; renderSupport(); const n = $("s-search"); if (n) { n.focus(); n.setSelectionRange(pos, pos); } return; }
+      if (d.anf && sup.a) { sup.a[d.anf] = val; if (["menge", "preis", "versandkosten"].includes(d.anf)) { const el = $("anf-sum"); if (el) el.textContent = eur(anfTotal(sup.a)); } return; }
       if (d.sup && sup.f) sup.f[d.sup] = val;
       if (t.id === "supFacts") { S.supFacts = val; saveSettings(); }
       return;
@@ -3113,6 +3244,15 @@ Werte aus, auf Deutsch, kurz und direkt, ohne Markdown-Überschriften:
       case "supDone": return supSave("erledigt");
       case "supKeep": return supSave("offen");
       case "supAnalyze": return supAnalyze();
+      case "anfAsk": return anfAsk();
+      case "anfReady": return anfSave("geprueft");
+      case "anfDraft": return anfSave("entwurf");
+      case "anfDrop": sup.a = null; sup.anfErr = ""; return renderSupport();
+      case "anfCopy": return sup.a && anfCopyTxt(anfText(sup.a));
+      case "anfCopyAll": return anfCopyTxt(ANF.filter(x => x.status === "geprueft").map(anfText).join("\n\n----------\n\n"));
+      case "anfOpen": { const m = ANF.find(x => x.id === d.aid); if (m) { sup.a = clone(m); sup.tab = "antwort"; sup.anfErr = ""; renderSupport(); setTimeout(() => { const el = $("anf-form"); if (el) el.scrollIntoView({ block: "start" }); }, 30); } return; }
+      case "anfBb": { const m = ANF.find(x => x.id === d.aid); if (m) { m.status = "billbee"; m.bbAt = new Date().toISOString(); saveAnf(m); renderSupport(); toast("Als in Billbee angelegt markiert"); } return; }
+      case "anfDel": { const m = ANF.find(x => x.id === d.aid); if (m && sure(`Anfertigung von ${anfName(m)} löschen?`)) { removeAnf(m.id); renderSupport(); toast("Gelöscht"); } return; }
       case "supCopy": {
         const txt = sup.f.reply; if (!txt.trim()) return toast("Noch keine Antwort da");
         (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Antwort kopiert"))
@@ -4535,9 +4675,10 @@ Antworte NUR mit JSON in dieser Form:
     return I;
   }
   const webScore = I => Math.max(0, 100 - I.filter(x => !x.ok).reduce((n, x) => n + x.w, 0));
-  const shopTabs = () => `<div class="seg" aria-label="Bereich" style="margin:4px 0 12px">${[["start", "Übersicht"], ["web", "Webshop"], ["shopify", "Shopify-Artikel"], ["etsy", "Etsy-Artikel"]].map(([k, l]) => `<button type="button" data-shop="tab-${k}" aria-pressed="${shopSt.tab === k}">${l}</button>`).join("")}</div>`;
+  const shopTabs = () => `<div class="seg" aria-label="Bereich" style="margin:4px 0 12px">${[["start", "Übersicht"], ["stat", "Statistik"], ["web", "Webshop"], ["shopify", "Shopify-Artikel"], ["etsy", "Etsy-Artikel"]].map(([k, l]) => `<button type="button" data-shop="tab-${k}" aria-pressed="${shopSt.tab === k}">${l}</button>`).join("")}</div>`;
   function renderShop() {
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Shop-Check</h1><p class="note">Lade …</p>`; return; }
+    if (shopSt.tab === "stat") return renderVisit();
     if (shopSt.tab !== "start" && shopSt.tab !== "web") return renderShopList();
     const E = SHOP.etsy, SA = SHOP.sales, SF = SHOP.shopify, W = SHOP.web, dstr = x => x ? dDE(x.slice(0, 10)) : "";
     const WI = W ? webAudit(W) : [], wBad = WI.filter(x => !x.ok).sort((a, b) => b.w - a.w), wScore = W ? webScore(WI) : null;
@@ -4566,6 +4707,182 @@ Antworte NUR mit JSON in dieser Form:
         ${wBad.length ? `<ol class="shoptasks">${wBad.map(x => `<li><span class="chip ${x.w >= 6 ? "miss" : ""}">${esc(x.g)}</span> <strong>${esc(x.t)}</strong><br><span class="note">${esc(x.fix)}</span><div class="shopfix">${verdictHTML(x.code || "")}</div></li>`).join("")}</ol>` : `<p class="note">Alles in Ordnung.</p>`}</section>
       <section class="box"><details><summary><strong>${WI.length - wBad.length} Punkte sind in Ordnung</strong></summary><ul>${groups.map(g => `<li><strong>${esc(g)}:</strong> ${esc(WI.filter(x => x.g === g && x.ok).map(x => x.t.replace(/ fehlt.*| ist .*| hat .*| nicht .*/, "")).join(", ") || "–")}</li>`).join("")}</ul></details></section>
       <section class="box"><h2>Manuell prüfen</h2><p class="note">Das kann die App nicht messen. Hak ab, was du kontrolliert hast.</p>${shopManualHTML()}</section>`}`;
+  }
+
+  // ---------- Shop-Check: Statistik (Besucher, Herkunft, Kaufweg), live aus Shopify (ShopifyQL über den Shopify-Connector) ----------
+  const visitSt = { days: [7, 30, 90].includes(+LS.get("hlz-app-visitdays")) ? +LS.get("hlz-app-visitdays") : 30, data: {}, busy: false, err: "", ai: {}, aiBusy: false, allTips: false };
+  const VISIT_SRC = { direct: "Direkt", search: "Suchmaschinen", social: "Social Media", email: "E-Mail", paid: "Bezahlte Werbung", unknown: "Andere Webseiten", "": "Nicht erkannt" };
+  const VISIT_TIP = { direct: "Adresse direkt eingegeben, Lesezeichen oder ein Link ohne erkennbaren Absender.", search: "Über eine Suchmaschine gefunden (Google, Bing, Ecosia …).", social: "Über Instagram, Pinterest, Facebook, TikTok und Co.", email: "Über einen Link in einer E-Mail.", paid: "Über bezahlte Anzeigen.", unknown: "Über Links von anderen Webseiten.", "": "Shopify konnte die Herkunft nicht bestimmen." };
+  const VISIT_PHR = { direct: "direkt (Adresse, Lesezeichen oder Link ohne Absender)", search: "über Suchmaschinen", social: "über Social Media", email: "über E-Mail-Links", paid: "über bezahlte Werbung", unknown: "über andere Webseiten", "": "von unbekannter Herkunft" };
+  const VISIT_NAME = { google: "Google", bing: "Bing", ecosia: "Ecosia", duckduckgo: "DuckDuckGo", yahoo: "Yahoo", brave: "Brave", pinterest: "Pinterest", instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok", youtube: "YouTube", chatgpt: "ChatGPT", gmail: "Gmail", shopify: "Shopify", etsy: "Etsy", whatsapp: "WhatsApp" };
+  const VISIT_DEV = { mobile: "Handy", desktop: "Computer", tablet: "Tablet", "": "Unbekannt" };
+  const VISIT_CH = { "Online Store": "Online-Shop" };
+  const VISIT_CTY = { Germany: "Deutschland", Switzerland: "Schweiz", Austria: "Österreich", "United States": "USA", France: "Frankreich", Italy: "Italien", Netherlands: "Niederlande", Belgium: "Belgien", "United Kingdom": "Großbritannien", Poland: "Polen", Spain: "Spanien", Luxembourg: "Luxemburg", Czechia: "Tschechien", Denmark: "Dänemark", Sweden: "Schweden", Canada: "Kanada", Ireland: "Irland", Hungary: "Ungarn", Norway: "Norwegen", Finland: "Finnland", Australia: "Australien", India: "Indien", Slovakia: "Slowakei", Croatia: "Kroatien", Greece: "Griechenland", Romania: "Rumänien", Bulgaria: "Bulgarien", Latvia: "Lettland" };
+  const visitName = s => VISIT_NAME[norm(s)] || (s ? String(s).charAt(0).toUpperCase() + String(s).slice(1) : "–");
+  const visitCty = s => VISIT_CTY[s] || s || "Unbekannt";
+  const visitShare = (x, tot) => tot > 0 ? x / tot * 100 : 0;
+  const visitMerge = list => { const m = new Map(); list.forEach(x => m.set(x.k, (m.get(x.k) || 0) + x.n)); return [...m].map(([k, n]) => ({ k, n })).sort((a, b) => b.n - a.n); };
+  function visitPage(p) {
+    p = String(p || ""); if (p === "" || p === "/") return ["Startseite", ""];
+    const m = p.match(/^\/(products|pages|collections|blogs\/[^/]+)\/([^/?#]+)/); let slug = m ? m[2] : p; try { slug = decodeURIComponent(slug); } catch (e) { /* bleibt roh */ }
+    const kind = m ? ({ products: "Produkt", pages: "Seite", collections: "Kategorie" }[m[1]] || "Blog") : "", nice = slug.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+    return [(kind ? kind + ": " : "") + shortT(nice.charAt(0).toUpperCase() + nice.slice(1), 70), p];
+  }
+  async function visitLoad() {
+    const n = visitSt.days; visitSt.busy = true; visitSt.err = "";
+    try {
+      const r = `SINCE -${n}d UNTIL yesterday`, q = {
+        a: `FROM sessions SHOW sessions, online_store_visitors, sessions_with_cart_additions, sessions_that_reached_checkout, sessions_that_completed_checkout, conversion_rate ${r} COMPARE TO previous_period`,
+        b: `FROM sales SHOW orders, total_sales, average_order_value, new_customers, returning_customers ${r} COMPARE TO previous_period`,
+        c: `FROM sales SHOW orders GROUP BY sales_channel ${r} ORDER BY orders DESC`,
+        d: `FROM sessions SHOW sessions GROUP BY referrer_source ${r} ORDER BY sessions DESC`,
+        e: `FROM sessions SHOW sessions GROUP BY referrer_source, referrer_name ${r} ORDER BY sessions DESC LIMIT 12`,
+        f: `FROM sessions SHOW sessions GROUP BY session_device_type ${r} ORDER BY sessions DESC`,
+        g: `FROM sessions SHOW sessions GROUP BY session_country ${r} ORDER BY sessions DESC`,
+        h: `FROM sessions SHOW sessions TIMESERIES day ${r}`,
+        i: `FROM sessions SHOW sessions, sessions_with_cart_additions GROUP BY landing_page_path ${r} ORDER BY sessions DESC LIMIT 8` };
+      const ks = Object.keys(q), gql = `query(${ks.map(k => `$${k}:String!`).join(",")}){ ${ks.map(k => `${k}: shopifyqlQuery(query:$${k}){ tableData{ rows } parseErrors }`).join(" ")} }`;
+      const d = await shopify("graphql_query", { query: gql, variables: q }), miss = [];
+      const R = k => { const x = d && d[k]; if (!x || (x.parseErrors && x.parseErrors.length) || !x.tableData) { miss.push(k); return null; } return x.tableData.rows || []; };
+      const A_ = R("a");
+      if (A_ === null) { const er = (d && d.errors && d.errors[0] && d.errors[0].message) || (d && d.a && d.a.parseErrors && d.a.parseErrors[0]) || ""; throw { code: "tool_error", message: "Die Besucherzahlen konnten nicht gelesen werden." + (er ? " (" + String(er).slice(0, 160) + ")" : "") }; }
+      const one = (rows, c) => rows && rows[0] ? v(rows[0][c]) : 0, str = x => x == null ? "" : String(x), B_ = R("b");
+      const D = { n, at: Date.now(), from: isoD(new Date(Date.now() - n * 864e5)), to: isoD(new Date(Date.now() - 864e5)), miss,
+        k: { ses: one(A_, "sessions"), vis: one(A_, "online_store_visitors"), cart: one(A_, "sessions_with_cart_additions"), chk: one(A_, "sessions_that_reached_checkout"), buy: one(A_, "sessions_that_completed_checkout"), conv: one(A_, "conversion_rate"),
+          pses: one(A_, "comparison_sessions__previous_period"), pvis: one(A_, "comparison_online_store_visitors__previous_period"), pconv: one(A_, "comparison_conversion_rate__previous_period") },
+        s: { ord: one(B_, "orders"), sales: one(B_, "total_sales"), aov: one(B_, "average_order_value"), pord: one(B_, "comparison_orders__previous_period"), psales: one(B_, "comparison_total_sales__previous_period"), newc: one(B_, "new_customers"), retc: one(B_, "returning_customers") },
+        ch: (R("c") || []).map(x => ({ k: str(x.sales_channel), n: v(x.orders) })).filter(x => x.n > 0),
+        src: visitMerge((R("d") || []).map(x => ({ k: str(x.referrer_source), n: v(x.sessions) }))),
+        names: (R("e") || []).map(x => ({ k: str(x.referrer_source), name: str(x.referrer_name), n: v(x.sessions) })),
+        dev: visitMerge((R("f") || []).map(x => ({ k: str(x.session_device_type), n: v(x.sessions) }))),
+        cty: visitMerge((R("g") || []).map(x => ({ k: str(x.session_country), n: v(x.sessions) }))),
+        day: (R("h") || []).map(x => ({ d: str(x.day).slice(0, 10), n: v(x.sessions) })),
+        land: (R("i") || []).map(x => ({ k: str(x.landing_page_path), n: v(x.sessions), c: v(x.sessions_with_cart_additions) })) };
+      visitSt.data[n] = D;
+    } catch (e) { visitSt.err = syncErr(e); }
+    visitSt.busy = false;
+    if (view === "shopcheck" && shopSt.tab === "stat") { try { renderShop(); } catch (e) { showErr(e); } }
+  }
+  // Handlungsempfehlungen aus den Zahlen: einfache Regeln, jede erscheint nur, wenn die Zahlen es hergeben (pri 1 = zuerst, 3 = nebenbei)
+  function visitTips(D) {
+    const k = D.k, s = D.s, tot = k.ses, T = [], b = x => `<strong>${x}</strong>`, add = (pri, title, why, what) => T.push({ pri, title, why, what });
+    const chg = (a, p) => p > 0 ? (a / p - 1) * 100 : null, srcN = key => (D.src.find(x => x.k === key) || { n: 0 }).n;
+    const dv = D.dev.filter(x => x.n > 0), dt = dv.reduce((q, x) => q + x.n, 0), mob = (dv.find(x => x.k === "mobile") || { n: 0 }).n;
+    const ctt = D.cty.reduce((q, x) => q + x.n, 0), foreign = D.cty.filter(x => x.k && x.k !== "Germany"), fn = foreign.reduce((q, x) => q + x.n, 0);
+    const dVis = chg(k.vis, k.pvis), soc = srcN("social"), dirS = tot > 0 ? srcN("direct") / tot : 0;
+    if (k.pvis >= 20 && dVis !== null && dVis <= -10) add(1, "Mehr Besucher in den Shop holen", `Du hast ${b(dec(-dVis, 0) + " % weniger Besucher")} als in den ${D.n} Tagen davor (${dec(k.vis, 0)} statt ${dec(k.pvis, 0)}). Ohne Besucher hilft auch der beste Shop nichts.`,
+      ["Jeden Tag einen Pin auf Pinterest oder einen Beitrag auf Instagram zu einem deiner Bestseller veröffentlichen, mit Link direkt auf die Produktseite.", "Auf Etsy und im Paket (Flyer mit Gutscheincode) auf den eigenen Shop hinweisen.", "Links in Beiträgen mit einem Absender versehen, zum Beispiel ?utm_source=pinterest am Ende der Adresse. Dann siehst du hier, was wirklich Besucher bringt."]);
+    if (tot >= 100 && soc / tot < 0.05) add(dirS >= 0.5 ? 1 : 2, "Social Media bringt kaum Besucher", `Nur ${b(dec(soc, 0) + " Besuche")} (${pct(visitShare(soc, tot))}) kommen über Social Media.${dirS >= 0.5 ? ` Viele „Direkt“-Besuche (${pct(dirS * 100)}) stammen vermutlich aus Apps wie Instagram oder Pinterest, die keinen Absender mitschicken.` : ""}`,
+      ["Pinterest ist für Wohndeko und Geschenke oft der stärkste Kanal: lieber wenige gute Pins mit klarem Titel („Schlüsselbrett Eiche personalisiert“) als viele schnelle.", "Bei Instagram kurze Videos aus der Werkstatt (Zuschnitt, Ölen, Gravur) zeigen und den Produktlink in die Bio setzen.", "Alle Links mit ?utm_source=… markieren, damit die Besuche hier als Social Media gezählt werden."]);
+    if (tot >= 150 && k.cart / tot < 0.06) add(1, "Zu wenige legen etwas in den Warenkorb", `Nur ${b(dec(k.cart / tot * 100, 1) + " von 100")} Besuchen enden mit einem Artikel im Warenkorb. Als Faustregel sind 5 bis 8 von 100 solide.`,
+      ["Bei Produkten mit vielen Varianten (Größe, Farbe, Gravur) die beliebteste vorauswählen und Extras als einfachen Aufpreis anbieten. Je weniger Entscheidungen, desto mehr Warenkörbe.", "Erstes Foto, Preis, Lieferzeit und Kaufen-Knopf sollten am Handy ohne Scrollen sichtbar sein.", "Bewertungen, „handgefertigt“ und Rückgabe (zum Beispiel 30 Tage) direkt neben dem Kaufen-Knopf zeigen."]);
+    if (k.chk >= 8 && k.buy / k.chk < 0.6) add(1, "An der Kasse brechen zu viele ab", `Von ${b(dec(k.chk, 0))} Besuchen, die bis zur Kasse kamen, haben nur ${b(dec(k.buy, 0))} gekauft (${pct(visitShare(k.buy, k.chk))}).`,
+      ["Versandkosten und Gratis-Grenze schon im Warenkorb zeigen, damit es an der Kasse keine Überraschung gibt.", "Express-Zahlung (PayPal, Apple Pay, Google Pay) im Warenkorb anbieten, am Handy besonders wichtig.", "Prüfen, ob Texte wie „Versandfrei ab …“ in Produktbeschreibung, Meta-Beschreibung und Banner zu den echten Versandregeln passen. Abweichungen führen zu Abbrüchen.", "Lieferzeit und Rückgabe in der Kasse nennen."]);
+    if (dt >= 100 && mob / dt >= 0.6) add(2, "Der Shop muss am Handy überzeugen", `${b(pct(visitShare(mob, dt)))} der Besuche laufen übers Handy.`,
+      ["Einmal selbst am Handy bestellen, von der Produktseite bis zur Zahlung. Was dich stört, stört Kunden auch.", "Variantenauswahl und Gravur-Feld müssen ohne Zoomen bedienbar sein.", "Express-Zahlung (Apple Pay, Google Pay, PayPal) aktivieren."]);
+    if (ctt >= 100 && fn / ctt >= 0.25) { const top = foreign.slice().sort((x, y) => y.n - x.n)[0]; add(2, "Viele Besucher kommen aus dem Ausland", `${b(pct(visitShare(fn, ctt)))} der Besucher kommen nicht aus Deutschland, vor allem aus ${b(esc(visitCty(top.k)))} (${pct(visitShare(top.n, ctt))}).`,
+      ["In Shopify unter Einstellungen → Versand prüfen, in welche Länder du liefern kannst. Besucher aus Ländern ohne Versandzone können nicht kaufen.", "Versand ins Ausland ist oft teuer (zum Beispiel in die Schweiz). Eine eigene Gratis-Grenze oder Pauschale für die wichtigsten Länder kann sich lohnen.", "Hat eine einzelne Seite plötzlich viele Einstiege aus einem Land und nie ein Warenkorb, kann das ein Bot sein. Das verfälscht die Statistik, nicht den Umsatz."]); }
+    const rate = tot > 0 ? k.cart / tot : 0, big = D.land.filter(x => x.n >= Math.max(15, tot * 0.03)), pg = x => `${esc(visitPage(x.k)[0])} (${dec(x.n, 0)} Einstiege, ${dec(x.c, 0)} Warenkörbe)`;
+    const weak = rate > 0 ? big.filter(x => x.c / x.n < rate * 0.67).slice(0, 3) : [], strong = big.filter(x => x.c / x.n >= Math.max(rate * 2, 0.08)).slice(0, 3);
+    if (tot >= 100 && weak.length) add(2, "Seiten mit vielen Besuchern, aber kaum Warenkörben", weak.map(pg).join("<br>"),
+      ["Bei Produktseiten: erstes Foto, Titel und Preis prüfen und die Varianten vereinfachen.", "Bei Info- oder Blogseiten: am Ende zwei, drei passende Produkte mit Button verlinken.", "Vergleich mit einer Produktseite, die gut läuft: Was ist dort anders?"]);
+    if (tot >= 100 && strong.length) add(3, "Das funktioniert gut: mehr Besucher dorthin schicken", strong.map(pg).join("<br>"),
+      ["Pins und Beiträge gezielt auf genau diese Produkte machen.", "Übernimm, was dort gut ist (Fotos, Titel, wenig Varianten), auf schwächere Seiten."]);
+    const cu = s.newc + s.retc;
+    if (cu >= 8 && s.retc / cu < 0.1) add(2, "Fast alle Käufer sind Neukunden", `Wiederkehrende Käufer: nur ${b(dec(s.retc, 0) + " von " + dec(cu, 0))}. Alle anderen kaufen zum ersten Mal bei dir.`,
+      ["Danke-Flyer mit Gutscheincode in jedes Paket legen. Liegt er schon drin, zähl nach, wie oft der Code genutzt wird.", "Nach etwa vier Wochen eine kurze Dankes-Mail mit kleinem Gutschein schicken (zum Beispiel mit Shopify Email).", "Zu jedem Produkt eine passende Ergänzung vorschlagen, zum Beispiel zum Schlüsselbrett die passende Garderobe."]);
+    if (s.ord >= 8 && s.aov > 0) add(3, "Pro Bestellung mehr verkaufen", `Eine Bestellung bringt im Schnitt ${b(eur(s.aov))}.`,
+      ["Im Warenkorb eine Anzeige „Noch X € bis Gratisversand“ einblenden.", "Beim Produkt und im Warenkorb eine passende Ergänzung vorschlagen.", "Sets oder Mengenrabatt anbieten, zum Beispiel zwei Stück günstiger."]);
+    const on = (D.ch.find(x => x.k === "Online Store") || { n: 0 }).n;
+    if (on >= 6 && k.buy > 0 && on >= k.buy * 1.5) add(3, "Die Statistik sieht nur einen Teil der Besucher", `Shopify zählt ${b(dec(k.buy, 0))} Käufe als Besuch, tatsächlich gab es ${b(dec(on, 0))} Bestellungen im Online-Shop.`,
+      ["Die Prozentwerte als Trend lesen, nicht als genaue Zahl.", "Prüfen, ob dein Cookie-Banner das Shopify-Tracking schon vor der Zustimmung blockiert (Einstellungen → Kundendatenschutz)."]);
+    return T.sort((x, y) => x.pri - y.pri);
+  }
+  async function visitAsk() {
+    const n = visitSt.days, D = visitSt.data[n]; if (!D || visitSt.aiBusy) return;
+    const sample = await getSample(); if (!sample) { visitSt.ai[n] = "Claude ist hier nicht verfügbar."; return renderShop(); }
+    const k = D.k, q = D.s, rp = x => Math.round(x * 10) / 10;
+    const data = { zeitraum_tage: n, von: D.from, bis: D.to, besucher: k.vis, besucher_davor: k.pvis, sitzungen: k.ses, sitzungen_davor: k.pses, mit_warenkorb: k.cart, bis_zur_kasse: k.chk, gekauft: k.buy,
+      kaufquote_prozent: rp(k.conv * 100), kaufquote_davor_prozent: rp(k.pconv * 100), bestellungen: q.ord, bestellungen_davor: q.pord, gesamtumsatz_eur: q.sales, gesamtumsatz_davor_eur: q.psales, umsatz_pro_bestellung_eur: q.aov,
+      neukunden: q.newc, stammkunden: q.retc, bestellkanaele: D.ch.map(x => ({ kanal: x.k, bestellungen: x.n })), herkunft: D.src.map(x => ({ quelle: x.k || "nicht erkannt", sitzungen: x.n })),
+      absender: D.names.slice(0, 8).map(x => ({ quelle: x.k, name: x.name || "", sitzungen: x.n })), geraete: D.dev.map(x => ({ geraet: x.k || "unbekannt", sitzungen: x.n })), laender: D.cty.slice(0, 8).map(x => ({ land: x.k || "unbekannt", sitzungen: x.n })),
+      einstiegsseiten: D.land.map(x => ({ seite: x.k, sitzungen: x.n, mit_warenkorb: x.c })) };
+    const prompt = `Du berätst den Inhaber eines kleinen Online-Shops für handgefertigte Holzprodukte aus Eiche (eigener Shopify-Shop plus Etsy, Privatkunden, Wohndeko und Geschenke). Unten stehen die Shop-Zahlen der letzten ${n} Tage aus den Shopify-Analysen (JSON) und die Shop-Infos.
+
+SHOP-INFOS:
+${S.supFacts || SUP_FACTS_DEFAULT}
+
+ZAHLEN:
+${JSON.stringify(data)}
+
+Schreib auf Deutsch, in einfachen Worten, ohne Fachbegriffe die 5 wichtigsten Maßnahmen, mit der größten Wirkung zuerst. Pro Maßnahme: eine Überschrift in einer Zeile, dann 2 bis 3 Sätze: was genau tun (konkret, mit Beispiel), warum (mit einer Zahl aus den Daten) und der geschätzte Aufwand. Erfinde nichts, was nicht aus den Zahlen folgt, und nenne keine Zahlen, die nicht in den Daten stehen. Shopify zählt nur Besuche, bei denen das Tracking erlaubt ist, die Bestellungen sind vollständiger als die Besuche. Fallen viele Einstiege auf einer Seite aus einem Land auf, ohne dass je ein Warenkorb entsteht, erwähne kurz, dass das ein Bot sein kann, und werte es nicht als Kunden. Schließ mit einem Satz, was du diese Woche als Erstes tun würdest. Kein Markdown, keine Sternchen.`;
+    visitSt.aiBusy = true; visitSt.ai[n] = ""; renderShop();
+    try { await sample(prompt, { cache: false, onText: ({ text }) => { visitSt.ai[n] = text; const el = $("visitAi"); if (el) el.textContent = text; } }); }
+    catch (e) { if (!visitSt.ai[n]) visitSt.ai[n] = supErr(e); }
+    visitSt.aiBusy = false; if (view === "shopcheck" && shopSt.tab === "stat") renderShop();
+  }
+  // Balkenliste, bricht am Handy sauber um. Zeile = [Beschriftung (HTML), Anzahl, Zusatzzeile (HTML, optional), Balkenfarbe (optional)]; Anteil = Anzahl von tot
+  const visitList = (rows, tot) => { const max = Math.max(1, ...rows.map(r => r[1])); return `<div class="supbars">${rows.map(([l, x, note, col]) => `<div class="supbar"><div class="supbar-head"><span>${l}</span><span class="num" style="white-space:nowrap">${dec(x, 0)} · ${pct(visitShare(x, tot))}</span></div>${note ? `<small class="note">${note}</small>` : ""}<div class="supbar-track"><div style="width:${x / max * 100}%${col ? ";background:var(" + col + ")" : ""}"></div></div></div>`).join("")}</div>`; };
+  function visitDays(days) {
+    if (!days.length) return `<p class="note">Keine Daten.</p>`;
+    const W = 960, H = 190, pl = 40, pr = 6, pt = 8, pb = 24, bw = (W - pl - pr) / days.length, top = Math.max(1, ...days.map(x => x.n));
+    const raw = top / 4, mag = Math.pow(10, Math.floor(Math.log10(Math.max(raw, 1)))), step = Math.max(1, Math.ceil([1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].map(m => m * mag).find(x => x >= raw) || raw)), mx = step * 4, y = x => pt + (H - pt - pb) * (1 - x / mx), every = Math.ceil(days.length / 8);
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Besuche pro Tag" style="max-width:100%;height:auto">
+      ${[0, 1, 2, 3, 4].map(i => `<line x1="${pl}" x2="${W - pr}" y1="${y(step * i)}" y2="${y(step * i)}" stroke="var(--line)"/><text x="${pl - 6}" y="${y(step * i) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${step * i}</text>`).join("")}
+      ${days.map((x, i) => { const g = Math.min(2, bw / 4), bx = pl + bw * i + g, w = Math.max(1.5, bw - 2 * g), lab = `${x.d.slice(8, 10)}.${x.d.slice(5, 7)}.`; return `<rect x="${bx}" y="${y(x.n)}" width="${w}" height="${Math.max(0, y(0) - y(x.n))}" fill="var(--accent)" rx="2"><title>${lab}: ${x.n} Sitzungen</title></rect>${i % every === 0 ? `<text x="${bx + w / 2}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${lab}</text>` : ""}`; }).join("")}</svg>`;
+  }
+  const visitPP = (a, b) => { if (!(b > 0)) return ""; const dd = (a - b) * 100; return `<span style="color:var(--${dd > 0.2 ? "good" : dd < -0.2 ? "bad" : "muted"})">${dd > 0.2 ? "▲" : dd < -0.2 ? "▼" : "►"} ${dd > 0 ? "+" : ""}${dec(dd, 1)} Prozentpunkte zum Zeitraum davor</span>`; };
+  function renderVisit() {
+    const n = visitSt.days, D = visitSt.data[n], head = `${shopBar("shopcheck")}<div class="row"><h1>Shop-Check</h1></div>${shopTabs()}`;
+    if ((!D || Date.now() - D.at > 9e5) && !visitSt.busy && !visitSt.err) visitLoad();
+    const bar = `<section class="box"><div class="row"><h2 style="margin:0">Besucher und Verkäufe</h2><div class="btns"><div class="seg" aria-label="Zeitraum">${[7, 30, 90].map(x => `<button type="button" data-shop="visitd:${x}" aria-pressed="${n === x}">${x} Tage</button>`).join("")}</div><button type="button" class="btn" data-shop="visitrefresh" ${visitSt.busy ? "disabled" : ""}>${visitSt.busy ? "Lade …" : "Aktualisieren"}</button></div></div>
+      <p class="note">${D ? `Live aus Shopify: ${dDE(D.from)} bis ${dDE(D.to)} (ohne heute), verglichen mit den ${n} Tagen davor. Stand ${new Date(D.at).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })} Uhr.` : "Live aus Shopify."}</p></section>`;
+    if (visitSt.err) { $("view").innerHTML = `${head}${bar}<section class="box"><h2>Das hat nicht geklappt</h2><p class="note"><strong>${esc(visitSt.err)}</strong></p><div class="btns"><button type="button" class="btn primary" data-shop="visitrefresh">Nochmal versuchen</button></div></section>`; return; }
+    if (!D) { $("view").innerHTML = `${head}${bar}<section class="box empty"><p>Hole deine Zahlen aus Shopify …</p></section>`; return; }
+    const k = D.k, s = D.s, tot = k.ses, b = x => `<strong>${x}</strong>`, cmp = "zum Zeitraum davor";
+    const tile = (lab, val, sub, tip, hero) => `<div class="tile${hero ? " hero" : ""}"><span class="label">${lab}${tip ? info(tip) : ""}</span><span class="num">${val}</span><span class="note" style="display:grid;gap:2px">${sub}</span></div>`;
+    const chSplit = D.ch.length > 1 ? `<span>${D.ch.map(x => `${dec(x.n, 0)} ${esc(VISIT_CH[x.k] || x.k)}`).join(" · ")}</span>` : "";
+    const tiles = `<div class="tiles">
+      ${tile("Besucher", dec(k.vis, 0), dlTag(dlt(k.vis, k.pvis), cmp), "Einzelne Personen, die im Zeitraum im Shop waren. Wer mehrmals kommt, zählt einmal.", true)}
+      ${tile("Sitzungen", dec(k.ses, 0), dlTag(dlt(k.ses, k.pses), cmp), "Eine Sitzung ist ein Besuch deines Shops. Kommt jemand an zwei Tagen, sind das zwei Sitzungen.")}
+      ${tile("Bestellungen", dec(s.ord, 0), `${dlTag(dlt(s.ord, s.pord), cmp)}${chSplit}`, "Alle Bestellungen in Shopify im Zeitraum, auch die über Marketplace Connect importierten.")}
+      ${tile("Gesamtumsatz", eur0(s.sales), `${dlTag(dlt(s.sales, s.psales), cmp)}<span>Ø pro Bestellung ${eur(s.aov)}</span>`, "Wie im Shopify-Bericht „Gesamtumsatz“: Verkäufe plus Versand und Steuern, minus Rabatte und Rückerstattungen.")}
+      ${tile("Kaufquote", pct(k.conv * 100), visitPP(k.conv, k.pconv), "Von 100 Sitzungen enden so viele mit einem Kauf im Online-Shop.")}</div>`;
+    // Einordnung in einfachen Sätzen
+    const ins = [], S0 = D.src;
+    if (S0.length && tot > 0) { const a = S0[0], c = S0[1]; ins.push(`<strong>Herkunft:</strong> ${b(pct(visitShare(a.n, tot)))} der Besuche kommen ${VISIT_PHR[a.k] || "über „" + a.k + "“"}${c && c.n > 0 ? `, ${b(pct(visitShare(c.n, tot)))} ${VISIT_PHR[c.k] || "über „" + c.k + "“"}` : ""}.`); }
+    const dv = D.dev.filter(x => x.n > 0), dt = dv.reduce((q, x) => q + x.n, 0), mob = (dv.find(x => x.k === "mobile") || { n: 0 }).n;
+    if (dt > 0) ins.push(mob / dt >= 0.5 ? `<strong>Gerät:</strong> ${b(pct(visitShare(mob, dt)))} der Besuche laufen übers Handy. Fotos, Menü und Kasse müssen dort besonders gut funktionieren.` : `<strong>Gerät:</strong> Meistgenutzt wird ${esc(VISIT_DEV[dv[0].k] || dv[0].k)} (${pct(visitShare(dv[0].n, dt))}).`);
+    const ct = D.cty.filter(x => x.k), ctt = D.cty.reduce((q, x) => q + x.n, 0);
+    if (ct.length && ctt > 0) ins.push(`<strong>Land:</strong> Die meisten Besucher kommen aus ${b(esc(visitCty(ct[0].k)))} (${pct(visitShare(ct[0].n, ctt))})${ct[1] ? `, danach ${esc(visitCty(ct[1].k))} (${pct(visitShare(ct[1].n, ctt))})` : ""}.`);
+    if (tot > 0) ins.push(`<strong>Kaufweg:</strong> Von 100 Besuchen legen ${b(dec(k.cart / tot * 100, 1))} etwas in den Warenkorb und ${b(dec(k.buy / tot * 100, 1))} kaufen.${k.chk >= 5 && k.buy / k.chk < 0.7 ? ` Auffällig: Von ${dec(k.chk, 0)} Besuchen, die bis zur Kasse kamen, haben nur ${dec(k.buy, 0)} gekauft. Schau dir Versandkosten, Zahlarten und Lieferzeit in der Kasse an.` : ""}`);
+    const nm = D.names.filter(x => x.name && x.k !== "direct").slice(0, 6);
+    const srcRows = D.src.filter(x => x.n > 0).map(x => [`${esc(VISIT_SRC[x.k] || x.k)}${VISIT_TIP[x.k] ? info(VISIT_TIP[x.k]) : ""}`, x.n]);
+    const stepsF = [["Besuche im Shop", k.ses], ["Etwas in den Warenkorb gelegt", k.cart], ["Zur Kasse gegangen", k.chk], ["Gekauft", k.buy]];
+    const funnel = visitList(stepsF.map(([l, x], i) => [esc(l), x, i > 0 && stepsF[i - 1][1] > 0 ? `${pct(visitShare(x, stepsF[i - 1][1]))} vom Schritt davor` : "", i === 3 ? "--good" : ""]), k.ses);
+    const devRows = dv.map(x => [esc(VISIT_DEV[x.k] || x.k), x.n]);
+    const ctTop = D.cty.slice(0, 5), ctRest = ctt - ctTop.reduce((q, x) => q + x.n, 0), ctRows = ctTop.map(x => [esc(visitCty(x.k)), x.n]).concat(ctRest > 0 ? [["Weitere Länder", ctRest]] : []);
+    const land = D.land.filter(x => x.n > 0).slice(0, 6);
+    const tips = visitTips(D), PRI = { 1: ["Zuerst", "var(--bad)"], 2: ["Danach", "var(--warn)"], 3: ["Nebenbei", "var(--muted)"] }, aiTxt = visitSt.ai[n] || "";
+    const tipsBox = `<section class="box"><h2>Was du jetzt tun kannst</h2>
+      <p class="note">Vorschläge aus den Zahlen auf dieser Seite, die wichtigsten zuerst. Es erscheint nur, was in deinen Zahlen wirklich auffällt.</p>
+      ${tips.length ? `<ol class="shoptasks">${(visitSt.allTips ? tips : tips.slice(0, 5)).map(t => `<li><span class="chip" style="color:${PRI[t.pri][1]}">${PRI[t.pri][0]}</span> <strong>${esc(t.title)}</strong><br><span class="note">${t.why}</span><ul class="note" style="margin:6px 0 0;padding-left:18px">${t.what.map(w => `<li>${esc(w)}</li>`).join("")}</ul></li>`).join("")}</ol>` : `<p class="note">Aktuell fällt nichts Auffälliges auf. Schau später noch einmal oder wähl einen anderen Zeitraum.</p>`}
+      <div class="btns">${tips.length > 5 ? `<button type="button" class="btn" data-shop="visittips">${visitSt.allTips ? "Weniger zeigen" : `Alle ${tips.length} Vorschläge zeigen`}</button>` : ""}<button type="button" class="btn" data-shop="visitai" ${visitSt.aiBusy ? "disabled" : ""}>${visitSt.aiBusy ? "Claude wertet aus …" : aiTxt ? "↻ Von Claude neu auswerten" : "✨ Von Claude ausführlicher auswerten"}</button></div>
+      ${aiTxt || visitSt.aiBusy ? `<div class="note" style="white-space:pre-wrap;color:var(--fg)" id="visitAi">${esc(aiTxt)}</div>` : ""}</section>`;
+    const missN = { b: "Umsatz", c: "Bestellkanäle", d: "Herkunft", e: "Absender", f: "Geräte", g: "Länder", h: "Verlauf", i: "Einstiegsseiten" }, miss = D.miss.map(x => missN[x]).filter(Boolean);
+    $("view").innerHTML = `${head}${bar}${tiles}
+      ${miss.length ? `<p class="note" style="color:var(--warn)">Nicht geladen werden konnte: ${esc(miss.join(", "))}. Klick auf „Aktualisieren“.</p>` : ""}
+      ${ins.length ? `<section class="box"><h2>Auf einen Blick</h2><ul class="fintips">${ins.map(x => `<li>${x}</li>`).join("")}</ul></section>` : ""}
+      ${tipsBox}
+      <section class="box"><h2>Woher kommen deine Besucher?</h2>${srcRows.length ? visitList(srcRows, tot) : `<p class="note">Keine Daten.</p>`}
+        ${nm.length ? `<h3>Die wichtigsten Absender</h3>${visitList(nm.map(x => [`<strong>${esc(visitName(x.name))}</strong> <span class="note">${esc(VISIT_SRC[x.k] || x.k)}</span>`, x.n]), tot)}` : ""}</section>
+      <section class="box"><h2>Was machen die Besucher im Shop?</h2>${funnel}
+        <p class="note">Der Kaufweg zählt nur Besuche, die Shopify messen konnte. Die Bestellungen oben umfassen alle Bestellungen in Shopify und können deshalb höher sein.</p></section>
+      <section class="box"><h2>Besuche pro Tag</h2>${visitDays(D.day)}<p class="note">Sitzungen pro Tag. Der heutige Tag fehlt, weil er noch nicht vorbei ist.</p></section>
+      <div class="anagrid"><section class="box"><h2>Womit besuchen sie dich?</h2>${devRows.length ? visitList(devRows, dt) : `<p class="note">Keine Daten.</p>`}</section>
+        <section class="box"><h2>Aus welchen Ländern?</h2>${ctRows.length ? visitList(ctRows, ctt) : `<p class="note">Keine Daten.</p>`}</section></div>
+      ${land.length ? `<section class="box"><h2>Mit welcher Seite fangen sie an?</h2>${visitList(land.map(x => { const [l, p] = visitPage(x.k); return [`<strong>${esc(l)}</strong>`, x.n, p ? `<span class="num" style="word-break:break-all">${esc(shortT(p, 80))}</span>` : ""]; }), tot)}</section>` : ""}
+      <p class="note">Shopify zählt nur Besuche, bei denen der Browser das Tracking erlaubt. Die echten Zahlen können daher etwas höher liegen. Die Zahlen stammen aus dem Shopify-Bericht „Analysen“ und werden bei jedem Öffnen frisch geholt.</p>`;
   }
 
   // ---------- Shop-Check: „Mit Claude regeln“ (Vorschlag prüfen, dann in Shopify eintragen) ----------
@@ -4668,6 +4985,10 @@ Antworte NUR mit JSON in dieser Form:
     const b = e.target.closest("[data-shop]"); if (!b || view !== "shopcheck") return; const k = b.dataset.shop;
     if (k === "fixno") { shopSt.fix = null; return renderShop(); } if (k === "fixyes") return fixApply(); if (k.startsWith("fix:")) return fixRun(k.slice(4));
     if (k === "check") return shopifyCheck().then(() => webCheck()); if (k === "web") return webCheck(); if (k === "match") return shopMatch(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
+    if (k.startsWith("visitd:")) { visitSt.days = +k.slice(7) || 30; LS.set("hlz-app-visitdays", visitSt.days); visitSt.err = ""; return renderShop(); }
+    if (k === "visitrefresh") { delete visitSt.data[visitSt.days]; delete visitSt.ai[visitSt.days]; visitSt.err = ""; return renderShop(); }
+    if (k === "visitai") return visitAsk();
+    if (k === "visittips") { visitSt.allTips = !visitSt.allTips; return renderShop(); }
     if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
     if (k.startsWith("ai:")) return shopAi(k.slice(3));
   });
@@ -5871,6 +6192,7 @@ Claude:`;
       S = { ...SETTINGS_DEFAULT(), ...clone(data.settings || {}) }; A = data.articles || [];
     }
     try { SUP = await store.loadSupport(); } catch (e) { SUP = []; }
+    try { ANF = await store.loadAnf(); } catch (e) { ANF = []; }
     try { ORD = await store.loadOrders(); } catch (e) { ORD = []; }
     try { await ordBbMerge(); } catch (e) {}
     ordBadge();
