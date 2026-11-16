@@ -5626,6 +5626,16 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const pay = doc.splitTextToSize("Der Betrag wird innerhalb von " + (v.pay || "14") + " Tagen (bis " + buDe(tbDue(d, inv)) + ") überwiesen" + (v.iban ? " auf IBAN " + v.iban : "") + ".", R - L); doc.text(pay, L, y);
     foot(); return doc;
   }
+  async function tbMail(d, inv) {
+    const v = d.ven, to = String(v.email || "").trim();
+    if (!to) { toast("Trag unten bei Thomas erst die E-Mail-Adresse ein"); return; }
+    const first = String(v.name || "").split(" ")[0] || "";
+    const body = "Hallo " + first + ",\n\nanbei die Gutschrift " + inv.no + " für " + tbMonthLab(inv.ym) + " über " + tbMoney(inv.total) + ". Das Geld überweise ich dir bis " + buDe(tbDue(d, inv)) + ".\n\nViele Grüße\nMark";
+    await tbPdfSave(d, inv);
+    const url = "mailto:" + encodeURIComponent(to) + "?subject=" + encodeURIComponent("Gutschrift " + inv.no + " – " + tbMonthLab(inv.ym)) + "&body=" + encodeURIComponent(body);
+    const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
+    toast("Mail geöffnet: das gespeicherte PDF noch anhängen");
+  }
   async function tbPdfSave(d, inv) {
     try { const doc = await tbPdf(d, inv); await offerFile("Gutschrift_" + inv.no + ".pdf", doc.output("blob"), "application/pdf"); }
     catch (e) { toast(e && e.message ? e.message : "PDF konnte nicht erstellt werden"); }
@@ -5651,11 +5661,11 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <p>${vat ? `Netto ${eur(net)} · MwSt ${vat} % ${eur(net * vat / 100)} · ` : ""}<strong>Summe ${eur(net + net * vat / 100)}</strong></p>
       ${unk.length ? `<p class="note" style="color:var(--warn,#b45309)">Drechselhaken: Trag unten in der Preisliste ein, wie viele Haken pro Garderobe oder Schlüsselbrett dazugehören, sonst fehlen sie in der Rechnung.</p>` : ""}
       ${miss.length ? `<p class="note" style="color:var(--bad)">In den Angaben zu Thomas fehlt noch: ${miss.join(", ")}. Trag es unten ein, sonst ist die Rechnung unvollständig.</p>` : ""}
-      <div class="btns"><button type="button" class="btn primary" data-tbact="make" ${lines.length ? "" : "disabled"}>${have ? "Rechnung aktualisieren" : "Rechnung erstellen"}</button>${have ? `<button type="button" class="btn" data-tbact="pdf:${have.id}">PDF herunterladen</button><button type="button" class="btn" data-tbact="print:${have.id}">Drucken</button>` : ""}</div></section>
+      <div class="btns"><button type="button" class="btn primary" data-tbact="make" ${lines.length ? "" : "disabled"}>${have ? "Rechnung aktualisieren" : "Rechnung erstellen"}</button>${have ? `<button type="button" class="btn" data-tbact="pdf:${have.id}">PDF herunterladen</button><button type="button" class="btn" data-tbact="mail:${have.id}">Per Mail senden</button>` : ""}</div></section>
       <section class="box"><h2>Erstellte Rechnungen</h2>${(() => { const open = d.inv.filter(x => !x.paid).sort((a, b) => b.ym.localeCompare(a.ym)), done = d.inv.filter(x => x.paid).sort((a, b) => b.ym.localeCompare(a.ym));
-        const row = x => `<tr><td class="name"><strong>${esc(x.no)}</strong></td><td>${tbMonthLab(x.ym)}</td><td class="r num">${eur(x.total)}</td><td><button type="button" class="btn" data-tbact="pdf:${x.id}">PDF</button> <button type="button" class="btn" data-tbact="print:${x.id}">Drucken</button></td><td>${x.paid ? `<span class="note">bezahlt ${buDe(x.paid)}</span> <button type="button" class="btn" data-tbact="unpaid:${x.id}" title="Wieder als offen markieren">↩</button>` : `<button type="button" class="btn primary" data-tbact="paid:${x.id}" title="Thomas ist bezahlt, Rechnung ablegen">Bezahlt</button>`}</td><td>${tbS.delAsk === x.id ? `<button type="button" class="btn primary" data-tbact="delok:${x.id}" title="Ja, löschen">✓</button><button type="button" class="btn" data-tbact="delno" title="Abbrechen">×</button>` : `<button type="button" class="btn" data-tbact="del:${x.id}" aria-label="Löschen">×</button>`}</td></tr>`;
+        const row = x => `<tr><td class="name"><strong>${esc(x.no)}</strong></td><td>${tbMonthLab(x.ym)}</td><td class="r num">${eur(x.total)}</td><td><button type="button" class="btn" data-tbact="pdf:${x.id}">PDF</button> <button type="button" class="btn" data-tbact="mail:${x.id}">Per Mail senden</button></td><td>${x.paid ? `<span class="note">bezahlt ${buDe(x.paid)}</span> <button type="button" class="btn" data-tbact="unpaid:${x.id}" title="Wieder als offen markieren">↩</button>` : `<button type="button" class="btn primary" data-tbact="paid:${x.id}" title="Thomas ist bezahlt, Rechnung ablegen">Bezahlt</button>`}</td><td>${tbS.delAsk === x.id ? `<button type="button" class="btn primary" data-tbact="delok:${x.id}" title="Ja, löschen">✓</button><button type="button" class="btn" data-tbact="delno" title="Abbrechen">×</button>` : `<button type="button" class="btn" data-tbact="del:${x.id}" aria-label="Löschen">×</button>`}</td></tr>`;
         return (open.length ? `<div class="tablewrap"><table><tbody>${open.map(row).join("")}</tbody></table></div>` : `<p class="note">Keine offene Rechnung.</p>`) + (done.length ? `<details style="margin-top:12px"><summary>Abgelegt, bezahlt (${done.length})</summary><div class="tablewrap"><table><tbody>${done.map(row).join("")}</tbody></table></div></details>` : ""); })()}</section>
-      <section class="box"><h2>Angaben zu Thomas & Preisliste</h2><div class="grid3 keep">${fld("name", "Name")}${fld("tax", "Steuernummer")}${fld("ust", "USt-IdNr. (falls vorhanden)")}${fld("iban", "IBAN")}${fld("pay", "Zahlungsziel (Tage)", "14")}</div>
+      <section class="box"><h2>Angaben zu Thomas & Preisliste</h2><div class="grid3 keep">${fld("name", "Name")}${fld("tax", "Steuernummer")}${fld("ust", "USt-IdNr. (falls vorhanden)")}${fld("iban", "IBAN")}${fld("email", "E-Mail", "name@beispiel.de")}${fld("pay", "Zahlungsziel (Tage)", "14")}</div>
         <div class="field"><label>Adresse</label><div class="inp"><textarea rows="2" data-tbf="ven.addr" placeholder="Straße, PLZ Ort">${esc(d.ven.addr || "")}</textarea></div></div>
         <label style="display:flex;gap:8px"><input type="checkbox" data-tbf="ven.kleinunt" ${d.ven.kleinunt === false ? "" : "checked"}> Kleinunternehmer (keine Umsatzsteuer auf der Rechnung)</label>
         ${d.ven.kleinunt === false ? `<div class="grid3 keep">${fld("vat", "MwSt-Satz %", "19")}</div>` : ""}
@@ -5675,7 +5685,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     if (k === "delok") { tbS.delAsk = ""; d.inv = d.inv.filter(x => x.id !== val); tbSave(d); return renderBuch(); }
     if (k === "paid" || k === "unpaid") { d.inv = d.inv.map(x => x.id === val ? Object.assign({}, x, { paid: k === "paid" ? todayISO() : "" }) : x); tbSave(d); renderBuch(); return toast(k === "paid" ? "Als bezahlt abgelegt" : "Wieder offen"); }
     if (k === "pdf") { const inv = d.inv.find(x => x.id === val); if (inv) tbPdfSave(d, inv); return; }
-    if (k === "print") { const inv = d.inv.find(x => x.id === val); if (inv) printHTML(tbInvoiceHTML(d, inv), "Gutschrift " + inv.no); return; }
+    if (k === "mail") { const inv = d.inv.find(x => x.id === val); if (inv) tbMail(d, inv); return; }
     if (k === "make") {
       const lines = tbLines(d, tbS.ym); if (!lines.length) return; const old = d.inv.find(x => x.ym === tbS.ym);
       const no = old ? old.no : "BO-" + tbS.ym.replace("-", "") + "-" + String(d.seq).padStart(2, "0"), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0, net = lines.reduce((s, l) => s + l.q * l.p, 0);
