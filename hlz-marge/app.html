@@ -5280,7 +5280,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   });
   // ---------- Entwicklung: geht es aufwärts oder abwärts? ----------
   let STATS = null, statsLoading = false;
-  const stSt = { busy: "", msg: "", ai: "", aiBusy: false };
+  const stSt = { busy: "", msg: "", ai: "", aiBusy: false }, chS = { p: "3", from: "", to: "" };
   async function statsLoad() {
     if (STATS || statsLoading) return; statsLoading = true; STATS = {};
     try { (await store.loadStats()).forEach(d => STATS[d.id] = d); } catch (e) { toast("Statistik-Daten konnten nicht geladen werden."); }
@@ -5441,7 +5441,14 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     let ratio = 0, fix = 0; try { const m = monthly(volume()); ratio = m.rev > 0 ? m.db / m.rev : 0; fix = fixTotal(); } catch (e) {}
     const dbL = last.rev * ratio, tag3 = k => dlTag(dlt(last[k], l3avg(k)), "zum 3-Monats-Schnitt"), tags = (k, lab) => [prev ? dlTag(dlt(last[k], prev[k]), "zum Vormonat") : "", tag3(k), yoy ? dlTag(dlt(last[k], yoy[k]), "zum Vorjahr") : ""].filter(Boolean).join("");
     const tile = (lab, val, sub, hero) => `<div class="tile${hero ? " hero" : ""}"><span class="label">${lab}</span><span class="num">${val}</span><span class="note" style="display:grid;gap:2px">${sub}</span></div>`;
-    const MV = statMovers(D, V), kan = (l, p) => `${eur0(l)} <span class="note">(${dec(p, 0)} %)</span>`, eL = sumRev(D, V.l3, "e"), sL = sumRev(D, V.l3, "s"), eP = sumRev(D, V.p3, "e"), sP = sumRev(D, V.p3, "s"), bL = sumRev(D, V.l3, "eb"), bP = sumRev(D, V.p3, "eb"), tL = eL + sL + bL;
+    const MV = statMovers(D, V), kan = (l, p) => `${eur0(l)} <span class="note">(${dec(p, 0)} %)</span>`;
+    const allM = D.months, lastM = allM[allM.length - 1], pk = chS.p;
+    let per = pk === "all" ? allM.slice() : pk === "ytd" ? allM.filter(m => m.slice(0, 4) === lastM.slice(0, 4)) : pk === "custom" ? allM.filter(m => m >= (chS.from || V.l3[0]) && m <= (chS.to || lastM)) : allM.slice(-Math.min(+pk || 3, allM.length));
+    if (!per.length) per = allM.slice(-3);
+    const prv = pk === "all" ? [] : per.map((_, i) => ymAdd(per[0], i - per.length)), eL = sumRev(D, per, "e"), sL = sumRev(D, per, "s"), eP = sumRev(D, prv, "e"), sP = sumRev(D, prv, "s"), bL = sumRev(D, per, "eb"), bP = sumRev(D, prv, "eb"), tL = eL + sL + bL;
+    const chBtn = (k, l) => `<button type="button" class="btn${pk === k ? " primary" : ""}" data-chp="${k}">${l}</button>`;
+    const chCtl = `<div class="btns" style="margin:0 0 8px;flex-wrap:wrap">${chBtn("1", "Letzter Monat")}${chBtn("3", "3 Monate")}${chBtn("6", "6 Monate")}${chBtn("12", "12 Monate")}${chBtn("ytd", "Dieses Jahr")}${chBtn("all", "Alles")}${chBtn("custom", "Benutzerdefiniert")}</div>
+      ${pk === "custom" ? `<div class="btns" style="margin:0 0 8px;align-items:center"><label class="note">von <input type="month" data-chf="from" value="${esc(chS.from || V.l3[0])}" min="${allM[0]}" max="${lastM}"></label><label class="note">bis <input type="month" data-chf="to" value="${esc(chS.to || lastM)}" min="${allM[0]}" max="${lastM}"></label></div>` : ""}`;
     const WORD = { up: ["▲ Aufwärts", "good"], down: ["▼ Abwärts", "bad"], side: ["► Seitwärts", "warn"], none: ["Zu wenig Daten", "muted"] }[V.dir];
     const kanalRow = (n, l, p, tot) => [n, eur0(l), p > 0 ? dlTag(dlt(l, p), "") : "–", tot > 0 ? dec(l / tot * 100, 0) + " %" : "–"];
     $("view").innerHTML = `<div class="row"><h1>Auswertung</h1></div>
@@ -5452,7 +5459,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <div class="tiles">${tile(`Umsatz ${ymLab(last.ym)}`, eur0(last.rev), tags("rev"), true)}${tile("Verkäufe (Stück)", dec(last.q, 0), tags("q"))}${tile("Bestellungen", dec(last.o, 0), tags("o"))}${tile("Ø Warenkorb", eur(last.o ? last.rev / last.o : 0), last.o && prev && prev.o ? dlTag(dlt(last.rev / last.o, prev.rev / prev.o), "zum Vormonat") : "")}${tile("Geschätztes Ergebnis" + info("Geschätzt mit den heutigen Artikelkosten aus der App: Umsatz mal Deckungsbeitrags-Quote, minus alle Fixkosten. Kein Buchhaltungswert."), eur0(dbL - fix), `<span>Deckungsbeitrag ca. ${eur0(dbL)}, Fixkosten ${eur0(fix)}</span>`)}</div>
       <div class="grid2 charts">${statChart(D, "Umsatz pro Monat", r => ({ e: r.e, s: r.s, b: r.eb }), x => eur0(x))}
       ${statChart(D, "Verkäufe pro Monat (Stück)", r => ({ e: E && E.months[r.ym] ? E.months[r.ym].q : 0, s: S2 && S2.months[r.ym] ? S2.months[r.ym].q : 0, b: D.EB[r.ym] ? D.EB[r.ym].q : 0 }), x => dec(x, 0))}</div>
-      <section class="box"><h2>Kanäle</h2>${anaTable(["Kanal", `Umsatz ${ymLab(V.l3[0])} bis ${ymLab(V.l3[2])}`, "gegenüber 3 Monaten davor", "Anteil"], [kanalRow("Etsy", eL, eP, tL), kanalRow("Shopify (eigener Shop)", sL, sP, tL), ...(bL > 0 || bP > 0 ? [kanalRow("eBay", bL, bP, tL)] : [])], [1, 3])}</section>
+      <section class="box"><h2>Kanäle</h2>${chCtl}<p class="note" style="margin:0 0 6px">Die Zahlen liegen pro Monat vor, darum gibt es keine Tage. Der laufende Monat ist erst nach Monatsende dabei.</p>${anaTable(["Kanal", `Umsatz ${ymLab(per[0])}${per.length > 1 ? " bis " + ymLab(per[per.length - 1]) : ""}`, prv.length ? `gegenüber ${prv.length > 1 ? prv.length + " Monaten" : "dem Monat"} davor` : "gegenüber davor", "Anteil"], [kanalRow("Etsy", eL, eP, tL), kanalRow("Shopify (eigener Shop)", sL, sP, tL), ...(bL > 0 || bP > 0 ? [kanalRow("eBay", bL, bP, tL)] : [])], [1, 3])}</section>
       <div class="grid2"><section class="box"><h2>Gewinner</h2><p class="note">Artikel mit dem größten Umsatzplus, letzte 3 gegen die 3 Monate davor.</p>${anaTable(["Artikel", "Stück", "Umsatz"], MV.up, [1, 2])}</section>
         <section class="box"><h2>Verlierer</h2><p class="note">Artikel mit dem größten Umsatzminus im gleichen Vergleich.</p>${anaTable(["Artikel", "Stück", "Umsatz"], MV.down, [1, 2])}</section></div>
       <section class="box"><div class="row"><h2>Einschätzung von Claude</h2><button class="btn primary" data-stat="ai" ${stSt.aiBusy ? "disabled" : ""}>${stSt.aiBusy ? "Claude denkt …" : stSt.ai ? "Neu auswerten" : "Auswerten lassen"}</button></div>
@@ -5461,6 +5468,8 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     renderStats.last = { D, V, MV };
   }
   document.addEventListener("change", e => { if (e.target && e.target.id === "statFile" && e.target.files && e.target.files.length) { const fs = [...e.target.files]; e.target.value = ""; statFiles(fs); } });
+  document.addEventListener("click", e => { const c = e.target.closest("[data-chp]"); if (c && view === "entwicklung") { chS.p = c.dataset.chp; renderStats(); } });
+  document.addEventListener("change", e => { const c = e.target && e.target.dataset && e.target.dataset.chf; if (c && view === "entwicklung") { chS[c] = e.target.value; if (chS.from && chS.to && chS.from > chS.to) { const t = chS.from; chS.from = chS.to; chS.to = t; } renderStats(); } });
   document.addEventListener("click", e => { const b = e.target.closest("[data-stat]"); if (!b || view !== "entwicklung") return; if (b.dataset.stat === "shopify") statsShopify(); else if (b.dataset.stat === "ai" && renderStats.last) statsAi(renderStats.last.D, renderStats.last.V, renderStats.last.MV); });
 
   // ---------- DHL-Verträge und Preislisten (Upload unter Einstellungen → Versand & Kartons) ----------
