@@ -6101,7 +6101,7 @@ Claude:`;
 
   // ---------- Gravur-Test: alle KEYBRD-01-Motive auf einen Blick + freie Zeilen für neue Tests ----------
   const GV_ST = [["", "–"], ["idee", "Idee"], ["foto", "Foto fehlt"], ["live", "Live"], ["test", "Im Test"], ["weg", "Verworfen"]];
-  const GV_NAMES = { BAS: "Basis (ohne Gravur / mit Name oder Koordinaten)", BERG: "Bergpanorama", MTB: "Mountainbike", PARA: "Gleitschirm", SURF: "Surfer", HUND: "Hund (Standard / Portrait)", VAL: "Valentinstag" };
+  const GV_NAMES = { BAS: "Basis (ohne Gravur / mit Name oder Koordinaten)", BERG: "Bergpanorama", MTB: "Mountainbike", PARA: "Gleitschirm", SURF: "Surfer", HUND: "Hund", VAL: "Valentinstag" };
   function gravGroups() {
     const G = {};
     A.filter(a => /^KEYBRD-01-/i.test(a.sku || "")).forEach(a => {
