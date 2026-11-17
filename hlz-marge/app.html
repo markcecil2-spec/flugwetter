@@ -460,6 +460,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#einstellungen" data-tab="einstellungen" data-g="kalk">Einstellungen</a>
       <a href="#bestellungen" data-tab="bestellungen" data-g="betr">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion" data-g="betr">Produktion</a>
+      <a href="#neu" data-tab="neu" data-g="betr">Produkte hinzufügen</a>
       <a href="#support" data-tab="support" data-g="betr">Support</a>
       <a href="#werbung" data-tab="werbung" data-g="mark">Marketing</a>
       <a href="#shopcheck" data-tab="shopcheck" data-g="mark">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
@@ -981,7 +982,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu"].includes(h) ? h : "uebersicht";
     const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
     document.querySelectorAll("nav.subs a").forEach(l => { if (l.dataset.tab === actTab) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     navGroups(actTab);
@@ -1013,6 +1014,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "auswertung") renderAnalysis();
     else if (view === "finanzen") finDraw();
     else if (view === "gravuren") renderGrav();
+    else if (view === "neu") renderNeu();
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
     else if (view === "entwicklung") renderStats();
@@ -6113,59 +6115,154 @@ Claude:`;
     });
     return Object.values(G).sort((x, y) => y.qty - x.qty);
   }
-  const gvBase = r => String(r.sku || "").replace(/-+$/, "").replace(/-(20|30|40)$/, "");
-  function gvCard(r, i, inp, first) {
-    const base = gvBase(r), fo = r.fotos || [], skus = base ? [20, 30, 40].map(l => `${base}-${l}`).join(" · ") : "";
-    const f = (label, inner, cls) => `<div class="field"${cls ? ` style="${cls}"` : ""}><label>${label}</label>${inner}</div>`;
-    const fld = (k, ph, type) => `<div class="inp"><input type="${type || "text"}" data-gv="${i}:${k}" value="${esc(r[k] || "")}" placeholder="${esc(ph || "")}"></div>`;
-    const empty = !(r.m || r.sku || r.t || fo.length);
-    return `<section class="box" style="gap:10px;padding:12px${r.ready ? ";border-color:var(--good)" : ""}"><details ${empty && !first ? "" : "open"}><summary><strong>${esc(r.m || "Neuer Test " + (i + 1))}</strong> <span class="note">${esc(skus)}${r.ready ? " · bereit für Shopify" : ""}</span></summary>
-      <div style="display:grid;gap:10px;margin-top:10px">
-        <div class="grid3">${f("Motiv", fld("m", "z. B. Fuchs"))}${f("SKU-Basis (ohne Länge)", fld("sku", "KEYBRD-01-FUCHS"))}${f("Status", `<div class="inp"><select data-gv="${i}:st">${GV_ST.map(([k, l]) => `<option value="${k}" ${r.st === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>`)}</div>
-        ${skus ? `<p class="note" style="margin:0">Daraus werden die SKUs: ${esc(skus)}</p>` : ""}
-        ${f("Produkttitel für Shopify", fld("t", "z. B. Schlüsselbrett Eiche mit Fuchs-Gravur"))}
-        ${f("Beschreibung (Text für Shopify, auch Stichpunkte)", `<div class="inp"><textarea rows="4" data-gv="${i}:d" placeholder="Was zeigt das Motiv, Besonderheiten, Anlass …">${esc(r.d || "")}</textarea></div>`)}
-        <div class="grid3">${f("Preis 20 cm €", fld("p20", "39"))}${f("Preis 30 cm €", fld("p30", "45"))}${f("Preis 40 cm €", fld("p40", "55"))}</div>
-        <div class="grid3">${f("Start", fld("start", "", "date"))}${f("Gravurzeit (Minuten)", fld("min", "z. B. 12"))}${f("Notiz", fld("n", ""))}</div>
-        <div><span class="label">Fotos</span>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0">${fo.map((x, j) => `<div style="position:relative"><img src="${esc(x.url)}" alt="${esc(x.name || "Foto")}" style="width:96px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--line)"><button type="button" class="x" data-gv-rm="${i}:${j}" aria-label="Foto entfernen" style="position:absolute;top:2px;right:2px">×</button>${j === 0 ? '<span class="pill muted" style="position:absolute;left:2px;bottom:2px;font-size:10px">Hauptbild</span>' : ""}</div>`).join("") || '<span class="note">Noch keine Fotos.</span>'}</div>
-          <label class="btn" style="cursor:pointer;display:inline-block">+ Fotos hochladen<input type="file" accept="image/*" multiple hidden data-gv-file="${i}"></label> <span class="note" id="gvmsg-${i}"></span>
-          <p class="note" style="margin:6px 0 0">Das erste Foto wird das Hauptbild im Shop. Reihenfolge ändern: Foto entfernen und neu hochladen.</p></div>
-        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" data-gv-ready="${i}" ${r.ready ? "checked" : ""}> <strong>Bereit für Shopify</strong> <span class="note">Titel, Preise und mindestens ein Foto sind ausgefüllt</span></label>
-      </div></details></section>`;
-  }
   function renderGrav() {
-    const G = gravGroups(), W = S.gravuren = S.gravuren && S.gravuren.length ? S.gravuren : Array.from({ length: 8 }, () => ({}));
+    const G = gravGroups();
     const cell = (g, L) => { const l = g.c[L]; if (!l) return "–"; const pr = l.map(x => x.price), lo = Math.min(...pr), hi = Math.max(...pr); return `<a href="#artikel-${esc(l[0].id)}">${lo === hi ? eur0(lo) : eur0(lo) + "–" + eur0(hi)}</a> <span class="note">· ${l.reduce((s, x) => s + x.q, 0)} verk.</span>`; };
-    const inp = (i, f, w, ph) => `<input type="text" data-gv="${i}:${f}" value="${esc(W[i][f] || "")}" placeholder="${ph || ""}" style="width:${w}">`;
     $("view").innerHTML = `${shopBar("gravuren")}<div class="row"><h1>Gravur-Test</h1></div>
       <p class="note">Alle KEYBRD-01-Motive aus deinen Artikeln. Verkäufe = Etsy (Jan–Okt) plus Shopify (12 Monate). Tipp: Pro Motiv ein eigenes Shopify-Produkt mit SKU <strong>KEYBRD-01-MOTIV-20/30/40</strong> (z. B. KEYBRD-01-VAL-20 für Valentinstag) und Tag <strong>gravur-test</strong>, dann siehst du pro Motiv, was läuft. Nach 4–6 Wochen: Gewinner bleiben, Verlierer archivieren.</p>
       ${anaTable(["Motiv", "SKU", "20 cm", "30 cm", "40 cm", "Verkäufe"], G.map(g => [esc(g.key), `<span class="note">${esc(g.sb)}</span>`, cell(g, "20"), cell(g, "30"), cell(g, "40"), String(g.qty)]), [5])}
-      <h2>Neue Tests</h2>
-      <p class="note">Hier planst du neue Motive komplett: Titel, Text, Preise und Fotos. Alles wird automatisch gespeichert. Wenn ein Test fertig ist, hak <strong>„Bereit für Shopify“</strong> an und sag mir im Chat: <strong>„Gravur-Tests in Shopify anlegen“</strong>. Dann lege ich das Produkt mit den drei Längen an.</p>
-      <div class="stack">${(fe => W.map((r, i) => gvCard(r, i, inp, i === fe)).join(""))(W.findIndex(r => !(r.m || r.sku || r.t || (r.fotos || []).length)))}</div>
-      <div class="btns"><button class="btn" data-gv-add="1">+ 5 weitere Tests</button></div>`;
+      <p class="note">Neue Motive und Produkte legst du jetzt unter <a href="#neu"><strong>Betrieb → Produkte hinzufügen</strong></a> an. Dort kannst du Fotos hochladen, Texte erzeugen lassen und das Produkt direkt nach Shopify schicken.</p>`;
   }
   document.addEventListener("input", e => { const el = e.target, d = el.dataset && el.dataset.gv; if (!d || view !== "gravuren") return; const [i, f] = d.split(":"); (S.gravuren[+i] = S.gravuren[+i] || {})[f] = el.value; saveSettings(); });
-  document.addEventListener("change", async e => {
-    const el = e.target; if (view !== "gravuren" || !el.dataset) return;
-    if (el.dataset.gvReady !== undefined) { (S.gravuren[+el.dataset.gvReady] = S.gravuren[+el.dataset.gvReady] || {}).ready = el.checked; saveSettings(); return renderGrav(); }
-    if (el.dataset.gvFile !== undefined) {
-      const i = +el.dataset.gvFile, files = [...el.files], msg = $("gvmsg-" + i);
-      const assets = window.claude && window.claude.use ? await window.claude.use("assets") : null;
-      if (!assets) { if (msg) msg.textContent = "Hier ist der Foto-Upload nicht verfügbar (nicht angemeldet?)."; return; }
-      const row = (S.gravuren[i] = S.gravuren[i] || {}); row.fotos = row.fotos || [];
-      for (const [k, f] of files.entries()) { if (msg) msg.textContent = `Lade ${k + 1} von ${files.length} hoch …`; try { const res = await assets.upload(f); row.fotos.push({ id: res.id, url: res.url, name: f.name }); } catch (er) { if (msg) msg.textContent = (er && er.message) || "Upload hat nicht geklappt."; return; } }
-      saveSettings(); renderGrav();
-    }
+  // ---------- Produkte hinzufügen: Fotos + Stichworte → Shopify-Produkt (Entwurf oder live) ----------
+  const NEU = () => (S.neu = S.neu || []);
+  const neuUi = { busy: {}, msg: {}, bulk: "" };
+  const neuBlank = () => ({ id: uid(), fotos: [], kurz: "", preis: "", sku: "", opt: "", vars: "", titel: "", beschr: "", seoT: "", seoD: "", tags: "", typ: "", alts: "", st: "", pid: "", num: "", made: Date.now() });
+  const neuVars = d => String(d.vars || "").split("\n").map(l => l.split("|").map(x => x.trim())).filter(p => p[0]).map(p => ({ name: p[0], price: String(p[1] || "").replace(",", "."), sku: p[2] || "" }));
+  const neuReady = d => d.titel.trim() && (neuVars(d).length ? neuVars(d).every(x => x.price) : String(d.preis).trim());
+  const neuHtml = t => { const out = []; let ul = false; String(t || "").split("\n").forEach(l => { const m = l.match(/^\s*[-•*]\s+(.*)/); if (m) { if (!ul) { out.push("<ul>"); ul = true; } out.push("<li>" + esc(m[1]) + "</li>"); } else { if (ul) { out.push("</ul>"); ul = false; } if (l.trim()) out.push("<p>" + esc(l.trim()) + "</p>"); } }); if (ul) out.push("</ul>"); return out.join(""); };
+  function neuMigrate() {
+    if (S.neuMig) return; S.neuMig = 1;
+    (S.gravuren || []).filter(r => r && (r.m || r.sku || r.t)).forEach(r => { const d = neuBlank(); d.kurz = [r.m ? "Schlüsselbrett mit Gravur " + r.m : "", r.d, r.n].filter(Boolean).join(". "); d.titel = r.t || ""; d.beschr = r.d || ""; d.fotos = r.fotos || []; const base = String(r.sku || "").replace(/-+$/, "").replace(/-(20|30|40)$/, ""); d.opt = "Länge"; d.vars = [["20", r.p20], ["30", r.p30], ["40", r.p40]].map(([l, p]) => `${l} cm | ${p || ""} | ${base ? base + "-" + l : ""}`).join("\n"); NEU().push(d); });
+    saveSettings();
+  }
+  function neuCard(d, open) {
+    const busy = neuUi.busy[d.id], msg = neuUi.msg[d.id] || "", fo = d.fotos || [], live = d.st === "live", dr = d.st === "entwurf";
+    const f = (label, inner) => `<div class="field"><label>${label}</label>${inner}</div>`;
+    const inp = (k, ph, extra) => `<div class="inp"><input type="text" data-nd="${d.id}:${k}" value="${esc(d[k] || "")}" placeholder="${esc(ph || "")}" ${extra || ""}></div>`;
+    const cnt = (k, n) => `<span class="note num" id="ndc-${d.id}-${k}">${(d[k] || "").length}/${n}</span>`;
+    const adm = d.num ? `https://admin.shopify.com/store/hlzladen/products/${d.num}` : "";
+    const chip = live ? '<span class="chip" style="color:var(--good)">Live</span>' : dr ? '<span class="chip" style="color:var(--warn)">Entwurf in Shopify</span>' : d.titel ? '<span class="chip">Texte fertig</span>' : "";
+    return `<section class="box" style="gap:10px;padding:12px${live ? ";border-color:var(--good)" : ""}"><details ${open ? "open" : ""}>
+      <summary style="display:flex;gap:10px;align-items:center;cursor:pointer">${fo[0] ? `<img src="${esc(fo[0].url)}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px">` : ""}<strong style="flex:1;min-width:0">${esc(d.titel || d.kurz || "Neues Produkt")}</strong> ${chip}</summary>
+      <div style="display:grid;gap:12px;margin-top:12px">
+        <div><span class="label">1 · Fotos</span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0">${fo.map((x, j) => `<div style="position:relative"><img src="${esc(x.url)}" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:8px;border:1px solid var(--line)"><button type="button" class="x" data-nd-rm="${d.id}:${j}" aria-label="Foto entfernen" style="position:absolute;top:2px;right:2px">×</button>${j === 0 ? '<span class="pill muted" style="position:absolute;left:2px;bottom:2px;font-size:10px">Hauptbild</span>' : `<button type="button" class="btn" data-nd-main="${d.id}:${j}" style="position:absolute;left:2px;bottom:2px;padding:0 6px;font-size:11px">★ Haupt</button>`}</div>`).join("") || '<span class="note">Noch keine Fotos.</span>'}</div>
+          <label class="btn" style="cursor:pointer;display:inline-block">+ Fotos hochladen<input type="file" accept="image/*" multiple hidden data-nd-file="${d.id}"></label></div>
+        ${f("2 · Was ist das? (Stichworte reichen: Art, Material, Maße, Besonderheit, Anlass)", `<div class="inp"><textarea rows="3" data-nd="${d.id}:kurz" placeholder="z. B. Schlüsselbrett aus Eiche, 5 schwarze Haken, Gravur Stuttgart-Skyline, Geschenk zum Einzug">${esc(d.kurz || "")}</textarea></div>`)}
+        <div class="grid3">${f("3 · Preis € (wenn nur eine Variante)", inp("preis", "z. B. 39"))}${f("SKU (wenn nur eine Variante)", inp("sku", "z. B. KEYBRD-01-FUCHS"))}${f("Produktart (Typ)", inp("typ", "z. B. Schlüsselbrett"))}</div>
+        <div class="grid2">${f("Mehrere Varianten? Name der Option", inp("opt", "z. B. Länge"))}${f("Varianten, eine pro Zeile: Name | Preis | SKU", `<div class="inp"><textarea rows="3" data-nd="${d.id}:vars" placeholder="20 cm | 39 | KEYBRD-01-FUCHS-20&#10;30 cm | 45 | KEYBRD-01-FUCHS-30">${esc(d.vars || "")}</textarea></div>`)}</div>
+        <div class="btns"><button type="button" class="btn primary" data-nd-act="gen:${d.id}" ${busy || !d.kurz.trim() ? "disabled" : ""}>${busy === "gen" ? "Claude schreibt …" : d.titel ? "✨ Texte neu erzeugen" : "✨ Texte erzeugen"}</button></div>
+        ${d.titel || d.beschr ? `<div style="display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:12px"><span class="label">4 · Prüfen und ändern</span>
+          ${f("Produkttitel " + cnt("titel", 70), inp("titel", "", `data-cnt="titel:70"`))}
+          ${f("Beschreibung", `<div class="inp"><textarea rows="9" data-nd="${d.id}:beschr">${esc(d.beschr || "")}</textarea></div>`)}
+          <div class="grid2">${f("SEO-Titel " + cnt("seoT", 60), inp("seoT", "", `data-cnt="seoT:60"`))}${f("Produktart", inp("typ", ""))}</div>
+          ${f("Meta-Beschreibung " + cnt("seoD", 155), `<div class="inp"><textarea rows="2" data-nd="${d.id}:seoD" data-cnt="seoD:155">${esc(d.seoD || "")}</textarea></div>`)}
+          ${f("Tags (mit Komma getrennt)", inp("tags", ""))}
+          ${f("Alt-Texte für die Fotos (eine Zeile pro Foto)", `<div class="inp"><textarea rows="2" data-nd="${d.id}:alts">${esc(d.alts || "")}</textarea></div>`)}
+        </div>` : ""}
+        ${msg ? `<p class="note" style="margin:0;color:var(--${/^✓/.test(msg) ? "good" : "bad"})">${esc(msg)}</p>` : ""}
+        ${adm ? `<p style="margin:0"><a href="${adm}" target="_blank" rel="noopener">In Shopify öffnen ↗</a> <span class="note">${live ? "Das Produkt ist live." : "Als Entwurf gespeichert, noch nicht sichtbar."} Änderungen an Texten und Preisen ab jetzt bitte direkt in Shopify.</span></p>` : ""}
+        <div class="btns">
+          ${!live && !dr ? `<button type="button" class="btn" data-nd-act="draft:${d.id}" ${busy || !neuReady(d) ? "disabled" : ""}>${busy === "draft" ? "Lege an …" : "Als Entwurf in Shopify anlegen"}</button>` : ""}
+          ${!live ? `<button type="button" class="btn primary" data-nd-act="live:${d.id}" ${busy || !neuReady(d) ? "disabled" : ""}>${busy === "live" ? "Veröffentliche …" : dr ? "Jetzt veröffentlichen" : "Direkt veröffentlichen"}</button>` : ""}
+          <button type="button" class="btn danger" data-nd-act="del:${d.id}">${live || dr ? "Aus der Liste entfernen" : "Verwerfen"}</button>
+        </div>
+        ${!neuReady(d) && !live ? `<p class="note" style="margin:0">Zum Anlegen fehlen noch: ${[!d.titel.trim() ? "Titel (erst Texte erzeugen)" : "", !(neuVars(d).length ? neuVars(d).every(x => x.price) : String(d.preis).trim()) ? "Preis" : ""].filter(Boolean).join(", ")}.</p>` : ""}
+      </div></details></section>`;
+  }
+  function renderNeu() {
+    neuMigrate(); const L = NEU(); if (!L.length) L.push(neuBlank());
+    const gen = L.filter(d => d.kurz.trim() && !d.titel).length, rdy = L.filter(d => d.st !== "live" && d.st !== "entwurf" && neuReady(d)).length;
+    $("view").innerHTML = `<div class="row"><h1>Produkte hinzufügen</h1></div>
+      <p class="note">So geht es schnell: Fotos hochladen, in ein paar Worten sagen, was es ist, Preis eintragen, <strong>Texte erzeugen</strong> lassen (Titel, Beschreibung, SEO-Titel, Meta, Tags, Alt-Texte). Dann durchlesen und als <strong>Entwurf</strong> oder direkt <strong>live</strong> nach Shopify schicken. Die Fotos gehen dabei mit.</p>
+      <div class="btns" style="margin-bottom:12px"><button type="button" class="btn primary" data-nd-act="add:1">+ Neues Produkt</button><button type="button" class="btn" data-nd-act="add:5">+ 5 Produkte</button>${gen > 1 ? `<button type="button" class="btn" data-nd-act="genall:1" ${neuUi.bulk ? "disabled" : ""}>✨ Alle Texte erzeugen (${gen})</button>` : ""}${rdy > 1 ? `<button type="button" class="btn" data-nd-act="draftall:1" ${neuUi.bulk ? "disabled" : ""}>Alle fertigen als Entwurf anlegen (${rdy})</button>` : ""}</div>
+      ${neuUi.bulk ? `<p class="note">${esc(neuUi.bulk)}</p>` : ""}
+      ${L.length ? `<div class="stack">${L.map(d => neuCard(d, d.st !== "live" && (!d.titel || neuUi.focus === d.id))).join("")}</div>` : `<section class="box"><p>Noch kein Produkt. Klick auf „+ Neues Produkt“.</p></section>`}`;
+  }
+  const neuGet = id => NEU().find(x => x.id === id);
+  const neuSet = (d, k, val) => { d[k] = val; saveSettings(); };
+  document.addEventListener("input", e => {
+    const el = e.target, a = el.dataset && el.dataset.nd; if (!a || view !== "neu") return; const [id, k] = a.split(":"), d = neuGet(id); if (!d) return;
+    neuSet(d, k, el.value); const bs = (a, off) => { const b2 = document.querySelector(`[data-nd-act="${a}:${id}"]`); if (b2) b2.disabled = !!(neuUi.busy[id] || off); };
+    bs("gen", !d.kurz.trim()); bs("draft", !neuReady(d)); bs("live", !neuReady(d)); if (el.dataset.cnt) { const c = $("ndc-" + id + "-" + k); if (c) c.textContent = el.value.length + "/" + el.dataset.cnt.split(":")[1]; }
+  });
+  async function neuUpload(d, files) {
+    const assets = window.claude && window.claude.use ? await window.claude.use("assets") : null;
+    if (!assets) { neuUi.msg[d.id] = "Der Foto-Upload geht nur, wenn du angemeldet bist."; return renderNeu(); }
+    for (const [k, f] of files.entries()) { neuUi.msg[d.id] = `Lade Foto ${k + 1} von ${files.length} hoch …`; renderNeu(); try { const r = await assets.upload(f); d.fotos.push({ id: r.id, url: r.url, name: f.name }); } catch (er) { neuUi.msg[d.id] = (er && er.message) || "Upload hat nicht geklappt."; saveSettings(); return renderNeu(); } }
+    neuUi.msg[d.id] = ""; neuUi.focus = d.id; saveSettings(); renderNeu();
+  }
+  async function neuGen(d) {
+    const sample = await getSample(); if (!sample) { neuUi.msg[d.id] = "Claude ist hier nicht verfügbar (nicht angemeldet?)."; return renderNeu(); }
+    neuUi.busy[d.id] = "gen"; neuUi.msg[d.id] = ""; renderNeu();
+    const vs = neuVars(d), n = Math.max(d.fotos.length, 1);
+    const prompt = `Du bist SEO- und Texterexperte für kleine deutsche Online-Shops. Schreib die Produktseite für einen neuen Artikel im Shopify-Shop HLZLaden (handgefertigte Wohnaccessoires aus Eiche und Buche, Garderoben, Schlüsselbretter, Regale, Deko, teils mit Lasergravur, Versand aus Deutschland).\n\nAngaben des Inhabers (nur das ist gesichert): ${d.kurz.trim()}\nVarianten/Preise: ${vs.length ? vs.map(x => `${x.name} (${x.price} €)`).join(", ") : (d.preis ? d.preis + " € (eine Variante)" : "noch offen")}\nAnzahl Fotos: ${n}\n\nRegeln:\n- Erfinde keine Eigenschaften, Maße, Materialien oder Pflegehinweise, die nicht in den Angaben stehen. Fehlt etwas, lass es weg.\n- Titel 60 bis 70 Zeichen, Hauptbegriff (Produktart plus Material) vorne, dann Besonderheit oder Anlass. Kein Großschreiben ganzer Wörter.\n- Beschreibung 600 bis 1100 Zeichen, reiner Text: kurzer Einstieg mit Nutzen und Hauptbegriff, Leerzeile, dann Spiegelstriche mit "- " (Material, Größen, Besonderheiten), Leerzeile, ein Satz zu Geschenk und Handarbeit. Keine Sternchen, kein HTML.\n- SEO-Titel höchstens 60 Zeichen, Meta-Beschreibung höchstens 155 Zeichen mit Nutzen und Aufforderung.\n- 8 bis 12 Tags, klein geschrieben, Begriffe, die Käufer wirklich eintippen, jeweils höchstens 30 Zeichen.\n- Produktart als ein Wort oder zwei (z. B. Schlüsselbrett, Garderobe, Regal).\n- Genau ${n} Alt-Texte (je einer pro Foto, 60 bis 110 Zeichen, beschreiben was auf dem Foto sein dürfte, ohne Erfundenes).\nAntworte NUR mit JSON: {"titel":"","beschreibung":"","seoTitel":"","meta":"","tags":[""],"typ":"","alts":[""]}`;
+    try {
+      let o = await sample.json(prompt, { modelTier: "default", cache: false }); if (typeof o === "string") o = JSON.parse(o.slice(o.indexOf("{"), o.lastIndexOf("}") + 1));
+      if (!o || !o.titel) throw { code: "invalid_json" };
+      d.titel = seoCut(o.titel, 70); d.beschr = String(o.beschreibung || "").trim(); d.seoT = seoCut(o.seoTitel || o.titel, 60); d.seoD = seoCut(o.meta, 155);
+      d.tags = [...new Set((Array.isArray(o.tags) ? o.tags : []).map(x => String(x).trim().toLowerCase()).filter(Boolean))].slice(0, 12).join(", "); if (!d.typ) d.typ = String(o.typ || "").trim(); d.alts = (Array.isArray(o.alts) ? o.alts : []).map(String).join("\n");
+      saveSettings(); neuUi.msg[d.id] = "";
+    } catch (e) { neuUi.msg[d.id] = e && e.code === "invalid_json" ? "Die Antwort kam unvollständig an, bitte nochmal versuchen." : supErr(e); }
+    neuUi.busy[d.id] = ""; neuUi.focus = d.id; renderNeu();
+  }
+  async function neuStage(d) {
+    const fo = d.fotos || []; if (!fo.length) return [];
+    const blobs = []; for (const x of fo) { const r = await fetch(x.url); if (!r.ok) throw { message: "Foto konnte nicht gelesen werden: " + (x.name || "") }; blobs.push(await r.blob()); }
+    const st = await shopify("graphql_mutation", { query: "mutation($in:[StagedUploadInput!]!){ stagedUploadsCreate(input:$in){ stagedTargets{ url resourceUrl parameters{ name value } } userErrors{ message } } }", variables: { in: fo.map((x, i) => ({ resource: "IMAGE", filename: (x.name || "foto" + i + ".jpg").replace(/[^\w.-]+/g, "_"), mimeType: blobs[i].type || "image/jpeg", httpMethod: "POST" })) } });
+    const tg = st.stagedUploadsCreate; if (!tg || (tg.userErrors || []).length || !tg.stagedTargets || tg.stagedTargets.length !== fo.length) throw { message: "Foto-Upload zu Shopify nicht möglich: " + ((tg && tg.userErrors || []).map(e => e.message).join(", ") || "unbekannt") };
+    for (let i = 0; i < fo.length; i++) { const t = tg.stagedTargets[i], fd = new FormData(); t.parameters.forEach(p => fd.append(p.name, p.value)); fd.append("file", blobs[i], fo[i].name || "foto.jpg"); await fetch(t.url, { method: "POST", body: fd, mode: "no-cors" }); }
+    return tg.stagedTargets.map(t => t.resourceUrl);
+  }
+  async function neuCreate(d, live) {
+    if (!neuReady(d)) return;
+    neuUi.busy[d.id] = live ? "live" : "draft"; neuUi.msg[d.id] = ""; renderNeu();
+    try {
+      if (d.st === "entwurf" && d.pid) {   // schon in Shopify: nur freischalten
+        const r = await shopify("graphql_mutation", { query: "mutation($p:ProductUpdateInput!){ productUpdate(product:$p){ product{ id } userErrors{ message } } }", variables: { p: { id: d.pid, status: "ACTIVE" } } });
+        if ((r.productUpdate.userErrors || []).length) throw { message: r.productUpdate.userErrors.map(e => e.message).join(", ") };
+        await neuPublish(d.pid); d.st = "live"; neuUi.msg[d.id] = "✓ Veröffentlicht."; saveSettings(); neuUi.busy[d.id] = ""; return renderNeu();
+      }
+      const urls = await neuStage(d), vs = neuVars(d), alts = String(d.alts || "").split("\n");
+      const prod = { title: d.titel.trim(), descriptionHtml: neuHtml(d.beschr), vendor: "HlzLaden", productType: d.typ || "", tags: String(d.tags || "").split(",").map(x => x.trim()).filter(Boolean), status: live ? "ACTIVE" : "DRAFT", seo: { title: d.seoT || d.titel, description: d.seoD || "" } };
+      if (vs.length) prod.productOptions = [{ name: d.opt || "Variante", values: [{ name: vs[0].name }] }];
+      const r = await shopify("graphql_mutation", { query: "mutation($p:ProductCreateInput!,$m:[CreateMediaInput!]){ productCreate(product:$p, media:$m){ product{ id variants(first:5){ nodes{ id } } } userErrors{ field message } } }", variables: { p: prod, m: urls.map((u, i) => ({ originalSource: u, mediaContentType: "IMAGE", alt: alts[i] || "" })) } });
+      const pc = r.productCreate; if ((pc.userErrors || []).length || !pc.product) throw { message: (pc.userErrors || []).map(e => e.message).join(", ") || "Shopify hat das Produkt nicht angelegt." };
+      d.pid = pc.product.id; d.num = d.pid.split("/").pop(); d.st = "entwurf"; saveSettings();
+      const v0 = pc.product.variants.nodes[0].id, first = vs[0] || { price: String(d.preis).replace(",", "."), sku: d.sku };
+      const u = await shopify("graphql_mutation", { query: "mutation($pid:ID!,$v:[ProductVariantsBulkInput!]!){ productVariantsBulkUpdate(productId:$pid, variants:$v){ userErrors{ message } } }", variables: { pid: d.pid, v: [{ id: v0, price: first.price, inventoryItem: { sku: first.sku || "" } }] } });
+      if ((u.productVariantsBulkUpdate.userErrors || []).length) throw { message: "Preis/SKU: " + u.productVariantsBulkUpdate.userErrors.map(e => e.message).join(", ") };
+      if (vs.length > 1) {
+        const c = await shopify("graphql_mutation", { query: "mutation($pid:ID!,$v:[ProductVariantsBulkInput!]!){ productVariantsBulkCreate(productId:$pid, variants:$v){ userErrors{ message } } }", variables: { pid: d.pid, v: vs.slice(1).map(x => ({ optionValues: [{ optionName: d.opt || "Variante", name: x.name }], price: x.price, inventoryItem: { sku: x.sku || "" } })) } });
+        if ((c.productVariantsBulkCreate.userErrors || []).length) throw { message: "Varianten: " + c.productVariantsBulkCreate.userErrors.map(e => e.message).join(", ") };
+      }
+      if (live) { await neuPublish(d.pid); d.st = "live"; }
+      let med = ""; if (urls.length) { await new Promise(r2 => setTimeout(r2, 3500)); try { const m = await shopify("graphql_query", { query: "query($id:ID!){ product(id:$id){ media(first:30){ nodes{ status } } } }", variables: { id: d.pid } }), ns = (m.product && m.product.media.nodes) || []; med = ` Fotos in Shopify: ${ns.filter(x => x.status !== "FAILED").length} von ${urls.length}.`; } catch (er) { /* Foto-Status ist nur eine Zugabe */ } }
+      neuUi.msg[d.id] = (live ? "✓ Live in Shopify." : "✓ Als Entwurf in Shopify gespeichert.") + med; saveSettings();
+    } catch (e) { neuUi.msg[d.id] = (e && e.message && !e.code ? "Hat nicht geklappt: " + e.message : syncErr(e)) + (d.pid ? " (Das Produkt liegt schon in Shopify, bitte dort prüfen.)" : ""); }
+    neuUi.busy[d.id] = ""; renderNeu();
+  }
+  async function neuPublish(pid) {
+    const p = await shopify("graphql_query", { query: "{ publications(first:20){ nodes{ id } } }" }), ids = (p.publications && p.publications.nodes || []).map(x => ({ publicationId: x.id }));
+    if (ids.length) await shopify("graphql_mutation", { query: "mutation($id:ID!,$in:[PublicationInput!]!){ publishablePublish(id:$id, input:$in){ userErrors{ message } } }", variables: { id: pid, in: ids } });
+  }
+  document.addEventListener("change", e => {
+    const el = e.target; if (view !== "neu" || !el.dataset || el.dataset.ndFile === undefined) return; const d = neuGet(el.dataset.ndFile); if (d) neuUpload(d, [...el.files]);
   });
   document.addEventListener("click", async e => {
-    const rm = view === "gravuren" && e.target.closest("[data-gv-rm]"); if (!rm) return;
-    const [i, j] = rm.dataset.gvRm.split(":").map(Number), row = S.gravuren[i], x = row && row.fotos && row.fotos[j]; if (!x) return;
-    row.fotos.splice(j, 1); saveSettings(); renderGrav();
-    try { const assets = await window.claude.use("assets"); if (assets) await assets.delete(x.id); } catch (er) { /* war schon weg */ }
+    if (view !== "neu") return; const t = e.target.closest("[data-nd-act],[data-nd-rm],[data-nd-main]"); if (!t) return;
+    if (t.dataset.ndRm) { const [id, j] = t.dataset.ndRm.split(":"), d = neuGet(id), x = d && d.fotos[+j]; if (!x) return; d.fotos.splice(+j, 1); neuUi.focus = id; saveSettings(); renderNeu(); try { const as = await window.claude.use("assets"); if (as) await as.delete(x.id); } catch (er) { /* war schon weg */ } return; }
+    if (t.dataset.ndMain) { const [id, j] = t.dataset.ndMain.split(":"), d = neuGet(id); if (!d) return; d.fotos.unshift(d.fotos.splice(+j, 1)[0]); neuUi.focus = id; saveSettings(); return renderNeu(); }
+    const [act, id] = t.dataset.ndAct.split(":"), d = neuGet(id);
+    if (act === "add") { for (let k = 0; k < +id; k++) NEU().push(neuBlank()); neuUi.focus = NEU()[NEU().length - +id].id; saveSettings(); return renderNeu(); }
+    if (act === "gen" && d) return neuGen(d);
+    if (act === "draft" && d) return neuCreate(d, false);
+    if (act === "live" && d) { if (!sure(`„${d.titel}“ jetzt live schalten?`)) return; return neuCreate(d, true); }
+    if (act === "del" && d) { if (!sure(`Dieses Produkt aus der Liste entfernen?`)) return; S.neu = NEU().filter(x => x !== d); saveSettings(); return renderNeu(); }
+    if (act === "genall") { neuUi.bulk = "Texte werden erzeugt …"; renderNeu(); for (const x of NEU().filter(y => y.kurz.trim() && !y.titel)) { neuUi.bulk = `Texte für „${x.kurz.slice(0, 30)}“ …`; renderNeu(); await neuGen(x); } neuUi.bulk = ""; return renderNeu(); }
+    if (act === "draftall") { for (const x of NEU().filter(y => y.st !== "live" && y.st !== "entwurf" && neuReady(y))) { neuUi.bulk = `Lege „${x.titel.slice(0, 30)}“ als Entwurf an …`; renderNeu(); await neuCreate(x, false); } neuUi.bulk = ""; return renderNeu(); }
   });
-  document.addEventListener("click", e => { if (view !== "gravuren" || !e.target.closest("[data-gv-add]")) return; for (let k = 0; k < 5; k++) S.gravuren.push({}); saveSettings(); renderGrav(); });
 
   // ---------- Privat: To-do-Liste (getrennter Bereich zusammen mit Finanzen) ----------
   const TODO_REP = [["", "einmalig"], ["w", "jede Woche"], ["m", "jeden Monat"], ["y", "jedes Jahr"]];
