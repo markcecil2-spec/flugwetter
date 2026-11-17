@@ -6175,11 +6175,14 @@ Claude:`;
   function renderNeu() {
     neuMigrate(); const L = NEU(); if (!L.length) L.push(neuBlank());
     const gen = L.filter(d => d.kurz.trim() && !d.titel).length, rdy = L.filter(d => d.st !== "live" && d.st !== "entwurf" && neuReady(d)).length;
+    const ae = document.activeElement, fk = ae && ae.dataset && ae.dataset.nd, fs = fk && ae.selectionStart, fe = fk && ae.selectionEnd, sy = window.scrollY;
     $("view").innerHTML = `<div class="row"><h1>Produkte hinzufügen</h1></div>
       <p class="note">So geht es schnell: Fotos hochladen, in ein paar Worten sagen, was es ist, Preis eintragen, <strong>Texte erzeugen</strong> lassen (Titel, Beschreibung, SEO-Titel, Meta, Tags, Alt-Texte). Dann durchlesen und als <strong>Entwurf</strong> oder direkt <strong>live</strong> nach Shopify schicken. Die Fotos gehen dabei mit.</p>
       <div class="btns" style="margin-bottom:12px"><button type="button" class="btn primary" data-nd-act="add:1">+ Neues Produkt</button><button type="button" class="btn" data-nd-act="add:5">+ 5 Produkte</button>${gen > 1 ? `<button type="button" class="btn" data-nd-act="genall:1" ${neuUi.bulk ? "disabled" : ""}>✨ Alle Texte erzeugen (${gen})</button>` : ""}${rdy > 1 ? `<button type="button" class="btn" data-nd-act="draftall:1" ${neuUi.bulk ? "disabled" : ""}>Alle fertigen als Entwurf anlegen (${rdy})</button>` : ""}</div>
       ${neuUi.bulk ? `<p class="note">${esc(neuUi.bulk)}</p>` : ""}
       ${L.length ? `<div class="stack">${L.map(d => neuCard(d, d.st !== "live" && (!d.titel || neuUi.focus === d.id))).join("")}</div>` : `<section class="box"><p>Noch kein Produkt. Klick auf „+ Neues Produkt“.</p></section>`}`;
+    if (fk) { const el = [...document.querySelectorAll("[data-nd]")].find(x => x.dataset.nd === fk); if (el) { el.focus({ preventScroll: true }); try { el.setSelectionRange(fs, fe); } catch (er) { /* kein Textfeld */ } } }
+    window.scrollTo(0, sy);
   }
   const neuGet = id => NEU().find(x => x.id === id);
   const neuSet = (d, k, val) => { d[k] = val; saveSettings(); };
