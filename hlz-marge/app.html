@@ -2161,7 +2161,7 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
     const nReady = ANF.filter(x => x.status === "geprueft").length;
     const tabs = [["antwort", "Beantworten"], ["anfertigung", "Anfertigungen" + (nReady ? ` (${nReady})` : "")], ["auswertung", "Auswertung"], ["wissen", "Shop-Infos"]];
     $("view").innerHTML = `
-      <div class="row"><h1>Support</h1><div class="seg" aria-label="Bereich">${tabs.map(([k, l]) => `<button type="button" data-suptab="${k}" aria-pressed="${sup.tab === k}">${l}</button>`).join("")}</div></div>
+      <h1>Support</h1><div class="seg" aria-label="Bereich" style="margin:6px 0 14px;display:inline-flex;flex-wrap:wrap;max-width:100%">${tabs.map(([k, l]) => `<button type="button" data-suptab="${k}" aria-pressed="${sup.tab === k}">${l}</button>`).join("")}</div>
       ${sup.tab === "antwort" ? supAnswerHTML() : sup.tab === "anfertigung" ? supAnfHTML() : sup.tab === "auswertung" ? supStatsHTML() : supFactsHTML()}`;
     getSample().then(f => { const n = $("supNoAi"); if (n) n.hidden = !!f; });
   }
