@@ -6196,20 +6196,21 @@ Claude:`;
   const neuSet = (d, k, val) => { d[k] = val; saveSettings(); };
   document.addEventListener("input", e => {
     const el = e.target, a = el.dataset && el.dataset.nd; if (!a || view !== "neu") return; const [id, k] = a.split(":"), d = neuGet(id); if (!d) return;
-    neuSet(d, k, el.value); const bs = (a, off) => { const b2 = document.querySelector(`[data-nd-act="${a}:${id}"]`); if (b2) b2.disabled = !!(neuUi.busy[id] || off); };
+    neuUi.focus = id; neuSet(d, k, el.value); const bs = (a, off) => { const b2 = document.querySelector(`[data-nd-act="${a}:${id}"]`); if (b2) b2.disabled = !!(neuUi.busy[id] || off); };
     bs("gen", !d.kurz.trim()); bs("draft", !neuReady(d)); bs("live", !neuReady(d)); { const h = $("nd-hint-" + id); if (h && d.st !== "live") h.textContent = neuMiss(d); } if (el.dataset.cnt) { const c = $("ndc-" + id + "-" + k); if (c) c.textContent = el.value.length + "/" + el.dataset.cnt.split(":")[1]; }
   });
   async function neuUpload(d, files) {
     const assets = window.claude && window.claude.use ? await window.claude.use("assets") : null;
     if (!assets) { neuUi.msg[d.id] = "Der Foto-Upload geht nur, wenn du angemeldet bist."; return renderNeu(); }
     const tot = files.length;
+    neuUi.focus = d.id;
     for (const [k, f] of files.entries()) { neuUi.msg[d.id] = ""; neuUi.prog[d.id] = { pct: Math.round(k / tot * 100) + 4, txt: `Foto ${k + 1} von ${tot} wird hochgeladen … (${Math.round(f.size / 1024)} KB)` }; renderNeu(); requestAnimationFrame(() => { if (neuUi.prog[d.id]) { neuUi.prog[d.id].pct = Math.round((k + 0.85) / tot * 100); renderNeu(); } }); try { const r = await assets.upload(f); d.fotos.push({ id: r.id, url: r.url, name: f.name }); } catch (er) { neuUi.prog[d.id] = null; neuUi.msg[d.id] = (er && er.message) || "Upload hat nicht geklappt."; saveSettings(); return renderNeu(); } }
     neuUi.prog[d.id] = { pct: 100, txt: `✓ ${tot} Foto${tot > 1 ? "s" : ""} hochgeladen` }; renderNeu(); await new Promise(r => setTimeout(r, 900)); neuUi.prog[d.id] = null;
     neuUi.msg[d.id] = ""; neuUi.focus = d.id; saveSettings(); renderNeu();
   }
   async function neuGen(d) {
     const sample = await getSample(); if (!sample) { neuUi.msg[d.id] = "Claude ist hier nicht verfügbar (nicht angemeldet?)."; return renderNeu(); }
-    neuUi.busy[d.id] = "gen"; neuUi.msg[d.id] = ""; renderNeu();
+    neuUi.focus = d.id; neuUi.busy[d.id] = "gen"; neuUi.msg[d.id] = ""; renderNeu();
     const vs = neuVars(d), n = Math.max(d.fotos.length, 1);
     const prompt = `Du bist SEO- und Texterexperte für kleine deutsche Online-Shops. Schreib die Produktseite für einen neuen Artikel im Shopify-Shop HLZLaden (handgefertigte Wohnaccessoires aus Eiche und Buche, Garderoben, Schlüsselbretter, Regale, Deko, teils mit Lasergravur, Versand aus Deutschland).\n\nAngaben des Inhabers (nur das ist gesichert): ${d.kurz.trim()}\nAnzahl Fotos: ${n}\n\nRegeln:\n- Schreib in die Beschreibung (und Meta) KEINE Preise und KEINE Größen-/Varianten-Auswahl wie „drei Größen zur Auswahl“ oder „20, 30 und 40 cm“. Auch KEINE Artikelnummern/SKUs (z. B. KEYBRD-01-HIRSCH-20), nirgends im Text. Die Varianten und Preise legt der Shop selbst an. Maße nur nennen, wenn sie in den Angaben des Inhabers als feste Produktmaße stehen.\n- Erfinde keine Eigenschaften, Maße, Materialien oder Pflegehinweise, die nicht in den Angaben stehen. Fehlt etwas, lass es weg.\n- Titel 60 bis 70 Zeichen, Hauptbegriff (Produktart plus Material) vorne, dann Besonderheit oder Anlass. Kein Großschreiben ganzer Wörter.\n- Beschreibung 600 bis 1100 Zeichen, reiner Text: kurzer Einstieg mit Nutzen und Hauptbegriff, Leerzeile, dann Spiegelstriche mit "- " (Material, Größen, Besonderheiten), Leerzeile, ein Satz zu Geschenk und Handarbeit. Keine Sternchen, kein HTML.\n- SEO-Titel höchstens 60 Zeichen, Meta-Beschreibung höchstens 155 Zeichen mit Nutzen und Aufforderung.\n- 8 bis 12 Tags, klein geschrieben, Begriffe, die Käufer wirklich eintippen, jeweils höchstens 30 Zeichen.\n- Produktart als ein Wort oder zwei (z. B. Schlüsselbrett, Garderobe, Regal).\n- Genau ${n} Alt-Texte (je einer pro Foto, 60 bis 110 Zeichen, beschreiben was auf dem Foto sein dürfte, ohne Erfundenes).\nAntworte NUR mit JSON: {"titel":"","beschreibung":"","seoTitel":"","meta":"","tags":[""],"typ":"","alts":[""]}`;
     try {
@@ -6231,7 +6232,7 @@ Claude:`;
   }
   async function neuCreate(d, live) {
     if (!neuReady(d)) return;
-    neuUi.busy[d.id] = live ? "live" : "draft"; neuUi.msg[d.id] = ""; renderNeu();
+    neuUi.focus = d.id; neuUi.busy[d.id] = live ? "live" : "draft"; neuUi.msg[d.id] = ""; renderNeu();
     try {
       if (d.st === "entwurf" && d.pid) {   // schon in Shopify: nur freischalten
         const r = await shopify("graphql_mutation", { query: "mutation($p:ProductUpdateInput!){ productUpdate(product:$p){ product{ id } userErrors{ message } } }", variables: { p: { id: d.pid, status: "ACTIVE" } } });
