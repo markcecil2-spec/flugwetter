@@ -6130,6 +6130,7 @@ Claude:`;
   const neuBlank = () => ({ id: uid(), fotos: [], kurz: "", preis: "", sku: "", opt: "", vars: "", titel: "", beschr: "", seoT: "", seoD: "", tags: "", typ: "", alts: "", st: "", pid: "", num: "", made: Date.now() });
   const neuVars = d => String(d.vars || "").split("\n").map(l => l.split("|").map(x => x.trim())).filter(p => p[0]).map(p => ({ name: p[0], price: String(p[1] || "").replace(",", "."), sku: p[2] || "" }));
   const neuReady = d => d.titel.trim() && (neuVars(d).length ? neuVars(d).every(x => x.price) : String(d.preis).trim());
+  const neuMiss = d => { const m = [!d.titel.trim() ? "Titel (erst „Texte erzeugen“ klicken)" : "", !neuReady(d) && d.titel.trim() ? (neuVars(d).length ? "Preis bei jeder Variante" : "Preis") : ""].filter(Boolean); return m.length ? "Veröffentlichen geht erst, wenn das ausgefüllt ist: " + m.join(", ") + "." : ""; };
   const neuHtml = t => { const out = []; let ul = false; String(t || "").split("\n").forEach(l => { const m = l.match(/^\s*[-•*]\s+(.*)/); if (m) { if (!ul) { out.push("<ul>"); ul = true; } out.push("<li>" + esc(m[1]) + "</li>"); } else { if (ul) { out.push("</ul>"); ul = false; } if (l.trim()) out.push("<p>" + esc(l.trim()) + "</p>"); } }); if (ul) out.push("</ul>"); return out.join(""); };
   function neuMigrate() {
     if (S.neuMig) return; S.neuMig = 1;
@@ -6164,12 +6165,12 @@ Claude:`;
         ${neuUi.prog[d.id] ? `<div style="margin:6px 0"><div style="height:10px;border-radius:6px;background:var(--line,#e4e1d8);overflow:hidden"><div style="height:100%;width:${neuUi.prog[d.id].pct}%;background:var(--good,#2f6b4f);border-radius:6px;transition:width .4s"></div></div><p class="note" style="margin:4px 0 0">${esc(neuUi.prog[d.id].txt)}</p></div>` : ""}
         ${msg ? `<p class="note" style="margin:0;color:var(--${/^✓/.test(msg) ? "good" : "bad"})">${esc(msg)}</p>` : ""}
         ${adm ? `<p style="margin:0"><a href="${adm}" target="_blank" rel="noopener">In Shopify öffnen ↗</a> <span class="note">${live ? "Das Produkt ist live." : "Als Entwurf gespeichert, noch nicht sichtbar."} Änderungen an Texten und Preisen ab jetzt bitte direkt in Shopify.</span></p>` : ""}
+        <p id="nd-hint-${d.id}" style="margin:0;color:var(--bad);font-weight:600">${live ? "" : neuMiss(d)}</p>
         <div class="btns">
           ${!live && !dr ? `<button type="button" class="btn" data-nd-act="draft:${d.id}" ${busy || !neuReady(d) ? "disabled" : ""}>${busy === "draft" ? "Lege an …" : "Als Entwurf in Shopify anlegen"}</button>` : ""}
           ${!live ? `<button type="button" class="btn primary" data-nd-act="live:${d.id}" ${busy || !neuReady(d) ? "disabled" : ""}>${busy === "live" ? "Veröffentliche …" : dr ? "Jetzt veröffentlichen" : "Direkt veröffentlichen"}</button>` : ""}
           <button type="button" class="btn danger" data-nd-act="del:${d.id}">${live || dr ? "Aus der Liste entfernen" : "Verwerfen"}</button>
         </div>
-        ${!neuReady(d) && !live ? `<p class="note" style="margin:0">Zum Anlegen fehlen noch: ${[!d.titel.trim() ? "Titel (erst Texte erzeugen)" : "", !(neuVars(d).length ? neuVars(d).every(x => x.price) : String(d.preis).trim()) ? "Preis" : ""].filter(Boolean).join(", ")}.</p>` : ""}
       </div></details></section>`;
   }
   function renderNeu() {
@@ -6189,7 +6190,7 @@ Claude:`;
   document.addEventListener("input", e => {
     const el = e.target, a = el.dataset && el.dataset.nd; if (!a || view !== "neu") return; const [id, k] = a.split(":"), d = neuGet(id); if (!d) return;
     neuSet(d, k, el.value); const bs = (a, off) => { const b2 = document.querySelector(`[data-nd-act="${a}:${id}"]`); if (b2) b2.disabled = !!(neuUi.busy[id] || off); };
-    bs("gen", !d.kurz.trim()); bs("draft", !neuReady(d)); bs("live", !neuReady(d)); if (el.dataset.cnt) { const c = $("ndc-" + id + "-" + k); if (c) c.textContent = el.value.length + "/" + el.dataset.cnt.split(":")[1]; }
+    bs("gen", !d.kurz.trim()); bs("draft", !neuReady(d)); bs("live", !neuReady(d)); { const h = $("nd-hint-" + id); if (h && d.st !== "live") h.textContent = neuMiss(d); } if (el.dataset.cnt) { const c = $("ndc-" + id + "-" + k); if (c) c.textContent = el.value.length + "/" + el.dataset.cnt.split(":")[1]; }
   });
   async function neuUpload(d, files) {
     const assets = window.claude && window.claude.use ? await window.claude.use("assets") : null;
