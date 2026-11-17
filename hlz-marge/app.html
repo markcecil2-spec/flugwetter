@@ -6138,6 +6138,7 @@ Claude:`;
   }).filter(x => x.name);
   const neuReady = d => d.titel.trim() && (neuVars(d).length ? neuVars(d).every(x => x.price) : String(d.preis).trim());
   const neuMiss = d => { const m = [!d.titel.trim() ? "Titel (erst „Texte erzeugen“ klicken)" : "", !neuReady(d) && d.titel.trim() ? (neuVars(d).length ? "Preis bei jeder Variante" : "Preis") : ""].filter(Boolean); return m.length ? "Veröffentlichen geht erst, wenn das ausgefüllt ist: " + m.join(", ") + "." : ""; };
+  const neuAsk = (act, id, label, cls, off) => neuUi.ask === act + ":" + id ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-nd-act="${act}ok:${id}" aria-label="Bestätigen" title="Ja">✓</button><button type="button" class="btn" data-nd-act="askno:${id}" aria-label="Abbrechen" title="Abbrechen">✕</button></span>` : `<button type="button" class="btn ${cls}" data-nd-act="${act}:${id}" ${off ? "disabled" : ""}>${label}</button>`;
   const neuHtml = t => { const out = []; let ul = false; String(t || "").split("\n").forEach(l => { const m = l.match(/^\s*[-•*]\s+(.*)/); if (m) { if (!ul) { out.push("<ul>"); ul = true; } out.push("<li>" + esc(m[1]) + "</li>"); } else { if (ul) { out.push("</ul>"); ul = false; } if (l.trim()) out.push("<p>" + esc(l.trim()) + "</p>"); } }); if (ul) out.push("</ul>"); return out.join(""); };
   function neuMigrate() {
     if (S.neuMig) return; S.neuMig = 1;
@@ -6175,8 +6176,8 @@ Claude:`;
         <p id="nd-hint-${d.id}" style="margin:0;color:var(--bad);font-weight:600">${live ? "" : neuMiss(d)}</p>
         <div class="btns">
           ${!live && !dr ? `<button type="button" class="btn" data-nd-act="draft:${d.id}" ${busy || !neuReady(d) ? "disabled" : ""}>${busy === "draft" ? "Lege an …" : "Als Entwurf in Shopify anlegen"}</button>` : ""}
-          ${!live ? `<button type="button" class="btn primary" data-nd-act="live:${d.id}" ${busy || !neuReady(d) ? "disabled" : ""}>${busy === "live" ? "Veröffentliche …" : dr ? "Jetzt veröffentlichen" : "Direkt veröffentlichen"}</button>` : ""}
-          <button type="button" class="btn danger" data-nd-act="del:${d.id}">${live || dr ? "Aus der Liste entfernen" : "Verwerfen"}</button>
+          ${!live ? neuAsk("live", d.id, busy === "live" ? "Veröffentliche …" : dr ? "Jetzt veröffentlichen" : "Direkt veröffentlichen", "primary", busy || !neuReady(d)) : ""}
+          ${neuAsk("del", d.id, live || dr ? "Aus der Liste entfernen" : "Verwerfen", "danger", false)}
         </div>
       </div></details></section>`;
   }
@@ -6273,8 +6274,10 @@ Claude:`;
     if (act === "add") { for (let k = 0; k < +id; k++) NEU().push(neuBlank()); neuUi.focus = NEU()[NEU().length - +id].id; saveSettings(); return renderNeu(); }
     if (act === "gen" && d) return neuGen(d);
     if (act === "draft" && d) return neuCreate(d, false);
-    if (act === "live" && d) { if (!sure(`„${d.titel}“ jetzt live schalten?`)) return; return neuCreate(d, true); }
-    if (act === "del" && d) { if (!sure(`Dieses Produkt aus der Liste entfernen?`)) return; S.neu = NEU().filter(x => x !== d); saveSettings(); return renderNeu(); }
+    if ((act === "live" || act === "del") && d) { neuUi.ask = act + ":" + id; neuUi.focus = id; return renderNeu(); }
+    if (act === "askno") { neuUi.ask = ""; return renderNeu(); }
+    if (act === "liveok" && d) { neuUi.ask = ""; return neuCreate(d, true); }
+    if (act === "delok" && d) { neuUi.ask = ""; S.neu = NEU().filter(x => x !== d); saveSettings(); return renderNeu(); }
     if (act === "genall") { neuUi.bulk = "Texte werden erzeugt …"; renderNeu(); for (const x of NEU().filter(y => y.kurz.trim() && !y.titel)) { neuUi.bulk = `Texte für „${x.kurz.slice(0, 30)}“ …`; renderNeu(); await neuGen(x); } neuUi.bulk = ""; return renderNeu(); }
     if (act === "draftall") { for (const x of NEU().filter(y => y.st !== "live" && y.st !== "entwurf" && neuReady(y))) { neuUi.bulk = `Lege „${x.titel.slice(0, 30)}“ als Entwurf an …`; renderNeu(); await neuCreate(x, false); } neuUi.bulk = ""; return renderNeu(); }
   });
