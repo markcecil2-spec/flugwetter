@@ -6128,7 +6128,14 @@ Claude:`;
   const NEU = () => (S.neu = S.neu || []);
   const neuUi = { busy: {}, msg: {}, bulk: "", prog: {} };
   const neuBlank = () => ({ id: uid(), fotos: [], kurz: "", preis: "", sku: "", opt: "", vars: "", titel: "", beschr: "", seoT: "", seoD: "", tags: "", typ: "", alts: "", st: "", pid: "", num: "", made: Date.now() });
-  const neuVars = d => String(d.vars || "").split("\n").map(l => l.split("|").map(x => x.trim())).filter(p => p[0]).map(p => ({ name: p[0], price: String(p[1] || "").replace(",", "."), sku: p[2] || "" }));
+  const neuVars = d => String(d.vars || "").split("\n").map(l => l.trim()).filter(Boolean).map(l => {
+    const pr = x => String(x || "").replace(/[^0-9.,]/g, "").replace(",", ".");
+    if (l.includes("|")) { const p = l.split("|").map(x => x.trim()); return { name: p[0], price: pr(p[1]), sku: p[2] || "" }; }
+    const m = l.match(/^(.*?)[\s:=;-]+(\d+(?:[.,]\d+)?)\s*(?:€|eur|euro)?\s*$/i); if (!m) return { name: l, price: "", sku: "" };
+    const left = m[1].trim(), price = pr(m[2]);
+    if (/^[A-Za-z0-9]+(-[A-Za-z0-9]+)+$/.test(left)) { const z = left.match(/-(\d{2,3})$/); return { name: z ? z[1] + " cm" : left, price, sku: left }; }
+    return { name: left, price, sku: "" };
+  }).filter(x => x.name);
   const neuReady = d => d.titel.trim() && (neuVars(d).length ? neuVars(d).every(x => x.price) : String(d.preis).trim());
   const neuMiss = d => { const m = [!d.titel.trim() ? "Titel (erst „Texte erzeugen“ klicken)" : "", !neuReady(d) && d.titel.trim() ? (neuVars(d).length ? "Preis bei jeder Variante" : "Preis") : ""].filter(Boolean); return m.length ? "Veröffentlichen geht erst, wenn das ausgefüllt ist: " + m.join(", ") + "." : ""; };
   const neuHtml = t => { const out = []; let ul = false; String(t || "").split("\n").forEach(l => { const m = l.match(/^\s*[-•*]\s+(.*)/); if (m) { if (!ul) { out.push("<ul>"); ul = true; } out.push("<li>" + esc(m[1]) + "</li>"); } else { if (ul) { out.push("</ul>"); ul = false; } if (l.trim()) out.push("<p>" + esc(l.trim()) + "</p>"); } }); if (ul) out.push("</ul>"); return out.join(""); };
