@@ -6238,7 +6238,7 @@ Claude:`;
         if ((r.productUpdate.userErrors || []).length) throw { message: r.productUpdate.userErrors.map(e => e.message).join(", ") };
         await neuPublish(d.pid); d.st = "live"; neuUi.msg[d.id] = "✓ Veröffentlicht."; saveSettings(); neuUi.busy[d.id] = ""; return renderNeu();
       }
-      const urls = await neuStage(d), vs = neuVars(d), alts = String(d.alts || "").split("\n");
+      let urls; try { urls = await neuStage(d); } catch (er) { urls = (d.fotos || []).map(x => new URL(x.url, location.href).href); neuUi.msg[d.id] = "Direkter Foto-Upload ging im Browser nicht, Shopify holt die Fotos jetzt selbst …"; renderNeu(); } const vs = neuVars(d), alts = String(d.alts || "").split("\n");
       const prod = { title: d.titel.trim(), descriptionHtml: neuHtml(d.beschr), vendor: "HlzLaden", productType: d.typ || "", tags: String(d.tags || "").split(",").map(x => x.trim()).filter(Boolean), status: live ? "ACTIVE" : "DRAFT", seo: { title: d.seoT || d.titel, description: d.seoD || "" } };
       if (vs.length) prod.productOptions = [{ name: d.opt || "Variante", values: [{ name: vs[0].name }] }];
       const r = await shopify("graphql_mutation", { query: "mutation($p:ProductCreateInput!,$m:[CreateMediaInput!]){ productCreate(product:$p, media:$m){ product{ id variants(first:5){ nodes{ id } } } userErrors{ field message } } }", variables: { p: prod, m: urls.map((u, i) => ({ originalSource: u, mediaContentType: "IMAGE", alt: alts[i] || "" })) } });
