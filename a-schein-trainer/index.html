@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A-Schein Trainer</title>
+<meta name="description" content="Lern-App für die Gleitschirm-Theorie: üben, testen, Fortschritt. Demo.">
+<meta name="theme-color" content="#ffffff">
+<meta name="robots" content="noindex">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="wrap head">
+    <div class="brand">
+      <img class="logo" src="icons/logo-glider.png" alt="">
+      <div class="bt"><h1>A-Schein<br>Trainer</h1><span class="tag">DEMO</span></div>
+    </div>
+    <button type="button" class="hpct" id="hpct" data-tab="start" aria-label="Lernstand">
+      <span class="ring">
+        <svg viewBox="0 0 44 44" aria-hidden="true"><circle class="rb" cx="22" cy="22" r="18"/><circle class="rp" id="ringP" cx="22" cy="22" r="18"/></svg>
+        <b id="ringNum">0%</b>
+      </span>
+      <span class="hl">sicher</span>
+    </button>
+    <div class="hright"><button type="button" class="avatar" id="avatar" data-tab="profil" aria-label="Profil">G</button></div>
+  </div>
+</header>
+<main class="wrap"><div id="app" aria-live="polite"></div></main>
+
+<nav class="tabbar" aria-label="Hauptmenü">
+  <button type="button" class="tab" data-tab="start">
+    <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5h4v5"/></svg></span>
+    <span>Start</span>
+  </button>
+  <button type="button" class="tab" data-tab="lernen">
+    <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 5h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2Z"/><path d="M22 5h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7Z"/></svg></span>
+    <span>Lernen</span>
+  </button>
+  <button type="button" class="tab" data-tab="ausbildung">
+    <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 9 12 4 2 9l10 5Z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/></svg></span>
+    <span>Ausbildung</span>
+  </button>
+  <button type="button" class="tab" data-tab="profil">
+    <span class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>
+    <span>Profil</span>
+  </button>
+</nav>
+
+<script src="questions.js"></script>
+<script src="questions-recht.js"></script>
+<script src="questions-aero.js"></script>
+<script src="questions-geraet.js"></script>
+<script src="questions-praxis.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
