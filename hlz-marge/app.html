@@ -448,26 +448,26 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>HLZ-Dashboard</strong></a>
     <div class="navwrap">
     <nav class="tabs grps" aria-label="Bereiche">
-      <a href="#uebersicht" data-grp="kalk">Kalkulation</a>
-      <a href="#bestellungen" data-grp="betr">Betrieb<span class="navbadge" id="grpBadgebetr" hidden></span></a>
-      <a href="#werbung" data-grp="mark">Marketing<span class="navbadge" id="grpBadgemark" hidden></span></a>
-      <a href="#finanzen" data-grp="geld" class="navpriv">Geld &amp; Steuer</a>
+      <a href="#uebersicht" data-grp="heute">Heute<span class="navbadge" id="grpBadgeheute" hidden></span></a>
+      <a href="#neu" data-grp="verk">Verkaufen<span class="navbadge" id="grpBadgeverk" hidden></span></a>
+      <a href="#preise" data-grp="zahl">Zahlen</a>
+      <a href="#kanaele" data-grp="daten">Daten &amp; Einstellungen</a>
     </nav>
     <nav class="tabs subs" aria-label="Seiten">
-      <a href="#uebersicht" data-tab="uebersicht" data-g="kalk">Dashboard</a>
-      <a href="#preise" data-tab="preise" data-g="kalk">Preise</a>
-      <a href="#auswertung" data-tab="auswertung" data-g="kalk">Auswertung</a>
-      <a href="#einstellungen" data-tab="einstellungen" data-g="kalk">Einstellungen</a>
-      <a href="#produktion" data-tab="produktion" data-g="betr">Produktion</a>
-      <a href="#neu" data-tab="neu" data-g="betr">Produkte hinzufügen</a>
-      <a href="#support" data-tab="support" data-g="betr">Support</a>
-      <a href="#kanaele" data-tab="kanaele" data-g="betr">Kanäle</a>
-      <a href="#werbung" data-tab="werbung" data-g="mark">Marketing</a>
-      <a href="#suche" data-tab="suche" data-g="mark">Suchbegriffe</a>
-      <a href="#shopcheck" data-tab="shopcheck" data-g="mark">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
-      <a href="#finanzen" data-tab="finanzen" data-g="geld">Finanzen</a>
-      <a href="#buchhaltung" data-tab="buchhaltung" data-g="geld">Buchhaltung</a>
-      <a href="#dokumente" data-tab="dokumente" data-g="geld">Dokumente</a>
+      <a href="#uebersicht" data-tab="uebersicht" data-g="heute">Übersicht</a>
+      <a href="#produktion" data-tab="produktion" data-g="heute">Produktion</a>
+      <a href="#support" data-tab="support" data-g="heute">Support</a>
+      <a href="#neu" data-tab="neu" data-g="verk">Produkte hinzufügen</a>
+      <a href="#shopcheck" data-tab="shopcheck" data-g="verk">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
+      <a href="#suche" data-tab="suche" data-g="verk">Suchbegriffe</a>
+      <a href="#werbung" data-tab="werbung" data-g="verk">Marketing</a>
+      <a href="#preise" data-tab="preise" data-g="zahl">Preise</a>
+      <a href="#auswertung" data-tab="auswertung" data-g="zahl">Auswertung</a>
+      <a href="#finanzen" data-tab="finanzen" data-g="zahl">Finanzen</a>
+      <a href="#buchhaltung" data-tab="buchhaltung" data-g="zahl">Buchhaltung</a>
+      <a href="#kanaele" data-tab="kanaele" data-g="daten">Kanäle</a>
+      <a href="#dokumente" data-tab="dokumente" data-g="daten">Dokumente</a>
+      <a href="#einstellungen" data-tab="einstellungen" data-g="daten">Einstellungen</a>
     </nav>
     </div>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
@@ -1572,14 +1572,14 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // Bereiche: oben die Gruppe, darunter nur die Seiten dieser Gruppe
   const NAV_LAST = {};
   function navGroups(act) {
-    const cur = document.querySelector('nav.subs a[data-tab="' + act + '"]'); const g = cur ? cur.dataset.g : (navGroups.g || "kalk");
+    const cur = document.querySelector('nav.subs a[data-tab="' + act + '"]'); const g = cur ? cur.dataset.g : (navGroups.g || "heute");
     navGroups.g = g; if (cur) NAV_LAST[g] = "#" + act;
     document.querySelectorAll("nav.subs a").forEach(l => { l.hidden = l.dataset.g !== g; });
     document.querySelectorAll("nav.grps a").forEach(l => { if (l.dataset.grp === g) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); if (NAV_LAST[l.dataset.grp]) l.setAttribute("href", NAV_LAST[l.dataset.grp]); });
     navBadges();
   }
   function navBadges() {
-    ["betr", "mark"].forEach(g => { const el = $("grpBadge" + g); if (!el) return; const n = [...document.querySelectorAll('nav.subs a[data-g="' + g + '"] .navbadge')].filter(b => !b.hidden); el.hidden = !n.length; el.textContent = n.length === 1 && /^\d+$/.test(n[0].textContent) ? n[0].textContent : "•"; });
+    ["heute", "verk"].forEach(g => { const el = $("grpBadge" + g); if (!el) return; const n = [...document.querySelectorAll('nav.subs a[data-g="' + g + '"] .navbadge')].filter(b => !b.hidden); el.hidden = !n.length; el.textContent = n.length === 1 && /^\d+$/.test(n[0].textContent) ? n[0].textContent : "•"; });
   }
   function ordBadge() {
     const el = $("ordBadge"); if (!el) return; const n = ORD.filter(ordOpen).length;
