@@ -5240,7 +5240,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     ad.busy = ""; renderAds();
   }
   // ---------- Marketing (Werbung + Content + Kalender + Kanäle) ----------
-  const MK_TABS = [["werbung", "Werbung"], ["content", "Content-Ideen"], ["kalender", "Kalender"], ["kanaele", "Kanäle & To-dos"]];
+  const MK_TABS = [["werbung", "Werbung"], ["content", "Content-Ideen"], ["kalender", "Kalender"]];
   let mk = { tab: "werbung", ch: "Instagram Reel", sku: "", out: "", busy: false, err: "", ctl: null, hint: "" };
   const mkData = () => { const m = (SHOP && SHOP.mkt) || {}; return { id: "mkt", ch: m.ch || {}, done: m.done || {}, saved: m.saved || [] }; };
   const mkSave = d => shopSave(d);
@@ -5251,7 +5251,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     if (mk.tab === "werbung") return renderAds();
     if (!SHOP) { shopLoad(); $("view").innerHTML = mkHead() + `<p class="note">Lade …</p>`; return; }
     const d = mkData();
-    $("view").innerHTML = mkHead() + { content: mkContent, kalender: mkCal, kanaele: mkChan }[mk.tab](d);
+    $("view").innerHTML = mkHead() + { content: mkContent, kalender: mkCal }[mk.tab || "content"](d);
   }
   const MK_CH = ["Instagram Reel", "Instagram Post", "Pinterest Pin", "Facebook Post", "TikTok / Kurzvideo", "Google Unternehmensprofil", "Newsletter", "Etsy Shop-Update"];
   function mkContent(d) {
@@ -5356,7 +5356,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   }
   document.addEventListener("click", e => {
     if (view !== "werbung") return; const t = e.target.closest && e.target.closest("[data-mktab],[data-mk]"); if (!t) return;
-    if (t.dataset.mktab) { mk.tab = t.dataset.mktab; return renderMkt(); }
+    if (t.dataset.mktab) { mk.tab = t.dataset.mktab === "kanaele" ? "werbung" : t.dataset.mktab; return renderMkt(); }
     const [k, val] = [t.dataset.mk.split(":")[0], t.dataset.mk.split(":").slice(1).join(":")];
     if (k === "ask") return mkAsk();
     if (k === "stop") { mk.ctl && mk.ctl.abort(); return; }
