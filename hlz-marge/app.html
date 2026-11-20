@@ -4871,11 +4871,14 @@ Antworte NUR mit JSON in dieser Form:
   }
   const webScore = I => Math.max(0, 100 - I.filter(x => !x.ok).reduce((n, x) => n + x.w, 0));
   const shopTabs = () => `<div class="seg" aria-label="Bereich" style="margin:4px 0 12px">${[["start", "Übersicht"], ["stat", "Statistik"], ["web", "Webshop"], ["shopify", "Shopify-Artikel"], ["etsy", "Etsy-Artikel"]].map(([k, l]) => `<button type="button" data-shop="tab-${k}" aria-pressed="${shopSt.tab === k}">${l}</button>`).join("")}</div>`;
+  let shopAutoTried = false;
   function renderShop() {
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Shop-Check</h1><p class="note">Lade …</p>`; return; }
     if (shopSt.tab === "stat") return renderVisit();
     if (shopSt.tab !== "start" && shopSt.tab !== "web") return renderShopList();
     const E = SHOP.etsy, SA = SHOP.sales, SF = SHOP.shopify, W = SHOP.web, dstr = x => x ? dDE(x.slice(0, 10)) : "";
+    // Webshop-Check veraltet (älter als 6 Std.): einmal pro Sitzung automatisch neu prüfen, nur lesend
+    if (W && !shopSt.busy && !shopAutoTried && Date.now() - new Date(W.at).getTime() > 6 * 36e5) { shopAutoTried = true; setTimeout(() => { if (view === "shopcheck" && !shopSt.busy) webCheck(); }, 300); }
     const WI = W ? webAudit(W) : [], wBad = WI.filter(x => !x.ok).sort((a, b) => b.w - a.w), wScore = W ? webScore(WI) : null;
     const rE = E ? shopRows("etsy") : [], rS = SF ? shopRows("shopify") : [], avg = r => r.length ? Math.round(r.reduce((s, x) => s + x.score, 0) / r.length) : null, aE = avg(rE), aS = avg(rS);
     const sc = (l, n, sub, tab) => `<div class="tile${n !== null ? "" : " empty"}"><span class="label">${l}</span><span class="num" style="color:var(--${n === null ? "muted" : amp(n)[0]})">${n === null ? "–" : n + " / 100"}</span><span class="note">${sub}</span><button type="button" class="btn" data-shop="tab-${tab}" style="margin-top:6px">Öffnen</button></div>`;
