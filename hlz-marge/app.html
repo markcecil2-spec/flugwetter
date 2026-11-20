@@ -1040,7 +1040,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     // neuer Artikel, in den nichts eingetragen wurde: wieder weg
     if (draft && draft.isNew) A = A.filter(x => x.id !== draft.id);
     curHash = location.hash; draft = null; draftS = null; renames = [];
-    const h = location.hash.replace(/^#/, "") || "uebersicht";
+    let h = location.hash.replace(/^#/, "") || "uebersicht";
+    if (h === "suche") { mk.tab = "reichweite"; h = "werbung"; }
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele", "verk", "zahl", "daten", "sortiment"].includes(h) ? h : "uebersicht";
     const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
@@ -1077,7 +1078,6 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "neu") renderNeu();
     else if (view === "kanaele") renderKanaele();
     else if (view === "verk" || view === "zahl" || view === "daten") renderGrp(view);
-    else if (view === "suche") renderSuche();
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
     else if (view === "entwicklung") renderStats();
@@ -5259,14 +5259,9 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   function mkHead() {
     return `<h1>Marketing</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap;margin-bottom:14px">${MK_TABS.map(([k, l]) => `<button type="button" data-mktab="${k}" aria-pressed="${mk.tab === k}">${l}</button>`).join("")}</div>`;
   }
-  function mkReach() {
-    const sc = S.sc && S.sc.dates && S.sc.dates.length ? S.sc : null; let scBox = "";
-    if (sc) { const d = sc.dates, e = d[d.length - 1].k, t = new Date(e + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() - 29); const a = t.toISOString().slice(0, 10), x = d.filter(r => r.k >= a); scBox = `<section class="box"><h2 style="margin-top:0">Google-Suche <span class="note" style="font-weight:400">· letzte 30 Tage bis ${e.split("-").reverse().join(".")}</span></h2><div style="display:flex;gap:26px;flex-wrap:wrap"><div><div class="note">Klicks</div><strong style="font-size:22px">${x.reduce((n, r) => n + r.c, 0).toLocaleString("de-DE")}</strong></div><div><div class="note">Impressionen</div><strong style="font-size:22px">${x.reduce((n, r) => n + r.i, 0).toLocaleString("de-DE")}</strong></div></div><p class="note" style="margin-bottom:0">Einzelne Suchbegriffe und Seiten: <a href="#suche">Suchbegriffe →</a></p></section>`; }
-    const pin = pinBox();
-    return `${pin}${scBox}${pin || scBox ? "" : `<section class="box"><p class="note" style="margin:0">Noch keine Auswertungen. Lade Statistik-Dateien unter <a href="#kanaele">Kanäle</a> hoch (Pinterest, Search Console), dann erscheinen sie hier.</p></section>`}<p class="note">Hochgeladen wird immer unter <a href="#kanaele">Kanäle</a>, ausgewertet wird hier.</p>`;
-  }
+  function mkReach() { return `${pinBox()}${scPage()}`; }
   function renderMkt() {
-    if (mk.tab === "reichweite") return void ($("view").innerHTML = mkHead() + mkReach());
+    if (mk.tab === "reichweite") { if (!SHOP) shopLoad(); return void ($("view").innerHTML = mkHead() + mkReach()); }
     if (mk.tab === "werbung") return renderAds();
     if (!SHOP) { shopLoad(); $("view").innerHTML = mkHead() + `<p class="note">Lade …</p>`; return; }
     const d = mkData();
@@ -6551,7 +6546,9 @@ Claude:`;
     return `<section class="box"><h2>Änderungs-Protokoll</h2><p class="note">Was du über „Verbessern" geändert hast. „Jetzt" sind die Zahlen deines zuletzt hochgeladenen Search-Console-Exports. Aussagekräftig erst nach ca. 4 Wochen und einem neuen Upload. Auch dann können Saison und Zufall mitspielen.</p>
       <div class="tablewrap"><table><thead><tr><th>Datum</th><th>Produkt</th><th>Geändert</th><th class="r">Klickrate damals → jetzt</th><th class="r">Klicks (12 Mon.) damals → jetzt</th></tr></thead><tbody>${L.map(x => { const n = cur[x.h], days = Math.round((Date.now() - new Date(x.at)) / 864e5), up = d.at > x.at ? new Date(d.at) - new Date(x.at) > 27 * 864e5 : false; return `<tr><td>${esc(new Date(x.at).toLocaleDateString("de-DE"))}<div class="note">vor ${days} Tagen</div></td><td title="Vorher: ${esc(x.old.titel)}">${esc(String(x.neu.titel).slice(0, 44))}</td><td>${esc(x.what.join(", "))}</td><td class="r num">${x.m.t.toFixed(1).replace(".", ",")} % → ${n && up ? (n.i ? (n.c / n.i * 100).toFixed(1).replace(".", ",") + " %" : "–") : `<span class="note">noch kein neuer Upload</span>`}</td><td class="r num">${x.m.c} → ${n && up ? n.c : `<span class="note">–</span>`}</td></tr>`; }).join("")}</tbody></table></div></section>`;
   }
-  function renderSuche() {
+  function renderSuche() { $("view").innerHTML = ""; renderMkt(); }
+  const scOn = () => view === "werbung" && mk.tab === "reichweite";
+  function scPage() {
     if (!SHOP) shopLoad();
     const d = SC(), n0 = (x, k = 0) => Number(x || 0).toLocaleString("de-DE", { minimumFractionDigits: k, maximumFractionDigits: k });
     let body = "";
@@ -6582,7 +6579,7 @@ Claude:`;
         <div class="tablewrap"><table>${th("Suchbegriff (" + fq.length + ")")}<tbody>${fq.slice(0, scUi.more).map(tr).join("") || `<tr><td colspan="5" class="note">Nichts gefunden.</td></tr>`}</tbody></table></div>
         ${fq.length > scUi.more ? `<button type="button" class="btn" data-sc="more">Mehr anzeigen</button>` : ""}</section>` : `<section class="box"><h2>Suchbegriffe fehlen noch</h2><p class="note">In deiner Datei waren keine einzelnen Suchbegriffe. In der Search Console unter Leistung nach unten scrollen, den Reiter <strong>Suchanfragen</strong> anklicken und dort nochmal exportieren. Oder die komplette ZIP von oben nehmen und hier hochladen.</p></section>`}`;
     }
-    $("view").innerHTML = `<div class="row"><h1>Suchbegriffe</h1></div>
+    return `<div class="row"><h2>Suchbegriffe (Google)</h2></div>
       <p class="note">Hier siehst du, mit welchen Begriffen Leute bei Google auf deinen Shop kommen. Daten kommen aus der Google Search Console, einmal im Monat neu hochladen reicht.</p>
       <section class="box"><h2>Daten hochladen</h2>
         <ol class="note" style="margin:0 0 10px 18px;padding:0"><li>search.google.com/search-console öffnen, deine Seite wählen, links auf <strong>Leistung</strong>.</li><li>Oben Zeitraum wählen (z. B. 3 Monate), dann <strong>Exportieren → CSV herunterladen</strong>.</li><li>Die heruntergeladene Datei (ZIP oder CSV) hier hochladen. Du kannst die ZIP-Datei direkt nehmen.</li></ol>
@@ -6590,10 +6587,10 @@ Claude:`;
         ${d ? ` <button type="button" class="btn danger" data-sc="del">Daten entfernen</button>` : ""}
         ${scUi.msg ? `<p class="note" style="margin:8px 0 0;color:var(--${/^✓/.test(scUi.msg) ? "good" : "bad"})">${esc(scUi.msg)}</p>` : ""}</section>${body}`;
   }
-  document.addEventListener("change", e => { if (view === "suche" && e.target && e.target.id === "scFile") scLoad([...e.target.files]); if (view === "suche" && e.target && e.target.dataset && e.target.dataset.sck && scUi.imp) scUi.imp.sel[e.target.dataset.sck] = e.target.checked; });
-  document.addEventListener("input", e => { const t = e.target; if (view !== "suche" || !t || !t.dataset || !t.dataset.sci || !scUi.imp || !scUi.imp.res) return; const k = t.dataset.sci; scUi.imp.res[k] = t.value; const c = $("sccnt-" + k); if (c && c.textContent.includes("/")) c.textContent = t.value.length + "/" + c.textContent.split("/")[1]; scUi.imp.ask = false; });
-  document.addEventListener("input", e => { if (view === "suche" && e.target && e.target.id === "scQ") { scUi.q = e.target.value; scUi.more = 40; const p = e.target.selectionStart; renderSuche(); const el = $("scQ"); if (el) { el.focus(); try { el.setSelectionRange(p, p); } catch (er) { /* egal */ } } } });
-  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-sc]"); if (!b || view !== "suche") return; if (b.dataset.sc === "more") { scUi.more += 60; return renderSuche(); }
+  document.addEventListener("change", e => { if (scOn() && e.target && e.target.id === "scFile") scLoad([...e.target.files]); if (scOn() && e.target && e.target.dataset && e.target.dataset.sck && scUi.imp) scUi.imp.sel[e.target.dataset.sck] = e.target.checked; });
+  document.addEventListener("input", e => { const t = e.target; if (!scOn() || !t || !t.dataset || !t.dataset.sci || !scUi.imp || !scUi.imp.res) return; const k = t.dataset.sci; scUi.imp.res[k] = t.value; const c = $("sccnt-" + k); if (c && c.textContent.includes("/")) c.textContent = t.value.length + "/" + c.textContent.split("/")[1]; scUi.imp.ask = false; });
+  document.addEventListener("input", e => { if (scOn() && e.target && e.target.id === "scQ") { scUi.q = e.target.value; scUi.more = 40; const p = e.target.selectionStart; renderSuche(); const el = $("scQ"); if (el) { el.focus(); try { el.setSelectionRange(p, p); } catch (er) { /* egal */ } } } });
+  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-sc]"); if (!b || !scOn()) return; if (b.dataset.sc === "more") { scUi.more += 60; return renderSuche(); }
     const keep = window.scrollY, rr = () => { renderSuche(); window.scrollTo(0, keep); };
     if (b.dataset.sc.startsWith("imp:")) return scImpStart(b.dataset.sc.slice(4));
     if (b.dataset.sc === "impx") { scUi.imp = null; return rr(); }
@@ -6773,7 +6770,7 @@ Claude:`;
     ueb: ["Übersicht", []],
     art: ["Artikel", [["sortiment", "Alle Artikel"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"]]],
     shop: ["Shop-Check", [["shopcheck", "Shop-Check"], ["gravuren", "Gravur-Test"]]],
-    mkt: ["Marketing", [["werbung", "Marketing"], ["suche", "Suchbegriffe"]]], kan: ["Kanäle", [["kanaele", "Kanäle"]]],
+    mkt: ["Marketing", [["werbung", "Marketing"]]], kan: ["Kanäle", [["kanaele", "Kanäle"]]],
     prod: ["Produktion", [["produktion", "Produktion"]]], sup: ["Support", [["support", "Support"]]],
     preis: ["Preise & Marge", [["preise", "Preise"]]], ausw: ["Auswertung", [["auswertung", "Auswertung"]]],
     buch: ["Buchhaltung", [["buchhaltung", "Buchhaltung"], ["finanzen", "Finanzen"]]],
