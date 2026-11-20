@@ -458,7 +458,6 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#preise" data-tab="preise" data-g="kalk">Preise</a>
       <a href="#auswertung" data-tab="auswertung" data-g="kalk">Auswertung</a>
       <a href="#einstellungen" data-tab="einstellungen" data-g="kalk">Einstellungen</a>
-      <a href="#bestellungen" data-tab="bestellungen" data-g="betr">Bestellungen<span class="navbadge" id="ordBadge" hidden></span></a>
       <a href="#produktion" data-tab="produktion" data-g="betr">Produktion</a>
       <a href="#neu" data-tab="neu" data-g="betr">Produkte hinzufügen</a>
       <a href="#support" data-tab="support" data-g="betr">Support</a>
@@ -6474,7 +6473,6 @@ Claude:`;
   const KAN = [
     ["Verkauf", [
       ["shopify", "Shopify: Produkte & Verkäufe", "api", "m", "Holt Produkte und Verkäufe (12 Monate) live aus Shopify.", "shop"],
-      ["ords", "Bestellungen (Shopify, Billbee, Etsy-Mails)", "api", "w", "Abgleich im Tab Bestellungen: Shopify, Billbee-Stand, Etsy-Mails aus Gmail.", "ord"],
       ["etsy", "Etsy: Statistik & Angebote", "up", "m", "CSV-Export aus dem Etsy-Shop-Manager (Statistik, Angebote, Zahlungen).", ""],
       ["kleinanz", "Kleinanzeigen", "up", "-", "Nur manuell. Antworten laufen über den Kleinanzeigen-Skill.", ""],
       ["amazon", "Amazon Handmade", "up", "-", "Nicht aufgebaut.", ""],
@@ -6502,7 +6500,7 @@ Claude:`;
       ["paypal", "PayPal: Kontoauszug", "up", "m", "CSV-Export für die Buchhaltung.", ""],
       ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export, Import im Tab Finanzen.", ""]]]
   ];
-  const KLINK = { shopify: "shopcheck", ords: "bestellungen", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", billbee: "bestellungen", lexware: "buchhaltung", paypal: "buchhaltung", bank: "finanzen" };
+  const KLINK = { shopify: "shopcheck", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", lexware: "buchhaltung", paypal: "buchhaltung", bank: "finanzen" };
   const kanUi = { add: false, msg: "" };
   const kanAll = () => KAN.flatMap(g => g[1].map(x => ({ id: x[0], name: x[1], type: x[2], rh: x[3], note: x[4], act: x[5], g: g[0] }))).concat((S.kanX || []).map(x => ({ id: x.id, name: x.name, type: "up", rh: "m", note: "", act: "", g: "Eigene", own: true })));
   const kanO = id => (S.kan || {})[id] || {};
