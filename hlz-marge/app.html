@@ -5253,14 +5253,21 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     ad.busy = ""; renderAds();
   }
   // ---------- Marketing (Werbung + Content + Kalender + Kanäle) ----------
-  const MK_TABS = [["werbung", "Werbung"], ["content", "Content-Ideen"], ["kalender", "Kalender"]];
-  let mk = { tab: "werbung", ch: "Instagram Reel", sku: "", out: "", busy: false, err: "", ctl: null, hint: "" };
+  const MK_TABS = [["reichweite", "Reichweite"], ["werbung", "Werbung"], ["content", "Content-Ideen"], ["kalender", "Kalender"]];
+  let mk = { tab: "reichweite", ch: "Instagram Reel", sku: "", out: "", busy: false, err: "", ctl: null, hint: "" };
   const mkData = () => { const m = (SHOP && SHOP.mkt) || {}; return { id: "mkt", ch: m.ch || {}, done: m.done || {}, saved: m.saved || [] }; };
   const mkSave = d => shopSave(d);
   function mkHead() {
     return `<h1>Marketing</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap;margin-bottom:14px">${MK_TABS.map(([k, l]) => `<button type="button" data-mktab="${k}" aria-pressed="${mk.tab === k}">${l}</button>`).join("")}</div>`;
   }
+  function mkReach() {
+    const sc = S.sc && S.sc.dates && S.sc.dates.length ? S.sc : null; let scBox = "";
+    if (sc) { const d = sc.dates, e = d[d.length - 1].k, t = new Date(e + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() - 29); const a = t.toISOString().slice(0, 10), x = d.filter(r => r.k >= a); scBox = `<section class="box"><h2 style="margin-top:0">Google-Suche <span class="note" style="font-weight:400">· letzte 30 Tage bis ${e.split("-").reverse().join(".")}</span></h2><div style="display:flex;gap:26px;flex-wrap:wrap"><div><div class="note">Klicks</div><strong style="font-size:22px">${x.reduce((n, r) => n + r.c, 0).toLocaleString("de-DE")}</strong></div><div><div class="note">Impressionen</div><strong style="font-size:22px">${x.reduce((n, r) => n + r.i, 0).toLocaleString("de-DE")}</strong></div></div><p class="note" style="margin-bottom:0">Einzelne Suchbegriffe und Seiten: <a href="#suche">Suchbegriffe →</a></p></section>`; }
+    const pin = pinBox();
+    return `${pin}${scBox}${pin || scBox ? "" : `<section class="box"><p class="note" style="margin:0">Noch keine Auswertungen. Lade Statistik-Dateien unter <a href="#kanaele">Kanäle</a> hoch (Pinterest, Search Console), dann erscheinen sie hier.</p></section>`}<p class="note">Hochgeladen wird immer unter <a href="#kanaele">Kanäle</a>, ausgewertet wird hier.</p>`;
+  }
   function renderMkt() {
+    if (mk.tab === "reichweite") return void ($("view").innerHTML = mkHead() + mkReach());
     if (mk.tab === "werbung") return renderAds();
     if (!SHOP) { shopLoad(); $("view").innerHTML = mkHead() + `<p class="note">Lade …</p>`; return; }
     const d = mkData();
@@ -6628,7 +6635,7 @@ Claude:`;
       ["paypal", "PayPal: Kontoauszug", "up", "m", "CSV-Export für die Buchhaltung.", ""],
       ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export, Import im Tab Finanzen.", ""]]]
   ];
-  const KLINK = { shopify: "shopcheck", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", lexware: "buchhaltung", paypal: "buchhaltung", bank: "finanzen" };
+  const KLINK = { shopify: "shopcheck", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", yt: "werbung", tiktok: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", lexware: "buchhaltung", paypal: "buchhaltung", bank: "finanzen" };
   const kanUi = { add: false, msg: "" };
   const kanAll = () => KAN.flatMap(g => g[1].map(x => ({ id: x[0], name: x[1], type: x[2], rh: x[3], note: x[4], act: x[5], g: g[0] }))).concat((S.kanX || []).map(x => ({ id: x.id, name: x.name, type: "up", rh: "m", note: "", act: "", g: "Eigene", own: true })));
   const kanO = id => (S.kan || {})[id] || {};
@@ -6666,7 +6673,7 @@ Claude:`;
         <td><select data-kan="rh:${esc(c.id)}">${Object.keys(KRH).map(k => `<option value="${k}"${k === a[2] ? " selected" : ""}>${KRH[k][0]}</option>`).join("")}</select></td>
         <td style="white-space:normal;min-width:180px">${act}</td>
         <td style="white-space:normal;min-width:220px"><input type="text" data-kan="note:${esc(c.id)}" value="${esc(o.note != null ? o.note : c.note)}" style="width:100%" placeholder="Notiz …"></td>
-        <td style="white-space:nowrap">${KLINK[c.id] ? `<a class="btn" style="padding:4px 10px" href="#${KLINK[c.id]}">Zu den Daten →</a>` : `<span class="note">–</span>`}</td>
+        <td style="white-space:nowrap">${KLINK[c.id] ? `<a class="btn" style="padding:4px 10px" href="#${KLINK[c.id]}" ${KLINK[c.id] === "werbung" ? ` data-mkt="${["gads", "meta", "pads", "eads"].includes(c.id) ? "werbung" : "reichweite"}"` : ""}>Zu den Daten →</a>` : `<span class="note">–</span>`}</td>
         <td>${c.own ? `<button type="button" class="btn" style="padding:4px 8px" data-kan="del:${esc(c.id)}" title="Kanal entfernen">✕</button>` : ""}</td></tr>`;
     }).join("")}</tbody></table></div></section>`).join("");
     $("view").innerHTML = `<div class="row"><h1>Kanäle</h1></div>
@@ -6675,7 +6682,7 @@ Claude:`;
         <button type="button" class="btn" data-kan="addopen" style="margin-left:auto">+ Eigener Kanal</button></div>
         ${kanUi.add ? `<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="kanNew" placeholder="Name des Kanals" style="flex:1;min-width:200px"><button type="button" class="btn primary" data-kan="addok">Hinzufügen</button></div>` : ""}
         ${kanUi.msg ? `<div class="note" style="margin-top:8px">${esc(kanUi.msg)}</div>` : ""}
-        <div class="note" style="margin-top:8px"><strong>Aktualisieren</strong> = Kanäle mit Live-Anbindung (springt in den Tab und startet den Abgleich). <strong>CSV hochladen</strong> = alle ohne API. Grün bis 5 Tage vor Fälligkeit, Gelb davor, Rot wenn überfällig (monatlich = 31 Tage, wöchentlich = 7). „Nicht nötig“ blendet einen Kanal aus der Ampel aus. Der Upload hier merkt sich nur Datei und Datum, ausgewertet wird er bisher bei Search Console und Pinterest.</div></section>${pinBox()}${rows}`;
+        <div class="note" style="margin-top:8px"><strong>Aktualisieren</strong> = Kanäle mit Live-Anbindung (springt in den Tab und startet den Abgleich). <strong>CSV hochladen</strong> = alle ohne API. Grün bis 5 Tage vor Fälligkeit, Gelb davor, Rot wenn überfällig (monatlich = 31 Tage, wöchentlich = 7). „Nicht nötig“ blendet einen Kanal aus der Ampel aus. Der Upload hier merkt sich nur Datei und Datum, ausgewertet wird er bisher bei Search Console und Pinterest.</div></section>${rows}`;
   }
   // Pinterest-Statistik (Analytics-overview-CSV: Kopfblock, dann Date,Impressions[,weitere Spalten])
   function pinParse(text) {
@@ -6710,6 +6717,7 @@ Claude:`;
       <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;height:auto" role="img" aria-label="Pinterest-Aufrufe pro Monat">${bars}</svg>
       <div class="note">Hell = laufender Monat (noch nicht komplett). Impressionen = wie oft deine Pins angezeigt wurden, nicht geklickt.</div></section>`;
   }
+  document.addEventListener("click", e => { const l = e.target.closest && e.target.closest("a[data-mkt]"); if (l) mk.tab = l.dataset.mkt; });
   document.addEventListener("change", async e => {
     const t = e.target; if (view !== "kanaele" || !t || !t.dataset || !t.dataset.kan) return; const [a, id] = t.dataset.kan.split(":");
     if (a === "rh") { kanSet(id, { rh: t.value }); return renderKanaele(); }
