@@ -244,6 +244,7 @@ nav.subs a[hidden] { display: none }
 @media (max-width: 1100px) { .hkpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } .dgrid, .dgrid.even { grid-template-columns: minmax(0, 1fr) } }
 @media (max-width: 480px) { .hkpis { grid-template-columns: minmax(0, 1fr) } }
 nav.flat { display: flex; flex-direction: column; gap: 2px }
+.sh { margin: 14px 12px 4px; color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase }
 .sl { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: var(--fg); font: 600 .98rem var(--font-body) }
 .sl:hover { background: var(--accent-soft) } .sl[aria-current=page] { background: var(--accent); color: var(--on-accent) } .sl .navbadge { margin-left: auto }
 .verkbar { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line) }
@@ -501,11 +502,22 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <div class="navwrap" id="navwrap">
       <nav class="flat" aria-label="Hauptmenü">
         <a class="sl" href="#uebersicht" data-tab="uebersicht" data-sec="ueb"><i class="ic" data-ico="grid"></i><span>Übersicht</span></a>
-        <a class="sl" href="#verk" data-tab="verk" data-sec="sort"><i class="ic" data-ico="box"></i><span>Sortiment</span><span class="navbadge" id="ideaBadge" hidden></span></a>
-        <a class="sl" href="#kanaele" data-tab="kanaele" data-sec="kan"><i class="ic" data-ico="shop"></i><span>Verkaufskanäle</span></a>
+        <div class="sh">Verkaufen</div>
+        <a class="sl" href="#sortiment" data-tab="sortiment" data-sec="art"><i class="ic" data-ico="box"></i><span>Artikel</span><span class="navbadge" id="ideaBadge" hidden></span></a>
+        <a class="sl" href="#shopcheck" data-tab="shopcheck" data-sec="shop"><i class="ic" data-ico="bag"></i><span>Shop-Check</span></a>
+        <a class="sl" href="#suche" data-tab="suche" data-sec="suche"><i class="ic" data-ico="search"></i><span>Suchbegriffe</span></a>
+        <a class="sl" href="#werbung" data-tab="werbung" data-sec="mkt"><i class="ic" data-ico="send"></i><span>Marketing</span></a>
+        <a class="sl" href="#kanaele" data-tab="kanaele" data-sec="kan"><i class="ic" data-ico="link"></i><span>Kanäle</span></a>
+        <div class="sh">Betrieb</div>
         <a class="sl" href="#produktion" data-tab="produktion" data-sec="prod"><i class="ic" data-ico="wrench"></i><span>Produktion</span></a>
-        <a class="sl" href="#zahl" data-tab="zahl" data-sec="fin"><i class="ic" data-ico="card"></i><span>Finanzen</span></a>
-        <a class="sl" href="#daten" data-tab="daten" data-sec="dat"><i class="ic" data-ico="db"></i><span>Daten &amp; Einstellungen</span></a>
+        <a class="sl" href="#support" data-tab="support" data-sec="sup"><i class="ic" data-ico="headset"></i><span>Support</span></a>
+        <div class="sh">Zahlen</div>
+        <a class="sl" href="#preise" data-tab="preise" data-sec="preis"><i class="ic" data-ico="percent"></i><span>Preise &amp; Marge</span></a>
+        <a class="sl" href="#auswertung" data-tab="auswertung" data-sec="ausw"><i class="ic" data-ico="trend"></i><span>Auswertung</span></a>
+        <a class="sl" href="#buchhaltung" data-tab="buchhaltung" data-sec="buch"><i class="ic" data-ico="book"></i><span>Buchhaltung</span></a>
+        <div class="sh">System</div>
+        <a class="sl" href="#dokumente" data-tab="dokumente" data-sec="dok"><i class="ic" data-ico="folder"></i><span>Dokumente</span></a>
+        <a class="sl" href="#einstellungen" data-tab="einstellungen" data-sec="set"><i class="ic" data-ico="sliders"></i><span>Einstellungen</span></a>
       </nav>
     </div>
   </div>
@@ -2674,6 +2686,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       <h1 style="margin:0">Übersicht</h1>
       ${homeDash()}
       ${gtodoBox("heute")}
+      <details class="box"><summary>To-dos nach Bereich</summary><div style="display:grid;gap:12px;margin-top:12px">${gtodoBox("verk")}${gtodoBox("zahl")}${gtodoBox("daten")}</div></details>
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
       <details class="box"><summary>Alle Kennzahlen im Detail</summary><div class="tiles" style="margin-top:12px">
         <div class="tile hero"><span class="label">Ergebnis pro Monat${info(`Was im Monat übrig bleibt: Deckungsbeitrag minus Fixkosten. Deine Arbeitszeit ist schon mit ${eur(v(S.rate))}/h als Kosten abgezogen. Davon gehen noch Einkommensteuer und Krankenversicherung ab.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
@@ -6700,15 +6713,17 @@ Claude:`;
   // ---------- Hauptmenü: 6 Bereiche, innerhalb jedes Bereichs eine gemeinsame Leiste ----------
   const SECS = {
     ueb: ["Übersicht", []],
-    sort: ["Sortiment", [["verk", "Überblick"], ["sortiment", "Alle Artikel"], ["shopcheck", "Shop-Check"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"], ["gravuren", "Gravur-Test"], ["suche", "Suchbegriffe"]]],
-    kan: ["Verkaufskanäle", [["kanaele", "Kanäle & Abgleich"], ["werbung", "Marketing"]]],
-    prod: ["Produktion", [["produktion", "Produktion"], ["support", "Support"]]],
-    fin: ["Finanzen", [["zahl", "Überblick"], ["preise", "Preise"], ["auswertung", "Auswertung"], ["finanzen", "Finanzen"], ["buchhaltung", "Buchhaltung"]]],
-    dat: ["Daten & Einstellungen", [["daten", "Überblick"], ["dokumente", "Dokumente"], ["einstellungen", "Einstellungen"]]]
+    art: ["Artikel", [["sortiment", "Alle Artikel"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"]]],
+    shop: ["Shop-Check", [["shopcheck", "Shop-Check"], ["gravuren", "Gravur-Test"]]],
+    suche: ["Suchbegriffe", [["suche", "Suchbegriffe"]]], mkt: ["Marketing", [["werbung", "Marketing"]]], kan: ["Kanäle", [["kanaele", "Kanäle"]]],
+    prod: ["Produktion", [["produktion", "Produktion"]]], sup: ["Support", [["support", "Support"]]],
+    preis: ["Preise & Marge", [["preise", "Preise"]]], ausw: ["Auswertung", [["auswertung", "Auswertung"]]],
+    buch: ["Buchhaltung", [["buchhaltung", "Buchhaltung"], ["finanzen", "Finanzen"]]],
+    dok: ["Dokumente", [["dokumente", "Dokumente"]]], set: ["Einstellungen", [["einstellungen", "Einstellungen"]]]
   };
-  const SEC_EXTRA = { import: "dat", entwicklung: "fin", datencheck: "fin" };
+  const SEC_EXTRA = { import: "set", entwicklung: "ausw", datencheck: "ausw", verk: "art", zahl: "preis", daten: "set" };
   function secOf(vw) { if (SEC_EXTRA[vw]) return SEC_EXTRA[vw]; for (const k in SECS) if (SECS[k][1].some(([h]) => h === vw)) return k; return "ueb"; }
-  const secBar = () => { const k = secOf(view), it = SECS[k][1]; if (it.length < 2) return ""; return `<div class="verkbar"><div class="vg"><span class="label">${esc(SECS[k][0])}</span>${it.map(([h, l]) => `<a class="btn ${view === h || (h === "einstellungen" && view === "import") ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div></div>`; };
+  const secBar = () => { const k = secOf(view), it = SECS[k][1]; if (it.length < 2) return ""; return `<div class="verkbar"><div class="vg"><span class="label">${esc(SECS[k][0])}</span>${it.map(([h, l]) => `<a class="btn ${view === h || false ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div></div>`; };
   (() => { const v = document.getElementById("view"); if (!v) return; let busy = false; new MutationObserver(() => { if (busy) return; const h = v.firstElementChild; if (h && h.classList.contains("verkbar")) { if (h.dataset.v === view) return; h.remove(); } const html = secBar(); if (!html) return; busy = true; try { v.insertAdjacentHTML("afterbegin", html.replace('class="verkbar"', 'class="verkbar" data-v="' + view + '"')); } finally { busy = false; } }).observe(v, { childList: true }); })();
   function renderGrp(g) {
     const T = [], n0 = x => Number(x || 0).toLocaleString("de-DE"), td = todayISO();
