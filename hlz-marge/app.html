@@ -6351,6 +6351,71 @@ Claude:`;
       rows.push(r); });
     return { rows: rows.sort((a, b) => b.i - a.i), miss, hasSales: !!SA, at: SF.at };
   }
+  // ---- Produkt verbessern (Vorschläge von Claude, optional nach Shopify übernehmen)
+  const scStrip = h => String(h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  async function scImpStart(handle) {
+    const J = scJoin(SC()); const r = J && J.rows.find(x => x.handle === handle); const pr = SHOP.shopify.products.find(x => x.handle === handle); if (!r || !pr) return;
+    scUi.imp = { h: handle, r, id: pr.id, busy: "Hole das Produkt aus Shopify …", msg: "", cur: null, res: null, sel: { titel: true, seoT: true, meta: true, tags: false, beschr: false }, ask: false }; renderSuche();
+    const I = scUi.imp;
+    try {
+      const d = await shopify("graphql_query", { query: "query($id:ID!){ product(id:$id){ title descriptionHtml tags seo{ title description } } }", variables: { id: pr.id } });
+      if (!d.product) throw { message: "Produkt nicht gefunden." };
+      I.cur = { titel: d.product.title || "", seoT: d.product.seo && d.product.seo.title || "", meta: d.product.seo && d.product.seo.description || "", tags: d.product.tags || [], beschr: scStrip(d.product.descriptionHtml) };
+    } catch (e) { I.busy = ""; I.msg = (e && e.message && !e.code ? e.message : syncErr(e)); return renderSuche(); }
+    await scImpGen();
+  }
+  async function scImpGen() {
+    const I = scUi.imp, sample = await getSample(); if (!I) return; if (!sample) { I.busy = ""; I.msg = "Claude ist hier nicht verfügbar (nicht angemeldet?)."; return renderSuche(); }
+    I.busy = "Claude analysiert das Produkt …"; I.msg = ""; renderSuche();
+    const r = I.r, words = [...new Set(String(I.cur.titel + " " + I.h.replace(/-/g, " ")).toLowerCase().split(/[^a-zäöüß0-9]+/).filter(w => w.length >= 5))];
+    const qs = (SC().queries || []).filter(x => words.some(w => x.k.toLowerCase().includes(w))).sort((a, b) => b.i - a.i).slice(0, 15);
+    const prompt = `Du bist SEO- und Conversion-Experte für kleine deutsche Online-Shops. Verbessere die Produktseite eines Artikels im Shopify-Shop HLZLaden (handgefertigte Wohnaccessoires aus Eiche, teils mit Lasergravur, Versand aus Deutschland).\n\nAKTUELL\nTitel: ${I.cur.titel}\nSEO-Titel: ${I.cur.seoT || "(leer)"}\nMeta-Beschreibung: ${I.cur.meta || "(leer)"}\nTags: ${I.cur.tags.join(", ") || "(keine)"}\nBeschreibung (Text): ${I.cur.beschr.slice(0, 1800) || "(leer)"}\n\nGOOGLE-DATEN (12 Monate)\nImpressionen: ${r.i}, Klicks: ${r.c}, Klickrate: ${r.t.toFixed(1)} %, Ø Position: ${r.p.toFixed(1)}\nVerkäufe im Shop (12 Monate): ${r.v === null ? "unbekannt" : r.v}\nPassende Suchbegriffe (Begriff | Impressionen | Klicks | Position):\n${qs.map(x => `${x.k} | ${x.i} | ${x.c} | ${x.p.toFixed(1)}`).join("\n") || "(keine gefunden)"}\n\nAUFGABE: Schlage konkret vor, was geändert werden soll, damit mehr Google-Nutzer klicken und kaufen.\nRegeln:\n- Erfinde keine Eigenschaften, Maße, Materialien oder Pflegehinweise, die nicht in den aktuellen Texten stehen.\n- Keine Preise, keine Größen-/Varianten-Auswahl und keine Artikelnummern in den Texten.\n- Nutze die Suchbegriffe mit vielen Impressionen natürlich im Titel und in der Meta-Beschreibung, ohne Keyword-Stopfen.\n- Titel 60 bis 70 Zeichen, SEO-Titel höchstens 60, Meta-Beschreibung 120 bis 155 Zeichen mit Nutzen und Handlungsaufforderung.\n- Beschreibung: Klartext, kurze Absätze, Aufzählungen mit "- ", nur gesicherte Angaben. Behalte, was gut ist.\n- diagnose: 2 bis 3 ehrliche Sätze, woran es nach den Zahlen vermutlich liegt (z. B. Titel, Foto, Preis, Ranking).\n- fotoTipps: 3 konkrete Tipps für Hauptbild/Fotos, damit der Google-Eintrag mehr Klicks bekommt.\n- weitere: bis zu 3 weitere konkrete Maßnahmen (z. B. interne Verlinkung, Kategorie, Bewertungen).\nAntworte NUR mit JSON: {"diagnose":"","titel":"","seoTitel":"","meta":"","tags":[""],"beschreibung":"","fotoTipps":[""],"weitere":[""]}`;
+    try {
+      let o = await sample.json(prompt, { modelTier: "default", cache: false }); if (typeof o === "string") o = JSON.parse(o.slice(o.indexOf("{"), o.lastIndexOf("}") + 1));
+      if (!o || !o.titel) throw { code: "invalid_json" };
+      I.res = { diagnose: String(o.diagnose || ""), titel: seoCut(o.titel, 70), seoT: seoCut(o.seoTitel || o.titel, 60), meta: seoCut(o.meta, 155), tags: [...new Set((Array.isArray(o.tags) ? o.tags : []).map(x => String(x).trim().toLowerCase()).filter(Boolean))].slice(0, 12).join(", "), beschr: String(o.beschreibung || "").trim(), foto: (o.fotoTipps || []).map(String), weitere: (o.weitere || []).map(String) };
+      I.busy = "";
+    } catch (e) { I.busy = ""; I.msg = e && e.code === "invalid_json" ? "Die Antwort kam unvollständig an, bitte nochmal versuchen." : supErr(e); }
+    renderSuche();
+  }
+  async function scImpApply() {
+    const I = scUi.imp; if (!I || !I.res || !I.cur) return; const f = I.res, c = I.cur, inp = { id: I.id }, ch = [];
+    if (I.sel.titel && f.titel.trim() && f.titel !== c.titel) { inp.title = f.titel.trim(); ch.push("Titel"); }
+    const seo = {}; if (I.sel.seoT && f.seoT.trim() && f.seoT !== c.seoT) { seo.title = f.seoT.trim(); ch.push("SEO-Titel"); } if (I.sel.meta && f.meta.trim() && f.meta !== c.meta) { seo.description = f.meta.trim(); ch.push("Meta"); } if (ch.some(x => x !== "Titel")) inp.seo = seo;
+    if (I.sel.tags) { const nt = f.tags.split(",").map(x => x.trim()).filter(Boolean), all = [...new Set([...c.tags, ...nt])]; if (all.length !== c.tags.length) { inp.tags = all; ch.push("Tags"); } }
+    if (I.sel.beschr && f.beschr.trim()) { inp.descriptionHtml = neuHtml(f.beschr); ch.push("Beschreibung"); }
+    if (!ch.length) { I.msg = "Es gibt nichts zu übernehmen (nichts angehakt oder nichts geändert)."; I.ask = false; return renderSuche(); }
+    I.busy = "Schreibe nach Shopify …"; I.ask = false; I.msg = ""; renderSuche();
+    try {
+      const d = await shopify("graphql_mutation", { query: "mutation($p:ProductUpdateInput!){ productUpdate(product:$p){ product{ id title } userErrors{ field message } } }", variables: { p: inp } });
+      const u = d.productUpdate; if (!u || (u.userErrors || []).length) throw { message: "Shopify meldet: " + ((u && u.userErrors || []).map(e => e.message).join(", ") || "unbekannter Fehler") };
+      (S.chg = S.chg || []).push({ id: uid(), pid: I.id, h: I.h, name: c.titel, at: new Date().toISOString(), what: ch, old: { titel: c.titel, seoT: c.seoT, meta: c.meta }, neu: { titel: inp.title || c.titel, seoT: (inp.seo && inp.seo.title) || c.seoT, meta: (inp.seo && inp.seo.description) || c.meta }, m: { i: I.r.i, c: I.r.c, t: I.r.t, p: I.r.p, v: I.r.v } });
+      const pr = SHOP.shopify.products.find(x => x.id === I.id); if (pr) { if (inp.title) pr.title = inp.title; if (inp.seo && inp.seo.title) pr.seoT = inp.seo.title; if (inp.seo && inp.seo.description) pr.seoD = inp.seo.description; shopSave(SHOP.shopify); }
+      saveSettings(); I.msg = "✓ In Shopify übernommen: " + ch.join(", ") + ". Die Adresse des Produkts bleibt gleich. Ob es hilft, siehst du unten im Änderungs-Protokoll nach einem neuen Search-Console-Upload in ca. 4 Wochen.";
+      I.res = null; I.cur = null;
+    } catch (e) { I.msg = (e && e.message && !e.code ? e.message : syncErr(e)); }
+    I.busy = ""; renderSuche();
+  }
+  function scImpPanel() {
+    const I = scUi.imp; if (!I) return ""; const f = I.res, c = I.cur, ck = k => `<input type="checkbox" data-sck="${k}" ${I.sel[k] ? "checked" : ""}>`;
+    const fld = (k, lab, cur, max, area) => `<div style="margin:10px 0"><label style="display:flex;gap:8px;align-items:center;font-weight:600">${ck(k)} ${lab} <span class="note" id="sccnt-${k}">${max ? f[k].length + "/" + max : ""}</span></label><div class="note" style="margin:2px 0 4px">Jetzt: ${esc(cur) || "(leer)"}</div>${area ? `<textarea data-sci="${k}" rows="${k === "beschr" ? 9 : 3}" style="width:100%">${esc(f[k])}</textarea>` : `<input type="text" data-sci="${k}" value="${esc(f[k])}" style="width:100%">`}</div>`;
+    return `<div class="box" style="margin-top:14px;border-color:var(--good)"><div class="row"><h3 style="margin:0">Produkt verbessern: ${esc(String((c && c.titel) || I.r.title).slice(0, 60))}</h3><button type="button" class="btn" data-sc="impx">Schließen</button></div>
+      <p class="note" style="margin:4px 0">Google: ${n0g(I.r.i)} Impressionen, ${n0g(I.r.c)} Klicks, ${I.r.t.toFixed(1).replace(".", ",")} % Klickrate, Position ${I.r.p.toFixed(1).replace(".", ",")}${I.r.v !== null ? `, ${I.r.v} Verkäufe` : ""}</p>
+      ${I.busy ? `<p class="note">${esc(I.busy)}</p>` : ""}${I.msg ? `<p class="note" style="color:var(--${/^✓/.test(I.msg) ? "good" : "bad"});font-weight:600">${esc(I.msg)}</p>` : ""}
+      ${f && c ? `<p><strong>Einschätzung:</strong> ${esc(f.diagnose)}</p>
+        ${fld("titel", "Produkttitel", c.titel, 70)}${fld("seoT", "SEO-Titel", c.seoT, 60)}${fld("meta", "Meta-Beschreibung", c.meta, 155, true)}
+        ${fld("tags", "Tags (werden zu den bestehenden hinzugefügt)", c.tags.join(", "), 0)}${fld("beschr", "Beschreibung (ersetzt die bisherige)", c.beschr.slice(0, 200) + (c.beschr.length > 200 ? " …" : ""), 0, true)}
+        ${f.foto.length ? `<h4 style="margin:12px 0 4px">Foto-Tipps (machst du selbst)</h4><ul style="margin:0 0 0 18px">${f.foto.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}${f.weitere.length ? `<h4 style="margin:12px 0 4px">Weitere Maßnahmen</h4><ul style="margin:0 0 0 18px">${f.weitere.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}
+        <div class="btns" style="margin-top:12px">${I.ask ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-sc="impok" title="Ja, live ändern">✓ Ja, in Shopify ändern</button><button type="button" class="btn" data-sc="impno" title="Abbrechen">✕</button></span>` : `<button type="button" class="btn primary" data-sc="imps" ${I.busy ? "disabled" : ""}>Angehakte Änderungen in Shopify übernehmen</button>`}<button type="button" class="btn" data-sc="impr" ${I.busy ? "disabled" : ""}>Neu vorschlagen</button></div>
+        <p class="note">Achtung: Die Änderung geht sofort live im Shop. Die Produktadresse bleibt gleich. Titel und Texte kannst du in Shopify jederzeit zurückändern, die alten Texte stehen unten im Protokoll.</p>` : ""}</div>`;
+  }
+  const n0g = x => Number(x || 0).toLocaleString("de-DE");
+  function scChgTable(d) {
+    const L = (S.chg || []).slice().reverse(); if (!L.length) return "";
+    const cur = {}; d.pages.forEach(x => { const m = x.k.match(/\/products\/([^/?#]+)/); if (m) cur[decodeURIComponent(m[1])] = x; });
+    return `<section class="box"><h2>Änderungs-Protokoll</h2><p class="note">Was du über „Verbessern" geändert hast. „Jetzt" sind die Zahlen deines zuletzt hochgeladenen Search-Console-Exports. Aussagekräftig erst nach ca. 4 Wochen und einem neuen Upload. Auch dann können Saison und Zufall mitspielen.</p>
+      <div class="tablewrap"><table><thead><tr><th>Datum</th><th>Produkt</th><th>Geändert</th><th class="r">Klickrate damals → jetzt</th><th class="r">Klicks (12 Mon.) damals → jetzt</th></tr></thead><tbody>${L.map(x => { const n = cur[x.h], days = Math.round((Date.now() - new Date(x.at)) / 864e5), up = d.at > x.at ? new Date(d.at) - new Date(x.at) > 27 * 864e5 : false; return `<tr><td>${esc(new Date(x.at).toLocaleDateString("de-DE"))}<div class="note">vor ${days} Tagen</div></td><td title="Vorher: ${esc(x.old.titel)}">${esc(String(x.neu.titel).slice(0, 44))}</td><td>${esc(x.what.join(", "))}</td><td class="r num">${x.m.t.toFixed(1).replace(".", ",")} % → ${n && up ? (n.i ? (n.c / n.i * 100).toFixed(1).replace(".", ",") + " %" : "–") : `<span class="note">noch kein neuer Upload</span>`}</td><td class="r num">${x.m.c} → ${n && up ? n.c : `<span class="note">–</span>`}</td></tr>`; }).join("")}</tbody></table></div></section>`;
+  }
   function renderSuche() {
     if (!SHOP) shopLoad();
     const d = SC(), n0 = (x, k = 0) => Number(x || 0).toLocaleString("de-DE", { minimumFractionDigits: k, maximumFractionDigits: k });
@@ -6372,8 +6437,9 @@ Claude:`;
       ${(() => { const J = scJoin(d); if (!J) return `<section class="box"><h2>Suche × Verkäufe</h2><p class="note">${SHOP && SHOP.shopify ? "" : "Dafür braucht es die Shopify-Produkte. Öffne einmal Marketing → Shop-Check und hole sie aus Shopify, dann erscheint hier der Vergleich."}</p></section>`;
         const col = { bad: "var(--bad)", warn: "#b7791f", good: "var(--good)", "": "inherit" };
         return `<section class="box"><h2>Suche × Verkäufe</h2><p class="note">Google-Zahlen und Shopify-Verkäufe (12 Monate, Stand ${esc(new Date(J.at).toLocaleDateString("de-DE"))}) pro Produkt. Google-Klicks sind nur ein Teil deiner Besucher, Pinterest, Instagram und Direktaufrufe kommen dazu. Bei wenigen Verkäufen kann Zufall viel ausmachen.</p>
-        <div class="tablewrap"><table><thead><tr><th>Produkt</th><th class="r">Impr.</th><th class="r">Klicks</th><th class="r">CTR</th><th class="r">Pos.</th><th class="r">Verkäufe</th><th>Einschätzung</th></tr></thead><tbody>${J.rows.slice(0, 40).map(r => `<tr><td><a href="https://hlzladen.de/products/${esc(r.handle)}" target="_blank" rel="noopener">${esc(String(r.title).slice(0, 48))}</a></td><td class="r num">${n0(r.i)}</td><td class="r num">${n0(r.c)}</td><td class="r num" style="${r.t < 1 && r.i >= 2000 ? "color:var(--bad);font-weight:700" : ""}">${n0(r.t, 1)} %</td><td class="r num">${n0(r.p, 1)}</td><td class="r num">${r.v === null ? "–" : n0(r.v)}</td><td style="color:${col[r.tip[0]]}">${esc(r.tip[1])}</td></tr>`).join("")}</tbody></table></div>
+        <div class="tablewrap"><table><thead><tr><th>Produkt</th><th class="r">Impr.</th><th class="r">Klicks</th><th class="r">CTR</th><th class="r">Pos.</th><th class="r">Verkäufe</th><th>Einschätzung</th><th></th></tr></thead><tbody>${J.rows.slice(0, 40).map(r => `<tr><td><a href="https://hlzladen.de/products/${esc(r.handle)}" target="_blank" rel="noopener">${esc(String(r.title).slice(0, 48))}</a></td><td class="r num">${n0(r.i)}</td><td class="r num">${n0(r.c)}</td><td class="r num" style="${r.t < 1 && r.i >= 2000 ? "color:var(--bad);font-weight:700" : ""}">${n0(r.t, 1)} %</td><td class="r num">${n0(r.p, 1)}</td><td class="r num">${r.v === null ? "–" : n0(r.v)}</td><td style="color:${col[r.tip[0]]}">${esc(r.tip[1])}</td><td><button type="button" class="btn" data-sc="imp:${esc(r.handle)}">Verbessern</button></td></tr>`).join("")}</tbody></table></div>${scImpPanel()}
         ${J.miss ? `<p class="note">${J.miss} Produktseite${J.miss > 1 ? "n" : ""} aus Google ${J.miss > 1 ? "sind" : "ist"} im Shop-Check nicht zu finden (neu, gelöscht oder Shop-Check veraltet).</p>` : ""}${J.hasSales ? "" : `<p class="note">Die Verkäufe konnten beim letzten Shop-Check nicht gelesen werden, bitte dort nochmal ausführen.</p>`}</section>`; })()}
+      ${scChgTable(d)}
       ${d.app && d.app.length ? `<section class="box"><h2>Darstellung in der Suche</h2><div class="tablewrap"><table><thead><tr><th>Art</th><th class="r">Klicks</th><th class="r">Impressionen</th><th class="r">CTR</th></tr></thead><tbody>${d.app.map(x => `<tr><td>${esc(x.k)}</td><td class="r num">${n0(x.c)}</td><td class="r num">${n0(x.i)}</td><td class="r num">${n0(x.t, 1)} %</td></tr>`).join("")}</tbody></table></div></section>` : ""}
       ${hasQ ? `<section class="box"><h2>Hier ist Luft nach oben</h2><p class="note">Begriffe auf Position 4 bis 15 mit vielen Impressionen: Du wirst gesehen, aber kaum geklickt. Bessere Titel, Meta-Texte und Fotos bringen hier am schnellsten Besucher.</p>
         ${chance.length ? `<div class="tablewrap"><table>${th("Suchbegriff")}<tbody>${chance.map(tr).join("")}</tbody></table></div>` : `<p class="note">Noch nichts Auffälliges (oder zu wenige Daten).</p>`}</section>
@@ -6389,9 +6455,17 @@ Claude:`;
         ${d ? ` <button type="button" class="btn danger" data-sc="del">Daten entfernen</button>` : ""}
         ${scUi.msg ? `<p class="note" style="margin:8px 0 0;color:var(--${/^✓/.test(scUi.msg) ? "good" : "bad"})">${esc(scUi.msg)}</p>` : ""}</section>${body}`;
   }
-  document.addEventListener("change", e => { if (view === "suche" && e.target && e.target.id === "scFile") scLoad([...e.target.files]); });
+  document.addEventListener("change", e => { if (view === "suche" && e.target && e.target.id === "scFile") scLoad([...e.target.files]); if (view === "suche" && e.target && e.target.dataset && e.target.dataset.sck && scUi.imp) scUi.imp.sel[e.target.dataset.sck] = e.target.checked; });
+  document.addEventListener("input", e => { const t = e.target; if (view !== "suche" || !t || !t.dataset || !t.dataset.sci || !scUi.imp || !scUi.imp.res) return; const k = t.dataset.sci; scUi.imp.res[k] = t.value; const c = $("sccnt-" + k); if (c && c.textContent.includes("/")) c.textContent = t.value.length + "/" + c.textContent.split("/")[1]; scUi.imp.ask = false; });
   document.addEventListener("input", e => { if (view === "suche" && e.target && e.target.id === "scQ") { scUi.q = e.target.value; scUi.more = 40; const p = e.target.selectionStart; renderSuche(); const el = $("scQ"); if (el) { el.focus(); try { el.setSelectionRange(p, p); } catch (er) { /* egal */ } } } });
-  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-sc]"); if (!b || view !== "suche") return; if (b.dataset.sc === "more") { scUi.more += 60; return renderSuche(); } if (b.dataset.sc === "del") { if (!sure("Search-Console-Daten wirklich entfernen?")) return; S.sc = null; saveSettings(); scUi.msg = ""; renderSuche(); } });
+  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-sc]"); if (!b || view !== "suche") return; if (b.dataset.sc === "more") { scUi.more += 60; return renderSuche(); }
+    const keep = window.scrollY, rr = () => { renderSuche(); window.scrollTo(0, keep); };
+    if (b.dataset.sc.startsWith("imp:")) return scImpStart(b.dataset.sc.slice(4));
+    if (b.dataset.sc === "impx") { scUi.imp = null; return rr(); }
+    if (b.dataset.sc === "impr") return scImpGen();
+    if (b.dataset.sc === "imps") { scUi.imp.ask = true; return rr(); }
+    if (b.dataset.sc === "impno") { scUi.imp.ask = false; return rr(); }
+    if (b.dataset.sc === "impok") return scImpApply(); if (b.dataset.sc === "del") { if (!sure("Search-Console-Daten wirklich entfernen?")) return; S.sc = null; saveSettings(); scUi.msg = ""; renderSuche(); } });
 
   // ---------- Privat: To-do-Liste (getrennter Bereich zusammen mit Finanzen) ----------
   const TODO_REP = [["", "einmalig"], ["w", "jede Woche"], ["m", "jeden Monat"], ["y", "jedes Jahr"]];
