@@ -6659,7 +6659,7 @@ Claude:`;
     const rows = grp.map(g => `<section class="box"><h2 style="margin-top:0">${esc(g)}</h2><div style="overflow-x:auto"><table><thead><tr><th>Kanal</th><th>Ampel</th><th>Zuletzt</th><th>Rhythmus</th><th>Aktion</th><th>Notiz</th><th>Daten</th><th></th></tr></thead><tbody>${A.filter(x => x.c.g === g).map(({ c, a }) => {
       const l = kanLast(c), o = kanO(c.id), csv = o.csv;
       const act = c.type === "api" ? `<button type="button" class="btn primary" style="padding:4px 10px" data-kan="sync:${esc(c.id)}">Aktualisieren</button>`
-        : `<label class="btn" style="padding:4px 10px;cursor:pointer">${c.act === "gscup" ? "Zum Upload" : "CSV hochladen"}${c.act === "gscup" ? "" : `<input type="file" accept=".csv,.zip,.txt,.xlsx,text/csv" data-kan="csv:${esc(c.id)}" hidden>`}</label><button type="button" class="btn" style="padding:4px 8px;margin-left:4px" data-kan="done:${esc(c.id)}" title="Ohne Datei als heute erledigt markieren">✓ erledigt</button>${o.last ? `<button type="button" class="btn" style="padding:4px 8px;margin-left:4px" data-kan="undo:${esc(c.id)}" title="Erledigt zurücknehmen und Kanal auf „Nicht eingeplant“ setzen">↶ zurück</button>` : ""}${csv ? `<div class="note" style="margin-top:3px">${esc(csv.name)} · ${csv.rows} Zeilen</div>` : ""}`;
+        : `<label class="btn" style="padding:4px 10px;cursor:pointer">${c.act === "gscup" ? "Zum Upload" : "CSV hochladen"}${c.act === "gscup" ? "" : `<input type="file" accept=".csv,.zip,.txt,.xlsx,text/csv" data-kan="csv:${esc(c.id)}" hidden>`}</label><button type="button" class="btn" style="padding:4px 8px;margin-left:4px${o.last ? ";background:var(--accent);color:#fff" : ""}" data-kan="done:${esc(c.id)}" title="${o.last ? "Nochmal klicken: zurücknehmen, Kanal steht dann auf Nicht eingeplant" : "Ohne Datei als heute erledigt markieren"}">✓ erledigt</button>${csv ? `<div class="note" style="margin-top:3px">${esc(csv.name)} · ${csv.rows} Zeilen</div>` : ""}`;
       return `<tr><td style="white-space:normal;min-width:150px"><strong>${esc(c.name)}</strong></td>
         <td style="white-space:normal;min-width:150px">${dot(a[0])} <span style="color:${a[0]}">${esc(a[1])}</span></td>
         <td style="white-space:nowrap">${dstr(l)}</td>
@@ -6695,7 +6695,10 @@ Claude:`;
     if (a === "addok") { const n = ($("kanNew").value || "").trim(); if (!n) return; (S.kanX = S.kanX || []).push({ id: "x" + uid(), name: n }); saveSettings(); kanUi.add = false; return renderKanaele(); }
     if (a === "del") { if (!sure("Kanal wirklich entfernen?")) return; S.kanX = (S.kanX || []).filter(x => x.id !== id); if (S.kan) delete S.kan[id]; saveSettings(); return renderKanaele(); }
     if (a === "undo") { const n = Object.assign({}, kanO(id)); delete n.last; delete n.csv; n.rh = "-"; S.kan = S.kan || {}; S.kan[id] = n; saveSettings(); return renderKanaele(); }
-    if (a === "done") { kanSet(id, { last: new Date().toISOString() }); return renderKanaele(); }
+    if (a === "done") {
+      if (kanO(id).last) { const n = Object.assign({}, kanO(id)); delete n.last; delete n.csv; n.rh = "-"; S.kan = S.kan || {}; S.kan[id] = n; saveSettings(); return renderKanaele(); }
+      kanSet(id, { last: new Date().toISOString() }); return renderKanaele();
+    }
     if (a === "sync") {
       const c = kanAll().find(x => x.id === id);
       if (c.act === "shop") { location.hash = "#shopcheck"; setTimeout(() => shopifyCheck(), 400); }
