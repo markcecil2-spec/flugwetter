@@ -6111,6 +6111,7 @@ Claude:`;
   });
   document.addEventListener("keydown", e => { if (view === "buchhaltung" && e.target.id === "buMsg" && e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); buAsk(); } });
   function renderDocs() {
+    if (view !== "dokumente") return;
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Dokumente</h1><p class="note">Lade …</p>`; return; }
     let items = docItems(); const cur = curYM(), months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i));
     if (!S.docFix1) { // frühere Fehlzuordnung korrigieren: Monat steht im Dateinamen (auch einstellig, z. B. 2026-3)
@@ -6468,12 +6469,13 @@ Claude:`;
       }
       const d = { at: new Date().toISOString(), queries: [], pages: [], dates: [], app: [] }; let got = 0;
       texts.forEach(x => { const r = scParse(x.name, x.text); if (r) { d[r.kind] = r.list; got++; } });
-      if (!got) { scUi.msg = "Keine passende Datei gefunden. Gebraucht wird der Export aus „Leistung“ (Suchanfragen, Seiten oder Datum)."; return renderSuche(); }
+      if (!got) { scUi.msg = "Keine passende Datei gefunden. Gebraucht wird der Export aus „Leistung“ (Suchanfragen, Seiten oder Datum)."; return scDone(); }
       d.queries = d.queries.sort((a, b) => b.c - a.c || b.i - a.i).slice(0, 1000); d.pages = d.pages.sort((a, b) => b.c - a.c).slice(0, 300); d.dates = d.dates.slice(-400); d.app = d.app.slice(0, 30);
       S.sc = d; saveSettings(); scUi.msg = `✓ Eingelesen: ${d.queries.length} Suchbegriffe, ${d.pages.length} Seiten, ${d.dates.length} Tage${d.app.length ? ", " + d.app.length + " Darstellungsarten" : ""}.`;
     } catch (e) { scUi.msg = "Einlesen hat nicht geklappt: " + ((e && e.message) || "unbekannter Fehler"); }
-    renderSuche();
+    scDone();
   }
+  const scDone = () => { if (view === "kanaele") { kanUi.msg = scUi.msg; renderKanaele(); } else renderSuche(); };
   const scMonths = d => { const m = {}; d.dates.forEach(x => { const k = x.k.slice(0, 7), a = m[k] = m[k] || { k, c: 0, i: 0, pp: 0 }; a.c += x.c; a.i += x.i; a.pp += x.p * x.i; }); return Object.values(m).map(a => ({ k: a.k, c: a.c, i: a.i, p: a.i ? a.pp / a.i : 0 })); };
   const scBars = (rows, key, fmt) => { const W = 640, H = 170, pad = 22, mx = Math.max(...rows.map(r => r[key]), 1), bw = (W - pad) / rows.length;
     return `<svg viewBox="0 0 ${W} ${H + 24}" width="100%" role="img">${rows.map((r, j) => { const h = Math.round(r[key] / mx * (H - 18)), x = pad + j * bw; return `<rect x="${x + 3}" y="${H - h}" width="${Math.max(bw - 6, 2)}" height="${h}" rx="3" fill="var(--good,#2f6b4f)"><title>${esc(r.k)}: ${esc(fmt(r[key]))}</title></rect><text x="${x + bw / 2}" y="${H - h - 4}" font-size="10" text-anchor="middle" fill="currentColor">${esc(fmt(r[key]))}</text><text x="${x + bw / 2}" y="${H + 14}" font-size="10" text-anchor="middle" fill="currentColor" opacity=".6">${esc(r.k.slice(5))}/${esc(r.k.slice(2, 4))}</text>`; }).join("")}</svg>`; };
@@ -6592,10 +6594,7 @@ Claude:`;
     }
     return `<div class="row"><h2>Suchbegriffe (Google)</h2></div>
       <p class="note">Hier siehst du, mit welchen Begriffen Leute bei Google auf deinen Shop kommen. Daten kommen aus der Google Search Console, einmal im Monat neu hochladen reicht.</p>
-      <section class="box"><h2>Daten hochladen</h2>
-        <ol class="note" style="margin:0 0 10px 18px;padding:0"><li>search.google.com/search-console öffnen, deine Seite wählen, links auf <strong>Leistung</strong>.</li><li>Oben Zeitraum wählen (z. B. 3 Monate), dann <strong>Exportieren → CSV herunterladen</strong>.</li><li>Die heruntergeladene Datei (ZIP oder CSV) hier hochladen. Du kannst die ZIP-Datei direkt nehmen.</li></ol>
-        <label class="btn primary" style="cursor:pointer;display:inline-block">Datei(en) auswählen<input type="file" id="scFile" accept=".csv,.zip,text/csv,application/zip" multiple hidden></label>
-        ${d ? ` <button type="button" class="btn danger" data-sc="del">Daten entfernen</button>` : ""}
+      <section class="box"><p class="note" style="margin:0">Neue Search-Console-Datei? Hochladen unter <a href="#kanaele">Kanäle → Google Search Console</a>. ${d ? `<button type="button" class="btn danger" data-sc="del" style="margin-left:8px">Daten entfernen</button>` : ""}</p>
         ${scUi.msg ? `<p class="note" style="margin:8px 0 0;color:var(--${/^✓/.test(scUi.msg) ? "good" : "bad"})">${esc(scUi.msg)}</p>` : ""}</section>${body}`;
   }
   document.addEventListener("change", e => { if (scOn() && e.target && e.target.id === "scFile") scLoad([...e.target.files]); if (scOn() && e.target && e.target.dataset && e.target.dataset.sck && scUi.imp) scUi.imp.sel[e.target.dataset.sck] = e.target.checked; });
@@ -6615,12 +6614,12 @@ Claude:`;
   const KAN = [
     ["Verkauf", [
       ["shopify", "Shopify: Produkte & Verkäufe", "api", "m", "Holt Produkte und Verkäufe (12 Monate) live aus Shopify.", "shop"],
-      ["etsy", "Etsy: Statistik & Angebote", "up", "m", "CSV-Export aus dem Etsy-Shop-Manager (Statistik, Angebote, Zahlungen).", ""],
+      ["etsy", "Etsy: Statistik & Angebote", "up", "m", "Bestellte Artikel (EtsySoldOrderItems), Angebote oder Zahlungen als CSV. Wird automatisch erkannt.", ""],
       ["kleinanz", "Kleinanzeigen", "up", "-", "Nur manuell. Antworten laufen über den Kleinanzeigen-Skill.", ""],
       ["amazon", "Amazon Handmade", "up", "-", "Nicht aufgebaut.", ""],
       ["ebay", "eBay", "up", "-", "Nicht genutzt.", ""]]],
     ["Sichtbarkeit & Suche", [
-      ["gsc", "Google Search Console", "up", "m", "ZIP-Export hochladen im Tab Suchbegriffe (Zeitraum 12 Monate).", "gscup"],
+      ["gsc", "Google Search Console", "up", "m", "Leistung → Exportieren → ZIP oder CSV hochladen (Zeitraum 12 Monate). Auswertung unter Marketing → Reichweite.", "gscup"],
       ["ga", "Google Analytics", "up", "-", "Noch nicht eingerichtet. Wenn eingerichtet: Rhythmus auf monatlich stellen.", ""],
       ["merchant", "Google Merchant Center", "up", "-", "Nicht eingerichtet.", ""],
       ["gbp", "Google Unternehmensprofil", "up", "-", "Nur sinnvoll mit Ladenadresse oder Abholung.", ""],
@@ -6640,7 +6639,7 @@ Claude:`;
       ["billbee", "Billbee: Export", "up", "m", "Bestell-/Rechnungsexport hochladen.", ""],
       ["lexware", "Lexware Office", "up", "m", "Monatsbuchhaltung: Importdatei erstellt und eingespielt.", ""],
       ["paypal", "PayPal: Kontoauszug", "up", "m", "CSV-Export für die Buchhaltung.", ""],
-      ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export, Import im Tab Finanzen.", ""]]]
+      ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export des Geschäftskontos. Wird in Finanzen eingelesen.", ""]]]
   ];
   const KLINK = { shopify: "shopcheck", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", yt: "werbung", tiktok: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", lexware: "buchhaltung", paypal: "buchhaltung", bank: "finanzen" };
   const kanUi = { add: false, msg: "" };
@@ -6673,7 +6672,7 @@ Claude:`;
     const rows = grp.map(g => `<section class="box"><h2 style="margin-top:0">${esc(g)}</h2><div style="overflow-x:auto"><table><thead><tr><th>Kanal</th><th>Ampel</th><th>Zuletzt</th><th>Rhythmus</th><th>Aktion</th><th>Notiz</th><th>Daten</th><th></th></tr></thead><tbody>${A.filter(x => x.c.g === g).map(({ c, a }) => {
       const l = kanLast(c), o = kanO(c.id), csv = o.csv;
       const act = c.type === "api" ? `<button type="button" class="btn primary" style="padding:4px 10px" data-kan="sync:${esc(c.id)}">Aktualisieren</button>`
-        : `<label class="btn" style="padding:4px 10px;cursor:pointer">${c.act === "gscup" ? "Zum Upload" : "CSV hochladen"}${c.act === "gscup" ? "" : `<input type="file" accept=".csv,.zip,.txt,.xlsx,text/csv" data-kan="csv:${esc(c.id)}" hidden>`}</label><button type="button" class="btn" style="padding:4px 8px;margin-left:4px${o.last ? ";background:var(--accent);color:#fff" : ""}" data-kan="done:${esc(c.id)}" title="${o.last ? "Nochmal klicken: zurücknehmen, Kanal steht dann auf Nicht eingeplant" : "Ohne Datei als heute erledigt markieren"}">✓ erledigt</button>${csv ? `<div class="note" style="margin-top:3px">${esc(csv.name)} · ${csv.rows} Zeilen</div>` : ""}`;
+        : `<label class="btn" style="padding:4px 10px;cursor:pointer">CSV hochladen<input type="file" accept=".csv,.zip,.txt,.xlsx,text/csv" ${["etsy", "gsc"].includes(c.id) ? "multiple " : ""}data-kan="csv:${esc(c.id)}" hidden></label><button type="button" class="btn" style="padding:4px 8px;margin-left:4px${o.last ? ";background:var(--accent);color:#fff" : ""}" data-kan="done:${esc(c.id)}" title="${o.last ? "Nochmal klicken: zurücknehmen, Kanal steht dann auf Nicht eingeplant" : "Ohne Datei als heute erledigt markieren"}">✓ erledigt</button>${csv ? `<div class="note" style="margin-top:3px">${esc(csv.name)}${csv.rows ? " · " + csv.rows + " Zeilen" : ""}</div>` : ""}`;
       return `<tr><td style="white-space:normal;min-width:150px"><strong>${esc(c.name)}</strong></td>
         <td style="white-space:normal;min-width:150px">${dot(a[0])} <span style="color:${a[0]}">${esc(a[1])}</span></td>
         <td style="white-space:nowrap">${dstr(l)}</td>
@@ -6729,6 +6728,14 @@ Claude:`;
     const t = e.target; if (view !== "kanaele" || !t || !t.dataset || !t.dataset.kan) return; const [a, id] = t.dataset.kan.split(":");
     if (a === "rh") { kanSet(id, { rh: t.value }); return renderKanaele(); }
     if (a === "note") return kanSet(id, { note: t.value });
+    if (a === "csv" && t.files[0] && ["gsc", "etsy", "bank"].includes(id)) {
+      const fs = [...t.files]; t.value = ""; const c = kanAll().find(x => x.id === id);
+      if (id === "gsc") { kanUi.msg = "Lese Search-Console-Datei …"; renderKanaele(); return scLoad(fs); }
+      kanUi.msg = "Verarbeite …"; renderKanaele();
+      try { docMsg = ""; await docsHandle(fs, id === "bank" ? { kind: "bankG" } : null); } catch (er) { docMsg = "Hat nicht geklappt: " + ((er && er.message) || "Fehler"); }
+      if (!/nicht verfügbar|nicht geklappt/.test(docMsg)) kanSet(id, { last: new Date().toISOString(), csv: { name: fs.map(x => x.name).join(", "), rows: 0 } });
+      kanUi.msg = docMsg || "Fertig."; return renderKanaele();
+    }
     if (a === "csv" && t.files[0]) {
       const f = t.files[0]; let rows = 0;
       try { if (/\.zip$/i.test(f.name)) rows = (await scZip(await f.arrayBuffer())).length; else if (/\.xlsx$/i.test(f.name)) rows = 0; else rows = Math.max(0, parseCSV(await f.text()).length - 1); } catch (er) { kanUi.msg = "Datei konnte nicht gelesen werden: " + er.message; return renderKanaele(); }
@@ -6754,7 +6761,6 @@ Claude:`;
       else if (c.act === "ord") { location.hash = "#bestellungen"; setTimeout(() => ordSync(), 400); }
     }
   });
-  document.addEventListener("click", e => { const l = e.target.closest && e.target.closest("label.btn"); if (l && view === "kanaele" && /Zum Upload/.test(l.textContent)) { e.preventDefault(); location.hash = "#suche"; } });
 
   // ---------- Bereichs-Dashboards (Verkaufen, Zahlen, Daten) mit eigener To-do-Liste je Bereich
   const gtodo = g => ((S.gtodo = S.gtodo || {})[g] = S.gtodo[g] || []);
