@@ -225,6 +225,37 @@ nav.grps a { font-weight: 600; border: 1px solid var(--line) }
 nav.grps a[aria-current=page] { border-color: var(--accent) }
 nav.subs a { font-size: .85rem; padding: 4px 11px }
 nav.subs a[hidden] { display: none }
+/* Seitenleiste (Desktop) und Menüknopf (Handy) */
+.ic { display: inline-flex; flex: none } .ic svg { display: block }
+.sg { display: block }
+.sgh { display: flex; align-items: center; gap: 12px; width: 100%; background: none; border: 0; padding: 10px 12px; font: 600 .98rem var(--font-body); color: var(--fg); border-radius: 10px; cursor: pointer; text-align: left }
+.sgh:hover { background: var(--accent-soft) }
+.sgh .chev { margin-left: auto; color: var(--muted); transition: transform .15s } .sg.open .chev { transform: rotate(180deg) }
+.sg.act > .sgh { color: var(--accent) }
+.sg nav.subs { display: none; flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; gap: 2px; padding: 2px 0 8px }
+.sg.open nav.subs { display: flex }
+.sg nav.subs a { display: flex; align-items: center; gap: 12px; font-size: .95rem; font-weight: 500; padding: 9px 14px; border-radius: 10px; color: var(--fg) }
+.sg nav.subs a:hover { background: var(--accent-soft) }
+.sg nav.subs a[aria-current=page] { background: var(--accent); color: var(--on-accent) }
+.sg nav.subs a .navbadge { margin-left: auto }
+.burger { display: none; background: none; border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; color: var(--fg); cursor: pointer }
+.navwrap { justify-items: stretch !important }
+@media (min-width: 900px) {
+  html { --toph: 0px !important }
+  body { padding-left: 264px }
+  header.top.gutter { position: fixed; left: 0; top: 0; bottom: 0; width: 264px; padding: 18px 14px; border-right: 1px solid var(--line); border-bottom: 0; overflow-y: auto; box-sizing: border-box }
+  .top .wrap { display: flex; flex-direction: column; align-items: stretch; gap: 20px; padding-block: 0 }
+  .top .sync { position: fixed; top: 14px; right: 24px; z-index: 6 }
+  .brand { padding: 0 6px }
+  main.wrap { padding-top: 56px }
+}
+@media (max-width: 899px) {
+  .top .wrap { grid-template-columns: 1fr auto auto; gap: 8px 12px }
+  .burger { display: inline-flex; grid-column: 3; grid-row: 1 }
+  .top .sync { grid-column: 2; grid-row: 1; font-size: 0 } .top .sync .dot { width: 10px; height: 10px }
+  .navwrap { display: none; grid-column: 1 / -1; grid-row: 2; max-height: 70vh; overflow-y: auto }
+  header.top.menu .navwrap { display: grid }
+}
 .todorow { display: grid; grid-template-columns: 28px minmax(160px, 1fr) 150px 130px 40px 40px; gap: 8px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--line) }
 .todorow.done .inp input[type=text] { text-decoration: line-through; color: var(--muted) }
 .dayrow { display: grid; grid-template-columns: 26px 128px 128px 84px minmax(150px, 1fr) 132px 100px 40px; gap: 8px; align-items: center; padding: 6px 8px; border-bottom: 1px solid var(--line); border-radius: 4px }
@@ -446,36 +477,51 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 <header class="top gutter">
   <div class="wrap">
     <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>HLZ-Dashboard</strong></a>
-    <div class="navwrap">
-    <nav class="tabs grps" aria-label="Bereiche">
-      <a href="#uebersicht" data-grp="heute">Heute<span class="navbadge" id="grpBadgeheute" hidden></span></a>
-      <a href="#neu" data-grp="verk">Verkaufen<span class="navbadge" id="grpBadgeverk" hidden></span></a>
-      <a href="#preise" data-grp="zahl">Zahlen</a>
-      <a href="#kanaele" data-grp="daten">Daten &amp; Einstellungen</a>
-    </nav>
-    <nav class="tabs subs" aria-label="Seiten">
-      <a href="#uebersicht" data-tab="uebersicht" data-g="heute">Übersicht</a>
-      <a href="#produktion" data-tab="produktion" data-g="heute">Produktion</a>
-      <a href="#support" data-tab="support" data-g="heute">Support</a>
-      <a href="#neu" data-tab="neu" data-g="verk">Produkte hinzufügen</a>
-      <a href="#shopcheck" data-tab="shopcheck" data-g="verk">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
-      <a href="#suche" data-tab="suche" data-g="verk">Suchbegriffe</a>
-      <a href="#werbung" data-tab="werbung" data-g="verk">Marketing</a>
-      <a href="#preise" data-tab="preise" data-g="zahl">Preise</a>
-      <a href="#auswertung" data-tab="auswertung" data-g="zahl">Auswertung</a>
-      <a href="#finanzen" data-tab="finanzen" data-g="zahl">Finanzen</a>
-      <a href="#buchhaltung" data-tab="buchhaltung" data-g="zahl">Buchhaltung</a>
-      <a href="#kanaele" data-tab="kanaele" data-g="daten">Kanäle</a>
-      <a href="#dokumente" data-tab="dokumente" data-g="daten">Dokumente</a>
-      <a href="#einstellungen" data-tab="einstellungen" data-g="daten">Einstellungen</a>
-    </nav>
-    </div>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
+    <button type="button" class="burger" id="burger" aria-label="Menü" aria-expanded="false"><i class="ic" data-ico="menu"></i></button>
+    <div class="navwrap" id="navwrap">
+      <div class="sg" data-grp="heute"><button type="button" class="sgh" data-grp="heute" aria-expanded="false"><i class="ic" data-ico="calendar"></i><span>Heute</span><span class="navbadge" id="grpBadgeheute" hidden></span><i class="ic chev" data-ico="chev"></i></button>
+        <nav class="tabs subs" aria-label="Heute">
+          <a href="#uebersicht" data-tab="uebersicht" data-g="heute"><i class="ic" data-ico="grid"></i><span>Übersicht</span></a>
+          <a href="#produktion" data-tab="produktion" data-g="heute"><i class="ic" data-ico="wrench"></i><span>Produktion</span></a>
+          <a href="#support" data-tab="support" data-g="heute"><i class="ic" data-ico="headset"></i><span>Support</span></a>
+        </nav></div>
+      <div class="sg" data-grp="verk"><button type="button" class="sgh" data-grp="verk" aria-expanded="false"><i class="ic" data-ico="tag"></i><span>Verkaufen</span><span class="navbadge" id="grpBadgeverk" hidden></span><i class="ic chev" data-ico="chev"></i></button>
+        <nav class="tabs subs" aria-label="Verkaufen">
+          <a href="#neu" data-tab="neu" data-g="verk"><i class="ic" data-ico="plus"></i><span>Produkte hinzufügen</span></a>
+          <a href="#shopcheck" data-tab="shopcheck" data-g="verk"><i class="ic" data-ico="bag"></i><span>Shop-Check</span><span class="navbadge" id="ideaBadge" hidden></span></a>
+          <a href="#suche" data-tab="suche" data-g="verk"><i class="ic" data-ico="search"></i><span>Suchbegriffe</span></a>
+          <a href="#werbung" data-tab="werbung" data-g="verk"><i class="ic" data-ico="send"></i><span>Marketing</span></a>
+        </nav></div>
+      <div class="sg" data-grp="zahl"><button type="button" class="sgh" data-grp="zahl" aria-expanded="false"><i class="ic" data-ico="bars"></i><span>Zahlen</span><i class="ic chev" data-ico="chev"></i></button>
+        <nav class="tabs subs" aria-label="Zahlen">
+          <a href="#preise" data-tab="preise" data-g="zahl"><i class="ic" data-ico="percent"></i><span>Preise</span></a>
+          <a href="#auswertung" data-tab="auswertung" data-g="zahl"><i class="ic" data-ico="trend"></i><span>Auswertung</span></a>
+          <a href="#finanzen" data-tab="finanzen" data-g="zahl"><i class="ic" data-ico="card"></i><span>Finanzen</span></a>
+          <a href="#buchhaltung" data-tab="buchhaltung" data-g="zahl"><i class="ic" data-ico="book"></i><span>Buchhaltung</span></a>
+        </nav></div>
+      <div class="sg" data-grp="daten"><button type="button" class="sgh" data-grp="daten" aria-expanded="false"><i class="ic" data-ico="db"></i><span>Daten &amp; Einstellungen</span><i class="ic chev" data-ico="chev"></i></button>
+        <nav class="tabs subs" aria-label="Daten &amp; Einstellungen">
+          <a href="#kanaele" data-tab="kanaele" data-g="daten"><i class="ic" data-ico="link"></i><span>Kanäle</span></a>
+          <a href="#dokumente" data-tab="dokumente" data-g="daten"><i class="ic" data-ico="folder"></i><span>Dokumente</span></a>
+          <a href="#einstellungen" data-tab="einstellungen" data-g="daten"><i class="ic" data-ico="sliders"></i><span>Einstellungen</span></a>
+        </nav></div>
+    </div>
   </div>
 </header>
 <script>
   // Höhe der Kopfzeile für die einrastende Artikelzeile
-  new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
+  new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", matchMedia("(min-width: 900px)").matches ? "0px" : e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
+  // Symbole für das Menü
+  (() => {
+    const P = { calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>', grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>', wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>', headset: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>', tag: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/>', plus: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>', bag: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>', search: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>', send: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>', bars: '<path d="M12 20V10M18 20V4M6 20v-4"/>', percent: '<path d="M19 5L5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>', trend: '<path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/>', card: '<rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>', book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>', db: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>', link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>', folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>', sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>', chev: '<path d="M6 9l6 6 6-6"/>', menu: '<path d="M3 6h18M3 12h18M3 18h18"/>' };
+    document.querySelectorAll("[data-ico]").forEach(e => { e.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[e.dataset.ico] || "") + "</svg>"; });
+    document.addEventListener("click", e => {
+      const h = e.target.closest && e.target.closest(".sgh"); if (h) { const g = h.closest(".sg"), o = !g.classList.contains("open"); g.classList.toggle("open", o); h.setAttribute("aria-expanded", o); return; }
+      const bg = e.target.closest && e.target.closest("#burger"); if (bg) { const t = document.querySelector("header.top"), o = !t.classList.contains("menu"); t.classList.toggle("menu", o); bg.setAttribute("aria-expanded", o); return; }
+      if (e.target.closest && e.target.closest("nav.subs a")) document.querySelector("header.top").classList.remove("menu");
+    });
+  })();
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
 <footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-Dashboard · Version 163 · 14.11.2026</footer>
@@ -1573,9 +1619,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   const NAV_LAST = {};
   function navGroups(act) {
     const cur = document.querySelector('nav.subs a[data-tab="' + act + '"]'); const g = cur ? cur.dataset.g : (navGroups.g || "heute");
-    navGroups.g = g; if (cur) NAV_LAST[g] = "#" + act;
-    document.querySelectorAll("nav.subs a").forEach(l => { l.hidden = l.dataset.g !== g; });
-    document.querySelectorAll("nav.grps a").forEach(l => { if (l.dataset.grp === g) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); if (NAV_LAST[l.dataset.grp]) l.setAttribute("href", NAV_LAST[l.dataset.grp]); });
+    navGroups.g = g;
+    document.querySelectorAll(".sg").forEach(x => { const o = x.dataset.grp === g; x.classList.toggle("open", o); x.classList.toggle("act", o); const b = x.querySelector(".sgh"); if (b) b.setAttribute("aria-expanded", o); });
     navBadges();
   }
   function navBadges() {
@@ -2590,6 +2635,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}" title="Klicken zum Sortieren, nochmal klicken dreht die Reihenfolge">${l}${sortKey === k ? (k === "name" ? (sortDir > 0 ? " A→Z" : " Z→A") : sortDir < 0 ? " ↓" : " ↑") : k === "name" ? " ⇅" : ""}</button></th>`;
     const hasSales = m.qty > 0;
     $("view").innerHTML = `
+      <h1 style="margin:0">Übersicht</h1>
       ${top5()}
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
       <div class="tiles">
