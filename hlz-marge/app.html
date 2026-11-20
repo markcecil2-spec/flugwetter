@@ -232,6 +232,9 @@ nav.subs a[hidden] { display: none }
 .sgh:hover { background: var(--accent-soft) }
 .sgh .chev { margin-left: auto; color: var(--muted); transition: transform .15s } .sg.open .chev { transform: rotate(180deg) }
 .sg.act > .sgh { color: var(--accent) }
+.verkbar { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line) }
+.verkbar .vg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.verkbar .label { margin-right: 2px; color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em }
 .sg.open { background: color-mix(in srgb, var(--accent) 22%, var(--bg, transparent));border-radius: 12px; padding-bottom: 4px }
 .sg.open > .sgh:hover { background: transparent }
 .sg nav.subs { display: none; flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; gap: 2px; padding: 2px 0 8px }
@@ -491,10 +494,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <div class="sg" data-grp="verk"><button type="button" class="sgh" data-grp="verk" aria-expanded="false"><i class="ic" data-ico="tag"></i><span>Verkaufen</span><span class="navbadge" id="grpBadgeverk" hidden></span><i class="ic chev" data-ico="chev"></i></button>
         <nav class="tabs subs" aria-label="Verkaufen">
           <a href="#verk" data-tab="verk" data-g="verk"><i class="ic" data-ico="grid"></i><span>Überblick</span></a>
-          <a href="#neu" data-tab="neu" data-g="verk"><i class="ic" data-ico="plus"></i><span>Produkte hinzufügen</span></a>
-          <a href="#shopcheck" data-tab="shopcheck" data-g="verk"><i class="ic" data-ico="bag"></i><span>Shop-Check</span><span class="navbadge" id="ideaBadge" hidden></span></a>
-          <a href="#suche" data-tab="suche" data-g="verk"><i class="ic" data-ico="search"></i><span>Suchbegriffe</span></a>
-          <a href="#werbung" data-tab="werbung" data-g="verk"><i class="ic" data-ico="send"></i><span>Marketing</span></a>
+          <a href="#shopcheck" data-tab="shopcheck" data-g="verk"><i class="ic" data-ico="tag"></i><span>Produkte</span><span class="navbadge" id="ideaBadge" hidden></span></a>
+          <a href="#suche" data-tab="suche" data-g="verk"><i class="ic" data-ico="search"></i><span>Sichtbarkeit</span></a>
         </nav></div>
       <div class="sg" data-grp="zahl"><button type="button" class="sgh" data-grp="zahl" aria-expanded="false"><i class="ic" data-ico="bars"></i><span>Zahlen</span><i class="ic chev" data-ico="chev"></i></button>
         <nav class="tabs subs" aria-label="Zahlen">
@@ -1035,7 +1036,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele", "verk", "zahl", "daten"].includes(h) ? h : "uebersicht";
-    const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
+    const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
     document.querySelectorAll("nav.subs a").forEach(l => { if (l.dataset.tab === actTab) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     navGroups(actTab);
     render();
@@ -6667,6 +6668,10 @@ Claude:`;
   document.addEventListener("change", e => { const c = e.target; if (!c.dataset || !c.dataset.gt || !c.dataset.gt.startsWith("chk:")) return; const [, g, id] = c.dataset.gt.split(":"); const x = gtodo(g).find(y => y.id === id); if (x) { x.done = c.checked; saveSettings(); gtRefresh(g); } });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.gtin) { e.preventDefault(); gtAdd(e.target.dataset.gtin); } });
   const gdTile = (l, val, sub, href) => `<a class="tile" href="${href}" style="text-decoration:none;color:inherit"><span class="label">${l}</span><strong style="font-size:1.5em;display:block">${val}</strong><span class="note">${sub}</span></a>`;
+  // ---------- Verkaufen: eine gemeinsame Leiste ueber allen Seiten des Bereichs ----------
+  const VERK_BAR = [["Produkte", [["shopcheck", "Shop-Check"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"], ["gravuren", "Gravur-Test"]]], ["Sichtbarkeit", [["suche", "Suchbegriffe"], ["werbung", "Marketing"]]]];
+  const verkBar = () => `<div class="verkbar">${VERK_BAR.map(([g, it]) => `<div class="vg"><span class="label">${g}</span>${it.map(([h, l]) => `<a class="btn ${view === h ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div>`).join("")}</div>`;
+  (() => { const v = document.getElementById("view"); if (!v) return; let busy = false; new MutationObserver(() => { if (busy) return; if (!VERK_BAR.some(([, it]) => it.some(([h]) => h === view))) return; if (v.firstElementChild && v.firstElementChild.classList.contains("verkbar")) return; busy = true; try { v.insertAdjacentHTML("afterbegin", verkBar()); } finally { busy = false; } }).observe(v, { childList: true }); })();
   function renderGrp(g) {
     const T = [], n0 = x => Number(x || 0).toLocaleString("de-DE"), td = todayISO();
     const add = f => { try { const r = f(); if (r) T.push(r); } catch (e) {} };
@@ -6706,7 +6711,7 @@ Claude:`;
   const TODOS = () => (S.todos = S.todos || []);
   let todoSug = [], todoDoneOpen = false;
   const subBar = (items, active) => `<div class="seg" style="margin-bottom:10px">${items.map(([h, l]) => `<a class="btn ${active === h ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div>`;
-  const setBar = a => subBar([["einstellungen", "Einstellungen"], ["import", "Import"]], a), shopBar = a => subBar([["shopcheck", "Shop-Check"], ["ideen", "Produktideen"], ["gravuren", "Gravur-Test"]], a);
+  const setBar = a => subBar([["einstellungen", "Einstellungen"], ["import", "Import"]], a), shopBar = a => "";
   const privBar = active => `<div class="seg privbar" aria-label="Privat" style="margin-bottom:10px"><span class="label" style="align-self:center;margin-right:4px;color:var(--walnut)">Privat</span>
       <a class="btn ${active === "todo" ? "primary" : ""}" href="#todo">To-do${todoOpenCount() ? ` <span class="navbadge" style="margin-left:2px">${todoOpenCount()}</span>` : ""}</a><a class="btn ${active === "tag" ? "primary" : ""}" href="#tag">Tagesplan</a><a class="btn ${active === "projekte" ? "primary" : ""}" href="#projekte">Projekte</a></div>`;
   // ---------- Projektplaner ----------
