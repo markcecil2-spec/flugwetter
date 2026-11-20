@@ -232,6 +232,8 @@ nav.subs a[hidden] { display: none }
 .sgh:hover { background: var(--accent-soft) }
 .sgh .chev { margin-left: auto; color: var(--muted); transition: transform .15s } .sg.open .chev { transform: rotate(180deg) }
 .sg.act > .sgh { color: var(--accent) }
+.sg.open { background: var(--accent-soft); border-radius: 12px; padding-bottom: 4px }
+.sg.open > .sgh:hover { background: transparent }
 .sg nav.subs { display: none; flex-direction: column; flex-wrap: nowrap; justify-content: flex-start; gap: 2px; padding: 2px 0 8px }
 .sg.open nav.subs { display: flex }
 .sg nav.subs a { display: flex; align-items: center; gap: 12px; font-size: .95rem; font-weight: 500; padding: 9px 14px; border-radius: 10px; color: var(--fg) }
