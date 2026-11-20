@@ -243,6 +243,9 @@ nav.subs a[hidden] { display: none }
 .dotc { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle }
 @media (max-width: 1100px) { .hkpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } .dgrid, .dgrid.even { grid-template-columns: minmax(0, 1fr) } }
 @media (max-width: 480px) { .hkpis { grid-template-columns: minmax(0, 1fr) } }
+nav.flat { display: flex; flex-direction: column; gap: 2px }
+.sl { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: var(--fg); font: 600 .98rem var(--font-body) }
+.sl:hover { background: var(--accent-soft) } .sl[aria-current=page] { background: var(--accent); color: var(--on-accent) } .sl .navbadge { margin-left: auto }
 .verkbar { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line) }
 .verkbar .vg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
 .verkbar .label { margin-right: 2px; color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em }
@@ -496,33 +499,14 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
     <button type="button" class="burger" id="burger" aria-label="Menü" aria-expanded="false"><i class="ic" data-ico="menu"></i></button>
     <div class="navwrap" id="navwrap">
-      <div class="sg" data-grp="heute"><button type="button" class="sgh" data-grp="heute" aria-expanded="false"><i class="ic" data-ico="calendar"></i><span>Heute</span><span class="navbadge" id="grpBadgeheute" hidden></span><i class="ic chev" data-ico="chev"></i></button>
-        <nav class="tabs subs" aria-label="Heute">
-          <a href="#uebersicht" data-tab="uebersicht" data-g="heute"><i class="ic" data-ico="grid"></i><span>Übersicht</span></a>
-          <a href="#produktion" data-tab="produktion" data-g="heute"><i class="ic" data-ico="wrench"></i><span>Produktion</span></a>
-          <a href="#support" data-tab="support" data-g="heute"><i class="ic" data-ico="headset"></i><span>Support</span></a>
-        </nav></div>
-      <div class="sg" data-grp="verk"><button type="button" class="sgh" data-grp="verk" aria-expanded="false"><i class="ic" data-ico="tag"></i><span>Verkaufen</span><span class="navbadge" id="grpBadgeverk" hidden></span><i class="ic chev" data-ico="chev"></i></button>
-        <nav class="tabs subs" aria-label="Verkaufen">
-          <a href="#verk" data-tab="verk" data-g="verk"><i class="ic" data-ico="grid"></i><span>Überblick</span></a>
-          <a href="#shopcheck" data-tab="shopcheck" data-g="verk"><i class="ic" data-ico="tag"></i><span>Produkte</span><span class="navbadge" id="ideaBadge" hidden></span></a>
-          <a href="#suche" data-tab="suche" data-g="verk"><i class="ic" data-ico="search"></i><span>Sichtbarkeit</span></a>
-        </nav></div>
-      <div class="sg" data-grp="zahl"><button type="button" class="sgh" data-grp="zahl" aria-expanded="false"><i class="ic" data-ico="bars"></i><span>Zahlen</span><i class="ic chev" data-ico="chev"></i></button>
-        <nav class="tabs subs" aria-label="Zahlen">
-          <a href="#zahl" data-tab="zahl" data-g="zahl"><i class="ic" data-ico="grid"></i><span>Überblick</span></a>
-          <a href="#preise" data-tab="preise" data-g="zahl"><i class="ic" data-ico="percent"></i><span>Preise</span></a>
-          <a href="#auswertung" data-tab="auswertung" data-g="zahl"><i class="ic" data-ico="trend"></i><span>Auswertung</span></a>
-          <a href="#finanzen" data-tab="finanzen" data-g="zahl"><i class="ic" data-ico="card"></i><span>Finanzen</span></a>
-          <a href="#buchhaltung" data-tab="buchhaltung" data-g="zahl"><i class="ic" data-ico="book"></i><span>Buchhaltung</span></a>
-        </nav></div>
-      <div class="sg" data-grp="daten"><button type="button" class="sgh" data-grp="daten" aria-expanded="false"><i class="ic" data-ico="db"></i><span>Daten &amp; Einstellungen</span><i class="ic chev" data-ico="chev"></i></button>
-        <nav class="tabs subs" aria-label="Daten &amp; Einstellungen">
-          <a href="#daten" data-tab="daten" data-g="daten"><i class="ic" data-ico="grid"></i><span>Überblick</span></a>
-          <a href="#kanaele" data-tab="kanaele" data-g="daten"><i class="ic" data-ico="link"></i><span>Kanäle</span></a>
-          <a href="#dokumente" data-tab="dokumente" data-g="daten"><i class="ic" data-ico="folder"></i><span>Dokumente</span></a>
-          <a href="#einstellungen" data-tab="einstellungen" data-g="daten"><i class="ic" data-ico="sliders"></i><span>Einstellungen</span></a>
-        </nav></div>
+      <nav class="flat" aria-label="Hauptmenü">
+        <a class="sl" href="#uebersicht" data-tab="uebersicht" data-sec="ueb"><i class="ic" data-ico="grid"></i><span>Übersicht</span></a>
+        <a class="sl" href="#verk" data-tab="verk" data-sec="sort"><i class="ic" data-ico="box"></i><span>Sortiment</span><span class="navbadge" id="ideaBadge" hidden></span></a>
+        <a class="sl" href="#kanaele" data-tab="kanaele" data-sec="kan"><i class="ic" data-ico="shop"></i><span>Verkaufskanäle</span></a>
+        <a class="sl" href="#produktion" data-tab="produktion" data-sec="prod"><i class="ic" data-ico="wrench"></i><span>Produktion</span></a>
+        <a class="sl" href="#zahl" data-tab="zahl" data-sec="fin"><i class="ic" data-ico="card"></i><span>Finanzen</span></a>
+        <a class="sl" href="#daten" data-tab="daten" data-sec="dat"><i class="ic" data-ico="db"></i><span>Daten &amp; Einstellungen</span></a>
+      </nav>
     </div>
   </div>
 </header>
@@ -531,13 +515,13 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   new ResizeObserver(([e]) => document.documentElement.style.setProperty("--toph", matchMedia("(min-width: 900px)").matches ? "0px" : e.target.offsetHeight + "px")).observe(document.querySelector("header.top"));
   // Symbole für das Menü
   (() => {
-    const P = { calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>', grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>', wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>', headset: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>', tag: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/>', plus: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>', bag: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>', search: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>', send: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>', bars: '<path d="M12 20V10M18 20V4M6 20v-4"/>', percent: '<path d="M19 5L5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>', trend: '<path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/>', card: '<rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>', book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>', db: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>', link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>', folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>', sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>', chev: '<path d="M6 9l6 6 6-6"/>', menu: '<path d="M3 6h18M3 12h18M3 18h18"/>' };
+    const P = { box: '<path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8M12 13v8"/>', shop: '<path d="M3 9l1.5-5h15L21 9M3 9v11h18V9M3 9h18M9 20v-6h6v6"/>', calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>', grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>', wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>', headset: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>', tag: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/>', plus: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>', bag: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>', search: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>', send: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>', bars: '<path d="M12 20V10M18 20V4M6 20v-4"/>', percent: '<path d="M19 5L5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>', trend: '<path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/>', card: '<rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>', book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>', db: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>', link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>', folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>', sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>', chev: '<path d="M6 9l6 6 6-6"/>', menu: '<path d="M3 6h18M3 12h18M3 18h18"/>' };
     window.hlzIco = n => '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[n] || "") + "</svg>";
     document.querySelectorAll("[data-ico]").forEach(e => { e.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[e.dataset.ico] || "") + "</svg>"; });
     document.addEventListener("click", e => {
       const h = e.target.closest && e.target.closest(".sgh"); if (h) { const g = h.closest(".sg"), o = !g.classList.contains("open"); document.querySelectorAll(".sg").forEach(x => { x.classList.remove("open"); const b = x.querySelector(".sgh"); if (b) b.setAttribute("aria-expanded", "false"); }); g.classList.toggle("open", o); h.setAttribute("aria-expanded", o); return; }
       const bg = e.target.closest && e.target.closest("#burger"); if (bg) { const t = document.querySelector("header.top"), o = !t.classList.contains("menu"); t.classList.toggle("menu", o); bg.setAttribute("aria-expanded", o); return; }
-      if (e.target.closest && e.target.closest("nav.subs a")) document.querySelector("header.top").classList.remove("menu");
+      if (e.target.closest && e.target.closest("nav.flat a")) document.querySelector("header.top").classList.remove("menu");
     });
   })();
 </script>
@@ -1049,7 +1033,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele", "verk", "zahl", "daten"].includes(h) ? h : "uebersicht";
     const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
-    document.querySelectorAll("nav.subs a").forEach(l => { if (l.dataset.tab === actTab) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
+    { const sc = secOf(view); document.querySelectorAll("nav.flat a").forEach(l => { if (l.dataset.sec === sc) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); }); }
     navGroups(actTab);
     render();
     window.scrollTo(0, 0);
@@ -6712,10 +6696,19 @@ Claude:`;
   document.addEventListener("change", e => { const c = e.target; if (!c.dataset || !c.dataset.gt || !c.dataset.gt.startsWith("chk:")) return; const [, g, id] = c.dataset.gt.split(":"); const x = gtodo(g).find(y => y.id === id); if (x) { x.done = c.checked; saveSettings(); gtRefresh(g); } });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.gtin) { e.preventDefault(); gtAdd(e.target.dataset.gtin); } });
   const gdTile = (l, val, sub, href) => `<a class="tile" href="${href}" style="text-decoration:none;color:inherit"><span class="label">${l}</span><strong style="font-size:1.5em;display:block">${val}</strong><span class="note">${sub}</span></a>`;
-  // ---------- Verkaufen: eine gemeinsame Leiste ueber allen Seiten des Bereichs ----------
-  const VERK_BAR = [["Produkte", [["shopcheck", "Shop-Check"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"], ["gravuren", "Gravur-Test"]]], ["Sichtbarkeit", [["suche", "Suchbegriffe"], ["werbung", "Marketing"]]]];
-  const verkBar = () => `<div class="verkbar">${VERK_BAR.map(([g, it]) => `<div class="vg"><span class="label">${g}</span>${it.map(([h, l]) => `<a class="btn ${view === h ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div>`).join("")}</div>`;
-  (() => { const v = document.getElementById("view"); if (!v) return; let busy = false; new MutationObserver(() => { if (busy) return; if (!VERK_BAR.some(([, it]) => it.some(([h]) => h === view))) return; if (v.firstElementChild && v.firstElementChild.classList.contains("verkbar")) return; busy = true; try { v.insertAdjacentHTML("afterbegin", verkBar()); } finally { busy = false; } }).observe(v, { childList: true }); })();
+  // ---------- Hauptmenü: 6 Bereiche, innerhalb jedes Bereichs eine gemeinsame Leiste ----------
+  const SECS = {
+    ueb: ["Übersicht", []],
+    sort: ["Sortiment", [["verk", "Überblick"], ["shopcheck", "Shop-Check"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"], ["gravuren", "Gravur-Test"], ["suche", "Suchbegriffe"]]],
+    kan: ["Verkaufskanäle", [["kanaele", "Kanäle & Abgleich"], ["werbung", "Marketing"]]],
+    prod: ["Produktion", [["produktion", "Produktion"], ["support", "Support"]]],
+    fin: ["Finanzen", [["zahl", "Überblick"], ["preise", "Preise"], ["auswertung", "Auswertung"], ["finanzen", "Finanzen"], ["buchhaltung", "Buchhaltung"]]],
+    dat: ["Daten & Einstellungen", [["daten", "Überblick"], ["dokumente", "Dokumente"], ["einstellungen", "Einstellungen"]]]
+  };
+  const SEC_EXTRA = { import: "dat", entwicklung: "fin", datencheck: "fin" };
+  function secOf(vw) { if (SEC_EXTRA[vw]) return SEC_EXTRA[vw]; for (const k in SECS) if (SECS[k][1].some(([h]) => h === vw)) return k; return "ueb"; }
+  const secBar = () => { const k = secOf(view), it = SECS[k][1]; if (it.length < 2) return ""; return `<div class="verkbar"><div class="vg"><span class="label">${esc(SECS[k][0])}</span>${it.map(([h, l]) => `<a class="btn ${view === h || (h === "einstellungen" && view === "import") ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div></div>`; };
+  (() => { const v = document.getElementById("view"); if (!v) return; let busy = false; new MutationObserver(() => { if (busy) return; const h = v.firstElementChild; if (h && h.classList.contains("verkbar")) { if (h.dataset.v === view) return; h.remove(); } const html = secBar(); if (!html) return; busy = true; try { v.insertAdjacentHTML("afterbegin", html.replace('class="verkbar"', 'class="verkbar" data-v="' + view + '"')); } finally { busy = false; } }).observe(v, { childList: true }); })();
   function renderGrp(g) {
     const T = [], n0 = x => Number(x || 0).toLocaleString("de-DE"), td = todayISO();
     const add = f => { try { const r = f(); if (r) T.push(r); } catch (e) {} };
@@ -6741,7 +6734,7 @@ Claude:`;
       add(() => { const ph = phCount(); return gdTile("Geschätzte Werte", String(ph), ph ? "in Einstellungen noch durch echte Werte ersetzen" : "alles mit echten Werten", "#einstellungen"); });
       add(() => gdTile("Dokumente", "Ablage", "Belege, Verträge, Exporte", "#dokumente"));
     }
-    const name = { verk: "Verkaufen", zahl: "Zahlen", daten: "Daten & Einstellungen" }[g];
+    const name = { verk: "Sortiment", zahl: "Finanzen", daten: "Daten & Einstellungen" }[g];
     $("view").innerHTML = `<h1 style="margin:0">${esc(name)}: Überblick</h1>
       <div class="tiles">${T.join("")}</div>${gtodoBox(g)}`;
   }
