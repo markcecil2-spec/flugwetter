@@ -488,6 +488,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         </nav></div>
       <div class="sg" data-grp="verk"><button type="button" class="sgh" data-grp="verk" aria-expanded="false"><i class="ic" data-ico="tag"></i><span>Verkaufen</span><span class="navbadge" id="grpBadgeverk" hidden></span><i class="ic chev" data-ico="chev"></i></button>
         <nav class="tabs subs" aria-label="Verkaufen">
+          <a href="#verk" data-tab="verk" data-g="verk"><i class="ic" data-ico="grid"></i><span>Überblick</span></a>
           <a href="#neu" data-tab="neu" data-g="verk"><i class="ic" data-ico="plus"></i><span>Produkte hinzufügen</span></a>
           <a href="#shopcheck" data-tab="shopcheck" data-g="verk"><i class="ic" data-ico="bag"></i><span>Shop-Check</span><span class="navbadge" id="ideaBadge" hidden></span></a>
           <a href="#suche" data-tab="suche" data-g="verk"><i class="ic" data-ico="search"></i><span>Suchbegriffe</span></a>
@@ -495,6 +496,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         </nav></div>
       <div class="sg" data-grp="zahl"><button type="button" class="sgh" data-grp="zahl" aria-expanded="false"><i class="ic" data-ico="bars"></i><span>Zahlen</span><i class="ic chev" data-ico="chev"></i></button>
         <nav class="tabs subs" aria-label="Zahlen">
+          <a href="#zahl" data-tab="zahl" data-g="zahl"><i class="ic" data-ico="grid"></i><span>Überblick</span></a>
           <a href="#preise" data-tab="preise" data-g="zahl"><i class="ic" data-ico="percent"></i><span>Preise</span></a>
           <a href="#auswertung" data-tab="auswertung" data-g="zahl"><i class="ic" data-ico="trend"></i><span>Auswertung</span></a>
           <a href="#finanzen" data-tab="finanzen" data-g="zahl"><i class="ic" data-ico="card"></i><span>Finanzen</span></a>
@@ -502,6 +504,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         </nav></div>
       <div class="sg" data-grp="daten"><button type="button" class="sgh" data-grp="daten" aria-expanded="false"><i class="ic" data-ico="db"></i><span>Daten &amp; Einstellungen</span><i class="ic chev" data-ico="chev"></i></button>
         <nav class="tabs subs" aria-label="Daten &amp; Einstellungen">
+          <a href="#daten" data-tab="daten" data-g="daten"><i class="ic" data-ico="grid"></i><span>Überblick</span></a>
           <a href="#kanaele" data-tab="kanaele" data-g="daten"><i class="ic" data-ico="link"></i><span>Kanäle</span></a>
           <a href="#dokumente" data-tab="dokumente" data-g="daten"><i class="ic" data-ico="folder"></i><span>Dokumente</span></a>
           <a href="#einstellungen" data-tab="einstellungen" data-g="daten"><i class="ic" data-ico="sliders"></i><span>Einstellungen</span></a>
@@ -1029,7 +1032,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele", "verk", "zahl", "daten"].includes(h) ? h : "uebersicht";
     const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
     document.querySelectorAll("nav.subs a").forEach(l => { if (l.dataset.tab === actTab) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     navGroups(actTab);
@@ -1063,6 +1066,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "gravuren") renderGrav();
     else if (view === "neu") renderNeu();
     else if (view === "kanaele") renderKanaele();
+    else if (view === "verk" || view === "zahl" || view === "daten") renderGrp(view);
     else if (view === "suche") renderSuche();
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
@@ -2637,6 +2641,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     $("view").innerHTML = `
       <h1 style="margin:0">Übersicht</h1>
       ${top5()}
+      ${gtodoBox("heute")}
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
       <div class="tiles">
         <div class="tile hero"><span class="label">Ergebnis pro Monat${info(`Was im Monat übrig bleibt: Deckungsbeitrag minus Fixkosten. Deine Arbeitszeit ist schon mit ${eur(v(S.rate))}/h als Kosten abgezogen. Davon gehen noch Einkommensteuer und Krankenversicherung ab.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
@@ -6639,6 +6644,56 @@ Claude:`;
     }
   });
   document.addEventListener("click", e => { const l = e.target.closest && e.target.closest("label.btn"); if (l && view === "kanaele" && /Zum Upload/.test(l.textContent)) { e.preventDefault(); location.hash = "#suche"; } });
+
+  // ---------- Bereichs-Dashboards (Verkaufen, Zahlen, Daten) mit eigener To-do-Liste je Bereich
+  const gtodo = g => ((S.gtodo = S.gtodo || {})[g] = S.gtodo[g] || []);
+  function gtodoBox(g) {
+    const L = gtodo(g), open = L.filter(x => !x.done), done = L.filter(x => x.done);
+    return `<section class="box" id="gt-${g}"><h2 style="margin:0">To-dos für diesen Bereich</h2>
+      <div style="display:flex;gap:8px"><input type="text" id="gtin-${g}" data-gtin="${g}" placeholder="Was ist zu tun? Enter zum Hinzufügen" style="flex:1;min-width:0"><button type="button" class="btn primary" data-gt="add:${g}">+ Hinzufügen</button></div>
+      ${open.length || done.length ? `<div style="display:grid;gap:6px">${open.concat(done).map(x => `<div style="display:flex;gap:10px;align-items:center"><input type="checkbox" data-gt="chk:${g}:${x.id}" ${x.done ? "checked" : ""}><span style="flex:1;${x.done ? "text-decoration:line-through;color:var(--muted)" : ""}">${esc(x.t)}</span><button type="button" class="btn" style="padding:2px 8px" data-gt="del:${g}:${x.id}" title="Löschen">✕</button></div>`).join("")}</div>` : `<p class="note" style="margin:0">Noch nichts drin. Schreib hier auf, was in diesem Bereich ansteht.</p>`}
+      ${done.length ? `<div><button type="button" class="btn" style="padding:3px 10px" data-gt="clean:${g}">Erledigte entfernen</button></div>` : ""}</section>`;
+  }
+  function gtRefresh(g, focus) { const el = $("gt-" + g); if (!el) return; el.outerHTML = gtodoBox(g); if (focus) { const i = $("gtin-" + g); if (i) i.focus(); } }
+  function gtAdd(g) { const i = $("gtin-" + g); const t = i && i.value.trim(); if (!t) return; gtodo(g).push({ id: uid(), t, done: false }); saveSettings(); gtRefresh(g, true); }
+  document.addEventListener("click", e => {
+    const b = e.target.closest && e.target.closest("button[data-gt]"); if (!b) return; const [a, g, id] = b.dataset.gt.split(":");
+    if (a === "add") return gtAdd(g);
+    if (a === "del") { S.gtodo[g] = gtodo(g).filter(x => x.id !== id); saveSettings(); return gtRefresh(g); }
+    if (a === "clean") { S.gtodo[g] = gtodo(g).filter(x => !x.done); saveSettings(); return gtRefresh(g); }
+  });
+  document.addEventListener("change", e => { const c = e.target; if (!c.dataset || !c.dataset.gt || !c.dataset.gt.startsWith("chk:")) return; const [, g, id] = c.dataset.gt.split(":"); const x = gtodo(g).find(y => y.id === id); if (x) { x.done = c.checked; saveSettings(); gtRefresh(g); } });
+  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.gtin) { e.preventDefault(); gtAdd(e.target.dataset.gtin); } });
+  const gdTile = (l, val, sub, href) => `<a class="tile" href="${href}" style="text-decoration:none;color:inherit"><span class="label">${l}</span><strong style="font-size:1.5em;display:block">${val}</strong><span class="note">${sub}</span></a>`;
+  function renderGrp(g) {
+    const T = [], n0 = x => Number(x || 0).toLocaleString("de-DE"), td = todayISO();
+    const add = f => { try { const r = f(); if (r) T.push(r); } catch (e) {} };
+    if (!SHOP) shopLoad();
+    if (g === "verk") {
+      add(() => { const P = SHOP && SHOP.shopify && SHOP.shopify.products; if (!P) return gdTile("Shop-Check", "–", "Noch nicht geladen. Dort „Aktualisieren“ drücken.", "#shopcheck"); const noM = P.filter(p => !p.seoD).length, noA = P.filter(p => p.noAlt).length; return gdTile("Shop-Check", n0(P.length) + " Produkte", `${noM} ohne Meta-Beschreibung · ${noA} mit Bildern ohne Alt-Text`, "#shopcheck"); });
+      add(() => { const sh = SHOP && SHOP.shopify; if (!sh || !sh.sales) return ""; const q = Object.values(sh.sales).reduce((a, x) => a + (+x || 0), 0), top = Object.entries(sh.sales).sort((a, b) => b[1] - a[1])[0], pr = top && (sh.products || []).find(p => p.id === top[0]); return gdTile("Shopify-Verkäufe (12 Monate)", n0(q) + " Stück", pr ? "Meistverkauft: " + esc(String(pr.title).slice(0, 40)) : "", "#shopcheck"); });
+      add(() => { const d = SC(); if (!d || !d.dates || d.dates.length < 40) return gdTile("Google-Klicks", "–", "Search Console hochladen", "#suche"); const l = d.dates.slice(-28), p = d.dates.slice(-56, -28), f = z => z.reduce((a, x) => a + x.c, 0), a = f(l), b = f(p), dl = b ? Math.round((a - b) / b * 100) : 0; return gdTile("Google-Klicks (28 Tage)", n0(a), (dl >= 0 ? "+" : "") + dl + " % zur Vorperiode", "#suche"); });
+      add(() => gdTile("Produkte hinzufügen", "Neu anlegen", "Foto, Text, Preis, direkt in Shopify", "#neu"));
+      add(() => gdTile("Marketing", "Werbung & Content", "Ideen, Kalender, Anzeigen", "#werbung"));
+    } else if (g === "zahl") {
+      const m = monthly(volume()), has = m.qty > 0, t = has ? afterTax(m) : null;
+      add(() => gdTile("Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten, vor Steuer", "#auswertung"));
+      add(() => gdTile("Bleibt nach Steuer", has ? eur0(t.net) : "–", "inkl. Stundenlohn, geschätzt", "#auswertung"));
+      add(() => gdTile("Deckungsbeitrag", has ? eur0(m.db) : "–", has ? "aus " + n0(Math.round(m.qty)) + " Verkäufen/Monat" : "", "#preise"));
+      add(() => gdTile("Fixkosten", eur0(fixTotal()), "Miete, Software, Abos", "#einstellungen"));
+      add(() => { const b = (SHOP && SHOP.buch) || {}, tt = buTotals({ pay: b.pay || [] }); return gdTile("Noch zu zahlen", eur0(tt.openAll), `davon Steuer ${eur0(tt.openTax)}`, "#buchhaltung"); });
+      add(() => { const b = (SHOP && SHOP.buch) || {}, nx = (b.dl || []).filter(x => x.d && x.d >= td).sort((a, c) => a.d.localeCompare(c.d))[0]; if (!nx) return gdTile("Nächste Frist", "–", "Keine offene Frist eingetragen", "#buchhaltung"); const d = Math.round((new Date(nx.d + "T12:00") - new Date(td + "T12:00")) / 864e5); return gdTile("Nächste Frist", new Date(nx.d + "T12:00").toLocaleDateString("de-DE"), `in ${d} Tag${d === 1 ? "" : "en"}: ${esc(nx.t || "")}`, "#buchhaltung"); });
+      add(() => gdTile("Finanzen", "Konto & Plan", "Überblick, Monatsplan, Kontoauszüge", "#finanzen"));
+    } else if (g === "daten") {
+      add(() => { const r = { r: 0, y: 0, g: 0 }; kanAll().forEach(c => { const a = kanAmpel(c); if (a[2] === "-") return; r[a[0].includes("bad") ? "r" : a[0] === "#c98a00" ? "y" : "g"]++; }); return gdTile("Kanäle", `${r.g} aktuell`, `${r.y} bald fällig · ${r.r} überfällig oder noch nie abgeglichen`, "#kanaele"); });
+      add(() => { const nOpen = A.filter(a => missing(a).length).length; return gdTile("Artikel", n0(A.length), `${nOpen} mit fehlenden Daten`, "#uebersicht"); });
+      add(() => { const ph = phCount(); return gdTile("Geschätzte Werte", String(ph), ph ? "in Einstellungen noch durch echte Werte ersetzen" : "alles mit echten Werten", "#einstellungen"); });
+      add(() => gdTile("Dokumente", "Ablage", "Belege, Verträge, Exporte", "#dokumente"));
+    }
+    const name = { verk: "Verkaufen", zahl: "Zahlen", daten: "Daten & Einstellungen" }[g];
+    $("view").innerHTML = `<h1 style="margin:0">${esc(name)}: Überblick</h1>
+      <div class="tiles">${T.join("")}</div>${gtodoBox(g)}`;
+  }
 
   // ---------- Privat: To-do-Liste (getrennter Bereich zusammen mit Finanzen) ----------
   const TODO_REP = [["", "einmalig"], ["w", "jede Woche"], ["m", "jeden Monat"], ["y", "jedes Jahr"]];
