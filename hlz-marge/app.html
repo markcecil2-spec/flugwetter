@@ -462,6 +462,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
       <a href="#produktion" data-tab="produktion" data-g="betr">Produktion</a>
       <a href="#neu" data-tab="neu" data-g="betr">Produkte hinzufügen</a>
       <a href="#support" data-tab="support" data-g="betr">Support</a>
+      <a href="#kanaele" data-tab="kanaele" data-g="betr">Kanäle</a>
       <a href="#werbung" data-tab="werbung" data-g="mark">Marketing</a>
       <a href="#suche" data-tab="suche" data-g="mark">Suchbegriffe</a>
       <a href="#shopcheck" data-tab="shopcheck" data-g="mark">Shop-Check<span class="navbadge" id="ideaBadge" hidden></span></a>
@@ -983,7 +984,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele"].includes(h) ? h : "uebersicht";
     const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" ? "shopcheck" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
     document.querySelectorAll("nav.subs a").forEach(l => { if (l.dataset.tab === actTab) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); });
     navGroups(actTab);
@@ -1016,6 +1017,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "finanzen") finDraw();
     else if (view === "gravuren") renderGrav();
     else if (view === "neu") renderNeu();
+    else if (view === "kanaele") renderKanaele();
     else if (view === "suche") renderSuche();
     else if (view === "ideen") renderIdeas();
     else if (view === "shopcheck") renderShop();
@@ -6466,6 +6468,88 @@ Claude:`;
     if (b.dataset.sc === "imps") { scUi.imp.ask = true; return rr(); }
     if (b.dataset.sc === "impno") { scUi.imp.ask = false; return rr(); }
     if (b.dataset.sc === "impok") return scImpApply(); if (b.dataset.sc === "del") { if (!sure("Search-Console-Daten wirklich entfernen?")) return; S.sc = null; saveSettings(); scUi.msg = ""; renderSuche(); } });
+
+  // ---------- Betrieb: Kanäle (Übersicht aller Kanäle, Anbindung, Notiz) ----------
+  const KAN = [
+    ["Verkauf", [
+      ["shopify", "Shopify (hlzladen.de)", "ja", "Live angebunden: Produkte, Bestellungen, Verkäufe, Texte schreiben."],
+      ["etsy", "Etsy", "teil", "Läuft über CSV-Export (Buchhaltung). Keine Live-Anbindung."],
+      ["kleinanz", "Kleinanzeigen", "nein", "Nur manuell. Antworten laufen über den Kleinanzeigen-Skill."],
+      ["amazon", "Amazon Handmade", "nein", "Nicht aufgebaut. Nur prüfen, wenn Etsy/Shop gut laufen."],
+      ["ebay", "eBay", "nein", "Nicht genutzt."]]],
+    ["Sichtbarkeit & Suche", [
+      ["gsc", "Google Search Console", "teil", "Per ZIP/CSV-Upload im Tab Suchbegriffe. Alle paar Wochen neu exportieren."],
+      ["ga", "Google Analytics", "nein", "Nicht eingerichtet. Besucher, Quellen und Absprünge sind unbekannt."],
+      ["merchant", "Google Merchant Center (Shopping)", "nein", "Kostenlose Shopping-Einträge prüfen, kostet nur Einrichtung."],
+      ["gbp", "Google Unternehmensprofil", "nein", "Nur sinnvoll mit Ladenadresse oder Abholung."],
+      ["bing", "Bing Webmaster Tools", "nein", "Kleine Reichweite, aber in 5 Min eingerichtet."]]],
+    ["Social & Content", [
+      ["pinterest", "Pinterest", "teil", "Tägliche Pins per Skill, manuell gepostet. Statistik-CSV noch nicht eingebunden."],
+      ["insta", "Instagram", "teil", "Manuell, Texte per Skill. Keine Statistik im Dashboard."],
+      ["fb", "Facebook", "nein", "Nur wenn Seite/Gruppen aktiv sind."],
+      ["tiktok", "TikTok", "nein", "Nicht genutzt."],
+      ["yt", "YouTube", "nein", "Nicht genutzt."],
+      ["blog", "Blog / Shopify-Artikel", "nein", "Kein Datenkanal, aber SEO-Hebel."]]],
+    ["Werbung", [
+      ["gads", "Google Ads", "nein", "Keine Anzeigen geschaltet."],
+      ["meta", "Meta Ads (Facebook/Instagram)", "nein", "Keine Anzeigen geschaltet."],
+      ["pads", "Pinterest Ads", "nein", "Keine Anzeigen geschaltet."],
+      ["eads", "Etsy Ads", "nein", "Noch nicht geprüft."]]],
+    ["Kunden & Kommunikation", [
+      ["gmail", "Gmail (Kundenmails)", "ja", "Über Connector angebunden."],
+      ["news", "Newsletter / E-Mail-Marketing", "nein", "Kein Tool im Einsatz. Shopify Email wäre der einfache Start."],
+      ["bewert", "Bewertungen (Etsy, Google, Trusted Shops)", "nein", "Nicht zentral erfasst."]]],
+    ["Backoffice", [
+      ["billbee", "Billbee", "teil", "Aufträge per Skill/Skript. Kein Dauer-Abgleich im Dashboard."],
+      ["lexware", "Lexware Office", "teil", "Import per CSV (Monatsbuchhaltung)."],
+      ["paypal", "PayPal", "teil", "Export per CSV für die Buchhaltung."],
+      ["bank", "Bank / Kontoauszüge", "teil", "CSV-Import im Tab Finanzen."],
+      ["todoist", "Todoist", "ja", "Über Connector angebunden."]]]
+  ];
+  const kanUi = { add: false, msg: "" };
+  const kanAll = () => KAN.flatMap(g => g[1].map(x => ({ id: x[0], name: x[1], st: x[2], note: x[3], g: g[0] }))).concat((S.kanX || []).map(x => ({ id: x.id, name: x.name, st: x.st || "nein", note: x.note || "", g: "Eigene", own: true })));
+  function kanGet(c) { const o = (S.kan || {})[c.id] || {}; return { st: o.st || c.st, note: o.note != null ? o.note : c.note, csv: o.csv || null }; }
+  function kanSet(id, patch) { S.kan = S.kan || {}; S.kan[id] = Object.assign({}, S.kan[id], patch); saveSettings(); }
+  const KST = { ja: ["ja", "var(--ok,#2f7d4f)", "Angebunden"], teil: ["teil", "#c98a00", "Teilweise / per CSV"], nein: ["nein", "var(--bad,#b3402f)", "Nicht angebunden"] };
+  function renderKanaele() {
+    const all = kanAll(), cnt = { ja: 0, teil: 0, nein: 0 };
+    all.forEach(c => cnt[kanGet(c).st]++);
+    const dot = s => `<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:${KST[s][1]};vertical-align:middle"></span>`;
+    const grp = [...new Set(all.map(c => c.g))];
+    const rows = grp.map(g => `<section class="box"><h2 style="margin-top:0">${esc(g)}</h2><div style="overflow-x:auto"><table><thead><tr><th>Kanal</th><th>Status</th><th>Notiz</th><th>CSV</th><th></th></tr></thead><tbody>${all.filter(c => c.g === g).map(c => {
+      const v = kanGet(c);
+      return `<tr><td style="white-space:normal;min-width:150px"><strong>${esc(c.name)}</strong></td>
+        <td style="white-space:nowrap">${dot(v.st)} <select data-kan="st:${esc(c.id)}" style="margin-left:4px">${Object.keys(KST).map(k => `<option value="${k}"${k === v.st ? " selected" : ""}>${KST[k][2]}</option>`).join("")}</select></td>
+        <td style="white-space:normal;min-width:240px"><input type="text" data-kan="note:${esc(c.id)}" value="${esc(v.note)}" style="width:100%" placeholder="Notiz …"></td>
+        <td style="white-space:normal;min-width:130px"><label class="btn" style="padding:4px 10px;cursor:pointer">CSV hochladen<input type="file" accept=".csv,.zip,.txt,text/csv" data-kan="csv:${esc(c.id)}" hidden></label>${v.csv ? `<div class="note" style="margin-top:3px">${esc(v.csv.name)}<br>${v.csv.rows} Zeilen · ${esc(new Date(v.csv.at).toLocaleDateString("de-DE"))}</div>` : ""}</td>
+        <td>${c.own ? `<button type="button" class="btn" style="padding:4px 8px" data-kan="del:${esc(c.id)}" title="Kanal entfernen">✕</button>` : ""}</td></tr>`;
+    }).join("")}</tbody></table></div></section>`).join("");
+    $("view").innerHTML = `<div class="row"><h1>Kanäle</h1></div>
+      <section class="box"><div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+        <span>${dot("ja")} <strong>${cnt.ja}</strong> angebunden</span><span>${dot("teil")} <strong>${cnt.teil}</strong> teilweise / per CSV</span><span>${dot("nein")} <strong>${cnt.nein}</strong> nicht angebunden</span>
+        <button type="button" class="btn" data-kan="addopen" style="margin-left:auto">+ Eigener Kanal</button></div>
+        ${kanUi.add ? `<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="kanNew" placeholder="Name des Kanals" style="flex:1;min-width:200px"><button type="button" class="btn primary" data-kan="addok">Hinzufügen</button></div>` : ""}
+        ${kanUi.msg ? `<div class="note" style="margin-top:8px">${esc(kanUi.msg)}</div>` : ""}
+        <div class="note" style="margin-top:8px">Die Startwerte sind meine Einschätzung aus dem, was ich im Dashboard und in den Skills sehe. Stimmt etwas nicht, einfach Status und Notiz ändern, das wird gespeichert. Ein CSV-Upload merkt sich Datei, Zeilenzahl und Datum und setzt „Nicht angebunden“ auf „Teilweise“. Ausgewertet wird er nur bei Search Console (Tab Suchbegriffe).</div></section>${rows}`;
+  }
+  document.addEventListener("change", async e => {
+    const t = e.target; if (view !== "kanaele" || !t || !t.dataset || !t.dataset.kan) return; const [a, id] = t.dataset.kan.split(":");
+    if (a === "st") { kanSet(id, { st: t.value }); return renderKanaele(); }
+    if (a === "note") return kanSet(id, { note: t.value });
+    if (a === "csv" && t.files[0]) {
+      const f = t.files[0]; let rows = 0;
+      try { if (/\.zip$/i.test(f.name)) rows = (await scZip(await f.arrayBuffer())).length; else rows = Math.max(0, parseCSV(await f.text()).length - 1); } catch (er) { kanUi.msg = "Datei konnte nicht gelesen werden: " + er.message; return renderKanaele(); }
+      const c = kanAll().find(x => x.id === id), v = kanGet(c);
+      kanSet(id, { csv: { name: f.name, rows, at: new Date().toISOString() }, st: v.st === "nein" ? "teil" : v.st });
+      kanUi.msg = `✓ ${f.name} gemerkt (${rows} ${/\.zip$/i.test(f.name) ? "Dateien" : "Zeilen"}) für ${c.name}.`; renderKanaele();
+    }
+  });
+  document.addEventListener("click", e => {
+    const b = e.target.closest && e.target.closest("button[data-kan]"); if (!b || view !== "kanaele") return; const [a, id] = b.dataset.kan.split(":");
+    if (a === "addopen") { kanUi.add = !kanUi.add; return renderKanaele(); }
+    if (a === "addok") { const n = ($("kanNew").value || "").trim(); if (!n) return; (S.kanX = S.kanX || []).push({ id: "x" + uid(), name: n, st: "nein", note: "" }); saveSettings(); kanUi.add = false; return renderKanaele(); }
+    if (a === "del") { if (!sure("Kanal wirklich entfernen?")) return; S.kanX = (S.kanX || []).filter(x => x.id !== id); if (S.kan) delete S.kan[id]; saveSettings(); renderKanaele(); }
+  });
 
   // ---------- Privat: To-do-Liste (getrennter Bereich zusammen mit Finanzen) ----------
   const TODO_REP = [["", "einmalig"], ["w", "jede Woche"], ["m", "jeden Monat"], ["y", "jedes Jahr"]];
