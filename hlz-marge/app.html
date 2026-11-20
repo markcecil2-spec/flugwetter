@@ -2584,21 +2584,21 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   function phCount() { return ["fixed", "small", "mach", "ship"].reduce((s, k) => s + (S[k] || []).filter(x => x.ph).length, 0); }
   // Heute-Übersicht: die 5 dringendsten Punkte aus Fristen, Zahlungen, To-dos, Anfertigungen und Kanälen
   function top5() {
-    const L = [], td = todayISO(), in7 = addDays(td, 7), in14 = addDays(td, 14), dd = x => new Date(x + "T12:00").toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+    const L = [], td = todayISO(), in7 = addDays(td, 7), dd = x => new Date(x + "T12:00").toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
     const urgD = x => x < td ? 0 : x <= in7 ? 1 : 2;
     try {
       const b = (SHOP && SHOP.buch) || {};
-      (b.dl || []).filter(x => x.d && x.d <= in14).forEach(x => L.push({ u: urgD(x.d), t: `Frist ${dd(x.d)}: ${x.t || "ohne Namen"}`, w: x.d < td ? "überfällig" : "", h: "#buchhaltung" }));
-      (b.pay || []).filter(x => x.status !== "bezahlt" && x.due && x.due <= in14).forEach(x => L.push({ u: urgD(x.due), t: `Zahlen bis ${dd(x.due)}: ${x.n || "Posten"}${v(x.amt) ? " (" + eur0(v(x.amt)) + ")" : ""}`, w: x.due < td ? "überfällig" : "", h: "#buchhaltung" }));
+      (b.dl || []).filter(x => x.d && x.d <= in7).forEach(x => L.push({ u: urgD(x.d), t: `Frist ${dd(x.d)}: ${x.t || "ohne Namen"}`, w: x.d < td ? "überfällig" : x.d === td ? "heute" : "", h: "#buchhaltung" }));
+      (b.pay || []).filter(x => x.status !== "bezahlt" && x.due && x.due <= in7).forEach(x => L.push({ u: urgD(x.due), t: `Zahlen bis ${dd(x.due)}: ${x.n || "Posten"}${v(x.amt) ? " (" + eur0(v(x.amt)) + ")" : ""}`, w: x.due < td ? "überfällig" : x.due === td ? "heute" : "", h: "#buchhaltung" }));
       (b.todo || []).filter(x => !x.done).slice(0, 2).forEach(x => L.push({ u: 3, t: x.t, w: "", h: "#buchhaltung" }));
     } catch (e) {}
     try { TODOS().filter(x => !x.done && (x.p || (x.due && x.due <= in7))).forEach(x => L.push({ u: x.due && x.due < td ? 0 : x.due && x.due <= td ? 1 : 3, t: x.t, w: x.due && x.due < td ? "überfällig" : "", h: "" })); } catch (e) {}
     try { const n = ANF.filter(x => x.status === "geprueft").length; if (n) L.push({ u: 2, t: `${n} Anfertigung${n === 1 ? "" : "en"} bereit zum Weitergeben`, w: "", h: "#support" }); } catch (e) {}
-    try { const r = kanAll().map(c => ({ c, a: kanAmpel(c) })).filter(x => x.a[2] !== "-" && x.a[0].includes("bad")); if (r.length) L.push({ u: 3, t: `${r.length} Kanal${r.length === 1 ? "" : "-Abgleiche"} überfällig: ${r.slice(0, 3).map(x => x.c.name.replace(/:.*/, "")).join(", ")}${r.length > 3 ? " …" : ""}`, w: "", h: "#kanaele" }); } catch (e) {}
+    try { const r = kanAll().map(c => ({ c, a: kanAmpel(c) })).filter(x => x.a[2] !== "-" && x.a[0].includes("bad") && kanLast(x.c)); if (r.length) L.push({ u: 3, t: `${r.length} Kanal${r.length === 1 ? "" : "-Abgleiche"} überfällig: ${r.slice(0, 3).map(x => x.c.name.replace(/:.*/, "")).join(", ")}${r.length > 3 ? " …" : ""}`, w: "", h: "#kanaele" }); } catch (e) {}
     L.sort((a, b) => a.u - b.u);
     const col = u => u === 0 ? "var(--bad,#b3402f)" : u <= 2 ? "#c98a00" : "#9a9a9a";
     const top = L.slice(0, 5);
-    return `<section class="box"><h2 style="margin-top:0">Das ist heute dran</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}">Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. 🎉</p>`}</section>`;
+    return `<section class="box"><h2 style="margin-top:0">Das steht an</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}">Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. Termine erscheinen hier erst, wenn sie in den nächsten 7 Tagen fällig sind. 🎉</p>`}</section>`;
   }
   function renderOverview() {
     const ctx = volume();
