@@ -2614,9 +2614,39 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     L.sort((a, b) => a.u - b.u);
     const col = u => u === 0 ? "var(--bad,#b3402f)" : u <= 2 ? "#c98a00" : "#9a9a9a";
     const top = L.slice(0, 5);
-    return `<section class="box"><h2 style="margin-top:0">Das steht an</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}">Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. Termine erscheinen hier erst, wenn sie in den nächsten 7 Tagen fällig sind. 🎉</p>`}</section>`;
+    return `<section class="box"><h2 style="margin-top:0">Das steht an</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}">Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. Termine erscheinen hier erst, wenn sie in den nächsten 7 Tagen fällig sind. 🎉</p>`}${gtodoBox("heute", true)}</section>`;
   }
-  // ---------- Übersicht im Dashboard-Look: Kennzahlen, Umsatzverlauf, Handlungsbedarf, Kanäle, Produktion ----------
+  // ---------- Übersicht im Dashboard-Look: Kennzahlen, Umsatzverlauf, Handlungsbedarf, Kanäle ----------
+  let chartP = "m"; try { chartP = localStorage.getItem("hlz-chart-p") || "m"; } catch (e) {}
+  function homeChartInner(D) {
+    const seg = `<div class="seg" aria-label="Zeitraum">${[["m", "Monat"], ["q", "Quartal"], ["y", "Jahr"]].map(([k, l]) => `<button type="button" data-chp="${k}" aria-pressed="${chartP === k}">${l}</button>`).join("")}</div>`;
+    const head = `<div class="row" style="margin-bottom:6px"><h2 style="margin:0">Umsatz im ${chartP === "m" ? "Monats" : chartP === "q" ? "Quartals" : "Jahres"}verlauf</h2>${seg}</div>`;
+    if (!D) return head + `<p class="note" style="margin:20px 0">${STATS ? "Noch keine Verkaufsdaten. Etsy- oder Shopify-Exporte unter Kanäle hochladen." : "Lade Verkaufsdaten …"}</p>`;
+    let R;
+    if (chartP === "m") R = D.rows.slice(-12).map(r => ({ lab: ymLab(r.ym).slice(0, 3), tip: ymLab(r.ym), e: r.e, s: r.s, eb: r.eb, rev: r.rev, part: false }));
+    else {
+      const g = {}, n = {}; D.rows.forEach(r => { const y = r.ym.slice(0, 4), key = chartP === "y" ? y : y + "-Q" + (Math.floor((+r.ym.slice(5) - 1) / 3) + 1), o = g[key] || (g[key] = { e: 0, s: 0, eb: 0, rev: 0 }); o.e += r.e; o.s += r.s; o.eb += r.eb; o.rev += r.rev; n[key] = (n[key] || 0) + 1; });
+      const per = chartP === "y" ? 12 : 3;
+      R = Object.keys(g).sort().slice(chartP === "y" ? -5 : -8).map(k => ({ lab: chartP === "y" ? k + (n[k] < 12 ? "*" : "") : k.slice(5) + " " + k.slice(2, 4) + (n[k] < 3 ? "*" : ""), tip: k.replace("-", " ") + (n[k] < per ? " (unvollständig, " + n[k] + " Monate)" : ""), ...g[k], part: n[k] < per }));
+    }
+    const mx = Math.max(1, ...R.map(r => r.rev)), nice = (() => { const e = Math.pow(10, Math.floor(Math.log10(mx))), f = mx / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; })();
+    const W = 600, H = 220, L = 60, B = 26, T = 8, bw = (W - L) / R.length, y = x => T + (H - T - B) * (1 - x / nice);
+    const grid = [0, .25, .5, .75, 1].map(f => `<line x1="${L}" x2="${W}" y1="${y(nice * f)}" y2="${y(nice * f)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(nice * f) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${Math.round(nice * f).toLocaleString("de-DE")} €</text>`).join("");
+    const bars = R.map((r, i) => { let acc = 0; const x = L + i * bw + bw * .18, w = bw * .64; const seg = [[r.e, "var(--accent)"], [r.s, "var(--walnut)"], [r.eb, "var(--seg-ship)"]].map(([val, c]) => { if (!(val > 0)) return ""; const h = (H - T - B) * val / nice, yy = y(acc) - h; acc += val; return `<rect x="${x}" y="${yy}" width="${w}" height="${h}" fill="${c}" rx="2" opacity="${r.part ? .55 : 1}"/>`; }).join(""); return `<g><title>${esc(r.tip)}: ${eur0(r.rev)}</title>${seg}<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${esc(r.lab)}</text></g>`; }).join("");
+    // Trendlinie: lineare Regression über die vollständigen Zeiträume
+    const F = R.filter(r => !r.part), idx = R.map((r, i) => i); let trend = "", note = "";
+    if (F.length >= 3) {
+      const xs = F.map(r => R.indexOf(r)), ys = F.map(r => r.rev), n = xs.length, mxs = xs.reduce((a, b) => a + b, 0) / n, mys = ys.reduce((a, b) => a + b, 0) / n;
+      const sl = xs.reduce((a, x, i) => a + (x - mxs) * (ys[i] - mys), 0) / (xs.reduce((a, x) => a + (x - mxs) ** 2, 0) || 1), ic = mys - sl * mxs, f = i => Math.max(0, Math.min(nice, ic + sl * i));
+      const cx = i => L + i * bw + bw / 2;
+      trend = `<line x1="${cx(0)}" y1="${y(f(0))}" x2="${cx(R.length - 1)}" y2="${y(f(R.length - 1))}" stroke="var(--bad,#b3402f)" stroke-width="2.5" stroke-dasharray="7 5" stroke-linecap="round"><title>Trend</title></line>`;
+      const pc = mys > 0 ? sl / mys * 100 : 0, unit = chartP === "m" ? "Monat" : chartP === "q" ? "Quartal" : "Jahr";
+      note = `<span style="color:var(--${pc > 1 ? "good" : pc < -1 ? "bad" : "muted"})">Trend ${pc > 1 ? "▲" : pc < -1 ? "▼" : "►"} ${pc > 0 ? "+" : ""}${dec(pc, 1)} % pro ${unit} (${sl >= 0 ? "+" : ""}${eur0(sl)})</span>`;
+    }
+    return head + `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Netto-Umsatz" style="width:100%;height:auto;display:block">${grid}${bars}${trend}</svg>
+      <div class="note" style="display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:4px"><span><span class="dotc" style="background:var(--accent)"></span> Etsy</span><span><span class="dotc" style="background:var(--walnut)"></span> Shopify</span>${R.some(r => r.eb > 0) ? `<span><span class="dotc" style="background:var(--seg-ship)"></span> eBay</span>` : ""}${trend ? `<span><span style="display:inline-block;width:18px;border-top:2.5px dashed var(--bad,#b3402f);vertical-align:middle"></span> Trend</span>` : ""}<span>· netto${R.some(r => r.part) ? ", * unvollständig" : ""}</span>${note}</div>`;
+  }
+  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-chp]"); if (!b) return; chartP = b.dataset.chp; try { localStorage.setItem("hlz-chart-p", chartP); } catch (x) {} const el = $("homeChart"); if (!el) return; let D = null; try { if (STATS) D = statData(); } catch (x) {} el.innerHTML = homeChartInner(D); });
   function homeDash() {
     let D = null; try { if (STATS) D = statData(); } catch (e) {}
     const m = monthly(volume()), has = m.qty > 0, last = D && D.rows[D.rows.length - 1], prev = D && D.rows[D.rows.length - 2];
@@ -2628,25 +2658,10 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       ${kp("percent", "Bleibt nach Steuer", has ? eur0(tax.net) : "–", "geschätzt, inkl. Stundenlohn", "#auswertung")}
       ${kp("card", "Noch zu zahlen", eur0(bt.openAll), "davon Steuer " + eur0(bt.openTax), "#buchhaltung")}
     </div>`;
-    let chart;
-    if (!D) chart = `<p class="note" style="margin:20px 0">${STATS ? "Noch keine Verkaufsdaten. Etsy- oder Shopify-Exporte unter Daten &amp; Einstellungen → Kanäle hochladen." : "Lade Verkaufsdaten …"}</p>`;
-    else {
-      const R = D.rows.slice(-12), mx = Math.max(1, ...R.map(r => r.rev)), nice = (() => { const e = Math.pow(10, Math.floor(Math.log10(mx))), f = mx / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; })();
-      const W = 600, H = 220, L = 60, B = 26, T = 8, bw = (W - L) / R.length, y = x => T + (H - T - B) * (1 - x / nice);
-      const grid = [0, .25, .5, .75, 1].map(f => `<line x1="${L}" x2="${W}" y1="${y(nice * f)}" y2="${y(nice * f)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(nice * f) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${Math.round(nice * f).toLocaleString("de-DE")} €</text>`).join("");
-      const bars = R.map((r, i) => { let acc = 0; const x = L + i * bw + bw * .18, w = bw * .64; const seg = [[r.e, "var(--accent)"], [r.s, "var(--walnut)"], [r.eb, "var(--seg-ship)"]].map(([val, c]) => { if (!(val > 0)) return ""; const h = (H - T - B) * val / nice, yy = y(acc) - h; acc += val; return `<rect x="${x}" y="${yy}" width="${w}" height="${h}" fill="${c}" rx="2"/>`; }).join(""); return `<g><title>${ymLab(r.ym)}: ${eur0(r.rev)}</title>${seg}<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${ymLab(r.ym).slice(0, 3)}</text></g>`; }).join("");
-      chart = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Netto-Umsatz der letzten Monate" style="width:100%;height:auto;display:block">${grid}${bars}</svg>
-        <div class="note" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px"><span><span class="dotc" style="background:var(--accent)"></span> Etsy</span><span><span class="dotc" style="background:var(--walnut)"></span> Shopify</span>${R.some(r => r.eb > 0) ? `<span><span class="dotc" style="background:var(--seg-ship)"></span> eBay</span>` : ""}<span>· netto je voller Monat</span></div>`;
-    }
+    const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const ch = last ? [["Etsy", last.e, "var(--accent)"], ["Shopify", last.s, "var(--walnut)"], ["eBay", last.eb, "var(--seg-ship)"]].filter(x => x[1] > 0 || x[0] !== "eBay") : [];
     const kan = `<section class="box"><h2 style="margin-top:0">Verkaufskanäle${last ? ` <span class="note">${ymLab(last.ym)}</span>` : ""}</h2>${ch.length ? ch.map(([n, val, c]) => `<a class="drow" href="#kanaele"><span class="dotc" style="background:${c}"></span><span style="flex:1">${n}</span><strong class="num">${eur0(val)}</strong><span class="chev2">›</span></a>`).join("") : `<p class="note">Noch keine Daten.</p>`}<div style="margin-top:8px"><a class="btn" href="#kanaele">Abgleich & Uploads</a></div></section>`;
-    const an = (k) => ANF.filter(x => x.status === k).length;
-    const prodBox = `<section class="box"><h2 style="margin-top:0">Anfertigungen</h2>
-      <a class="drow" href="#support"><span class="dotc" style="background:var(--muted)"></span><span style="flex:1">${an("entwurf")} Entwürfe</span><span class="chev2">›</span></a>
-      <a class="drow" href="#support"><span class="dotc" style="background:var(--warn)"></span><span style="flex:1">${an("geprueft")} bereit für Billbee</span><span class="chev2">›</span></a>
-      <a class="drow" href="#support"><span class="dotc" style="background:var(--good)"></span><span style="flex:1">${an("billbee")} in Billbee angelegt</span><span class="chev2">›</span></a>
-      <div style="margin-top:8px"><a class="btn" href="#produktion">Zur Produktion</a></div></section>`;
-    return `${kpis}<div class="dgrid"><section class="box"><h2 style="margin-top:0">Umsatz im Monatsverlauf</h2>${chart}</section>${top5()}</div><div class="dgrid even">${kan}${prodBox}</div>`;
+    return `${kpis}<div class="dgrid">${chartBox}${top5()}</div>${kan}`;
   }
   function renderOverview() {
     const ctx = volume();
@@ -2685,8 +2700,6 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     $("view").innerHTML = (view === "sortiment" ? "" : `
       <h1 style="margin:0">Übersicht</h1>
       ${homeDash()}
-      ${gtodoBox("heute")}
-      <details class="box"><summary>To-dos nach Bereich</summary><div style="display:grid;gap:12px;margin-top:12px">${gtodoBox("verk")}${gtodoBox("zahl")}${gtodoBox("daten")}</div></details>
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
       <details class="box"><summary>Alle Kennzahlen im Detail</summary><div class="tiles" style="margin-top:12px">
         <div class="tile hero"><span class="label">Ergebnis pro Monat${info(`Was im Monat übrig bleibt: Deckungsbeitrag minus Fixkosten. Deine Arbeitszeit ist schon mit ${eur(v(S.rate))}/h als Kosten abgezogen. Davon gehen noch Einkommensteuer und Krankenversicherung ab.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
@@ -6692,14 +6705,14 @@ Claude:`;
 
   // ---------- Bereichs-Dashboards (Verkaufen, Zahlen, Daten) mit eigener To-do-Liste je Bereich
   const gtodo = g => ((S.gtodo = S.gtodo || {})[g] = S.gtodo[g] || []);
-  function gtodoBox(g) {
+  function gtodoBox(g, bare) {
     const L = gtodo(g), open = L.filter(x => !x.done), done = L.filter(x => x.done);
-    return `<section class="box" id="gt-${g}"><h2 style="margin:0">To-dos für diesen Bereich</h2>
+    return `<${bare ? 'div class="gtbare" style="display:grid;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)"' : 'section class="box"'} id="gt-${g}">${bare ? '<strong>Eigene To-dos</strong>' : '<h2 style="margin:0">To-dos für diesen Bereich</h2>'}
       <div style="display:flex;gap:8px"><input type="text" id="gtin-${g}" data-gtin="${g}" placeholder="Was ist zu tun? Enter zum Hinzufügen" style="flex:1;min-width:0"><button type="button" class="btn primary" data-gt="add:${g}">+ Hinzufügen</button></div>
-      ${open.length || done.length ? `<div style="display:grid;gap:6px">${open.concat(done).map(x => `<div style="display:flex;gap:10px;align-items:center"><input type="checkbox" data-gt="chk:${g}:${x.id}" ${x.done ? "checked" : ""}><span style="flex:1;${x.done ? "text-decoration:line-through;color:var(--muted)" : ""}">${esc(x.t)}</span><button type="button" class="btn" style="padding:2px 8px" data-gt="del:${g}:${x.id}" title="Löschen">✕</button></div>`).join("")}</div>` : `<p class="note" style="margin:0">Noch nichts drin. Schreib hier auf, was in diesem Bereich ansteht.</p>`}
-      ${done.length ? `<div><button type="button" class="btn" style="padding:3px 10px" data-gt="clean:${g}">Erledigte entfernen</button></div>` : ""}</section>`;
+      ${open.length || done.length ? `<div style="display:grid;gap:6px">${open.concat(done).map(x => `<div style="display:flex;gap:10px;align-items:center"><input type="checkbox" data-gt="chk:${g}:${x.id}" ${x.done ? "checked" : ""}><span style="flex:1;${x.done ? "text-decoration:line-through;color:var(--muted)" : ""}">${esc(x.t)}</span><button type="button" class="btn" style="padding:2px 8px" data-gt="del:${g}:${x.id}" title="Löschen">✕</button></div>`).join("")}</div>` : `<p class="note" style="margin:0">Noch nichts drin. Schreib hier auf, was ansteht.</p>`}
+      ${done.length ? `<div><button type="button" class="btn" style="padding:3px 10px" data-gt="clean:${g}">Erledigte entfernen</button></div>` : ""}</${bare ? "div" : "section"}>`;
   }
-  function gtRefresh(g, focus) { const el = $("gt-" + g); if (!el) return; el.outerHTML = gtodoBox(g); if (focus) { const i = $("gtin-" + g); if (i) i.focus(); } }
+  function gtRefresh(g, focus) { const el = $("gt-" + g); if (!el) return; el.outerHTML = gtodoBox(g, el.classList.contains("gtbare")); if (focus) { const i = $("gtin-" + g); if (i) i.focus(); } }
   function gtAdd(g) { const i = $("gtin-" + g); const t = i && i.value.trim(); if (!t) return; gtodo(g).push({ id: uid(), t, done: false }); saveSettings(); gtRefresh(g, true); }
   document.addEventListener("click", e => {
     const b = e.target.closest && e.target.closest("button[data-gt]"); if (!b) return; const [a, g, id] = b.dataset.gt.split(":");
