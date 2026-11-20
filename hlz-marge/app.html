@@ -1031,7 +1031,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     const h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele", "verk", "zahl", "daten"].includes(h) ? h : "uebersicht";
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele", "verk", "zahl", "daten", "sortiment"].includes(h) ? h : "uebersicht";
     const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
     { const sc = secOf(view); document.querySelectorAll("nav.flat a").forEach(l => { if (l.dataset.sec === sc) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); }); }
     navGroups(actTab);
@@ -1050,7 +1050,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   function render() { try { render0(); } catch (e) { showErr(e); } }
   function render0() {
     if (view === "artikel") {
-      const a = A.find(x => x.id === curId); if (!a) return go("uebersicht");
+      const a = A.find(x => x.id === curId); if (!a) return go("sortiment");
       if (!draft || draft.id !== a.id) draft = clone(a);
       renderEditor(draft);
     }
@@ -1077,6 +1077,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "projekte") renderProjects();
     else if (view === "todo") renderTodo();
     else if (view === "tag") renderDay();
+    else if (view === "sortiment") renderOverview();
     else renderOverview();
     ideaBadge(); todoBadge();
   }
@@ -1269,7 +1270,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   document.addEventListener("click", e => {
     const t = e.target.closest && e.target.closest("[data-arttip],[data-tipclose],[data-tipseo],[data-tipcopy],[data-chk]"); if (!t) return;
     if (t.dataset.arttip) { e.preventDefault(); e.stopPropagation(); return openTip(t.dataset.arttip); }
-    if (t.dataset.chk) { const a = A.find(x => x.id === tipSt.id); if (!a) return; chkToggle(a, t.dataset.chk); saveArticle(a); if (view === "uebersicht") renderOverview(); return renderTipPanel(); }
+    if (t.dataset.chk) { const a = A.find(x => x.id === tipSt.id); if (!a) return; chkToggle(a, t.dataset.chk); saveArticle(a); if (view === "uebersicht" || view === "sortiment") renderOverview(); return renderTipPanel(); }
     if (t.dataset.tipclose) { if (tipSt.ctl) tipSt.ctl.abort(); tipPop.get().hidden = true; return; }
     if (t.dataset.tipseo === "gen") return seoSuggest();
     if (t.dataset.tipseo === "stop") { if (tipSt.ctl) tipSt.ctl.abort(); return; }
@@ -2669,7 +2670,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const folders = [["open", "Daten fehlen", nOpen], ["done", "Fertig", nDone], ["todo", "Nochmal ran", nTodo], ...(nRem ? [["remove", "Entfernen", nRem]] : []), ["all", "Alle", rows.length]];
     const th = (k, l) => `<th><button data-sort="${k}" aria-pressed="${sortKey === k}" title="Klicken zum Sortieren, nochmal klicken dreht die Reihenfolge">${l}${sortKey === k ? (k === "name" ? (sortDir > 0 ? " A→Z" : " Z→A") : sortDir < 0 ? " ↓" : " ↑") : k === "name" ? " ⇅" : ""}</button></th>`;
     const hasSales = m.qty > 0;
-    $("view").innerHTML = `
+    $("view").innerHTML = (view === "sortiment" ? "" : `
       <h1 style="margin:0">Übersicht</h1>
       ${homeDash()}
       ${gtodoBox("heute")}
@@ -2681,7 +2682,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
         ${scTile()}
         <div class="tile"><span class="label">Fixkosten${info("Kosten, die jeden Monat anfallen, egal wie viel du verkaufst: Werkstattmiete, Software, Abos. Ändern unter Einstellungen → Fixkosten.")}</span><span class="num">${eur0(fix)}</span><span class="note">Miete, Software, Abos</span></div>
         <div class="tile"><span class="label">Werkstattanteil${info("Fixkosten geteilt durch deine Verkäufe pro Monat. So viel muss jeder Verkauf zusätzlich einbringen, damit Miete und Co. bezahlt sind. Wird beim Gewinn pro Stück schon abgezogen.")}</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${{ real: "laut deiner Angabe", import: "laut Import" }[ctx.src] || "geschätzt"}</span></div>
-      </div></details>
+      </div></details>`) + (view === "uebersicht" ? "" : `
       <section class="box">
         <div class="row">
           <h1>Deine Artikel <span class="note num" style="font-size:.9rem">${A.length}</span></h1>
@@ -2714,9 +2715,9 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
           }).join("") || `<tr><td colspan="${visCols.length + 2}" class="note">${search ? "Kein Artikel passt zur Suche." : f === "open" ? "Alles erledigt, bei keinem Artikel fehlen noch Daten." : "Noch kein Artikel komplett. Fang im Ordner „Daten fehlen“ an."}</td></tr>`}</tbody>
         </table></div>
         <p class="note">Gewinn pro Stück nach allen Kosten inkl. Werkstattanteil. Kosten = Material, Versand, Zeit, Maschinen, Gebühren, Werbung und Werkstattanteil. Ampel: ab ${esc(S.target)} % (dein Ziel) grün, ab ${esc(dec(v(S.target) / 2))} % gelb, darunter rot.</p>
-      </section>`;
+      </section>`);
     const sEl = $("search");
-    sEl.addEventListener("input", () => { search = sEl.value; const pos = sEl.selectionStart; renderOverview(); const n = $("search"); n.focus(); n.setSelectionRange(pos, pos); });
+    if (sEl) sEl.addEventListener("input", () => { search = sEl.value; const pos = sEl.selectionStart; renderOverview(); const n = $("search"); n.focus(); n.setSelectionRange(pos, pos); });
   }
 
   // ---------- Artikel-Editor ----------
@@ -2742,7 +2743,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const sales = Object.entries(a.sales || {});
     $("view").innerHTML = `
       <div class="row">
-        <span class="btns"><a class="btn" href="#uebersicht">← Dashboard</a><button class="btn star-btn" data-star="${a.id}" aria-pressed="${!!a.fav}">${a.fav ? "★ Markiert" : "☆ Markieren"}</button>${(() => { const st = stepInfo(a.id); return st ? `<span class="stepnav"><button class="btn" data-step="${st.prev}" ${st.prev ? "" : "disabled"} title="Vorheriger Artikel der Liste (Alt + ←)">‹ Zurück</button><span class="note num">${st.i + 1} / ${st.n}</span><button class="btn primary" data-step="${st.next}" ${st.next ? "" : "disabled"} title="Nächster Artikel der Liste (Alt + →)">Weiter ›</button></span>` : ""; })()}</span>
+        <span class="btns"><a class="btn" href="#sortiment">← Artikel</a><button class="btn star-btn" data-star="${a.id}" aria-pressed="${!!a.fav}">${a.fav ? "★ Markiert" : "☆ Markieren"}</button>${(() => { const st = stepInfo(a.id); return st ? `<span class="stepnav"><button class="btn" data-step="${st.prev}" ${st.prev ? "" : "disabled"} title="Vorheriger Artikel der Liste (Alt + ←)">‹ Zurück</button><span class="note num">${st.i + 1} / ${st.n}</span><button class="btn primary" data-step="${st.next}" ${st.next ? "" : "disabled"} title="Nächster Artikel der Liste (Alt + →)">Weiter ›</button></span>` : ""; })()}</span>
         <div class="btns">${a.example ? '<span class="pill muted">Beispiel mit geschätzten Zahlen</span>' : ""}<button class="btn" data-act="dup">Duplizieren</button><button class="btn danger" data-act="del">Löschen</button></div>
       </div>
       <div class="arthead" id="artHead"><img class="thumb" id="ahImg" alt="" hidden onerror="this.hidden=true"><div class="ahname"><strong id="ahName"></strong><span class="sku" id="ahSku"></span></div><span class="num" id="ahProfit"></span>${(() => { const st = stepInfo(a.id); return st ? `<span class="stepmini"><button class="btn" data-step="${st.prev}" ${st.prev ? "" : "disabled"} aria-label="Vorheriger Artikel">‹</button><button class="btn" data-step="${st.next}" ${st.next ? "" : "disabled"} aria-label="Nächster Artikel">›</button></span>` : ""; })()}</div>
@@ -3418,13 +3419,13 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       }
       case "addExtra": { (a.extra = a.extra || []).push({ n: "", p: "", g: "", q: "1" }); setDirty(true); renderEditor(a); const ins = document.querySelectorAll('[data-ax][data-f="n"]'); ins[ins.length - 1]?.focus(); return; }
       case "new": { const n = { ...ARTICLE_BLANK(), isNew: true }; A.push(n); return go("artikel-" + n.id); }
-      case "examples": { EXAMPLES().forEach(x => { A.push(x); saveArticle(x); }); toast("4 Beispielartikel hinzugefügt"); return go("uebersicht"); }
+      case "examples": { EXAMPLES().forEach(x => { A.push(x); saveArticle(x); }); toast("4 Beispielartikel hinzugefügt"); return go("sortiment"); }
       case "useBox": { const sb = suggestBox(a); if (!sb) return; $("a-box").value = sb.n; $("a-box").dispatchEvent(new Event("input", { bubbles: true })); return; }
       case "addPart": a.parts.push({ n: "Teil", plate: (S.plates[0] || {}).n || "", l: "", b: "", q: "1" }); setDirty(true); renderEditor(a); return;
       case "dup": { if (dirty) doSave(); const c = { ...clone(a), id: uid(), name: a.name + " (Kopie)", sales: {}, aliases: [] }; A.push(c); saveArticle(c); toast("Kopie angelegt"); return go("artikel-" + c.id); }
       case "del": $("delConfirm").hidden = false; return;
       case "delNo": $("delConfirm").hidden = true; return;
-      case "delYes": { const n = a.name; removeArticle(a.id); setDirty(false); toast("Gelöscht: " + n); return go("uebersicht"); }
+      case "delYes": { const n = a.name; removeArticle(a.id); setDirty(false); toast("Gelöscht: " + n); return go("sortiment"); }
       case "export": return exportData();
       case "wipe": $("wipeConfirm").hidden = false; return;
       case "wipeNo": $("wipeConfirm").hidden = true; return;
@@ -3497,7 +3498,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
         A.slice().forEach(x => removeArticle(x.id));
         S = { ...SETTINGS_DEFAULT(), ...d.settings }; saveSettings(); setDirty(false);
         A = d.articles.map(x => ({ ...x, id: x.id || uid() })); A.forEach(saveArticle);
-        toast(`${A.length} Artikel eingespielt`); go("uebersicht");
+        toast(`${A.length} Artikel eingespielt`); go("sortiment");
       } catch (err) { toast("Das ist keine Sicherung aus dieser App."); }
     };
     r.readAsText(f);
@@ -3754,7 +3755,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   const typing = () => !!document.activeElement?.closest?.("#view") && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
   function liveRefresh() {
     if (typing()) return;
-    if (view === "uebersicht") renderOverview();
+    if (view === "uebersicht" || view === "sortiment") renderOverview();
     else if (view === "gravuren") renderGrav();
     else if (view === "produktion") renderProduction();
     else if (view === "finanzen") finDraw();
@@ -5415,7 +5416,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   async function statsLoad() {
     if (STATS || statsLoading) return; statsLoading = true; STATS = {};
     try { (await store.loadStats()).forEach(d => STATS[d.id] = d); } catch (e) { toast("Statistik-Daten konnten nicht geladen werden."); }
-    statsLoading = false; if (view === "entwicklung") renderStats(); else if (view === "uebersicht") renderOverview(); else if (view === "auswertung") renderAnalysis(); else if (view === "produktion" && prod.tab === "vor") renderPreprod();
+    statsLoading = false; if (view === "entwicklung") renderStats(); else if (view === "uebersicht" || view === "sortiment") renderOverview(); else if (view === "auswertung") renderAnalysis(); else if (view === "produktion" && prod.tab === "vor") renderPreprod();
   }
   const statsSave = d => { STATS[d.id] = d; persist("st:" + d.id, () => store.saveStats(d)); };
   const SHORT_M = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
@@ -6699,7 +6700,7 @@ Claude:`;
   // ---------- Hauptmenü: 6 Bereiche, innerhalb jedes Bereichs eine gemeinsame Leiste ----------
   const SECS = {
     ueb: ["Übersicht", []],
-    sort: ["Sortiment", [["verk", "Überblick"], ["shopcheck", "Shop-Check"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"], ["gravuren", "Gravur-Test"], ["suche", "Suchbegriffe"]]],
+    sort: ["Sortiment", [["verk", "Überblick"], ["sortiment", "Alle Artikel"], ["shopcheck", "Shop-Check"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"], ["gravuren", "Gravur-Test"], ["suche", "Suchbegriffe"]]],
     kan: ["Verkaufskanäle", [["kanaele", "Kanäle & Abgleich"], ["werbung", "Marketing"]]],
     prod: ["Produktion", [["produktion", "Produktion"], ["support", "Support"]]],
     fin: ["Finanzen", [["zahl", "Überblick"], ["preise", "Preise"], ["auswertung", "Auswertung"], ["finanzen", "Finanzen"], ["buchhaltung", "Buchhaltung"]]],
@@ -6730,7 +6731,7 @@ Claude:`;
       add(() => gdTile("Finanzen", "Konto & Plan", "Überblick, Monatsplan, Kontoauszüge", "#finanzen"));
     } else if (g === "daten") {
       add(() => { const r = { r: 0, y: 0, g: 0 }; kanAll().forEach(c => { const a = kanAmpel(c); if (a[2] === "-") return; r[a[0].includes("bad") ? "r" : a[0] === "#c98a00" ? "y" : "g"]++; }); return gdTile("Kanäle", `${r.g} aktuell`, `${r.y} bald fällig · ${r.r} überfällig oder noch nie abgeglichen`, "#kanaele"); });
-      add(() => { const nOpen = A.filter(a => missing(a).length).length; return gdTile("Artikel", n0(A.length), `${nOpen} mit fehlenden Daten`, "#uebersicht"); });
+      add(() => { const nOpen = A.filter(a => missing(a).length).length; return gdTile("Artikel", n0(A.length), `${nOpen} mit fehlenden Daten`, "#sortiment"); });
       add(() => { const ph = phCount(); return gdTile("Geschätzte Werte", String(ph), ph ? "in Einstellungen noch durch echte Werte ersetzen" : "alles mit echten Werten", "#einstellungen"); });
       add(() => gdTile("Dokumente", "Ablage", "Belege, Verträge, Exporte", "#dokumente"));
     }
