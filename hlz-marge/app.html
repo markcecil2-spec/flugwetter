@@ -232,6 +232,17 @@ nav.subs a[hidden] { display: none }
 .sgh:hover { background: var(--accent-soft) }
 .sgh .chev { margin-left: auto; color: var(--muted); transition: transform .15s } .sg.open .chev { transform: rotate(180deg) }
 .sg.act > .sgh { color: var(--accent) }
+.hkpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
+.kpi2 { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; text-decoration: none; color: inherit; min-width: 0 }
+.kpi2:hover { border-color: var(--accent) }
+.kpi2 .ic { grid-row: 1 / span 3; width: 38px; height: 38px; padding: 9px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); box-sizing: border-box }
+.kpi2 .kl { color: var(--muted); font-size: .88rem } .kpi2 strong { font: 700 1.65rem var(--font-display); line-height: 1.15 } .kpi2 .note { font-size: .78rem }
+.dgrid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; align-items: start } .dgrid.even { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+.drow { display: flex; align-items: center; gap: 10px; padding: 11px 2px; border-top: 1px solid var(--line); text-decoration: none; color: inherit } .drow:first-of-type { border-top: 0 }
+.drow:hover { background: var(--accent-soft) } .chev2 { color: var(--muted); font-size: 1.3rem; line-height: 1 }
+.dotc { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle }
+@media (max-width: 1100px) { .hkpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } .dgrid, .dgrid.even { grid-template-columns: minmax(0, 1fr) } }
+@media (max-width: 480px) { .hkpis { grid-template-columns: minmax(0, 1fr) } }
 .verkbar { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line) }
 .verkbar .vg { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
 .verkbar .label { margin-right: 2px; color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .04em }
@@ -521,6 +532,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // Symbole für das Menü
   (() => {
     const P = { calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>', grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>', wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>', headset: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>', tag: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/>', plus: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>', bag: '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>', search: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>', send: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>', bars: '<path d="M12 20V10M18 20V4M6 20v-4"/>', percent: '<path d="M19 5L5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>', trend: '<path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/>', card: '<rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>', book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>', db: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>', link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>', folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>', sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>', chev: '<path d="M6 9l6 6 6-6"/>', menu: '<path d="M3 6h18M3 12h18M3 18h18"/>' };
+    window.hlzIco = n => '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[n] || "") + "</svg>";
     document.querySelectorAll("[data-ico]").forEach(e => { e.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (P[e.dataset.ico] || "") + "</svg>"; });
     document.addEventListener("click", e => {
       const h = e.target.closest && e.target.closest(".sgh"); if (h) { const g = h.closest(".sg"), o = !g.classList.contains("open"); document.querySelectorAll(".sg").forEach(x => { x.classList.remove("open"); const b = x.querySelector(".sgh"); if (b) b.setAttribute("aria-expanded", "false"); }); g.classList.toggle("open", o); h.setAttribute("aria-expanded", o); return; }
@@ -2607,6 +2619,38 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const top = L.slice(0, 5);
     return `<section class="box"><h2 style="margin-top:0">Das steht an</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}">Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. Termine erscheinen hier erst, wenn sie in den nächsten 7 Tagen fällig sind. 🎉</p>`}</section>`;
   }
+  // ---------- Übersicht im Dashboard-Look: Kennzahlen, Umsatzverlauf, Handlungsbedarf, Kanäle, Produktion ----------
+  function homeDash() {
+    let D = null; try { if (STATS) D = statData(); } catch (e) {}
+    const m = monthly(volume()), has = m.qty > 0, last = D && D.rows[D.rows.length - 1], prev = D && D.rows[D.rows.length - 2];
+    const kp = (ic, l, val, sub, href) => `<a class="kpi2" href="${href}"><i class="ic">${window.hlzIco ? window.hlzIco(ic) : ""}</i><span class="kl">${l}</span><strong>${val}</strong><span class="note">${sub}</span></a>`;
+    const tax = has ? afterTax(m) : null, bt = (() => { const b = (SHOP && SHOP.buch) || {}; return buTotals({ pay: b.pay || [] }); })();
+    const kpis = `<div class="hkpis">
+      ${kp("bars", "Umsatz " + (last ? ymLab(last.ym) : ""), last ? eur0(last.rev) : "–", last ? (prev && prev.rev > 0 ? dlTag(dlt(last.rev, prev.rev), "zum Vormonat") : "netto") : (STATS ? "Noch keine Verkaufsdaten" : "Lade …"), "#auswertung")}
+      ${kp("trend", "Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten", "#auswertung")}
+      ${kp("percent", "Bleibt nach Steuer", has ? eur0(tax.net) : "–", "geschätzt, inkl. Stundenlohn", "#auswertung")}
+      ${kp("card", "Noch zu zahlen", eur0(bt.openAll), "davon Steuer " + eur0(bt.openTax), "#buchhaltung")}
+    </div>`;
+    let chart;
+    if (!D) chart = `<p class="note" style="margin:20px 0">${STATS ? "Noch keine Verkaufsdaten. Etsy- oder Shopify-Exporte unter Daten &amp; Einstellungen → Kanäle hochladen." : "Lade Verkaufsdaten …"}</p>`;
+    else {
+      const R = D.rows.slice(-12), mx = Math.max(1, ...R.map(r => r.rev)), nice = (() => { const e = Math.pow(10, Math.floor(Math.log10(mx))), f = mx / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; })();
+      const W = 600, H = 220, L = 60, B = 26, T = 8, bw = (W - L) / R.length, y = x => T + (H - T - B) * (1 - x / nice);
+      const grid = [0, .25, .5, .75, 1].map(f => `<line x1="${L}" x2="${W}" y1="${y(nice * f)}" y2="${y(nice * f)}" stroke="var(--line)"/><text x="${L - 6}" y="${y(nice * f) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${Math.round(nice * f).toLocaleString("de-DE")} €</text>`).join("");
+      const bars = R.map((r, i) => { let acc = 0; const x = L + i * bw + bw * .18, w = bw * .64; const seg = [[r.e, "var(--accent)"], [r.s, "var(--walnut)"], [r.eb, "var(--seg-ship)"]].map(([val, c]) => { if (!(val > 0)) return ""; const h = (H - T - B) * val / nice, yy = y(acc) - h; acc += val; return `<rect x="${x}" y="${yy}" width="${w}" height="${h}" fill="${c}" rx="2"/>`; }).join(""); return `<g><title>${ymLab(r.ym)}: ${eur0(r.rev)}</title>${seg}<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${ymLab(r.ym).slice(0, 3)}</text></g>`; }).join("");
+      chart = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Netto-Umsatz der letzten Monate" style="width:100%;height:auto;display:block">${grid}${bars}</svg>
+        <div class="note" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:4px"><span><span class="dotc" style="background:var(--accent)"></span> Etsy</span><span><span class="dotc" style="background:var(--walnut)"></span> Shopify</span>${R.some(r => r.eb > 0) ? `<span><span class="dotc" style="background:var(--seg-ship)"></span> eBay</span>` : ""}<span>· netto je voller Monat</span></div>`;
+    }
+    const ch = last ? [["Etsy", last.e, "var(--accent)"], ["Shopify", last.s, "var(--walnut)"], ["eBay", last.eb, "var(--seg-ship)"]].filter(x => x[1] > 0 || x[0] !== "eBay") : [];
+    const kan = `<section class="box"><h2 style="margin-top:0">Verkaufskanäle${last ? ` <span class="note">${ymLab(last.ym)}</span>` : ""}</h2>${ch.length ? ch.map(([n, val, c]) => `<a class="drow" href="#kanaele"><span class="dotc" style="background:${c}"></span><span style="flex:1">${n}</span><strong class="num">${eur0(val)}</strong><span class="chev2">›</span></a>`).join("") : `<p class="note">Noch keine Daten.</p>`}<div style="margin-top:8px"><a class="btn" href="#kanaele">Abgleich & Uploads</a></div></section>`;
+    const an = (k) => ANF.filter(x => x.status === k).length;
+    const prodBox = `<section class="box"><h2 style="margin-top:0">Anfertigungen</h2>
+      <a class="drow" href="#support"><span class="dotc" style="background:var(--muted)"></span><span style="flex:1">${an("entwurf")} Entwürfe</span><span class="chev2">›</span></a>
+      <a class="drow" href="#support"><span class="dotc" style="background:var(--warn)"></span><span style="flex:1">${an("geprueft")} bereit für Billbee</span><span class="chev2">›</span></a>
+      <a class="drow" href="#support"><span class="dotc" style="background:var(--good)"></span><span style="flex:1">${an("billbee")} in Billbee angelegt</span><span class="chev2">›</span></a>
+      <div style="margin-top:8px"><a class="btn" href="#produktion">Zur Produktion</a></div></section>`;
+    return `${kpis}<div class="dgrid"><section class="box"><h2 style="margin-top:0">Umsatz im Monatsverlauf</h2>${chart}</section>${top5()}</div><div class="dgrid even">${kan}${prodBox}</div>`;
+  }
   function renderOverview() {
     const ctx = volume();
     if (!A.length) {
@@ -2643,17 +2687,17 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const hasSales = m.qty > 0;
     $("view").innerHTML = `
       <h1 style="margin:0">Übersicht</h1>
-      ${top5()}
+      ${homeDash()}
       ${gtodoBox("heute")}
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
-      <div class="tiles">
+      <details class="box"><summary>Alle Kennzahlen im Detail</summary><div class="tiles" style="margin-top:12px">
         <div class="tile hero"><span class="label">Ergebnis pro Monat${info(`Was im Monat übrig bleibt: Deckungsbeitrag minus Fixkosten. Deine Arbeitszeit ist schon mit ${eur(v(S.rate))}/h als Kosten abgezogen. Davon gehen noch Einkommensteuer und Krankenversicherung ab.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
         ${(() => { const t = afterTax(m); return `<div class="tile hero"><span class="label">Bleibt nach Steuer${info(`Dein Gewinn inkl. eingerechnetem Stundenlohn (${eur0(t.base)}/Monat) minus Einkommensteuer nach Tarif 2026${S.taxChurch ? ", Kirchensteuer" : ""}${t.gew > 0 ? ", Gewerbesteuer" : ""}${t.kv ? " und Krankenversicherung" : ""}. Steuerlast ca. ${pct(t.rate)}. Schätzung, ohne Rentenversicherung und sonstige Abzüge. Einstellen unter Einstellungen → Betrieb.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : t.net >= 0 ? "good" : "bad"})">${hasSales ? eur0(t.net) : "–"}</span><span class="note">${hasSales ? `inkl. deinem Stundenlohn · Steuer ca. ${eur0(t.taxM)}${t.kv ? " · KV " + eur0(t.kv) : ""}` : "pro Monat"}</span></div>`; })()}
         <div class="tile"><span class="label">Deckungsbeitrag${info("Netto-Umsatz minus alles, was pro Stück anfällt: Material, Verpackung, Porto, Gebühren, Werbung und deine Arbeitszeit. Das ist das Geld, mit dem die Fixkosten bezahlt werden. Hochgerechnet mit deinen echten Verkaufszahlen.")}</span><span class="num">${hasSales ? eur0(m.db) : "–"}</span><span class="note">${hasSales ? "aus " + dec(m.qty) + " Verkäufen/Monat" : "noch keine Verkaufszahlen"}</span></div>
         ${scTile()}
         <div class="tile"><span class="label">Fixkosten${info("Kosten, die jeden Monat anfallen, egal wie viel du verkaufst: Werkstattmiete, Software, Abos. Ändern unter Einstellungen → Fixkosten.")}</span><span class="num">${eur0(fix)}</span><span class="note">Miete, Software, Abos</span></div>
         <div class="tile"><span class="label">Werkstattanteil${info("Fixkosten geteilt durch deine Verkäufe pro Monat. So viel muss jeder Verkauf zusätzlich einbringen, damit Miete und Co. bezahlt sind. Wird beim Gewinn pro Stück schon abgezogen.")}</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${{ real: "laut deiner Angabe", import: "laut Import" }[ctx.src] || "geschätzt"}</span></div>
-      </div>
+      </div></details>
       <section class="box">
         <div class="row">
           <h1>Deine Artikel <span class="note num" style="font-size:.9rem">${A.length}</span></h1>
