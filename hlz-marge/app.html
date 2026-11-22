@@ -6625,7 +6625,7 @@ Claude:`;
       ["gsc", "Google Search Console", "up", "m", "Leistung → Exportieren → ZIP oder CSV hochladen (Zeitraum 12 Monate). Auswertung unter Marketing → Reichweite.", "gscup"],
       ["ga", "Google Analytics", "up", "-", "Noch nicht eingerichtet. Wenn eingerichtet: Rhythmus auf monatlich stellen.", ""],
       ["merchant", "Google Merchant Center", "up", "-", "Nicht eingerichtet.", ""],
-      ["gbp", "Google Unternehmensprofil", "up", "-", "Nur sinnvoll mit Ladenadresse oder Abholung.", ""],
+      ["gbp", "Google Unternehmensprofil", "up", "-", "Stammdaten zum Kopieren stehen oben auf dieser Seite. Nur sinnvoll mit Ladenadresse oder Abholung.", ""],
       ["bing", "Bing Webmaster Tools", "up", "-", "Nicht eingerichtet.", ""]]],
     ["Social & Content", [
       ["pinterest", "Pinterest: Statistik", "up", "m", "Analytics-CSV exportieren und hochladen.", ""],
@@ -6691,8 +6691,19 @@ Claude:`;
         <button type="button" class="btn" data-kan="addopen" style="margin-left:auto">+ Eigener Kanal</button></div>
         ${kanUi.add ? `<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="kanNew" placeholder="Name des Kanals" style="flex:1;min-width:200px"><button type="button" class="btn primary" data-kan="addok">Hinzufügen</button></div>` : ""}
         ${kanUi.msg ? `<div class="note" style="margin-top:8px">${esc(kanUi.msg)}</div>` : ""}
-        <div class="note" style="margin-top:8px"><strong>Aktualisieren</strong> = Kanäle mit Live-Anbindung (springt in den Tab und startet den Abgleich). <strong>CSV hochladen</strong> = alle ohne API. Grün bis 5 Tage vor Fälligkeit, Gelb davor, Rot wenn überfällig (monatlich = 31 Tage, wöchentlich = 7). „Nicht nötig“ blendet einen Kanal aus der Ampel aus. Der Upload hier merkt sich nur Datei und Datum, ausgewertet wird er bisher bei Search Console und Pinterest.</div></section>${rows}`;
+        <div class="note" style="margin-top:8px"><strong>Aktualisieren</strong> = Kanäle mit Live-Anbindung (springt in den Tab und startet den Abgleich). <strong>CSV hochladen</strong> = alle ohne API. Grün bis 5 Tage vor Fälligkeit, Gelb davor, Rot wenn überfällig (monatlich = 31 Tage, wöchentlich = 7). „Nicht nötig“ blendet einen Kanal aus der Ampel aus. Der Upload hier merkt sich nur Datei und Datum, ausgewertet wird er bisher bei Search Console und Pinterest.</div></section>${gbpBox()}${rows}`;
   }
+  // Google Unternehmensprofil: Stammdaten zum Kopieren (Reihenfolge der Kategorien: erste = Hauptkategorie)
+  const GBP = [["Name", "HlzLaden"], ["Adresse", "Blumenstraße 35\n70736 Fellbach"], ["Telefon", "01575 5981985"], ["Website", "https://hlzladen.de/"], ["E-Mail (wie im Impressum)", "hlzladen.shop@gmail.com"]];
+  const GBP_CAT = ["Möbelgeschäft", "Einzelhandel", "Gravur", "Laserschnitt-Dienstanbieter", "Mechanische Werkstatt"];
+  function gbpBox() {
+    const cp = (i, t) => `<button type="button" class="btn" style="padding:3px 10px" data-gbp="${i}">Kopieren</button>`;
+    return `<section class="box"><details><summary><strong>Google Unternehmensprofil: Stammdaten zum Kopieren</strong></summary>
+      <div style="display:grid;gap:8px;margin-top:10px">${GBP.map(([l, t], i) => `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="note" style="min-width:170px">${esc(l)}</span><code style="flex:1;white-space:pre-line">${esc(t)}</code>${cp("f" + i)}</div>`).join("")}
+      <div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap"><span class="note" style="min-width:170px">Kategorien<br>(erste = Hauptkategorie)</span><div style="flex:1">${GBP_CAT.map((c, i) => `<div style="display:flex;gap:10px;align-items:center;margin-bottom:4px"><code style="flex:1">${i + 1}. ${esc(c)}${i === 0 ? " (Haupt)" : ""}</code><button type="button" class="btn" style="padding:3px 10px" data-gbp="c${i}">Kopieren</button></div>`).join("")}</div></div></div>
+      <p class="note" style="margin-bottom:0">Hauptkategorie = wofür die meisten Kunden kommen: bei einem Eichen-Shop „Möbelgeschäft“, nicht die Werkstatt.</p></details></section>`;
+  }
+  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-gbp]"); if (!b) return; const k = b.dataset.gbp, t = k[0] === "f" ? GBP[+k.slice(1)][1] : GBP_CAT[+k.slice(1)]; tipClip(t); });
   // Pinterest-Statistik (Analytics-overview-CSV: Kopfblock, dann Date,Impressions[,weitere Spalten])
   function pinParse(text) {
     const rows = parseCSV(text), hi = rows.findIndex(r => (r[0] || "").trim().toLowerCase() === "date" && r.length > 1);
