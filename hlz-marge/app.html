@@ -1043,8 +1043,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     let h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h === "suche") { mk.tab = "reichweite"; h = "werbung"; }
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
-    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "gravuren", "neu", "suche", "kanaele", "verk", "zahl", "daten", "sortiment"].includes(h) ? h : "uebersicht";
-    const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "gravuren" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
+    else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "neu", "suche", "kanaele", "verk", "zahl", "daten", "sortiment"].includes(h) ? h : "uebersicht";
+    const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
     { const sc = secOf(view); document.querySelectorAll("nav.flat a").forEach(l => { if (l.dataset.sec === sc) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); }); }
     navGroups(actTab);
     render();
@@ -1074,7 +1074,6 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     else if (view === "bestellungen") renderOrders();
     else if (view === "auswertung") renderAnalysis();
     else if (view === "finanzen") finDraw();
-    else if (view === "gravuren") renderGrav();
     else if (view === "neu") renderNeu();
     else if (view === "kanaele") renderKanaele();
     else if (view === "verk" || view === "zahl" || view === "daten") renderGrp(view);
@@ -3792,7 +3791,6 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   function liveRefresh() {
     if (typing()) return;
     if (view === "uebersicht" || view === "sortiment") renderOverview();
-    else if (view === "gravuren") renderGrav();
     else if (view === "produktion") renderProduction();
     else if (view === "finanzen") finDraw();
     else if (view === "todo") renderTodo();
@@ -6250,28 +6248,6 @@ Claude:`;
   });
 
 
-  // ---------- Gravur-Test: alle KEYBRD-01-Motive auf einen Blick + freie Zeilen für neue Tests ----------
-  const GV_ST = [["", "–"], ["idee", "Idee"], ["foto", "Foto fehlt"], ["live", "Live"], ["test", "Im Test"], ["weg", "Verworfen"]];
-  const GV_NAMES = { BAS: "Basis (ohne Gravur / mit Name oder Koordinaten)", BERG: "Bergpanorama", MTB: "Mountainbike", PARA: "Gleitschirm", SURF: "Surfer", HUND: "Hund", VAL: "Valentinstag" };
-  function gravGroups() {
-    const G = {};
-    A.filter(a => /^KEYBRD-01-/i.test(a.sku || "")).forEach(a => {
-      const sku = String(a.sku), nm = String(a.name || ""), m = /^KEYBRD-01-([A-Z0-9]+)(?:-(\d+))?$/i.exec(sku); if (!m) return;
-      const code = m[1].toUpperCase(), g = G[code] = G[code] || { key: GV_NAMES[code] || nm.split("·")[0].trim(), sb: "KEYBRD-01-" + code + "-…", c: {}, qty: 0, code }, L = m[2] || (nm.match(/(\d+)\s*cm/) || [])[1] || "?";
-      const q = ((a.sales || {}).etsy ? v(a.sales.etsy.qty) : 0) + ((a.sales || {}).shopify ? v(a.sales.shopify.qty) : 0);
-      (g.c[L] = g.c[L] || []).push({ id: a.id, price: v(a.price), q }); g.qty += q;
-    });
-    return Object.values(G).sort((x, y) => y.qty - x.qty);
-  }
-  function renderGrav() {
-    const G = gravGroups();
-    const cell = (g, L) => { const l = g.c[L]; if (!l) return "–"; const pr = l.map(x => x.price), lo = Math.min(...pr), hi = Math.max(...pr); return `<a href="#artikel-${esc(l[0].id)}">${lo === hi ? eur0(lo) : eur0(lo) + "–" + eur0(hi)}</a> <span class="note">· ${l.reduce((s, x) => s + x.q, 0)} verk.</span>`; };
-    $("view").innerHTML = `${shopBar("gravuren")}<div class="row"><h1>Gravur-Test</h1></div>
-      <p class="note">Alle KEYBRD-01-Motive aus deinen Artikeln. Verkäufe = Etsy (Jan–Okt) plus Shopify (12 Monate). Tipp: Pro Motiv ein eigenes Shopify-Produkt mit SKU <strong>KEYBRD-01-MOTIV-20/30/40</strong> (z. B. KEYBRD-01-VAL-20 für Valentinstag) und Tag <strong>gravur-test</strong>, dann siehst du pro Motiv, was läuft. Nach 4–6 Wochen: Gewinner bleiben, Verlierer archivieren.</p>
-      ${anaTable(["Motiv", "SKU", "20 cm", "30 cm", "40 cm", "Verkäufe"], G.map(g => [esc(g.key), `<span class="note">${esc(g.sb)}</span>`, cell(g, "20"), cell(g, "30"), cell(g, "40"), String(g.qty)]), [5])}
-      <p class="note">Neue Motive und Produkte legst du jetzt unter <a href="#neu"><strong>Betrieb → Produkte hinzufügen</strong></a> an. Dort kannst du Fotos hochladen, Texte erzeugen lassen und das Produkt direkt nach Shopify schicken.</p>`;
-  }
-  document.addEventListener("input", e => { const el = e.target, d = el.dataset && el.dataset.gv; if (!d || view !== "gravuren") return; const [i, f] = d.split(":"); (S.gravuren[+i] = S.gravuren[+i] || {})[f] = el.value; saveSettings(); });
   // ---------- Produkte hinzufügen: Fotos + Stichworte → Shopify-Produkt (Entwurf oder live) ----------
   const NEU = () => (S.neu = S.neu || []);
   const neuUi = { busy: {}, msg: {}, bulk: "", prog: {} };
@@ -6800,7 +6776,7 @@ Claude:`;
   const SECS = {
     ueb: ["Übersicht", []],
     art: ["Artikel", [["sortiment", "Alle Artikel"], ["neu", "Neu anlegen"], ["ideen", "Produktideen"]]],
-    shop: ["Shop-Check", [["shopcheck", "Shop-Check"], ["gravuren", "Gravur-Test"]]],
+    shop: ["Shop-Check", [["shopcheck", "Shop-Check"]]],
     mkt: ["Marketing", [["werbung", "Marketing"]]], kan: ["Kanäle", [["kanaele", "Kanäle"]]],
     prod: ["Produktion", [["produktion", "Produktion"]]], sup: ["Support", [["support", "Support"]]],
     preis: ["Preise & Marge", [["preise", "Preise"]]], ausw: ["Auswertung", [["auswertung", "Auswertung"]]],
