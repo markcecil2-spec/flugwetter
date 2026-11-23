@@ -5752,7 +5752,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <p class="note">Umsatzsteuer-Voranmeldung: vierteljährlich bis zum 10. des Folgemonats abgeben und zahlen (ohne Dauerfristverlängerung).</p></section>`;
   }
   function buTodo(d) {
-    return `<section class="box"><h2>To-dos</h2>${d.todo.map((x, i) => `<div class="row" style="align-items:flex-start;gap:10px"><label style="display:flex;gap:8px;flex:1"><input type="checkbox" data-bf="todo.${i}.done" ${x.done ? "checked" : ""}><span style="${x.done ? "text-decoration:line-through;opacity:.6" : ""}"><strong>${esc(x.t)}</strong>${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}</span></label>${buDel("todo", i)}</div>`).join("") || `<p class="note">Keine To-dos.</p>`}
+    return `<section class="box"><h2>To-dos</h2>${d.todo.map((x, i) => `<div class="row" style="align-items:flex-start;gap:10px"><input type="checkbox" data-bf="todo.${i}.done" ${x.done ? "checked" : ""} style="margin-top:12px" aria-label="Erledigt"><div style="flex:1;min-width:0;display:grid;gap:6px;${x.done ? "opacity:.55" : ""}">${buIn(`todo.${i}.t`, x.t, `placeholder="Was ist zu tun?" style="font-weight:700;${x.done ? "text-decoration:line-through" : ""}"`)}${buIn(`todo.${i}.note`, x.note || "", 'placeholder="Notiz (optional)"')}</div>${buDel("todo", i)}</div>`).join("") || `<p class="note">Keine To-dos.</p>`}
       <div class="btns"><button type="button" class="btn" data-buadd="todo">+ To-do</button>${d.todo.some(x => x.done) ? `<button type="button" class="btn" data-buclean="1">Erledigte entfernen</button>` : ""}</div></section>`;
   }
   function buAcc(d) {
