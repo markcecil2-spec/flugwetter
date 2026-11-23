@@ -5765,7 +5765,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
       <div class="btns"><button type="button" class="btn" data-buadd="txt">+ Textbaustein</button></div></section>`;
   }
   // ---------- Rechnung Thomas (Lieferant fertigt, Mark schreibt die Rechnung) ----------
-  let tbS = { ym: "", delAsk: "", sel: "", pAsk: "", qAsk: "" };
+  let tbS = { ym: "", delAsk: "", sel: "", pAsk: "", qAsk: "", msg: "" };
   const tbAsk = (key, cur, act, label) => cur === key ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-tbact="${act}ok:${key}" aria-label="Löschen bestätigen" title="Ja, löschen">✓</button><button type="button" class="btn" data-tbact="${act}no" aria-label="Abbrechen" title="Nicht löschen">×</button></span>` : `<button type="button" class="btn" data-tbact="${act}:${key}" aria-label="${label}" title="${label}">×</button>`;
   const tbData = () => { const t = (SHOP && SHOP.tb) || {}; return { id: "tb", ven: t.ven || {}, me: t.me || {}, prices: t.prices || [], hook: t.hook === undefined ? 0.65 : t.hook, a02: !!t.a02, pend: t.pend || [], qo: t.qo || {}, inv: t.inv || [], seq: t.seq || 1 }; };
   const tbSave = d => shopSave(d);
@@ -5773,7 +5773,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   const tbKeys = sku => { const s = String(sku).toLowerCase(), out = [s]; if (/^aruh-01-/.test(s) && tbData().a02) out.push(s.replace("aruh-01-", "aruh-02-")); if (/^aruh-06-/.test(s)) out.push(s.replace("aruh-06-", "bilei-")); return out; };   // Bilderleiste heißt im Shop BILEI
   // Quelle der Mengen: Billbee-Monat (alle Kanäle inkl. Etsy), sonst Etsy-CSV + Shopify + eBay
   const tbBB = ym => STATS && STATS.billbee && STATS.billbee.months && STATS.billbee.months[ym] ? STATS.billbee.months[ym] : null;
-  const tbSrc = (ym, ...rest) => tbBB(ym) ? [tbBB(ym)] : rest;
+  const tbSrc = (ym, ...rest) => tbBB(ym) && !tbBB(ym).from ? [tbBB(ym)] : rest;   // nur vollständige Billbee-Monate ersetzen die alten Zahlen
     function tbSold(ym, sku) {
     const E = STATS && STATS.etsy ? STATS.etsy.months : {}, S2 = STATS && STATS.shopify ? STATS.shopify.months : {}, EB = STATS && STATS.ebay ? STATS.ebay.months : {}, keys = tbKeys(sku); let q = 0;
     [...tbSrc(ym, E[ym], S2[ym], EB[ym])].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) q += e.q || 0; }); });
@@ -5784,6 +5784,32 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     [...tbSrc(ym, E[ym], S2[ym], EB[ym])].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) (e.n || []).forEach(n => out.some(x => x.split("|")[0] === n.split("|")[0]) || out.push(n)); }); });
     (ORD || []).forEach(o => { if (String(o.at || "").slice(0, 7) === ym && o.no && (o.lines || []).some(l => { const k = String(l.sku || "").toLowerCase(); return keys.some(x => k === x || k.startsWith(x + "-")); })) { const n = String(o.no) + (o.at ? "|" + String(o.at).slice(0, 10) : ""); out.some(x => x.split("|")[0] === String(o.no)) || out.push(n); } });
     return out;
+  }
+  // Billbee-Export „Bestellungen mit Positionen“ (CSV ohne Kopfzeile): je Zeile eine Position. Spalten: 1 Nr., 2 Datum, 13 Kanal, 33 SKU, 35 Menge, 42 Status
+  function tbCsvRows(text) {
+    const rows = []; let r = [], f = "", q = false;
+    for (let i = 0; i < text.length; i++) { const c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+      else if (c === '"') q = true; else if (c === ";") { r.push(f); f = ""; }
+      else if (c === "\n") { r.push(f); rows.push(r); r = []; f = ""; } else if (c !== "\r") f += c; }
+    if (f || r.length) { r.push(f); rows.push(r); }
+    return rows.filter(x => x.length > 40);
+  }
+  function tbImport(text) {
+    const rows = tbCsvRows(text), dm = /^(\d\d)\.(\d\d)\.(\d{4})$/; if (!rows.length) return { err: "Keine Bestellungen in der Datei gefunden." };
+    const byM = {}; let nOrd = 0, skipped = 0, minAt = "9999", maxAt = "";
+    rows.forEach(r => { const m = dm.exec((r[2] || "").trim()); if (!m) return; const at = `${m[3]}-${m[2]}-${m[1]}`, no = (r[1] || "").trim(), st = r[42] || "", sku = (r[33] || "").trim(), q = tbNum(r[35]);
+      if (!no) return; if (at < minAt) minAt = at; if (at > maxAt) maxAt = at;
+      if (/storn/i.test(st) || !sku || q <= 0) { if (/storn/i.test(st)) skipped++; return; }
+      const key = sku.toLowerCase().split(/\s+/).join("-").replace(/_/g, "-"), ym = at.slice(0, 7), o = ((byM[ym] = byM[ym] || {})[no] = byM[ym][no] || { at, l: {} });
+      o.l[key] = (o.l[key] || 0) + q; });
+    const yms = Object.keys(byM).sort(); if (!yms.length) return { err: "Keine Positionen mit Artikelnummer gefunden. Ist das der Export „Bestellungen mit Positionen“?" };
+    const B = STATS.billbee && STATS.billbee.months ? JSON.parse(JSON.stringify(STATS.billbee)) : { id: "billbee", months: {} };
+    yms.forEach(ym => { const M = B.months[ym] = B.months[ym] || { ord: {} }; M.ord = Object.assign(M.ord || {}, byM[ym]);
+      const k = {}; Object.entries(M.ord).forEach(([no, o]) => Object.entries(o.l).forEach(([sk, q]) => { const e = k[sk] = k[sk] || { q: 0, n: [] }; e.q += q; e.n.push(no + "|" + o.at); }));
+      M.k = k; M.orders = Object.keys(M.ord).length; const first = Object.values(M.ord).map(o => o.at).sort()[0]; M.from = first <= ym + "-03" ? "" : first; });
+    statsSave(B); nOrd = yms.reduce((s, ym) => s + Object.keys(byM[ym]).length, 0);
+    return { ok: true, months: yms, nOrd, skipped, from: minAt, to: maxAt };
   }
   const tbNoTxt = n => { const [no, at] = String(n).split("|"); return at ? `${no} (${buDe(at)})` : no; };
   function tbLines(d, ym, all) {
@@ -5882,8 +5908,11 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const fld = (k, l, ph = "") => `<div class="field"><label>${l}</label><div class="inp"><input type="text" data-tbf="ven.${k}" value="${esc(d.ven[k] || "")}" placeholder="${ph}"></div></div>`;
     const unk = d.prices.filter(p => /^(waldo|keybrd-05)/i.test(p.sku) && !String(p.hk || "").trim());
     return `<section class="box"><h2>Rechnung Thomas für ${tbMonthLab(tbS.ym)}</h2>
-      <p class="note">Was Thomas im Monat hergestellt hat, nehme ich aus deinen Billbee-Bestellungen (Etsy, Shopify und alles andere) und seiner Preisliste.${bbm ? ` <strong>Quelle: Billbee</strong> (${bbm.orders || "?"} Bestellungen im Monat).` : ` <span style="color:var(--bad)">Für diesen Monat sind noch keine Billbee-Daten geladen, bis dahin gelten die älteren Etsy-/Shopify-Zahlen.</span>`} Du prüfst die Mengen, dann erstellst du die Rechnung. Ich gehe davon aus, dass alles in dem Monat Verkaufte von ihm kam.</p>
+      <p class="note">Was Thomas im Monat hergestellt hat, nehme ich aus deinen Billbee-Bestellungen (Etsy, Shopify und alles andere) und seiner Preisliste.${bbm && !bbm.from ? ` <strong>Quelle: Billbee</strong> (${bbm.orders || "?"} Bestellungen im Monat).` : ` <span style="color:var(--bad)">Für diesen Monat sind noch keine Billbee-Daten geladen, bis dahin gelten die älteren Etsy-/Shopify-Zahlen.</span>`} Du prüfst die Mengen, dann erstellst du die Rechnung. Ich gehe davon aus, dass alles in dem Monat Verkaufte von ihm kam.</p>
       <div class="grid3 keep"><div class="field"><label>Monat</label><div class="inp"><select data-tbf="ym">${months.map(m => `<option value="${m}" ${m === tbS.ym ? "selected" : ""}>${tbMonthLab(m)}</option>`).join("")}</select></div></div></div>
+      <div class="btns"><label class="btn" style="cursor:pointer">Billbee-CSV hochladen<input type="file" accept=".csv,.txt,text/csv" hidden data-tbcsv="1"></label><span class="note" style="margin:0">Billbee → Bestellungen exportieren → „Bestellungen mit Positionen“. Ich lege die Mengen für alle Monate in der Datei an.</span></div>
+      ${tbS.msg ? `<p class="note" style="color:${tbS.msg.startsWith("!") ? "var(--bad)" : "var(--ok,#2f5a46)"}">${esc(tbS.msg.replace(/^!/, ""))}</p>` : ""}
+      ${bbm && bbm.from ? `<p class="note" style="color:var(--bad)">Achtung: Für ${tbMonthLab(tbS.ym)} sind erst Bestellungen ab dem ${buDe(bbm.from)} geladen. Solange gelten die älteren Etsy-/Shopify-Zahlen. Lad für den ganzen Monat einen Export ab dem 1. hoch.</p>` : ""}
       ${!data ? `<p class="note" style="color:var(--bad)">Für ${tbMonthLab(tbS.ym)} liegen noch keine Verkaufsdaten vor. Lad unter Dokumente die Etsy-Bestellungen (CSV) hoch und hol unter Entwicklung die Shopify-Bestellungen.</p>` : ""}
       ${have ? `<p>Für diesen Monat gibt es schon die Rechnung <strong>${esc(have.no)}</strong> vom ${buDe(have.date)} (${eur(have.total)}). Änderungen unten übernimmst du mit „Rechnung aktualisieren“.</p>` : ""}
       <div class="tablewrap"><table><thead><tr><th>Art.-Nr.</th><th style="text-align:left">Bezeichnung</th><th class="r">Menge</th><th class="r">Preis</th><th class="r">Summe</th><th></th></tr></thead><tbody>${lines.map(l => `<tr><td class="num">${esc(l.sku)}</td><td style="text-align:left">${l.pid ? `<div class="inp"><input type="text" data-tbpf="${l.pid}|t" value="${esc(l.t)}" placeholder="Bezeichnung"></div>` : esc(l.t)}${l.nos && l.nos.length ? `<div class="note" style="margin:2px 0 0">Bestellnr.: ${esc(l.nos.map(tbNoTxt).join(", "))}</div>` : ""}</td>
@@ -5928,6 +5957,9 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   });
   document.addEventListener("change", e => {
     if (view !== "buchhaltung" || bu.tab !== "tb") return; const t = e.target, x = t.dataset || {};
+    if (x.tbcsv !== undefined) { const f = t.files && t.files[0]; if (!f) return; f.arrayBuffer().then(buf => { const r = tbImport(bankDecode(buf));
+      if (r.err) tbS.msg = "!" + r.err; else { const ms = r.months.map(tbMonthLab).join(", "); tbS.msg = `Geladen: ${r.nOrd} Bestellungen (${buDe(r.from)} bis ${buDe(r.to)}) für ${ms}${r.skipped ? `, ${r.skipped} Positionen storniert und ignoriert` : ""}.`; if (r.months.includes(tbS.ym) === false && r.months.length) tbS.ym = r.months[r.months.length - 1]; }
+      renderBuch(); }).catch(e => { console.error(e); tbS.msg = "!Datei konnte nicht gelesen werden: " + (e && e.message || e); renderBuch(); }); t.value = ""; return; }
     if (x.tbq !== undefined) { const d0 = tbData(); d0.qo = Object.assign({}, d0.qo, { [tbS.ym + "|" + x.tbq]: t.value }); tbSave(d0); return renderBuch(); }
     if (x.tbpf !== undefined) { const d0 = tbData(), [id, f] = x.tbpf.split("|"), o = d0.pend.find(y => y.id === id); if (o) { o[f] = t.value; tbSave(d0); } return renderBuch(); }
     if (x.tbadd !== undefined) { if (!t.value) return; const d0 = tbData(); d0.qo = Object.assign({}, d0.qo, { [tbS.ym + "|" + t.value]: "1" }); tbSave(d0); return renderBuch(); }
