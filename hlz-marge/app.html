@@ -3893,14 +3893,14 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   };
   function finCalc() {
     const F = FIN(), { T, m, fix } = anaCalc(), tx = afterTax(m), regel = S.tax !== "ku", today = new Date(), td = isoD(today);
-    const saved = v(F.spaceA) + v(F.spaceB), liquidG = v(F.kontoG) + v(F.guthaben) + v(F.guthabenS), liquidP = v(F.kontoP) + v(F.bar), liquid = liquidG + liquidP;
+    const saved = v(F.spaceA) + v(F.spaceB), liquidG = v(F.kontoG) + v(F.guthaben) + v(F.guthabenS), liquidP = 0, liquid = liquidG + liquidP;
     const ustOut = regel ? m.rev - m.rev / 1.19 : 0;
     const vorAuto = regel ? 0.19 * (T.mat + T.porto + T.pack) : 0, vor = F.vorsteuer !== "" && F.vorsteuer !== undefined ? v(F.vorsteuer) : vorAuto;
     const zahlAuto = ustOut - vor, zahl = F.ustInc !== "" && F.ustInc !== undefined ? v(F.ustInc) : zahlAuto;
     // USt-Posten mit Datum, aber ohne Betrag: mit 3 × Zahllast geschätzt
     const open = F.debts.map(d => v(d.a) > 0 ? { ...d, ea: v(d.a) } : d.typ === "ust" && d.due && zahl > 0 ? { ...d, ea: 3 * zahl, est: true } : null).filter(d => d && !d.paid), openSum = open.reduce((s, d) => s + d.ea, 0);
-    const openP = open.filter(d => d.acc === "p").reduce((n, d) => n + d.ea, 0), openG = openSum - openP;
-    const nk = nowYM(), privOn = F.priv.filter(r => r.inc !== false), inc0 = (F.income || []).filter(r => r.inc !== false);   // „zählt“ abgehakte Einnahmen
+    const openP = 0, openG = openSum;   // Privates gehört nicht mehr ins Dashboard
+    const nk = nowYM(), privOn = [], inc0 = [];   // „zählt“ abgehakte Einnahmen
     const privSum = privOn.filter(r => finAct(r, nk)).reduce((n, r) => n + privAvg(r), 0), sparM = privOn.filter(r => r.g === "vor" && finAct(r, nk)).reduce((n, r) => n + privAvg(r), 0);
     const other = inc0.reduce((n, r) => n + (finAct(r, nk) ? v(r.a) : 0), 0);
     const shopNet = F.shopInc !== "" && F.shopInc !== undefined ? v(F.shopInc) : tx.net, income = shopNet + other, ent = F.entnahme !== "" && F.entnahme !== undefined ? v(F.entnahme) : shopNet;   // Entnahme aufs Privatkonto: leer = ganzes Shop-Einkommen nach Steuer
@@ -3910,8 +3910,8 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const idx = ds => { const d = ds ? new Date(ds + "T00:00:00") : today; const k = (d.getFullYear() - base.getFullYear()) * 12 + d.getMonth() - base.getMonth(); return Math.max(0, k); };
     open.forEach(d => {
       const n = Math.max(0, Math.floor(v(d.raten)));
-      if (n > 1) { const k0 = idx(d.due); for (let k = 0; k < n; k++) if (months[k0 + k]) { months[k0 + k].pay += d.ea / n; months[k0 + k][d.acc === "p" ? "payP" : "payG"] += d.ea / n; months[k0 + k].items.push(`${d.n} (Rate ${k + 1}/${n})`); } }
-      else { const k = idx(d.due); if (months[k]) { months[k].pay += d.ea; months[k][d.acc === "p" ? "payP" : "payG"] += d.ea; months[k].items.push(d.n + (d.est ? " (geschätzt)" : "")); } }
+      if (n > 1) { const k0 = idx(d.due); for (let k = 0; k < n; k++) if (months[k0 + k]) { months[k0 + k].pay += d.ea / n; months[k0 + k]["payG"] += d.ea / n; months[k0 + k].items.push(`${d.n} (Rate ${k + 1}/${n})`); } }
+      else { const k = idx(d.due); if (months[k]) { months[k].pay += d.ea; months[k]["payG"] += d.ea; months[k].items.push(d.n + (d.est ? " (geschätzt)" : "")); } }
     });
     // laufende USt: jedes Quartal wird am 10. des Folgemonats fällig, ab dem letzten eingetragenen USt-Posten
     let lastUst = ""; F.debts.forEach(d => { if (d.typ === "ust" && d.due && d.due > lastUst) lastUst = d.due; });
@@ -3925,17 +3925,17 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     let balG = liquidG, balP = liquidP;
     const proj = months.map(x => { const key = x.d.getFullYear() * 12 + x.d.getMonth();
       balG += shopNet - ent + (F.auto && regel ? zahl : 0) - x.payG;
-      balP += ent + inc0.reduce((n, r) => n + (finAct(r, key) ? v(r.a) : 0), 0) - privOn.reduce((n, r) => n + privAt(r, key), 0) - x.payP;
+      balP += 0;
       return { ...x, balG, balP, bal: balG + balP }; });
     const next = [...open].filter(d => d.due).sort((a, b) => a.due.localeCompare(b.due))[0];
     // Säumniszuschlag: 1 % pro angefangenem Monat auf überfällige Steuern
     const late = open.filter(d => d.typ === "ust" && (!d.due || d.due < td)).reduce((s, d) => s + d.ea, 0);
     const rateOf = list => list.reduce((s, d) => s + (v(d.raten) > 1 ? d.ea / Math.floor(v(d.raten)) : 0), 0);
-    const monthlyRate = rateOf(open), rateP = rateOf(open.filter(d => d.acc === "p")), rateG = monthlyRate - rateP;
+    const monthlyRate = rateOf(open), rateP = 0, rateG = monthlyRate - rateP;
     const surplusP = ent + other - privSum - rateP, surplusG = shopNet - ent - rateG;
     return { F, T, m, tx, shopNet, zahlAuto, regel, saved, liquid, liquidG, liquidP, openG, openP, ent, rateP, rateG, surplusP, surplusG, open, openSum, ustOut, vor, vorAuto, zahl, privSum, sparM, other, income, proj, next, late, monthlyRate, td, surplus: surplusP + surplusG, lastUst };
   }
-  const FTABS = [["uebersicht", "Überblick"], ["schulden", "Zahlungen"], ["plan", "Monatsplan"], ["konto", "Kontoauszüge"]];
+  const FTABS = [["uebersicht", "Überblick"], ["schulden", "Zahlungen"], ["konto", "Kontoauszüge"]];
   let finTab = LS.get("hlz-app-ftab") || "uebersicht"; if (!FTABS.some(x => x[0] === finTab)) finTab = "uebersicht";
   const finDraw = () => { try { renderFinance(); } catch (e) { showErr(e); } };
   function renderFinance() {
@@ -3951,7 +3951,6 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       inp(`data-finl="debts|${d.id}|a"`, d.a, "€"),
       `<div class="inp"><input type="date" data-finl="debts|${d.id}|due" value="${esc(d.due)}"></div>`,
       inp(`data-finl="debts|${d.id}|raten"`, d.raten, "Mon."),
-      `<div class="inp"><select data-finl="debts|${d.id}|acc"><option value="g" ${d.acc !== "p" ? "selected" : ""}>Geschäft</option><option value="p" ${d.acc === "p" ? "selected" : ""}>Privat</option></select></div>`,
       d.paid ? `<span class="note">bezahlt</span>` : (v(d.a) > 0 ? when(d.due) : (c.open.find(o => o.id === d.id) || {}).est ? `${when(d.due)}<br><span class="note">geschätzt ${eur0(c.open.find(o => o.id === d.id).ea)}</span>` : `<span class="note">Betrag fehlt</span>`),
       `<div class="chkcol"><label class="note"><input type="checkbox" data-finl="debts|${d.id}|ust" ${d.typ === "ust" ? "checked" : ""}> USt</label><label class="note"><input type="checkbox" data-finl="debts|${d.id}|paid" ${d.paid ? "checked" : ""}> bezahlt</label></div>`,
       `<span style="white-space:nowrap"><span class="mvbtns"><button type="button" class="btn" data-fin-move="debts|${d.id}|-1" aria-label="Nach oben" title="Nach oben">▲</button><button type="button" class="btn" data-fin-move="debts|${d.id}|1" aria-label="Nach unten" title="Nach unten">▼</button></span> <button class="btn" data-fin-del="debts|${d.id}" aria-label="Löschen">×</button></span>`
@@ -3970,31 +3969,27 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
         <div class="btns" style="margin:8px 0 14px"><button class="btn" data-fin-add="priv:${g}">+ Posten</button></div>`;
     };
     const incRows = (F.income || []).map(r => [`<div class="inp"><input type="text" data-finl="income|${r.id}|n" value="${esc(r.n)}"></div>`, numIn(`data-finl="income|${r.id}|a"`, r.a, "€ / Monat"), sel(`data-finl="income|${r.id}|from"`, monthOpts(r.from, "sofort")), sel(`data-finl="income|${r.id}|to"`, monthOpts(r.to, "unbefristet")), `<input type="checkbox" data-finl="income|${r.id}|inc" ${r.inc !== false ? "checked" : ""} aria-label="zählt im Budget mit">`, `<button class="btn" data-fin-del="income|${r.id}" aria-label="Löschen">×</button>`]);
-    const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 || (x.once || []).length ? `<span class="note">${esc(x.items.concat(x.once || []).join(" · "))}</span>${x.pay > 0 ? `<br>−${eur0(x.pay)}` : ""}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.balP < 0 ? "bad" : "good"})">${eur0(x.balP)}</strong>`, `<strong class="num" style="color:var(--${x.balG < 0 ? "bad" : "good"})">${eur0(x.balG)}</strong>`, `<span class="num">${eur0(x.bal)}</span>`]);
-    const firstNeg = c.proj.find(x => x.balP < 0 || x.balG < 0), negWho = firstNeg ? (firstNeg.balP < 0 && firstNeg.balG < 0 ? "auf beiden Konten" : firstNeg.balP < 0 ? "auf dem Privatkonto" : "auf dem Geschäftskonto") : "";
-    const hasSales = c.T.qty > 0, hasSalesEnt = hasSales, noMoney = F.kontoG === "" && F.kontoP === "" && F.guthaben === "" && F.bar === "";
+    const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 || (x.once || []).length ? `<span class="note">${esc(x.items.concat(x.once || []).join(" · "))}</span>${x.pay > 0 ? `<br>−${eur0(x.pay)}` : ""}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.balG < 0 ? "bad" : "good"})">${eur0(x.balG)}</strong>`]);
+        const hasSales = c.T.qty > 0, hasSalesEnt = hasSales, noMoney = F.kontoG === "" && F.guthaben === "" && F.guthabenS === "";
     $("view").innerHTML = `
-      <div class="row"><h1>Finanzen</h1></div>
-      <div class="seg stabs" aria-label="Bereiche der Finanzen">${FTABS.map(([k, l]) => `<button type="button" data-ftab="${k}" aria-pressed="${finTab === k}">${l}</button>`).join("")}</div>
+      <div class="row"><h1>Bank & Raten</h1></div>
+      <div class="seg stabs" aria-label="Bereiche von Bank & Raten">${FTABS.map(([k, l]) => `<button type="button" data-ftab="${k}" aria-pressed="${finTab === k}">${l}</button>`).join("")}</div>
 
       <section class="box" data-fs="uebersicht" style="border-color:var(--accent)">
-        <span class="label" style="font-size:.85rem">Nach allen Zahlungen bleibt${info("Geld auf allen Konten (auch Etsy- und Shopify-Guthaben, Bargeld) minus alles, was du noch zahlen musst: Steuern und Schulden, auch die später fälligen.")}</span>
+        <span class="label" style="font-size:.85rem">Nach allen Zahlungen bleibt${info("Geld auf dem Geschäftskonto (auch Etsy- und Shopify-Guthaben) minus alles, was du noch zahlen musst: Steuern und Schulden, auch die später fälligen.")}</span>
         <span class="num" style="font-size:2.4rem;color:var(--${noMoney ? "muted" : free < 0 ? "bad" : "good"})">${noMoney ? "–" : eur0(free)}</span>
         <div class="finmini"><span>Geld da <strong>${eur0(c.liquid)}</strong></span><span>Noch zu zahlen <strong>−${eur0(c.openSum)}</strong></span>${(() => { const n90 = c.open.filter(d => d.due && days(d.due) <= 90).reduce((n, d) => n + d.ea, 0); return n90 > 0 && n90 < c.openSum ? `<span>davon in 90 Tagen <strong>−${eur0(n90)}</strong></span>` : ""; })()}${c.saved ? `<span>Gespart (Spaces) <strong>${eur0(c.saved)}</strong></span>` : ""}</div>
         <ul class="finbrief">${finBrief(c).map(x => `<li>${x}</li>`).join("")}</ul>
       </section>
-      <div class="tiles" data-fs="uebersicht" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px">
+      <div class="tiles" data-fs="uebersicht" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px">
         ${tile("Geschäftskonto", eur0(c.liquidG - c.openG), `${eur0(c.liquidG)} da − ${eur0(c.openG)} offen`, c.liquidG - c.openG < 0 ? "bad" : "good", "Geschäftskonto plus Guthaben bei Etsy, PayPal und Shopify, abzüglich aller offenen Posten, die du dort „von Geschäft“ eingetragen hast (Umsatzsteuer usw.).")}
-        ${tile("Privatkonto", eur0(c.liquidP - c.openP), `${eur0(c.liquidP)} da − ${eur0(c.openP)} offen`, c.liquidP - c.openP < 0 ? "bad" : "good", "Privatkonto plus Bargeld, abzüglich aller offenen Posten, die du dort „von Privat“ eingetragen hast.")}
         ${tile("Nächste Zahlung", c.next ? (c.next.est ? "ca. " : "") + eur0(c.next.ea) : "–", c.next ? `${esc(c.next.n)} · ${dDE(c.next.due)} (${when(c.next.due).replace(/<[^>]+>/g, "")})` : "Kein Posten mit Datum")}
-        ${tile("Pro Monat übrig", hasSales ? eur0(c.surplus) : "–", hasSales ? "privat + Geschäft, ohne USt" : "Noch keine Verkaufszahlen", hasSales ? (c.surplus < 0 ? "bad" : "good") : "", "Shop-Einkommen nach Steuer (aus der Auswertung) + weitere Einnahmen − private Ausgaben − Raten. Die Umsatzsteuer ist nicht dabei, die gehört dem Finanzamt.")}
+        ${tile("Pro Monat übrig", hasSales ? eur0(c.surplusG) : "–", hasSales ? "Shop-Einkommen − Entnahme − Raten, ohne USt" : "Noch keine Verkaufszahlen", hasSales ? (c.surplus < 0 ? "bad" : "good") : "", "Shop-Einkommen nach Steuer (aus der Auswertung) + weitere Einnahmen − private Ausgaben − Raten. Die Umsatzsteuer ist nicht dabei, die gehört dem Finanzamt.")}
       </div>
 
       <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Wie viel Geld ist da?</h2>
         <div class="finrow">
           <div class="field"><label>Geschäftskonto</label>${inp('data-fin="kontoG"', F.kontoG, "€")}</div>
-          <div class="field"><label>Privatkonto</label>${inp('data-fin="kontoP"', F.kontoP, "€")}</div>
-          <div class="field"><label>Bargeld</label>${inp('data-fin="bar"', F.bar, "€")}</div>
           <div class="field"><label>Etsy-Guthaben</label>${inp('data-fin="guthaben"', F.guthaben, "€")}</div>
           <div class="field"><label>Shopify-Guthaben</label>${inp('data-fin="guthabenS"', F.guthabenS, "€")}</div>
           <div class="field"><label>Space 1 und 2</label><div class="finpair">${inp('data-fin="spaceA"', F.spaceA, "€")}${inp('data-fin="spaceB"', F.spaceB, "€")}</div></div>
@@ -4010,7 +4005,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       </section>
 
       <section class="box" data-fs="schulden" style="margin-top:12px"><h2>Was ich noch zahlen muss${info("Ohne Datum ist ein Posten sofort fällig. Raten = Betrag verteilt auf so viele Monate (z. B. nach Absprache mit dem Finanzamt). „bezahlt“ nimmt den Posten raus. Bei Teilzahlung den Betrag auf den Rest ändern.")}</h2>
-        ${anaTable(["Posten", "Betrag", "Fällig am", "Raten", "Zahlt", "Status", "", ""], debtRows, [1]).replace('class="anatable"', 'class="anatable debttable"')}
+        ${anaTable(["Posten", "Betrag", "Fällig am", "Raten", "Status", "", ""], debtRows, [1]).replace('class="anatable"', 'class="anatable debttable"')}
         <div class="btns" style="margin-top:8px"><button class="btn" data-fin-add="debts">+ Posten</button></div>
         <p style="margin-top:10px"><strong>Offen gesamt: ${eur(c.openSum)}</strong>${c.late > 0 ? ` · <strong style="color:var(--bad)">Säumniszuschlag ca. ${eur(c.late * 0.01)} pro Monat</strong>${info("1 % pro angefangenem Monat auf überfällige Steuern. Am besten schriftlich Raten oder Stundung beim Finanzamt beantragen.")}` : ""}</p>
       </section>
@@ -4030,27 +4025,18 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
         </div>`}
       </section>
 
-      <section class="box" data-fs="plan" style="margin-top:12px"><h2>Einnahmen neben dem Shop${info("Gehalt, Nebenjob, Kindergeld, BFD … „zählt“ nimmt eine Einnahme in die Rechnung auf oder raus. „ab“ und „bis“ legen fest, wann sie läuft.")}</h2>
-        <div class="tablewrap">${anaTable(["Posten", "Betrag", "ab", "bis", "zählt", ""], incRows, [1])}</div>
-        <div class="btns" style="margin-top:8px"><button class="btn" data-fin-add="income">+ Posten</button></div>
-      </section>
 
-      <section class="box" data-fs="plan" style="margin-top:12px"><h2>Private Ausgaben${info("Jeder Posten mit Betrag und Rhythmus: monatlich, alle 3 Monate (z. B. GEZ), 1× im Jahr (z. B. KFZ-Steuer) oder einmalig (z. B. Urlaub, mit Monat). „von“ und „bis“ legen fest, wann er läuft. „zählt“ nimmt ihn ins Budget auf.")}</h2>
-        ${PRIV_GROUPS.map(privGrp).join("")}
-        <p><strong>Zusammen Ø ${eur0(c.privSum)} im Monat</strong>${c.sparM ? ` · davon ${eur0(c.sparM)} Sparen und Vorsorge` : ""}${info("Alles aufs Monat umgerechnet. Einmalige Posten stehen nur im passenden Monat der Prognose. Sparen und Vorsorge ist nicht weg, es liegt nur nicht mehr auf dem Konto.")}</p>
-      </section>
 
-      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Pro Monat${info("Privat: Entnahme aus dem Shop plus weitere Einnahmen minus private Ausgaben und Raten. Geschäft: Shop-Einkommen minus Entnahme und Raten. Die Umsatzsteuer ist nicht dabei, die gehört dem Finanzamt.")}</h2>
-        ${anaTable(["", "Privatkonto", "Geschäftskonto"], [
-          [`Rein${info("Privat: Entnahme aus dem Shop plus weitere Einnahmen. Geschäft: Shop-Einkommen" + (F.shopInc !== "" && F.shopInc !== undefined ? " (dein Wert)." : " (Schätzung der App)."))}`, hasSales || F.entnahme !== "" ? eur0(c.ent + c.other) : "–", hasSales || F.shopInc !== "" ? eur0(c.shopNet) : "–"],
-          [`Raus${info("Privat: private Ausgaben plus Raten. Geschäft: Entnahme aufs Privatkonto plus Raten.")}`, eur0(-(c.privSum + c.rateP)).replace("−0 €", "0 €"), eur0(-(c.ent + c.rateG)).replace("−0 €", "0 €")],
-          ["<strong>Übrig</strong>", `<strong style="color:var(--${c.surplusP < 0 ? "bad" : "good"})">${hasSales || F.entnahme !== "" ? eur0(c.surplusP) : "–"}</strong>`, `<strong style="color:var(--${c.surplusG < 0 ? "bad" : "good"})">${hasSales || F.shopInc !== "" ? eur0(c.surplusG) : "–"}</strong>`]
-        ], [1, 2])}
-        ${c.privSum === 0 ? `<p class="note"><strong>Trag bei „Monatsplan“ deine privaten Ausgaben ein, sonst ist „Übrig“ zu hoch.</strong></p>` : ""}
+      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Pro Monat${info("Shop-Einkommen minus Entnahme und Raten. Die Umsatzsteuer ist nicht drin, die steht bei „Zahlungen“.")}</h2>
+        ${anaTable(["", "Geschäftskonto"], [
+          [`Rein${info("Shop-Einkommen nach Steuer" + (F.shopInc !== "" && F.shopInc !== undefined ? " (dein Wert)." : " (Schätzung der App)."))}`, hasSales || F.shopInc !== "" ? eur0(c.shopNet) : "–"],
+          [`Raus${info("Entnahme (was du dir aufs Privatkonto überweist) plus Raten.")}`, eur0(-(c.ent + c.rateG)).replace("−0 €", "0 €")],
+          ["<strong>Übrig</strong>", `<strong style="color:var(--${c.surplusG < 0 ? "bad" : "good"})">${hasSales || F.shopInc !== "" ? eur0(c.surplusG) : "–"}</strong>`]
+        ], [1])}
       </section>
 
       <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Die nächsten 12 Monate${info("Kontostand am Monatsende, wenn alles wie geplant läuft: heutiges Geld + was pro Monat übrig bleibt − alle Zahlungen. Rot = Minus. Schulden und Umsatzsteuer laufen übers Geschäftskonto, wenn dort „Geschäft“ steht.")}</h2>
-        ${anaTable(["Monat", "Fällig (Schulden, USt)", "Privatkonto", "Geschäftskonto", "Gesamt"], projRows, [2, 3, 4])}
+        ${anaTable(["Monat", "Fällig (Schulden, USt)", "Geschäftskonto"], projRows, [2])}
       </section>
       ${finTipsMini(c)}
       ${bankHTML()}`;
@@ -4255,8 +4241,8 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     </section>`;
     if (BANK === null) return h + `<section class="box" data-fs="konto"><p class="note">Lade Kontoauszüge …</p></section>`;
     if (!nTot) return h + `<section class="box empty" data-fs="konto"><p>Noch keine Kontoauszüge.</p></section>`;
-    const has = { g: rowsAll.some(d => d.acc === "g"), p: rowsAll.some(d => d.acc === "p") };
-    if (!has[bankView]) bankView = has.g ? "g" : "p";
+    const has = { g: rowsAll.some(d => d.acc === "g"), p: false };
+    bankView = "g"; if (!has.g) return h + `<section class="box empty" data-fs="konto"><p>Noch keine Kontoauszüge vom Geschäftskonto.</p></section>`;
     const pv = bankPivot(bankView); if (!pv) return h;
     const mn = m => MN[+m.slice(5) - 1] + " " + m.slice(2, 4), nm = pv.ms.length || 1, tot = g => (pv.grp[g] || { sum: 0 }).sum;
     const sumCat = (re, ex) => pv.names.filter(c => re.test(c) && !(ex && ex.test(c))).reduce((n, c) => n + pv.cats[c].sum, 0);
@@ -4270,7 +4256,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
         ${`<div class="tile"><span class="label">Cash-Gewinn vor Steuern</span><span class="num" style="font-size:1.25rem;color:var(--${gew >= 0 ? "good" : "bad"})">${eur0(gew / nm)}</span><span class="note">pro Monat, ${eur0(gew)} gesamt</span></div>`}
       </div>`;
       const ent = -(pv.cats["INTERN Konto Geschäft ⇄ Privat"] || { sum: 0 }).sum / nm;
-      h += `<p>Du hast dir im Schnitt <strong>${eur0(ent)}</strong> pro Monat aufs Privatkonto überwiesen. <button class="btn" data-bank-ent="${Math.round(ent)}">Als Entnahme in die Planung übernehmen</button></p>`;
+      h += `<p>Du hast dir im Schnitt <strong>${eur0(ent)}</strong> pro Monat aufs Privatkonto überwiesen. <button class="btn" data-bank-ent="${Math.round(ent)}">Als Entnahme übernehmen</button></p>`;
     } else {
       const lauf = -sumCat(/^P /, /Fahrschule/), eink = sumCat(/^E /);
       h += `<div class="tiles t3" style="margin-bottom:6px">
@@ -4332,10 +4318,10 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   function finBrief(c) {
     const L = [], b = x => `<strong>${x}</strong>`;
     if (c.next) L.push(`Als Nächstes: ${esc(c.next.n)}, ${c.next.est ? "ca. " : ""}${b(eur0(c.next.ea))} am ${dDE(c.next.due)}.`);
-    const accs = [["balG", "Geschäftskonto"], ["balP", "Privatkonto"]].map(([k, nm]) => { const i = c.proj.findIndex(x => x[k] < 0); return i < 0 ? null : { nm, d: c.proj[i].d, low: c.proj.reduce((w, x) => x[k] < w[k] ? x : w, c.proj[i])[k] }; }).filter(Boolean);
+    const accs = [["balG", "Geschäftskonto"]].map(([k, nm]) => { const i = c.proj.findIndex(x => x[k] < 0); return i < 0 ? null : { nm, d: c.proj[i].d, low: c.proj.reduce((w, x) => x[k] < w[k] ? x : w, c.proj[i])[k] }; }).filter(Boolean);
     if (accs.length) L.push(accs.map(a => `${a.nm} im Minus ab ${b(monthName(a.d))} (tiefster Stand ${b(eur0(a.low))})`).join(", ") + ".");
-    else L.push("In den nächsten 12 Monaten bleiben beide Konten im Plus.");
-    L.push(`Pro Monat bleiben privat ${b(eur0(c.surplusP))}, im Geschäft ${b(eur0(c.surplusG))}.`);
+    else L.push("In den nächsten 12 Monaten bleibt das Geschäftskonto im Plus.");
+    L.push(`Pro Monat bleiben im Geschäft ${b(eur0(c.surplusG))}.`);
     return L;
   }
   function finSummary(c) {
@@ -4359,7 +4345,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     return L;
   }
   function finTips(c) {
-    const F = c.F, tips = [], td = c.td, nk = nowYM(), pvG = BANK ? bankPivot("g") : null, pvP = BANK ? bankPivot("p") : null;
+    const F = c.F, tips = [], td = c.td, nk = nowYM(), pvG = BANK ? bankPivot("g") : null;
     const avg = (pv, re) => pv ? -pv.names.filter(n => re.test(n)).reduce((s, n) => s + pv.cats[n].sum, 0) / pv.ms.length : null;
     const add = o => tips.push({ urg: 2, impact: null, ...o });
     const days = ds => Math.round((new Date(ds + "T00:00:00") - new Date(td + "T00:00:00")) / 864e5);
@@ -4367,19 +4353,9 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const bigDebts = c.open.filter(d => d.ea >= 1000 && !(v(d.raten) > 1) && d.acc !== "p");
     bigDebts.forEach(d => { const n = 6; add({ urg: d.due && days(d.due) > 14 ? 1 : 0, title: `Ratenzahlung für „${d.n}“ beantragen`, why: `${eur0(d.ea)} auf einmal${d.due && days(d.due) < 0 ? `, schon ${-days(d.due)} Tage überfällig` : d.due ? `, fällig am ${dDE(d.due)}` : ", sofort fällig"}.${c.liquidG - c.openG < 0 ? " Auf deinem Geschäftskonto ist nicht genug Geld dafür." : ""}`, todo: `Schreib dem Finanzamt und bitte um Ratenzahlung oder Stundung. Bei ${n} Raten wären das ${eur0(d.ea / n)} pro Monat. Wenn du sie bewilligt hast, trägst du „${n}“ im Reiter „Was ich zahlen muss“ bei Raten ein, und die Prognose rechnet damit.`, impact: null }); });
     if (c.late > 0) add({ urg: 0, title: "Überfällige Steuern kosten jeden Monat Geld", why: `Auf ${eur0(c.late)} überfällige Steuern läuft ein Säumniszuschlag von 1 % pro angefangenem Monat.`, todo: "Jetzt zahlen oder schriftlich Raten oder Stundung beantragen. Je länger du wartest, desto teurer.", impact: c.late * 0.01, unit: "pro Monat" });
-    // Privatkonto
-    if (c.surplusP < -30) {
-      const flex = F.priv.filter(r => r.inc !== false && finAct(r, nk) && /essen|lebensmittel|online|karte|freizeit|person|bargeld|fliegen|gleitschirm|reise|restaurant|kleinkram/i.test(r.n)).map(r => ({ n: r.n, a: privAvg(r) })).sort((x, y) => y.a - x.a).slice(0, 3);
-      const sav = flex.reduce((n, x) => n + x.a * 0.2, 0);
-      add({ urg: 1, title: "Privat gibst du mehr aus, als du entnimmst", why: `Pro Monat fehlen ${eur0(-c.surplusP)} auf dem Privatkonto (Entnahme ${eur0(c.ent)}, Ausgaben ${eur0(c.privSum)}).`, todo: flex.length ? `Die größten Posten, an denen du drehen kannst: ${flex.map(x => `${esc(x.n)} (${eur0(x.a)})`).join(", ")}. 20 % weniger bei diesen drei bringt ${eur0(sav)} pro Monat.` : "Prüf deine Ausgaben im Reiter „Mein Geld pro Monat“.", impact: Math.min(sav, -c.surplusP), unit: "pro Monat" });
-    }
-    if (v(F.kontoP) < 0) add({ urg: 1, title: "Dein Privatkonto ist im Minus", why: `Kontostand ${eur0(v(F.kontoP))}.`, todo: "Prüf, ob dafür Dispozinsen anfallen, und gleich die nächste Entnahme aus dem Geschäft einplanen, damit du wieder ins Plus kommst.", impact: null });
-    // Sparpläne
-    const spar = F.priv.filter(r => r.inc !== false && r.g === "vor" && finAct(r, nk) && privAvg(r) > 0);
-    if (spar.length && (c.surplusP < 0 || c.openSum > c.liquid)) { const m = spar.reduce((n, r) => n + privAvg(r), 0); add({ urg: 1, title: "Sparen erst mal pausieren", why: `Du planst ${eur0(m)} pro Monat für ${spar.map(r => esc(r.n)).join(" und ")}, hast aber noch Steuerschulden und ein Minus im Monat.`, todo: "Erst die Steuern ausgleichen und einen Puffer von einer Monatsmiete aufbauen, dann den Sparplan wieder starten. Setz den Haken „zählt“ bei diesen Posten aus.", impact: m, unit: "pro Monat" }); }
     // kritischer Monat
     const worst = c.proj.reduce((w, x) => Math.min(x.balG, x.balP) < Math.min(w.balG, w.balP) ? x : w, c.proj[0]);
-    if (Math.min(worst.balG, worst.balP) < 0) add({ urg: 1, title: `Im ${monthName(worst.d)} wird es am knappsten`, why: `Dann stehen Privatkonto ${eur0(worst.balP)} und Geschäftskonto ${eur0(worst.balG)}.${worst.items.length ? ` Grund: ${esc(worst.items.join(", "))}.` : ""}`, todo: "Verteile große Zahlungen auf Raten, verschiebe Wünsche (Urlaub) hinter die engen Monate und plane Einnahmen früher ein.", impact: -Math.min(worst.balG, worst.balP), unit: "Lücke" });
+    if (Math.min(worst.balG, worst.balP) < 0) add({ urg: 1, title: `Im ${monthName(worst.d)} wird es am knappsten`, why: `Dann steht das Geschäftskonto bei ${eur0(worst.balG)}.${worst.items.length ? ` Grund: ${esc(worst.items.join(", "))}.` : ""}`, todo: "Verteile große Zahlungen auf Raten, verschiebe Wünsche (Urlaub) hinter die engen Monate und plane Einnahmen früher ein.", impact: -Math.min(worst.balG, worst.balP), unit: "Lücke" });
     // neue Einnahme
     (F.income || []).filter(r => r.inc !== false && v(r.a) > 0 && r.from && ymKey(r.from) > nk && ymKey(r.from) - nk <= 10).forEach(r => add({ urg: 2, title: `Ab ${ymName(r.from)} kommen ${eur0(v(r.a))} pro Monat dazu`, why: `${esc(r.n || "Einnahme")}: Das ist ${eur0(v(r.a))} mehr als heute.`, todo: `Plane mindestens die Hälfte (${eur0(v(r.a) * 0.5)}) für Steuerschulden und den Puffer ein, bevor du die Ausgaben erhöhst.`, impact: v(r.a) * 0.5, unit: "pro Monat" }));
     // USt-Rücklage
@@ -4396,12 +4372,6 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       const ein = avg(pvG, /^A (Amazon|PayPal)/);
       if (ein > 200 && E > 0 && ein / E > 0.08) add({ urg: 2, title: "Einkäufe ohne klaren Zweck prüfen", why: `Amazon, Temu und PayPal-Zahlungen vom Geschäftskonto: ${eur0(ein)} pro Monat (${pct(ein / E * 100)} der Auszahlungen).`, todo: "Sammle die Belege und ordne sie in Lexware zu, was Material und was privat ist. So holst du die Vorsteuer sicher zurück und vermeidest Ärger bei einer Prüfung.", impact: null });
       const dl = pvG.cats["INTERN Darlehen von Privat"]; if (dl && dl.sum > 0) add({ urg: 2, title: "Das Geschäft schuldet dir Geld", why: `Du hast dem Geschäft ${eur0(dl.sum)} aus dem Privatkonto geliehen.`, todo: "Buch das in Lexware als Darlehen und leg fest, wann du es zurückbekommst, sobald das Geschäft die Steuern bezahlt hat.", impact: null });
-    }
-    if (pvP) {
-      const fl = avg(pvP, /Gleitschirm/);
-      if (fl > 150) add({ urg: 2, title: "Fliegen planbar machen", why: `Gleitschirm kostet dich im Schnitt ${eur0(fl)} pro Monat, oft als großer Betrag auf einmal.`, todo: "Setz eine feste Monatsrate im Budget an (Posten „Gleitschirm/Fliegen“) und zahl größere Rechnungen aus diesem Topf.", impact: null });
-      const lauf = avg(pvP, /^P /) - avg(pvP, /Fahrschule/);
-      if (lauf > 0 && c.privSum > 0 && lauf > c.privSum * 1.25) add({ urg: 1, title: "Dein Budget ist niedriger als deine echten Ausgaben", why: `Laut Kontoauszug gibst du ${eur0(lauf)} pro Monat aus, in der Planung stehen nur ${eur0(c.privSum)}.`, todo: "Geh im Reiter „Kontoauszüge“ bei Privat die Kategorien durch und übernimm die echten Durchschnitte mit „→ Plan“. Dann stimmen Prognose und Tipps.", impact: lauf - c.privSum, unit: "pro Monat fehlt in der Planung" });
     }
     if (!BANK || !Object.keys(BANK).length) add({ urg: 3, title: "Lad deine Kontoauszüge hoch, dann werden die Tipps genauer", why: "Ohne Kontoauszüge kenne ich nur deine Planung, nicht deine echten Ausgaben.", todo: "Reiter „Kontoauszüge“: CSV vom Geschäfts- und vom Privatkonto hochladen.", impact: null });
     return tips.sort((x, y) => x.urg - y.urg || (y.impact || 0) - (x.impact || 0));
@@ -4426,7 +4396,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const head = `<section class="box" id="anaCheck"><h2>Stimmen die Zahlen? Abgleich mit deinem Konto</h2>`;
     const pv = BANK ? bankPivot("g") : null;
     if (BANK === null) return head + `<p class="note">Lade Kontoauszüge …</p></section>`;
-    if (!pv) return head + `<p class="note">Lad im Reiter „Finanzen“ → „Kontoauszüge“ die CSV deines Geschäftskontos hoch. Dann prüft diese Seite ihre Zahlen gegen das, was wirklich auf dem Konto passiert ist.</p></section>`;
+    if (!pv) return head + `<p class="note">Lad unter Buchhaltung → „Bank & Raten“ → „Kontoauszüge“ die CSV deines Geschäftskontos hoch. Dann prüft diese Seite ihre Zahlen gegen das, was wirklich auf dem Konto passiert ist.</p></section>`;
     const nm = pv.ms.length, S1 = re => pv.names.filter(n => re.test(n)).reduce((s, n) => s + pv.cats[n].sum, 0) / nm;
     const real = { eing: S1(/^E /), vers: -S1(/^A Versand/), mat: -S1(/^A (Material|Zulieferer)/), fixk: -S1(/^A (Werkstattmiete|Software|Fahrzeug|Gebühren|Ladengemeinschaft|Versicherung)/), unz: -S1(/^A (Amazon|PayPal|Sonstiges)/) };
     real.cash = S1(/^[EA] /);
@@ -5645,7 +5615,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   const DOC_MONTHLY = ["bankG", "bankP", "etsyTax", "etsyOrd", "dhl", "shopPay"];
   const DOC_SHORT = { bankG: "Konto Geschäft", bankP: "Konto Privat", etsyTax: "Etsy Steuer", etsyOrd: "Etsy Bestellungen", dhl: "DHL", shopPay: "Shopify Auszahlung" };
   const DOC_NEED = [
-    ["Kontoauszug Geschäft und Privat (CSV)", "Online-Banking → Umsätze exportieren", "Echte Einnahmen und Ausgaben, damit Finanzen stimmt"],
+    ["Kontoauszug Geschäftskonto (CSV)", "Online-Banking → Umsätze exportieren", "Echte Einnahmen und Ausgaben, damit Finanzen stimmt"],
     ["Etsy Steuerabrechnung (PDF)", "Etsy → Finanzen → Rechnungen (Datei tax_statement)", "Echte Gebühren, Offsite- und Etsy-Ads"],
     ["Etsy Bestellungen (CSV „Bestellte Artikel“)", "Etsy → Einstellungen → Optionen → Daten herunterladen", "Verkäufe pro Artikel, Trend, Daten-Check"],
     ["DHL Rechnung (PDF)", "DHL Geschäftskundenportal → Rechnungen", "Echtes Porto, stimmt der Aufschlag?"],
@@ -6612,7 +6582,7 @@ Claude:`;
       ["billbee", "Billbee: Export", "up", "m", "Bestell-/Rechnungsexport hochladen.", ""],
       ["lexware", "Lexware Office", "up", "m", "Monatsbuchhaltung: Importdatei erstellt und eingespielt.", ""],
       ["paypal", "PayPal: Kontoauszug", "up", "m", "CSV-Export für die Buchhaltung.", ""],
-      ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export des Geschäftskontos. Wird in Finanzen eingelesen.", ""]]]
+      ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export des Geschäftskontos. Wird in „Bank & Raten“ eingelesen.", ""]]]
   ];
   const KLINK = { shopify: "shopcheck", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", yt: "werbung", tiktok: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", lexware: "buchhaltung", paypal: "buchhaltung", bank: "finanzen" };
   const kanUi = { add: false, msg: "" };
@@ -6774,7 +6744,7 @@ Claude:`;
     mkt: ["Marketing", [["werbung", "Marketing"]]], kan: ["Kanäle", [["kanaele", "Kanäle"]]],
     prod: ["Produktion", [["produktion", "Produktion"]]], sup: ["Support", [["support", "Support"]]],
     preis: ["Preise & Marge", [["preise", "Preise"]]], ausw: ["Auswertung", [["auswertung", "Auswertung"]]],
-    buch: ["Buchhaltung", [["buchhaltung", "Buchhaltung"], ["finanzen", "Finanzen"]]],
+    buch: ["Buchhaltung", [["buchhaltung", "Buchhaltung"], ["finanzen", "Bank & Raten"]]],
     dok: ["Dokumente", [["dokumente", "Dokumente"]]], set: ["Einstellungen", [["einstellungen", "Einstellungen"]]]
   };
   const SEC_EXTRA = { import: "set", entwicklung: "ausw", datencheck: "ausw", verk: "art", zahl: "preis", daten: "set" };
@@ -6799,7 +6769,7 @@ Claude:`;
       add(() => gdTile("Fixkosten", eur0(fixTotal()), "Miete, Software, Abos", "#einstellungen"));
       add(() => { const b = (SHOP && SHOP.buch) || {}, tt = buTotals({ pay: b.pay || [] }); return gdTile("Noch zu zahlen", eur0(tt.openAll), `davon Steuer ${eur0(tt.openTax)}`, "#buchhaltung"); });
       add(() => { const b = (SHOP && SHOP.buch) || {}, nx = (b.dl || []).filter(x => x.d && x.d >= td).sort((a, c) => a.d.localeCompare(c.d))[0]; if (!nx) return gdTile("Nächste Frist", "–", "Keine offene Frist eingetragen", "#buchhaltung"); const d = Math.round((new Date(nx.d + "T12:00") - new Date(td + "T12:00")) / 864e5); return gdTile("Nächste Frist", new Date(nx.d + "T12:00").toLocaleDateString("de-DE"), `in ${d} Tag${d === 1 ? "" : "en"}: ${esc(nx.t || "")}`, "#buchhaltung"); });
-      add(() => gdTile("Finanzen", "Konto & Plan", "Überblick, Monatsplan, Kontoauszüge", "#finanzen"));
+      add(() => gdTile("Bank & Raten", "Konto & Zahlungen", "Überblick, Raten, Kontoauszüge", "#finanzen"));
     } else if (g === "daten") {
       add(() => { const r = { r: 0, y: 0, g: 0 }; kanAll().forEach(c => { const a = kanAmpel(c); if (a[2] === "-") return; r[a[0].includes("bad") ? "r" : a[0] === "#c98a00" ? "y" : "g"]++; }); return gdTile("Kanäle", `${r.g} aktuell`, `${r.y} bald fällig · ${r.r} überfällig oder noch nie abgeglichen`, "#kanaele"); });
       add(() => { const nOpen = A.filter(a => missing(a).length).length; return gdTile("Artikel", n0(A.length), `${nOpen} mit fehlenden Daten`, "#sortiment"); });
