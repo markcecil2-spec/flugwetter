@@ -5901,7 +5901,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   }
   function buTb(d0) {
     if (!STATS) { statsLoad().then(() => { if (view === "buchhaltung") renderBuch(); }); return `<section class="box"><p class="note">Lade Verkaufsdaten …</p></section>`; }
-    const d = tbData(), cur = curYM(); if (!tbS.ym) tbS.ym = ymAdd(cur, -1);
+    const d = tbData(), cur = curYM(); if (!tbS.ym) tbS.ym = cur;
     const months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i - 0)), lines = tbLines(d, tbS.ym, true), valid = tbLines(d, tbS.ym), net = valid.reduce((s, l) => s + l.q * l.p, 0), have = d.inv.find(x => x.ym === tbS.ym);
     const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, EB = STATS.ebay ? STATS.ebay.months : {}, bbm = tbBB(tbS.ym), data = !!(bbm || E[tbS.ym] || S2[tbS.ym] || EB[tbS.ym]), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0;
     const miss = []; if (!d.ven.name) miss.push("Name"); if (!d.ven.addr) miss.push("Adresse"); if (!d.ven.tax && !d.ven.ust) miss.push("Steuernummer"); 
