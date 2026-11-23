@@ -2234,7 +2234,16 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
   const nlData = () => { const d = (SHOP && SHOP.nl) || {}; return { id: "nl", items: d.items || [] }; };
   const nlOpen = () => nlData().items.filter(x => x.status !== "erledigt");
   const nlSave = d => { if (SHOP) shopSave(d); };
-  const nlDraft = () => sup.nl = sup.nl || { order: "", cust: "", ch: "Etsy", why: "vergessen", what: "", cost: "12" };
+  const nlDraft = () => { const d = sup.nl = sup.nl || { order: "", cust: "", ch: "Etsy", why: "vergessen", what: "", cost: "12" }; if (!d.lines || !d.lines.length) d.lines = [{ art: "", qty: "1" }]; return d; };
+  const nlLines = x => x.lines && x.lines.length ? x.lines : (x.what ? [{ art: x.what, qty: "1" }] : []);
+  const nlNote = x => x.lines && x.lines.length ? (x.what || "") : "";
+  const nlArtOpts = () => A.filter(a => a.name).map(a => (a.sku ? a.sku + " – " : "") + a.name);
+  function nlPrint() {
+    const rows = []; nlOpen().forEach(x => nlLines(x).forEach((l, i) => { if (String(l.art).trim()) rows.push({ art: String(l.art).trim(), qty: v(l.qty) || 1, note: i ? "" : nlNote(x), who: [x.order, x.cust].filter(Boolean).join(" · ") }); }));
+    if (!rows.length) return toast("Nichts zu drucken");
+    rows.sort((a, b) => a.art.localeCompare(b.art, "de")); const n = rows.reduce((t, r) => t + r.qty, 0);
+    printHTML(`<h1>Nachlieferungen · ${new Date().toLocaleDateString("de-DE")}</h1><table><thead><tr><th>✓</th><th>Menge</th><th>Artikel</th><th>Für</th></tr></thead><tbody>${rows.map(r => `<tr><td class="chk">☐</td><td class="qty">${dec(r.qty, 0)}</td><td><strong>${esc(r.art)}</strong>${r.note ? `<br>${esc(r.note)}` : ""}</td><td>${esc(r.who)}</td></tr>`).join("")}</tbody></table><p>${dec(n, 0)} Stück · ${rows.length} Positionen</p>`, "Nachlieferungen");
+  }
   function supNlHTML() {
     if (!SHOP) { shopLoad(); return `<p class="note">Lade …</p>`; }
     const d = nlData(), dr = nlDraft(), open = d.items.filter(x => x.status !== "erledigt").sort((a, b) => (a.at || "").localeCompare(b.at || "")), done = d.items.filter(x => x.status === "erledigt").sort((a, b) => (b.doneAt || "").localeCompare(a.doneAt || ""));
@@ -2243,7 +2252,8 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
     const row = x => { const old = x.status !== "erledigt" && x.at && Math.round((Date.now() - new Date(x.at + "T12:00:00")) / 864e5) >= 3;
       return `<div style="border-top:1px solid var(--line);padding:10px 0;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;${x.status === "erledigt" ? "opacity:.65" : ""}">
         <input type="checkbox" data-nlf="${x.id}|done" ${x.status === "erledigt" ? "checked" : ""} aria-label="Verschickt" style="margin-top:12px" title="Haken setzen, wenn die Nachlieferung raus ist">
-        <div style="min-width:0;display:grid;gap:6px"><div class="inp"><input type="text" data-nlf="${x.id}|what" value="${esc(x.what)}" placeholder="Was muss raus?"></div>
+        <div style="min-width:0;display:grid;gap:6px">${nlLines(x).map((l, i) => `<div class="row" style="gap:6px;flex-wrap:nowrap"><div class="inp" style="width:64px"><input type="text" inputmode="numeric" data-nlf="${x.id}|L${i}q" value="${esc(l.qty)}" aria-label="Menge"></div><div class="inp" style="flex:1;min-width:0"><input type="text" list="nlArts" data-nlf="${x.id}|L${i}a" value="${esc(l.art)}" placeholder="Artikel" aria-label="Artikel"></div></div>`).join("")}
+          <div class="inp"><input type="text" data-nlf="${x.id}|what" value="${esc(nlNote(x))}" placeholder="Hinweis (Größe, Variante …)"></div>
           <div class="row" style="gap:6px;flex-wrap:wrap"><div class="inp" style="width:130px"><input type="text" data-nlf="${x.id}|order" value="${esc(x.order)}" placeholder="Bestellnr."></div><div class="inp" style="width:140px"><input type="text" data-nlf="${x.id}|cust" value="${esc(x.cust)}" placeholder="Kunde"></div>
           <div class="inp" style="width:170px"><select data-nlf="${x.id}|why">${NL_WHY.map(([k, l]) => opt(k, l, x.why === k)).join("")}</select></div><div class="inp" style="width:90px"><input type="text" inputmode="decimal" data-nlf="${x.id}|cost" value="${esc(x.cost || "")}" placeholder="Kosten €"></div>
           <span class="note">${esc(x.ch || "")} · ${dd(x.at)}${x.status === "erledigt" && x.doneAt ? " · verschickt " + dd(x.doneAt) : ""}${old ? ' <strong style="color:var(--bad)">· wartet schon länger</strong>' : ""}</span></div></div>
@@ -2254,15 +2264,17 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
       <div class="field"><div class="inp"><textarea data-nlpaste="text" rows="4" placeholder="Kundennachricht hier einfügen …" ${pm.busy ? "disabled" : ""}>${esc(pm.text)}</textarea></div></div>
       <div class="btns"><button type="button" class="btn primary" data-nl="ai" ${pm.busy ? "disabled" : ""}>${pm.busy ? "Claude liest …" : "Formular ausfüllen"}</button></div>${pm.err ? `<p class="note" style="color:var(--bad);margin:6px 0 0">${esc(pm.err)}</p>` : ""}</section>
       <section class="box"><h2>Neue Nachlieferung</h2><p class="note">Etwas vergessen, falsch geschickt oder kaputt angekommen? Hier notieren, was noch raus muss.</p>
-      <div class="field"><label>Was muss raus?</label><div class="inp"><input type="text" data-nld="what" value="${esc(dr.what)}" placeholder="z. B. 2 Haken Eiche nachschicken"></div></div>
+      <div class="field"><label>Was muss raus? (Menge und Artikel)</label>${dr.lines.map((l, i) => `<div class="row" style="gap:6px;flex-wrap:nowrap;margin-bottom:6px"><div class="inp" style="width:64px"><input type="text" inputmode="numeric" data-nldl="${i}|qty" value="${esc(l.qty)}" aria-label="Menge"></div><div class="inp" style="flex:1;min-width:0"><input type="text" list="nlArts" data-nldl="${i}|art" value="${esc(l.art)}" placeholder="Artikel wählen oder einfach eintippen" aria-label="Artikel"></div>${dr.lines.length > 1 ? `<button type="button" class="btn" data-nl="ldel:${i}" aria-label="Zeile entfernen">×</button>` : ""}</div>`).join("")}
+        <div class="btns"><button type="button" class="btn" data-nl="ladd">+ Weiterer Artikel</button></div><datalist id="nlArts">${nlArtOpts().map(o => `<option value="${esc(o)}">`).join("")}</datalist></div>
+      <div class="field"><label>Hinweis (Größe, Variante, optional)</label><div class="inp"><input type="text" data-nld="what" value="${esc(dr.what)}"></div></div>
       <div class="grid3 keep"><div class="field"><label>Bestellnummer</label><div class="inp"><input type="text" data-nld="order" value="${esc(dr.order)}"></div></div><div class="field"><label>Kunde (nur Name)</label><div class="inp"><input type="text" data-nld="cust" value="${esc(dr.cust)}"></div></div>
         <div class="field"><label>Kanal</label>${sel("ch", [["Etsy", "Etsy"], ["Shopify", "Shopify"], ["eBay", "eBay"], ["Direkt", "Direkt"]], dr.ch)}</div></div>
       <div class="grid3 keep"><div class="field"><label>Grund</label>${sel("why", NL_WHY, dr.why)}</div><div class="field"><label>Kosten ca. (€, Porto + Teil)</label><div class="inp"><input type="text" inputmode="decimal" data-nld="cost" value="${esc(dr.cost)}"></div></div></div>
       <div class="btns"><button type="button" class="btn primary" data-nl="add">+ Hinzufügen</button></div></section>
-      <section class="box"><h2>Noch zu verschicken <span class="note num">${open.length}</span></h2>${open.length ? open.map(row).join("") : `<p class="note">Nichts offen.</p>`}</section>
+      <section class="box"><div class="row" style="justify-content:space-between;align-items:center;gap:8px"><h2 style="margin:0">Noch zu verschicken <span class="note num">${open.length}</span></h2>${open.length ? `<button type="button" class="btn" data-nl="print">Drucken</button>` : ""}</div>${open.length ? open.map(row).join("") : `<p class="note">Nichts offen.</p>`}</section>
       ${done.length ? `<section class="box"><h2>Erledigt <span class="note num">${done.length}</span></h2>${done.slice(0, 30).map(row).join("")}<p class="note" style="margin:8px 0 0">Kosten aller Nachlieferungen bisher: ca. ${eur0(cost)}.</p></section>` : ""}</div>`;
   }
-  document.addEventListener("input", e => { const t = e.target; if (view !== "support" || sup.tab !== "nachlieferung" || !t.dataset) return; if (t.dataset.nlpaste) { sup.nlPaste = Object.assign(sup.nlPaste || { busy: false, err: "" }, { text: t.value }); return; } if (t.dataset.nld) nlDraft()[t.dataset.nld] = t.value; });
+  document.addEventListener("input", e => { const t = e.target; if (view !== "support" || sup.tab !== "nachlieferung" || !t.dataset) return; if (t.dataset.nlpaste) { sup.nlPaste = Object.assign(sup.nlPaste || { busy: false, err: "" }, { text: t.value }); return; } if (t.dataset.nld) nlDraft()[t.dataset.nld] = t.value; if (t.dataset.nldl) { const [i, f] = t.dataset.nldl.split("|"); nlDraft().lines[+i][f] = t.value; } });
   async function nlFromMsg() {
     const pm = sup.nlPaste = sup.nlPaste || { text: "", busy: false, err: "" };
     if (!pm.text.trim()) return toast("Bitte erst die Kundennachricht einfügen");
@@ -2271,16 +2283,20 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
     try {
       const r = await sample.json(`Ein Kunde eines kleinen Holzwerkstatt-Shops (Haken, Garderoben, Regale aus Eiche) schreibt, dass bei seiner Bestellung etwas falsch gelaufen ist. Lies die Nachricht und fülle einen Nachlieferungs-Eintrag aus.
 
+ARTIKELLISTE:
+${nlArtOpts().slice(0, 150).join("\n")}
+
 NACHRICHT:
 """
 ${pm.text.slice(0, 8000)}
 """
 
 Gib NUR dieses JSON zurück:
-{"what": "kurz auf Deutsch, was genau verschickt werden muss, mit Anzahl, Größe und Variante, z. B. 2 Haken Eiche als Ersatz. Wenn unklar, schreib dazu was noch zu klären ist.", "order": "Bestellnummer, falls genannt, sonst leer", "cust": "Vor- und Nachname des Kunden, falls erkennbar, sonst leer", "ch": "Etsy|Shopify|eBay|Direkt, falls erkennbar, sonst leer", "why": "${NL_WHY.map(x => x[0]).join("|")}"}
+{"teile": [{"art": "Artikel, der verschickt werden muss. Nimm den passenden Eintrag aus der ARTIKELLISTE exakt wie dort geschrieben, sonst schreib ihn kurz selbst (z. B. Haken Eiche)", "qty": "Anzahl als Zahl"}], "what": "Hinweis kurz auf Deutsch, z. B. Größe oder Variante. Leer wenn nichts nötig. Wenn etwas unklar ist, schreib was noch zu klären ist.", "order": "Bestellnummer, falls genannt, sonst leer", "cust": "Vor- und Nachname des Kunden, falls erkennbar, sonst leer", "ch": "Etsy|Shopify|eBay|Direkt, falls erkennbar, sonst leer", "why": "${NL_WHY.map(x => x[0]).join("|")}"}
 Regeln: vergessen = Teil fehlte im Paket; falsch = falsche Größe oder Variante geliefert; defekt = kaputt angekommen; ersatz = Kunde möchte zusätzlich etwas; sonst = alles andere. Erfinde nichts.`, { cache: false });
-      if (!r || typeof r.what !== "string") throw { code: "invalid_json" };
-      const dr = nlDraft(); dr.what = r.what.trim(); if (r.order) dr.order = String(r.order).trim(); if (r.cust) dr.cust = String(r.cust).trim();
+      if (!r || (!Array.isArray(r.teile) && typeof r.what !== "string")) throw { code: "invalid_json" };
+      const dr = nlDraft(), tl = (Array.isArray(r.teile) ? r.teile : []).filter(t => t && String(t.art || "").trim()).map(t => ({ art: String(t.art).trim(), qty: String(parseInt(t.qty, 10) || 1) }));
+      if (tl.length) dr.lines = tl; dr.what = String(r.what || "").trim(); if (r.order) dr.order = String(r.order).trim(); if (r.cust) dr.cust = String(r.cust).trim();
       if (["Etsy", "Shopify", "eBay", "Direkt"].includes(r.ch)) dr.ch = r.ch; if (NL_WHY.some(x => x[0] === r.why)) dr.why = r.why;
       pm.text = "";
     } catch (e) { pm.err = supErr(e); }
@@ -2289,14 +2305,19 @@ Regeln: vergessen = Teil fehlte im Paket; falsch = falsche Größe oder Variante
   document.addEventListener("change", e => {
     const t = e.target; if (view !== "support" || sup.tab !== "nachlieferung" || !t.dataset) return;
     if (t.dataset.nld) { nlDraft()[t.dataset.nld] = t.value; return; }
+    if (t.dataset.nldl) { const [i, f] = t.dataset.nldl.split("|"); nlDraft().lines[+i][f] = t.value; return; }
     if (!t.dataset.nlf) return; const [id, f] = t.dataset.nlf.split("|"), d = nlData(), x = d.items.find(y => y.id === id); if (!x) return;
-    if (f === "done") { x.status = t.checked ? "erledigt" : "offen"; x.doneAt = t.checked ? todayISO() : ""; } else x[f] = t.value;
+    const ml = /^L(\d+)([aq])$/.exec(f);
+    if (ml) { if (!x.lines || !x.lines.length) { x.lines = nlLines(x).map(l => ({ art: l.art, qty: l.qty })); x.what = ""; } x.lines[+ml[1]][ml[2] === "a" ? "art" : "qty"] = t.value; } else if (f === "done") { x.status = t.checked ? "erledigt" : "offen"; x.doneAt = t.checked ? todayISO() : ""; } else x[f] = t.value;
     nlSave(d); renderSupport();
   });
   document.addEventListener("click", e => {
     const b = e.target.closest && e.target.closest("[data-nl]"); if (!b || view !== "support") return; const [k, id] = [b.dataset.nl.split(":")[0], b.dataset.nl.split(":").slice(1).join(":")], d = nlData();
     if (k === "ai") return nlFromMsg();
-    if (k === "add") { const dr = nlDraft(); if (!dr.what.trim()) return toast("Schreib kurz, was nachgeliefert werden soll."); d.items.push({ id: uid(), at: todayISO(), order: dr.order.trim(), cust: dr.cust.trim(), ch: dr.ch, why: dr.why, what: dr.what.trim(), cost: dr.cost, status: "offen", doneAt: "" }); nlSave(d); sup.nl = { order: "", cust: "", ch: dr.ch, why: "vergessen", what: "", cost: dr.cost }; toast("Eingetragen"); return renderSupport(); }
+    if (k === "print") return nlPrint();
+    if (k === "ladd") { nlDraft().lines.push({ art: "", qty: "1" }); return renderSupport(); }
+    if (k === "ldel") { nlDraft().lines.splice(+id, 1); return renderSupport(); }
+    if (k === "add") { const dr = nlDraft(), lines = dr.lines.filter(l => l.art.trim()).map(l => ({ art: l.art.trim(), qty: String(l.qty || "1").trim() || "1" })); if (!lines.length) return toast("Wähl oder schreib mindestens einen Artikel."); d.items.push({ id: uid(), at: todayISO(), order: dr.order.trim(), cust: dr.cust.trim(), ch: dr.ch, why: dr.why, lines, what: dr.what.trim(), cost: dr.cost, status: "offen", doneAt: "" }); nlSave(d); sup.nl = { order: "", cust: "", ch: dr.ch, why: "vergessen", what: "", cost: dr.cost }; toast("Eingetragen"); return renderSupport(); }
     if (k === "del") { sup.nlAsk = id; return renderSupport(); } if (k === "delno") { sup.nlAsk = ""; return renderSupport(); }
     if (k === "delok") { sup.nlAsk = ""; d.items = d.items.filter(x => x.id !== id); nlSave(d); return renderSupport(); }
   });
@@ -4587,7 +4608,7 @@ Antworte NUR mit JSON in dieser Form:
     try {
       const nl = (SHOP && SHOP.nl && SHOP.nl.items) || [], why = {}; nl.forEach(x => { why[x.why] = (why[x.why] || 0) + 1; });
       const cs = {}; (SUP || []).filter(m => m.cat === "reklamation" && m.cause).forEach(m => { cs[m.cause] = (cs[m.cause] || 0) + 1; });
-      out.pain = { nl: Object.entries(why).sort((a, b) => b[1] - a[1]), n: nl.length, sup: Object.entries(cs).sort((a, b) => b[1] - a[1]).slice(0, 4), last: nl.slice(-4).map(x => x.what).filter(Boolean) };
+      out.pain = { nl: Object.entries(why).sort((a, b) => b[1] - a[1]), n: nl.length, sup: Object.entries(cs).sort((a, b) => b[1] - a[1]).slice(0, 4), last: nl.slice(-4).map(x => nlLines(x).map(l => `${l.qty}× ${l.art}`).join(", ")).filter(Boolean) };
     } catch (e) {}
     return out;
   }
