@@ -5717,10 +5717,19 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   function buOverview(d) {
     const t = buTotals(d), open = d.pay.filter(p => p.status !== "bezahlt").sort((a, b) => String(a.due).localeCompare(String(b.due))), nd = d.dl.slice().sort((a, b) => String(a.d).localeCompare(String(b.d)))[0];
     const tile = (l, v, s = "") => `<div class="tile"><span class="note">${l}</span><span class="num">${v}</span>${s}</div>`;
+    // Voraussichtliche Zahllast zur nächsten USt-Voranmeldung: Betrag aus „Zahlungen“ (Umsatzsteuer <Jahr> Q<n>), sonst 3 × monatliche Zahllast aus „Geld & Prognose“
+    let zl = ""; try {
+      const mq = nd && /Voranmeldung\s+Q([1-4])\s+(20\d\d)/i.exec(nd.t || "");
+      if (mq) {
+        const pm = d.pay.find(p => p.status !== "bezahlt" && new RegExp("umsatzsteuer\\s*" + mq[2] + "\\s*Q" + mq[1], "i").test(p.n || "")), amt = pm ? parseFloat(String(pm.amt).replace(",", ".")) : 0;
+        if (amt > 0) zl = eur(amt) + (/gesch/i.test(pm.note || "") ? " (geschätzt)" : "");
+        else { const z = finCalc().zahl; if (z > 0) zl = "ca. " + eur(3 * z) + " (3 × Monatsschnitt)"; }
+      }
+    } catch (e) {}
     const inc = parseFloat(String(d.rl.inc).replace(",", ".")) || 0, pct = parseFloat(String(d.rl.pct).replace(",", ".")) || 0;
     return `<div class="tiles t3">${tile("Noch offen (Steuer)", eur(t.openTax))}${tile("Noch offen (alles)", eur(t.openAll), '<span class="note">inkl. Darlehen</span>')}${tile("Schon bezahlt", `<span style="color:var(--good)">${eur(t.paid)}</span>`)}
       ${tile("Nächste Zahlung", open[0] ? eur(parseFloat(String(open[0].amt).replace(",", ".")) || 0) : "–", open[0] ? `<span class="note">${esc(open[0].n)} · ${buDe(open[0].due)}</span>` : "")}
-      ${tile("Nächste Frist", nd ? buDe(nd.d) : "–", nd ? `<span class="note" style="${buTone(nd.d)}">${esc(nd.t)} · ${buWhen(nd.d)}</span>` : "")}</div>
+      ${tile("Nächste Frist", nd ? buDe(nd.d) : "–", nd ? `<span class="note" style="${buTone(nd.d)}">${esc(nd.t)} · ${buWhen(nd.d)}</span>${zl ? `<span class="note"><strong>Voraussichtliche Zahllast: ${zl}</strong></span>` : ""}` : "")}</div>
       <div class="grid2">
         <section class="box"><h2>Offene Zahlungen</h2>${open.length ? `<div class="tablewrap"><table><tbody>${open.map(p => `<tr><td class="name">${esc(p.n)}${p.note ? `<div class="note">${esc(p.note)}</div>` : ""}</td><td><span style="${buTone(p.due)}">${buWhen(p.due)}</span><div class="note">${buDe(p.due)}</div></td><td class="num" style="white-space:nowrap;padding-right:14px">${eur(parseFloat(String(p.amt).replace(",", ".")) || 0)}</td></tr>`).join("")}</tbody></table></div>` : `<p class="note">Nichts offen.</p>`}</section>
         <section class="box"><h2>Rücklage für die Steuer</h2>
