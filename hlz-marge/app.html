@@ -2791,7 +2791,9 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     </div>`;
     const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
-    return `${kpis}<div class="dgrid">${chartBox}${kan}</div>${top5()}${homeInsights(D)}`;
+    const nl = (() => { try { const o = SHOP ? nlOpen() : []; if (!o.length) return ""; const pcs = o.reduce((n, x) => n + nlLines(x).reduce((t, l) => t + (v(l.qty) || 1), 0), 0), days = Math.max(...o.map(x => x.at ? Math.round((Date.now() - new Date(x.at + "T12:00:00")) / 864e5) : 0)), late = days >= 3;
+      return `<a data-suptabgo="nachlieferung" href="#support" style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 0 14px;padding:12px 16px;border:2px solid var(--bad);border-left-width:8px;border-radius:var(--r,10px);background:color-mix(in srgb,var(--bad) 9%,transparent);color:var(--fg);text-decoration:none"><span><strong style="color:var(--bad)">${dec(pcs, 0)} Artikel müssen nachgeliefert werden</strong> <span class="note">${o.length} Nachlieferung${o.length > 1 ? "en" : ""}${late ? ` · die älteste wartet seit ${days} Tagen` : ""}</span></span><span class="btn">Ansehen und drucken</span></a>`; } catch (e) { return ""; } })();
+    return `${nl}${kpis}<div class="dgrid">${chartBox}${kan}</div>${top5()}${homeInsights(D)}`;
   }
   function renderOverview() {
     const ctx = volume();
