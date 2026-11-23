@@ -3891,6 +3891,12 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     F.debts.forEach(d => { if (!d.acc) d.acc = "g"; });
     return F;
   };
+  // Zahlungen gibt es nur einmal: in Buchhaltung → Zahlungen. Bank & Raten rechnet damit.
+  function finDebts(F) {
+    const P = SHOP && SHOP.buch && Array.isArray(SHOP.buch.pay) ? SHOP.buch.pay : null;
+    if (!P || (!P.length && F.debts.length)) return F.debts;
+    return P.map(p => ({ id: p.id, n: p.n || "", a: String(p.amt == null ? "" : p.amt).replace(",", "."), due: p.due || "", paid: p.status === "bezahlt", raten: p.raten || "", typ: p.typ || "sonst", acc: "g" }));
+  }
   function finCalc() {
     const F = FIN(), { T, m, fix } = anaCalc(), tx = afterTax(m), regel = S.tax !== "ku", today = new Date(), td = isoD(today);
     const saved = v(F.spaceA) + v(F.spaceB), liquidG = v(F.kontoG) + v(F.guthaben) + v(F.guthabenS), liquidP = 0, liquid = liquidG + liquidP;
@@ -3898,7 +3904,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const vorAuto = regel ? 0.19 * (T.mat + T.porto + T.pack) : 0, vor = F.vorsteuer !== "" && F.vorsteuer !== undefined ? v(F.vorsteuer) : vorAuto;
     const zahlAuto = ustOut - vor, zahl = F.ustInc !== "" && F.ustInc !== undefined ? v(F.ustInc) : zahlAuto;
     // USt-Posten mit Datum, aber ohne Betrag: mit 3 × Zahllast geschätzt
-    const open = F.debts.map(d => v(d.a) > 0 ? { ...d, ea: v(d.a) } : d.typ === "ust" && d.due && zahl > 0 ? { ...d, ea: 3 * zahl, est: true } : null).filter(d => d && !d.paid), openSum = open.reduce((s, d) => s + d.ea, 0);
+    const debts = finDebts(F), open = debts.map(d => v(d.a) > 0 ? { ...d, ea: v(d.a) } : d.typ === "ust" && d.due && zahl > 0 ? { ...d, ea: 3 * zahl, est: true } : null).filter(d => d && !d.paid), openSum = open.reduce((s, d) => s + d.ea, 0);
     const openP = 0, openG = openSum;   // Privates gehört nicht mehr ins Dashboard
     const nk = nowYM(), privOn = [], inc0 = [];   // „zählt“ abgehakte Einnahmen
     const privSum = privOn.filter(r => finAct(r, nk)).reduce((n, r) => n + privAvg(r), 0), sparM = privOn.filter(r => r.g === "vor" && finAct(r, nk)).reduce((n, r) => n + privAvg(r), 0);
@@ -3914,7 +3920,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       else { const k = idx(d.due); if (months[k]) { months[k].pay += d.ea; months[k]["payG"] += d.ea; months[k].items.push(d.n + (d.est ? " (geschätzt)" : "")); } }
     });
     // laufende USt: jedes Quartal wird am 10. des Folgemonats fällig, ab dem letzten eingetragenen USt-Posten
-    let lastUst = ""; F.debts.forEach(d => { if (d.typ === "ust" && d.due && d.due > lastUst) lastUst = d.due; });
+    let lastUst = ""; debts.forEach(d => { if (d.typ === "ust" && d.due && d.due > lastUst) lastUst = d.due; });
     if (F.auto && regel) {
       for (let k = 0; k < 12; k++) {
         const d = months[k].d, mo = d.getMonth(), ds = isoD(new Date(d.getFullYear(), mo, 10));
@@ -3939,6 +3945,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   let finTab = LS.get("hlz-app-ftab") || "uebersicht"; if (!FTABS.some(x => x[0] === finTab)) finTab = "uebersicht";
   const finDraw = () => { try { renderFinance(); } catch (e) { showErr(e); } };
   function renderFinance() {
+    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Bank & Raten</h1><p class="note">Lade …</p>`; return; }
     const c = finCalc(), F = c.F, td = c.td;
     const free = c.liquid - c.openSum;
     const tile = (l, big, note, color, tip) => `<div class="tile"><span class="label">${l}${tip ? info(tip) : ""}</span><span class="num" style="font-size:1.25rem${color ? ";color:var(--" + color + ")" : ""}">${big}</span><span class="note">${note}</span></div>`;
@@ -4004,9 +4011,9 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
         </div>
       </section>
 
-      <section class="box" data-fs="schulden" style="margin-top:12px"><h2>Was ich noch zahlen muss${info("Ohne Datum ist ein Posten sofort fällig. Raten = Betrag verteilt auf so viele Monate (z. B. nach Absprache mit dem Finanzamt). „bezahlt“ nimmt den Posten raus. Bei Teilzahlung den Betrag auf den Rest ändern.")}</h2>
-        ${anaTable(["Posten", "Betrag", "Fällig am", "Raten", "Status", "", ""], debtRows, [1]).replace('class="anatable"', 'class="anatable debttable"')}
-        <div class="btns" style="margin-top:8px"><button class="btn" data-fin-add="debts">+ Posten</button></div>
+      <section class="box" data-fs="schulden" style="margin-top:12px"><h2>Was ich noch zahlen muss${info("Hier nur zur Ansicht: Die Posten pflegst du in Buchhaltung → Zahlungen. Ohne Datum ist ein Posten sofort fällig. Raten = Betrag verteilt auf so viele Monate (z. B. nach Absprache mit dem Finanzamt). „bezahlt“ nimmt den Posten raus. Bei Teilzahlung den Betrag auf den Rest ändern.")}</h2>
+        ${c.open.length ? anaTable(["Posten", "Betrag", "Fällig", "Raten"], c.open.map(d => [esc(d.n), (d.est ? "ca. " : "") + eur0(d.ea), d.due ? dDE(d.due) + "<br>" + when(d.due) : "sofort", v(d.raten) > 1 ? Math.floor(v(d.raten)) + " Mon." : "–"]), [1]) : `<p class="note">Nichts offen.</p>`}
+        <div class="btns" style="margin-top:8px"><a class="btn" href="#buchhaltung" data-gobu>Posten bearbeiten in Buchhaltung → Zahlungen</a></div>
         <p style="margin-top:10px"><strong>Offen gesamt: ${eur(c.openSum)}</strong>${c.late > 0 ? ` · <strong style="color:var(--bad)">Säumniszuschlag ca. ${eur(c.late * 0.01)} pro Monat</strong>${info("1 % pro angefangenem Monat auf überfällige Steuern. Am besten schriftlich Raten oder Stundung beim Finanzamt beantragen.")}` : ""}</p>
       </section>
 
@@ -4536,7 +4543,7 @@ Antworte NUR mit JSON in dieser Form:
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
-    shopLoading = false; if (view === "werbung" && mk.tab !== "werbung") renderMkt(); else if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "shopcheck") renderShop(); else if (view === "suche") renderSuche(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
+    shopLoading = false; if (view === "werbung" && mk.tab !== "werbung") renderMkt(); else if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "finanzen") finDraw(); else if (view === "shopcheck") renderShop(); else if (view === "suche") renderSuche(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
   }
   const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
   const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
@@ -5726,8 +5733,8 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   }
   function buPay(d) {
     const t = buTotals(d), sel = (name, list, cur, i) => `<div class="inp"><select data-bf="pay.${i}.${name}">${list.map(x => `<option ${x === cur ? "selected" : ""}>${x}</option>`).join("")}</select></div>`;
-    const rows = d.pay.map((p, i) => `<tr><td>${buIn(`pay.${i}.n`, p.n)}${buIn(`pay.${i}.note`, p.note || "", 'placeholder="Notiz"')}</td><td style="width:110px">${buIn(`pay.${i}.amt`, p.amt, 'inputmode="decimal"')}</td><td style="width:150px"><div class="inp"><input type="date" data-bf="pay.${i}.due" value="${esc(p.due || "")}"></div></td><td style="width:120px">${sel("kind", ["Steuer", "Darlehen", "Sonstiges"], p.kind, i)}</td><td style="width:120px">${sel("status", ["offen", "bezahlt"], p.status, i)}</td><td>${buDel("pay", i)}</td></tr>`).join("");
-    return `<section class="box"><h2>Was ich noch zahlen muss</h2><div class="tablewrap"><table><thead><tr><th>Posten</th><th>Betrag (€)</th><th>Fällig am</th><th>Art</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    const rows = d.pay.map((p, i) => `<tr><td>${buIn(`pay.${i}.n`, p.n)}${buIn(`pay.${i}.note`, p.note || "", 'placeholder="Notiz"')}</td><td style="width:110px">${buIn(`pay.${i}.amt`, p.amt, 'inputmode="decimal"')}</td><td style="width:150px"><div class="inp"><input type="date" data-bf="pay.${i}.due" value="${esc(p.due || "")}"></div></td><td style="width:120px">${sel("kind", ["Steuer", "Darlehen", "Sonstiges"], p.kind, i)}</td><td style="width:80px">${buIn(`pay.${i}.raten`, p.raten || "", 'inputmode="numeric" placeholder="–"')}</td><td style="width:120px">${sel("status", ["offen", "bezahlt"], p.status, i)}</td><td>${buDel("pay", i)}</td></tr>`).join("");
+    return `<section class="box"><h2>Was ich noch zahlen muss</h2><div class="tablewrap"><table><thead><tr><th>Posten</th><th>Betrag (€)</th><th>Fällig am</th><th>Art</th><th>Raten</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
       <p>Noch offen (Steuer): <strong>${eur(t.openTax)}</strong> · Noch offen (alles): <strong>${eur(t.openAll)}</strong> · Bezahlt: <strong>${eur(t.paid)}</strong></p>
       <div class="btns"><button type="button" class="btn" data-buadd="pay">+ Posten</button></div></section>`;
   }
