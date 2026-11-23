@@ -78,19 +78,21 @@ def fetch(days):
 def month_numbers(ym, outdir):
     """Alle Bestellungen eines Monats (auch versendete): Bestellnummer + Datum je Artikel-SKU, als Update-Dateien fuer stats/etsy und stats/shopify."""
     y, m = int(ym[:4]), int(ym[5:7]); nxt = f"{y + (m == 12)}-{(m % 12) + 1:02d}-01"
-    res = {"etsy": {}, "shopify": {}}; page = 1; n = 0
+    res = {"etsy": {}, "shopify": {}}; allk = {}; page = 1; n = 0
     while True:
         d = call("GET", f"/orders?minOrderDate={ym}-01&maxOrderDate={nxt}&pageSize=250&page={page}")
         for o in d.get("Data") or []:
             if o.get("State") in (6, 8) or (o.get("TotalCost") or 0) <= 0: continue   # gelöscht, storniert, Gutschriften
             seller = ((o.get("Seller") or {}).get("Platform") or "").lower()
-            if seller not in res: continue
             a = app_order(o); at = (o.get("CreatedAt") or "")[:10]
             if not a["at"].startswith(ym): continue
             n += 1
             for l in a["lines"]:
                 key = "-".join(str(l["sku"]).strip().lower().split()).replace("_", "-")
                 if not key: continue
+                e = allk.setdefault(key, {"q": 0, "n": []}); e["q"] += l["qty"]
+                if not any(x.split("|")[0] == a["no"] for x in e["n"]): e["n"].append(f"{a['no']}|{at}")
+                if seller not in res: continue
                 lst = res[seller].setdefault(key, [])
                 t = f"{a['no']}|{at}"
                 if not any(x.split("|")[0] == a["no"] for x in lst): lst.append(t)
@@ -100,6 +102,8 @@ def month_numbers(ym, outdir):
     for src, ks in res.items():
         with open(os.path.join(outdir, src + ".json"), "w", encoding="utf-8") as f:
             json.dump({"months": {ym: {"k": {k: {"n": v} for k, v in ks.items()}}}}, f, ensure_ascii=False)
+    with open(os.path.join(outdir, "billbee.json"), "w", encoding="utf-8") as f:   # alle Kanäle inkl. Menge: Grundlage für die Rechnung Thomas
+        json.dump({"id": "billbee", "months": {ym: {"k": allk, "orders": n}}}, f, ensure_ascii=False)
     return {"orders": n, "etsy_skus": len(res["etsy"]), "shopify_skus": len(res["shopify"]), "dir": outdir}
 
 

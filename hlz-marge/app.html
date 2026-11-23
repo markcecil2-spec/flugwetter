@@ -5771,14 +5771,17 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   const tbSave = d => shopSave(d);
   const tbNum = x => parseFloat(String(x ?? "").replace(",", ".")) || 0;
   const tbKeys = sku => { const s = String(sku).toLowerCase(), out = [s]; if (/^aruh-01-/.test(s) && tbData().a02) out.push(s.replace("aruh-01-", "aruh-02-")); if (/^aruh-06-/.test(s)) out.push(s.replace("aruh-06-", "bilei-")); return out; };   // Bilderleiste heißt im Shop BILEI
-  function tbSold(ym, sku) {
+  // Quelle der Mengen: Billbee-Monat (alle Kanäle inkl. Etsy), sonst Etsy-CSV + Shopify + eBay
+  const tbBB = ym => STATS && STATS.billbee && STATS.billbee.months && STATS.billbee.months[ym] ? STATS.billbee.months[ym] : null;
+  const tbSrc = (ym, ...rest) => tbBB(ym) ? [tbBB(ym)] : rest;
+    function tbSold(ym, sku) {
     const E = STATS && STATS.etsy ? STATS.etsy.months : {}, S2 = STATS && STATS.shopify ? STATS.shopify.months : {}, EB = STATS && STATS.ebay ? STATS.ebay.months : {}, keys = tbKeys(sku); let q = 0;
-    [E[ym], S2[ym], EB[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) q += e.q || 0; }); });
+    [...tbSrc(ym, E[ym], S2[ym], EB[ym])].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) q += e.q || 0; }); });
     return q;
   }
   function tbOrders(ym, sku) {
     const E = STATS && STATS.etsy ? STATS.etsy.months : {}, S2 = STATS && STATS.shopify ? STATS.shopify.months : {}, EB = STATS && STATS.ebay ? STATS.ebay.months : {}, keys = tbKeys(sku), out = [];
-    [E[ym], S2[ym], EB[ym]].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) (e.n || []).forEach(n => out.some(x => x.split("|")[0] === n.split("|")[0]) || out.push(n)); }); });
+    [...tbSrc(ym, E[ym], S2[ym], EB[ym])].forEach(m => { if (m && m.k) Object.entries(m.k).forEach(([k, e]) => { if (keys.some(x => k === x || k.startsWith(x + "-"))) (e.n || []).forEach(n => out.some(x => x.split("|")[0] === n.split("|")[0]) || out.push(n)); }); });
     (ORD || []).forEach(o => { if (String(o.at || "").slice(0, 7) === ym && o.no && (o.lines || []).some(l => { const k = String(l.sku || "").toLowerCase(); return keys.some(x => k === x || k.startsWith(x + "-")); })) { const n = String(o.no) + (o.at ? "|" + String(o.at).slice(0, 10) : ""); out.some(x => x.split("|")[0] === String(o.no)) || out.push(n); } });
     return out;
   }
@@ -5874,12 +5877,12 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     if (!STATS) { statsLoad().then(() => { if (view === "buchhaltung") renderBuch(); }); return `<section class="box"><p class="note">Lade Verkaufsdaten …</p></section>`; }
     const d = tbData(), cur = curYM(); if (!tbS.ym) tbS.ym = ymAdd(cur, -1);
     const months = Array.from({ length: 12 }, (_, i) => ymAdd(cur, -i - 0)), lines = tbLines(d, tbS.ym, true), valid = tbLines(d, tbS.ym), net = valid.reduce((s, l) => s + l.q * l.p, 0), have = d.inv.find(x => x.ym === tbS.ym);
-    const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, EB = STATS.ebay ? STATS.ebay.months : {}, data = !!(E[tbS.ym] || S2[tbS.ym] || EB[tbS.ym]), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0;
+    const E = STATS.etsy ? STATS.etsy.months : {}, S2 = STATS.shopify ? STATS.shopify.months : {}, EB = STATS.ebay ? STATS.ebay.months : {}, bbm = tbBB(tbS.ym), data = !!(bbm || E[tbS.ym] || S2[tbS.ym] || EB[tbS.ym]), vat = d.ven.kleinunt === false ? tbNum(d.ven.vat || 19) : 0;
     const miss = []; if (!d.ven.name) miss.push("Name"); if (!d.ven.addr) miss.push("Adresse"); if (!d.ven.tax && !d.ven.ust) miss.push("Steuernummer"); 
     const fld = (k, l, ph = "") => `<div class="field"><label>${l}</label><div class="inp"><input type="text" data-tbf="ven.${k}" value="${esc(d.ven[k] || "")}" placeholder="${ph}"></div></div>`;
     const unk = d.prices.filter(p => /^(waldo|keybrd-05)/i.test(p.sku) && !String(p.hk || "").trim());
     return `<section class="box"><h2>Rechnung Thomas für ${tbMonthLab(tbS.ym)}</h2>
-      <p class="note">Was Thomas im Monat hergestellt hat, nehme ich aus deinen Verkäufen (Etsy und Shopify) und seiner Preisliste. Du prüfst die Mengen, dann erstellst du die Rechnung. Ich gehe davon aus, dass alles in dem Monat Verkaufte von ihm kam.</p>
+      <p class="note">Was Thomas im Monat hergestellt hat, nehme ich aus deinen Billbee-Bestellungen (Etsy, Shopify und alles andere) und seiner Preisliste.${bbm ? ` <strong>Quelle: Billbee</strong> (${bbm.orders || "?"} Bestellungen im Monat).` : ` <span style="color:var(--bad)">Für diesen Monat sind noch keine Billbee-Daten geladen, bis dahin gelten die älteren Etsy-/Shopify-Zahlen.</span>`} Du prüfst die Mengen, dann erstellst du die Rechnung. Ich gehe davon aus, dass alles in dem Monat Verkaufte von ihm kam.</p>
       <div class="grid3 keep"><div class="field"><label>Monat</label><div class="inp"><select data-tbf="ym">${months.map(m => `<option value="${m}" ${m === tbS.ym ? "selected" : ""}>${tbMonthLab(m)}</option>`).join("")}</select></div></div></div>
       ${!data ? `<p class="note" style="color:var(--bad)">Für ${tbMonthLab(tbS.ym)} liegen noch keine Verkaufsdaten vor. Lad unter Dokumente die Etsy-Bestellungen (CSV) hoch und hol unter Entwicklung die Shopify-Bestellungen.</p>` : ""}
       ${have ? `<p>Für diesen Monat gibt es schon die Rechnung <strong>${esc(have.no)}</strong> vom ${buDe(have.date)} (${eur(have.total)}). Änderungen unten übernimmst du mit „Rechnung aktualisieren“.</p>` : ""}
