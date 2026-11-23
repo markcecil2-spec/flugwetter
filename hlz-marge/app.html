@@ -1044,7 +1044,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     if (h === "suche") { mk.tab = "reichweite"; h = "werbung"; }
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "neu", "suche", "kanaele", "verk", "zahl", "daten", "sortiment"].includes(h) ? h : "uebersicht";
-    const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
+    const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "finanzen" ? "buchhaltung" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
     { const sc = secOf(view); document.querySelectorAll("nav.flat a").forEach(l => { if (l.dataset.sec === sc) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); }); }
     navGroups(actTab);
     render();
@@ -3941,11 +3941,11 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const surplusP = ent + other - privSum - rateP, surplusG = shopNet - ent - rateG;
     return { F, T, m, tx, shopNet, zahlAuto, regel, saved, liquid, liquidG, liquidP, openG, openP, ent, rateP, rateG, surplusP, surplusG, open, openSum, ustOut, vor, vorAuto, zahl, privSum, sparM, other, income, proj, next, late, monthlyRate, td, surplus: surplusP + surplusG, lastUst };
   }
-  const FTABS = [["uebersicht", "Überblick"], ["schulden", "Zahlungen"], ["konto", "Kontoauszüge"]];
+  const FTABS = [["uebersicht", "Geld & Prognose"], ["konto", "Kontoauszüge"]];
   let finTab = LS.get("hlz-app-ftab") || "uebersicht"; if (!FTABS.some(x => x[0] === finTab)) finTab = "uebersicht";
   const finDraw = () => { try { renderFinance(); } catch (e) { showErr(e); } };
   function renderFinance() {
-    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Bank & Raten</h1><p class="note">Lade …</p>`; return; }
+    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><p class="note">Lade …</p>`; return; }
     const c = finCalc(), F = c.F, td = c.td;
     const free = c.liquid - c.openSum;
     const tile = (l, big, note, color, tip) => `<div class="tile"><span class="label">${l}${tip ? info(tip) : ""}</span><span class="num" style="font-size:1.25rem${color ? ";color:var(--" + color + ")" : ""}">${big}</span><span class="note">${note}</span></div>`;
@@ -3979,8 +3979,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 || (x.once || []).length ? `<span class="note">${esc(x.items.concat(x.once || []).join(" · "))}</span>${x.pay > 0 ? `<br>−${eur0(x.pay)}` : ""}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.balG < 0 ? "bad" : "good"})">${eur0(x.balG)}</strong>`]);
         const hasSales = c.T.qty > 0, hasSalesEnt = hasSales, noMoney = F.kontoG === "" && F.guthaben === "" && F.guthabenS === "";
     $("view").innerHTML = `
-      <div class="row"><h1>Bank & Raten</h1></div>
-      <div class="seg stabs" aria-label="Bereiche von Bank & Raten">${FTABS.map(([k, l]) => `<button type="button" data-ftab="${k}" aria-pressed="${finTab === k}">${l}</button>`).join("")}</div>
+      <h1>Buchhaltung / Steuer</h1>${buBar("fin-" + finTab)}
 
       <section class="box" data-fs="uebersicht" style="border-color:var(--accent)">
         <span class="label" style="font-size:.85rem">Nach allen Zahlungen bleibt${info("Geld auf dem Geschäftskonto (auch Etsy- und Shopify-Guthaben) minus alles, was du noch zahlen musst: Steuern und Schulden, auch die später fälligen.")}</span>
@@ -4011,15 +4010,11 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
         </div>
       </section>
 
-      <section class="box" data-fs="schulden" style="margin-top:12px"><h2>Was ich noch zahlen muss${info("Hier nur zur Ansicht: Die Posten pflegst du in Buchhaltung → Zahlungen. Ohne Datum ist ein Posten sofort fällig. Raten = Betrag verteilt auf so viele Monate (z. B. nach Absprache mit dem Finanzamt). „bezahlt“ nimmt den Posten raus. Bei Teilzahlung den Betrag auf den Rest ändern.")}</h2>
-        ${c.open.length ? anaTable(["Posten", "Betrag", "Fällig", "Raten"], c.open.map(d => [esc(d.n), (d.est ? "ca. " : "") + eur0(d.ea), d.due ? dDE(d.due) + "<br>" + when(d.due) : "sofort", v(d.raten) > 1 ? Math.floor(v(d.raten)) + " Mon." : "–"]), [1]) : `<p class="note">Nichts offen.</p>`}
-        <div class="btns" style="margin-top:8px"><a class="btn" href="#buchhaltung" data-gobu>Posten bearbeiten in Buchhaltung → Zahlungen</a></div>
-        <p style="margin-top:10px"><strong>Offen gesamt: ${eur(c.openSum)}</strong>${c.late > 0 ? ` · <strong style="color:var(--bad)">Säumniszuschlag ca. ${eur(c.late * 0.01)} pro Monat</strong>${info("1 % pro angefangenem Monat auf überfällige Steuern. Am besten schriftlich Raten oder Stundung beim Finanzamt beantragen.")}` : ""}</p>
-      </section>
+
 
       </section>
 
-      <section class="box" data-fs="schulden" style="margin-top:12px"><h2>Umsatzsteuer, die du zurücklegen musst${info("Aus deinen Verkäufen: 19 % Umsatzsteuer auf den Umsatz, minus Vorsteuer aus deinen Einkäufen. Etsy-Gebühren zählen nicht, die kommen aus Irland ohne Vorsteuer. Für ein einzelnes Quartal gilt die echte Zahl aus Lexware.")}</h2>
+      <section class="box" data-fs="uebersicht" style="margin-top:12px"><h2>Umsatzsteuer, die du zurücklegen musst${info("Aus deinen Verkäufen: 19 % Umsatzsteuer auf den Umsatz, minus Vorsteuer aus deinen Einkäufen. Etsy-Gebühren zählen nicht, die kommen aus Irland ohne Vorsteuer. Für ein einzelnes Quartal gilt die echte Zahl aus Lexware.")}</h2>
         ${!c.regel ? `<p class="note">Kleinunternehmer: keine USt.</p>` : !hasSales ? `<p class="note">Noch keine Verkaufszahlen.</p>` : `
         ${anaTable(["", "Monat", "Quartal"], [
           ["USt auf Umsatz", eur0(c.ustOut), eur0(3 * c.ustOut)],
@@ -4051,8 +4046,10 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     document.querySelectorAll("#view [data-fs]").forEach(el => { el.style.display = el.dataset.fs === finTab ? "" : "none"; });
   }
   document.addEventListener("click", e => {
-    const t = e.target.closest("[data-ftab]"); if (!t || view !== "finanzen") return;
-    finTab = t.dataset.ftab; LS.set("hlz-app-ftab", finTab); finDraw(); window.scrollTo(0, 0);
+    const t = e.target.closest("[data-butab]"); if (!t || view !== "finanzen") return;
+    const k = t.dataset.butab;
+    if (k.startsWith("fin-")) { finTab = k.slice(4); LS.set("hlz-app-ftab", finTab); finDraw(); window.scrollTo(0, 0); return; }
+    bu.tab = k; location.hash = "#buchhaltung";
   });
   document.addEventListener("change", e => {
     if (view !== "finanzen") return;
@@ -4403,7 +4400,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const head = `<section class="box" id="anaCheck"><h2>Stimmen die Zahlen? Abgleich mit deinem Konto</h2>`;
     const pv = BANK ? bankPivot("g") : null;
     if (BANK === null) return head + `<p class="note">Lade Kontoauszüge …</p></section>`;
-    if (!pv) return head + `<p class="note">Lad unter Buchhaltung → „Bank & Raten“ → „Kontoauszüge“ die CSV deines Geschäftskontos hoch. Dann prüft diese Seite ihre Zahlen gegen das, was wirklich auf dem Konto passiert ist.</p></section>`;
+    if (!pv) return head + `<p class="note">Lad unter Buchhaltung → „Kontoauszüge“ die CSV deines Geschäftskontos hoch. Dann prüft diese Seite ihre Zahlen gegen das, was wirklich auf dem Konto passiert ist.</p></section>`;
     const nm = pv.ms.length, S1 = re => pv.names.filter(n => re.test(n)).reduce((s, n) => s + pv.cats[n].sum, 0) / nm;
     const real = { eing: S1(/^E /), vers: -S1(/^A Versand/), mat: -S1(/^A (Material|Zulieferer)/), fixk: -S1(/^A (Werkstattmiete|Software|Fahrzeug|Gebühren|Ladengemeinschaft|Versicherung)/), unz: -S1(/^A (Amazon|PayPal|Sonstiges)/) };
     real.cash = S1(/^[EA] /);
@@ -5692,7 +5689,8 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     docSave(items); docBusy = ""; docMsg = msg.join(" "); renderDocs();
   }
   // ---------- Buchhaltung / Steuer ----------
-  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"], ["oss", "One-Stop-Shop"], ["tb", "Rechnung Thomas"], ["mass", "Regal nach Maß"]];
+  const buBar = act => `<div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${act === k}">${l}</button>`).join("")}</div>`;
+  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fin-uebersicht", "Geld & Prognose"], ["fin-konto", "Kontoauszüge"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"], ["oss", "One-Stop-Shop"], ["tb", "Rechnung Thomas"], ["mass", "Regal nach Maß"]];
   let bu = { tab: "uebersicht", busy: false, ctl: null, err: "", q: "" };
   const buData = () => { const b = (SHOP && SHOP.buch) || {}; return { id: "buch", pay: b.pay || [], dl: b.dl || [], todo: b.todo || [], acc: b.acc || [], txt: b.txt || [], rl: b.rl || { inc: 6500, pct: 10 }, chat: b.chat || [], oss: b.oss || { status: "nicht angemeldet", since: "", note: "" } }; };
   const buSave = d => shopSave(d);
@@ -5711,7 +5709,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     const d = buData(), n = (d.pay.length + d.dl.length + d.todo.length + d.acc.length);
     const body = !n && bu.tab !== "texte" ? `<section class="box"><p>Hier ist noch nichts eingetragen. Leg Posten, Fristen und To-dos an, oder lass Claude unten im Chat beim Einrichten helfen.</p></section>` : "";
     const tabHtml = { uebersicht: buOverview, zahlungen: buPay, fristen: buDl, todos: buTodo, konten: buAcc, texte: buTxt, oss: buOss, tb: buTb, mass: buMass }[bu.tab](d);
-    $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${bu.tab === k}">${l}</button>`).join("")}</div>
+    $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1>${buBar(bu.tab)}
       <div class="stack" style="margin-top:14px">${body}${tabHtml}${buChatHTML(d)}</div>`;
     const lg = $("buLog"); if (lg) lg.scrollTop = lg.scrollHeight;
   }
@@ -6052,7 +6050,7 @@ Claude:`;
   }
   document.addEventListener("click", e => {
     if (view !== "buchhaltung") return; const c = e.target.closest && e.target.closest("[data-butab],[data-buoss],[data-buok],[data-buno],[data-buadd],[data-budel],[data-buclean],[data-bukask],[data-bustop],[data-buclr],[data-bucopy]"); if (!c) return; const x = c.dataset;
-    if (x.butab) { bu.tab = x.butab; return renderBuch(); }
+    if (x.butab) { if (x.butab.startsWith("fin-")) { finTab = x.butab.slice(4); LS.set("hlz-app-ftab", finTab); location.hash = "#finanzen"; return; } bu.tab = x.butab; return renderBuch(); }
     if (x.bukask) return buAsk();
     if (x.bustop) { bu.ctl && bu.ctl.abort(); return; }
     const d = buData();
@@ -6589,7 +6587,7 @@ Claude:`;
       ["billbee", "Billbee: Export", "up", "m", "Bestell-/Rechnungsexport hochladen.", ""],
       ["lexware", "Lexware Office", "up", "m", "Monatsbuchhaltung: Importdatei erstellt und eingespielt.", ""],
       ["paypal", "PayPal: Kontoauszug", "up", "m", "CSV-Export für die Buchhaltung.", ""],
-      ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export des Geschäftskontos. Wird in „Bank & Raten“ eingelesen.", ""]]]
+      ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export des Geschäftskontos. Wird unter Buchhaltung → „Kontoauszüge“ eingelesen.", ""]]]
   ];
   const KLINK = { shopify: "shopcheck", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", yt: "werbung", tiktok: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", lexware: "buchhaltung", paypal: "buchhaltung", bank: "finanzen" };
   const kanUi = { add: false, msg: "" };
@@ -6751,10 +6749,10 @@ Claude:`;
     mkt: ["Marketing", [["werbung", "Marketing"]]], kan: ["Kanäle", [["kanaele", "Kanäle"]]],
     prod: ["Produktion", [["produktion", "Produktion"]]], sup: ["Support", [["support", "Support"]]],
     preis: ["Preise & Marge", [["preise", "Preise"]]], ausw: ["Auswertung", [["auswertung", "Auswertung"]]],
-    buch: ["Buchhaltung", [["buchhaltung", "Buchhaltung"], ["finanzen", "Bank & Raten"]]],
+    buch: ["Buchhaltung", [["buchhaltung", "Buchhaltung"]]],
     dok: ["Dokumente", [["dokumente", "Dokumente"]]], set: ["Einstellungen", [["einstellungen", "Einstellungen"]]]
   };
-  const SEC_EXTRA = { import: "set", entwicklung: "ausw", datencheck: "ausw", verk: "art", zahl: "preis", daten: "set" };
+  const SEC_EXTRA = { finanzen: "buch", import: "set", entwicklung: "ausw", datencheck: "ausw", verk: "art", zahl: "preis", daten: "set" };
   function secOf(vw) { if (SEC_EXTRA[vw]) return SEC_EXTRA[vw]; for (const k in SECS) if (SECS[k][1].some(([h]) => h === vw)) return k; return "ueb"; }
   const secBar = () => { const k = secOf(view), it = SECS[k][1]; if (it.length < 2) return ""; return `<div class="verkbar"><div class="vg"><span class="label">${esc(SECS[k][0])}</span>${it.map(([h, l]) => `<a class="btn ${view === h || false ? "primary" : ""}" href="#${h}">${l}</a>`).join("")}</div></div>`; };
   (() => { const v = document.getElementById("view"); if (!v) return; let busy = false; new MutationObserver(() => { if (busy) return; const h = v.firstElementChild; if (h && h.classList.contains("verkbar")) { if (h.dataset.v === view) return; h.remove(); } const html = secBar(); if (!html) return; busy = true; try { v.insertAdjacentHTML("afterbegin", html.replace('class="verkbar"', 'class="verkbar" data-v="' + view + '"')); } finally { busy = false; } }).observe(v, { childList: true }); })();
@@ -6776,7 +6774,7 @@ Claude:`;
       add(() => gdTile("Fixkosten", eur0(fixTotal()), "Miete, Software, Abos", "#einstellungen"));
       add(() => { const b = (SHOP && SHOP.buch) || {}, tt = buTotals({ pay: b.pay || [] }); return gdTile("Noch zu zahlen", eur0(tt.openAll), `davon Steuer ${eur0(tt.openTax)}`, "#buchhaltung"); });
       add(() => { const b = (SHOP && SHOP.buch) || {}, nx = (b.dl || []).filter(x => x.d && x.d >= td).sort((a, c) => a.d.localeCompare(c.d))[0]; if (!nx) return gdTile("Nächste Frist", "–", "Keine offene Frist eingetragen", "#buchhaltung"); const d = Math.round((new Date(nx.d + "T12:00") - new Date(td + "T12:00")) / 864e5); return gdTile("Nächste Frist", new Date(nx.d + "T12:00").toLocaleDateString("de-DE"), `in ${d} Tag${d === 1 ? "" : "en"}: ${esc(nx.t || "")}`, "#buchhaltung"); });
-      add(() => gdTile("Bank & Raten", "Konto & Zahlungen", "Überblick, Raten, Kontoauszüge", "#finanzen"));
+      add(() => gdTile("Geld & Prognose", "Konto & Zahlungen", "Prognose, Kontoauszüge", "#finanzen"));
     } else if (g === "daten") {
       add(() => { const r = { r: 0, y: 0, g: 0 }; kanAll().forEach(c => { const a = kanAmpel(c); if (a[2] === "-") return; r[a[0].includes("bad") ? "r" : a[0] === "#c98a00" ? "y" : "g"]++; }); return gdTile("Kanäle", `${r.g} aktuell`, `${r.y} bald fällig · ${r.r} überfällig oder noch nie abgeglichen`, "#kanaele"); });
       add(() => { const nOpen = A.filter(a => missing(a).length).length; return gdTile("Artikel", n0(A.length), `${nOpen} mit fehlenden Daten`, "#sortiment"); });
