@@ -2667,7 +2667,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       ${kp("trend", "Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten", "#auswertung")}
       ${kp("percent", "Bleibt nach Steuer", has ? eur0(tax.net) : "–", "geschätzt, inkl. Stundenlohn", "#auswertung")}
       ${kp("card", "Noch zu zahlen", eur0(bt.openAll), "davon Steuer " + eur0(bt.openTax) + (bt.open30 > 0 && bt.open30 < bt.openAll ? " · in 30 Tagen " + eur0(bt.open30) : ""), "#buchhaltung")}
-      ${kp("box", "Offene Bestellungen", String(oo.length), oo.length ? "älteste vom " + dDE(oldest.slice(0, 10)) + (daysOld > 0 ? " (" + daysOld + " Tage)" : "") : "alles erledigt", "#bestellungen")}
+      ${kp("box", "Offene Bestellungen", String(oo.length), oo.length ? "älteste vom " + dDE(oldest.slice(0, 10)) + (daysOld > 0 ? " (" + daysOld + " Tage)" : "") : "alles erledigt", "#kanaele")}
     </div>`;
     const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
