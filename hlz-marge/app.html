@@ -1560,6 +1560,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         ${tile("Bleibt nach Steuer", eur0(tx.net), `Steuer ca. ${eur0(tx.taxM)}${tx.kv ? " · KV " + eur0(tx.kv) : ""} (inkl. deinem Stundenlohn)`)}
         ${tile("Break-even", dec(breakEven, 0) + " Stk", `Du verkaufst ${dec(T.qty / breakEven, 1)}× so viel, wie die Fixkosten brauchen`, "Verkäufe pro Monat, ab denen die Fixkosten bezahlt sind.")}
         ${tile("Gewinn pro Stunde", eur(hours > 0 ? (m.result + m.labor) / hours : 0), `bei ${dec(hours, 0)} Std/Monat Arbeit, inkl. Stundenlohn ${eur(v(S.rate))}`, "Ergebnis plus der Stundenlohn, den du dir schon als Kosten abziehst, geteilt durch deine Arbeitsstunden.")}
+        ${tile("Deckungsbeitrag", eur0(T.db), `aus ${dec(T.qty, 1)} Verkäufen/Monat`, "Netto-Umsatz minus alles, was pro Stück anfällt: Material, Verpackung, Porto, Gebühren, Werbung und deine Arbeitszeit. Das Geld, mit dem die Fixkosten bezahlt werden.")}
+        ${tile("Fixkosten", eur0(fix), "Miete, Software, Abos", "Kosten, die jeden Monat anfallen, egal wie viel du verkaufst. Ändern unter Einstellungen → Fixkosten.")}
+        ${tile("Werkstattanteil", S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–", `pro Verkauf · ${dec(ctx.vol)} Stk/Monat`, "Fixkosten geteilt durch deine Verkäufe pro Monat. So viel muss jeder Verkauf zusätzlich einbringen, damit Miete und Co. bezahlt sind.")}
+        ${(() => { const dead = A.filter(a => v(a.price) > 0 && !a.remove && salesPerMonth(a) <= 0); return tile("Ohne Verkäufe", String(dead.length), `von ${A.filter(a => v(a.price) > 0 && !a.remove).length} Artikeln`, "Artikel mit Preis, die laut deinen Verkaufsdaten nie oder nicht mehr laufen. Dort steckt Material und Lager drin."); })()}
       </div>
 
       <section class="box" style="margin-top:12px"><h2>Wohin geht jeder Euro?</h2>
@@ -2707,12 +2711,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       <h1 style="margin:0">Übersicht</h1>
       ${homeDash()}
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
-      <details class="box" open><summary>Alle Kennzahlen im Detail</summary><div class="tiles" style="margin-top:12px">
-        <div class="tile"><span class="label">Deckungsbeitrag${info("Netto-Umsatz minus alles, was pro Stück anfällt: Material, Verpackung, Porto, Gebühren, Werbung und deine Arbeitszeit. Das ist das Geld, mit dem die Fixkosten bezahlt werden. Hochgerechnet mit deinen echten Verkaufszahlen.")}</span><span class="num">${hasSales ? eur0(m.db) : "–"}</span><span class="note">${hasSales ? "aus " + dec(m.qty) + " Verkäufen/Monat" : "noch keine Verkaufszahlen"}</span></div>
-        ${(() => { const dead = A.filter(a => v(a.price) > 0 && !a.remove && salesPerMonth(a) <= 0); return `<div class="tile"><span class="label">Ohne Verkäufe${info("Artikel mit Preis, die laut deinen Verkaufsdaten nie oder gar nicht mehr laufen. Dort steckt Material und Lager drin. Preis, Fotos oder Titel prüfen, oder Artikel entfernen.")}</span><span class="num">${dead.length}</span><span class="note">von ${A.filter(a => v(a.price) > 0 && !a.remove).length} Artikeln · ${dead.length ? esc(dead.slice(0, 2).map(a => a.sku || a.name.slice(0, 18)).join(", ")) + (dead.length > 2 ? " …" : "") : "alle laufen"}</span></div>`; })()}
-        <div class="tile"><span class="label">Fixkosten${info("Kosten, die jeden Monat anfallen, egal wie viel du verkaufst: Werkstattmiete, Software, Abos. Ändern unter Einstellungen → Fixkosten.")}</span><span class="num">${eur0(fix)}</span><span class="note">Miete, Software, Abos</span></div>
-        <div class="tile"><span class="label">Werkstattanteil${info("Fixkosten geteilt durch deine Verkäufe pro Monat. So viel muss jeder Verkauf zusätzlich einbringen, damit Miete und Co. bezahlt sind. Wird beim Gewinn pro Stück schon abgezogen.")}</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${{ real: "laut deiner Angabe", import: "laut Import" }[ctx.src] || "geschätzt"}</span></div>
-      </div></details>`) + (view === "uebersicht" ? "" : `
+`) + (view === "uebersicht" ? "" : `
       <section class="box">
         <div class="row">
           <h1>Deine Artikel <span class="note num" style="font-size:.9rem">${A.length}</span></h1>
