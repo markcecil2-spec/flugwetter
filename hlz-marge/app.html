@@ -4700,7 +4700,7 @@ Antworte NUR mit JSON in dieser Form:
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
-    shopLoading = false; if (view === "werbung" && mk.tab !== "werbung") renderMkt(); else if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "finanzen") finDraw(); else if (view === "produktion" && prod.tab === "mass") renderProduction(); else if (view === "shopcheck") renderShop(); else if (view === "suche") renderSuche(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
+    shopLoading = false; if (view === "werbung" && mk.tab !== "werbung") renderMkt(); else if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "finanzen") finDraw(); else if (view === "produktion" && prod.tab === "mass") renderProduction(); else if (view === "shopcheck") renderShop(); else if (view === "suche") renderSuche(); else if (view === "uebersicht") renderOverview(); else if (view === "support") renderSupport(); else if (view === "ideen") renderIdeas(); else if (view === "einstellungen" && stab === "versand") renderSettings();
   }
   const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
   const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
