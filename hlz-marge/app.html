@@ -2240,9 +2240,9 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
   const nlLines = x => x.lines && x.lines.length ? x.lines : (x.what ? nlLegacy(x) : []);
   const nlNote = x => x.lines && x.lines.length ? (x.what || "") : "";
   const nlArtOpts = () => A.filter(a => a.name).map(a => ({ v: a.sku || a.name, l: a.sku ? a.name : "" }));
-  const nlShort = t => { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > 40 ? t.slice(0, 38).trim() + "…" : t; };
+  const nlShort = (t, n = 40) => { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 2).trim() + "…" : t; };
   function nlPrint() {
-    const rows = []; nlOpen().forEach(x => nlLines(x).forEach((l, i) => { if (String(l.art).trim()) rows.push({ art: nlShort(String(l.art).trim()), qty: v(l.qty) || 1, note: i ? "" : nlShort(nlNote(x)), who: [x.order, x.cust].filter(Boolean).join(" · ") }); }));
+    const rows = []; nlOpen().forEach(x => nlLines(x).forEach((l, i) => { if (String(l.art).trim()) rows.push({ art: nlShort(String(l.art).trim()), qty: v(l.qty) || 1, note: i ? "" : nlShort(nlNote(x), 100), who: [x.order, x.cust].filter(Boolean).join(" · ") }); }));
     if (!rows.length) return toast("Nichts zu drucken");
     rows.sort((a, b) => a.art.localeCompare(b.art, "de")); const n = rows.reduce((t, r) => t + r.qty, 0);
     printHTML(`<h1>Nachlieferungen · ${new Date().toLocaleDateString("de-DE")}</h1><table><thead><tr><th>✓</th><th>Menge</th><th>Artikel</th><th>Für</th></tr></thead><tbody>${rows.map(r => `<tr><td class="chk">☐</td><td class="qty">${dec(r.qty, 0)}</td><td><strong>${esc(r.art)}</strong>${r.note ? `<br>${esc(r.note)}` : ""}</td><td>${esc(r.who)}</td></tr>`).join("")}</tbody></table><p>${dec(n, 0)} Stück · ${rows.length} Positionen</p>`, "Nachlieferungen");
@@ -2295,11 +2295,11 @@ ${pm.text.slice(0, 8000)}
 """
 
 Gib NUR dieses JSON zurück:
-{"teile": [{"art": "Artikel, der verschickt werden muss. Nur die SKU aus der ARTIKELLISTE (der Teil vor dem –, z. B. KEYBRD-02-30), sonst ein ganz kurzer Name (1 bis 3 Wörter)", "qty": "Anzahl als Zahl"}], "what": "Hinweis, höchstens 5 Wörter, z. B. Eiche geölt. Meist leer lassen. Keine ganzen Sätze.", "order": "Bestellnummer, falls genannt, sonst leer", "cust": "Vor- und Nachname des Kunden, falls erkennbar, sonst leer", "ch": "Etsy|Shopify|eBay|Direkt, falls erkennbar, sonst leer", "why": "${NL_WHY.map(x => x[0]).join("|")}"}
+{"teile": [{"art": "Artikel, der verschickt werden muss. Nur die SKU aus der ARTIKELLISTE (der Teil vor dem –, z. B. KEYBRD-02-30), sonst ein ganz kurzer Name (1 bis 3 Wörter)", "qty": "Anzahl als Zahl"}], "what": "Wichtige Details in Stichworten, höchstens 15 Wörter, z. B. Farbe schwarz, Gravur Waldrand 5, Haken verbogen. Keine ganzen Sätze, keine Adresse, keine Vorgeschichte.", "order": "Bestellnummer, falls genannt, sonst leer", "cust": "Vor- und Nachname des Kunden, falls erkennbar, sonst leer", "ch": "Etsy|Shopify|eBay|Direkt, falls erkennbar, sonst leer", "why": "${NL_WHY.map(x => x[0]).join("|")}"}
 Regeln: vergessen = Teil fehlte im Paket; falsch = falsche Größe oder Variante geliefert; defekt = kaputt angekommen; ersatz = Kunde möchte zusätzlich etwas; sonst = alles andere. Erfinde nichts.`, { cache: false });
       if (!r || (!Array.isArray(r.teile) && typeof r.what !== "string")) throw { code: "invalid_json" };
       const dr = nlDraft(), tl = (Array.isArray(r.teile) ? r.teile : []).filter(t => t && String(t.art || "").trim()).map(t => ({ art: String(t.art).trim(), qty: String(parseInt(t.qty, 10) || 1) }));
-      if (tl.length) dr.lines = tl; dr.what = nlShort(r.what); if (r.order) dr.order = String(r.order).trim(); if (r.cust) dr.cust = String(r.cust).trim();
+      if (tl.length) dr.lines = tl; dr.what = nlShort(r.what, 100); if (r.order) dr.order = String(r.order).trim(); if (r.cust) dr.cust = String(r.cust).trim();
       if (["Etsy", "Shopify", "eBay", "Direkt"].includes(r.ch)) dr.ch = r.ch; if (NL_WHY.some(x => x[0] === r.why)) dr.why = r.why;
       pm.text = "";
     } catch (e) { pm.err = supErr(e); }
