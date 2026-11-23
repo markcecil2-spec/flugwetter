@@ -1897,9 +1897,10 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   let pcolsOpen = false;
   const pvis = () => { const on = LS.get("hlz-app-prodcols") || colDef("prod"); return PCOLS.filter(c => c.lock || (Array.isArray(on) ? on.includes(c.k) : c.def)); };
 
-  const prodTabs = () => `<div class="seg" aria-label="Ansicht" style="margin:6px 0 10px"><button type="button" data-pp="tab:liste" aria-pressed="${prod.tab !== "vor"}">Produktionsliste</button><button type="button" data-pp="tab:vor" aria-pressed="${prod.tab === "vor"}">Vorproduktion</button></div>`;
+  const prodTabs = () => `<div class="seg" aria-label="Ansicht" style="margin:6px 0 10px"><button type="button" data-pp="tab:liste" aria-pressed="${prod.tab !== "vor" && prod.tab !== "mass"}">Produktionsliste</button><button type="button" data-pp="tab:vor" aria-pressed="${prod.tab === "vor"}">Vorproduktion</button><button type="button" data-pp="tab:mass" aria-pressed="${prod.tab === "mass"}">Regal nach Maß</button></div>`;
   function renderProduction() {
     if (prod.tab === "vor") return renderPreprod();
+    if (prod.tab === "mass") return void ($("view").innerHTML = `<div class="row"><h1>Produktion</h1></div>${prodTabs()}${buMass()}`);
     const all = prodRows(), cats = [...new Set(all.map(x => x.cat))].sort((a, b) => a.localeCompare(b, "de")), demand = ordDemand();
     const list = prodSorted(all, demand).filter(x => (!prod.cat || x.cat === prod.cat) && (!prod.only || v(x.a.prod) > 0)
       && (!prod.q || norm(x.a.name).includes(norm(prod.q)) || norm(x.a.sku).includes(norm(prod.q))));
@@ -4540,7 +4541,7 @@ Antworte NUR mit JSON in dieser Form:
   async function shopLoad() {
     if (SHOP || shopLoading) return; shopLoading = true; SHOP = {};
     try { (await store.loadShop()).forEach(d => SHOP[d.id] = d); } catch (e) { toast("Shop-Daten konnten nicht geladen werden."); }
-    shopLoading = false; if (view === "werbung" && mk.tab !== "werbung") renderMkt(); else if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "finanzen") finDraw(); else if (view === "shopcheck") renderShop(); else if (view === "suche") renderSuche(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
+    shopLoading = false; if (view === "werbung" && mk.tab !== "werbung") renderMkt(); else if (view === "dokumente") renderDocs(); else if (view === "buchhaltung") renderBuch(); else if (view === "finanzen") finDraw(); else if (view === "produktion" && prod.tab === "mass") renderProduction(); else if (view === "shopcheck") renderShop(); else if (view === "suche") renderSuche(); else if (view === "uebersicht") renderOverview(); else if (view === "einstellungen" && stab === "versand") renderSettings();
   }
   const shopSave = d => { SHOP[d.id] = d; persist("shop:" + d.id, () => store.saveShop(d)); };
   const words = s => String(s || "").toLowerCase().replace(/[^a-z0-9äöüß ]/g, " ").split(/\s+/).filter(w => w.length > 2);
@@ -5690,7 +5691,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   }
   // ---------- Buchhaltung / Steuer ----------
   const buBar = act => `<div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${act === k}">${l}</button>`).join("")}</div>`;
-  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fin-uebersicht", "Geld & Prognose"], ["fin-konto", "Kontoauszüge"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"], ["oss", "One-Stop-Shop"], ["tb", "Rechnung Thomas"], ["mass", "Regal nach Maß"]];
+  const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fin-uebersicht", "Geld & Prognose"], ["fin-konto", "Kontoauszüge"], ["fristen", "Fristen"], ["todos", "To-dos"], ["konten", "Nummern & Konten"], ["texte", "Textbausteine"], ["oss", "One-Stop-Shop"], ["tb", "Rechnung Thomas"]];
   let bu = { tab: "uebersicht", busy: false, ctl: null, err: "", q: "" };
   const buData = () => { const b = (SHOP && SHOP.buch) || {}; return { id: "buch", pay: b.pay || [], dl: b.dl || [], todo: b.todo || [], acc: b.acc || [], txt: b.txt || [], rl: b.rl || { inc: 6500, pct: 10 }, chat: b.chat || [], oss: b.oss || { status: "nicht angemeldet", since: "", note: "" } }; };
   const buSave = d => shopSave(d);
@@ -5707,10 +5708,10 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   function renderBuch() {
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><p class="note">Lade …</p>`; return; }
     const d = buData(), n = (d.pay.length + d.dl.length + d.todo.length + d.acc.length);
-    const body = !n && bu.tab !== "texte" ? `<section class="box"><p>Hier ist noch nichts eingetragen. Leg Posten, Fristen und To-dos an, oder lass Claude unten im Chat beim Einrichten helfen.</p></section>` : "";
-    const tabHtml = { uebersicht: buOverview, zahlungen: buPay, fristen: buDl, todos: buTodo, konten: buAcc, texte: buTxt, oss: buOss, tb: buTb, mass: buMass }[bu.tab](d);
+    const body = !n && bu.tab !== "texte" ? `<section class="box"><p>Hier ist noch nichts eingetragen. Leg Posten, Fristen und To-dos an.</p></section>` : "";
+    const tabHtml = { uebersicht: buOverview, zahlungen: buPay, fristen: buDl, todos: buTodo, konten: buAcc, texte: buTxt, oss: buOss, tb: buTb }[bu.tab](d);
     $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1>${buBar(bu.tab)}
-      <div class="stack" style="margin-top:14px">${body}${tabHtml}${buChatHTML(d)}</div>`;
+      <div class="stack" style="margin-top:14px">${body}${tabHtml}</div>`;
     const lg = $("buLog"); if (lg) lg.scrollTop = lg.scrollHeight;
   }
   function buOverview(d) {
@@ -5984,15 +5985,15 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
         <p class="note">Die Zeile erscheint im Reiter „Rechnung Thomas“ für diesen Monat und kommt automatisch in die Rechnung, wenn du sie erstellst.</p></section>` : ""}`;
   }
   document.addEventListener("click", e => {
-    if (view !== "buchhaltung" || bu.tab !== "mass") return; const t = e.target.closest && e.target.closest("[data-msact]"); if (!t) return; const m = msCalc(); if (!m) return;
+    if (view !== "produktion" || prod.tab !== "mass") return; const t = e.target.closest && e.target.closest("[data-msact]"); if (!t) return; const m = msCalc(); if (!m) return;
     if (t.dataset.msact === "book") { const d = tbData(), q = tbNum(ms.qty) || 1, ym = ms.bym || curYM(), dim = [m.L, m.dep, m.th].map(x => dec(x)).join(" × ");
       d.pend = d.pend.concat([{ id: uid(), ym, t: `Regal nach Maß ${dim} cm, Eiche`, q: String(q), p: String(m.thomas) }]); tbSave(d); toast("In die Rechnung für " + tbMonthLab(ym) + " gebucht"); return; }
     const txt = `Hallo Thomas, kannst du mir ein Regal nach Maß anfertigen? Maße: ${dec(m.L)} × ${dec(m.dep)} × ${dec(m.th)} cm, Eiche. Mein Vorschlag für den Preis: ${eur(m.thomas)} netto (${eur(m.thomas * 1.19)} mit USt). Passt das für dich? Gruß Mark`;
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast("Kopiert"), () => toast("Kopieren ging nicht"));
   });
   document.addEventListener("change", e => {
-    if (view !== "buchhaltung" || bu.tab !== "mass") return; const t = e.target, k = t.dataset && t.dataset.msf; if (!k) return; ms[k] = t.value;
-    if (["len", "dep", "thick", "sp"].includes(k)) ms.thomas = ""; renderBuch();
+    if (view !== "produktion" || prod.tab !== "mass") return; const t = e.target, k = t.dataset && t.dataset.msf; if (!k) return; ms[k] = t.value;
+    if (["len", "dep", "thick", "sp"].includes(k)) ms.thomas = ""; renderProduction();
   });
   function buOss(d) {
     const o = d.oss;
