@@ -2665,7 +2665,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     </div>`;
     const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
-    return `${kpis}<div class="dgrid">${chartBox}${top5()}</div>${kan}`;
+    return `${kpis}<div class="dgrid">${chartBox}${kan}</div>${top5()}`;
   }
   function renderOverview() {
     const ctx = volume();
