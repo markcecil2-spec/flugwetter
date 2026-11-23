@@ -2249,7 +2249,11 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
           <span class="note">${esc(x.ch || "")} · ${dd(x.at)}${x.status === "erledigt" && x.doneAt ? " · verschickt " + dd(x.doneAt) : ""}${old ? ' <strong style="color:var(--bad)">· wartet schon länger</strong>' : ""}</span></div></div>
         ${bu_del(x.id)}</div>`; };
     const bu_del = id => sup.nlAsk === id ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-nl="delok:${id}" title="Ja, löschen">✓</button><button type="button" class="btn" data-nl="delno" title="Abbrechen">×</button></span>` : `<button type="button" class="btn" data-nl="del:${id}" aria-label="Löschen">×</button>`;
-    return `<div class="stack"><section class="box"><h2>Neue Nachlieferung</h2><p class="note">Etwas vergessen, falsch geschickt oder kaputt angekommen? Hier notieren, was noch raus muss.</p>
+    const pm = sup.nlPaste || { text: "", busy: false, err: "" };
+    return `<div class="stack"><section class="box"><h2>Aus Kundennachricht anlegen</h2><p class="note">Nachricht des Kunden hier einfügen. Claude füllt das Formular darunter aus, du prüfst es und klickst auf Hinzufügen.</p>
+      <div class="field"><div class="inp"><textarea data-nlpaste="text" rows="4" placeholder="Kundennachricht hier einfügen …" ${pm.busy ? "disabled" : ""}>${esc(pm.text)}</textarea></div></div>
+      <div class="btns"><button type="button" class="btn primary" data-nl="ai" ${pm.busy ? "disabled" : ""}>${pm.busy ? "Claude liest …" : "Formular ausfüllen"}</button></div>${pm.err ? `<p class="note" style="color:var(--bad);margin:6px 0 0">${esc(pm.err)}</p>` : ""}</section>
+      <section class="box"><h2>Neue Nachlieferung</h2><p class="note">Etwas vergessen, falsch geschickt oder kaputt angekommen? Hier notieren, was noch raus muss.</p>
       <div class="field"><label>Was muss raus?</label><div class="inp"><input type="text" data-nld="what" value="${esc(dr.what)}" placeholder="z. B. 2 Haken Eiche nachschicken"></div></div>
       <div class="grid3 keep"><div class="field"><label>Bestellnummer</label><div class="inp"><input type="text" data-nld="order" value="${esc(dr.order)}"></div></div><div class="field"><label>Kunde (nur Name)</label><div class="inp"><input type="text" data-nld="cust" value="${esc(dr.cust)}"></div></div>
         <div class="field"><label>Kanal</label>${sel("ch", [["Etsy", "Etsy"], ["Shopify", "Shopify"], ["eBay", "eBay"], ["Direkt", "Direkt"]], dr.ch)}</div></div>
@@ -2258,7 +2262,30 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
       <section class="box"><h2>Noch zu verschicken <span class="note num">${open.length}</span></h2>${open.length ? open.map(row).join("") : `<p class="note">Nichts offen.</p>`}</section>
       ${done.length ? `<section class="box"><h2>Erledigt <span class="note num">${done.length}</span></h2>${done.slice(0, 30).map(row).join("")}<p class="note" style="margin:8px 0 0">Kosten aller Nachlieferungen bisher: ca. ${eur0(cost)}.</p></section>` : ""}</div>`;
   }
-  document.addEventListener("input", e => { const t = e.target; if (view !== "support" || sup.tab !== "nachlieferung" || !t.dataset || !t.dataset.nld) return; nlDraft()[t.dataset.nld] = t.value; });
+  document.addEventListener("input", e => { const t = e.target; if (view !== "support" || sup.tab !== "nachlieferung" || !t.dataset) return; if (t.dataset.nlpaste) { sup.nlPaste = Object.assign(sup.nlPaste || { busy: false, err: "" }, { text: t.value }); return; } if (t.dataset.nld) nlDraft()[t.dataset.nld] = t.value; });
+  async function nlFromMsg() {
+    const pm = sup.nlPaste = sup.nlPaste || { text: "", busy: false, err: "" };
+    if (!pm.text.trim()) return toast("Bitte erst die Kundennachricht einfügen");
+    const sample = await getSample(); if (!sample) { pm.err = "Claude ist hier nicht verfügbar. Du kannst das Formular von Hand ausfüllen."; return renderSupport(); }
+    pm.busy = true; pm.err = ""; renderSupport();
+    try {
+      const r = await sample.json(`Ein Kunde eines kleinen Holzwerkstatt-Shops (Haken, Garderoben, Regale aus Eiche) schreibt, dass bei seiner Bestellung etwas falsch gelaufen ist. Lies die Nachricht und fülle einen Nachlieferungs-Eintrag aus.
+
+NACHRICHT:
+"""
+${pm.text.slice(0, 8000)}
+"""
+
+Gib NUR dieses JSON zurück:
+{"what": "kurz auf Deutsch, was genau verschickt werden muss, mit Anzahl, Größe und Variante, z. B. 2 Haken Eiche als Ersatz. Wenn unklar, schreib dazu was noch zu klären ist.", "order": "Bestellnummer, falls genannt, sonst leer", "cust": "Vor- und Nachname des Kunden, falls erkennbar, sonst leer", "ch": "Etsy|Shopify|eBay|Direkt, falls erkennbar, sonst leer", "why": "${NL_WHY.map(x => x[0]).join("|")}"}
+Regeln: vergessen = Teil fehlte im Paket; falsch = falsche Größe oder Variante geliefert; defekt = kaputt angekommen; ersatz = Kunde möchte zusätzlich etwas; sonst = alles andere. Erfinde nichts.`, { cache: false });
+      if (!r || typeof r.what !== "string") throw { code: "invalid_json" };
+      const dr = nlDraft(); dr.what = r.what.trim(); if (r.order) dr.order = String(r.order).trim(); if (r.cust) dr.cust = String(r.cust).trim();
+      if (["Etsy", "Shopify", "eBay", "Direkt"].includes(r.ch)) dr.ch = r.ch; if (NL_WHY.some(x => x[0] === r.why)) dr.why = r.why;
+      pm.text = "";
+    } catch (e) { pm.err = supErr(e); }
+    pm.busy = false; renderSupport();
+  }
   document.addEventListener("change", e => {
     const t = e.target; if (view !== "support" || sup.tab !== "nachlieferung" || !t.dataset) return;
     if (t.dataset.nld) { nlDraft()[t.dataset.nld] = t.value; return; }
@@ -2268,6 +2295,7 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
   });
   document.addEventListener("click", e => {
     const b = e.target.closest && e.target.closest("[data-nl]"); if (!b || view !== "support") return; const [k, id] = [b.dataset.nl.split(":")[0], b.dataset.nl.split(":").slice(1).join(":")], d = nlData();
+    if (k === "ai") return nlFromMsg();
     if (k === "add") { const dr = nlDraft(); if (!dr.what.trim()) return toast("Schreib kurz, was nachgeliefert werden soll."); d.items.push({ id: uid(), at: todayISO(), order: dr.order.trim(), cust: dr.cust.trim(), ch: dr.ch, why: dr.why, what: dr.what.trim(), cost: dr.cost, status: "offen", doneAt: "" }); nlSave(d); sup.nl = { order: "", cust: "", ch: dr.ch, why: "vergessen", what: "", cost: dr.cost }; toast("Eingetragen"); return renderSupport(); }
     if (k === "del") { sup.nlAsk = id; return renderSupport(); } if (k === "delno") { sup.nlAsk = ""; return renderSupport(); }
     if (k === "delok") { sup.nlAsk = ""; d.items = d.items.filter(x => x.id !== id); nlSave(d); return renderSupport(); }
@@ -4522,14 +4550,14 @@ BESTSELLER (Name | Preis | Absatz | Marge):\n${top}
 KATEGORIEN:\n${cat}
 SCHON IM SORTIMENT (Namen ohne Größe): ${names}
 BEREITS VORGESCHLAGEN ODER ABGELEHNT (nicht wiederholen): ${no || "nichts"}
-VERSAND: DHL Kleinpaket ist am günstigsten (bis ca. 35 × 25 × 8 cm und 1 kg). Pakete bis 120 × 60 × 60 cm. Auslandsversand ist teuer, deshalb sind kleine, leichte Produkte besser.
+${ideaFacts()}VERSAND: DHL Kleinpaket ist am günstigsten (bis ca. 35 × 25 × 8 cm und 1 kg). Pakete bis 120 × 60 × 60 cm. Auslandsversand ist teuer, deshalb sind kleine, leichte Produkte besser.
 JETZT: ${monthLabel(mk)}. Das Produkt soll in diesem Monat in den Verkauf gehen. Anlässe, für die jetzt gesucht wird: ${IDEA_EVENTS[mo]}.`;
   }
   function ideaPrompt(mk, n) {
     return `${ideaContext(mk)}
 
 AUFGABE: Schlage genau ${n} neue Produkte vor, die ich diesen Monat einführen soll. Regeln:
-1. Jedes Produkt passt zum Shop und zu den Bestsellern, ist aber kein Duplikat von bestehenden Artikeln.
+1. Jedes Produkt passt zum Shop und zu den Bestsellern, ist aber kein Duplikat von bestehenden Artikeln. Bevorzuge Ideen, die ein Signal aus DATENSIGNALE aufgreifen (Gewinner ausbauen, Suchlücke füllen, Schmerzpunkt lösen, Saison), und nenne dieses Signal mit Zahl im Feld warum.
 2. Bevorzuge Produkte, die sich aus meinen ROHLINGEN fertigen lassen (Name exakt aus der Liste übernehmen). Nur wenn ein anderes Maß wirklich nötig ist, gib eigene Maße an und lass rohling leer.
 3. Eines der Produkte soll saisonal oder zu einem Anlass passen, das andere darf ein ganzjähriger Bestseller-Ausbau sein (z. B. neue Variante, Set, Personalisierung).
 4. Rechne realistisch: Der Preis muss Material, Etsy-Gebühren (ca. 19 %), Versand und meine Zeit tragen. Personalisierung (Gravur) rechtfertigt höhere Preise.
@@ -4540,6 +4568,44 @@ AUFGABE: Schlage genau ${n} neue Produkte vor, die ich diesen Monat einführen s
 
 Antworte NUR mit JSON in dieser Form:
 {"ideen":[{"name":"kurzer Produktname","kategorie":"Schlüsselbrett|Garderobe|Regal|Knotenbrett|Haken|Deko & Zubehör","anlass":"Anlass oder ganzjährig","beschreibung":"2 Sätze, was es ist","warum":"1 bis 2 Sätze, warum es zu meinem Shop passt, mit Bezug auf meine Zahlen","teile":[{"rohling":"exakter Rohlingsname oder leer","l":Länge_cm,"b":Breite_cm,"q":Anzahl,"hinweis":"Funktion des Teils"}],"kleinteile":{"Kleinteilname":Menge},"gravur":true oder false,"minuten":Arbeitsminuten für Bohren, Schleifen, Montage und Gravur ohne Zuschnitt,"preis":Verkaufspreis_brutto_in_Euro,"etsyTitel":"Etsy-Titel mit den wichtigsten Suchwörtern, höchstens 140 Zeichen","tags":["13 Etsy-Tags, jeweils höchstens 20 Zeichen"],"risiko":"1 Satz, was schiefgehen kann","bilder":[{"typ":"Produktfoto|Lifestyle|Detail|Anlass","prompt":"englischer Prompt für eine Bild-KI"}]}]}`;
+  }
+  // Ideen-Radar: was deine Zahlen über neue Produkte sagen (ohne Claude, aus Verkäufen, Suchbegriffen, Saison und Nachlieferungen)
+  const GEN_W = new Set(["kaufen", "online", "aus", "für", "mit", "und", "günstig", "bestellen", "shop", "der", "die", "das", "set", "selber", "machen"]);
+  function ideaSignals() {
+    const out = { winners: [], gaps: [], season: null, pain: null };
+    try { const { rows } = anaCalc(); const by = {}; rows.filter(x => x.pm > 0).forEach(x => { const n = String(x.a.name).replace(/\s*·.*$/, ""), o = by[n] = by[n] || { name: n, pm: 0, gain: 0, rev: 0 }; o.pm += x.pm; o.gain += x.pm * x.r.profit; o.rev += x.pm * v(x.a.price); }); out.winners = Object.values(by).map(o => Object.assign(o, { margin: o.rev ? o.gain / o.rev * 100 : 0 })).sort((a, b) => b.gain - a.gain).slice(0, 5); } catch (e) {}
+    try {
+      const sc = SC(); if (sc && sc.queries && sc.queries.length) {
+        const titles = A.map(a => a.name).concat(SHOP && SHOP.shopify && SHOP.shopify.products ? SHOP.shopify.products.map(x => x.title) : []).map(t => words(t));
+        const stem = w => w.slice(0, 5), has = (tw, w) => tw.some(x => stem(x) === stem(w) || x.startsWith(stem(w)) || w.startsWith(stem(x)));
+        out.gaps = sc.queries.filter(q => q.i >= 30 && !/hlz|holini|etsy/i.test(q.k)).filter(q => { const qw = words(q.k).filter(w => !GEN_W.has(w)); return qw.length && !titles.some(tw => qw.every(w => has(tw, w))); }).sort((a, b) => b.i - a.i).slice(0, 8);
+      }
+    } catch (e) {}
+    try {
+      if (STATS) { const D = statData(); if (D && D.rows.length >= 6) { const by = {}; D.rows.forEach(r => { const m = +r.ym.slice(5); (by[m] = by[m] || []).push(r.rev); }); const avg = D.rows.reduce((n, r) => n + r.rev, 0) / D.rows.length, now = new Date().getMonth() + 1; out.season = [1, 2, 3].map(k => { const m = (now - 1 + k) % 12 + 1, l = by[m]; return { m, idx: l && avg > 0 ? l.reduce((n, x) => n + x, 0) / l.length / avg : null, ev: IDEA_EVENTS[m] || "" }; }); } }
+    } catch (e) {}
+    try {
+      const nl = (SHOP && SHOP.nl && SHOP.nl.items) || [], why = {}; nl.forEach(x => { why[x.why] = (why[x.why] || 0) + 1; });
+      const cs = {}; (SUP || []).filter(m => m.cat === "reklamation" && m.cause).forEach(m => { cs[m.cause] = (cs[m.cause] || 0) + 1; });
+      out.pain = { nl: Object.entries(why).sort((a, b) => b[1] - a[1]), n: nl.length, sup: Object.entries(cs).sort((a, b) => b[1] - a[1]).slice(0, 4), last: nl.slice(-4).map(x => x.what).filter(Boolean) };
+    } catch (e) {}
+    return out;
+  }
+  function ideaFacts() {
+    const g = ideaSignals(), L = [];
+    if (g.winners.length) L.push("GEWINNER (ausbauen, z. B. neue Größe, Variante, Set, Gravur): " + g.winners.map(w => `${w.name} (${dec(w.pm, 0)} Stk/Monat, Marge ${dec(w.margin, 0)} %)`).join("; "));
+    if (g.gaps.length) L.push("SUCHLÜCKEN (Google-Begriffe mit Anzeigen, zu denen kein Artikel passt; Impressionen): " + g.gaps.map(q => `${q.k} (${q.i})`).join("; "));
+    if (g.season) L.push("SAISON (Umsatz-Index nächste Monate, 1,0 = Schnitt): " + g.season.map(x => `${MONTHS_FULL[x.m - 1]} ${x.idx ? dec(x.idx, 1) : "?"}`).join(", "));
+    if (g.pain && (g.pain.n || g.pain.sup.length)) L.push("SCHMERZPUNKTE (Reklamationen und Nachlieferungen): " + [...g.pain.nl.map(([k, n]) => `${(NL_WHY.find(x => x[0] === k) || [k, k])[1]} ${n}×`), ...g.pain.sup.map(([k, n]) => `${supCauseOf(k)} ${n}×`), ...g.pain.last.map(t => `„${t}“`)].join("; "));
+    return L.length ? "DATENSIGNALE (aus meinen echten Zahlen, bitte nutzen und im Feld warum konkret nennen):\n" + L.join("\n") + "\n" : "";
+  }
+  function ideaRadarHTML() {
+    const g = ideaSignals(), eu = x => eur0(x), box = (h, b, n) => `<section class="box" style="margin:0"><h2 style="margin-top:0">${h}</h2>${b}${n ? `<p class="note" style="margin:8px 0 0">${n}</p>` : ""}</section>`, bs = [];
+    bs.push(box("1. Gewinner ausbauen", g.winners.length ? `<table><tbody>${g.winners.map(w => `<tr><td>${esc(w.name)}</td><td class="r num">${dec(w.pm, 0)} Stk/Mon.</td><td class="r num">${dec(w.margin, 0)} %</td><td class="r num"><strong>${eu(w.gain)}</strong></td></tr>`).join("")}</tbody></table>` : `<p class="note">Noch keine Verkaufszahlen.</p>`, "Gewinn pro Monat je Artikel. Neue Größen, Varianten, Sets oder Gravur zu diesen Artikeln sind die sicherste Idee."));
+    bs.push(box("2. Suchlücken (Google)", g.gaps.length ? `<table><tbody>${g.gaps.map(q => `<tr><td>${esc(q.k)}</td><td class="r num">${dec(q.i, 0)} Impr.</td><td class="r num">Pos. ${dec(q.p, 0)}</td></tr>`).join("")}</tbody></table>` : `<p class="note">${SC() ? "Keine Lücken gefunden: zu allen häufigen Begriffen gibt es einen passenden Artikel." : "Search-Console-Datei fehlt (Kanäle → Google Search Console hochladen)."}</p>`, "Begriffe, bei denen dein Shop angezeigt wird, aber kein Artikel dazu passt. Das ist Nachfrage ohne Angebot."));
+    bs.push(box("3. Saison", g.season ? `<table><tbody>${g.season.map(x => `<tr><td><strong>${MONTHS_FULL[x.m - 1]}</strong></td><td class="r num">${x.idx ? "× " + dec(x.idx, 1) : "–"}</td><td class="note" style="text-align:left;white-space:normal">${esc(x.ev)}</td></tr>`).join("")}</tbody></table>` : `<p class="note">Zu wenig Monatsdaten (ab 6 Monaten).</p>`, "× 1,0 = durchschnittlicher Monat. Neue Produkte sollten 6 bis 8 Wochen vor der Spitze fertig sein."));
+    const P = g.pain; bs.push(box("4. Schmerzpunkte", P && (P.n || P.sup.length) ? `<table><tbody>${[...P.nl.map(([k, n]) => [(NL_WHY.find(x => x[0] === k) || [k, k])[1], n, "Nachlieferungen"]), ...P.sup.map(([k, n]) => [supCauseOf(k), n, "Reklamationen"])].map(r => `<tr><td>${esc(r[0])}</td><td class="note">${r[2]}</td><td class="r num">${r[1]}×</td></tr>`).join("")}</tbody></table>${P.last.length ? `<p class="note" style="margin:6px 0 0">Zuletzt: ${P.last.map(esc).join(" · ")}</p>` : ""}` : `<p class="note">Noch nichts erfasst. Trag Fehlteile und Defekte unter Support → Nachlieferungen ein, dann siehst du hier, wo ein besseres Produkt fehlt.</p>`, "Was oft schiefgeht, ist oft eine Produktidee (besserer Haken, Ersatzteil-Set, klarere Größen)."));
+    return `<div class="dgrid even" style="margin:0 0 16px">${bs.join("")}</div>`;
   }
   const num0 = (x, d) => { const f = parseFloat(String(x ?? "").replace(",", ".")); return isFinite(f) && f > 0 ? f : d; };
   function ideaParse(r, n) {
@@ -6311,22 +6377,25 @@ Claude:`;
         <div class="tile"><span class="label">Max. Rabatt</span><span class="num" style="font-size:1.25rem">${isFinite(c.dmax) && c.dmax > 0 ? "−" + c.dmax + " %" : "keiner"}</span><span class="note">hält die Ziel-Marge</span></div>
       </div>
       ${anaTable(["Zutaten", ""], [["Rohlinge und Teile", blanks], ["Kleinteile", esc(small)], ["Gravur", !i.gravur ? "nein" : i.teile.every(laserFit) ? `ja, passt in deinen Laser (${dec(v(S.laserL) || 49.8)} × ${dec(v(S.laserB) || 31.9)} cm)` : `<span style="color:var(--warn)">ja, aber ein Teil ist größer als dein Laser (${dec(v(S.laserL) || 49.8)} × ${dec(v(S.laserB) || 31.9)} cm): nur ein Teilstück ist gravierbar, das Brett muss umgespannt werden</span>`], ["Arbeitszeit", `${dec(i.min)} Min. plus Zuschnitt ${dec(r.rohMin)} Min.`], ["Versand", `${r.ship && r.ship.chosen ? esc(r.ship.chosen.o.n) : "keine Versandart passt, prüf die Maße"} (${dec(shipWeight(c.a) / 1000, 2)} kg)`]])}
+      <details><summary>Etsy-Text und Bild-Prompts</summary>
       ${i.titel ? `<div class="field"><label>Etsy-Titel</label><div class="inp"><input type="text" readonly value="${esc(i.titel)}" onclick="this.select()"></div></div>` : ""}
       ${i.tags.length ? `<div class="field"><label>Etsy-Tags (${i.tags.length})</label><div class="inp"><input type="text" readonly value="${esc(i.tags.join(", "))}" onclick="this.select()"></div></div>` : ""}
       ${i.risiko ? `<p class="note" style="margin:0">Achtung: ${esc(i.risiko)}</p>` : ""}
       <h4 style="margin:6px 0 0">Bild-Prompts für eine KI</h4>
       <p class="note" style="margin:0">Kopier sie in eine Bild-KI (z. B. ChatGPT, Gemini, Midjourney, Canva). Texte und Gravuren lässt du von der KI weg und setzt sie danach in Canva ein, KIs schreiben sie oft falsch. Am besten lädst du zusätzlich ein Foto eines ähnlichen Produkts von dir als Vorlage hoch, damit Holz und Haken stimmen.</p>
-      ${ideaImgPrompts(i).map((b, k) => `<div class="field"><label>${esc(b.typ)}</label><div class="inp"><textarea readonly rows="3" style="width:100%;font:inherit;resize:vertical" onclick="this.select()">${esc(b.prompt)}</textarea></div><div class="btns"><button class="btn" data-idea-copy="${i.id}:${k}">Kopieren</button></div></div>`).join("")}
+      ${ideaImgPrompts(i).map((b, k) => `<div class="field"><label>${esc(b.typ)}</label><div class="inp"><textarea readonly rows="3" style="width:100%;font:inherit;resize:vertical" onclick="this.select()">${esc(b.prompt)}</textarea></div><div class="btns"><button class="btn" data-idea-copy="${i.id}:${k}">Kopieren</button></div></div>`).join("")}</details>
       <div class="btns">${i.status === "angelegt" ? `<a class="btn primary" href="#artikel-${esc(i.aid)}">Artikel öffnen</a>` : `<button class="btn primary" data-idea-add="${i.id}">Als Artikel anlegen</button>`}<button class="btn" data-idea-other="${i.id}" ${ideaState.busy ? "disabled" : ""}>Andere Idee</button></div></section>`;
   }
   function renderIdeas() {
+    if (!SHOP) shopLoad(); if (!STATS) statsLoad();
     const mk = monthKey(new Date()), cur = (S.ideas || {})[mk] || [], past = Object.entries(S.ideas || {}).filter(([k]) => k !== mk).sort().reverse();
     $("view").innerHTML = `${shopBar("ideen")}<div class="row"><h1>Produktideen</h1></div>
-      <p class="note">Dein Ziel: 2 neue Produkte pro Monat. Die Vorschläge kommen von Claude, aus deinen echten Verkaufszahlen, deinen Rohlingen, deinen Kleinteilen und den Anlässen der nächsten Monate. Die Marge rechnet die App mit deinen echten Kosten aus.</p>
+      <p class="note">Ziel: 2 neue Produkte pro Monat. Oben siehst du, was deine Zahlen sagen. Darunter schlägt Claude Produkte vor, die genau darauf aufbauen. Die Marge rechnet die App mit deinen echten Kosten.</p>
+      ${ideaRadarHTML()}
       ${ideaState.busy ? `<section class="box empty"><p>${esc(ideaState.busy)}</p></section>` : ""}
       ${ideaState.msg ? `<p class="note"><strong>${esc(ideaState.msg)}</strong></p>` : ""}
       <h2>${monthLabel(mk)}</h2>
-      ${cur.length ? cur.map(ideaCard).join("") : `<section class="box empty"><p>Für ${monthLabel(mk)} gibt es noch keine Ideen.</p><div class="btns" style="justify-content:center"><button class="btn primary" data-idea-gen="2" ${ideaState.busy ? "disabled" : ""}>2 Ideen für ${MONTHS_FULL[new Date().getMonth()]} holen</button></div></section>`}
+      ${cur.length ? cur.map(ideaCard).join("") : `<section class="box empty"><p>Für ${monthLabel(mk)} gibt es noch keine Ideen. Claude nimmt dafür die Signale von oben.</p><div class="btns" style="justify-content:center"><button class="btn primary" data-idea-gen="2" ${ideaState.busy ? "disabled" : ""}>2 Ideen für ${MONTHS_FULL[new Date().getMonth()]} holen</button></div></section>`}
       ${cur.length ? `<div class="btns"><button class="btn" data-idea-gen="1" ${ideaState.busy ? "disabled" : ""}>Noch eine Idee</button></div>` : ""}
       ${past.length ? `<h2>Frühere Monate</h2>${anaTable(["Monat", "Idee", "Anlass", "Status"], past.flatMap(([k, l]) => l.map(i => [monthLabel(k), esc(i.name), esc(i.anlass), i.status === "angelegt" ? `<a href="#artikel-${esc(i.aid)}">Artikel angelegt</a>` : i.status === "verworfen" ? "verworfen" : "offen"])))}` : ""}`;
   }
