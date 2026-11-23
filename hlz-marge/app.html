@@ -2656,6 +2656,33 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const ch = last ? [["Etsy", sum.e, "var(--accent)"], ["Shopify", sum.s, "var(--walnut)"], ["eBay", sum.eb, "var(--seg-ship)"]].filter(x => x[1] > 0 || x[0] !== "eBay") : [];
     return `<div class="row" style="margin-bottom:6px"><h2 style="margin:0">Verkaufskanäle${lab ? ` <span class="note">${esc(lab)}</span>` : ""}</h2></div>${ch.length ? ch.map(([n, val, c]) => `<a class="drow" href="#kanaele"><span class="dotc" style="background:${c}"></span><span style="flex:1">${n}</span><strong class="num">${eur0(val)}</strong><span class="chev2">›</span></a>`).join("") : `<p class="note">Noch keine Daten.</p>`}<div style="margin-top:8px"><a class="btn" href="#kanaele">Abgleich & Uploads</a></div>`;
   }
+  function homeInsights(D) {
+    const box = (h, body, note) => `<section class="box"><h2 style="margin-top:0">${h}</h2>${body}${note ? `<p class="note" style="margin:8px 0 0">${note}</p>` : ""}</section>`, out = [];
+    // Fällig in 30 Tagen gegen Geld da
+    try {
+      const c = finCalc(), dd = x => Math.round((new Date(x + "T00:00:00") - new Date(c.td + "T00:00:00")) / 864e5), due = c.open.filter(x => x.due && dd(x.due) <= 30).sort((a, b) => a.due.localeCompare(b.due)), sum = due.reduce((n, x) => n + x.ea, 0), rest = c.liquid - sum;
+      out.push(box("Fällig in 30 Tagen", `<div class="row" style="gap:18px;flex-wrap:wrap"><div><div class="note">Geld da</div><strong>${eur0(c.liquid)}</strong></div><div><div class="note">Fällig</div><strong>−${eur0(sum)}</strong></div><div><div class="note">Bleibt danach</div><strong style="color:var(--${rest < 0 ? "bad" : "good"})">${eur0(rest)}</strong></div></div>${due.length ? `<table><tbody>${due.slice(0, 5).map(x => `<tr><td>${esc(x.n || "Posten")}</td><td class="note">${dDE(x.due)}${dd(x.due) < 0 ? " · überfällig" : ""}</td><td class="r num">${eur0(x.ea)}</td></tr>`).join("")}</tbody></table>` : ""}`, "Posten ohne Fälligkeitsdatum sind nicht eingerechnet. Details unter Finanzen."));
+    } catch (e) { /* Finanzdaten noch nicht da */ }
+    // Kosten pro Verkauf je Kanal
+    try {
+      const ctx = volume(), C = {};
+      A.forEach(a => Object.entries(a.sales || {}).forEach(([ch0, x]) => { const q = v(x.months) > 0 ? v(x.qty) / v(x.months) : 0; if (!q) return; const ch = CHANNELS.includes(ch0) ? ch0 : "etsy", r = calc(a, ch, v(x.avg) || v(a.price), ctx, v(x.avg) > 0), o = C[ch] = C[ch] || { q: 0, net: 0, fee: 0, por: 0, db: 0 }; o.q += q; o.net += q * r.net; o.fee += q * (r.fees + r.ads); o.por += q * r.porto; o.db += q * r.db; }));
+      const ks = Object.keys(C).filter(k => C[k].q > 0);
+      if (ks.length) out.push(box("Was bleibt pro Verkauf, je Kanal", `<div class="tablewrap"><table><thead><tr><th>Kanal</th><th class="r">Verk./Mon.</th><th class="r">Gebühren</th><th class="r">Versand</th><th class="r">Bleibt</th></tr></thead><tbody>${ks.map(k => { const o = C[k]; return `<tr><td>${esc(CH_NAMES[k] || k)}</td><td class="r num">${dec(o.q, 0)}</td><td class="r num">${eur(o.fee / o.q)}</td><td class="r num">${eur(o.por / o.q)}</td><td class="r num"><strong>${eur(o.db / o.q)}</strong> <span class="note">${o.net > 0 ? Math.round(o.db / o.net * 100) + " %" : ""}</span></td></tr>`; }).join("")}</tbody></table></div>`, "Pro Verkauf im Schnitt. Bleibt = Deckungsbeitrag nach Material, Arbeitszeit, Gebühren und Versand, vor Fixkosten. Prozent = Anteil vom Netto-Umsatz."));
+    } catch (e) { /* Daten fehlen */ }
+    // Marketing gegen Umsatz
+    try {
+      if (D && D.rows.length) {
+        const rows = D.rows.slice(-6), sc = SC(), scm = sc && sc.dates && sc.dates.length ? Object.fromEntries(scMonths(sc).map(x => [x.k, x.c])) : null, P = S.pin; let pm = null;
+        if (P && P.days && P.days.length) { const col = P.cols.includes("Impressions") ? "Impressions" : P.cols[0]; pm = {}; P.days.forEach(x => { const k = x.k.slice(0, 7); pm[k] = (pm[k] || 0) + (x[col] || 0); }); }
+        if (scm || pm) out.push(box("Reichweite gegen Umsatz", `<div class="tablewrap"><table><thead><tr><th>Monat</th><th class="r">Umsatz</th>${scm ? '<th class="r">Google-Klicks</th>' : ""}${pm ? '<th class="r">Pinterest-Aufrufe</th>' : ""}</tr></thead><tbody>${rows.map(r => `<tr><td>${ymLab(r.ym)}</td><td class="r num">${eur0(r.rev)}</td>${scm ? `<td class="r num">${scm[r.ym] != null ? dec(scm[r.ym], 0) : "–"}</td>` : ""}${pm ? `<td class="r num">${pm[r.ym] != null ? dec(pm[r.ym], 0) : "–"}</td>` : ""}</tr>`).join("")}</tbody></table></div>`, "Steigt die Reichweite und der Umsatz zieht mit, wirkt das Marketing. Bei nur wenigen Monaten ist das noch Zufall."));
+      }
+    } catch (e) { /* Daten fehlen */ }
+    // Ohne Verkäufe
+    const dead = A.filter(a => v(a.price) > 0 && !a.remove && salesPerMonth(a) <= 0).sort((a, b) => v(b.price) - v(a.price));
+    if (dead.length) out.push(box("Ohne Verkäufe", `<table><tbody>${dead.slice(0, 5).map(a => `<tr><td><strong class="num">${esc(a.sku || "–")}</strong> <span class="note">${esc(a.name.slice(0, 44))}</span></td><td class="r num">${eur0(v(a.price))}</td></tr>`).join("")}</tbody></table>`, `${dead.length} Artikel ohne Verkäufe, hier die 5 teuersten. Dort steckt am ehesten Material oder Lager drin.`));
+    return out.length ? `<div class="dgrid even" style="margin-top:12px">${out.join("")}</div>` : "";
+  }
   function homeDash() {
     let D = null; try { if (STATS) D = statData(); } catch (e) {}
     const m = monthly(volume()), has = m.qty > 0, last = D && D.rows[D.rows.length - 1], prev = D && D.rows[D.rows.length - 2];
@@ -2669,7 +2696,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     </div>`;
     const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
-    return `${kpis}<div class="dgrid">${chartBox}${kan}</div>${top5()}`;
+    return `${kpis}<div class="dgrid">${chartBox}${kan}</div>${top5()}${homeInsights(D)}`;
   }
   function renderOverview() {
     const ctx = volume();
