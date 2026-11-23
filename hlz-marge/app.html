@@ -2236,13 +2236,13 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
   const nlSave = d => { if (SHOP) shopSave(d); };
   const nlDraft = () => { const d = sup.nl = sup.nl || { order: "", cust: "", ch: "Etsy", why: "vergessen", what: "", cost: "12" }; if (!d.lines || !d.lines.length) d.lines = [{ art: "", qty: "1" }]; return d; };
   const nlLegacy = x => { const t = String(x.what || ""), sk = A.map(a => a.sku).filter(Boolean).find(k => t.toUpperCase().includes(String(k).toUpperCase())) || (t.match(/\b[A-Z]{2,}[A-Z0-9]*-\d[\w-]*/) || [])[0], q = /^(\d{1,2})\s/.exec(t.trim());
-    return [{ art: sk || nlShort(t.split(/[,.(;:]/)[0]), qty: q ? q[1] : "1" }]; };
+    return [{ art: sk || nlShort(t.replace(/^\d{1,2}\s+/, "").split(/[,.(;:]/)[0]), qty: q ? q[1] : "1" }]; };
   const nlLines = x => x.lines && x.lines.length ? x.lines : (x.what ? nlLegacy(x) : []);
   const nlNote = x => x.lines && x.lines.length ? (x.what || "") : "";
   const nlArtOpts = () => A.filter(a => a.name).map(a => ({ v: a.sku || a.name, l: a.sku ? a.name : "" }));
   const nlShort = (t, n = 40) => { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > n ? t.slice(0, n - 2).trim() + "…" : t; };
   function nlPrint() {
-    const rows = []; nlOpen().forEach(x => nlLines(x).forEach((l, i) => { if (String(l.art).trim()) rows.push({ art: nlShort(String(l.art).trim()), qty: v(l.qty) || 1, note: i ? "" : nlShort(nlNote(x), 100), who: [x.order, x.cust].filter(Boolean).join(" · ") }); }));
+    const rows = []; nlOpen().forEach(x => nlLines(x).forEach((l, i) => { if (String(l.art).trim()) rows.push({ art: nlShort(String(l.art).trim()), qty: v(l.qty) || 1, note: i ? "" : nlShort(nlNote(x), 150), who: [x.order, x.cust].filter(Boolean).join(" · ") }); }));
     if (!rows.length) return toast("Nichts zu drucken");
     rows.sort((a, b) => a.art.localeCompare(b.art, "de")); const n = rows.reduce((t, r) => t + r.qty, 0);
     printHTML(`<h1>Nachlieferungen · ${new Date().toLocaleDateString("de-DE")}</h1><table><thead><tr><th>✓</th><th>Menge</th><th>Artikel</th><th>Für</th></tr></thead><tbody>${rows.map(r => `<tr><td class="chk">☐</td><td class="qty">${dec(r.qty, 0)}</td><td><strong>${esc(r.art)}</strong>${r.note ? `<br>${esc(r.note)}` : ""}</td><td>${esc(r.who)}</td></tr>`).join("")}</tbody></table><p>${dec(n, 0)} Stück · ${rows.length} Positionen</p>`, "Nachlieferungen");
@@ -2262,8 +2262,9 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
           <span class="note">${esc(x.ch || "")} · ${dd(x.at)}${x.status === "erledigt" && x.doneAt ? " · verschickt " + dd(x.doneAt) : ""}${old ? ' <strong style="color:var(--bad)">· wartet schon länger</strong>' : ""}</span></div></div>
         ${bu_del(x.id)}</div>`; };
     const bu_del = id => sup.nlAsk === id ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-nl="delok:${id}" title="Ja, löschen">✓</button><button type="button" class="btn" data-nl="delno" title="Abbrechen">×</button></span>` : `<button type="button" class="btn" data-nl="del:${id}" aria-label="Löschen">×</button>`;
-    const pm = sup.nlPaste || { text: "", busy: false, err: "" };
-    return `<div class="stack"><section class="box"><h2>Aus Kundennachricht anlegen</h2><p class="note">Nachricht des Kunden hier einfügen. Claude füllt das Formular darunter aus, du prüfst es und klickst auf Hinzufügen.</p>
+    const pm = sup.nlPaste || { text: "", busy: false, err: "" }, nOld = nlOld().length;
+    if (nOld && !sup.nlMigTried) { sup.nlMigTried = true; setTimeout(() => nlMigrate(true), 50); }
+    return `<div class="stack">${nOld || sup.nlMig ? `<section class="box"><p class="note" style="margin:0">${sup.nlMig ? "Claude kürzt die alten Einträge …" : `${nOld} alte${nOld > 1 ? " Einträge sind" : "r Eintrag ist"} noch im Langtext.`} ${sup.nlMig ? "" : `<button type="button" class="btn" data-nl="mig">Jetzt kürzen</button>`}${sup.nlMigErr ? ` <span style="color:var(--bad)">${esc(sup.nlMigErr)}</span>` : ""}</p></section>` : ""}<section class="box"><h2>Aus Kundennachricht anlegen</h2><p class="note">Nachricht des Kunden hier einfügen. Claude füllt das Formular darunter aus, du prüfst es und klickst auf Hinzufügen.</p>
       <div class="field"><div class="inp"><textarea data-nlpaste="text" rows="4" placeholder="Kundennachricht hier einfügen …" ${pm.busy ? "disabled" : ""}>${esc(pm.text)}</textarea></div></div>
       <div class="btns"><button type="button" class="btn primary" data-nl="ai" ${pm.busy ? "disabled" : ""}>${pm.busy ? "Claude liest …" : "Formular ausfüllen"}</button></div>${pm.err ? `<p class="note" style="color:var(--bad);margin:6px 0 0">${esc(pm.err)}</p>` : ""}</section>
       <section class="box"><h2>Neue Nachlieferung</h2><p class="note">Etwas vergessen, falsch geschickt oder kaputt angekommen? Hier notieren, was noch raus muss.</p>
@@ -2278,6 +2279,28 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
       ${done.length ? `<section class="box"><h2>Erledigt <span class="note num">${done.length}</span></h2>${done.slice(0, 30).map(row).join("")}<p class="note" style="margin:8px 0 0">Kosten aller Nachlieferungen bisher: ca. ${eur0(cost)}.</p></section>` : ""}</div>`;
   }
   document.addEventListener("input", e => { const t = e.target; if (view !== "support" || sup.tab !== "nachlieferung" || !t.dataset) return; if (t.dataset.nlpaste) { sup.nlPaste = Object.assign(sup.nlPaste || { busy: false, err: "" }, { text: t.value }); return; } if (t.dataset.nld) nlDraft()[t.dataset.nld] = t.value; if (t.dataset.nldl) { const [i, f] = t.dataset.nldl.split("|"); nlDraft().lines[+i][f] = t.value; } });
+  const nlOld = () => nlData().items.filter(x => !(x.lines && x.lines.length) && x.what);
+  async function nlMigrate(auto) {
+    const old = nlOld(); if (!old.length || sup.nlMig) return; const sample = await getSample();
+    if (!sample) { if (!auto) { sup.nlMigErr = "Claude ist hier nicht verfügbar."; renderSupport(); } return; }
+    sup.nlMig = true; sup.nlMigErr = ""; renderSupport();
+    try {
+      const r = await sample.json(`Ein kleiner Holzwerkstatt-Shop hat Nachlieferungen mit viel zu langem Text notiert. Kürze jeden Eintrag für einen Packzettel.
+
+ARTIKELLISTE:
+${nlArtOpts().slice(0, 150).map(o => o.l ? `${o.v} – ${o.l}` : o.v).join("\n")}
+
+EINTRÄGE:
+${old.map(x => `ID ${x.id}: ${String(x.what).slice(0, 1500)}`).join("\n\n")}
+
+Gib NUR dieses JSON zurück: {"items": [{"id": "die ID", "teile": [{"art": "was verschickt werden muss", "qty": "Anzahl als Zahl"}], "hinweis": "wichtige Details in Stichworten, höchstens 20 Wörter, keine Adresse, keine Vorgeschichte"}]}
+Regeln: Braucht der Kunde nur ein Teil (z. B. Ersatzhaken, Schrauben), ist art genau dieses Teil, z. B. Ersatzhaken schwarz, und die SKU des Hauptprodukts kommt in den Hinweis (für GAD-04-40). Braucht er ein ganzes Produkt, ist art nur dessen SKU aus der Liste, sonst ein kurzer Name. Mehrere Teile sind mehrere Einträge in teile. Offene Fragen (was noch zu klären ist) kurz in den Hinweis. Erfinde nichts.`, { cache: false });
+      const d = nlData(); let n = 0;
+      (r && Array.isArray(r.items) ? r.items : []).forEach(o => { const x = d.items.find(y => y.id === o.id); const tl = (Array.isArray(o.teile) ? o.teile : []).filter(t => t && String(t.art || "").trim()).map(t => ({ art: nlShort(t.art), qty: String(parseInt(t.qty, 10) || 1) })); if (!x || !tl.length) return; x.lines = tl; x.what = nlShort(o.hinweis, 150); n++; });
+      if (n) { nlSave(d); toast(n + " alte Einträge gekürzt"); } else sup.nlMigErr = "Hat nicht geklappt, bitte nochmal versuchen.";
+    } catch (e) { sup.nlMigErr = supErr(e); }
+    sup.nlMig = false; renderSupport();
+  }
   async function nlFromMsg() {
     const pm = sup.nlPaste = sup.nlPaste || { text: "", busy: false, err: "" };
     if (!pm.text.trim()) return toast("Bitte erst die Kundennachricht einfügen");
@@ -2295,11 +2318,11 @@ ${pm.text.slice(0, 8000)}
 """
 
 Gib NUR dieses JSON zurück:
-{"teile": [{"art": "Artikel, der verschickt werden muss. Nur die SKU aus der ARTIKELLISTE (der Teil vor dem –, z. B. KEYBRD-02-30), sonst ein ganz kurzer Name (1 bis 3 Wörter)", "qty": "Anzahl als Zahl"}], "what": "Wichtige Details in Stichworten, höchstens 15 Wörter, z. B. Farbe schwarz, Gravur Waldrand 5, Haken verbogen. Keine ganzen Sätze, keine Adresse, keine Vorgeschichte.", "order": "Bestellnummer, falls genannt, sonst leer", "cust": "Vor- und Nachname des Kunden, falls erkennbar, sonst leer", "ch": "Etsy|Shopify|eBay|Direkt, falls erkennbar, sonst leer", "why": "${NL_WHY.map(x => x[0]).join("|")}"}
-Regeln: vergessen = Teil fehlte im Paket; falsch = falsche Größe oder Variante geliefert; defekt = kaputt angekommen; ersatz = Kunde möchte zusätzlich etwas; sonst = alles andere. Erfinde nichts.`, { cache: false });
+{"teile": [{"art": "Artikel, der verschickt werden muss. Nur die SKU aus der ARTIKELLISTE (der Teil vor dem –, z. B. KEYBRD-02-30), sonst ein ganz kurzer Name (1 bis 3 Wörter)", "qty": "Anzahl als Zahl"}], "what": "Wichtige Details in Stichworten, höchstens 20 Wörter, z. B. Farbe schwarz, Gravur Waldrand 5, Haken verbogen, Lack abgeplatzt, Kunde schickt Foto. Stichworte statt Sätze, keine Adresse, keine Vorgeschichte.", "order": "Bestellnummer, falls genannt, sonst leer", "cust": "Vor- und Nachname des Kunden, falls erkennbar, sonst leer", "ch": "Etsy|Shopify|eBay|Direkt, falls erkennbar, sonst leer", "why": "${NL_WHY.map(x => x[0]).join("|")}"}
+Regeln: Braucht der Kunde nur ein Teil (z. B. Haken oder Schrauben), ist art genau dieses Teil, z. B. Ersatzhaken schwarz, und die SKU des Hauptprodukts kommt in den Hinweis (für GAD-04-40). Mehrere Teile sind mehrere Einträge in teile. vergessen = Teil fehlte im Paket; falsch = falsche Größe oder Variante geliefert; defekt = kaputt angekommen; ersatz = Kunde möchte zusätzlich etwas; sonst = alles andere. Erfinde nichts.`, { cache: false });
       if (!r || (!Array.isArray(r.teile) && typeof r.what !== "string")) throw { code: "invalid_json" };
       const dr = nlDraft(), tl = (Array.isArray(r.teile) ? r.teile : []).filter(t => t && String(t.art || "").trim()).map(t => ({ art: String(t.art).trim(), qty: String(parseInt(t.qty, 10) || 1) }));
-      if (tl.length) dr.lines = tl; dr.what = nlShort(r.what, 100); if (r.order) dr.order = String(r.order).trim(); if (r.cust) dr.cust = String(r.cust).trim();
+      if (tl.length) dr.lines = tl; dr.what = nlShort(r.what, 150); if (r.order) dr.order = String(r.order).trim(); if (r.cust) dr.cust = String(r.cust).trim();
       if (["Etsy", "Shopify", "eBay", "Direkt"].includes(r.ch)) dr.ch = r.ch; if (NL_WHY.some(x => x[0] === r.why)) dr.why = r.why;
       pm.text = "";
     } catch (e) { pm.err = supErr(e); }
@@ -2317,6 +2340,7 @@ Regeln: vergessen = Teil fehlte im Paket; falsch = falsche Größe oder Variante
   document.addEventListener("click", e => {
     const b = e.target.closest && e.target.closest("[data-nl]"); if (!b || view !== "support") return; const [k, id] = [b.dataset.nl.split(":")[0], b.dataset.nl.split(":").slice(1).join(":")], d = nlData();
     if (k === "ai") return nlFromMsg();
+    if (k === "mig") return nlMigrate(false);
     if (k === "print") return nlPrint();
     if (k === "ladd") { nlDraft().lines.push({ art: "", qty: "1" }); return renderSupport(); }
     if (k === "ldel") { nlDraft().lines.splice(+id, 1); return renderSupport(); }
