@@ -5232,20 +5232,45 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
     ad.busy = ""; renderAds();
   }
   // ---------- Marketing (Werbung + Content + Kalender + Kanäle) ----------
-  const MK_TABS = [["reichweite", "Reichweite"], ["werbung", "Werbung"], ["content", "Content-Ideen"], ["kalender", "Kalender"]];
-  let mk = { tab: "reichweite", ch: "Instagram Reel", sku: "", out: "", busy: false, err: "", ctl: null, hint: "" };
+  const MK_TABS = [["uebersicht", "Übersicht"], ["reichweite", "Reichweite"], ["werbung", "Werbung"], ["content", "Content-Ideen"], ["kalender", "Kalender"]];
+  let mk = { tab: "uebersicht", ch: "Instagram Reel", sku: "", out: "", busy: false, err: "", ctl: null, hint: "" };
   const mkData = () => { const m = (SHOP && SHOP.mkt) || {}; return { id: "mkt", ch: m.ch || {}, done: m.done || {}, saved: m.saved || [] }; };
   const mkSave = d => shopSave(d);
   function mkHead() {
     return `<h1>Marketing</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap;margin-bottom:14px">${MK_TABS.map(([k, l]) => `<button type="button" data-mktab="${k}" aria-pressed="${mk.tab === k}">${l}</button>`).join("")}</div>`;
   }
   function mkReach() { return `${pinBox()}${scPage()}`; }
+  function mkOver(d) {
+    const n0 = x => Number(x || 0).toLocaleString("de-DE"), t0 = new Date(todayISO() + "T12:00:00");
+    const pct = (a, b) => b ? Math.round((a - b) / b * 100) : null, trend = p => p === null ? "" : `${p >= 0 ? "+" : ""}${p} % zur Vorperiode`;
+    const tile = (l, val, sub, href) => `<${href ? `a href="${href}"` : "div"} class="tile" style="text-decoration:none;color:inherit"><span class="label">${l}</span><span class="num">${val}</span><span class="note">${sub}</span></${href ? "a" : "div"}>`;
+    const sc = SC(); let gT;
+    if (sc && sc.dates && sc.dates.length >= 40) { const f = z => z.reduce((a, x) => a + x.c, 0), a = f(sc.dates.slice(-28)), b = f(sc.dates.slice(-56, -28)); gT = tile("Google-Klicks (28 Tage)", n0(a), trend(pct(a, b)), "#suche"); }
+    else gT = tile("Google-Klicks", "–", "Search-Console-Datei fehlt, Upload unter Kanäle", "#kanaele");
+    const P = S.pin; let pT;
+    if (P && P.days && P.days.length) { const col = P.cols.includes("Impressions") ? "Impressions" : P.cols[0], dd = P.days, last = dd[dd.length - 1].k, ad = (k, n) => { const t = new Date(k + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); }, sum = (a, b) => dd.filter(x => x.k >= a && x.k <= b).reduce((t, x) => t + (x[col] || 0), 0), c1 = sum(ad(last, -29), last), c0 = sum(ad(last, -59), ad(last, -30)); pT = tile("Pinterest-Aufrufe (30 Tage)", n0(c1), trend(pct(c1, c0)), "#werbung"); }
+    else pT = tile("Pinterest-Aufrufe", "–", "Datei fehlt, Upload unter Kanäle", "#kanaele");
+    if (!STATS) statsLoad(); let rows = []; try { rows = adRows(); } catch (e) { /* Daten noch nicht da */ }
+    const yes = rows.filter(x => x.lvl === 2), maybe = rows.filter(x => x.lvl === 1), best = yes[0];
+    const cnt = MK_TASKS.filter(([k]) => ((d.ch[k] || {}).s) === "fertig").length, run = MK_TASKS.filter(([k]) => ((d.ch[k] || {}).s) === "läuft").length;
+    const ev = mkEvents().filter(e => e.dt >= t0 && !d.done[e.key]).sort((a, b) => a.start - b.start).slice(0, 4);
+    const open = MK_TASKS.filter(([k]) => !((d.ch[k] || {}).s) || d.ch[k].s === "offen").slice(0, 3);
+    return `<div class="stack"><div class="tiles">${gT}${pT}
+      ${tile("Ads lohnen sich", yes.length + " Artikel", maybe.length + " weitere nur mit Posts", "#werbung")}
+      ${tile("Marketing-Aufgaben", cnt + " von " + MK_TASKS.length, run + " laufen, " + (MK_TASKS.length - cnt - run) + " offen")}</div>
+      <section class="box"><h2>Als Nächstes anstehend</h2>${ev.length ? `<div class="tablewrap"><table><tbody>${ev.map(e => { const days = Math.round((e.start - t0) / 864e5), now = days <= 0;
+        return `<tr><td class="name"><strong>${esc(e.n)}</strong><div class="note">am ${mkDe(e.dt)}</div></td><td><span style="${now ? "color:var(--bad);font-weight:700" : days <= 14 ? "color:#b45309;font-weight:700" : ""}">${now ? "jetzt starten!" : "Start in " + days + " Tagen"}</span></td><td class="note" style="text-align:left;white-space:normal">${esc(e.tip)}</td></tr>`; }).join("")}</tbody></table></div>` : `<p class="note">Nichts offen.</p>`}
+        <div class="btns"><button type="button" class="btn" data-mktab="kalender">Kalender öffnen</button></div></section>
+      ${best ? `<section class="box"><h2>Bester Kandidat für Werbung</h2><p><strong>${esc(best.a.sku || best.a.name.slice(0, 30))}</strong> · ${esc(best.a.name.slice(0, 60))}</p><p class="note">Pro Verkauf bleiben ${eur(best.db0)} vor Werbung, bis ${eur(best.maxCpa)} Werbung pro Verkauf sind drin.</p><div class="btns"><button type="button" class="btn" data-mktab="werbung">Alle Artikel ansehen</button></div></section>` : ""}
+      ${open.length ? `<section class="box"><h2>Noch offen im Marketing</h2><ul class="note">${open.map(([k, t]) => `<li><strong>${esc(k)}:</strong> ${esc(t)}</li>`).join("")}</ul></section>` : ""}
+      <section class="box"><h2>Gemerkte Entwürfe</h2><p class="note">${d.saved.length ? d.saved.length + " Post-Entwürfe gemerkt, zuletzt für " + esc(d.saved[d.saved.length - 1].sku) + " (" + esc(d.saved[d.saved.length - 1].ch) + ")." : "Noch nichts gemerkt."}</p><div class="btns"><button type="button" class="btn" data-mktab="content">Neuen Entwurf schreiben</button></div></section></div>`;
+  }
   function renderMkt() {
     if (mk.tab === "reichweite") { if (!SHOP) shopLoad(); return void ($("view").innerHTML = mkHead() + mkReach()); }
     if (mk.tab === "werbung") return renderAds();
     if (!SHOP) { shopLoad(); $("view").innerHTML = mkHead() + `<p class="note">Lade …</p>`; return; }
     const d = mkData();
-    $("view").innerHTML = mkHead() + { content: mkContent, kalender: mkCal }[mk.tab || "content"](d);
+    $("view").innerHTML = mkHead() + { uebersicht: mkOver, content: mkContent, kalender: mkCal }[mk.tab || "uebersicht"](d);
   }
   const MK_CH = ["Instagram Reel", "Instagram Post", "Pinterest Pin", "Facebook Post", "TikTok / Kurzvideo", "Google Unternehmensprofil", "Newsletter", "Etsy Shop-Update"];
   function mkContent(d) {
