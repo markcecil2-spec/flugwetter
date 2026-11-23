@@ -2650,7 +2650,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       lab = chartP === "m" ? ymLab(last.ym) : chartP === "q" ? "Q" + (q + 1) + " " + y.slice(2) : y; if (part) lab += " (bisher)";
     }
     const ch = last ? [["Etsy", sum.e, "var(--accent)"], ["Shopify", sum.s, "var(--walnut)"], ["eBay", sum.eb, "var(--seg-ship)"]].filter(x => x[1] > 0 || x[0] !== "eBay") : [];
-    return `<div class="row" style="margin-bottom:6px"><h2 style="margin:0">Verkaufskanäle${lab ? ` <span class="note">${esc(lab)}</span>` : ""}</h2>${seg}</div>${ch.length ? ch.map(([n, val, c]) => `<a class="drow" href="#kanaele"><span class="dotc" style="background:${c}"></span><span style="flex:1">${n}</span><strong class="num">${eur0(val)}</strong><span class="chev2">›</span></a>`).join("") : `<p class="note">Noch keine Daten.</p>`}<div style="margin-top:8px"><a class="btn" href="#kanaele">Abgleich & Uploads</a></div>`;
+    return `<div class="row" style="margin-bottom:6px"><h2 style="margin:0">Verkaufskanäle${lab ? ` <span class="note">${esc(lab)}</span>` : ""}</h2></div>${ch.length ? ch.map(([n, val, c]) => `<a class="drow" href="#kanaele"><span class="dotc" style="background:${c}"></span><span style="flex:1">${n}</span><strong class="num">${eur0(val)}</strong><span class="chev2">›</span></a>`).join("") : `<p class="note">Noch keine Daten.</p>`}<div style="margin-top:8px"><a class="btn" href="#kanaele">Abgleich & Uploads</a></div>`;
   }
   function homeDash() {
     let D = null; try { if (STATS) D = statData(); } catch (e) {}
