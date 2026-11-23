@@ -2235,12 +2235,14 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
   const nlOpen = () => nlData().items.filter(x => x.status !== "erledigt");
   const nlSave = d => { if (SHOP) shopSave(d); };
   const nlDraft = () => { const d = sup.nl = sup.nl || { order: "", cust: "", ch: "Etsy", why: "vergessen", what: "", cost: "12" }; if (!d.lines || !d.lines.length) d.lines = [{ art: "", qty: "1" }]; return d; };
-  const nlLines = x => x.lines && x.lines.length ? x.lines : (x.what ? [{ art: x.what, qty: "1" }] : []);
+  const nlLegacy = x => { const t = String(x.what || ""), sk = A.map(a => a.sku).filter(Boolean).find(k => t.toUpperCase().includes(String(k).toUpperCase())) || (t.match(/\b[A-Z]{2,}[A-Z0-9]*-\d[\w-]*/) || [])[0], q = /^(\d{1,2})\s/.exec(t.trim());
+    return [{ art: sk || nlShort(t.split(/[,.(;:]/)[0]), qty: q ? q[1] : "1" }]; };
+  const nlLines = x => x.lines && x.lines.length ? x.lines : (x.what ? nlLegacy(x) : []);
   const nlNote = x => x.lines && x.lines.length ? (x.what || "") : "";
   const nlArtOpts = () => A.filter(a => a.name).map(a => ({ v: a.sku || a.name, l: a.sku ? a.name : "" }));
   const nlShort = t => { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > 40 ? t.slice(0, 38).trim() + "…" : t; };
   function nlPrint() {
-    const rows = []; nlOpen().forEach(x => nlLines(x).forEach((l, i) => { if (String(l.art).trim()) rows.push({ art: String(l.art).trim(), qty: v(l.qty) || 1, note: i ? "" : nlShort(nlNote(x)), who: [x.order, x.cust].filter(Boolean).join(" · ") }); }));
+    const rows = []; nlOpen().forEach(x => nlLines(x).forEach((l, i) => { if (String(l.art).trim()) rows.push({ art: nlShort(String(l.art).trim()), qty: v(l.qty) || 1, note: i ? "" : nlShort(nlNote(x)), who: [x.order, x.cust].filter(Boolean).join(" · ") }); }));
     if (!rows.length) return toast("Nichts zu drucken");
     rows.sort((a, b) => a.art.localeCompare(b.art, "de")); const n = rows.reduce((t, r) => t + r.qty, 0);
     printHTML(`<h1>Nachlieferungen · ${new Date().toLocaleDateString("de-DE")}</h1><table><thead><tr><th>✓</th><th>Menge</th><th>Artikel</th><th>Für</th></tr></thead><tbody>${rows.map(r => `<tr><td class="chk">☐</td><td class="qty">${dec(r.qty, 0)}</td><td><strong>${esc(r.art)}</strong>${r.note ? `<br>${esc(r.note)}` : ""}</td><td>${esc(r.who)}</td></tr>`).join("")}</tbody></table><p>${dec(n, 0)} Stück · ${rows.length} Positionen</p>`, "Nachlieferungen");
