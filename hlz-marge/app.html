@@ -232,7 +232,7 @@ nav.subs a[hidden] { display: none }
 .sgh:hover { background: var(--accent-soft) }
 .sgh .chev { margin-left: auto; color: var(--muted); transition: transform .15s } .sg.open .chev { transform: rotate(180deg) }
 .sg.act > .sgh { color: var(--accent) }
-.hkpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
+.hkpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px }
 .kpi2 { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; text-decoration: none; color: inherit; min-width: 0 }
 .kpi2:hover { border-color: var(--accent) }
 .kpi2 .ic { grid-row: 1 / span 3; width: 38px; height: 38px; padding: 9px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); box-sizing: border-box }
@@ -241,7 +241,7 @@ nav.subs a[hidden] { display: none }
 .drow { display: flex; align-items: center; gap: 10px; padding: 11px 2px; border-top: 1px solid var(--line); text-decoration: none; color: inherit } .drow:first-of-type { border-top: 0 }
 .drow:hover { background: var(--accent-soft) } .chev2 { color: var(--muted); font-size: 1.3rem; line-height: 1 }
 .dotc { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle }
-@media (max-width: 1100px) { .hkpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } .dgrid, .dgrid.even { grid-template-columns: minmax(0, 1fr) } }
+@media (max-width: 1100px) { .dgrid, .dgrid.even { grid-template-columns: minmax(0, 1fr) } }
 @media (max-width: 480px) { .hkpis { grid-template-columns: minmax(0, 1fr) } }
 nav.flat { display: flex; flex-direction: column; gap: 2px }
 .sh { margin: 14px 12px 4px; color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase }
@@ -2657,11 +2657,13 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const m = monthly(volume()), has = m.qty > 0, last = D && D.rows[D.rows.length - 1], prev = D && D.rows[D.rows.length - 2];
     const kp = (ic, l, val, sub, href) => `<a class="kpi2" href="${href}"><i class="ic">${window.hlzIco ? window.hlzIco(ic) : ""}</i><span class="kl">${l}</span><strong>${val}</strong><span class="note">${sub}</span></a>`;
     const tax = has ? afterTax(m) : null, bt = (() => { const b = (SHOP && SHOP.buch) || {}; return buTotals({ pay: b.pay || [] }); })();
+    const oo = ORD.filter(ordOpen), oldest = oo.map(o => o.at).filter(Boolean).sort()[0] || "", daysOld = oldest ? Math.round((new Date(todayISO()) - new Date(oldest.slice(0, 10))) / 864e5) : 0;
     const kpis = `<div class="hkpis">
       ${kp("bars", "Umsatz " + (last ? ymLab(last.ym) : ""), last ? eur0(last.rev) : "–", last ? (prev && prev.rev > 0 ? dlTag(dlt(last.rev, prev.rev), "zum Vormonat") : "netto") : (STATS ? "Noch keine Verkaufsdaten" : "Lade …"), "#auswertung")}
       ${kp("trend", "Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten", "#auswertung")}
       ${kp("percent", "Bleibt nach Steuer", has ? eur0(tax.net) : "–", "geschätzt, inkl. Stundenlohn", "#auswertung")}
-      ${kp("card", "Noch zu zahlen", eur0(bt.openAll), "davon Steuer " + eur0(bt.openTax), "#buchhaltung")}
+      ${kp("card", "Noch zu zahlen", eur0(bt.openAll), "davon Steuer " + eur0(bt.openTax) + (bt.open30 > 0 && bt.open30 < bt.openAll ? " · in 30 Tagen " + eur0(bt.open30) : ""), "#buchhaltung")}
+      ${kp("box", "Offene Bestellungen", String(oo.length), oo.length ? "älteste vom " + dDE(oldest.slice(0, 10)) + (daysOld > 0 ? " (" + daysOld + " Tage)" : "") : "alles erledigt", "#bestellungen")}
     </div>`;
     const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
@@ -2706,10 +2708,8 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       ${homeDash()}
       ${ph ? `<div class="banner"><span>${ph} Werte sind noch geschätzt (Kleinteile, Maschinen, Versand, Fixkosten). Die Ergebnisse stimmen erst mit deinen echten Preisen.</span><a class="btn" href="#einstellungen">Prüfen</a></div>` : ""}
       <details class="box" open><summary>Alle Kennzahlen im Detail</summary><div class="tiles" style="margin-top:12px">
-        <div class="tile hero"><span class="label">Ergebnis pro Monat${info(`Was im Monat übrig bleibt: Deckungsbeitrag minus Fixkosten. Deine Arbeitszeit ist schon mit ${eur(v(S.rate))}/h als Kosten abgezogen. Davon gehen noch Einkommensteuer und Krankenversicherung ab.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : m.result >= 0 ? "good" : "bad"})">${hasSales ? eur0(m.result) : "–"}</span><span class="note">${hasSales ? "Deckungsbeitrag − Fixkosten, vor Steuer" : "Importier Bestellungen für echte Zahlen"}</span></div>
-        ${(() => { const t = afterTax(m); return `<div class="tile hero"><span class="label">Bleibt nach Steuer${info(`Dein Gewinn inkl. eingerechnetem Stundenlohn (${eur0(t.base)}/Monat) minus Einkommensteuer nach Tarif 2026${S.taxChurch ? ", Kirchensteuer" : ""}${t.gew > 0 ? ", Gewerbesteuer" : ""}${t.kv ? " und Krankenversicherung" : ""}. Steuerlast ca. ${pct(t.rate)}. Schätzung, ohne Rentenversicherung und sonstige Abzüge. Einstellen unter Einstellungen → Betrieb.`)}</span><span class="num" style="color:var(--${!hasSales ? "muted" : t.net >= 0 ? "good" : "bad"})">${hasSales ? eur0(t.net) : "–"}</span><span class="note">${hasSales ? `inkl. deinem Stundenlohn · Steuer ca. ${eur0(t.taxM)}${t.kv ? " · KV " + eur0(t.kv) : ""}` : "pro Monat"}</span></div>`; })()}
         <div class="tile"><span class="label">Deckungsbeitrag${info("Netto-Umsatz minus alles, was pro Stück anfällt: Material, Verpackung, Porto, Gebühren, Werbung und deine Arbeitszeit. Das ist das Geld, mit dem die Fixkosten bezahlt werden. Hochgerechnet mit deinen echten Verkaufszahlen.")}</span><span class="num">${hasSales ? eur0(m.db) : "–"}</span><span class="note">${hasSales ? "aus " + dec(m.qty) + " Verkäufen/Monat" : "noch keine Verkaufszahlen"}</span></div>
-        ${scTile()}
+        ${(() => { const dead = A.filter(a => v(a.price) > 0 && !a.remove && salesPerMonth(a) <= 0); return `<div class="tile"><span class="label">Ohne Verkäufe${info("Artikel mit Preis, die laut deinen Verkaufsdaten nie oder gar nicht mehr laufen. Dort steckt Material und Lager drin. Preis, Fotos oder Titel prüfen, oder Artikel entfernen.")}</span><span class="num">${dead.length}</span><span class="note">von ${A.filter(a => v(a.price) > 0 && !a.remove).length} Artikeln · ${dead.length ? esc(dead.slice(0, 2).map(a => a.sku || a.name.slice(0, 18)).join(", ")) + (dead.length > 2 ? " …" : "") : "alle laufen"}</span></div>`; })()}
         <div class="tile"><span class="label">Fixkosten${info("Kosten, die jeden Monat anfallen, egal wie viel du verkaufst: Werkstattmiete, Software, Abos. Ändern unter Einstellungen → Fixkosten.")}</span><span class="num">${eur0(fix)}</span><span class="note">Miete, Software, Abos</span></div>
         <div class="tile"><span class="label">Werkstattanteil${info("Fixkosten geteilt durch deine Verkäufe pro Monat. So viel muss jeder Verkauf zusätzlich einbringen, damit Miete und Co. bezahlt sind. Wird beim Gewinn pro Stück schon abgezogen.")}</span><span class="num">${S.alloc && ctx.vol > 0 ? eur(fix / ctx.vol) : "–"}</span><span class="note">pro Verkauf · ${dec(ctx.vol)} Stk/Monat ${{ real: "laut deiner Angabe", import: "laut Import" }[ctx.src] || "geschätzt"}</span></div>
       </div></details>`) + (view === "uebersicht" ? "" : `
@@ -5726,7 +5726,7 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   const buIn = (cls, v, extra = "") => `<div class="inp"><input type="text" ${extra} value="${esc(v)}" data-bf="${cls}"></div>`;
   function buTotals(d) {
     const sum = f => d.pay.filter(f).reduce((s, p) => s + (parseFloat(String(p.amt).replace(",", ".")) || 0), 0);
-    return { openTax: sum(p => p.status !== "bezahlt" && p.kind === "Steuer"), openAll: sum(p => p.status !== "bezahlt"), paid: sum(p => p.status === "bezahlt") };
+    return { openTax: sum(p => p.status !== "bezahlt" && p.kind === "Steuer"), openAll: sum(p => p.status !== "bezahlt"), open30: sum(p => p.status !== "bezahlt" && p.due && p.due <= addDays(todayISO(), 30)), paid: sum(p => p.status === "bezahlt") };
   }
   const buDel = (k, i) => bu.delAsk === k + "|" + i ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-buok="${k}|${i}" aria-label="Löschen bestätigen" title="Ja, löschen">✓</button><button type="button" class="btn" data-buno="1" aria-label="Abbrechen" title="Nicht löschen">×</button></span>` : `<button type="button" class="btn" data-budel="${k}|${i}" aria-label="Löschen">×</button>`;
   function renderBuch() {
