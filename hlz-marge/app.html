@@ -2661,13 +2661,11 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const m = monthly(volume()), has = m.qty > 0, last = D && D.rows[D.rows.length - 1], prev = D && D.rows[D.rows.length - 2];
     const kp = (ic, l, val, sub, href) => `<a class="kpi2" href="${href}"><i class="ic">${window.hlzIco ? window.hlzIco(ic) : ""}</i><span class="kl">${l}</span><strong>${val}</strong><span class="note">${sub}</span></a>`;
     const tax = has ? afterTax(m) : null, bt = (() => { const b = (SHOP && SHOP.buch) || {}; return buTotals({ pay: b.pay || [] }); })();
-    const oo = ORD.filter(ordOpen), oldest = oo.map(o => o.at).filter(Boolean).sort()[0] || "", daysOld = oldest ? Math.round((new Date(todayISO()) - new Date(oldest.slice(0, 10))) / 864e5) : 0;
     const kpis = `<div class="hkpis">
       ${kp("bars", "Umsatz " + (last ? ymLab(last.ym) : ""), last ? eur0(last.rev) : "–", last ? (prev && prev.rev > 0 ? dlTag(dlt(last.rev, prev.rev), "zum Vormonat") : "netto") : (STATS ? "Noch keine Verkaufsdaten" : "Lade …"), "#auswertung")}
       ${kp("trend", "Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten", "#auswertung")}
       ${kp("percent", "Bleibt nach Steuer", has ? eur0(tax.net) : "–", "geschätzt, inkl. Stundenlohn", "#auswertung")}
       ${kp("card", "Noch zu zahlen", eur0(bt.openAll), "davon Steuer " + eur0(bt.openTax) + (bt.open30 > 0 && bt.open30 < bt.openAll ? " · in 30 Tagen " + eur0(bt.open30) : ""), "#buchhaltung")}
-      ${kp("box", "Offene Bestellungen", String(oo.length), oo.length ? "älteste vom " + dDE(oldest.slice(0, 10)) + (daysOld > 0 ? " (" + daysOld + " Tage)" : "") : "alles erledigt", "#kanaele")}
     </div>`;
     const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
