@@ -4239,7 +4239,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   }
   function bankHTML() {
     const F = FIN(), rowsAll = Object.values(BANK || {}), nTot = rowsAll.reduce((n, d) => n + d.rows.length, 0);
-    let h = `<section class="box" data-fs="konto"><h2>Kontoauszüge</h2>
+    let h = `<section class="box" data-fs="konto"><h2>Kontoauszüge Geschäftskonto</h2>
       <p class="note">Neue Kontoauszüge lädst du unter <a href="#dokumente">Dokumente</a> hoch, die Buchungen landen automatisch hier.</p>
       ${bankMsg ? `<p><strong>${esc(bankMsg)}</strong></p>` : ""}
       <div class="field"><label for="bankSelf">Deine Namen (Komma getrennt)</label><div class="inp"><input type="text" id="bankSelf" data-fin="selfNames" value="${esc(F.selfNames || "")}"></div><small>Überweisungen an diese Namen sind Umbuchungen, keine Ausgaben.</small></div>
@@ -4251,8 +4251,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const pv = bankPivot(bankView); if (!pv) return h;
     const mn = m => MN[+m.slice(5) - 1] + " " + m.slice(2, 4), nm = pv.ms.length || 1, tot = g => (pv.grp[g] || { sum: 0 }).sum;
     const sumCat = (re, ex) => pv.names.filter(c => re.test(c) && !(ex && ex.test(c))).reduce((n, c) => n + pv.cats[c].sum, 0);
-    h += `<section class="box" data-fs="konto"><h2>Auswertung der letzten ${nm} Monate</h2>
-      <div class="seg stabs">${["g", "p"].filter(a => has[a]).map(a => `<button type="button" data-bankview="${a}" aria-pressed="${bankView === a}">${a === "g" ? "Geschäftskonto" : "Privatkonto"}</button>`).join("")}</div>`;
+    h += `<section class="box" data-fs="konto"><h2>Auswertung der letzten ${nm} Monate</h2>`;
     if (bankView === "g") {
       const gew = tot("E") + tot("A");
       h += `<div class="tiles t3" style="margin-bottom:6px">
