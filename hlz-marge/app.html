@@ -5022,11 +5022,11 @@ Antworte NUR mit JSON in dieser Form:
     return I;
   }
   const webScore = I => Math.max(0, 100 - I.filter(x => !x.ok).reduce((n, x) => n + x.w, 0));
-  const shopTabs = () => `<div class="seg" aria-label="Bereich" style="margin:4px 0 12px">${[["start", "Übersicht"], ["stat", "Statistik"], ["web", "Webshop"], ["shopify", "Shopify-Artikel"], ["etsy", "Etsy-Artikel"]].map(([k, l]) => `<button type="button" data-shop="tab-${k}" aria-pressed="${shopSt.tab === k}">${l}</button>`).join("")}</div>`;
+  const shopTabs = () => `<div class="seg" aria-label="Bereich" style="margin:4px 0 12px">${[["start", "Übersicht"], ["web", "Webshop"], ["shopify", "Shopify-Artikel"], ["etsy", "Etsy-Artikel"]].map(([k, l]) => `<button type="button" data-shop="tab-${k}" aria-pressed="${shopSt.tab === k}">${l}</button>`).join("")}</div>`;
   let shopAutoTried = false;
   function renderShop() {
     if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Shop-Check</h1><p class="note">Lade …</p>`; return; }
-    if (shopSt.tab === "stat") return renderVisit();
+    if (shopSt.tab === "stat") shopSt.tab = "start";
     if (shopSt.tab !== "start" && shopSt.tab !== "web") return renderShopList();
     const E = SHOP.etsy, SA = SHOP.sales, SF = SHOP.shopify, W = SHOP.web, dstr = x => x ? dDE(x.slice(0, 10)) : "";
     // Webshop-Check veraltet (älter als 6 Std.): einmal pro Sitzung automatisch neu prüfen, nur lesend
@@ -5111,7 +5111,7 @@ Antworte NUR mit JSON in dieser Form:
       visitSt.data[n] = D;
     } catch (e) { visitSt.err = syncErr(e); }
     visitSt.busy = false;
-    if (view === "shopcheck" && shopSt.tab === "stat") { try { renderShop(); } catch (e) { showErr(e); } }
+    try { visitRedraw(); } catch (e) { showErr(e); }
   }
   // Handlungsempfehlungen aus den Zahlen: einfache Regeln, jede erscheint nur, wenn die Zahlen es hergeben (pri 1 = zuerst, 3 = nebenbei)
   function visitTips(D) {
@@ -5169,7 +5169,7 @@ Schreib auf Deutsch, in einfachen Worten, ohne Fachbegriffe die 5 wichtigsten Ma
     visitSt.aiBusy = true; visitSt.ai[n] = ""; renderShop();
     try { await sample(prompt, { cache: false, onText: ({ text }) => { visitSt.ai[n] = text; const el = $("visitAi"); if (el) el.textContent = text; } }); }
     catch (e) { if (!visitSt.ai[n]) visitSt.ai[n] = supErr(e); }
-    visitSt.aiBusy = false; if (view === "shopcheck" && shopSt.tab === "stat") renderShop();
+    visitSt.aiBusy = false; visitRedraw();
   }
   // Balkenliste, bricht am Handy sauber um. Zeile = [Beschriftung (HTML), Anzahl, Zusatzzeile (HTML, optional), Balkenfarbe (optional)]; Anteil = Anzahl von tot
   const visitList = (rows, tot) => { const max = Math.max(1, ...rows.map(r => r[1])); return `<div class="supbars">${rows.map(([l, x, note, col]) => `<div class="supbar"><div class="supbar-head"><span>${l}</span><span class="num" style="white-space:nowrap">${dec(x, 0)} · ${pct(visitShare(x, tot))}</span></div>${note ? `<small class="note">${note}</small>` : ""}<div class="supbar-track"><div style="width:${x / max * 100}%${col ? ";background:var(" + col + ")" : ""}"></div></div></div>`).join("")}</div>`; };
@@ -5182,13 +5182,15 @@ Schreib auf Deutsch, in einfachen Worten, ohne Fachbegriffe die 5 wichtigsten Ma
       ${days.map((x, i) => { const g = Math.min(2, bw / 4), bx = pl + bw * i + g, w = Math.max(1.5, bw - 2 * g), lab = `${x.d.slice(8, 10)}.${x.d.slice(5, 7)}.`; return `<rect x="${bx}" y="${y(x.n)}" width="${w}" height="${Math.max(0, y(0) - y(x.n))}" fill="var(--accent)" rx="2"><title>${lab}: ${x.n} Sitzungen</title></rect>${i % every === 0 ? `<text x="${bx + w / 2}" y="${H - 8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${lab}</text>` : ""}`; }).join("")}</svg>`;
   }
   const visitPP = (a, b) => { if (!(b > 0)) return ""; const dd = (a - b) * 100; return `<span style="color:var(--${dd > 0.2 ? "good" : dd < -0.2 ? "bad" : "muted"})">${dd > 0.2 ? "▲" : dd < -0.2 ? "▼" : "►"} ${dd > 0 ? "+" : ""}${dec(dd, 1)} Prozentpunkte zum Zeitraum davor</span>`; };
-  function renderVisit() {
-    const n = visitSt.days, D = visitSt.data[n], head = `${shopBar("shopcheck")}<div class="row"><h1>Shop-Check</h1></div>${shopTabs()}`;
+  const visitHere = () => view === "werbung" && mk.tab === "reichweite" && mk.rt === "shop";
+  const visitRedraw = () => { if (visitHere()) renderMkt(); else if (view === "shopcheck") renderShop(); };
+  function visitBody() {
+    const n = visitSt.days, D = visitSt.data[n];
     if ((!D || Date.now() - D.at > 9e5) && !visitSt.busy && !visitSt.err) visitLoad();
     const bar = `<section class="box"><div class="row"><h2 style="margin:0">Besucher und Verkäufe</h2><div class="btns"><div class="seg" aria-label="Zeitraum">${[7, 30, 90].map(x => `<button type="button" data-shop="visitd:${x}" aria-pressed="${n === x}">${x} Tage</button>`).join("")}</div><button type="button" class="btn" data-shop="visitrefresh" ${visitSt.busy ? "disabled" : ""}>${visitSt.busy ? "Lade …" : "Aktualisieren"}</button></div></div>
       <p class="note">${D ? `Live aus Shopify: ${dDE(D.from)} bis ${dDE(D.to)} (ohne heute), verglichen mit den ${n} Tagen davor. Stand ${new Date(D.at).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })} Uhr.` : "Live aus Shopify."}</p></section>`;
-    if (visitSt.err) { $("view").innerHTML = `${head}${bar}<section class="box"><h2>Das hat nicht geklappt</h2><p class="note"><strong>${esc(visitSt.err)}</strong></p><div class="btns"><button type="button" class="btn primary" data-shop="visitrefresh">Nochmal versuchen</button></div></section>`; return; }
-    if (!D) { $("view").innerHTML = `${head}${bar}<section class="box empty"><p>Hole deine Zahlen aus Shopify …</p></section>`; return; }
+    if (visitSt.err) { return `${bar}<section class="box"><h2>Das hat nicht geklappt</h2><p class="note"><strong>${esc(visitSt.err)}</strong></p><div class="btns"><button type="button" class="btn primary" data-shop="visitrefresh">Nochmal versuchen</button></div></section>`; }
+    if (!D) return `${bar}<section class="box empty"><p>Hole deine Zahlen aus Shopify …</p></section>`;
     const k = D.k, s = D.s, tot = k.ses, b = x => `<strong>${x}</strong>`, cmp = "zum Zeitraum davor";
     const tile = (lab, val, sub, tip, hero) => `<div class="tile${hero ? " hero" : ""}"><span class="label">${lab}${tip ? info(tip) : ""}</span><span class="num">${val}</span><span class="note" style="display:grid;gap:2px">${sub}</span></div>`;
     const chSplit = D.ch.length > 1 ? `<span>${D.ch.map(x => `${dec(x.n, 0)} ${esc(VISIT_CH[x.k] || x.k)}`).join(" · ")}</span>` : "";
@@ -5220,7 +5222,7 @@ Schreib auf Deutsch, in einfachen Worten, ohne Fachbegriffe die 5 wichtigsten Ma
       <div class="btns">${tips.length > 5 ? `<button type="button" class="btn" data-shop="visittips">${visitSt.allTips ? "Weniger zeigen" : `Alle ${tips.length} Vorschläge zeigen`}</button>` : ""}<button type="button" class="btn" data-shop="visitai" ${visitSt.aiBusy ? "disabled" : ""}>${visitSt.aiBusy ? "Claude wertet aus …" : aiTxt ? "↻ Von Claude neu auswerten" : "✨ Von Claude ausführlicher auswerten"}</button></div>
       ${aiTxt || visitSt.aiBusy ? `<div class="note" style="white-space:pre-wrap;color:var(--fg)" id="visitAi">${esc(aiTxt)}</div>` : ""}</section>`;
     const missN = { b: "Umsatz", c: "Bestellkanäle", d: "Herkunft", e: "Absender", f: "Geräte", g: "Länder", h: "Verlauf", i: "Einstiegsseiten" }, miss = D.miss.map(x => missN[x]).filter(Boolean);
-    $("view").innerHTML = `${head}${bar}${tiles}
+    return `${bar}${tiles}
       ${miss.length ? `<p class="note" style="color:var(--warn)">Nicht geladen werden konnte: ${esc(miss.join(", "))}. Klick auf „Aktualisieren“.</p>` : ""}
       ${ins.length ? `<section class="box"><h2>Auf einen Blick</h2><ul class="fintips">${ins.map(x => `<li>${x}</li>`).join("")}</ul></section>` : ""}
       ${tipsBox}
@@ -5332,13 +5334,13 @@ Schreib auf Deutsch, in einfachen Worten, ohne Fachbegriffe die 5 wichtigsten Ma
   document.addEventListener("change", e => { const el = e.target; if (view !== "shopcheck" || !el.dataset || !el.dataset.webchk) return; S.webChecks = Object.assign({}, S.webChecks, { [el.dataset.webchk]: el.checked }); saveSettings(); renderShop(); });
   document.addEventListener("change", e => { if (e.target && e.target.id === "shopFile" && e.target.files && e.target.files.length) { const fs = [...e.target.files]; e.target.value = ""; shopFiles(fs); } });
   document.addEventListener("click", e => {
-    const b = e.target.closest("[data-shop]"); if (!b || view !== "shopcheck") return; const k = b.dataset.shop;
+    const b = e.target.closest("[data-shop]"); if (!b || (view !== "shopcheck" && !(visitHere() && /^visit/.test(b.dataset.shop)))) return; const k = b.dataset.shop;
     if (k === "fixno") { shopSt.fix = null; return renderShop(); } if (k === "fixyes") return fixApply(); if (k.startsWith("fix:")) return fixRun(k.slice(4));
     if (k === "check") return shopifyCheck().then(() => webCheck()); if (k === "web") return webCheck(); if (k === "match") return shopMatch(); if (k === "all") { shopSt.all = !shopSt.all; return renderShop(); }
-    if (k.startsWith("visitd:")) { visitSt.days = +k.slice(7) || 30; LS.set("hlz-app-visitdays", visitSt.days); visitSt.err = ""; return renderShop(); }
-    if (k === "visitrefresh") { delete visitSt.data[visitSt.days]; delete visitSt.ai[visitSt.days]; visitSt.err = ""; return renderShop(); }
+    if (k.startsWith("visitd:")) { visitSt.days = +k.slice(7) || 30; LS.set("hlz-app-visitdays", visitSt.days); visitSt.err = ""; return visitRedraw(); }
+    if (k === "visitrefresh") { delete visitSt.data[visitSt.days]; delete visitSt.ai[visitSt.days]; visitSt.err = ""; return visitRedraw(); }
     if (k === "visitai") return visitAsk();
-    if (k === "visittips") { visitSt.allTips = !visitSt.allTips; return renderShop(); }
+    if (k === "visittips") { visitSt.allTips = !visitSt.allTips; return visitRedraw(); }
     if (k.startsWith("tab-")) { shopSt.tab = k.slice(4); shopSt.all = false; return renderShop(); }
     if (k.startsWith("ai:")) return shopAi(k.slice(3));
   });
@@ -5433,14 +5435,13 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
       <div class="btns"><button type="button" class="btn primary" data-igadd="1">+ Monat eintragen</button></div></section>`;
   }
   document.addEventListener("change", e => { const t = e.target; if (view !== "werbung" || !t.dataset || !t.dataset.ig) return; const [i, f] = t.dataset.ig.split("|"); if (!S.ig || !S.ig[+i]) return; S.ig[+i][f] = t.value; saveSettings(); renderMkt(); });
-  document.addEventListener("click", e => { if (view !== "werbung") return; const a = e.target.closest && e.target.closest("[data-igadd],[data-igdel],[data-mkrt],[data-shopgo]"); if (!a) return;
+  document.addEventListener("click", e => { if (view !== "werbung") return; const a = e.target.closest && e.target.closest("[data-igadd],[data-igdel],[data-mkrt]"); if (!a) return;
     if (a.dataset.igadd) { S.ig = S.ig || []; const m = todayISO().slice(0, 7); if (!S.ig.some(x => x.m === m)) S.ig.push({ m, fol: "", reach: "" }); saveSettings(); return renderMkt(); }
     if (a.dataset.igdel) { if (!sure("Zeile wirklich löschen?")) return; S.ig.splice(+a.dataset.igdel, 1); saveSettings(); return renderMkt(); }
-    if (a.dataset.mkrt) { mk.rt = a.dataset.mkrt; return renderMkt(); }
-    if (a.dataset.shopgo) { shopSt.tab = "stat"; location.hash = "#shopcheck"; } });
+    if (a.dataset.mkrt) { mk.rt = a.dataset.mkrt; return renderMkt(); } });
   function mkReach() {
     const rt = mk.rt || "pinterest", seg = `<div class="seg" aria-label="Kanal" style="justify-self:start;flex-wrap:wrap;margin-bottom:12px">${RT_TABS.map(([k, l]) => `<button type="button" data-mkrt="${k}" aria-pressed="${rt === k}">${l}</button>`).join("")}</div>`;
-    const body = rt === "google" ? scPage() : rt === "instagram" ? igHTML() : rt === "shop" ? `<section class="box"><h2 style="margin-top:0">Shop-Besucher</h2><p class="note">Wie viele Besucher dein Shop hat, woher sie kommen (Google, Pinterest, direkt …) und wie viele davon kaufen. Die Zahlen kommen live aus Shopify.</p><div class="btns"><button type="button" class="btn primary" data-shopgo="1">Besucher und Quellen ansehen</button></div></section>` : pinBox();
+    const body = rt === "google" ? scPage() : rt === "instagram" ? igHTML() : rt === "shop" ? (SHOP ? visitBody() : `<p class="note">Lade …</p>`) : pinBox();
     return seg + body;
   }
   function mkOver(d) {
