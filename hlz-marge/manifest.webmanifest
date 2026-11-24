@@ -1,7 +1,7 @@
 {
   "id": "/hlz-marge/",
-  "name": "HLZ-Dashboard",
-  "short_name": "HLZ-Dashboard",
+  "name": "HLZ-DATA",
+  "short_name": "HLZ-DATA",
   "description": "Kalkulation für HLZ-Laden-Holzprodukte: Material, Maschinen, Versand, Gebühren und Werkstattmiete pro Artikel.",
   "lang": "de",
   "start_url": "./",

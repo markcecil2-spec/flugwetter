@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#2f5a46">
 <link rel="apple-touch-icon" href="icon-192.png">
 <!--/pwa-->
-<title>HLZ-Dashboard</title>
+<title>HLZ-DATA</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -233,7 +233,7 @@ nav.subs a[hidden] { display: none }
 .sgh .chev { margin-left: auto; color: var(--muted); transition: transform .15s } .sg.open .chev { transform: rotate(180deg) }
 .sg.act > .sgh { color: var(--accent) }
 .hkpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px }
-.kpi2 { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; text-decoration: none; color: inherit; min-width: 0 }
+.kpi2 { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 1px 3px rgba(60,40,20,.05); padding: 14px 16px; text-decoration: none; color: inherit; min-width: 0 }
 .kpi2:hover { border-color: var(--accent) }
 .kpi2 .ic { grid-row: 1 / span 3; width: 38px; height: 38px; padding: 9px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); box-sizing: border-box }
 .kpi2 .kl { color: var(--muted); font-size: .88rem } .kpi2 strong { font: 700 1.65rem var(--font-display); line-height: 1.15 } .kpi2 .note { font-size: .78rem }
@@ -301,7 +301,7 @@ nav.tabs a[aria-current=page] { background: var(--accent-soft); color: var(--acc
 }
 main.wrap { padding-block: 20px 48px }
 
-.box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; min-width: 0 }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 1px 3px rgba(60,40,20,.05); padding: 18px; display: grid; gap: 14px; min-width: 0 }
 .cols { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px; align-items: start }
 .stack { display: grid; gap: 18px; min-width: 0 }
 @media (max-width: 860px) { .cols { grid-template-columns: minmax(0, 1fr) } }
@@ -496,7 +496,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
 <body>
 <header class="top gutter">
   <div class="wrap">
-    <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>HLZ-Dashboard</strong></a>
+    <a class="brand" href="#uebersicht" style="text-decoration:none;color:inherit"><svg class="logo" viewBox="0 0 1254 1254" aria-hidden="true"><rect width="1254" height="1254" fill="#31604b"/> <path fill="#f3efe6" fill-rule="evenodd" d="M380 215h494a102 102 0 0 1 102 102v619a102 102 0 0 1-102 102H380a102 102 0 0 1-102-102V317a102 102 0 0 1 102-102Z M388 283h478a40 40 0 0 1 40 40v179a40 40 0 0 1-40 40H388a40 40 0 0 1-40-40V323a40 40 0 0 1 40-40Z M395 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M693 588h165a38 38 0 0 1 38 38v88a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38v-88a38 38 0 0 1 38-38Z M395 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H395a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z M693 791h165a38 38 0 0 1 38 38v108a38 38 0 0 1-38 38H693a38 38 0 0 1-38-38V829a38 38 0 0 1 38-38Z"/> <rect x="655" y="791" width="241" height="184" rx="38" fill="#8b5530"/> <g fill="none" stroke="#f3efe6" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"> <polyline points="413,494 497,437 541,469 649,394 711,437 830,352"/> <polyline points="789,341 840,341 840,398"/> <path d="M776 845v84M734 887h84" stroke-width="32"/> </g></svg><strong>HLZ-DATA</strong></a>
     <span class="sync" id="sync" title=""><span class="dot"></span><span id="syncText">Lade …</span></span>
     <button type="button" class="burger" id="burger" aria-label="Menü" aria-expanded="false"><i class="ic" data-ico="menu"></i></button>
     <div class="navwrap" id="navwrap">
@@ -537,10 +537,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   })();
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-Dashboard · Version 163 · 14.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-DATA · Stand 24.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
-<div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Dashboard</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
+<div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Übersicht</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
 
 <script>
 (() => {
@@ -1053,7 +1053,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     pendingFocus = null;
   }
   window.addEventListener("hashchange", route);
-  // Von Artikel zu Artikel ohne neuen Verlaufseintrag: die Zurück-Taste führt dann immer zum Dashboard
+  // Von Artikel zu Artikel ohne neuen Verlaufseintrag: die Zurück-Taste führt dann immer zur Übersicht
   const go = h => {
     if (location.hash === "#" + h) return route();
     if (view === "artikel" && h.startsWith("artikel-")) { history.replaceState(null, "", "#" + h); return route(); }
@@ -1583,7 +1583,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         <p class="note">Sanft = +10 % auf volle Euro gerundet. Voll = Preis, bei dem die Zielmarge erreicht wird. „Gewinn mehr“ = zusätzlicher Deckungsbeitrag pro Monat. In Klammern, wenn danach 10 % (sanft) bzw. 15 % (voll) weniger gekauft wird.</p>
         <p><strong>Alle ${priceRows.length} Artikel sanft: ${pS > 0 ? "+" : ""}${eur0(pS)}</strong> (bei −10 % Menge ${pS10 > 0 ? "+" : ""}${eur0(pS10)}) · <strong>voll auf Ziel: ${pF > 0 ? "+" : ""}${eur0(pF)}</strong> (bei −15 % Menge ${pF15 > 0 ? "+" : ""}${eur0(pF15)})</p>
         ${anaTable(["Artikel", "Stück/Mon.", "Marge", "Preis jetzt", "sanft", "voll", "Gewinn mehr (sanft)"], priceRows.slice(0, 12).map(x => [anaName(x.a), dec(x.pm, 1), pct(x.r.margin), eur(x.p0), eur(x.soft), x.full > x.p0 ? eur(x.full) : "–", `<strong>+${eur0(x.gSoft)}</strong> <span class="note">(${eur0(x.gSoft10)})</span>`]), [1, 2, 3, 4, 5, 6])}
-        ${priceRows.length > 12 ? `<p class="note">Die 12 mit der größten Wirkung. Im Dashboard siehst du in der Spalte „Preis für ${target} %“ alle.</p>` : ""}
+        ${priceRows.length > 12 ? `<p class="note">Die 12 mit der größten Wirkung. In HLZ-DATA siehst du in der Spalte „Preis für ${target} %“ alle.</p>` : ""}
       </section>
 
       <section class="box" style="margin-top:12px"><h2>Versand: ${eur0(T.porto)} pro Monat (${pct(T.porto / T.net * 100)} vom Umsatz)</h2>
@@ -2607,10 +2607,10 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
         <ol class="note" style="margin:0;padding-left:20px;display:grid;gap:4px"><li>Im Reiter „Beantworten“ den Kundentext einfügen und auf „Neue Anfertigung daraus“ klicken.</li>
           <li>Angaben prüfen, ändern und auf „Geprüft“ klicken. Der Auftrag steht dann hier als „Bereit für Billbee“.</li>
           <li>Sag Claude im Chat: <strong>„Anfertigungen an Billbee senden“</strong>. Claude liest die geprüften Aufträge, zeigt sie dir noch einmal und legt sie nach deinem Ja in Billbee an. Danach markiert Claude sie hier als „In Billbee angelegt“.</li></ol>
-        <p class="note">Das Dashboard selbst kann Billbee nicht ansprechen. Ohne diesen Umweg geht es auch: „Als Text kopieren“, in den Chat einfügen und „Auftrag erstellen“ sagen.</p></section>
+        <p class="note">HLZ-DATA selbst kann Billbee nicht ansprechen. Ohne diesen Umweg geht es auch: „Als Text kopieren“, in den Chat einfügen und „Auftrag erstellen“ sagen.</p></section>
       <section class="box"><div class="row"><h2 style="margin:0">Anfertigungen <span class="note">${ready} bereit</span></h2>${ready ? '<button type="button" class="btn" data-act="anfCopyAll">Alle bereiten als Text kopieren</button>' : ""}</div>
         ${L.length ? `<div class="tablewrap"><table class="suptable"><thead><tr><th>Datum</th><th>Kunde</th><th>Produkt</th><th>Summe</th><th>Status</th><th></th></tr></thead><tbody>${L.map(m => { const st = ANF_ST[m.status] || ANF_ST.entwurf;
-          return `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(anfName(m))}<br><span class="note">${esc([m.plz, m.ort].filter(Boolean).join(" ") || m.channel || "")}</span></td><td>${esc(shortT(m.produkt || "–", 60))}<br><span class="note">${anfQty(m)} Stück${v(m.preis) ? "" : " · Preis offen"}</span></td><td class="num">${eur(anfTotal(m))}</td><td><span class="chip" style="color:var(--${st[1]})">${esc(st[0])}</span></td><td><div class="btns"><button class="btn" data-act="anfOpen" data-aid="${m.id}">Öffnen</button>${m.status === "geprueft" ? `<button class="btn" data-act="anfBb" data-aid="${m.id}" title="Setzt nur den Haken hier im Dashboard. Legt NICHTS in Billbee an. Das macht Claude im Chat (Anfertigungen an Billbee senden).">Manuell als angelegt markieren</button>` : ""}<button class="x" data-act="anfDel" data-aid="${m.id}" aria-label="Löschen">×</button></div></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="note">Noch keine Anfertigung. Füg im Reiter „Beantworten“ einen Kundentext ein und klick auf „Neue Anfertigung daraus“.</p>`}
+          return `<tr><td class="num">${esc(m.at)}</td><td class="name">${esc(anfName(m))}<br><span class="note">${esc([m.plz, m.ort].filter(Boolean).join(" ") || m.channel || "")}</span></td><td>${esc(shortT(m.produkt || "–", 60))}<br><span class="note">${anfQty(m)} Stück${v(m.preis) ? "" : " · Preis offen"}</span></td><td class="num">${eur(anfTotal(m))}</td><td><span class="chip" style="color:var(--${st[1]})">${esc(st[0])}</span></td><td><div class="btns"><button class="btn" data-act="anfOpen" data-aid="${m.id}">Öffnen</button>${m.status === "geprueft" ? `<button class="btn" data-act="anfBb" data-aid="${m.id}" title="Setzt nur den Haken hier in HLZ-DATA. Legt NICHTS in Billbee an. Das macht Claude im Chat (Anfertigungen an Billbee senden).">Manuell als angelegt markieren</button>` : ""}<button class="x" data-act="anfDel" data-aid="${m.id}" aria-label="Löschen">×</button></div></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="note">Noch keine Anfertigung. Füg im Reiter „Beantworten“ einen Kundentext ein und klick auf „Neue Anfertigung daraus“.</p>`}
       </section></div>`;
   }
 
@@ -2820,7 +2820,8 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
     const nl = (() => { try { const o = SHOP ? nlOpen() : []; if (!o.length) return ""; const days = Math.max(...o.map(x => x.at ? Math.round((Date.now() - new Date(x.at + "T12:00:00")) / 864e5) : 0)), late = days >= 3;
       return `<a data-suptabgo="nachlieferung" href="#support" style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 0 14px;padding:12px 16px;border:2px solid var(--bad);border-left-width:8px;border-radius:var(--r,10px);background:color-mix(in srgb,var(--bad) 9%,transparent);color:var(--fg);text-decoration:none"><span><strong style="color:var(--bad)">Artikel müssen nachgeliefert werden</strong> <span class="note"><strong>${o.length} Nachlieferung${o.length > 1 ? "en" : ""}</strong>${late ? ` · die älteste wartet seit ${days} Tagen` : ""}</span></span><span class="btn">Ansehen und drucken</span></a>`; } catch (e) { return ""; } })();
-    return `${nl}${kpis}<div class="dgrid">${chartBox}${kan}</div>${top5()}${homeInsights(D)}`;
+    const hello = `<div style="margin:0 0 14px"><h1 style="margin:0">Hallo Mark 👋</h1><p class="note" style="margin:4px 0 0">Hier ist die aktuelle Übersicht deines Shops.</p></div>`;
+    return `${hello}${nl}${kpis}<div class="dgrid">${chartBox}${kan}</div>${top5()}${homeInsights(D)}`;
   }
   function renderOverview() {
     const ctx = volume();
