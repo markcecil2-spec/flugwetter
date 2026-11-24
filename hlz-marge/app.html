@@ -5420,7 +5420,7 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   // ---------- Marketing (Werbung + Content + Kalender + Kanäle) ----------
   const MK_TABS = [["uebersicht", "Übersicht"], ["reichweite", "Reichweite"], ["werbung", "Werbung"], ["content", "Content-Ideen"], ["kalender", "Kalender"]];
   let mk = { tab: "uebersicht", ch: "Instagram Reel", sku: "", out: "", busy: false, err: "", ctl: null, hint: "" };
-  const mkData = () => { const m = (SHOP && SHOP.mkt) || {}; return { id: "mkt", ch: m.ch || {}, done: m.done || {}, saved: m.saved || [] }; };
+  const mkData = () => { const m = (SHOP && SHOP.mkt) || {}; return { id: "mkt", ch: m.ch || {}, done: m.done || {}, saved: m.saved || [], todo: m.todo || [] }; };
   const mkSave = d => shopSave(d);
   function mkHead() {
     return `<h1>Marketing</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap;margin-bottom:14px">${MK_TABS.map(([k, l]) => `<button type="button" data-mktab="${k}" aria-pressed="${mk.tab === k}">${l}</button>`).join("")}</div>`;
@@ -5449,8 +5449,22 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
         <div class="btns"><button type="button" class="btn" data-mktab="kalender">Kalender öffnen</button></div></section>
       ${best ? `<section class="box"><h2>Bester Kandidat für Werbung</h2><p><strong>${esc(best.a.sku || best.a.name.slice(0, 30))}</strong> · ${esc(best.a.name.slice(0, 60))}</p><p class="note">Pro Verkauf bleiben ${eur(best.db0)} vor Werbung, bis ${eur(best.maxCpa)} Werbung pro Verkauf sind drin.</p><div class="btns"><button type="button" class="btn" data-mktab="werbung">Alle Artikel ansehen</button></div></section>` : ""}
       ${open.length ? `<section class="box"><h2>Noch offen im Marketing</h2><ul class="note">${open.map(([k, t]) => `<li><strong>${esc(k)}:</strong> ${esc(t)}</li>`).join("")}</ul></section>` : ""}
-      <section class="box"><h2>Gemerkte Entwürfe</h2><p class="note">${d.saved.length ? d.saved.length + " Post-Entwürfe gemerkt, zuletzt für " + esc(d.saved[d.saved.length - 1].sku) + " (" + esc(d.saved[d.saved.length - 1].ch) + ")." : "Noch nichts gemerkt."}</p><div class="btns"><button type="button" class="btn" data-mktab="content">Neuen Entwurf schreiben</button></div></section></div>`;
+      <section class="box"><h2>Marketing-To-dos <span class="note num">${d.todo.filter(x => !x.done).length}</span></h2>
+        <div class="row" style="gap:8px;margin-bottom:6px"><div class="inp" style="flex:1;min-width:0"><input type="text" id="mkTdIn" placeholder="Neue Aufgabe, zum Beispiel Pin für Nikolaus erstellen" aria-label="Neue Aufgabe"></div><button type="button" class="btn primary" data-mktd="add">+ Hinzufügen</button></div>
+        ${d.todo.slice().sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0)).map(x => `<div class="row" style="align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0"><input type="checkbox" data-mktd="chk:${x.id}" ${x.done ? "checked" : ""} aria-label="Erledigt"><div style="flex:1;min-width:0;${x.done ? "opacity:.55;text-decoration:line-through" : "font-weight:600"}">${esc(x.t)}</div><button type="button" class="btn" data-mktd="del:${x.id}" aria-label="Löschen">×</button></div>`).join("") || `<p class="note">Keine Aufgaben. Schreib oben eine rein.</p>`}
+        ${d.todo.some(x => x.done) ? `<div class="btns"><button type="button" class="btn" data-mktd="clean">Erledigte entfernen</button></div>` : ""}</section></div>`;
   }
+  function mkTdAct(k, id) {
+    const d = mkData();
+    if (k === "add") { const el = $("mkTdIn"), t = el ? el.value.trim() : ""; if (!t) return toast("Schreib kurz, was zu tun ist."); d.todo.push({ id: uid(), t, done: false }); }
+    else if (k === "chk") { const x = d.todo.find(y => y.id === id); if (x) x.done = !x.done; }
+    else if (k === "del") d.todo = d.todo.filter(y => y.id !== id);
+    else if (k === "clean") d.todo = d.todo.filter(y => !y.done);
+    mkSave(d); renderMkt();
+  }
+  document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-mktd]"); if (!b || view !== "werbung") return; if (b.type === "checkbox") return; const [k, ...r] = b.dataset.mktd.split(":"); mkTdAct(k, r.join(":")); });
+  document.addEventListener("change", e => { const b = e.target; if (view !== "werbung" || !b.dataset || !b.dataset.mktd || b.type !== "checkbox") return; const [k, ...r] = b.dataset.mktd.split(":"); mkTdAct(k, r.join(":")); });
+  document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target && e.target.id === "mkTdIn" && view === "werbung") mkTdAct("add"); });
   function renderMkt() {
     if (mk.tab === "reichweite") { if (!SHOP) shopLoad(); return void ($("view").innerHTML = mkHead() + mkReach()); }
     if (mk.tab === "werbung") return renderAds();
