@@ -17,9 +17,9 @@
 <style>
 /* Layout: Werkbank-App – Kopfleiste mit Reitern; Übersicht = Artikeltabelle mit Monatsergebnis; Artikel = Eingaben links, Ergebnis-Zettel rechts (sticky) */
 :root {
-  --bg: #f3f1ec;          /* Birkensperrholz */
-  --panel: #fbfaf7;
-  --line: #ddd8cd;
+  --bg: #f4efe6;          /* Birkensperrholz */
+  --panel: #fcf9f3;
+  --line: #e3dccd;
   --fg: #23201b;
   --muted: #6c665b;
   --accent: #2f5a46;      /* Werkstattgrün */
@@ -240,6 +240,7 @@ nav.subs a[hidden] { display: none }
 .dgrid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; align-items: start } .dgrid.even { grid-template-columns: repeat(2, minmax(0, 1fr)) }
 .drow { display: flex; align-items: center; gap: 10px; padding: 11px 2px; border-top: 1px solid var(--line); text-decoration: none; color: inherit } .drow:first-of-type { border-top: 0 }
 .drow:hover { background: var(--accent-soft) } .chev2 { color: var(--muted); font-size: 1.3rem; line-height: 1 }
+.donutwrap { display: flex; flex-wrap: wrap; align-items: center; gap: 14px } .donut { width: 150px; height: 150px; flex: none } .dleg { flex: 1; min-width: 190px } .dleg .num, .dleg .note { white-space: nowrap }
 .dotc { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle }
 @media (max-width: 1100px) { .dgrid, .dgrid.even { grid-template-columns: minmax(0, 1fr) } }
 @media (max-width: 480px) { .hkpis { grid-template-columns: minmax(0, 1fr) } }
@@ -268,6 +269,17 @@ nav.flat { display: flex; flex-direction: column; gap: 2px }
   .top .sync { position: fixed; top: 14px; right: 24px; z-index: 6 }
   .brand { padding: 0 6px }
   main.wrap { padding-top: 56px }
+}
+
+/* Seitenleiste im Mockup-Look: dunkelgrün, Auswahl in Sand */
+@media (min-width: 900px) {
+  header.top.gutter { background: #1f3d30; border-right: 0; --fg: #eef2ec; --muted: #a9bdb0; --accent-soft: rgba(255,255,255,.08) }
+  header.top.gutter .brand strong, header.top.gutter .sl, header.top.gutter .sgh, header.top.gutter .sg nav.subs a { color: #eef2ec }
+  header.top.gutter .sh { color: #8fa89a }
+  header.top.gutter .sl:hover, header.top.gutter .sgh:hover, header.top.gutter .sg nav.subs a:hover { background: rgba(255,255,255,.08) }
+  header.top.gutter .sl[aria-current=page], header.top.gutter .sg nav.subs a[aria-current=page] { background: #e3d3b0; color: #1f3d30 }
+  header.top.gutter .sg.open { background: rgba(255,255,255,.07) }
+  header.top.gutter .sg.act > .sgh { color: #e3d3b0 }
 }
 @media (max-width: 899px) {
   .top .wrap { grid-template-columns: 1fr auto auto; gap: 8px 12px }
@@ -2775,8 +2787,11 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
       const need = chartP === "m" ? 1 : chartP === "q" ? 3 : 12; part = chartP !== "m" && sel.length < need;
       lab = chartP === "m" ? ymLab(last.ym) : chartP === "q" ? "Q" + (q + 1) + " " + y.slice(2) : y; if (part) lab += " (bisher)";
     }
-    const ch = last ? [["Etsy", sum.e, "var(--accent)"], ["Shopify", sum.s, "var(--walnut)"], ["eBay", sum.eb, "var(--seg-ship)"]].filter(x => x[1] > 0 || x[0] !== "eBay") : [];
-    return `<div class="row" style="margin-bottom:6px"><h2 style="margin:0">Verkaufskanäle${lab ? ` <span class="note">${esc(lab)}</span>` : ""}</h2></div>${ch.length ? ch.map(([n, val, c]) => `<a class="drow" href="#kanaele"><span class="dotc" style="background:${c}"></span><span style="flex:1">${n}</span><strong class="num">${eur0(val)}</strong><span class="chev2">›</span></a>`).join("") : `<p class="note">Noch keine Daten.</p>`}<div style="margin-top:8px"><a class="btn" href="#kanaele">Abgleich & Uploads</a></div>`;
+    const ch = last ? [["Etsy", sum.e, "var(--accent)"], ["Shopify", sum.s, "var(--walnut)"], ["eBay", sum.eb, "#d9c9a8"]].filter(x => x[1] > 0 || x[0] !== "eBay") : [];
+    const tot = ch.reduce((n, x) => n + x[1], 0), R = 52, C = 2 * Math.PI * R; let off = 0;
+    const arcs = tot > 0 ? ch.filter(x => x[1] > 0).map(([n, val, c]) => { const len = val / tot * C, s = `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${c}" stroke-width="22" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 70 70)"><title>${n}: ${eur0(val)}</title></circle>`; off += len; return s; }).join("") : "";
+    const donut = `<svg class="donut" viewBox="0 0 140 140" role="img" aria-label="Verkaufskanäle"><circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--line)" stroke-width="22"/>${arcs}<text x="70" y="66" text-anchor="middle" font-size="13" font-weight="700" fill="var(--fg)">${eur0(tot)}</text><text x="70" y="82" text-anchor="middle" font-size="8.5" fill="var(--muted)">Gesamtumsatz</text></svg>`;
+    return `<div class="row" style="margin-bottom:6px"><h2 style="margin:0">Verkaufskanäle${lab ? ` <span class="note">${esc(lab)}</span>` : ""}</h2>${seg}</div>${ch.length ? `<div class="donutwrap">${donut}<div class="dleg">${ch.map(([n, val, c]) => `<a class="drow" href="#kanaele"><span class="dotc" style="background:${c}"></span><span style="flex:1">${n}</span><strong class="num">${eur0(val)}</strong><span class="note num">${tot > 0 ? Math.round(val / tot * 100) : 0} %</span></a>`).join("")}</div></div>` : `<p class="note">Noch keine Daten.</p>`}<div style="margin-top:8px"><a class="btn" href="#kanaele">Abgleich & Uploads</a></div>`;
   }
   function homeInsights(D) {
     const box = (h, body, note) => `<section class="box"><h2 style="margin-top:0">${h}</h2>${body}${note ? `<p class="note" style="margin:8px 0 0">${note}</p>` : ""}</section>`, out = [];
