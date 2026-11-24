@@ -5425,7 +5425,24 @@ Erfinde keine Zahlen, die oben nicht stehen. Nenne Erwartungen als Schätzung.`;
   function mkHead() {
     return `<h1>Marketing</h1><div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap;margin-bottom:14px">${MK_TABS.map(([k, l]) => `<button type="button" data-mktab="${k}" aria-pressed="${mk.tab === k}">${l}</button>`).join("")}</div>`;
   }
-  function mkReach() { return `${pinBox()}${scPage()}`; }
+  const RT_TABS = [["pinterest", "Pinterest"], ["google", "Google"], ["instagram", "Instagram"], ["shop", "Shop-Besucher"]];
+  function igHTML() {
+    const L = (S.ig || []).map((x, i) => ({ x, i })).sort((a, b) => String(a.x.m).localeCompare(String(b.x.m))), tr = (cur, prev) => prev > 0 && cur > 0 ? ` <span class="note" style="color:var(--${cur >= prev ? "good" : "bad"})">${cur >= prev ? "▲ +" : "▼ "}${dec((cur - prev) / prev * 100, 0)} %</span>` : "";
+    return `<section class="box"><h2 style="margin-top:0">Instagram</h2><p class="note">Instagram liefert keine Datei für die App. Trag einmal im Monat zwei Zahlen aus der Instagram-App ein (Profil → Insights): Follower und erreichte Konten der letzten 30 Tage. In 5 Minuten erledigt, und du siehst, ob es wächst.</p>
+      ${L.length ? `<div class="tablewrap"><table><thead><tr><th>Monat</th><th>Follower</th><th>Erreichte Konten (30 Tage)</th><th></th></tr></thead><tbody>${L.map(({ x, i }, k) => { const pv = L[k - 1] ? L[k - 1].x : {}; return `<tr><td style="width:150px"><div class="inp"><input type="month" data-ig="${i}|m" value="${esc(x.m || "")}"></div></td><td><div class="inp" style="width:130px"><input type="text" inputmode="numeric" data-ig="${i}|fol" value="${esc(x.fol || "")}"></div>${tr(v(x.fol), v(pv.fol))}</td><td><div class="inp" style="width:130px"><input type="text" inputmode="numeric" data-ig="${i}|reach" value="${esc(x.reach || "")}"></div>${tr(v(x.reach), v(pv.reach))}</td><td><button type="button" class="btn" data-igdel="${i}" aria-label="Zeile löschen">×</button></td></tr>`; }).join("")}</tbody></table></div>` : `<p class="note">Noch nichts eingetragen.</p>`}
+      <div class="btns"><button type="button" class="btn primary" data-igadd="1">+ Monat eintragen</button></div></section>`;
+  }
+  document.addEventListener("change", e => { const t = e.target; if (view !== "werbung" || !t.dataset || !t.dataset.ig) return; const [i, f] = t.dataset.ig.split("|"); if (!S.ig || !S.ig[+i]) return; S.ig[+i][f] = t.value; saveSettings(); renderMkt(); });
+  document.addEventListener("click", e => { if (view !== "werbung") return; const a = e.target.closest && e.target.closest("[data-igadd],[data-igdel],[data-mkrt],[data-shopgo]"); if (!a) return;
+    if (a.dataset.igadd) { S.ig = S.ig || []; const m = todayISO().slice(0, 7); if (!S.ig.some(x => x.m === m)) S.ig.push({ m, fol: "", reach: "" }); saveSettings(); return renderMkt(); }
+    if (a.dataset.igdel) { if (!sure("Zeile wirklich löschen?")) return; S.ig.splice(+a.dataset.igdel, 1); saveSettings(); return renderMkt(); }
+    if (a.dataset.mkrt) { mk.rt = a.dataset.mkrt; return renderMkt(); }
+    if (a.dataset.shopgo) { shopSt.tab = "stat"; location.hash = "#shopcheck"; } });
+  function mkReach() {
+    const rt = mk.rt || "pinterest", seg = `<div class="seg" aria-label="Kanal" style="justify-self:start;flex-wrap:wrap;margin-bottom:12px">${RT_TABS.map(([k, l]) => `<button type="button" data-mkrt="${k}" aria-pressed="${rt === k}">${l}</button>`).join("")}</div>`;
+    const body = rt === "google" ? scPage() : rt === "instagram" ? igHTML() : rt === "shop" ? `<section class="box"><h2 style="margin-top:0">Shop-Besucher</h2><p class="note">Wie viele Besucher dein Shop hat, woher sie kommen (Google, Pinterest, direkt …) und wie viele davon kaufen. Die Zahlen kommen live aus Shopify.</p><div class="btns"><button type="button" class="btn primary" data-shopgo="1">Besucher und Quellen ansehen</button></div></section>` : pinBox();
+    return seg + body;
+  }
   function mkOver(d) {
     const n0 = x => Number(x || 0).toLocaleString("de-DE"), t0 = new Date(todayISO() + "T12:00:00");
     const pct = (a, b) => b ? Math.round((a - b) / b * 100) : null, trend = p => p === null ? "" : `${p >= 0 ? "+" : ""}${p} % zur Vorperiode`;
