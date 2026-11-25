@@ -1934,6 +1934,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         </div>
         <div class="btns">
           <div class="seg" aria-label="Anzeige"><button type="button" data-act="prodAll" aria-pressed="${!prod.only}">Alle Artikel</button><button type="button" data-act="prodOnlyOn" id="prodOnlyBtn" aria-pressed="${prod.only}">Nur zu produzieren${todo.length ? " (" + todo.length + ")" : ""}</button></div>
+          <label class="btn" style="cursor:pointer" title="Billbee: Bestellungen → Export → „Bestellungen mit Positionen“ (CSV)">Billbee-CSV hochladen<input type="file" accept=".csv,.txt,text/csv" data-prodcsv hidden></label>
           <button type="button" class="btn" data-act="prodSuggest" ${nDem ? "" : "disabled"} title="${nDem ? "Setzt „Zu produzieren“ = offen bestellt minus Lagerbestand" : "Erst unter Bestellungen die Bestellungen holen"}">Aus Bestellungen vorschlagen</button>
           <button type="button" class="btn" data-act="prodPrint" ${todo.length ? "" : "disabled"}>🖨 Drucken</button>
           <button type="button" class="btn" data-act="prodCopy" ${todo.length ? "" : "disabled"}>Als Text kopieren</button>
@@ -1944,6 +1945,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         ${pcolsOpen ? `<div class="colpick"><div class="colpick-head"><strong>Spalten ein- und ausblenden</strong><span class="btns"><button class="btn" data-pcols="save" title="Aktuelle Auswahl als Standard für alle Geräte speichern">Als Standard speichern</button><button class="btn" data-pcols="reset">Standard</button><button class="btn" data-pcols="toggle">Fertig</button></span></div>
           <div class="colpick-list">${PCOLS.map(c => `<label class="switch"><input type="checkbox" data-pcol="${c.k}" ${pvis().includes(c) ? "checked" : ""} ${c.lock ? "disabled" : ""}><span class="track"></span>${esc(c.l)}</label>`).join("")}</div></div>` : ""}
         ${prod.ask ? `<div class="selbar danger" style="position:static"><strong>${prod.ask === "book" ? `${dec(pcs, 0)} Stück ins Lager buchen und die Liste leeren? Vorhandene Rohlinge werden dabei abgezogen.` : prod.ask === "suggest" ? `Für ${nDem} Artikel „Zu produzieren“ = offen bestellt minus Lager setzen? Vorhandene Mengen bei diesen Artikeln werden überschrieben.` : "Alle Mengen „Zu produzieren“ löschen?"}</strong><span class="btns"><button class="btn primary" data-act="prodYes">Ja</button><button class="btn" data-act="prodNo">Abbrechen</button></span></div>` : ""}
+        ${prod.csvMsg ? `<div class="note" style="margin:8px 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px">${esc(prod.csvMsg)}</div>` : ""}
         ${prod.copy ? `<div class="field"><label for="prodCopyBox">Konnte nicht automatisch kopieren. Text markieren und mit Strg+C kopieren:</label><div class="inp"><textarea id="prodCopyBox" rows="8" readonly>${esc(prod.copy)}</textarea></div></div>` : ""}
         <div class="tablewrap"><table class="prodtable">
           <thead><tr>${pvis().map(c => c.th()).join("")}</tr></thead>
@@ -2173,6 +2175,46 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     Object.keys(d).forEach(id => { const a = ordArt(id); if (!a) return; const need = Math.max(0, Math.round(d[id] - v(a.stock))); a.prod = need ? String(need) : ""; saveArticle(a); n++; });
     prod.ask = ""; renderProduction(); toast(`${n} Artikel gesetzt: offen bestellt minus Lager`);
   }
+
+  // Billbee-CSV (Bestellungen mit Positionen) → offene Bestellungen; danach Vorschlag für „Zu produzieren“
+  function ordCsvImport(text) {
+    const rows = parseCSV(text).filter(r => r.length > 5 && r.some(x => String(x).trim()));
+    if (!rows.length) return { err: "Keine Zeilen in der Datei gefunden." };
+    const hdr = rows[0].map(x => String(x).trim().toLowerCase()), isHdr = hdr.some(h => /bestellnummer|artikelnummer|\bsku\b/.test(h)) && !/^\d/.test(hdr[1] || "");
+    const find = (re, dflt) => { if (!isHdr) return dflt; const i = hdr.findIndex(h => re.test(h)); return i >= 0 ? i : dflt; };
+    const C = { no: find(/^(bestellnummer|bestell-?nr)/, 1), at: find(/^(bestellt am|bestelldatum|datum)/, 2), ch: find(/^(kanal|plattform|marktplatz|shop)$/, 13), sku: find(/^(artikelnummer|artikel-?nr|sku)/, 33), qty: find(/^(menge|anzahl)/, 35), st: find(/^(status|bestellstatus)/, 42), title: find(/^(artikelbezeichnung|produkttitel|bezeichnung|artikelname|titel)/, -1) };
+    const iso = x => { x = String(x || "").trim(); let m = /^(\d\d)\.(\d\d)\.(\d{4})/.exec(x); if (m) return `${m[3]}-${m[2]}-${m[1]}`; m = /^(\d{4}-\d\d-\d\d)/.exec(x); return m ? m[1] : ""; };
+    const byNo = {}; let skipped = 0, dup = 0;
+    (isHdr ? rows.slice(1) : rows).forEach(r => {
+      const no = String(r[C.no] || "").trim(), sku = String(r[C.sku] || "").trim(), q = deNum(r[C.qty]), st = String(r[C.st] || "");
+      if (!no || !sku || q <= 0) return;
+      if (/storn|versendet|ausgeliefert|geliefert|erledigt|abgeschlossen|archiv/i.test(st)) { skipped++; return; }
+      const o = byNo[no] = byNo[no] || { no, at: iso(r[C.at]) || todayISO(), ch: String(r[C.ch] || "").trim(), lines: [] };
+      const ex = o.lines.find(l => l.sku === sku); if (ex) ex.qty += q; else o.lines.push({ sku, title: C.title >= 0 ? String(r[C.title] || "").trim() : "", variant: "", qty: q, price: 0, aid: "" });
+    });
+    const out = { nNew: 0, nLines: 0, unmapped: new Set(), skipped, dup: 0, nOrders: Object.keys(byNo).length };
+    Object.values(byNo).forEach(b => {
+      const dg = b.no.replace(/\D/g, ""), src = /etsy/i.test(b.ch) ? "etsy" : /shopify/i.test(b.ch) ? "shopify" : "billbee";
+      const id = src === "etsy" && dg ? "etsy-" + dg : src === "shopify" && dg ? "shop-" + dg : "bbcsv-" + b.no;
+      if (ORD.some(o => o.id === id || (dg && dg.length > 3 && String(o.no || "").replace(/\D/g, "") === dg))) { out.dup++; return; }
+      b.lines.forEach(l => { const a = ordResolve(l.sku, l.variant); if (a) l.aid = a.id; else out.unmapped.add(l.sku); out.nLines++; });
+      const o = { id, src, no: src === "shopify" && dg ? "#" + dg : b.no, at: b.at, shipBy: "", total: 0, country: "", status: "offen", manual: true, lines: b.lines };
+      ORD.push(o); saveOrder(o); out.nNew++;
+    });
+    out.unmapped = [...out.unmapped];
+    return out;
+  }
+  document.addEventListener("change", e => {
+    const t = e.target; if (!t || !t.matches || !t.matches("input[data-prodcsv]") || !t.files[0]) return;
+    const f = t.files[0]; t.value = "";
+    f.arrayBuffer().then(buf => {
+      const r = ordCsvImport(bankDecode(buf));
+      if (r.err) { prod.csvMsg = r.err; return renderProduction(); }
+      prod.csvMsg = `${r.nNew} neue Bestellung${r.nNew === 1 ? "" : "en"} eingelesen (${r.nLines} Positionen)` + (r.dup ? `, ${r.dup} schon vorhanden` : "") + (r.skipped ? `, ${r.skipped} Zeilen versendet/storniert übersprungen` : "") + "."
+        + (r.unmapped.length ? ` Ohne passenden Artikel (SKU): ${r.unmapped.slice(0, 12).join(", ")}${r.unmapped.length > 12 ? " …" : ""}. Die fehlen in der Produktionsliste, bitte bei den Artikeln die SKU prüfen.` : "");
+      ordBadge(); prod.ask = r.nNew ? "suggest" : ""; renderProduction();
+    }).catch(er => { prod.csvMsg = "Datei konnte nicht gelesen werden: " + er.message; renderProduction(); });
+  });
   function prodClearAll() { prodTodo().forEach(a => { a.prod = ""; saveArticle(a); }); prod.ask = ""; renderProduction(); toast("Liste geleert"); }
 
   // ---------- Support: Kundennachrichten beantworten und auswerten ----------
