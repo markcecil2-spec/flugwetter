@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!doctype html>
 <html lang="de">
 <head>
@@ -522,10 +523,13 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         <div class="sh">Betrieb</div>
         <a class="sl" href="#produktion" data-tab="produktion" data-sec="prod"><i class="ic" data-ico="wrench"></i><span>Produktion</span></a>
         <a class="sl" href="#support" data-tab="support" data-sec="sup"><i class="ic" data-ico="headset"></i><span>Support</span></a>
+        <a class="sl" href="#thomas" data-tab="thomas" data-sec="tb"><i class="ic" data-ico="tag"></i><span>Rechnung Thomas</span></a>
         <div class="sh">Zahlen</div>
         <a class="sl" href="#preise" data-tab="preise" data-sec="preis"><i class="ic" data-ico="percent"></i><span>Preise &amp; Marge</span></a>
         <a class="sl" href="#auswertung" data-tab="auswertung" data-sec="ausw"><i class="ic" data-ico="trend"></i><span>Auswertung</span></a>
-        <a class="sl" href="#buchhaltung" data-tab="buchhaltung" data-sec="buch"><i class="ic" data-ico="book"></i><span>Buchhaltung</span></a>
+        <a class="sl" href="#finanzen" data-tab="finanzen" data-sec="fin"><i class="ic" data-ico="card"></i><span>Geld &amp; Prognose</span></a>
+        <a class="sl" href="#konto" data-tab="konto" data-sec="konto"><i class="ic" data-ico="db"></i><span>Kontoauszüge</span></a>
+        <a class="sl" href="https://claude.ai/artifact/5ximNEbM5eVV2KgPbnEfVQ" target="_blank" rel="noopener" data-sec="ext" title="Eigene App: Zahlungen, Fristen, Belege, Shopify-CSV, PayPal-Abgleich"><i class="ic" data-ico="book"></i><span>Buchhaltung/Steuer ↗</span></a>
         <div class="sh">System</div>
         <a class="sl" href="#dokumente" data-tab="dokumente" data-sec="dok"><i class="ic" data-ico="folder"></i><span>Dokumente</span></a>
         <a class="sl" href="#einstellungen" data-tab="einstellungen" data-sec="set"><i class="ic" data-ico="sliders"></i><span>Einstellungen</span></a>
@@ -549,7 +553,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   })();
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-DATA · Stand 24.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-DATA · Stand 26.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Übersicht</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1054,10 +1058,13 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     let h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h === "suche") { mk.tab = "reichweite"; h = "werbung"; }
+    // Buchhaltung/Steuer ist in die eigene App HLZ-Buchhaltung/Steuer umgezogen. Hier bleiben Geld & Prognose, Kontoauszüge und Rechnung Thomas.
+    if (h === "konto") { finTab = "konto"; h = "finanzen"; } else if (h === "finanzen") finTab = "uebersicht";
+    if (h === "thomas") { bu.tab = "tb"; h = "buchhaltung"; } else if (h === "buchhaltung") bu.tab = "umzug";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
     else view = ["uebersicht", "import", "einstellungen", "preise", "support", "produktion", "bestellungen", "auswertung", "finanzen", "ideen", "shopcheck", "entwicklung", "werbung", "datencheck", "dokumente", "buchhaltung", "neu", "suche", "kanaele", "verk", "zahl", "daten", "sortiment"].includes(h) ? h : "uebersicht";
     const actTab = view === "todo" || view === "tag" || view === "projekte" ? "privat" : view === "import" ? "einstellungen" : view === "ideen" || view === "neu" ? "shopcheck" : view === "werbung" ? "suche" : view === "finanzen" ? "buchhaltung" : view === "entwicklung" || view === "datencheck" ? "auswertung" : view;
-    { const sc = secOf(view); document.querySelectorAll("nav.flat a").forEach(l => { if (l.dataset.sec === sc) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); }); }
+    { const sc = view === "buchhaltung" ? (bu.tab === "tb" ? "tb" : "buch") : view === "finanzen" ? (finTab === "konto" ? "konto" : "fin") : secOf(view); document.querySelectorAll("nav.flat a").forEach(l => { if (l.dataset.sec === sc) l.setAttribute("aria-current", "page"); else l.removeAttribute("aria-current"); }); }
     navGroups(actTab);
     render();
     window.scrollTo(0, 0);
@@ -1935,7 +1942,6 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
         <div class="btns">
           <div class="seg" aria-label="Anzeige"><button type="button" data-act="prodAll" aria-pressed="${!prod.only}">Alle Artikel</button><button type="button" data-act="prodOnlyOn" id="prodOnlyBtn" aria-pressed="${prod.only}">Nur zu produzieren${todo.length ? " (" + todo.length + ")" : ""}</button></div>
           <label class="btn" style="cursor:pointer" title="Billbee: Bestellungen → Export → „Bestellungen mit Positionen“ (CSV)">Billbee-CSV hochladen<input type="file" accept=".csv,.txt,text/csv" data-prodcsv hidden></label>
-          <button type="button" class="btn" data-act="prodSuggest" ${nDem ? "" : "disabled"} title="${nDem ? "Setzt „Zu produzieren“ = offen bestellt minus Lagerbestand" : "Erst unter Bestellungen die Bestellungen holen"}">Aus Bestellungen vorschlagen</button>
           <button type="button" class="btn" data-act="prodPrint" ${todo.length ? "" : "disabled"}>🖨 Drucken</button>
           <button type="button" class="btn" data-act="prodCopy" ${todo.length ? "" : "disabled"}>Als Text kopieren</button>
           <button type="button" class="btn" data-act="prodBook" ${todo.length ? "" : "disabled"}>✓ Produziert → ins Lager</button>
@@ -2212,7 +2218,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
       if (r.err) { prod.csvMsg = r.err; return renderProduction(); }
       prod.csvMsg = `${r.nNew} neue Bestellung${r.nNew === 1 ? "" : "en"} eingelesen (${r.nLines} Positionen)` + (r.dup ? `, ${r.dup} waren schon in der App (nichts doppelt gezählt)` : "") + (r.skipped ? `, ${r.skipped} Zeilen versendet/storniert übersprungen` : "") + "."
         + (r.unmapped.length ? ` Ohne passenden Artikel (SKU): ${r.unmapped.slice(0, 12).join(", ")}${r.unmapped.length > 12 ? " …" : ""}. Die fehlen in der Produktionsliste, bitte bei den Artikeln die SKU prüfen.` : "");
-      ordBadge(); prod.ask = (r.nNew || Object.keys(ordDemand()).some(id => ordArt(id))) ? "suggest" : ""; renderProduction();
+      ordBadge(); prod.ask = ""; prodSuggest();
     }).catch(er => { prod.csvMsg = "Datei konnte nicht gelesen werden: " + er.message; renderProduction(); });
   });
   function prodClearAll() { prodTodo().forEach(a => { a.prod = ""; saveArticle(a); }); prod.ask = ""; renderProduction(); toast("Liste geleert"); }
@@ -2774,12 +2780,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   function top5() {
     const L = [], td = todayISO(), in7 = addDays(td, 7), dd = x => new Date(x + "T12:00").toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
     const urgD = x => x < td ? 0 : x <= in7 ? 1 : 2;
-    try {
-      const b = (SHOP && SHOP.buch) || {};
-      (b.dl || []).filter(x => x.d && x.d <= in7).forEach(x => L.push({ u: urgD(x.d), t: `Frist ${dd(x.d)}: ${x.t || "ohne Namen"}`, w: x.d < td ? "überfällig" : x.d === td ? "heute" : "", h: "#buchhaltung" }));
-      (b.pay || []).filter(x => x.status !== "bezahlt" && x.due && x.due <= in7).forEach(x => L.push({ u: urgD(x.due), t: `Zahlen bis ${dd(x.due)}: ${x.n || "Posten"}${v(x.amt) ? " (" + eur0(v(x.amt)) + ")" : ""}`, w: x.due < td ? "überfällig" : x.due === td ? "heute" : "", h: "#buchhaltung" }));
-      (b.todo || []).filter(x => !x.done).slice(0, 2).forEach(x => L.push({ u: 3, t: x.t, w: "", h: "#buchhaltung" }));
-    } catch (e) {}
+    // Steuer-Fristen, Zahlungen und Buchhaltungs-To-dos stehen jetzt in HLZ-Buchhaltung/Steuer (Hinweis unten in der Box)
     try { TODOS().filter(x => !x.done && (x.p || (x.due && x.due <= in7))).forEach(x => L.push({ u: x.due && x.due < td ? 0 : x.due && x.due <= td ? 1 : 3, t: x.t, w: x.due && x.due < td ? "überfällig" : "", h: "" })); } catch (e) {}
     try { const n = ANF.filter(x => x.status === "geprueft").length; if (n) L.push({ u: 2, t: `${n} Anfertigung${n === 1 ? "" : "en"} bereit zum Weitergeben`, w: "", h: "#support" }); } catch (e) {}
     try { const n = nlOpen().length; if (n) L.push({ u: 2, t: `${n} Nachlieferung${n === 1 ? "" : "en"} offen`, w: "", h: "#support", tab: "nachlieferung" }); } catch (e) {}
@@ -2787,7 +2788,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     L.sort((a, b) => a.u - b.u);
     const col = u => u === 0 ? "var(--bad,#b3402f)" : u <= 2 ? "#c98a00" : "#9a9a9a";
     const top = L.slice(0, 5);
-    return `<section class="box"><h2 style="margin-top:0">Das steht an</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}"${x.tab ? ` data-suptabgo="${x.tab}"` : ""}>Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. Termine erscheinen hier erst, wenn sie in den nächsten 7 Tagen fällig sind. 🎉</p>`}${gtodoBox("heute", true)}</section>`;
+    return `<section class="box"><h2 style="margin-top:0">Das steht an</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}"${x.tab ? ` data-suptabgo="${x.tab}"` : ""}>Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. Termine erscheinen hier erst, wenn sie in den nächsten 7 Tagen fällig sind. 🎉</p>`}<p class="note" style="margin:10px 0 0">Steuer-Fristen und Zahlungen stehen in <a href="${BU_APP}" target="_blank" rel="noopener">HLZ-Buchhaltung/Steuer ↗</a>.</p>${gtodoBox("heute", true)}</section>`;
   }
   // ---------- Übersicht im Dashboard-Look: Kennzahlen, Umsatzverlauf, Handlungsbedarf, Kanäle ----------
   let chartP = "m"; try { chartP = localStorage.getItem("hlz-chart-p") || "m"; } catch (e) {}
@@ -2840,7 +2841,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     // Fällig in 30 Tagen gegen Geld da
     try {
       const c = finCalc(), dd = x => Math.round((new Date(x + "T00:00:00") - new Date(c.td + "T00:00:00")) / 864e5), due = c.open.filter(x => x.due && dd(x.due) <= 30).sort((a, b) => a.due.localeCompare(b.due)), sum = due.reduce((n, x) => n + x.ea, 0), rest = c.liquid - sum;
-      out.push(box("Fällig in 30 Tagen", `<div class="row" style="gap:18px;flex-wrap:wrap"><div><div class="note">Geld da</div><strong>${eur0(c.liquid)}</strong></div><div><div class="note">Fällig</div><strong>−${eur0(sum)}</strong></div><div><div class="note">Bleibt danach</div><strong style="color:var(--${rest < 0 ? "bad" : "good"})">${eur0(rest)}</strong></div></div>${due.length ? `<table><tbody>${due.slice(0, 5).map(x => `<tr><td>${esc(x.n || "Posten")}</td><td class="note">${dDE(x.due)}${dd(x.due) < 0 ? " · überfällig" : ""}</td><td class="r num">${eur0(x.ea)}</td></tr>`).join("")}</tbody></table>` : ""}`, "Posten ohne Fälligkeitsdatum sind nicht eingerechnet. Details unter Finanzen."));
+      out.push(box("Fällig in 30 Tagen", `<div class="row" style="gap:18px;flex-wrap:wrap"><div><div class="note">Geld da</div><strong>${eur0(c.liquid)}</strong></div><div><div class="note">Fällig</div><strong>−${eur0(sum)}</strong></div><div><div class="note">Bleibt danach</div><strong style="color:var(--${rest < 0 ? "bad" : "good"})">${eur0(rest)}</strong></div></div>${due.length ? `<table><tbody>${due.slice(0, 5).map(x => `<tr><td>${esc(x.n || "Posten")}</td><td class="note">${dDE(x.due)}${dd(x.due) < 0 ? " · überfällig" : ""}</td><td class="r num">${eur0(x.ea)}</td></tr>`).join("")}</tbody></table>` : ""}`, `Zahlungsliste Stand ${buStand()}, gepflegt in HLZ-Buchhaltung/Steuer. Posten ohne Fälligkeitsdatum sind nicht eingerechnet. Details unter Geld &amp; Prognose.`));
     } catch (e) { /* Finanzdaten noch nicht da */ }
     // Kosten pro Verkauf je Kanal
     try {
@@ -2866,12 +2867,12 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     let D = null; try { if (STATS) D = statData(); } catch (e) {}
     const m = monthly(volume()), has = m.qty > 0, last = D && D.rows[D.rows.length - 1], prev = D && D.rows[D.rows.length - 2];
     const kp = (ic, l, val, sub, href) => `<a class="kpi2" href="${href}"><i class="ic">${window.hlzIco ? window.hlzIco(ic) : ""}</i><span class="kl">${l}</span><strong>${val}</strong><span class="note">${sub}</span></a>`;
-    const tax = has ? afterTax(m) : null, bt = (() => { const b = (SHOP && SHOP.buch) || {}; return buTotals({ pay: b.pay || [] }); })();
+    const tax = has ? afterTax(m) : null;
     const kpis = `<div class="hkpis">
       ${kp("bars", "Umsatz " + (last ? ymLab(last.ym) : ""), last ? eur0(last.rev) : "–", last ? (prev && prev.rev > 0 ? dlTag(dlt(last.rev, prev.rev), "zum Vormonat") : "netto") : (STATS ? "Noch keine Verkaufsdaten" : "Lade …"), "#auswertung")}
       ${kp("trend", "Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten", "#auswertung")}
       ${kp("percent", "Bleibt nach Steuer", has ? eur0(tax.net) : "–", "geschätzt, inkl. Stundenlohn", "#auswertung")}
-      ${kp("card", "Noch zu zahlen", eur0(bt.openAll), "davon Steuer " + eur0(bt.openTax) + (bt.open30 > 0 && bt.open30 < bt.openAll ? " · in 30 Tagen " + eur0(bt.open30) : ""), "#buchhaltung")}
+      <a class="kpi2" href="${BU_APP}" target="_blank" rel="noopener"><i class="ic">${window.hlzIco ? window.hlzIco("book") : ""}</i><span class="kl">Buchhaltung/Steuer</span><strong>Öffnen ↗</strong><span class="note">Zahlungen, Fristen, Belege</span></a>
     </div>`;
     const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
@@ -4152,7 +4153,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   let finTab = LS.get("hlz-app-ftab") || "uebersicht"; if (!FTABS.some(x => x[0] === finTab)) finTab = "uebersicht";
   const finDraw = () => { try { renderFinance(); } catch (e) { showErr(e); } };
   function renderFinance() {
-    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><p class="note">Lade …</p>`; return; }
+    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>${finTab === "konto" ? "Kontoauszüge" : "Geld &amp; Prognose"}</h1><p class="note">Lade …</p>`; return; }
     const c = finCalc(), F = c.F, td = c.td;
     const free = c.liquid - c.openSum;
     const tile = (l, big, note, color, tip) => `<div class="tile"><span class="label">${l}${tip ? info(tip) : ""}</span><span class="num" style="font-size:1.25rem${color ? ";color:var(--" + color + ")" : ""}">${big}</span><span class="note">${note}</span></div>`;
@@ -4186,7 +4187,8 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const projRows = c.proj.map(x => [`<strong>${x.d.toLocaleDateString("de-DE", { month: "long", year: "numeric" })}</strong>`, x.pay > 0 || (x.once || []).length ? `<span class="note">${esc(x.items.concat(x.once || []).join(" · "))}</span>${x.pay > 0 ? `<br>−${eur0(x.pay)}` : ""}` : `<span class="note">–</span>`, `<strong class="num" style="color:var(--${x.balG < 0 ? "bad" : "good"})">${eur0(x.balG)}</strong>`]);
         const hasSales = c.T.qty > 0, hasSalesEnt = hasSales, noMoney = F.kontoG === "" && F.guthaben === "" && F.guthabenS === "";
     $("view").innerHTML = `
-      <h1>Buchhaltung / Steuer</h1>${buBar("fin-" + finTab)}
+      <h1>${finTab === "konto" ? "Kontoauszüge" : "Geld &amp; Prognose"}</h1>${subBar([["finanzen", "Geld &amp; Prognose"], ["konto", "Kontoauszüge"]], finTab === "konto" ? "konto" : "finanzen")}
+      <p class="note" data-fs="uebersicht">Die Zahlungen in dieser Prognose haben den Stand vom ${buStand()}. Gepflegt werden Zahlungen und Fristen jetzt in <a href="${BU_APP}" target="_blank" rel="noopener">HLZ-Buchhaltung/Steuer ↗</a>. Für eine aktuelle Prognose sag Claude im Chat: „Zahlungen nach HLZ-DATA übertragen“.</p>
 
       <section class="box" data-fs="uebersicht" style="border-color:var(--accent)">
         <span class="label" style="font-size:.85rem">Nach allen Zahlungen bleibt${info("Geld auf dem Geschäftskonto (auch Etsy- und Shopify-Guthaben) minus alles, was du noch zahlen musst: Steuern und Schulden, auch die später fälligen.")}</span>
@@ -4561,7 +4563,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const days = ds => Math.round((new Date(ds + "T00:00:00") - new Date(td + "T00:00:00")) / 864e5);
     // Steuern
     const bigDebts = c.open.filter(d => d.ea >= 1000 && !(v(d.raten) > 1) && d.acc !== "p");
-    bigDebts.forEach(d => { const n = 6; add({ urg: d.due && days(d.due) > 14 ? 1 : 0, title: `Ratenzahlung für „${d.n}“ beantragen`, why: `${eur0(d.ea)} auf einmal${d.due && days(d.due) < 0 ? `, schon ${-days(d.due)} Tage überfällig` : d.due ? `, fällig am ${dDE(d.due)}` : ", sofort fällig"}.${c.liquidG - c.openG < 0 ? " Auf deinem Geschäftskonto ist nicht genug Geld dafür." : ""}`, todo: `Schreib dem Finanzamt und bitte um Ratenzahlung oder Stundung. Bei ${n} Raten wären das ${eur0(d.ea / n)} pro Monat. Wenn du sie bewilligt hast, trägst du „${n}“ im Reiter „Was ich zahlen muss“ bei Raten ein, und die Prognose rechnet damit.`, impact: null }); });
+    bigDebts.forEach(d => { const n = 6; add({ urg: d.due && days(d.due) > 14 ? 1 : 0, title: `Ratenzahlung für „${d.n}“ beantragen`, why: `${eur0(d.ea)} auf einmal${d.due && days(d.due) < 0 ? `, schon ${-days(d.due)} Tage überfällig` : d.due ? `, fällig am ${dDE(d.due)}` : ", sofort fällig"}.${c.liquidG - c.openG < 0 ? " Auf deinem Geschäftskonto ist nicht genug Geld dafür." : ""}`, todo: `Schreib dem Finanzamt und bitte um Ratenzahlung oder Stundung. Bei ${n} Raten wären das ${eur0(d.ea / n)} pro Monat. Wenn du sie bewilligt hast, sag Claude im Chat, wie viele Raten es sind. Dann rechnet die Prognose damit.`, impact: null }); });
     if (c.late > 0) add({ urg: 0, title: "Überfällige Steuern kosten jeden Monat Geld", why: `Auf ${eur0(c.late)} überfällige Steuern läuft ein Säumniszuschlag von 1 % pro angefangenem Monat.`, todo: "Jetzt zahlen oder schriftlich Raten oder Stundung beantragen. Je länger du wartest, desto teurer.", impact: c.late * 0.01, unit: "pro Monat" });
     // kritischer Monat
     const worst = c.proj.reduce((w, x) => Math.min(x.balG, x.balP) < Math.min(w.balG, w.balP) ? x : w, c.proj[0]);
@@ -4606,7 +4608,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     const head = `<section class="box" id="anaCheck"><h2>Stimmen die Zahlen? Abgleich mit deinem Konto</h2>`;
     const pv = BANK ? bankPivot("g") : null;
     if (BANK === null) return head + `<p class="note">Lade Kontoauszüge …</p></section>`;
-    if (!pv) return head + `<p class="note">Lad unter Buchhaltung → „Kontoauszüge“ die CSV deines Geschäftskontos hoch. Dann prüft diese Seite ihre Zahlen gegen das, was wirklich auf dem Konto passiert ist.</p></section>`;
+    if (!pv) return head + `<p class="note">Lad unter „Dokumente“ die CSV deines Geschäftskontos hoch (zu sehen unter Zahlen → „Kontoauszüge“). Dann prüft diese Seite ihre Zahlen gegen das, was wirklich auf dem Konto passiert ist.</p></section>`;
     const nm = pv.ms.length, S1 = re => pv.names.filter(n => re.test(n)).reduce((s, n) => s + pv.cats[n].sum, 0) / nm;
     const real = { eing: S1(/^E /), vers: -S1(/^A Versand/), mat: -S1(/^A (Material|Zulieferer)/), fixk: -S1(/^A (Werkstattmiete|Software|Fahrzeug|Gebühren|Ladengemeinschaft|Versicherung)/), unz: -S1(/^A (Amazon|PayPal|Sonstiges)/) };
     real.cash = S1(/^[EA] /);
@@ -5989,7 +5991,14 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     }
     docSave(items); docBusy = ""; docMsg = msg.join(" "); renderDocs();
   }
-  // ---------- Buchhaltung / Steuer ----------
+  // ---------- Buchhaltung / Steuer: umgezogen in die eigene App HLZ-Buchhaltung/Steuer. Hier bleibt nur „Rechnung Thomas“ (#thomas). ----------
+  const BU_APP = "https://claude.ai/artifact/5ximNEbM5eVV2KgPbnEfVQ";
+  const buStand = () => dDE((SHOP && SHOP.buch && SHOP.buch.syncAt) || "2026-11-26");
+  const buMoved = () => `<h1>Buchhaltung / Steuer</h1>
+      <section class="box"><h2>Umgezogen in HLZ-Buchhaltung/Steuer</h2>
+        <p style="margin:0">Übersicht, Zahlungen, Fristen, To-dos, Steuernummern und One-Stop-Shop pflegst du jetzt in der App <strong>HLZ-Buchhaltung/Steuer</strong>. Dort lädst du auch Belege hoch, machst den PayPal-Abgleich und erstellst die Shopify-CSV für Lexware.</p>
+        <div class="btns"><a class="btn primary" href="${BU_APP}" target="_blank" rel="noopener">HLZ-Buchhaltung/Steuer öffnen ↗</a></div>
+        <p class="note" style="margin:0">Hier in HLZ-DATA bleiben <a href="#finanzen">Geld &amp; Prognose</a>, <a href="#konto">Kontoauszüge</a> (unter „Zahlen“) und <a href="#thomas">Rechnung Thomas</a> (unter „Betrieb“).</p></section>`;
   const buBar = act => `<div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${act === k}">${l}</button>`).join("")}</div>`;
   const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fin-uebersicht", "Geld & Prognose"], ["fin-konto", "Kontoauszüge"], ["fristen", "Fristen"], ["oss", "One-Stop-Shop"], ["tb", "Rechnung Thomas"]];
   let bu = { tab: "uebersicht", busy: false, ctl: null, err: "", q: "" };
@@ -6006,13 +6015,10 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
   }
   const buDel = (k, i) => bu.delAsk === k + "|" + i ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-buok="${k}|${i}" aria-label="Löschen bestätigen" title="Ja, löschen">✓</button><button type="button" class="btn" data-buno="1" aria-label="Abbrechen" title="Nicht löschen">×</button></span>` : `<button type="button" class="btn" data-budel="${k}|${i}" aria-label="Löschen">×</button>`;
   function renderBuch() {
-    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1><p class="note">Lade …</p>`; return; }
-    const d = buData(), n = (d.pay.length + d.dl.length + d.todo.length + d.acc.length);
-    const body = !n ? `<section class="box"><p>Hier ist noch nichts eingetragen. Leg Posten, Fristen und To-dos an.</p></section>` : "";
-    const tabHtml = { uebersicht: d => buOverview(d) + buTodo(d) + buAcc(d), zahlungen: buPay, fristen: buDl, oss: buOss, tb: buTb }[bu.tab](d);
-    $("view").innerHTML = `<h1>Buchhaltung / Steuer</h1>${buBar(bu.tab)}
-      <div class="stack" style="margin-top:14px">${body}${tabHtml}</div>`;
-    const lg = $("buLog"); if (lg) lg.scrollTop = lg.scrollHeight;
+    if (bu.tab !== "tb") { $("view").innerHTML = buMoved(); return; }
+    if (!SHOP) { shopLoad(); $("view").innerHTML = `<h1>Rechnung Thomas</h1><p class="note">Lade …</p>`; return; }
+    $("view").innerHTML = `<h1>Rechnung Thomas</h1>
+      <div class="stack" style="margin-top:14px">${buTb(buData())}</div>`;
   }
   function buOverview(d) {
     const t = buTotals(d), open = d.pay.filter(p => p.status !== "bezahlt").sort((a, b) => String(a.due).localeCompare(String(b.due))), nd = d.dl.slice().sort((a, b) => String(a.d).localeCompare(String(b.d)))[0];
@@ -6933,9 +6939,9 @@ Claude:`;
       ["billbee", "Billbee: Export", "up", "m", "Bestell-/Rechnungsexport hochladen.", ""],
       ["lexware", "Lexware Office", "up", "m", "Monatsbuchhaltung: Importdatei erstellt und eingespielt.", ""],
       ["paypal", "PayPal: Kontoauszug", "up", "m", "CSV-Export für die Buchhaltung.", ""],
-      ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export des Geschäftskontos. Wird unter Buchhaltung → „Kontoauszüge“ eingelesen.", ""]]]
+      ["bank", "Bank: Kontoauszug", "up", "m", "CSV-Export des Geschäftskontos. Wird unter Zahlen → „Kontoauszüge“ eingelesen.", ""]]]
   ];
-  const KLINK = { shopify: "shopcheck", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", yt: "werbung", tiktok: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", lexware: "buchhaltung", paypal: "buchhaltung", bank: "finanzen" };
+  const KLINK = { shopify: "shopcheck", etsy: "shopcheck", gsc: "suche", pinterest: "werbung", insta: "werbung", fb: "werbung", yt: "werbung", tiktok: "werbung", gads: "werbung", meta: "werbung", pads: "werbung", eads: "werbung", lexware: "buchhaltung", paypal: "buchhaltung", bank: "konto" };
   const kanUi = { add: false, msg: "" };
   const kanAll = () => KAN.flatMap(g => g[1].map(x => ({ id: x[0], name: x[1], type: x[2], rh: x[3], note: x[4], act: x[5], g: g[0] }))).concat((S.kanX || []).map(x => ({ id: x.id, name: x.name, type: "up", rh: "m", note: "", act: "", g: "Eigene", own: true })));
   const kanO = id => (S.kan || {})[id] || {};
@@ -7118,8 +7124,7 @@ Claude:`;
       add(() => gdTile("Bleibt nach Steuer", has ? eur0(t.net) : "–", "inkl. Stundenlohn, geschätzt", "#auswertung"));
       add(() => gdTile("Deckungsbeitrag", has ? eur0(m.db) : "–", has ? "aus " + n0(Math.round(m.qty)) + " Verkäufen/Monat" : "", "#preise"));
       add(() => gdTile("Fixkosten", eur0(fixTotal()), "Miete, Software, Abos", "#einstellungen"));
-      add(() => { const b = (SHOP && SHOP.buch) || {}, tt = buTotals({ pay: b.pay || [] }); return gdTile("Noch zu zahlen", eur0(tt.openAll), `davon Steuer ${eur0(tt.openTax)}`, "#buchhaltung"); });
-      add(() => { const b = (SHOP && SHOP.buch) || {}, nx = (b.dl || []).filter(x => x.d && x.d >= td).sort((a, c) => a.d.localeCompare(c.d))[0]; if (!nx) return gdTile("Nächste Frist", "–", "Keine offene Frist eingetragen", "#buchhaltung"); const d = Math.round((new Date(nx.d + "T12:00") - new Date(td + "T12:00")) / 864e5); return gdTile("Nächste Frist", new Date(nx.d + "T12:00").toLocaleDateString("de-DE"), `in ${d} Tag${d === 1 ? "" : "en"}: ${esc(nx.t || "")}`, "#buchhaltung"); });
+      add(() => `<a class="tile" href="${BU_APP}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="label">Buchhaltung/Steuer</span><strong style="font-size:1.5em;display:block">Öffnen ↗</strong><span class="note">Zahlungen, Fristen, Belege, Shopify-CSV</span></a>`);
       add(() => gdTile("Geld & Prognose", "Konto & Zahlungen", "Prognose, Kontoauszüge", "#finanzen"));
     } else if (g === "daten") {
       add(() => { const r = { r: 0, y: 0, g: 0 }; kanAll().forEach(c => { const a = kanAmpel(c); if (a[2] === "-") return; r[a[0].includes("bad") ? "r" : a[0] === "#c98a00" ? "y" : "g"]++; }); return gdTile("Kanäle", `${r.g} aktuell`, `${r.y} bald fällig · ${r.r} überfällig oder noch nie abgeglichen`, "#kanaele"); });
@@ -7412,3 +7417,5 @@ Claude:`;
 </script>
 </body>
 </html>
+
+</body></html>
