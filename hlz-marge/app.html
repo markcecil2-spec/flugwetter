@@ -2210,9 +2210,9 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
     f.arrayBuffer().then(buf => {
       const r = ordCsvImport(bankDecode(buf));
       if (r.err) { prod.csvMsg = r.err; return renderProduction(); }
-      prod.csvMsg = `${r.nNew} neue Bestellung${r.nNew === 1 ? "" : "en"} eingelesen (${r.nLines} Positionen)` + (r.dup ? `, ${r.dup} schon vorhanden` : "") + (r.skipped ? `, ${r.skipped} Zeilen versendet/storniert übersprungen` : "") + "."
+      prod.csvMsg = `${r.nNew} neue Bestellung${r.nNew === 1 ? "" : "en"} eingelesen (${r.nLines} Positionen)` + (r.dup ? `, ${r.dup} waren schon in der App (nichts doppelt gezählt)` : "") + (r.skipped ? `, ${r.skipped} Zeilen versendet/storniert übersprungen` : "") + "."
         + (r.unmapped.length ? ` Ohne passenden Artikel (SKU): ${r.unmapped.slice(0, 12).join(", ")}${r.unmapped.length > 12 ? " …" : ""}. Die fehlen in der Produktionsliste, bitte bei den Artikeln die SKU prüfen.` : "");
-      ordBadge(); prod.ask = r.nNew ? "suggest" : ""; renderProduction();
+      ordBadge(); prod.ask = (r.nNew || Object.keys(ordDemand()).some(id => ordArt(id))) ? "suggest" : ""; renderProduction();
     }).catch(er => { prod.csvMsg = "Datei konnte nicht gelesen werden: " + er.message; renderProduction(); });
   });
   function prodClearAll() { prodTodo().forEach(a => { a.prod = ""; saveArticle(a); }); prod.ask = ""; renderProduction(); toast("Liste geleert"); }
