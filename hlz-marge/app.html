@@ -2282,10 +2282,10 @@ Ton: freundlich, persönlich, kurz, mit Du in Deutsch (auf Etsy gern Sie, wenn d
   function renderSupport() {
     if (!sup.f) sup.f = supBlank();
     const nReady = ANF.filter(x => x.status === "geprueft").length, nNl = nlOpen().length;
-    const tabs = [["antwort", "Beantworten"], ["anfertigung", "Anfertigungen" + (nReady ? ` (${nReady})` : "")], ["nachlieferung", "Nachlieferungen" + (nNl ? ` (${nNl})` : "")], ["auswertung", "Auswertung"], ["wissen", "Shop-Infos"]];
+    const tabs = [["antwort", "Beantworten"], ["anfertigung", "Anfertigungen" + (nReady ? ` (${nReady})` : "")], ["nachlieferung", "Nachlieferungen" + (nNl ? ` (${nNl})` : "")], ["retouren", "Retouren" + (rtData().items.length ? ` (${rtData().items.length})` : "")], ["auswertung", "Auswertung"], ["wissen", "Shop-Infos"]];
     $("view").innerHTML = `
       <h1>Support</h1><div class="seg" aria-label="Bereich" style="margin:6px 0 14px;display:inline-flex;flex-wrap:wrap;max-width:100%">${tabs.map(([k, l]) => `<button type="button" data-suptab="${k}" aria-pressed="${sup.tab === k}">${l}</button>`).join("")}</div>
-      ${sup.tab === "antwort" ? supAnswerHTML() : sup.tab === "anfertigung" ? supAnfHTML() : sup.tab === "nachlieferung" ? supNlHTML() : sup.tab === "auswertung" ? supStatsHTML() : supFactsHTML()}`;
+      ${sup.tab === "antwort" ? supAnswerHTML() : sup.tab === "anfertigung" ? supAnfHTML() : sup.tab === "nachlieferung" ? supNlHTML() : sup.tab === "retouren" ? supRtHTML() : sup.tab === "auswertung" ? supStatsHTML() : supFactsHTML()}`;
     getSample().then(f => { const n = $("supNoAi"); if (n) n.hidden = !!f; });
   }
 
@@ -2410,6 +2410,50 @@ Regeln: Braucht der Kunde nur ein Teil (z. B. Haken oder Schrauben), ist art gen
   });
   document.addEventListener("click", e => { const a = e.target.closest && e.target.closest("a[data-suptabgo]"); if (a) sup.tab = a.dataset.suptabgo; });
 
+
+  // ---------- Support: Retouren (alles, was zurückgekommen ist) ----------
+  const RT_WHY = [["gefaellt", "Gefällt nicht"], ["groesse", "Falsche Größe / Variante"], ["defekt", "Defekt / Transportschaden"], ["falsch", "Falsch geliefert"], ["lang", "Zu spät geliefert"], ["sonst", "Sonstiges"]];
+  const RT_ST = [["unterwegs", "Unterwegs zu uns"], ["da", "Zurück bei uns"], ["erstattet", "Erstattet"]];
+  const rtData = () => { const d = (SHOP && SHOP.rt) || {}; return { id: "rt", items: d.items || [] }; };
+  const rtSave = d => { if (SHOP) shopSave(d); };
+  const rtDraft = () => sup.rt = sup.rt || { at: todayISO(), order: "", cust: "", ch: "Etsy", art: "", qty: "1", why: "gefaellt", st: "da", refund: "", note: "" };
+  function supRtHTML() {
+    if (!SHOP) { shopLoad(); return `<p class="note">Lade …</p>`; }
+    const d = rtData(), dr = rtDraft(), q = (sup.rtq || "").toLowerCase(), dd = x => x ? x.split("-").reverse().join(".") : "";
+    const all = d.items.slice().sort((a, b) => (b.at || "").localeCompare(a.at || "")), list = q ? all.filter(x => [x.order, x.cust, x.art, x.note, x.ch].join(" ").toLowerCase().includes(q)) : all;
+    const sum = d.items.reduce((n, x) => n + v(x.refund), 0), pcs = d.items.reduce((n, x) => n + (v(x.qty) || 1), 0), by = {}; d.items.forEach(x => { by[x.why] = (by[x.why] || 0) + 1; });
+    const sel = (att, list, cur) => `<div class="inp"><select ${att}>${list.map(([k, l]) => opt(k, l, cur === k)).join("")}</select></div>`;
+    const chs = [["Etsy", "Etsy"], ["Shopify", "Shopify"], ["eBay", "eBay"], ["Direkt", "Direkt"]];
+    const del = id => sup.rtAsk === id ? `<span class="btns" style="flex-wrap:nowrap"><button type="button" class="btn primary" data-rt="delok:${id}" title="Ja, löschen">✓</button><button type="button" class="btn" data-rt="delno" title="Abbrechen">×</button></span>` : `<button type="button" class="btn" data-rt="del:${id}" aria-label="Löschen">×</button>`;
+    const row = x => `<div style="border-top:1px solid var(--line);padding:10px 0;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start"><div style="min-width:0;display:grid;gap:6px">
+        <div class="row" style="gap:6px;flex-wrap:wrap"><div class="inp" style="width:140px"><input type="date" data-rtf="${x.id}|at" value="${esc(x.at || "")}" aria-label="Datum"></div><div class="inp" style="width:64px"><input type="text" inputmode="numeric" data-rtf="${x.id}|qty" value="${esc(x.qty || "1")}" aria-label="Menge"></div><div class="inp" style="flex:1;min-width:160px"><input type="text" list="nlArts" data-rtf="${x.id}|art" value="${esc(x.art || "")}" placeholder="Artikel" aria-label="Artikel"></div></div>
+        <div class="row" style="gap:6px;flex-wrap:wrap"><div class="inp" style="width:130px"><input type="text" data-rtf="${x.id}|order" value="${esc(x.order || "")}" placeholder="Bestellnr."></div><div class="inp" style="width:140px"><input type="text" data-rtf="${x.id}|cust" value="${esc(x.cust || "")}" placeholder="Kunde"></div><div class="inp" style="width:110px"><select data-rtf="${x.id}|ch">${chs.map(([k, l]) => opt(k, l, x.ch === k)).join("")}</select></div>
+          <div class="inp" style="width:190px"><select data-rtf="${x.id}|why">${RT_WHY.map(([k, l]) => opt(k, l, x.why === k)).join("")}</select></div><div class="inp" style="width:170px"><select data-rtf="${x.id}|st">${RT_ST.map(([k, l]) => opt(k, l, x.st === k)).join("")}</select></div><div class="inp" style="width:100px"><input type="text" inputmode="decimal" data-rtf="${x.id}|refund" value="${esc(x.refund || "")}" placeholder="Erstattet €"></div></div>
+        <div class="inp"><input type="text" data-rtf="${x.id}|note" value="${esc(x.note || "")}" placeholder="Notiz (Zustand, wieder verkaufbar?)"></div></div>${del(x.id)}</div>`;
+    return `<div class="stack"><section class="box"><h2>Neue Retoure</h2><p class="note">Etwas ist zurückgekommen? Hier eintragen, damit du alle Retouren auf einen Blick hast.</p>
+      <div class="grid3 keep"><div class="field"><label>Datum</label><div class="inp"><input type="date" data-rtd="at" value="${esc(dr.at)}"></div></div><div class="field"><label>Bestellnummer</label><div class="inp"><input type="text" data-rtd="order" value="${esc(dr.order)}"></div></div><div class="field"><label>Kunde (nur Name)</label><div class="inp"><input type="text" data-rtd="cust" value="${esc(dr.cust)}"></div></div></div>
+      <div class="grid3 keep"><div class="field"><label>Kanal</label>${sel('data-rtd="ch"', chs, dr.ch)}</div><div class="field"><label>Menge</label><div class="inp"><input type="text" inputmode="numeric" data-rtd="qty" value="${esc(dr.qty)}"></div></div><div class="field"><label>Artikel</label><div class="inp"><input type="text" list="nlArts" data-rtd="art" value="${esc(dr.art)}" placeholder="wählen oder eintippen"></div></div></div>
+      <datalist id="nlArts">${nlArtOpts().map(o => `<option value="${esc(o.v)}">${esc(o.l)}</option>`).join("")}</datalist>
+      <div class="grid3 keep"><div class="field"><label>Grund</label>${sel('data-rtd="why"', RT_WHY, dr.why)}</div><div class="field"><label>Stand</label>${sel('data-rtd="st"', RT_ST, dr.st)}</div><div class="field"><label>Erstattet (€)</label><div class="inp"><input type="text" inputmode="decimal" data-rtd="refund" value="${esc(dr.refund)}"></div></div></div>
+      <div class="field"><label>Notiz (optional)</label><div class="inp"><input type="text" data-rtd="note" value="${esc(dr.note)}"></div></div>
+      <div class="btns"><button type="button" class="btn primary" data-rt="add">+ Hinzufügen</button></div></section>
+      <section class="box"><div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h2 style="margin:0">Alle Retouren <span class="note num">${d.items.length}</span></h2><div class="inp" style="max-width:240px"><input type="text" id="rt-search" value="${esc(sup.rtq || "")}" placeholder="Suchen (Name, Nr., Artikel)"></div></div>
+      ${d.items.length ? `<p class="note" style="margin:6px 0">${dec(pcs, 0)} Stück · erstattet insgesamt ${eur0(sum)}${Object.keys(by).length ? " · " + RT_WHY.filter(([k]) => by[k]).map(([k, l]) => `${l}: ${by[k]}`).join(" · ") : ""}</p>` : ""}
+      ${list.length ? list.map(row).join("") : `<p class="note">${d.items.length ? "Nichts gefunden." : "Noch keine Retoure eingetragen."}</p>`}</section></div>`;
+  }
+  document.addEventListener("input", e => { const t = e.target; if (view !== "support" || sup.tab !== "retouren" || !t.dataset) return; if (t.dataset.rtd) rtDraft()[t.dataset.rtd] = t.value; if (t.id === "rt-search") { sup.rtq = t.value; const pos = t.selectionStart; renderSupport(); const n = $("rt-search"); if (n) { n.focus(); n.setSelectionRange(pos, pos); } } });
+  document.addEventListener("change", e => {
+    const t = e.target; if (view !== "support" || sup.tab !== "retouren" || !t.dataset) return;
+    if (t.dataset.rtd) { rtDraft()[t.dataset.rtd] = t.value; return; }
+    if (!t.dataset.rtf) return; const [id, f] = t.dataset.rtf.split("|"), d = rtData(), x = d.items.find(y => y.id === id); if (!x) return;
+    x[f] = t.value; rtSave(d); renderSupport();
+  });
+  document.addEventListener("click", e => {
+    const b = e.target.closest && e.target.closest("[data-rt]"); if (!b || view !== "support") return; const k = b.dataset.rt.split(":")[0], id = b.dataset.rt.split(":").slice(1).join(":"), d = rtData();
+    if (k === "add") { const dr = rtDraft(); if (!dr.art.trim() && !dr.order.trim() && !dr.cust.trim()) return toast("Trag mindestens Artikel, Bestellnummer oder Kunde ein."); d.items.push({ id: uid(), at: dr.at || todayISO(), order: dr.order.trim(), cust: dr.cust.trim(), ch: dr.ch, art: dr.art.trim(), qty: String(dr.qty || "1").trim() || "1", why: dr.why, st: dr.st, refund: dr.refund, note: dr.note.trim() }); rtSave(d); sup.rt = { at: todayISO(), order: "", cust: "", ch: dr.ch, art: "", qty: "1", why: dr.why, st: dr.st, refund: "", note: "" }; renderSupport(); return toast("Retoure eingetragen"); }
+    if (k === "del") { sup.rtAsk = id; return renderSupport(); } if (k === "delno") { sup.rtAsk = ""; return renderSupport(); }
+    if (k === "delok") { sup.rtAsk = ""; d.items = d.items.filter(x => x.id !== id); rtSave(d); return renderSupport(); }
+  });
   function supAnswerHTML() {
     const f = sup.f, sel = (id, list, cur) => `<div class="inp"><select id="${id}" data-sup="${id.slice(2)}">${list.map(([k, l]) => opt(k, l, cur === k)).join("")}</select></div>`;
     const open = SUP.filter(m => m.status !== "erledigt").sort((a, b) => (b.at || "").localeCompare(a.at || ""));
