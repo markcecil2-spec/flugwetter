@@ -523,13 +523,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
         <div class="sh">Betrieb</div>
         <a class="sl" href="#produktion" data-tab="produktion" data-sec="prod"><i class="ic" data-ico="wrench"></i><span>Produktion</span></a>
         <a class="sl" href="#support" data-tab="support" data-sec="sup"><i class="ic" data-ico="headset"></i><span>Support</span></a>
-        <a class="sl" href="#thomas" data-tab="thomas" data-sec="tb"><i class="ic" data-ico="tag"></i><span>Rechnung Thomas</span></a>
         <div class="sh">Zahlen</div>
         <a class="sl" href="#preise" data-tab="preise" data-sec="preis"><i class="ic" data-ico="percent"></i><span>Preise &amp; Marge</span></a>
-        <a class="sl" href="#auswertung" data-tab="auswertung" data-sec="ausw"><i class="ic" data-ico="trend"></i><span>Auswertung</span></a>
-        <a class="sl" href="#finanzen" data-tab="finanzen" data-sec="fin"><i class="ic" data-ico="card"></i><span>Geld &amp; Prognose</span></a>
-        <a class="sl" href="#konto" data-tab="konto" data-sec="konto"><i class="ic" data-ico="db"></i><span>Kontoauszüge</span></a>
-        <a class="sl" href="https://claude.ai/artifact/5ximNEbM5eVV2KgPbnEfVQ" target="_blank" rel="noopener" data-sec="ext" title="Eigene App: Zahlungen, Fristen, Belege, Shopify-CSV, PayPal-Abgleich"><i class="ic" data-ico="book"></i><span>Buchhaltung/Steuer ↗</span></a>
+        <a class="sl" href="#datencheck" data-tab="datencheck" data-sec="ausw" title="Auffällige Artikel und Annahmen prüfen"><i class="ic" data-ico="grid"></i><span>Daten-Check</span></a>
+        <a class="sl" href="https://claude.ai/artifact/5ximNEbM5eVV2KgPbnEfVQ" target="_blank" rel="noopener" data-sec="ext" title="Eigene App: Auswertung, Geld &amp; Prognose, Kontoauszüge, Rechnung Thomas, Zahlungen, Fristen, Belege"><i class="ic" data-ico="book"></i><span>Buchhaltung &amp; Finanzen ↗</span></a>
         <div class="sh">System</div>
         <a class="sl" href="#dokumente" data-tab="dokumente" data-sec="dok"><i class="ic" data-ico="folder"></i><span>Dokumente</span></a>
         <a class="sl" href="#einstellungen" data-tab="einstellungen" data-sec="set"><i class="ic" data-ico="sliders"></i><span>Einstellungen</span></a>
@@ -553,7 +550,7 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   })();
 </script>
 <main class="wrap gutter" id="view"><div class="loading">Lade deine Artikel …</div></main>
-<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-DATA · Stand 26.11.2026</footer>
+<footer class="note" style="text-align:center;padding:8px 16px 32px" id="appVer">HLZ-DATA · Stand 27.11.2026</footer>
 
 <div class="toast" id="toast" hidden></div>
 <div class="donepop" id="donePop" hidden role="status" aria-live="polite"><div class="donecard"><div class="donecheck" aria-hidden="true">✓</div><strong>Vollständig!</strong><span id="doneName"></span><span class="note">liegt jetzt im Ordner ✓ Fertig</span><div class="btns" style="justify-content:center"><button type="button" class="btn primary" data-act="doneNext" id="doneNext">Nächster offener Artikel →</button><button type="button" class="btn" data-act="doneHome">Übersicht</button><button type="button" class="btn" data-act="doneClose">Schließen</button></div></div></div>
@@ -1058,7 +1055,10 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
     curHash = location.hash; draft = null; draftS = null; renames = [];
     let h = location.hash.replace(/^#/, "") || "uebersicht";
     if (h === "suche") { mk.tab = "reichweite"; h = "werbung"; }
-    // Buchhaltung/Steuer ist in die eigene App HLZ-Buchhaltung/Steuer umgezogen. Hier bleiben Geld & Prognose, Kontoauszüge und Rechnung Thomas.
+    // Alles Finanzielle (Auswertung, Geld & Prognose, Kontoauszüge, Rechnung Thomas, Buchhaltung) ist in der App HLZ-Buchhaltung/Steuern/Finanzen.
+    // Dort läuft derselbe Code mit gesetztem HD_VIEWS, dann gilt die Umleitung nicht.
+    const UMGEZOGEN = typeof HD_VIEWS !== "undefined" ? [] : ["auswertung", "entwicklung", "finanzen", "konto", "thomas"];
+    if (UMGEZOGEN.includes(h)) { bu.umz = h; h = "buchhaltung"; } else bu.umz = "";
     if (h === "konto") { finTab = "konto"; h = "finanzen"; } else if (h === "finanzen") finTab = "uebersicht";
     if (h === "thomas") { bu.tab = "tb"; h = "buchhaltung"; } else if (h === "buchhaltung") bu.tab = "umzug";
     if (h.startsWith("artikel-")) { curId = h.slice(8); view = "artikel"; }
@@ -1494,7 +1494,8 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   function renderCheck() {
     const { L, H } = dataChecks(), ord = { bad: 0, warn: 1 }, grps = [...new Set(L.map(x => x.grp))];
     const pill = s => `<span class="pill ${s}">${s === "bad" ? "Fehler" : "Prüfen"}</span>`;
-    $("view").innerHTML = `<div class="row"><h1>Auswertung</h1></div>
+    $("view").innerHTML = `<div class="row"><h1>Daten-Check</h1></div>
+      <p class="note">Hier steht, welche Artikel und Annahmen die Zahlen verfälschen. Korrigierst du sie hier, rechnet die Auswertung in HLZ-Buchhaltung/Steuern/Finanzen nach dem nächsten Abgleich damit.</p>
       <section class="box"><h2>Annahmen, die viel ausmachen</h2>${H.length ? `<ul class="fintips">${H.map(h => `<li>${pill(h.sev)} ${h.t}<br><span class="note">${h.fix}</span></li>`).join("")}</ul>` : `<p class="note">Nichts Auffälliges.</p>`}</section>
       <section class="box"><h2>Auffällige Artikel <span class="note">${L.length}</span></h2>
         ${L.length ? anaTable(["", "Artikel", "Was ist auffällig", "Was tun"], L.sort((x, y) => ord[x.sev] - ord[y.sev] || x.grp.localeCompare(y.grp)).map(x => [pill(x.sev) + ` <span class="note">${x.grp}</span>`, `<a class="artlink" href="#artikel-${x.a.id}" data-open="${x.a.id}">${esc(x.a.sku || x.a.name)}</a><br><span class="note">${esc(x.a.name)}</span>`, x.t, `<span class="note">${x.fix}</span>`])) : `<p class="note">Keine Auffälligkeiten.</p>`}
@@ -1504,8 +1505,11 @@ details ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size
   // Auswertung und Entwicklung sind ein Reiter mit zwei Ansichten
   function anaSwitch() {
     const el = $("view"); if (!el || (view !== "auswertung" && view !== "entwicklung" && view !== "datencheck") || el.querySelector(".anaswitch")) return;
+    // Daten-Check gehört zu HLZ-DATA, Gesamtbild und Entwicklung zur Buchhaltungs-App (dort ist HD_VIEWS gesetzt)
+    const inBuch = typeof HD_VIEWS !== "undefined";
+    if (!inBuch && view === "datencheck") return;
     const d = document.createElement("div"); d.className = "seg anaswitch"; d.setAttribute("aria-label", "Ansicht"); d.style.margin = "4px 0 12px";
-    d.innerHTML = `<button type="button" data-anaview="auswertung" aria-pressed="${view === "auswertung"}">Gesamtbild &amp; Hebel</button><button type="button" data-anaview="entwicklung" aria-pressed="${view === "entwicklung"}">Entwicklung: geht es auf oder ab?</button><button type="button" data-anaview="datencheck" aria-pressed="${view === "datencheck"}">Daten-Check</button>`;
+    d.innerHTML = `<button type="button" data-anaview="auswertung" aria-pressed="${view === "auswertung"}">Gesamtbild &amp; Hebel</button><button type="button" data-anaview="entwicklung" aria-pressed="${view === "entwicklung"}">Entwicklung: geht es auf oder ab?</button>${inBuch ? "" : `<button type="button" data-anaview="datencheck" aria-pressed="${view === "datencheck"}">Daten-Check</button>`}`;
     el.insertBefore(d, el.firstChild);
   }
   document.addEventListener("click", e => { const b = e.target.closest("[data-anaview]"); if (b) go(b.dataset.anaview); });
@@ -1992,7 +1996,7 @@ Antworte NUR mit JSON: {"0": <Artikelnummer oder null>, "1": ...}. Schlüssel = 
   function renderPreprod() {
     const head = `<div class="row"><h1>Produktion</h1></div>${prodTabs()}`, P = ppData();
     if (!P) { $("view").innerHTML = head + `<p class="note">Lade Verkaufsdaten …</p>`; return; }
-    if (!P.hasD) { $("view").innerHTML = head + `<section class="box empty"><p>Dafür brauche ich Verkaufszahlen. Geh auf <a href="#entwicklung">Auswertung → Entwicklung</a>, lade die Etsy-CSV hoch und hol die Shopify-Bestellungen. Danach steht hier die Empfehlung.</p></section>`; return; }
+    if (!P.hasD) { $("view").innerHTML = head + `<section class="box empty"><p>Dafür brauche ich Verkaufszahlen. Lade unter <a href="#dokumente">Dokumente</a> die Etsy-CSV hoch (Shopify-Bestellungen holst du in <a href="${BU_APP}" target="_blank" rel="noopener">HLZ-Buchhaltung ↗</a> unter Auswertung → Entwicklung) und hol die Shopify-Bestellungen. Danach steht hier die Empfehlung.</p></section>`; return; }
     const R = P.rows, shown = prod.ppAll ? R : R.filter(x => x.lvl >= 1), buy = R.filter(x => x.need > 0), pcs = buy.reduce((s, x) => s + x.need, 0), hrs = buy.reduce((s, x) => s + x.need * x.mins / 60, 0), mat = buy.reduce((s, x) => s + x.need * x.mat, 0), max = Math.max(1, ...R.map(x => x.pm));
     // Nur Rohlinge: statt fertiger Artikel nur die Teile zuschneiden (Rohling × Stückzahl, dazu Platten-Bedarf)
     const RB = {}, RP = {}; let rMin = 0, HAVE = S.rohStock || {};
@@ -2832,7 +2836,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     L.sort((a, b) => a.u - b.u);
     const col = u => u === 0 ? "var(--bad,#b3402f)" : u <= 2 ? "#c98a00" : "#9a9a9a";
     const top = L.slice(0, 5);
-    return `<section class="box"><h2 style="margin-top:0">Das steht an</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}"${x.tab ? ` data-suptabgo="${x.tab}"` : ""}>Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. Termine erscheinen hier erst, wenn sie in den nächsten 7 Tagen fällig sind. 🎉</p>`}<p class="note" style="margin:10px 0 0">Steuer-Fristen und Zahlungen stehen in <a href="${BU_APP}" target="_blank" rel="noopener">HLZ-Buchhaltung/Steuer ↗</a>.</p>${gtodoBox("heute", true)}</section>`;
+    return `<section class="box"><h2 style="margin-top:0">Das steht an</h2>${top.length ? `<ol style="margin:0;padding:0;list-style:none;display:grid;gap:8px">${top.map((x, i) => `<li style="display:flex;gap:10px;align-items:baseline"><span style="color:${col(x.u)};font-size:1.1em">●</span><span style="flex:1">${esc(x.t)}${x.w ? ` <strong style="color:${col(x.u)}">${x.w}</strong>` : ""}</span>${x.h ? `<a class="btn" style="padding:3px 10px" href="${x.h}"${x.tab ? ` data-suptabgo="${x.tab}"` : ""}>Öffnen →</a>` : ""}</li>`).join("")}</ol>${L.length > 5 ? `<p class="note" style="margin:8px 0 0">Plus ${L.length - 5} weitere weniger dringende Punkte.</p>` : ""}` : `<p style="margin:0">Nichts Dringendes offen. Termine erscheinen hier erst, wenn sie in den nächsten 7 Tagen fällig sind. 🎉</p>`}<p class="note" style="margin:10px 0 0">Steuer-Fristen, Zahlungen und die Geld-Prognose stehen in <a href="${BU_APP}" target="_blank" rel="noopener">HLZ-Buchhaltung/Steuern/Finanzen ↗</a>.</p>${gtodoBox("heute", true)}</section>`;
   }
   // ---------- Übersicht im Dashboard-Look: Kennzahlen, Umsatzverlauf, Handlungsbedarf, Kanäle ----------
   let chartP = "m"; try { chartP = localStorage.getItem("hlz-chart-p") || "m"; } catch (e) {}
@@ -2885,7 +2889,7 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
     // Fällig in 30 Tagen gegen Geld da
     try {
       const c = finCalc(), dd = x => Math.round((new Date(x + "T00:00:00") - new Date(c.td + "T00:00:00")) / 864e5), due = c.open.filter(x => x.due && dd(x.due) <= 30).sort((a, b) => a.due.localeCompare(b.due)), sum = due.reduce((n, x) => n + x.ea, 0), rest = c.liquid - sum;
-      out.push(box("Fällig in 30 Tagen", `<div class="row" style="gap:18px;flex-wrap:wrap"><div><div class="note">Geld da</div><strong>${eur0(c.liquid)}</strong></div><div><div class="note">Fällig</div><strong>−${eur0(sum)}</strong></div><div><div class="note">Bleibt danach</div><strong style="color:var(--${rest < 0 ? "bad" : "good"})">${eur0(rest)}</strong></div></div>${due.length ? `<table><tbody>${due.slice(0, 5).map(x => `<tr><td>${esc(x.n || "Posten")}</td><td class="note">${dDE(x.due)}${dd(x.due) < 0 ? " · überfällig" : ""}</td><td class="r num">${eur0(x.ea)}</td></tr>`).join("")}</tbody></table>` : ""}`, `Zahlungsliste Stand ${buStand()}, gepflegt in HLZ-Buchhaltung/Steuer. Posten ohne Fälligkeitsdatum sind nicht eingerechnet. Details unter Geld &amp; Prognose.`));
+      out.push(box("Fällig in 30 Tagen", `<div class="row" style="gap:18px;flex-wrap:wrap"><div><div class="note">Geld da</div><strong>${eur0(c.liquid)}</strong></div><div><div class="note">Fällig</div><strong>−${eur0(sum)}</strong></div><div><div class="note">Bleibt danach</div><strong style="color:var(--${rest < 0 ? "bad" : "good"})">${eur0(rest)}</strong></div></div>${due.length ? `<table><tbody>${due.slice(0, 5).map(x => `<tr><td>${esc(x.n || "Posten")}</td><td class="note">${dDE(x.due)}${dd(x.due) < 0 ? " · überfällig" : ""}</td><td class="r num">${eur0(x.ea)}</td></tr>`).join("")}</tbody></table>` : ""}`, `Zahlungsliste Stand ${buStand()}, gepflegt in HLZ-Buchhaltung/Steuern/Finanzen. Posten ohne Fälligkeitsdatum sind nicht eingerechnet. Details dort unter Geld &amp; Prognose.`));
     } catch (e) { /* Finanzdaten noch nicht da */ }
     // Kosten pro Verkauf je Kanal
     try {
@@ -2910,13 +2914,13 @@ Regeln: "preis" ist der Einzelpreis brutto in Euro und nur gesetzt, wenn ein Pre
   function homeDash() {
     let D = null; try { if (STATS) D = statData(); } catch (e) {}
     const m = monthly(volume()), has = m.qty > 0, last = D && D.rows[D.rows.length - 1], prev = D && D.rows[D.rows.length - 2];
-    const kp = (ic, l, val, sub, href) => `<a class="kpi2" href="${href}"><i class="ic">${window.hlzIco ? window.hlzIco(ic) : ""}</i><span class="kl">${l}</span><strong>${val}</strong><span class="note">${sub}</span></a>`;
+    const kp = (ic, l, val, sub, href) => `<a class="kpi2" href="${href}"${/^https:/.test(href) ? ' target="_blank" rel="noopener"' : ""}><i class="ic">${window.hlzIco ? window.hlzIco(ic) : ""}</i><span class="kl">${l}</span><strong>${val}</strong><span class="note">${sub}</span></a>`;
     const tax = has ? afterTax(m) : null;
     const kpis = `<div class="hkpis">
-      ${kp("bars", "Umsatz " + (last ? ymLab(last.ym) : ""), last ? eur0(last.rev) : "–", last ? (prev && prev.rev > 0 ? dlTag(dlt(last.rev, prev.rev), "zum Vormonat") : "netto") : (STATS ? "Noch keine Verkaufsdaten" : "Lade …"), "#auswertung")}
-      ${kp("trend", "Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten", "#auswertung")}
-      ${kp("percent", "Bleibt nach Steuer", has ? eur0(tax.net) : "–", "geschätzt, inkl. Stundenlohn", "#auswertung")}
-      <a class="kpi2" href="${BU_APP}" target="_blank" rel="noopener"><i class="ic">${window.hlzIco ? window.hlzIco("book") : ""}</i><span class="kl">Buchhaltung/Steuer</span><strong>Öffnen ↗</strong><span class="note">Zahlungen, Fristen, Belege</span></a>
+      ${kp("bars", "Umsatz " + (last ? ymLab(last.ym) : ""), last ? eur0(last.rev) : "–", last ? (prev && prev.rev > 0 ? dlTag(dlt(last.rev, prev.rev), "zum Vormonat") : "netto") : (STATS ? "Noch keine Verkaufsdaten" : "Lade …"), BU_APP + "#auswertung")}
+      ${kp("trend", "Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten", BU_APP + "#auswertung")}
+      ${kp("percent", "Bleibt nach Steuer", has ? eur0(tax.net) : "–", "geschätzt, inkl. Stundenlohn", BU_APP + "#auswertung")}
+      <a class="kpi2" href="${BU_APP}" target="_blank" rel="noopener"><i class="ic">${window.hlzIco ? window.hlzIco("book") : ""}</i><span class="kl">Buchhaltung &amp; Finanzen</span><strong>Öffnen ↗</strong><span class="note">Auswertung, Prognose, Zahlungen, Belege</span></a>
     </div>`;
     const chartBox = `<section class="box" id="homeChart">${homeChartInner(D)}</section>`;
     const kan = `<section class="box" id="homeKan">${homeKanInner(D)}</section>`;
@@ -6035,14 +6039,14 @@ ${mk.hint ? "ANLASS: " + mk.hint + "\n" : ""}AUFGABE: Schreib dazu: ${fmt}. Gib 
     }
     docSave(items); docBusy = ""; docMsg = msg.join(" "); renderDocs();
   }
-  // ---------- Buchhaltung / Steuer: umgezogen in die eigene App HLZ-Buchhaltung/Steuer. Hier bleibt nur „Rechnung Thomas“ (#thomas). ----------
+  // ---------- Buchhaltung / Steuer / Finanzen: umgezogen in die App HLZ-Buchhaltung/Steuern/Finanzen (#thomas und die Finanz-Ansichten laufen dort mit diesem Code). ----------
   const BU_APP = "https://claude.ai/artifact/5ximNEbM5eVV2KgPbnEfVQ";
   const buStand = () => dDE((SHOP && SHOP.buch && SHOP.buch.syncAt) || "2026-11-26");
-  const buMoved = () => `<h1>Buchhaltung / Steuer</h1>
-      <section class="box"><h2>Umgezogen in HLZ-Buchhaltung/Steuer</h2>
-        <p style="margin:0">Übersicht, Zahlungen, Fristen, To-dos, Steuernummern und One-Stop-Shop pflegst du jetzt in der App <strong>HLZ-Buchhaltung/Steuer</strong>. Dort lädst du auch Belege hoch, machst den PayPal-Abgleich und erstellst die Shopify-CSV für Lexware.</p>
-        <div class="btns"><a class="btn primary" href="${BU_APP}" target="_blank" rel="noopener">HLZ-Buchhaltung/Steuer öffnen ↗</a></div>
-        <p class="note" style="margin:0">Hier in HLZ-DATA bleiben <a href="#finanzen">Geld &amp; Prognose</a>, <a href="#konto">Kontoauszüge</a> (unter „Zahlen“) und <a href="#thomas">Rechnung Thomas</a> (unter „Betrieb“).</p></section>`;
+  const buMoved = () => `<h1>Buchhaltung &amp; Finanzen</h1>
+      <section class="box"><h2>Umgezogen in HLZ-Buchhaltung/Steuern/Finanzen</h2>
+        <p style="margin:0">Alles, was mit Geld zu tun hat, steht jetzt in einer eigenen App: <strong>Auswertung</strong> (mit Entwicklung), <strong>Geld &amp; Prognose</strong>, <strong>Kontoauszüge</strong> und <strong>Rechnung Thomas</strong>, dazu Zahlungen, Fristen, Belege, PayPal-Abgleich und Shopify-CSV für Lexware. HLZ-DATA kümmert sich um Artikel, Shop, Marketing und Produktion.</p>
+        <div class="btns"><a class="btn primary" href="${BU_APP}" target="_blank" rel="noopener">HLZ-Buchhaltung/Steuern/Finanzen öffnen ↗</a></div>
+        <p class="note" style="margin:0">Die beiden Apps gleichen sich jeden Morgen ab: Artikel, Einstellungen, Shop-Daten und Verkaufszahlen gehen in die Buchhaltung, Zahlungen und Finanz-Eingaben kommen zurück. Sofort abgleichen: sag Claude im Chat „HLZ abgleichen“. Etsy-CSVs und Kontoauszüge kannst du weiter unter <a href="#dokumente">Dokumente</a> ablegen, sie gehen beim Abgleich mit rüber.</p></section>`;
   const buBar = act => `<div class="seg" aria-label="Bereich" style="justify-self:start;flex-wrap:wrap">${BU_TABS.map(([k, l]) => `<button type="button" data-butab="${k}" aria-pressed="${act === k}">${l}</button>`).join("")}</div>`;
   const BU_TABS = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen"], ["fin-uebersicht", "Geld & Prognose"], ["fin-konto", "Kontoauszüge"], ["fristen", "Fristen"], ["oss", "One-Stop-Shop"], ["tb", "Rechnung Thomas"]];
   let bu = { tab: "uebersicht", busy: false, ctl: null, err: "", q: "" };
@@ -7136,7 +7140,7 @@ Claude:`;
   });
   document.addEventListener("change", e => { const c = e.target; if (!c.dataset || !c.dataset.gt || !c.dataset.gt.startsWith("chk:")) return; const [, g, id] = c.dataset.gt.split(":"); const x = gtodo(g).find(y => y.id === id); if (x) { x.done = c.checked; saveSettings(); gtRefresh(g); } });
   document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.dataset && e.target.dataset.gtin) { e.preventDefault(); gtAdd(e.target.dataset.gtin); } });
-  const gdTile = (l, val, sub, href) => `<a class="tile" href="${href}" style="text-decoration:none;color:inherit"><span class="label">${l}</span><strong style="font-size:1.5em;display:block">${val}</strong><span class="note">${sub}</span></a>`;
+  const gdTile = (l, val, sub, href) => `<a class="tile" href="${href}"${/^https:/.test(href) ? ' target="_blank" rel="noopener"' : ""} style="text-decoration:none;color:inherit"><span class="label">${l}</span><strong style="font-size:1.5em;display:block">${val}</strong><span class="note">${sub}</span></a>`;
   // ---------- Hauptmenü: 6 Bereiche, innerhalb jedes Bereichs eine gemeinsame Leiste ----------
   const SECS = {
     ueb: ["Übersicht", []],
@@ -7164,12 +7168,11 @@ Claude:`;
       add(() => gdTile("Marketing", "Werbung & Content", "Ideen, Kalender, Anzeigen", "#werbung"));
     } else if (g === "zahl") {
       const m = monthly(volume()), has = m.qty > 0, t = has ? afterTax(m) : null;
-      add(() => gdTile("Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten, vor Steuer", "#auswertung"));
-      add(() => gdTile("Bleibt nach Steuer", has ? eur0(t.net) : "–", "inkl. Stundenlohn, geschätzt", "#auswertung"));
+      add(() => gdTile("Ergebnis pro Monat", has ? eur0(m.result) : "–", "Deckungsbeitrag − Fixkosten, vor Steuer", BU_APP + "#auswertung"));
+      add(() => gdTile("Bleibt nach Steuer", has ? eur0(t.net) : "–", "inkl. Stundenlohn, geschätzt", BU_APP + "#auswertung"));
       add(() => gdTile("Deckungsbeitrag", has ? eur0(m.db) : "–", has ? "aus " + n0(Math.round(m.qty)) + " Verkäufen/Monat" : "", "#preise"));
       add(() => gdTile("Fixkosten", eur0(fixTotal()), "Miete, Software, Abos", "#einstellungen"));
-      add(() => `<a class="tile" href="${BU_APP}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="label">Buchhaltung/Steuer</span><strong style="font-size:1.5em;display:block">Öffnen ↗</strong><span class="note">Zahlungen, Fristen, Belege, Shopify-CSV</span></a>`);
-      add(() => gdTile("Geld & Prognose", "Konto & Zahlungen", "Prognose, Kontoauszüge", "#finanzen"));
+      add(() => `<a class="tile" href="${BU_APP}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="label">Buchhaltung &amp; Finanzen</span><strong style="font-size:1.5em;display:block">Öffnen ↗</strong><span class="note">Auswertung, Prognose, Kontoauszüge, Zahlungen</span></a>`);
     } else if (g === "daten") {
       add(() => { const r = { r: 0, y: 0, g: 0 }; kanAll().forEach(c => { const a = kanAmpel(c); if (a[2] === "-") return; r[a[0].includes("bad") ? "r" : a[0] === "#c98a00" ? "y" : "g"]++; }); return gdTile("Kanäle", `${r.g} aktuell`, `${r.y} bald fällig · ${r.r} überfällig oder noch nie abgeglichen`, "#kanaele"); });
       add(() => { const nOpen = A.filter(a => missing(a).length).length; return gdTile("Artikel", n0(A.length), `${nOpen} mit fehlenden Daten`, "#sortiment"); });
